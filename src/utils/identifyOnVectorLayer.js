@@ -47,36 +47,44 @@ function squarePolygon() {
 }
 
 function referenceMarker(coordinates, resolution_scaling) {
-    const s = 0.15 * resolution_scaling * 0.01
     let tmp = markerPolygon()
+    const xy = 0.15 * resolution_scaling * 0.01
 
-    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
+    tmp = tmp.map((v) => [v[0] * xy + coordinates[0], v[1] * xy + coordinates[1]])
     console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
     return polygon([tmp])
 }
 
 function referenceSquare(coordinates, resolution_scaling) {
-    const s = 0.105 * resolution_scaling
     let tmp = squarePolygon()
+    const xy = 0.105 * resolution_scaling
 
-    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
+    tmp = tmp.map((v) => [v[0] * xy + coordinates[0], v[1] * xy + coordinates[1]])
     console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
     return polygon([tmp])
 }
 
-function referenceText(coordinates, resolution_scaling, name) {
-    const s = 0.08 * resolution_scaling
-    let tmp = squarePolygon()
-    const lines = name.split('\n')
-
+function referenceTextLine(coordinates, resolution_scaling, name) {
+    const xy = 0.09 * resolution_scaling
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
     context.font = 'Helvetica'
     const width = context.measureText(name).width / 10
+    let tmp = squarePolygon()
 
     console.log('debug: name', JSON.stringify(width, null, 4))
-    tmp = tmp.map((v) => [v[0] * width * s + coordinates[0], v[1] * s + coordinates[1]])
-    return polygon([tmp])
+    tmp = tmp.map((v) => [v[0] * width * xy + coordinates[0], v[1] * xy + coordinates[1]])
+    return tmp
+}
+
+function referenceText(coordinates, resolution_scaling, name) {
+    const lines = name.split('\n')
+    const polygons = []
+    for (const line of lines) {
+        polygons.push(referenceTextLine(coordinates, resolution_scaling, line))
+    }
+
+    return polygon(polygons)
 }
 
 function referencePolygon(feature, resolution) {
