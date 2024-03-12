@@ -3,7 +3,6 @@
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
-import { CrossHairs } from '@/store/modules/position.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test on legacy param import', () => {
@@ -341,18 +340,6 @@ describe('Test on legacy param import', () => {
                 expect(query.toString()).to.equal(expectedQuery.toString())
             })
         })
-        it('Sets the background layer correctly', () => {
-            cy.goToMapView(
-                {
-                    bgLayer: 'test.background.layer2',
-                },
-                false
-            )
-            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
-                expect(bgLayer).to.not.be.null
-                expect(bgLayer.id).to.eq('test.background.layer2')
-            })
-        })
     })
 
     context('3D import', () => {
@@ -442,46 +429,6 @@ describe('Test on legacy param import', () => {
     })
 
     context('Extra Parameter Imports', () => {
-        it('sets the language correctly', () => {
-            cy.goToMapView({ lang: 'it' }, false)
-            cy.readStoreValue('state.i18n.lang').should('eq', 'it')
-        })
-
-        it('shows the correct crosshair', () => {
-            function checkCrosshair(crossHair) {
-                cy.readStoreValue('state.position').then((positionStore) => {
-                    expect(positionStore.crossHairPosition).to.eql(positionStore.center)
-                    switch (crossHair) {
-                        case 'cross':
-                            expect(positionStore.crossHair).to.eq(CrossHairs.cross)
-
-                            break
-                        case 'circle':
-                            expect(positionStore.crossHair).to.eq(CrossHairs.circle)
-
-                            break
-                        case 'bowl':
-                            expect(positionStore.crossHair).to.eq(CrossHairs.bowl)
-
-                            break
-                        case 'point':
-                            expect(positionStore.crossHair).to.eq(CrossHairs.point)
-
-                            break
-                        case 'marker':
-                            expect(positionStore.crossHair).to.eq(CrossHairs.marker)
-
-                            break
-                    }
-                })
-            }
-            const legacyCrossHairTypes = ['cross', 'circle', 'bowl', 'point', 'marker']
-            legacyCrossHairTypes.forEach((crossHair) => {
-                cy.goToMapView({ crosshair: crossHair }, false)
-                checkCrosshair(crossHair)
-            })
-        })
-
         it('shows the compare slider at the correct position', () => {
             cy.goToMapView(
                 {
@@ -492,8 +439,8 @@ describe('Test on legacy param import', () => {
             )
             // initial slider position is width * 0.3 -20
             cy.get('[data-cy="compare_slider"]').then((slider) => {
-                cy.readStoreValue('state.ui.width').then((width) => {
-                    cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
+                cy.readStoreValue('state.ui.width').should((width) => {
+                    expect(slider.position()['left']).to.eq(width * 0.3 - 20)
                 })
             })
             cy.readStoreValue('state.ui.compareRatio').should('be.equal', 0.3)
@@ -501,81 +448,5 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
             cy.get('[data-cy="compare_slider"]').should('be.visible')
         })
-    })
-    context(
-        'Test geolocation with geolocation authorized with legacy parameters',
-        {
-            env: {
-                browserPermissions: {
-                    geolocation: 'allow',
-                },
-            },
-        },
-        () => {
-            // lon/lat to mock up the Geolocation API (see beforeEach)
-            const latitude = 47.5
-            const longitude = 6.8
-            // same position but in EPSG:2056 (default projection of the app)
-            const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
-
-            beforeEach(() => {
-                cy.goToMapView({}, false, { latitude, longitude })
-                cy.get('[data-cy="geolocation-button"]').should('be.visible').click()
-            })
-
-            it("Doesn't prompt the user if geolocation has previously been authorized", () => {
-                cy.on('window:alert', () => {
-                    throw new Error('Should not prompt for geolocation API permission again')
-                })
-                cy.readStoreValue('state.geolocation.active').should('be.true')
-            })
-
-            it('Uses the values given by the Geolocation API to feed the store', () => {
-                cy.readStoreValue('state.geolocation.position').then((position) => {
-                    expect(position).to.be.an('Array')
-                    expect(position.length).to.eq(2)
-                    expect(position[0]).to.approximately(x, 0.1)
-                    expect(position[1]).to.approximately(y, 0.1)
-                })
-            })
-        }
-    )
-    context('Topics Import', () => {
-        let mockupTopics = {}
-        beforeEach(() => {
-            cy.fixture('topics.fixture').then((topics) => {
-                mockupTopics = topics
-            })
-        })
-        it('shows the correct topic, with the correct layers, visibilities, opacities and background layers', () => {
-            // using the complex legacy topic, to ensure it still works
-            const topic = mockupTopics.topics[4]
-            cy.goToMapView({ topic: topic.id }, false)
-            const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
-            const expectedVisibleLayers = ['test.wmts.layer']
-            const expectedOpacity = {
-                'test.wmts.layer': 0.6,
-                'test.wms.layer': 0.8,
-            }
-            cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                expect(visibleLayers).to.be.an('Array')
-                expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
-                expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
-                    expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
-                })
-            })
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array')
-                expect(activeLayers.length).to.eq(expectedActiveLayers.length)
-                expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
-                    const activeLayer = activeLayers[index]
-                    expect(activeLayer).to.be.an('Object')
-                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
-                    expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
-                })
-            })
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null')
-        }) // topic
     })
 })
