@@ -71,15 +71,15 @@ describe('Testing the feature selection in the URL', () => {
 
     context('Startup', () => {
         describe('Checks that when given a parameter, we select the features', function () {
-            it('Select a few features and shows the tooltip in its correct spot', () => {
+            it('Select a few features and shows the tooltip does not appear when featureInfoPosition is not specified', () => {
                 goToMapViewWithFeatureSelection()
                 checkFeatures()
-                checkFeatureInfoPosition(FeatureInfoPositions.DEFAULT)
-            })
-            it('Does not show the tooltip when featureInfo is set to None', function () {
-                goToMapViewWithFeatureSelection(FeatureInfoPositions.NONE)
-                checkFeatures()
                 checkFeatureInfoPosition(FeatureInfoPositions.NONE)
+            })
+            it('Shows the tooltip in its correct position when set to default (bottom Panel on Phone)', function () {
+                goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
+                checkFeatures()
+                checkFeatureInfoPosition(FeatureInfoPositions.DEFAULT)
             })
             it('Shows the tooltip on the map when featureInfo is set to tooltip, and handle strange cases', function () {
                 goToMapViewWithFeatureSelection('TOoLtIp')
