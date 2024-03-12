@@ -47,7 +47,7 @@ watch(selectedFeatures, (features) => {
     }
     showContent.value = true
     nextTick(() => {
-        content.value.scrollTo(0, 0)
+        content.value?.scrollTo(0, 0)
     })
 })
 

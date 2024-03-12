@@ -32,7 +32,7 @@ const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-const isTooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const tooltipIsInDefaultPosition = computed(
     () => store.state.ui.FeatureInfoPosition === FeatureInfoPositions.DEFAULT
 )
@@ -97,7 +97,7 @@ watch(nonEditableFeature, () => {
         nonEditableFeature.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
-    if (isTooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
+    if (tooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
         // check if we're in default
         store.dispatch('setFeatureInfoPosition', {
             featureInfo: FeatureInfoPositions.BOTTOMPANEL,
@@ -128,7 +128,7 @@ function setBottomPanelFeatureInfoPosition() {
 
 <template>
     <OpenLayersPopover
-        v-if="isTooltipFeatureInfo && selectedFeatures.length > 0"
+        v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         authorize-print
         :use-content-padding="editableFeatures.length > 0"

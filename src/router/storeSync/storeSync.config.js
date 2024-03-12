@@ -112,7 +112,7 @@ const storeSyncConfig = [
         (store) => store.state.ui.featureInfoPosition,
         false,
         String,
-        FeatureInfoPositions.DEFAULT
+        FeatureInfoPositions.NONE
     ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',

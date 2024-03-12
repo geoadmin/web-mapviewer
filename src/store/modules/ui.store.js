@@ -13,7 +13,8 @@ export const UIModes = {
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
 export const FeatureInfoPositions = {
-    DEFAULT: 'default',
+    DEFAULT: 'default', // This is not the default value, but this is the default behavior,
+    // which depends on the UI size. Bottompanel on phones, tooltip on desktop
     BOTTOMPANEL: 'bottomPanel',
     TOOLTIP: 'tooltip',
     NONE: 'none',
@@ -86,11 +87,12 @@ export default {
         /**
          * Expected position of the features tooltip position when selecting features.
          *
-         * The default position depends on the UI Modes and is checked on the fly
+         * The default position is set to NONE, as we want people who want to share a feature
+         * without the tooltip to have a very simple URL.
          *
          * @type String
          */
-        featureInfoPosition: FeatureInfoPositions.DEFAULT,
+        featureInfoPosition: FeatureInfoPositions.NONE,
         /**
          * Hostname on which the application is running (use to display warnings to the user on
          * 'non-production' hosts)
@@ -211,7 +213,7 @@ export default {
         isProductionSite(state) {
             return state.hostname === 'map.geo.admin.ch'
         },
-        floatingTooltip(state, getters) {
+        tooltipFeatureInfo(state, getters) {
             return (
                 state.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
                 (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && !getters.isPhoneMode)
