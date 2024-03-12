@@ -71,17 +71,16 @@ describe('Testing the feature selection in the URL', () => {
 
     context('Startup', () => {
         describe('Checks that when given a parameter, we select the features', function () {
-            it('Select a few features and shows the tooltip does not appear when featureInfoPosition is not specified', () => {
+            it('Select a few features and check if the tooltip appears (or not) where we expect it', () => {
+                cy.log('When featureInfo is not specified, we should have no tooltip')
                 goToMapViewWithFeatureSelection()
                 checkFeatures()
                 checkFeatureInfoPosition(FeatureInfoPositions.NONE)
-            })
-            it('Shows the tooltip in its correct position when set to default (bottom Panel on Phone)', function () {
+                cy.log('When featureInfo is specified, as on mobile, we should see the infobox ')
                 goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
                 checkFeatures()
                 checkFeatureInfoPosition(FeatureInfoPositions.DEFAULT)
-            })
-            it('Shows the tooltip on the map when featureInfo is set to tooltip, and handle strange cases', function () {
+                cy.log('parameter is case insensitive, and we should see a popover here')
                 goToMapViewWithFeatureSelection('TOoLtIp')
                 checkFeatures()
                 checkFeatureInfoPosition(FeatureInfoPositions.TOOLTIP)
