@@ -87,7 +87,7 @@ function encodeLegend() {
             classes.push({
                 name: layer.name,
                 icons: [
-                    `${API_BASE_URL}static/images/legends/${layer.getID()}_${store.state.i18n.lang}.png`,
+                    `${API_BASE_URL}static/images/legends/${layer.id}_${store.state.i18n.lang}.png`,
                 ],
             })
         }
