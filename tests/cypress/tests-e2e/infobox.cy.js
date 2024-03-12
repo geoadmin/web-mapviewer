@@ -3,6 +3,33 @@
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('The infobox', () => {
+    const feature = {
+        geometry: { type: 'Point', coordinates: LV95.bounds.center },
+        layerBodId: 'ch.babs.kulturgueter',
+        bbox: [
+            LV95.bounds.center[0] - 1000,
+            LV95.bounds.center[1] - 1000,
+            LV95.bounds.center[0] + 1000,
+            LV95.bounds.center[1] + 1000,
+        ],
+        featureId: 1234,
+        layerName: 'A nice test layer',
+        type: 'Feature',
+        id: 1234,
+        properties: {
+            zkob: 'This is a test feature',
+            link_title: 'This is a test feature',
+            link_uri: 'http://localhost:8080/',
+            link_2_title: null,
+            link_2_uri: null,
+            link_3_title: 'This is a test feature',
+            link_3_uri: null,
+            label: 'This is a test feature',
+            pdf_list: null,
+            x: 1234.0,
+            y: 1234.0,
+        },
+    }
     const generateInfoboxTestsForMapSelector = (mapSelector) => {
         it('is visible if features selected', () => {
             cy.get('[data-cy="highlighted-features"]').should('not.exist')
@@ -14,7 +41,12 @@ describe('The infobox', () => {
                 },
                 { timeout: 10000 }
             )
-
+            cy.url().then((url) => {
+                const urlFeature = new URLSearchParams(url.split('map')[1])
+                    .get('layers')
+                    .split('@features=')[1]
+                expect(urlFeature).to.eq(feature.featureId.toString())
+            })
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })
         it('can float or stick to the bottom', () => {
@@ -63,33 +95,6 @@ describe('The infobox', () => {
     }
 
     const layer = 'test.wmts.layer'
-    const feature = {
-        geometry: { type: 'Point', coordinates: LV95.bounds.center },
-        layerBodId: 'ch.babs.kulturgueter',
-        bbox: [
-            LV95.bounds.center[0] - 1000,
-            LV95.bounds.center[1] - 1000,
-            LV95.bounds.center[0] + 1000,
-            LV95.bounds.center[1] + 1000,
-        ],
-        featureId: 1234,
-        layerName: 'A nice test layer',
-        type: 'Feature',
-        id: 1234,
-        properties: {
-            zkob: 'This is a test feature',
-            link_title: 'This is a test feature',
-            link_uri: 'http://localhost:8080/',
-            link_2_title: null,
-            link_2_uri: null,
-            link_3_title: 'This is a test feature',
-            link_3_uri: null,
-            label: 'This is a test feature',
-            pdf_list: null,
-            x: 1234.0,
-            y: 1234.0,
-        },
-    }
 
     beforeEach(() => {
         cy.intercept('**/MapServer/identify**', { results: [feature] })
