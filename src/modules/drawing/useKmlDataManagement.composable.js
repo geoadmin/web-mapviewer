@@ -59,6 +59,11 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 if (features[i].values_.type === 'marker') {
                     features[i].values_.unique_string_name =
                         features[i].values_.editableFeature._icon._name
+                }
+                if (
+                    features[i].values_.type === 'marker' ||
+                    features[i].values_.type === 'annotation'
+                ) {
                     features[i].values_.unique_string_scale =
                         features[i].values_.editableFeature._iconSize._iconScale
                 }

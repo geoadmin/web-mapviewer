@@ -12,7 +12,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-const pixelToleranceForIdentify = 10
+const pixelToleranceForIdentify = 100
 
 function effectiveResolution(resolution, zoom) {
     if (zoom % 1 > 0.5) {
@@ -20,23 +20,8 @@ function effectiveResolution(resolution, zoom) {
     } else return resolution / ((zoom % 1) + 1)
 }
 
-function referenceSquare(coordinates, name, scale, resolution_scaling) {
-    const s = 0.105 * resolution_scaling
-    let tmp = [
-        [1, 1],
-        [1, -1],
-        [-1, -1],
-        [-1, 1],
-        [1, 1],
-    ]
-    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
-    console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
-    return polygon([tmp])
-}
-
-function referenceMarker(coordinates, name, scale, resolution_scaling) {
-    const s = 0.15 * resolution_scaling * 0.01
-    let tmp = [
+function markerPolygon() {
+    let marker = [
         [6, 0],
         [36, 44],
         [36, 81],
@@ -47,23 +32,69 @@ function referenceMarker(coordinates, name, scale, resolution_scaling) {
         [-6, 0],
         [6, 0],
     ]
+    return marker
+}
+
+function squarePolygon() {
+    let square = [
+        [1, 1],
+        [1, -1],
+        [-1, -1],
+        [-1, 1],
+        [1, 1],
+    ]
+    return square
+}
+
+function referenceMarker(coordinates, resolution_scaling) {
+    const s = 0.15 * resolution_scaling * 0.01
+    let tmp = markerPolygon()
+
     tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
     console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
     return polygon([tmp])
 }
 
+function referenceSquare(coordinates, resolution_scaling) {
+    const s = 0.105 * resolution_scaling
+    let tmp = squarePolygon()
+
+    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
+    console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
+    return polygon([tmp])
+}
+
+function referenceText(coordinates, resolution_scaling, name) {
+    const s = 0.08 * resolution_scaling
+    let tmp = squarePolygon()
+    const lines = name.split('\n')
+
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    context.font = 'Helvetica'
+    const width = context.measureText(name).width / 10
+
+    console.log('debug: name', JSON.stringify(width, null, 4))
+    tmp = tmp.map((v) => [v[0] * width * s + coordinates[0], v[1] * s + coordinates[1]])
+    return polygon([tmp])
+}
+
 function referencePolygon(feature, resolution) {
+    const type = feature.properties.type
+    const name_text = feature.properties.name
     const name = feature.properties.unique_string_name
     const scale = feature.properties.unique_string_scale
     const coordinates = feature.geometry.coordinates
 
     const default_resolution = 500
-    const resolution_scaling = resolution / default_resolution
+    const resolution_scaling = (resolution / default_resolution) * scale
 
-    if (name != '001-marker') {
-        return referenceSquare(coordinates, name, scale, resolution_scaling)
+    if (type === 'annotation') {
+        return referenceText(coordinates, resolution_scaling, name_text)
+    } else if (name === '001-marker' || name === '007-marker-stroked') {
+        return referenceMarker(coordinates, resolution_scaling)
     } else {
-        return referenceMarker(coordinates, name, scale, resolution_scaling)
+        return referenceSquare(coordinates, resolution_scaling)
     }
 }
 
@@ -100,7 +131,7 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution, zoom) {
         // only keeping feature with geometry (required to run Turf below)
         .filter((feature) => feature.geometry)
         .filter((feature) => {
-            console.log('debug: feature', JSON.stringify(feature, null, 4))
+            //console.log('debug: feature', JSON.stringify(feature, null, 4))
             const { geometry } = transformIntoTurfEquivalent(feature.geometry)
             // calculating distance with point coordinate, depending on the geometry type
             switch (geometry?.type) {
@@ -118,6 +149,12 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution, zoom) {
                     return booleanPointInPolygon(
                         coordinateWGS84,
                         referencePolygon(feature, effectiveResolution(resolution, zoom))
+                    )
+                    console.log(
+                        'debug: distance',
+                        JSON.stringify(coordinateWGS84, null, 4),
+                        JSON.stringify(geometry, null, 4),
+                        distanceThreshold
                     )
                     return (
                         distance(coordinateWGS84, geometry, { units: 'meters' }) <=
