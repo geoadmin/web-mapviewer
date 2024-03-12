@@ -10,6 +10,7 @@ import {
     MAP_VIEW,
     MAP_VIEWS,
 } from '@/router/viewNames'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -134,7 +135,11 @@ const handleLegacyParam = (
         case 'heading':
             cameraPosition[4] = Number(legacyValue)
             break
-
+        case 'showTooltip':
+            key = 'featureInfo'
+            newValue =
+                legacyValue === 'true' ? FeatureInfoPositions.DEFAULT : FeatureInfoPositions.NONE
+            break
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
             newValue = legacyValue

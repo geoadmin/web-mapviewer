@@ -3,6 +3,7 @@
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test on legacy param import', () => {
@@ -451,47 +452,77 @@ describe('Test on legacy param import', () => {
     })
 
     context('Feature Pre Selection Import', () => {
-        function checkFeatures(featuresIds) {
+        function checkFeatures() {
             cy.readStoreValue('state.features.selectedFeatures').then((features) => {
-                cy.wrap(features.length).should('be.equal', featuresIds.length)
-                const modifiedFeaturesIds = featuresIds.map(
-                    // feature.id returns a string in the form of `layer.id-feature.id`
-                    // thus a small adaptation to check we get the correct result
-                    (featureId) => `${features[0].layer.id}-${featureId}`
-                )
-
-                features.forEach((feature) => {
-                    cy.wrap(modifiedFeaturesIds.includes(feature.id)).should('be.true')
+                cy.get('@featuresIds').then((featuresIds) => {
+                    cy.wrap(features.length).should('be.equal', featuresIds.length)
+                    const modifiedFeaturesIds = featuresIds.map(
+                        // feature.id returns a string in the form of `layer.id-feature.id`
+                        // thus a small adaptation to check we get the correct result
+                        (featureId) => `${features[0].layer.id}-${featureId}`
+                    )
+                    console.log(modifiedFeaturesIds)
+                    features.forEach((feature) => {
+                        cy.wrap(modifiedFeaturesIds.includes(feature.id)).should('be.true')
+                    })
                 })
             })
         }
+        function checkFeatureInfoPosition(expectedPosition) {
+            cy.readStoreValue('state.ui.featureInfoPosition').should('be.equal', expectedPosition)
+            if (FeatureInfoPositions.NONE === expectedPosition) {
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('not.exist')
+            } else if (FeatureInfoPositions.TOOLTIP === expectedPosition) {
+                // as tests are in phone mode, tooltip is only set if specified
+                cy.get('[data-cy="popover"]').should('be.visible')
+                cy.get('[data-cy="infobox"]').should('not.exist')
+            } else {
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('be.visible')
+            }
+        }
+        function goToLegacyMapViewWithFeatureSelection(showTooltip = null) {
+            cy.get('@features').then((features) => {
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {}
+                    params[features[0].layerBodId] = featuresIds.join(',')
+                    if (showTooltip) {
+                        params.showTooltip = showTooltip
+                    }
+                    cy.goToMapView(params)
+                })
+            })
+        }
+        beforeEach(() => {
+            // add intercept for all features, and allow their Ids to be used in tests
+            cy.fixture('features.fixture.json').then((jsonResult) => {
+                const features = [...jsonResult.results]
+                const featuresIds = features.map((feature) => feature.id.toString())
+                cy.wrap(features).as('features')
+                cy.wrap(featuresIds).as('featuresIds')
+                features.forEach((feature) => {
+                    cy.intercept(`**/MapServer/${feature.layerBodId}/${feature.id}`, {
+                        results: feature,
+                    })
+                })
+            })
+        })
 
         describe('Checks that the legacy bod layer id translate in the new implementation', () => {
             it('Select a few features and shows the tooltip in its correct spot', () => {
-                const features = []
-                const nbFeatures = 4
-                cy.fixture('features.fixture.json').then((results) => {
-                    results['results'].forEach((feature) => {
-                        features.push(feature)
-                    })
-                    const layer = features[0].layerBodId
-                    for (let i = 0; i < nbFeatures; i++) {
-                        // we intercept every feature we want to retrieve
-                        cy.intercept(`**/MapServer/${layer}/${features[i].id}`, {
-                            results: [features[i]],
-                        })
-                    }
-
-                    const featuresIds = []
-
-                    for (let i = 0; i < nbFeatures; i++) {
-                        featuresIds.push(features[i].id.toString())
-                    }
-                    const params = {}
-                    params[features[0].layerBodId] = featuresIds.join(',')
-                    cy.goToMapView(params, false)
-                    checkFeatures(featuresIds)
-                })
+                cy.log('When showTooltip is not specified, we should have no tooltip')
+                goToLegacyMapViewWithFeatureSelection()
+                checkFeatures()
+                checkFeatureInfoPosition(FeatureInfoPositions.NONE)
+                cy.log('When showTooltip is true, featureInfo should be none ')
+                goToLegacyMapViewWithFeatureSelection(true)
+                checkFeatures()
+                checkFeatureInfoPosition(FeatureInfoPositions.DEFAULT)
+                cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
+                goToLegacyMapViewWithFeatureSelection('anInvalidValue')
+                checkFeatures()
+                checkFeatureInfoPosition(FeatureInfoPositions.NONE)
             })
         })
     })
