@@ -143,7 +143,8 @@ describe('Test mouse position and interactions', () => {
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.false')
             // closing the menu if mobile
             cy.closeMenuIfMobile()
-            cy.get('[data-cy="map"]').should('be.visible').rightclick()
+
+            cy.get('[data-cy="ol-map"]').should('be.visible').rightclick()
 
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {
