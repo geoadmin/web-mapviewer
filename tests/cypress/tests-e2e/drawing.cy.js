@@ -941,7 +941,7 @@ describe('Drawing module tests', () => {
             // clicking the X button of the popup
             cy.get('[data-cy="infobox-close"]').click()
             // it is now closed
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
+            cy.get('[data-cy="infobox"]').should('not.exist')
 
             // re-opening
             cy.get('[data-cy="ol-map"]').click(150, 200)
@@ -950,7 +950,7 @@ describe('Drawing module tests', () => {
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-close"]').click()
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
+            cy.get('[data-cy="infobox"]').should('not.exist')
         })
         it('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()

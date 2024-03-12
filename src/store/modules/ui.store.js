@@ -1,4 +1,5 @@
 import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
+import log from '@/utils/logging'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
@@ -10,6 +11,13 @@ import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAME
 export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
+}
+export const FeatureInfoPositions = {
+    DEFAULT: 'default', // This is not the default value, but this is the default behavior,
+    // which depends on the UI size. Bottompanel on phones, tooltip on desktop
+    BOTTOMPANEL: 'bottomPanel',
+    TOOLTIP: 'tooltip',
+    NONE: 'none',
 }
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
@@ -77,12 +85,14 @@ export default {
          */
         mode: UIModes.PHONE, // Configured in screen-size-management.plugin.js (or manually in the settings)
         /**
-         * Flag telling if the tooltip should be displayed over the map, floating and positioned at
-         * the feature's coordinates. If false, the tooltip will be displayed in the footer
+         * Expected position of the features tooltip position when selecting features.
          *
-         * @type Boolean
+         * The default position is set to NONE, as we want people who want to share a feature
+         * without the tooltip to have a very simple URL.
+         *
+         * @type String
          */
-        floatingTooltip: false, // Configured in screen-size-management.plugin.js
+        featureInfoPosition: FeatureInfoPositions.NONE,
         /**
          * Hostname on which the application is running (use to display warnings to the user on
          * 'non-production' hosts)
@@ -203,6 +213,21 @@ export default {
         isProductionSite(state) {
             return state.hostname === 'map.geo.admin.ch'
         },
+        tooltipFeatureInfo(state, getters) {
+            return (
+                state.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
+                (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && !getters.isPhoneMode)
+            )
+        },
+        bottomPanelFeatureInfo(state, getters) {
+            return (
+                state.featureInfoPosition === FeatureInfoPositions.BOTTOMPANEL ||
+                (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && getters.isPhoneMode)
+            )
+        },
+        noFeatureInfo(state) {
+            return state.featureInfoPosition === FeatureInfoPositions.NONE
+        },
     },
     actions: {
         setSize({ commit }, { width, height, dispatcher }) {
@@ -238,9 +263,6 @@ export default {
                 showDrawingOverlay: !!showDrawingOverlay,
                 dispatcher,
             })
-        },
-        toggleFloatingTooltip({ commit, state }, { dispatcher }) {
-            commit('setFloatingTooltip', { floatingTooltip: !state.floatingTooltip, dispatcher })
         },
         setUiMode({ commit, state }, { mode, dispatcher }) {
             if (mode in UIModes) {
@@ -279,6 +301,23 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
+        setFeatureInfoPosition({ commit, state }, { featureInfo, dispatcher }) {
+            const upCasePos = featureInfo.toUpperCase()
+            if (!FeatureInfoPositions[upCasePos]) {
+                log.error(
+                    `invalid feature Info Position given as parameter. ${upCasePos} is not a valid key`
+                )
+                return
+            }
+            if (state.featureInfoPosition === FeatureInfoPositions[upCasePos]) {
+                // no need to commit anything if we're trying to switch to the current value
+                return
+            }
+            commit('setFeatureInfoPosition', {
+                position: FeatureInfoPositions[upCasePos],
+                dispatcher: dispatcher,
+            })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -300,9 +339,6 @@ export default {
         setShowDrawingOverlay(state, { showDrawingOverlay }) {
             state.showDrawingOverlay = showDrawingOverlay
         },
-        setFloatingTooltip(state, { floatingTooltip }) {
-            state.floatingTooltip = floatingTooltip
-        },
         setUiMode(state, { mode }) {
             state.mode = mode
         },
@@ -323,6 +359,9 @@ export default {
         },
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
+        },
+        setFeatureInfoPosition(state, { position }) {
+            state.featureInfoPosition = position
         },
     },
 }

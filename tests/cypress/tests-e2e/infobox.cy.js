@@ -35,7 +35,7 @@ describe('The infobox', () => {
 
                     cy.get('[data-cy="infobox-toggle-floating"]').click()
                     cy.get('[data-cy="popover"]').should('be.visible')
-                    cy.get('[data-cy="infobox"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
 
                     // we have to force the click, as in the mobile viewport the button can sometimes be under the header
                     cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
@@ -43,7 +43,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="infobox"]').should('be.visible')
                 } else {
                     cy.get('[data-cy="popover"]').should('be.visible')
-                    cy.get('[data-cy="infobox"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
 
                     cy.get('[data-cy="toggle-floating-off"]').click()
                     cy.get('[data-cy="popover"]').should('not.exist')
@@ -56,7 +56,7 @@ describe('The infobox', () => {
 
                     cy.get('[data-cy="infobox-toggle-floating"]').click()
                     cy.get('[data-cy="popover"]').should('be.visible')
-                    cy.get('[data-cy="infobox"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
                 }
             })
         })

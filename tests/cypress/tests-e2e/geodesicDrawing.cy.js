@@ -1,5 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
@@ -191,10 +192,13 @@ describe.skip('Correct handling of geodesic geometries', () => {
             sure that the geodesic drawing is also enabled for them. */
             it('Check that the line feature is also geodesic', () => {
                 // To avoid repositioning of the map when selecting the line
-                cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) =>
-                        tooltip &&
-                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
+                cy.readStoreValue('getters.tooltipFeatureInfo').then(
+                    (floatingFeatureInfo) =>
+                        floatingFeatureInfo &&
+                        cy.writeStoreValue('setFeatureInfoPosition', {
+                            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                            dispatcher: 'e2e-test',
+                        })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })
@@ -260,10 +264,13 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 generateTestsInPacific(testFunc)
             })
             it('Check that the line feature is also geodesic', () => {
-                cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) =>
-                        tooltip &&
-                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
+                cy.readStoreValue('state.ui.tooltipFeatureInfo').then(
+                    (floatingFeatureInfo) =>
+                        floatingFeatureInfo &&
+                        cy.writeStoreValue('setFeatureInfoPosition', {
+                            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                            dispatcher: 'e2e-test',
+                        })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })
