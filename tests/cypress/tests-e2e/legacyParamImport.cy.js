@@ -71,6 +71,22 @@ describe('Test on legacy param import', () => {
                 expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
+        it('center where expected when given a X, Y coordinate', () => {
+            cy.goToMapView(
+                {
+                    X: 2660000,
+                    Y: 1200000,
+                },
+                false
+            )
+            // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
+            // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
+            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                // the app applies a rounding to the 6th decimal for lon/lat
+                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
+            })
+        })
     })
 
     context('Layers import', () => {
@@ -257,7 +273,7 @@ describe('Test on legacy param import', () => {
                     layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
                     layers_opacity: '1,1',
                     layers_visibility: 'false,true',
-                    layers_timestam: ',',
+                    layers_timestamp: ',',
                 },
                 false
             )
@@ -272,7 +288,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -409,6 +425,28 @@ describe('Test on legacy param import', () => {
 
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
+        })
+    })
+
+    context('Extra Parameter Imports', () => {
+        it('shows the compare slider at the correct position', () => {
+            cy.goToMapView(
+                {
+                    layers: 'test-1.wms.layer',
+                    swipe_ratio: '0.3',
+                },
+                false
+            )
+            // initial slider position is width * 0.3 -20
+            cy.get('[data-cy="compare_slider"]').then((slider) => {
+                cy.readStoreValue('state.ui.width').should((width) => {
+                    expect(slider.position()['left']).to.eq(width * 0.3 - 20)
+                })
+            })
+            cy.readStoreValue('state.ui.compareRatio').should('be.equal', 0.3)
+
+            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
+            cy.get('[data-cy="compare_slider"]').should('be.visible')
         })
     })
 })

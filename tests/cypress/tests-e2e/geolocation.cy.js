@@ -52,7 +52,7 @@ describe('Geolocation cypress', () => {
             const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
 
             beforeEach(() => {
-                cy.goToMapView({}, false, { latitude, longitude })
+                cy.goToMapView({}, true, { latitude, longitude })
                 getGeolocationButtonAndClickIt()
             })
 
