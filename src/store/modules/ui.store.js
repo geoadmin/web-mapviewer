@@ -200,6 +200,9 @@ export default {
                 state.hostname.includes(hostname)
             )
         },
+        isProductionSite(state) {
+            return state.hostname === 'map.geo.admin.ch'
+        },
     },
     actions: {
         setSize({ commit }, { width, height, dispatcher }) {
