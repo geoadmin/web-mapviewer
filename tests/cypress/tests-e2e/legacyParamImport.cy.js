@@ -289,7 +289,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestamp=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -475,7 +475,7 @@ describe('Test on legacy param import', () => {
                     }
                 })
             }
-            const legacyCrossHairTypes = ['cross, circle, bowl, point, marker']
+            const legacyCrossHairTypes = ['cross', 'circle', 'bowl', 'point', 'marker']
             legacyCrossHairTypes.forEach((crossHair) => {
                 cy.goToMapView({ crosshair: crossHair }, false)
                 checkCrosshair(crossHair)
@@ -501,13 +501,9 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
             cy.get('[data-cy="compare_slider"]').should('be.visible')
         })
-        // TO DO : showtooltip, integrated in the bod layer id param
-        // TO DO 2 : time
-        // TO DO 3 : topic (it's below, need to remember to do it)
-        // TO DO 4 : finished
     })
     context(
-        'Test geolocation with geolocation authorized',
+        'Test geolocation with geolocation authorized with legacy parameters',
         {
             env: {
                 browserPermissions: {
@@ -545,6 +541,41 @@ describe('Test on legacy param import', () => {
         }
     )
     context('Topics Import', () => {
-        it('shows the correct topic ', () => {}) // topic
+        let mockupTopics = {}
+        beforeEach(() => {
+            cy.fixture('topics.fixture').then((topics) => {
+                mockupTopics = topics
+            })
+        })
+        it('shows the correct topic, with the correct layers, visibilities, opacities and background layers', () => {
+            // using the complex legacy topic, to ensure it still works
+            const topic = mockupTopics.topics[4]
+            cy.goToMapView({ topic: topic.id }, false)
+            const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
+            const expectedVisibleLayers = ['test.wmts.layer']
+            const expectedOpacity = {
+                'test.wmts.layer': 0.6,
+                'test.wms.layer': 0.8,
+            }
+            cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                expect(visibleLayers).to.be.an('Array')
+                expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
+                expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
+                    expect(visibleLayers[index]).to.be.an('Object')
+                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                })
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array')
+                expect(activeLayers.length).to.eq(expectedActiveLayers.length)
+                expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
+                    const activeLayer = activeLayers[index]
+                    expect(activeLayer).to.be.an('Object')
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
+                })
+            })
+            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null')
+        }) // topic
     })
 })
