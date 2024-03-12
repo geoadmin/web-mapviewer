@@ -29,24 +29,7 @@
                 class="form-control feedback-text"
                 data-cy="feedback-text"
             ></textarea>
-            <div class="my-3">
-                <span>{{ $t('feedback_drawing') }}</span>
-                <div>
-                    <DrawingToolboxButton
-                        :drawing-mode="EditableFeatureTypes.MARKER"
-                        :is-active="true"
-                        :data-cy="`drawing-toolbox-mode-button-marker`"
-                        @set-drawing-mode="selectDrawingMode"
-                    />
-                    <DrawingToolboxButton
-                        :drawing-mode="EditableFeatureTypes.LINEPOLYGON"
-                        :is-active="true"
-                        :data-cy="`drawing-toolbox-mode-button-marker`"
-                        @set-drawing-mode="selectDrawingMode"
-                    />
-                    <!-- <DrawingInteractions ref="drawingInteractions" /> -->
-                </div>
-            </div>
+
             <div class="my-3">
                 <span>{{ $t('feedback_mail') }}</span>
                 <div class="input-group has-validation">
@@ -127,9 +110,6 @@ import { mapGetters } from 'vuex'
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
-// import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
-import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
-// import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -141,11 +121,8 @@ const EMAIL_REGEX =
 
 export default {
     components: {
-        DrawingToolboxButton,
         ModalWithBackdrop,
         HeaderLink,
-        // DrawingInteractions,
-        // ImportFile,
         ImportFileLocal,
     },
     props: {
