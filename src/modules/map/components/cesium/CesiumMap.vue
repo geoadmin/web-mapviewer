@@ -58,7 +58,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="toggleFloatingTooltip(dispatcher)"
+                    @click="toggleTooltip"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -296,6 +296,9 @@ export default {
             'setCenter',
             'mapModuleReady',
         ]),
+        toggleTooltip() {
+            this.toggleFloatingTooltip(dispatcher)
+        },
         async createViewer() {
             this.viewer = new Viewer(this.$refs.viewer, {
                 contextOptions: {

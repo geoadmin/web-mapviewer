@@ -227,7 +227,7 @@ const actions = {
             commit('setCenter', { x, y, dispatcher })
         }
     },
-    zoomToExtent: ({ commit, state, rootState }, { extent, dispatcher }) => {
+    zoomToExtent: ({ commit, state, rootState }, { extent, maxZoom, dispatcher }) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
@@ -269,8 +269,12 @@ const actions = {
             // zoom level required to show the full extent on the map (scale to fill).
             // So the view will be too zoomed-in to have an overview of the extent.
             // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
+            // We also cannot zoom further than the maxZoom specified if it is specified
             commit('setZoom', {
-                zoom: Math.max(zoomForResolution - 1, 0),
+                zoom: Math.min(
+                    Math.max(zoomForResolution - 1, 0),
+                    maxZoom ? maxZoom : zoomForResolution
+                ),
                 dispatcher: `${dispatcher}/zoomToExtent`,
             })
         }

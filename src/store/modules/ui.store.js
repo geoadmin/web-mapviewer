@@ -55,7 +55,7 @@ export default {
          *
          * @type Boolean
          */
-        embeddedMode: false,
+        embed: false,
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *
@@ -169,7 +169,7 @@ export default {
          * @returns {boolean}
          */
         isHeaderShown(state) {
-            return !state.fullscreenMode && !state.showDrawingOverlay && !state.embeddedMode
+            return !state.fullscreenMode && !state.showDrawingOverlay
         },
 
         isPhoneMode(state) {
@@ -200,6 +200,9 @@ export default {
                 state.hostname.includes(hostname)
             )
         },
+        isProductionSite(state) {
+            return state.hostname === 'map.geo.admin.ch'
+        },
     },
     actions: {
         setSize({ commit }, { width, height, dispatcher }) {
@@ -215,8 +218,8 @@ export default {
         toggleFullscreenMode({ commit, state }, { dispatcher }) {
             commit('setFullscreenMode', { mode: !state.fullscreenMode, dispatcher })
         },
-        setEmbeddedMode({ commit }, { embed, dispatcher }) {
-            commit('setEmbeddedMode', { embed: !!embed, dispatcher })
+        setEmbed({ commit }, { embed, dispatcher }) {
+            commit('setEmbed', { embed: !!embed, dispatcher })
         },
         setShowLoadingBar({ commit }, { loading, dispatcher }) {
             commit('setShowLoadingBar', { loading, dispatcher })
@@ -288,8 +291,8 @@ export default {
         setFullscreenMode(state, { mode }) {
             state.fullscreenMode = mode
         },
-        setEmbeddedMode(state, { embed }) {
-            state.embeddedMode = embed
+        setEmbed(state, { embed }) {
+            state.embed = embed
         },
         setShowLoadingBar(state, { loading }) {
             state.showLoadingBar = loading

@@ -28,7 +28,6 @@ const isGeolocationActive = computed(() => store.state.geolocation.active)
 const isGeolocationDenied = computed(() => store.state.geolocation.denied)
 const showMenu = computed(() => store.state.ui.showMenu)
 const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
-const isEmbedded = computed(() => store.state.ui.embeddedMode)
 const previewYear = computed(() => store.state.layers.previewYear)
 const inDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
 const is3dActive = computed(() => store.state.cesium.active)
@@ -111,9 +110,9 @@ function toggleMenu() {
             }"
             data-cy="toolbox-right"
         >
-            <FullScreenButton v-if="!isEmbedded && !inDrawingMode" />
+            <FullScreenButton v-if="!inDrawingMode" />
             <GeolocButton
-                v-if="!isFullscreenMode && !isEmbedded && !inDrawingMode"
+                v-if="!isFullscreenMode && !inDrawingMode"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
                 @click="toggleGeolocation"
@@ -166,7 +165,7 @@ function toggleMenu() {
                         @click="toggleMenu"
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-1">{{
+                        <span class="ms-2">{{
                             i18n.t(showMenu ? 'close_menu' : 'open_menu')
                         }}</span>
                     </button>

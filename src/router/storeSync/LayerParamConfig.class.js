@@ -1,3 +1,4 @@
+import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
@@ -8,12 +9,11 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+import { getUrlQuery } from '@/utils/utils'
 
 /**
- * Parse layers such as described in
- * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
- *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
@@ -95,7 +95,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         store.state.layers.activeLayers,
         parsedLayers
     )
-
+    const featuresRequests = []
     const layers = parsedLayers.map((parsedLayer) => {
         // First check if we already have the layer in the active layers
         const currentLayer = store.getters.getActiveLayerById(parsedLayer.id)
@@ -110,14 +110,71 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 )
             }
             log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
+            if (layerObject.customAttributes?.features) {
+                layerObject.customAttributes.features
+                    .toString()
+                    .split(':')
+                    .forEach((featureId) => {
+                        featuresRequests.push(
+                            getFeature(
+                                store.getters.getLayerConfigById(parsedLayer.id),
+                                featureId,
+                                store.state.position.projection,
+                                store.state.i18n.lang
+                            )
+                        )
+                    })
+            }
         }
         return layerObject
     })
+
     promisesForAllDispatch.push(
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
     )
+    if (featuresRequests.length > 0) {
+        promisesForAllDispatch.push(getAndDispatchFeatures(featuresRequests, store))
+    }
 
     return Promise.all(promisesForAllDispatch)
+}
+
+async function getAndDispatchFeatures(featuresPromise, store) {
+    try {
+        const responses = await Promise.allSettled(featuresPromise)
+        const features = responses
+            .filter((response) => response.status === 'fulfilled')
+            .map((response) => response.value)
+        if (features.length > 0) {
+            await store.dispatch('setSelectedFeatures', {
+                features: features,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
+
+            const extent = getExtentOfGeometries(features.map((feature) => feature.geometry))
+            // If the zoom level has been specifically set to a level, we don't want to override that.
+            // otherwise, we go to the zoom level which encompass all features
+            const query = getUrlQuery()
+            if (!query.z) {
+                await store.dispatch('zoomToExtent', {
+                    extent: extent,
+                    maxZoom: 8,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            } else {
+                const center = [
+                    [(extent[0][0] + extent[1][0]) / 2],
+                    [(extent[0][1] + extent[1][1]) / 2],
+                ]
+                await store.dispatch('setCenter', {
+                    center: center,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
+        }
+    } catch (error) {
+        log.error(`Error while processing features in feature preselection. error is ${error}`)
+    }
 }
 
 function generateLayerUrlParamFromStoreValues(store) {
