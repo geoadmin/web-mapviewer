@@ -258,3 +258,10 @@ export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
  * @type {String[]}
  */
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
+
+/**
+ * Display Give Feedback on all these hosts, otherwise show Report Problem button
+ *
+ * @type {String[]}
+ */
+export const GIVE_FEEDBACK_HOSTNAMES = ['test.map.geo.admin.ch']
