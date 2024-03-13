@@ -84,6 +84,10 @@ function setDisplayedFormatWithId() {
     text-align: left;
     white-space: nowrap;
 }
+// Show selected area when shift click + drag on map
+:global(.ol-dragzoom) {
+    border: 2px solid red;
+}
 @media (any-hover: hover) {
     .mouse-position {
         display: block;
