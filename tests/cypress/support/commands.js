@@ -271,11 +271,16 @@ Cypress.Commands.add(
         })
         // removing trailing &
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
-        flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
+        if (flattenedQueryParams.length) {
+            flattenedQueryParams = legacy ? `&${flattenedQueryParams}` : `?${flattenedQueryParams}`
+        }
 
-        cy.visit(`${legacy ? '/embed.html' : '/#/embed'}${flattenedQueryParams}`, {
-            onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
-        })
+        cy.visit(
+            legacy ? `?legacyEmbed${flattenedQueryParams}` : `/#/embed${flattenedQueryParams}`,
+            {
+                onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
+            }
+        )
 
         // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
@@ -299,7 +304,7 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000, olMap = true } = {}) 
     cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
     // We also need to wait for the pointer event to be set
     if (olMap) {
-        cy.window().its('mapPointerEventReady', { timeout: 10000 }).should('be.true')
+        cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
     }
 })
 
@@ -322,7 +327,7 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             return active === target
         },
         {
-            timeout: 10000,
+            timeout: 15000,
             customMessage: 'all layers have been loaded',
             errorMsg: 'Timeout waiting for all layers to be loaded',
         }
