@@ -39,7 +39,7 @@ useImportButton(buttonState)
 const isValid = computed(() => !errorMessage.value && selectedFile.value && layerAdded.value)
 const isInvalid = computed(() => errorMessage.value)
 const filePathInfo = computed(() =>
-    selectedFile.value ? `${selectedFile.value.name}, ${selectedFile.value.size / 1000} ko` : ''
+    selectedFile.value ? `${selectedFile.value.name}, ${selectedFile.value.size / 1000} kb` : ''
 )
 
 watch(errorMessage, validateForm)
