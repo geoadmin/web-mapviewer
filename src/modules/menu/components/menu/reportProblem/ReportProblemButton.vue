@@ -48,7 +48,7 @@
             </div>
             <div class="my-3">
                 <span>{{ $t('feedback_attachment') }}</span>
-                <ImportFileLocal :active="true" />
+                <ImportFileLocal @file-selected="handleFile" />
             </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
@@ -105,8 +105,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
@@ -152,7 +150,6 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['activeKmlLayer']),
         feedbackCanBeSent() {
             return !this.request.pending && this.isEmailValid
         },
@@ -176,10 +173,11 @@ export default {
             try {
                 const feedbackSentSuccessfully = await sendFeedback(
                     this.feedback.message,
-                    undefined,
-                    undefined,
-                    this.activeKmlLayer?.kmlFileUrl,
-                    this.feedback.email
+                    undefined, // rating
+                    undefined, // max rating
+                    this.activeKmlLayer?.kmlFileUrl, // For the drawing layer, we send the KML file URL
+                    this.feedback.email,
+                    this.feedback.file
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully
@@ -191,16 +189,21 @@ export default {
             }
             await this.$nextTick()
             // scrolling down to make sure the message with request results is visible to the user
-            this.$refs.requestResults.scrollIntoView()
+            if (this.request.failed) {
+                this.$refs.requestResults.scrollIntoView()
+            }
         },
         closeAndCleanForm() {
             this.showFeedbackForm = false
-            // this.feedback.rating = 0
             this.feedback.message = null
             this.feedback.email = null
+            this.feedback.file = false
             // reset also the completed/failed state, so that the user can send another feedback later on
             this.request.failed = false
             this.request.completed = false
+        },
+        handleFile(file) {
+            this.feedback.file = file
         },
     },
 }
