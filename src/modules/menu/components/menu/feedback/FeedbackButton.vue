@@ -165,7 +165,8 @@ export default {
                     this.feedback.rating,
                     this.maxRating,
                     this.activeKmlLayer?.kmlFileUrl,
-                    this.feedback.email
+                    this.feedback.email,
+                    undefined // attachment
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully
@@ -176,8 +177,10 @@ export default {
                 this.request.pending = false
             }
             await this.$nextTick()
-            // scrolling down to make sure the message with request results is visible to the user
-            this.$refs.requestResults.scrollIntoView()
+            if (this.request.failed) {
+                // scrolling down to make sure the message with request results is visible to the user
+                this.$refs.requestResults.scrollIntoView()
+            }
         },
         closeAndCleanForm() {
             this.showFeedbackForm = false
