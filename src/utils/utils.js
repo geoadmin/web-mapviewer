@@ -217,22 +217,3 @@ export function transformUrlMapToEmbed(url) {
     }
     return urlObj.toString()
 }
-
-/**
- * Transform a /#/embed url to /#/map url
- *
- * If the URL is not a SCHEME://DOMAIN/#/embed then it is returned unchanged.
- *
- * @param {string} url Url to transform on /#/map
- * @returns {string} Url transformed to /#/map
- */
-export function transformUrlEmbedToMap(url) {
-    const { urlObj, hash, query } = parseUrlHashQuery(url)
-    if (urlObj.pathname !== '/') {
-        return url
-    }
-    if (hash === '#/embed') {
-        urlObj.hash = `#/map${query}`
-    }
-    return urlObj.toString()
-}
