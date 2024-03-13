@@ -120,7 +120,7 @@ function urlQueryWatcher(store, to) {
         const storeValue = paramConfig.readValueFromStore(store)
 
         const setValueInStore = async (paramConfig, store, value) => {
-            await paramConfig.populateStoreWithQueryValue(store, value)
+            await paramConfig.populateStoreWithQueryValue(to, store, value)
         }
 
         if (queryValue && queryValue !== storeValue) {

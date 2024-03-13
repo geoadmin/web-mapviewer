@@ -182,7 +182,7 @@ describe('Test of layer handling in 3D', () => {
         })
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
         cy.wait('@post-kml')
-        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.closeDrawingMode()
         cy.closeMenuIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()

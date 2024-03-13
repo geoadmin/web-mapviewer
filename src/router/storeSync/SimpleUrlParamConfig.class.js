@@ -37,7 +37,7 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
         super(
             urlParamName,
             mutationsToWatch,
-            (store, urlParamValue) =>
+            (to, store, urlParamValue) =>
                 store.dispatch(dispatchChangeTo, {
                     [dispatchValueName]: urlParamValue,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,

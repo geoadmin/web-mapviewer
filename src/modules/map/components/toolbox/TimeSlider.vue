@@ -380,7 +380,7 @@ export default {
 }
 </script>
 <style lang="scss">
-@import '../../../../scss/webmapviewer-bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 
 .time-slider {
     background: rgba(255, 255, 255, 0.9) !important;

@@ -620,7 +620,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/menu/scss/toolbox-buttons';
+@import 'src/modules/map/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {

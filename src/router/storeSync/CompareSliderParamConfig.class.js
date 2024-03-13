@@ -2,7 +2,7 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 
-function dispatchCompareSliderFromUrlParam(store, urlParamValue) {
+function dispatchCompareSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     if (urlParamValue) {
         promisesForAllDispatch.push(

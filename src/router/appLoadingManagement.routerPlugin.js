@@ -3,7 +3,6 @@ import { START_LOCATION } from 'vue-router'
 import { MAP_VIEWS } from '@/router/viewNames'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { getUrlQuery } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
 
@@ -36,9 +35,9 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                 // topic from the URL in order to quickly load the layers config and
                 // topics. We do this as early as possible as we need topics and config to define
                 // the default application state.
-                const queryParams = getUrlQuery()
-                const lang = queryParams.get('lang') ?? store.state.i18n.lang
-                const topic = queryParams.get('topic') ?? store.state.topics.current
+                const queryParams = to.query ?? {}
+                const lang = queryParams.lang ?? store.state.i18n.lang
+                const topic = queryParams.topic ?? store.state.topics.current
                 log.info(
                     `App is not ready dispatching lang=${lang} and topic=${topic} (isLegacy=${isLegacyUrl})`,
                     to,

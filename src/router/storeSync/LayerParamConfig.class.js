@@ -11,7 +11,6 @@ import AbstractParamConfig, {
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
-import { getUrlQuery } from '@/utils/utils'
 
 /**
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
@@ -87,7 +86,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
     return layer
 }
 
-function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
+function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
     const parsedLayers = parseLayersParam(urlParamValue)
     const promisesForAllDispatch = []
     log.debug(
@@ -133,13 +132,13 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
     )
     if (featuresRequests.length > 0) {
-        promisesForAllDispatch.push(getAndDispatchFeatures(featuresRequests, store))
+        promisesForAllDispatch.push(getAndDispatchFeatures(to, featuresRequests, store))
     }
 
     return Promise.all(promisesForAllDispatch)
 }
 
-async function getAndDispatchFeatures(featuresPromise, store) {
+async function getAndDispatchFeatures(to, featuresPromise, store) {
     try {
         const responses = await Promise.allSettled(featuresPromise)
         const features = responses
@@ -154,7 +153,7 @@ async function getAndDispatchFeatures(featuresPromise, store) {
             const extent = getExtentOfGeometries(features.map((feature) => feature.geometry))
             // If the zoom level has been specifically set to a level, we don't want to override that.
             // otherwise, we go to the zoom level which encompass all features
-            const query = getUrlQuery()
+            const query = to.query
             if (!query.z) {
                 await store.dispatch('zoomToExtent', {
                     extent: extent,

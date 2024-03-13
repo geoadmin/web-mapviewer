@@ -34,7 +34,7 @@ export default class CustomDispatchUrlParamConfig extends AbstractParamConfig {
         super(
             urlParamName,
             mutationsToWatch,
-            (store, urlParamValue) => doDispatch(store, urlParamValue),
+            (to, store, urlParamValue) => doDispatch(to, store, urlParamValue),
             extractValueFromStore,
             keepValueInUrlWhenEmpty,
             valueType,

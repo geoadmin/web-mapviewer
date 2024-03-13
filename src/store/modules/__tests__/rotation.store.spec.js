@@ -1,6 +1,10 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
+// We need to import the router here to avoid error when initializing router plugins, this is
+// needed since some store plugins might require access to router to get the query parameters
+// (e.g. topic management plugin)
+import router from '@/router' // eslint-disable-line no-unused-vars
 import store from '@/store'
 import { normalizeAngle } from '@/store/modules/position.store'
 

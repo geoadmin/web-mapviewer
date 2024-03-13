@@ -92,7 +92,7 @@ const storeSyncConfig = [
     new CustomDispatchUrlParamConfig(
         'swisssearch',
         'setSearchQuery',
-        (store, urlValue) =>
+        (to, store, urlValue) =>
             store.dispatch('setSearchQuery', {
                 query: urlValue,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,

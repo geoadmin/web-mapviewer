@@ -2,8 +2,6 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
 
-import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
-
 import CompareSlider from './components/CompareSlider.vue'
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
@@ -22,7 +20,6 @@ const displayLocationPopup = computed(
 const isCompareSliderActive = computed(() => {
     return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
 })
-const isEmbed = computed(() => store.state.ui.embedMode)
 </script>
 
 <template>
@@ -37,9 +34,6 @@ const isEmbed = computed(() => store.state.ui.embedMode)
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
             <LocationPopup v-if="displayLocationPopup" />
-            <teleport v-if="!isEmbed" to="#toolbox-compass-button">
-                <OpenLayersCompassButton />
-            </teleport>
             <CompareSlider v-if="isCompareSliderActive" />
             <slot name="footer" />
         </OpenLayersMap>

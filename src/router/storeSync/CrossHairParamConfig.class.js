@@ -3,7 +3,7 @@ import AbstractParamConfig, {
 } from '@/router/storeSync/abstractParamConfig.class'
 import { round } from '@/utils/numberUtils'
 
-function dispatchCrossHairFromUrlIntoStore(store, urlParamValue) {
+function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
 
     if (typeof urlParamValue !== 'string') {
