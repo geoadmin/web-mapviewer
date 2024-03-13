@@ -11,6 +11,7 @@ import log from '@/utils/logging'
  * @param {Number} maxRating Optional
  * @param {String} kmlFileUrl Optional
  * @param {String} email Optional
+ * @param {File} attachment Optional
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(
@@ -18,7 +19,8 @@ export default async function sendFeedback(
     rating = null,
     maxRating = null,
     kmlFileUrl = null,
-    email = null
+    email = null,
+    attachment = null
 ) {
     try {
         let shortLink = null
@@ -61,6 +63,7 @@ export default async function sendFeedback(
             permalink: shortLink,
             kml,
             email,
+            attachment,
         }
         log.debug('sending feedback with', data)
         const response = await axios.post(`${API_SERVICES_BASE_URL}feedback`, data, {
