@@ -193,6 +193,7 @@
     "feedback_error_message": "Problem: Your message could not be sent",
     "feedback_kml_attached": "The current drawing will be transferred. ",
     "feedback_mail": "3. Your Email :",
+    "feedback_mail_2": "2. Your Email :",
     "feedback_modify_drawing": "Modify drawing",
     "feedback_permalink": "The following URL will be transferred: ",
     "feedback_placeholder": "Attach a pdf, zip, jpg, jpeg, kml, kmz or gpx file",

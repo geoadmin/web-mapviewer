@@ -31,7 +31,7 @@
             ></textarea>
 
             <div class="my-3">
-                <span>{{ $t('feedback_mail') }}</span>
+                <span>{{ $t('feedback_mail_2') }}</span>
                 <div class="input-group has-validation">
                     <input
                         v-model="feedback.email"
@@ -105,7 +105,6 @@
 </template>
 
 <script>
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
@@ -135,7 +134,7 @@ export default {
             userIsTypingEmail: false,
             feedback: {
                 message: null,
-                kml: null,
+                kml: null, // used for the future (drawing)
                 email: null,
                 file: null,
             },
@@ -144,8 +143,6 @@ export default {
                 failed: false,
                 completed: false,
             },
-            drawingInteractions: null,
-            EditableFeatureTypes,
             shortLink: '',
         }
     },
@@ -158,7 +155,6 @@ export default {
         },
     },
     async mounted() {
-        // this.drawingInteractions = this.$refs.drawingInteractions
         this.shortLink = await createShortLink(window.location.href)
     },
     methods: {
@@ -175,7 +171,7 @@ export default {
                     this.feedback.message,
                     undefined, // rating
                     undefined, // max rating
-                    this.activeKmlLayer?.kmlFileUrl, // For the drawing layer, we send the KML file URL
+                    undefined, // For the drawing layer, we send the KML file URL
                     this.feedback.email,
                     this.feedback.file
                 )
