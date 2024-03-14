@@ -78,6 +78,7 @@ function setDisplayedFormatWithId() {
 </template>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .mouse-position {
     display: none;
     min-width: 10em;
@@ -86,7 +87,7 @@ function setDisplayedFormatWithId() {
 }
 // Show selected area when shift click + drag on map
 :global(.ol-dragzoom) {
-    border: 2px solid red;
+    border: 2px solid $primary;
 }
 @media (any-hover: hover) {
     .mouse-position {
