@@ -2,7 +2,7 @@
     <HeaderLink
         v-if="showAsLink"
         :primary="true"
-        data-cy="feedback-link-button"
+        data-cy="report-problem-link-button"
         @click="showFeedbackForm = true"
     >
         <strong>{{ $t('problem_announcement') }}</strong>
@@ -10,7 +10,7 @@
     <button
         v-else
         class="btn btn-primary btn-sm mx-1"
-        data-cy="feedback-button"
+        data-cy="report-problem-button"
         @click="showFeedbackForm = true"
     >
         {{ $t('problem_announcement') }}
@@ -27,7 +27,7 @@
                 v-model="feedback.message"
                 :disabled="request.pending"
                 class="form-control feedback-text"
-                data-cy="feedback-text"
+                data-cy="report-problem-text"
             ></textarea>
 
             <div class="my-3">
@@ -39,7 +39,7 @@
                         :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
                         type="email"
                         class="form-control"
-                        data-cy="feedback-email"
+                        data-cy="report-problem-email"
                         @focusin="userIsTypingEmail = true"
                         @focusout="userIsTypingEmail = false"
                     />
@@ -75,27 +75,27 @@
                         v-if="request.pending"
                         icon="spinner"
                         pulse
-                        data-cy="feedback-pending-icon"
+                        data-cy="report-problem-pending-icon"
                     />
-                    <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
+                    <span v-else data-cy="report-problem-send-text">{{ $t('send') }}</span>
                 </button>
             </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
                 class="text-end text-danger mt-3"
-                data-cy="feedback-failed-text"
+                data-cy="report-problem-failed-text"
             >
                 <small>{{ $t('send_failed') }}</small>
             </div>
         </div>
         <div v-else class="p-2">
-            <h6 class="text-success" data-cy="feedback-success-text">
+            <h6 class="text-success" data-cy="report-problem-success-text">
                 {{ $t('feedback_success_message') }}
             </h6>
             <button
                 class="my-2 btn btn-light float-end"
-                data-cy="feedback-close-successful"
+                data-cy="report-problem-close-successful"
                 @click="closeAndCleanForm"
             >
                 {{ $t('close') }}
