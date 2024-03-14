@@ -6,7 +6,7 @@
         }"
     >
         <FeedbackButton v-if="hasGiveFeedbackButton" :show-as-link="showAsLinks" />
-        <ReportProblemButton v-else :show-as-link="showAsLinks" />
+        <ReportProblemButton v-if="hasReportProblemButton" :show-as-link="showAsLinks" />
         <MoreInfo :show-as-link="showAsLinks" />
     </div>
 </template>
@@ -31,7 +31,7 @@ export default {
         },
     },
     computed: {
-        ...mapGetters(['hasGiveFeedbackButton']),
+        ...mapGetters(['hasGiveFeedbackButton', 'hasReportProblemButton']),
     },
 }
 </script>
