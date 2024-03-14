@@ -1,12 +1,13 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const store = useStore()
-const i18n = useI18n()
+
+const { refreshTippyAttachment } = useTippyTooltip('#timeSlider [data-tippy-content]')
 
 const showTimeSlider = ref(false)
 
@@ -20,27 +21,29 @@ watch(previewYear, () => {
         showTimeSlider.value = false
     }
 })
+
+watch(visibleLayersWithTimeConfig, () => nextTick(() => refreshTippyAttachment()))
 </script>
 
 <template>
-    <button
-        v-if="visibleLayersWithTimeConfig.length > 0"
-        class="toolbox-button d-print-none mb-1"
-        data-cy="time-slider-button"
-        :class="{ active: showTimeSlider }"
-        :title="showTimeSlider ? i18n.t('time_hide') : i18n.t('time_show')"
-        @click="showTimeSlider = !showTimeSlider"
-    >
-        <font-awesome-icon size="lg" :icon="['fas', 'clock-rotate-left']" />
-    </button>
-    <div
-        v-if="visibleLayersWithTimeConfig.length"
-        class="time-sliders m-1 position-fixed"
-        :class="{
-            'dev-disclaimer-present': hasDevSiteWarning,
-        }"
-    >
-        <TimeSlider v-if="showTimeSlider" />
+    <div v-if="visibleLayersWithTimeConfig.length > 0" id="timeSlider">
+        <button
+            class="toolbox-button d-print-none mb-1"
+            data-cy="time-slider-button"
+            :class="{ active: showTimeSlider }"
+            :data-tippy-content="showTimeSlider ? 'time_hide' : 'time_show'"
+            @click="showTimeSlider = !showTimeSlider"
+        >
+            <font-awesome-icon size="lg" :icon="['fas', 'clock-rotate-left']" />
+        </button>
+        <div
+            class="time-sliders m-1 position-fixed"
+            :class="{
+                'dev-disclaimer-present': hasDevSiteWarning,
+            }"
+        >
+            <TimeSlider v-if="showTimeSlider" />
+        </div>
     </div>
 </template>
 
