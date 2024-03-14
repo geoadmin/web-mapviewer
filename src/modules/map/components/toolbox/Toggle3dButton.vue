@@ -1,52 +1,29 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
+
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
 
 const store = useStore()
-const i18n = useI18n()
 
-let tooltip = null
-
-const toggle3dButton = ref(null)
+useTippyTooltip('#threeDButton[data-tippy-content]')
 
 const webGlIsSupported = ref(false)
 
 const isActive = computed(() => store.state.cesium.active)
-const currentLang = computed(() => store.state.i18n.lang)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
-        return i18n.t(`tilt3d_${isActive.value ? 'active' : 'inactive'}`)
+        return `tilt3d_${isActive.value ? 'active' : 'inactive'}`
     }
-    return i18n.t('3d_render_error')
-})
-
-watch(isActive, () => {
-    updateTooltipContent()
-})
-
-watch(currentLang, () => {
-    updateTooltipContent()
+    return '3d_render_error'
 })
 
 onMounted(() => {
     webGlIsSupported.value = checkWebGlSupport()
-    tooltip = tippy(toggle3dButton.value, {
-        theme: 'primary',
-        content: tooltipContent.value,
-        arrow: true,
-        placement: 'left',
-        touch: false,
-    })
-})
-
-onBeforeUnmount(() => {
-    tooltip?.destroy()
 })
 
 /**
@@ -73,23 +50,20 @@ function toggle3d() {
         store.dispatch('set3dActive', { active: !isActive.value, ...dispatcher })
     }
 }
-
-function updateTooltipContent() {
-    tooltip?.setContent(tooltipContent.value)
-}
 </script>
 
 <template>
-    <button
-        ref="toggle3dButton"
-        class="toolbox-button"
-        type="button"
-        :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
-        data-cy="3d-button"
-        @click="toggle3d"
-    >
-        <FontAwesomeIcon :icon="['fas', 'cube']" flip="horizontal" />
-    </button>
+    <div id="threeDButton" :data-tippy-content="tooltipContent">
+        <button
+            class="toolbox-button"
+            type="button"
+            :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
+            data-cy="3d-button"
+            @click="toggle3d"
+        >
+            <FontAwesomeIcon :icon="['fas', 'cube']" flip="horizontal" />
+        </button>
+    </div>
 </template>
 
 <style lang="scss" scoped>

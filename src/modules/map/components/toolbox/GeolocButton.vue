@@ -1,12 +1,14 @@
 <script setup>
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'GeolocButton.vue' }
 
 const store = useStore()
-const i18n = useI18n()
+
+useTippyTooltip('.geoloc-button[data-tippy-content]')
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)
@@ -21,7 +23,7 @@ function toggleGeolocation() {
         class="toolbox-button geoloc-button"
         type="button"
         :class="{ active: isActive, disabled: isDenied }"
-        :title="isActive ? i18n.t('geoloc_stop_tracking') : i18n.t('geoloc_start_tracking')"
+        :data-tippy-content="isActive ? 'geoloc_stop_tracking' : 'geoloc_start_tracking'"
         data-cy="geolocation-button"
         @click="toggleGeolocation"
     >
