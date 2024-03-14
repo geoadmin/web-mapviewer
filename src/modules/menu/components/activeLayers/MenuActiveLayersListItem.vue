@@ -239,7 +239,6 @@ function duplicateLayer() {
                 <FontAwesomeIcon icon="arrow-down" />
             </button>
             <button
-                v-if="showLegendIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-show-legend-layer-${id}-${index}`"
