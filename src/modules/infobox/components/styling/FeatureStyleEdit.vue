@@ -9,6 +9,7 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
+import DrawingStyleMedia from '@/modules/infobox/components/styling/DrawingStyleMedia.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
@@ -144,19 +145,28 @@ function onDelete() {
             </label>
             <div>
                 <div class="d-flex justify-content-end align-items-center">
-                    <button
-                        class="btn rounded-0 rounded-top-2 rounded-end-0 btn-sm btn-light d-flex align-items-center"
+                    <DrawingStylePopoverButton
+                        class="rounded-0 rounded-top-2 rounded-end-0 btn-sm btn-light d-flex align-items-center"
+                        icon="fa-link"
                     >
-                        <FontAwesomeIcon icon="fa-link" />
-                    </button>
-                    <button class="btn rounded-0 btn-sm btn-light d-flex align-items-center">
-                        <FontAwesomeIcon icon="fa-image" />
-                    </button>
-                    <button
-                        class="btn rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
+                        <DrawingStyleMedia
+                            :value="$t('text_to_display')"
+                            :extra-value="$t('url_link')"
+                        >
+                        </DrawingStyleMedia>
+                    </DrawingStylePopoverButton>
+                    <DrawingStylePopoverButton
+                        class="rounded-0 btn-sm btn-light d-flex align-items-center"
+                        icon="fa-image"
                     >
-                        <FontAwesomeIcon icon="fa-film" />
-                    </button>
+                        <DrawingStyleMedia :value="$t('url_image')"> </DrawingStyleMedia>
+                    </DrawingStylePopoverButton>
+                    <DrawingStylePopoverButton
+                        class="rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
+                        icon="fa-film"
+                    >
+                        <DrawingStyleMedia :value="$t('url_video')"> </DrawingStyleMedia>
+                    </DrawingStylePopoverButton>
                 </div>
                 <textarea
                     id="drawing-style-feature-description"
