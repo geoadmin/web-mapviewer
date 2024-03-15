@@ -9,7 +9,7 @@ const dispatcher = { dispatcher: 'FullScreenButton.vue' }
 
 const store = useStore()
 
-useTippyTooltip('#fullscreenButton[data-tippy-content]')
+useTippyTooltip('#fullscreenButton[data-tippy-content]', { placement: 'left' })
 
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 

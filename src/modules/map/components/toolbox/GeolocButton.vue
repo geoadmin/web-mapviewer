@@ -8,7 +8,7 @@ const dispatcher = { dispatcher: 'GeolocButton.vue' }
 
 const store = useStore()
 
-useTippyTooltip('.geoloc-button[data-tippy-content]')
+useTippyTooltip('.geoloc-button[data-tippy-content]', { placement: 'left' })
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)

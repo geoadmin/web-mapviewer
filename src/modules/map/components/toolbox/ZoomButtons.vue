@@ -6,7 +6,7 @@ import { useTippyTooltip } from '@/utils/useTippyTooltip'
 const dispatcher = { dispatcher: 'ZoomButtons.vue' }
 
 const store = useStore()
-useTippyTooltip('#zoomButtons [data-tippy-content]')
+useTippyTooltip('#zoomButtons [data-tippy-content]', { placement: 'left' })
 
 function increaseZoom() {
     store.dispatch('increaseZoom', dispatcher)

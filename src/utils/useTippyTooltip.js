@@ -40,12 +40,15 @@ import { useI18n } from 'vue-i18n'
  */
 export function useTippyTooltip(
     selector,
-    { theme = null, placement = 'left', delay = [300, 0] } = {}
+    { theme = null, placement = null, delay = [300, 0] } = {}
 ) {
     let tooltips = null
-    const options = { placement, delay }
+    const options = { delay }
     if (theme) {
         options.theme = theme
+    }
+    if (placement) {
+        options.placement = placement
     }
 
     const i18n = useI18n()

@@ -7,7 +7,9 @@ import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const store = useStore()
 
-const { refreshTippyAttachment } = useTippyTooltip('#timeSlider [data-tippy-content]')
+const { refreshTippyAttachment } = useTippyTooltip('#timeSlider [data-tippy-content]', {
+    placement: 'left',
+})
 
 const showTimeSlider = ref(false)
 
