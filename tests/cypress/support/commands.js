@@ -335,6 +335,13 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             // When handling a legacy parameter, the {bod Layer Id} parameter,
             // which has been reworked into the 'features' layer attribute might add extra
             // layers, thus the need to check if those extra layers have been added
+            if (legacy) {
+                const layersConfig = getters.layers.layersConfig
+                target += Object.keys(queryParams)
+                    .filter((key) => layersConfig.find((layer) => layer.id === key)) // this removes all parameters that are not layers ids
+                    .filter((key) => !queryParams.layers?.split(',').includes(key)).length // we removes all layers that are in the query params
+                // filter out standard params, legacy specific params, non layers config
+            }
             if (legacy && active !== target) {
                 let targetLegacyFeaturePreselection = 0
                 state.layers.activeLayers.forEach((layer) => {
