@@ -119,6 +119,9 @@ function onIconSizeChange(iconSize) {
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
+function onUpdateDescription(descriptionMediaLink) {
+    description.value += descriptionMediaLink
+}
 </script>
 
 <template>
@@ -150,8 +153,9 @@ function onDelete() {
                         icon="fa-link"
                     >
                         <DrawingStyleMedia
-                            :value="$t('text_to_display')"
-                            :extra-value="$t('url_link')"
+                            :description-title="$t('text_to_display')"
+                            :extra-description-title="$t('url_link')"
+                            @description-media-link="onUpdateDescription"
                         >
                         </DrawingStyleMedia>
                     </DrawingStylePopoverButton>
@@ -159,13 +163,21 @@ function onDelete() {
                         class="rounded-0 btn-sm btn-light d-flex align-items-center"
                         icon="fa-image"
                     >
-                        <DrawingStyleMedia :value="$t('url_image')"> </DrawingStyleMedia>
+                        <DrawingStyleMedia
+                            :description-title="$t('url_image')"
+                            @description-media-link="onUpdateDescription"
+                        >
+                        </DrawingStyleMedia>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
                         class="rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
                         icon="fa-film"
                     >
-                        <DrawingStyleMedia :value="$t('url_video')"> </DrawingStyleMedia>
+                        <DrawingStyleMedia
+                            :description-title="$t('url_video')"
+                            @description-media-link="onUpdateDescription"
+                        >
+                        </DrawingStyleMedia>
                     </DrawingStylePopoverButton>
                 </div>
                 <textarea
