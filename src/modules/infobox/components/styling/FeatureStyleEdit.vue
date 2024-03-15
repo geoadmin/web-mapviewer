@@ -153,8 +153,9 @@ function onUpdateDescription(descriptionMediaLink) {
                         icon="fa-link"
                     >
                         <DrawingStyleMedia
-                            :description-title="$t('text_to_display')"
-                            :extra-description-title="$t('url_link')"
+                            media-type="link"
+                            :description-title="$t('url_link')"
+                            :extra-description-title="$t('text_to_display')"
                             @description-media-link="onUpdateDescription"
                         >
                         </DrawingStyleMedia>
@@ -164,6 +165,7 @@ function onUpdateDescription(descriptionMediaLink) {
                         icon="fa-image"
                     >
                         <DrawingStyleMedia
+                            media-type="image"
                             :description-title="$t('url_image')"
                             @description-media-link="onUpdateDescription"
                         >
@@ -174,6 +176,7 @@ function onUpdateDescription(descriptionMediaLink) {
                         icon="fa-film"
                     >
                         <DrawingStyleMedia
+                            media-type="video"
                             :description-title="$t('url_video')"
                             @description-media-link="onUpdateDescription"
                         >
