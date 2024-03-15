@@ -438,7 +438,7 @@ describe('Test on legacy param import', () => {
                 false
             )
             // initial slider position is width * 0.3 -20
-            cy.get('[data-cy="compare_slider"]').then((slider) => {
+            cy.get('[data-cy="compareSlider"]').then((slider) => {
                 cy.readStoreValue('state.ui.width').should((width) => {
                     expect(slider.position()['left']).to.eq(width * 0.3 - 20)
                 })
@@ -446,7 +446,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.ui.compareRatio').should('be.equal', 0.3)
 
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
-            cy.get('[data-cy="compare_slider"]').should('be.visible')
+            cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
 })
