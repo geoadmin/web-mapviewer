@@ -156,7 +156,7 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
             const extent = getExtentOfGeometries(features.map((feature) => feature.geometry))
             // If the zoom level has been specifically set to a level, we don't want to override that.
             // otherwise, we go to the zoom level which encompass all features
-            const query = getUrlQuery()
+            const query = to.query
             if (!query.z) {
                 await store.dispatch('zoomToExtent', {
                     extent: extent,
