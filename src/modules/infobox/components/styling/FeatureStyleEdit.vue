@@ -142,16 +142,33 @@ function onDelete() {
             <label class="form-label" for="drawing-style-feature-description">
                 {{ $t('modify_description') }}
             </label>
-            <textarea
-                id="drawing-style-feature-description"
-                v-model="description"
-                :readonly="readOnly"
-                data-cy="drawing-style-feature-description"
-                class="feature-description form-control"
-                :class="{
-                    'form-control-plaintext': readOnly,
-                }"
-            ></textarea>
+            <div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <button
+                        class="btn rounded-0 rounded-top-2 rounded-end-0 btn-sm btn-light d-flex align-items-center"
+                    >
+                        <FontAwesomeIcon icon="fa-link" />
+                    </button>
+                    <button class="btn rounded-0 btn-sm btn-light d-flex align-items-center">
+                        <FontAwesomeIcon icon="fa-image" />
+                    </button>
+                    <button
+                        class="btn rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
+                    >
+                        <FontAwesomeIcon icon="fa-film" />
+                    </button>
+                </div>
+                <textarea
+                    id="drawing-style-feature-description"
+                    v-model="description"
+                    :readonly="readOnly"
+                    data-cy="drawing-style-feature-description"
+                    class="feature-description form-control rounded-0 rounded-bottom-2 rounded-start-2"
+                    :class="{
+                        'form-control-plaintext': readOnly,
+                    }"
+                ></textarea>
+            </div>
         </div>
         <div class="d-flex small gap-1 justify-content-start align-items-center">
             <CoordinateCopySlot
