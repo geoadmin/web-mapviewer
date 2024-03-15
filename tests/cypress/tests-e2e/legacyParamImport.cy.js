@@ -457,7 +457,7 @@ describe('Test on legacy param import', () => {
                 cy.readStoreValue('state.features.selectedFeatures').should((features) => {
                     expect(features.length).to.eq(featuresIds.length)
                     const modifiedFeaturesIds = featuresIds.map(
-                        (featureId) => `${features[0].layer.id}-${featureId}`
+                        (featureId) => `ch.babs.kulturgueter-${featureId}`
                     )
                     features.forEach((feature) => {
                         expect(modifiedFeaturesIds.includes(feature.id)).to.eq(true)
@@ -486,12 +486,11 @@ describe('Test on legacy param import', () => {
                 // ---------------------------------------------------------------------------------
                 cy.log('When showTooltip is not specified, we should have no tooltip')
 
-                cy.get('@features').then((features) => {
-                    cy.get('@featuresIds').then((featuresIds) => {
-                        const params = {}
-                        params[features[0].layerBodId] = featuresIds.join(',')
-                        cy.goToMapView(params)
-                    })
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                    }
+                    cy.goToMapView(params, false)
                 })
                 checkFeatures()
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
@@ -503,12 +502,12 @@ describe('Test on legacy param import', () => {
                 // ---------------------------------------------------------------------------------
                 cy.log('When showTooltip is true, featureInfo should be none ')
 
-                cy.get('@features').then((features) => {
-                    cy.get('@featuresIds').then((featuresIds) => {
-                        const params = { showTooltip: 'true' }
-                        params[features[0].layerBodId] = featuresIds.join(',')
-                        cy.goToMapView(params)
-                    })
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                        showTooltip: 'true',
+                    }
+                    cy.goToMapView(params, false)
                 })
                 checkFeatures()
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
@@ -520,12 +519,12 @@ describe('Test on legacy param import', () => {
                 // ---------------------------------------------------------------------------------
                 cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
 
-                cy.get('@features').then((features) => {
-                    cy.get('@featuresIds').then((featuresIds) => {
-                        const params = { showTooltip: 'aFantasyValue' }
-                        params[features[0].layerBodId] = featuresIds.join(',')
-                        cy.goToMapView(params)
-                    })
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                        showTooltip: 'aFantasyValue',
+                    }
+                    cy.goToMapView(params, false)
                 })
                 checkFeatures()
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
