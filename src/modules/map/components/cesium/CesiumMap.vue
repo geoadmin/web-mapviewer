@@ -58,7 +58,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="toggleTooltip"
+                    @click="setBottomPanelFeatureInfoPosition()"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -133,7 +133,7 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { UIModes } from '@/store/modules/ui.store'
+import { FeatureInfoPositions, UIModes } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
@@ -169,7 +169,6 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
-            isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
@@ -180,6 +179,7 @@ export default {
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
+            'tooltipFeatureInfo',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -192,13 +192,16 @@ export default {
                 (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
             )
         },
+        isFeatureInfoInTooltip() {
+            return this.tooltipFeatureInfo
+        },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
                 (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer
             )
         },
         showFeaturesPopover() {
-            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+            return this.isFeatureInfoInTooltip && this.selectedFeatures.length > 0
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)
@@ -292,7 +295,7 @@ export default {
             'setCameraPosition',
             'clearAllSelectedFeatures',
             'click',
-            'toggleFloatingTooltip',
+            'setFeatureInfoPosition',
             'setCenter',
             'mapModuleReady',
         ]),
@@ -605,13 +608,19 @@ export default {
                 })
             }
         },
+        setBottomPanelFeatureInfoPosition() {
+            this.setFeatureInfoPosition({
+                featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                ...dispatcher,
+            })
+        },
     },
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/menu/scss/toolbox-buttons';
+@import 'src/modules/map/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {

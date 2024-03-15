@@ -7,6 +7,10 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+// We need to import the router here to avoid error when initializing router plugins, this is
+// needed since some store plugins might require access to router to get the query parameters
+// (e.g. topic management plugin)
+import router from '@/router' // eslint-disable-line no-unused-vars
 import store from '@/store'
 
 const bgLayer = new GeoAdminWMTSLayer({

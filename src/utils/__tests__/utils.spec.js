@@ -6,7 +6,6 @@ import {
     formatMinutesTime,
     formatPointCoordinates,
     parseUrlHashQuery,
-    transformUrlEmbedToMap,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
 
@@ -77,7 +76,7 @@ describe('utils', () => {
                 'https://map.geo.admin.ch/map?de',
                 'https://map.geo.admin.ch/test#/map',
             ]
-            urls.forEach((url) => expect(transformUrlEmbedToMap(url)).to.equal(url))
+            urls.forEach((url) => expect(transformUrlMapToEmbed(url)).to.equal(url))
         })
     })
     describe('parseUrlHashQuery', () => {
@@ -119,39 +118,6 @@ describe('utils', () => {
             expect(result.urlObj).not.to.be.null
             expect(result.hash).to.equal('')
             expect(result.query).to.equal('')
-        })
-    })
-    describe('transformUrlEmbedToMap', () => {
-        it('transform #/embed to #/map', () => {
-            expect(transformUrlEmbedToMap('https://map.geo.admin.ch/#/embed')).to.equal(
-                'https://map.geo.admin.ch/#/map'
-            )
-            expect(transformUrlEmbedToMap('http://map.geo.admin.ch/#/embed')).to.equal(
-                'http://map.geo.admin.ch/#/map'
-            )
-            expect(transformUrlEmbedToMap('http://map.geo.admin.ch/#/embed?')).to.equal(
-                'http://map.geo.admin.ch/#/map?'
-            )
-            expect(transformUrlEmbedToMap('https://map.geo.admin.ch/#/embed?lang=de')).to.equal(
-                'https://map.geo.admin.ch/#/map?lang=de'
-            )
-            expect(
-                transformUrlEmbedToMap(
-                    'https://map.geo.admin.ch/#/embed?lang=de&layers=https://test.com?hello=world'
-                )
-            ).to.equal('https://map.geo.admin.ch/#/map?lang=de&layers=https://test.com?hello=world')
-        })
-        it('does not transform non #/embed url', () => {
-            const urls = [
-                'https://map.geo.admin.ch/#/embedview',
-                'https://map.geo.admin.ch/#/embed/view',
-                'https://map.geo.admin.ch/#/hello',
-                'https://map.geo.admin.ch/#/hello?lang=de',
-                'https://map.geo.admin.ch/embed',
-                'https://map.geo.admin.ch/embed?de',
-                'https://map.geo.admin.ch/test#/embed',
-            ]
-            urls.forEach((url) => expect(transformUrlEmbedToMap(url)).to.equal(url))
         })
     })
 })

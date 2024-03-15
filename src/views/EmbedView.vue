@@ -7,9 +7,11 @@ import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
+import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 import log from '@/utils/logging'
+
 const dispatcher = { dispatcher: 'EmbedView.vue' }
 
 const store = useStore()
@@ -29,6 +31,7 @@ onMounted(() => {
     <div id="map-view">
         <OpenFullAppLink />
         <MapModule>
+            <MapToolbox :has-header="false" toggle3d-button />
             <template #footer>
                 <MapFooter>
                     <template v-if="!is3DActive" #top-left>

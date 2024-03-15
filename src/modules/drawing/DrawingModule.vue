@@ -10,6 +10,7 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
@@ -26,7 +27,7 @@ const projection = computed(() => store.state.position.projection)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
-
+const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const drawingLayer = new VectorLayer({
     source: createSourceForProjection(),
     zIndex: 9999,
@@ -86,8 +87,16 @@ watch(availableIconSets, () => {
 })
 
 onMounted(() => {
-    // if icons have not yet been loaded, we do so
+    if (noFeatureInfo.value) {
+        // Left clicking while in drawing mode has its own logic not covered in click-on-map-management.plugin.js
+        // We force the featureInfo to be visible in drawing mode
+        store.dispatch('setFeatureInfoPosition', {
+            featureInfo: FeatureInfoPositions.DEFAULT,
+            ...dispatcher,
+        })
+    }
     if (availableIconSets.value.length === 0) {
+        // if icons have not yet been loaded, we do so
         store.dispatch('loadAvailableIconSets', dispatcher)
     }
 

@@ -174,6 +174,7 @@ export class DrawingIcon {
  * @returns {Promise<DrawingIconSet[]>}
  */
 export async function loadAllIconSetsFromBackend() {
+    const setPromises = []
     const sets = []
     try {
         const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
@@ -185,10 +186,10 @@ export async function loadAllIconSetsFromBackend() {
                 rawSet.template_url
             )
             // retrieving all icons for this icon set
-            await loadIconsForIconSet(iconSet)
-
+            setPromises.push(loadIconsForIconSet(iconSet))
             sets.push(iconSet)
         }
+        await Promise.all(setPromises)
     } catch (error) {
         log.error(`Failed to retrieve icons sets: ${error}`)
     }
@@ -201,23 +202,21 @@ export async function loadAllIconSetsFromBackend() {
  * @param {DrawingIconSet} iconSet
  * @returns {Promise} Promise resolving when all icons have been attached to the icon set
  */
-function loadIconsForIconSet(iconSet) {
-    return axios
-        .get(iconSet.iconsURL)
-        .then((rawIcons) => {
-            iconSet.icons = rawIcons.data.items.map(
-                (rawIcon) =>
-                    new DrawingIcon(
-                        rawIcon.name,
-                        rawIcon.url,
-                        rawIcon.template_url,
-                        iconSet.name,
-                        rawIcon.anchor
-                    )
-            )
-        })
-        .catch((error) => {
-            log.error('Error getting icons for icon set', iconSet)
-            return Promise.reject(error)
-        })
+async function loadIconsForIconSet(iconSet) {
+    try {
+        const rawIcons = await axios.get(iconSet.iconsURL)
+
+        iconSet.icons = rawIcons.data.items.map(
+            (rawIcon) =>
+                new DrawingIcon(
+                    rawIcon.name,
+                    rawIcon.url,
+                    rawIcon.template_url,
+                    iconSet.name,
+                    rawIcon.anchor
+                )
+        )
+    } catch (error) {
+        log.error('Error getting icons for icon set', iconSet)
+    }
 }

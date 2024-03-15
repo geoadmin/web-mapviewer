@@ -176,20 +176,6 @@ export function formatAngle(value, digits = 2) {
 }
 
 /**
- * Returns the URL raw query parameters.
- *
- * @returns {URLSearchParams} Parsed URL query parameters
- * @WARNING This method should be used with care and should only be
- * used to get URL query parameter that are identical in legacy URL paramenters !
- */
-export function getUrlQuery() {
-    return new URLSearchParams(
-        // The legacy link uses the query, while new permalink are behind the hash
-        window.location.search || window.location.hash.replace('#/map?', '')
-    )
-}
-
-/**
  * Parse a URL hash fragment
  *
  * We use query in the hash fragment, the standard new URL doesn't parse the query from the hash,
@@ -228,25 +214,6 @@ export function transformUrlMapToEmbed(url) {
     }
     if (hash === '#/map') {
         urlObj.hash = `#/embed${query}`
-    }
-    return urlObj.toString()
-}
-
-/**
- * Transform a /#/embed url to /#/map url
- *
- * If the URL is not a SCHEME://DOMAIN/#/embed then it is returned unchanged.
- *
- * @param {string} url Url to transform on /#/map
- * @returns {string} Url transformed to /#/map
- */
-export function transformUrlEmbedToMap(url) {
-    const { urlObj, hash, query } = parseUrlHashQuery(url)
-    if (urlObj.pathname !== '/') {
-        return url
-    }
-    if (hash === '#/embed') {
-        urlObj.hash = `#/map${query}`
     }
     return urlObj.toString()
 }

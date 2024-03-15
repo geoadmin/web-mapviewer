@@ -51,8 +51,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     async function saveDrawing(retryOnError = true) {
         try {
-            log.debug(`Save drawing retryOnError ${retryOnError}`)
-            clearTimeout(differSaveDrawingTimeout)
+            log.debug(
+                `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${differSaveDrawingTimeout}`
+            )
+            clearPendingSaveDrawing()
             saveState.value = DrawingState.SAVING
             const kmlData = generateKmlString(
                 projection.value,
@@ -109,7 +111,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     }
 
     async function debounceSaveDrawing({ debounceTime = 2000, retryOnError = true } = {}) {
-        clearTimeout(differSaveDrawingTimeout)
+        log.debug(
+            `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${differSaveDrawingTimeout}`
+        )
+        clearPendingSaveDrawing()
         willModify()
         if (debounceTime > 0) {
             await new Promise((resolve) => {
@@ -132,6 +137,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     function clearPendingSaveDrawing() {
         clearTimeout(differSaveDrawingTimeout)
+        differSaveDrawingTimeout = null
     }
 
     /**

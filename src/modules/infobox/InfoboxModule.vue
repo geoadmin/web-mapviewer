@@ -4,6 +4,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
 import FeatureCombo from './components/FeatureCombo.vue'
@@ -17,39 +18,28 @@ const content = ref(null)
 const store = useStore()
 
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
-const floatingTooltip = computed(() => store.state.ui.floatingTooltip)
+const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
+const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
-const isEdit = computed(() => !floatingTooltip.value && selectedFeature.value?.isEditable)
-const isList = computed(
-    () => !floatingTooltip.value && !isEdit.value && selectedFeatures.value.length > 0
+const isEdit = computed(() => selectedFeature.value?.isEditable)
+
+const showElevationProfile = computed(() =>
+    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+        selectedFeature.value?.featureType
+    )
 )
-const showElevationProfile = computed(
-    () =>
-        selectedFeature.value &&
-        (selectedFeature.value.featureType === EditableFeatureTypes.MEASURE ||
-            (selectedFeature.value.featureType === EditableFeatureTypes.LINEPOLYGON &&
-                floatingTooltip.value))
-)
-const isCombo = computed(
-    () =>
-        isEdit.value &&
-        [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
-            selectedFeature.value.featureType
-        )
-)
-const showContainer = computed(
-    () => isList.value || isEdit.value || showElevationProfile.value || isCombo.value
-)
-const showFloatingToggle = computed(
-    () =>
-        isList.value ||
-        (isEdit.value && !showElevationProfile.value) ||
-        (isCombo.value && !floatingTooltip.value)
-)
+
+const showContainer = computed(() => {
+    return (
+        selectedFeatures.value.length > 0 &&
+        (bottomPanelFeatureInfo.value || (showElevationProfile.value && tooltipFeatureInfo.value))
+    )
+})
+const showTooltipToggle = computed(() => bottomPanelFeatureInfo.value)
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -57,15 +47,18 @@ watch(selectedFeatures, (features) => {
     }
     showContent.value = true
     nextTick(() => {
-        content.value.scrollTo(0, 0)
+        content.value?.scrollTo(0, 0)
     })
 })
 
 function onToggleContent() {
     showContent.value = !showContent.value
 }
-function onToggleFloating() {
-    store.dispatch('toggleFloatingTooltip', dispatcher)
+function setTooltipInfoPosition() {
+    store.dispatch('setFeatureInfoPosition', {
+        featureInfo: FeatureInfoPositions.TOOLTIP,
+        ...dispatcher,
+    })
 }
 function onPrint() {
     promptUserToPrintHtmlContent(content.value)
@@ -76,13 +69,13 @@ function onClose() {
 </script>
 
 <template>
-    <div v-show="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
+    <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
         <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
             <button
-                v-if="showFloatingToggle"
+                v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-toggle-floating"
-                @click.stop="onToggleFloating"
+                @click.stop="setTooltipInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-up" />
             </button>
@@ -108,7 +101,7 @@ function onClose() {
 
         <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
             <FeatureElevationProfile
-                v-if="showElevationProfile && !isCombo"
+                v-if="showElevationProfile && tooltipFeatureInfo"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
@@ -116,7 +109,7 @@ function onClose() {
             />
 
             <FeatureCombo
-                v-else-if="isCombo"
+                v-else-if="showElevationProfile"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
@@ -129,7 +122,7 @@ function onClose() {
                 :read-only="!showDrawingOverlay"
             />
 
-            <FeatureList v-else-if="isList" />
+            <FeatureList v-else />
         </div>
     </div>
 </template>

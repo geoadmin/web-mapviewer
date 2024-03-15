@@ -7,6 +7,7 @@ import PositionUrlParamConfig, {
 describe('CameraParamConfig class test', () => {
     const testInstance = new PositionUrlParamConfig()
     let fakeStore = {}
+    let fakeTo = { query: {} }
     beforeEach(() => {
         fakeStore = {
             state: {
@@ -124,7 +125,7 @@ describe('CameraParamConfig class test', () => {
             fakeStore.state.cesium.active = true
         })
         it('dispatches 3D param correctly to the store', () => {
-            testInstance.populateStoreWithQueryValue(fakeStore, '1,2,3,4,5,6')
+            testInstance.populateStoreWithQueryValue(fakeTo, fakeStore, '1,2,3,4,5,6')
             expect(fakeStore.dispatch).toHaveBeenCalledOnce()
             expect(fakeStore.dispatch.mock.calls[0]).to.include.members(['setCameraPosition'])
         })

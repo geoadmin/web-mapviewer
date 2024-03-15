@@ -1,10 +1,31 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
+
+const dispatcher = { dispatcher: 'GeolocButton.vue' }
+
+const store = useStore()
+
+useTippyTooltip('.geoloc-button[data-tippy-content]', { placement: 'left' })
+
+const isActive = computed(() => store.state.geolocation.active)
+const isDenied = computed(() => store.state.geolocation.denied)
+
+function toggleGeolocation() {
+    store.dispatch('toggleGeolocation', dispatcher)
+}
+</script>
+
 <template>
     <button
         class="toolbox-button geoloc-button"
         type="button"
         :class="{ active: isActive, disabled: isDenied }"
-        :title="isActive ? $t('geoloc_stop_tracking') : $t('geoloc_start_tracking')"
+        :data-tippy-content="isActive ? 'geoloc_stop_tracking' : 'geoloc_start_tracking'"
         data-cy="geolocation-button"
+        @click="toggleGeolocation"
     >
         <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
             <ellipse class="geoloc-button-inner-circle" />
@@ -12,23 +33,8 @@
     </button>
 </template>
 
-<script>
-export default {
-    props: {
-        isActive: {
-            type: Boolean,
-            required: true,
-        },
-        isDenied: {
-            type: Boolean,
-            required: true,
-        },
-    },
-}
-</script>
-
 <style lang="scss" scoped>
-@import 'src/modules/menu/scss/toolbox-buttons';
+@import 'src/modules/map/scss/toolbox-buttons';
 
 $normal-color: $map-button-border-color;
 $stroke-width: 9px;

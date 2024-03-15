@@ -248,7 +248,7 @@ describe('Drawing module tests', () => {
                 "2'660'013.50, 1'227'172.00"
             )
             cy.log('Coordinates for marker can be copied while not in drawing mode')
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.closeDrawingMode()
             cy.closeMenuIfMobile()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
@@ -319,7 +319,7 @@ describe('Drawing module tests', () => {
                 "2'660'013.50, 1'227'172.00"
             )
             cy.log('Coordinates for annotation can be copied while not in drawing mode')
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.closeDrawingMode()
             cy.closeMenuIfMobile()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
@@ -442,7 +442,7 @@ describe('Drawing module tests', () => {
             // checks that it doesn't add adminId to the url
             cy.url().should('not.contain', 'adminId')
 
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.closeDrawingMode()
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
@@ -465,10 +465,10 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml').then((interception) => {
                 const kmlId = interception.response.body.id
 
-                cy.get('[data-cy="drawing-toolbox-close-button"]:visible').click()
+                cy.closeDrawingMode()
                 cy.wait('@update-kml')
 
-                cy.log('Check that the drawings has been added to the active layers')
+                cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
                     `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
                 )
@@ -503,7 +503,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
                 // if closing the drawing module without changing anything, no copy must be made
-                cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+                cy.closeDrawingMode()
                 cy.get(
                     `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
                 )
@@ -530,14 +530,9 @@ describe('Drawing module tests', () => {
                     expect(newKmlId).to.not.eq(kmlId)
 
                     // there should be only one KML layer left in the layers, and it's the one just saved
-                    cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                        cy.wrap(
-                            activeLayers.filter((layer) => layer.type === LayerTypes.KML)
-                        ).should('have.length', 1)
-                        cy.wrap(
-                            activeLayers.find((layer) => layer.type === LayerTypes.KML).fileId
-                        ).should('be.eq', newKmlId)
-                    })
+                    cy.window()
+                        .its('store.getters.activeKmlLayer')
+                        .should('have.property', 'fileId', newKmlId)
 
                     cy.log(`Check that adding a new feature update the new kml ${newKmlId}`)
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
@@ -548,7 +543,7 @@ describe('Drawing module tests', () => {
                     })
 
                     cy.log('Check the active layer list making sure that there is only the new')
-                    cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+                    cy.closeDrawingMode()
 
                     cy.log(
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
@@ -703,7 +698,7 @@ describe('Drawing module tests', () => {
             }).as('post-put-kml-not-allowed')
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.closeDrawingMode()
         })
         it('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
@@ -941,7 +936,7 @@ describe('Drawing module tests', () => {
             // clicking the X button of the popup
             cy.get('[data-cy="infobox-close"]').click()
             // it is now closed
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
+            cy.get('[data-cy="infobox"]').should('not.exist')
 
             // re-opening
             cy.get('[data-cy="ol-map"]').click(150, 200)
@@ -950,7 +945,7 @@ describe('Drawing module tests', () => {
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-close"]').click()
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
+            cy.get('[data-cy="infobox"]').should('not.exist')
         })
         it('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()

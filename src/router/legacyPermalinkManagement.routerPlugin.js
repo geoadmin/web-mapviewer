@@ -103,7 +103,7 @@ const handleLegacyParam = (
         // Setting the position of the compare slider
         case 'swipe_ratio':
             newValue = legacyValue
-            key = 'compare_ratio'
+            key = 'compareRatio'
             break
         case 'layers_opacity':
         case 'layers_visibility':
@@ -257,7 +257,12 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         ? new URLSearchParams(window?.location?.search)
         : null
     if (legacyParams) {
-        const legacyEmbed = window?.location?.pathname === '/embed.html'
+        // NOTE: the legacy embed view was at /embed.html. Unfortunately we cannot in this application
+        // reroute to another path before the #, because the vue router using the createWebHashHistory
+        // can only handle route after the hash. Therefore we have an external redirect service
+        // that will redirect to /embed.html to ?legacyEmbed. We use this pseudo legacyEmbed to
+        // redirect to #/embed once the other legacy parameters have been translated.
+        const legacyEmbed = legacyParams.has('legacyEmbed')
         log.debug(
             `[Legacy URL] starts legacy url param plugin params=${legacyParams.toString()}, legacyEmbed=${legacyEmbed}`,
             legacyParams
@@ -290,8 +295,9 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         router.replace(newRoute)
                     }
                 })
+
                 return {
-                    name: to.name === EMBED_VIEW ? LEGACY_EMBED_PARAM_VIEW : LEGACY_PARAM_VIEW,
+                    name: legacyEmbed ? LEGACY_EMBED_PARAM_VIEW : LEGACY_PARAM_VIEW,
                     replace: true,
                 }
             }

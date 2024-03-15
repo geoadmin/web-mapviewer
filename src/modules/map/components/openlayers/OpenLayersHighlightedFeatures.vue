@@ -19,6 +19,7 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
@@ -29,10 +30,12 @@ const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 const store = useStore()
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
-const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-
+const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const tooltipIsInDefaultPosition = computed(
+    () => store.state.ui.FeatureInfoPosition === FeatureInfoPositions.DEFAULT
+)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -94,8 +97,12 @@ watch(nonEditableFeature, () => {
         nonEditableFeature.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
-    if (isFloatingTooltip.value && !containsOnlyPoints) {
-        toggleFloatingTooltip()
+    if (tooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
+        // check if we're in default
+        store.dispatch('setFeatureInfoPosition', {
+            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+            dispatcher: dispatcher,
+        })
     }
 })
 
@@ -111,14 +118,17 @@ useVectorLayer(
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
 }
-function toggleFloatingTooltip() {
-    store.dispatch('toggleFloatingTooltip', dispatcher)
+function setBottomPanelFeatureInfoPosition() {
+    store.dispatch('setFeatureInfoPosition', {
+        featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+        ...dispatcher,
+    })
 }
 </script>
 
 <template>
     <OpenLayersPopover
-        v-if="isFloatingTooltip && selectedFeatures.length > 0"
+        v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         authorize-print
         :use-content-padding="editableFeatures.length > 0"
@@ -128,7 +138,7 @@ function toggleFloatingTooltip() {
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
-                @click="toggleFloatingTooltip"
+                @click="setBottomPanelFeatureInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-down" />
             </button>

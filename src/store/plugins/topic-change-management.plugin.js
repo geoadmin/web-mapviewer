@@ -1,6 +1,6 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
+import router from '@/router'
 import log from '@/utils/logging'
-import { getUrlQuery } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'topic-change-management.plugin' }
 
@@ -33,10 +33,15 @@ const topicChangeManagementPlugin = (store) => {
             (mutation.type === 'changeTopic' && store.state.topics.config.length > 0) ||
             mutation.type === 'setTopics'
         ) {
-            log.debug(`Topic change management plugin: topic changed to`, mutation.payload)
-
+            const queryKeys = Object.keys(router.currentRoute.value.query ?? {})
             const currentTopic = store.getters.currentTopic
-            const rawQueryParams = getUrlQuery()
+
+            log.debug(
+                `Topic change management plugin: topic changed to`,
+                mutation.payload,
+                currentTopic,
+                queryKeys
+            )
 
             // we only set background (from topic) when the user changed the topic from the menu.
             // If the topic changed via the URL router plugin or when changing the language
@@ -47,7 +52,7 @@ const topicChangeManagementPlugin = (store) => {
             // to setup the default background based on topic.
             if (
                 mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
-                !rawQueryParams.has('bgLayer')
+                !queryKeys.includes('bgLayer')
             ) {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
@@ -69,7 +74,7 @@ const topicChangeManagementPlugin = (store) => {
             // different layers.
             if (
                 mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
-                !rawQueryParams.has('layers')
+                !queryKeys.includes('layers')
             ) {
                 store.dispatch('setLayers', {
                     layers: currentTopic.layersToActivate,

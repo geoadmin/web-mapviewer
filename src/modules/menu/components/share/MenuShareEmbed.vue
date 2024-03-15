@@ -1,7 +1,8 @@
 <template>
     <div class="menu-share-embed">
         <a
-            class="embed-btn d-flex align-items-center text-decoration-none ps-3 p-2"
+            class="d-flex align-items-center embed-btn text-decoration-none ps-2"
+            :class="{ 'text-primary': showEmbedSharing, 'text-black': !showEmbedSharing }"
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
@@ -254,11 +255,16 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/modules/menu/scss/menu-items';
+
 .embed-btn {
-    &:hover {
-        background-color: $list-item-hover-bg-color !important;
-        cursor: pointer;
-    }
+    // Here we add the menu-item styling to the title only to avoid hover
+    // on the content once the item has been opened
+    @extend .menu-item;
+
+    cursor: pointer;
+    height: 2.75em;
+    line-height: 2.75em;
 }
 
 .menu-share-embed {

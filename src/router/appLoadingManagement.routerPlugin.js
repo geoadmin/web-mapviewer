@@ -1,9 +1,7 @@
 import { START_LOCATION } from 'vue-router'
 
-import { MAP_VIEWS } from '@/router/viewNames'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { getUrlQuery } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
 
@@ -27,18 +25,14 @@ const appLoadingManagementRouterPlugin = (router, store) => {
         const isLegacyUrl = isLegacyParams(window?.location?.search)
 
         const unRegisterRouterHook = router.beforeEach((to, from) => {
-            if (
-                from === START_LOCATION &&
-                MAP_VIEWS.includes(to.name) &&
-                to.meta.requiresAppReady
-            ) {
+            if (from === START_LOCATION && to.meta.requiresAppReady) {
                 // Upon application startup we need to first get the language and
                 // topic from the URL in order to quickly load the layers config and
                 // topics. We do this as early as possible as we need topics and config to define
                 // the default application state.
-                const queryParams = getUrlQuery()
-                const lang = queryParams.get('lang') ?? store.state.i18n.lang
-                const topic = queryParams.get('topic') ?? store.state.topics.current
+                const queryParams = to.query ?? {}
+                const lang = queryParams.lang ?? store.state.i18n.lang
+                const topic = queryParams.topic ?? store.state.topics.current
                 log.info(
                     `App is not ready dispatching lang=${lang} and topic=${topic} (isLegacy=${isLegacyUrl})`,
                     to,
@@ -53,12 +47,12 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                     isLegacyUrl,
                     ...dispatcher,
                 })
+                unRegisterRouterHook()
             }
         })
         const unSubscribeStore = store.subscribe((mutation) => {
             // listening to the store for the "Go" when the app is ready
             if (mutation.type === 'setAppIsReady') {
-                unRegisterRouterHook()
                 unSubscribeStore()
                 log.info('App is ready, unregister app loading management plugin')
             }

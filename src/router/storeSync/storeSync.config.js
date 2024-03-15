@@ -8,6 +8,7 @@ import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 import CompareSliderParamConfig from './CompareSliderParamConfig.class'
 /**
@@ -91,7 +92,7 @@ const storeSyncConfig = [
     new CustomDispatchUrlParamConfig(
         'swisssearch',
         'setSearchQuery',
-        (store, urlValue) =>
+        (to, store, urlValue) =>
             store.dispatch('setSearchQuery', {
                 query: urlValue,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -104,6 +105,15 @@ const storeSyncConfig = [
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
+    new SimpleUrlParamConfig(
+        'featureInfo',
+        'setFeatureInfoPosition',
+        'setFeatureInfoPosition',
+        (store) => store.state.ui.featureInfoPosition,
+        false,
+        String,
+        FeatureInfoPositions.NONE
+    ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',
         'catalogNodes',

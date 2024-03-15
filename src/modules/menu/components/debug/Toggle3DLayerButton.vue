@@ -42,5 +42,5 @@ const toggleShow3dConstructions = () => store.dispatch('toggleShow3dConstruction
 </template>
 
 <style lang="scss" scoped>
-@import '../../scss/toolbox-buttons';
+@import 'src/modules/map/scss/toolbox-buttons';
 </style>
