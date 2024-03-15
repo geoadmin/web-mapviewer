@@ -1,6 +1,10 @@
 <template>
     <div>
-        <button ref="popoverButton" class="btn btn-sm btn-light d-flex align-items-center">
+        <button
+            v-bind="$attrs"
+            ref="popoverButton"
+            class="btn btn-sm btn-light d-flex align-items-center"
+        >
             <FontAwesomeIcon :icon="icon" />
         </button>
         <div ref="popoverContent" class="card border-0" data-cy="drawing-style-popover">
