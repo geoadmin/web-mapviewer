@@ -324,6 +324,12 @@ describe('The Import File Tool', () => {
             .contains('URL is not valid')
         cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
 
+        cy.get('[data-cy="import-file-online-url-input"]').type('{enter}')
+        cy.get('[data-cy="import-file-online-url-input"]')
+            .find('[data-cy="invalid-feedback-error"]')
+            .should('be.visible')
+            .contains('URL is not valid')
+
         //---------------------------------------------------------------------
         cy.log('Test online import url not reachable')
 

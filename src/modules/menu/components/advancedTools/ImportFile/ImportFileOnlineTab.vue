@@ -97,6 +97,14 @@ function validateForm() {
         isFormValid.value = true
     }
 }
+
+function onEnter() {
+    if (!isFormValid.value) {
+        log.debug(`Cannot load file invalid form`)
+        return
+    }
+    loadFile()
+}
 </script>
 
 <template>
@@ -123,7 +131,7 @@ function validateForm() {
                 :form-validated="layerAdded"
                 data-cy="import-file-online-url-input"
                 @input="onUrlChange"
-                @keydown.enter="loadFile"
+                @keydown.enter="onEnter"
             />
         </form>
         <ImportFileButtons
