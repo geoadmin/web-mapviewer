@@ -9,7 +9,7 @@ const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
 
 const store = useStore()
 
-useTippyTooltip('#threeDButton[data-tippy-content]')
+useTippyTooltip('#threeDButton[data-tippy-content]', { placement: 'left' })
 
 const webGlIsSupported = ref(false)
 
