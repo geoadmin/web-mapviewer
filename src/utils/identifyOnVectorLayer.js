@@ -11,7 +11,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-const pixelToleranceForIdentify = 10
+const pixelToleranceForIdentify = 20
 
 /**
  * @param {Array} coordinates
@@ -94,6 +94,10 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
  *   were found
  */
 export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, resolution) {
+    if (!geoJsonLayer?.geoJsonData) {
+        log.error('No data for layer', geoJsonLayer, 'no identification of feature possible')
+        return []
+    }
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     // to use turf functions, we need to have lat/lon (WGS84) coordinates
     const reprojectedGeoJSON = reprojectGeoJsonData(geoJsonLayer.geoJsonData, WGS84, projection)
