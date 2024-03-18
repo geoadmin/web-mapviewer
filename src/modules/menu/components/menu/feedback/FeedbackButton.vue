@@ -160,13 +160,17 @@ export default {
             }
             this.request.pending = true
             try {
+                let subject = '[web-mapviewer]'
+                if (this.feedback.rating && this.maxRating) {
+                    subject += ` [rating: ${this.feedback.rating}/${this.maxRating}]`
+                }
+                subject += ' User feedback'
                 const feedbackSentSuccessfully = await sendFeedback(
+                    subject,
                     this.feedback.message,
-                    this.feedback.rating,
-                    this.maxRating,
                     this.activeKmlLayer?.kmlFileUrl,
                     this.feedback.email,
-                    undefined // attachment
+                    undefined // file attachment
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully
