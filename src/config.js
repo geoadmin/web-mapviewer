@@ -264,4 +264,4 @@ export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
  *
  * @type {String[]}
  */
-export const GIVE_FEEDBACK_HOSTNAMES = ['test.map.geo.admin.ch', 'localhost']
+export const GIVE_FEEDBACK_HOSTNAMES = ['test.map.geo.admin.ch']
