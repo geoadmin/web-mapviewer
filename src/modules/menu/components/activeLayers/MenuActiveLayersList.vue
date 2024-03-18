@@ -24,12 +24,13 @@ const activeLayersList = ref(null)
 // used to deactivate the hover change of color on layer whenever one of them is dragged
 const aLayerIsDragged = ref(false)
 const showLayerLegendForLayer = ref(null)
-const showLayerDetailsForId = ref(null)
+const showLayerDetailIndex = ref(null)
 
 const store = useStore()
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
 // So here we swap the order of this array to match the desired order on the UI
 const activeLayers = computed(() => store.state.layers.activeLayers.slice().reverse())
+const reverseIndex = (index) => store.state.layers.activeLayers.length - 1 - index
 
 let sortable
 onMounted(() => {
@@ -45,72 +46,31 @@ onMounted(() => {
         },
         onEnd: function (event) {
             aLayerIsDragged.value = false
-            const { newIndex, oldIndex, item } = event
-            const layerId = item.dataset.layerId
-            if (newIndex !== oldIndex) {
-                if (newIndex > oldIndex) {
-                    store.dispatch('moveActiveLayerBack', {
-                        layerId,
-                        amount: newIndex - oldIndex,
-                        ...dispatcher,
-                    })
-                } else {
-                    store.dispatch('moveActiveLayerFront', {
-                        layerId,
-                        amount: oldIndex - newIndex,
-                        ...dispatcher,
-                    })
-                }
-            }
+            const { newIndex, oldIndex } = event
+            onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
         },
     })
 })
+
 onBeforeUnmount(() => {
     sortable?.destroy()
 })
 
-function onToggleLayerDetails(layerId) {
-    if (showLayerDetailsForId.value === layerId) {
-        showLayerDetailsForId.value = null
+function onMoveLayer(oldIndex, newIndex) {
+    if (newIndex !== oldIndex) {
+        if (showLayerDetailIndex.value === oldIndex) {
+            showLayerDetailIndex.value = newIndex
+        }
+        store.dispatch('moveActiveLayerToIndex', { index: oldIndex, newIndex, ...dispatcher })
+    }
+}
+
+function onToggleLayerDetail(index) {
+    if (showLayerDetailIndex.value === index) {
+        showLayerDetailIndex.value = null
     } else {
-        showLayerDetailsForId.value = layerId
+        showLayerDetailIndex.value = index
     }
-}
-function onRemoveLayer(layerId) {
-    store.dispatch('removeLayer', { layerId, ...dispatcher })
-}
-function onToggleLayerVisibility(layerId) {
-    store.dispatch('toggleLayerVisibility', {
-        layerId,
-        ...dispatcher,
-    })
-}
-function onOrderChange(layerId, delta) {
-    // raising the layer in the stack means the user wants the layer put front
-    if (delta === 1) {
-        store.dispatch('moveActiveLayerFront', {
-            layerId,
-            ...dispatcher,
-        })
-    } else if (delta === -1) {
-        store.dispatch('moveActiveLayerBack', {
-            layerId,
-            ...dispatcher,
-        })
-    }
-}
-function onOpacityChange(layerId, opacity) {
-    store.dispatch('setLayerOpacity', {
-        layerId,
-        opacity,
-        ...dispatcher,
-    })
-}
-function isFirstLayer(layerId) {
-    return activeLayers.value[0].id === layerId
-}
-function isLastLayer(layerId) {
-    return activeLayers.value.slice(-1)[0].id === layerId
 }
 </script>
 
@@ -123,21 +83,19 @@ function isLastLayer(layerId) {
             class="menu-layer-list"
         >
             <MenuActiveLayersListItem
-                v-for="layer in activeLayers"
-                :key="layer.id"
+                v-for="(layer, index) in activeLayers"
+                :key="`${reverseIndex(index)}-${layer.id}`"
+                :index="reverseIndex(index)"
                 :layer="layer"
-                :show-details="showLayerDetailsForId === layer.id"
-                :is-first-layer="isFirstLayer(layer.id)"
-                :is-last-layer="isLastLayer(layer.id)"
+                :is-top-layer="index === 0"
+                :is-bottom-layer="reverseIndex(index) === 0"
                 :compact="compact"
                 :data-layer-id="layer.id"
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
-                @remove-layer="onRemoveLayer"
-                @toggle-layer-visibility="onToggleLayerVisibility"
-                @toggle-layer-details="onToggleLayerDetails"
-                @opacity-change="onOpacityChange"
-                @order-change="onOrderChange"
+                :show-layer-detail="showLayerDetailIndex === reverseIndex(index)"
                 @show-layer-legend-popup="showLayerLegendForLayer = layer"
+                @toggle-layer-detail="onToggleLayerDetail"
+                @move-layer="onMoveLayer"
             />
             <LayerLegendPopup
                 v-if="showLayerLegendForLayer"

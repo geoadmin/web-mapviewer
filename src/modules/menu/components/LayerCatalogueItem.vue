@@ -121,10 +121,10 @@ function startLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.id)
-    if (matchingActiveLayer) {
+    const layers = store.getters.getActiveLayersById(item.value.id)
+    if (layers.length > 0) {
         store.dispatch('removeLayer', {
-            layer: matchingActiveLayer,
+            layerId: item.value.id,
             ...dispatcher,
         })
     } else if (item.value.isExternal) {
@@ -288,8 +288,8 @@ function containsLayer(layers, searchText) {
                 :class="`ps-${2 + depth}`"
             >
                 <LayerCatalogueItem
-                    v-for="child in item.layers"
-                    :key="`${child.id}`"
+                    v-for="(child, index) in item.layers"
+                    :key="`${index}-${child.id}`"
                     :item="child"
                     :search="search"
                     :depth="depth + 1"
