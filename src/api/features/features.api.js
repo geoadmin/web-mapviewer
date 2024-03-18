@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { WMSGetFeatureInfo } from 'ol/format'
+import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
@@ -13,6 +15,10 @@ import log from '@/utils/logging'
 
 const DEFAULT_FEATURE_COUNT = 10
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
+
+const APPLICATION_JSON_TYPE = 'application/json'
+const APPLICATION_GML_3_TYPE = 'application/vnd.ogc.gml'
+const PLAIN_TEXT_TYPE = 'text/plain'
 
 /**
  * In pixels
@@ -210,12 +216,19 @@ async function identifyOnExternalLayer(config) {
         if (!requestExtent) {
             throw new GetFeatureInfoError('Unable to build required request extent')
         }
-        // params described as https://docs.geoserver.org/2.22.x/en/user/services/wms/reference.html#getfeatureinfo
-        let outputFormat = 'application/json'
-        // if JSON isn't supported, we fall back to plain text
+        // selecting output format depending on external WMS capabilities
+        // preferring JSON output
+        let outputFormat = APPLICATION_JSON_TYPE
         if (!layer.getFeatureInfoCapability.formats?.includes(outputFormat)) {
-            outputFormat = 'text/plain'
+            // if JSON isn't supported, we check if GML3 is supported
+            if (layer.getFeatureInfoCapability.formats?.includes(APPLICATION_GML_3_TYPE)) {
+                outputFormat = APPLICATION_GML_3_TYPE
+            } else {
+                // if neither JSON nor GML3 are supported, we will ask for plain text
+                outputFormat = PLAIN_TEXT_TYPE
+            }
         }
+        // params described as https://docs.geoserver.org/2.22.x/en/user/services/wms/reference.html#getfeatureinfo
         const params = {
             SERVICE: 'WMS',
             VERSION: layer.wmsVersion ?? '1.3.0',
@@ -244,7 +257,7 @@ async function identifyOnExternalLayer(config) {
             FI_POINT_TOLERANCE: tolerance,
             FI_LINE_TOLERANCE: tolerance,
             FI_POLYGON_TOLERANCE: tolerance,
-            // tried to no avail finding this in deegree doc (https://download.deegree.org/documentation/3.5.5/html)
+            // tried to no avail finding this in degree doc (https://download.deegree.org/documentation/3.5.5/html)
             // there might exist more implementation of WMS, but I stopped there looking for more
             // (please add more if you think one of our customer/external layer providers uses another flavor of WMS)
         }
@@ -262,21 +275,44 @@ async function identifyOnExternalLayer(config) {
             url: layer.getFeatureInfoCapability.baseUrl,
             params,
         })
-        if (getFeatureInfoResponse.data?.features) {
-            return getFeatureInfoResponse.data.features.map(
-                (feature) =>
-                    new LayerFeature({
-                        layer,
-                        id: feature.id,
-                        data: feature.properties,
-                        coordinates: getGeoJsonFeatureCoordinates(
-                            feature.geometry,
-                            projection,
-                            projection
-                        ),
-                        geometry: feature.geometry,
-                    })
-            )
+        if (getFeatureInfoResponse.data) {
+            let features = []
+            switch (outputFormat) {
+                case APPLICATION_GML_3_TYPE:
+                    // transforming GML3 features into OL features, and then back to GeoJSON features
+                    features = new GeoJSON().writeFeaturesObject(
+                        new WMSGetFeatureInfo().readFeatures(getFeatureInfoResponse.data, {
+                            dataProjection: projection.epsg,
+                        })
+                    )?.features
+                    break
+                case APPLICATION_JSON_TYPE:
+                    // nothing to do other than extracting the data
+                    features = getFeatureInfoResponse.data.features
+                    break
+                case PLAIN_TEXT_TYPE:
+                    // TODO : implement plain text parsing
+                    log.error('Plain text parsing not yet implemented')
+                    break
+            }
+            return features?.map((feature) => {
+                let geometry = feature.geometry
+                // if no geometry is defined (because we came from a GML or plain text parsing),
+                // we use the click coordinate as a point
+                if (!geometry) {
+                    geometry = {
+                        type: 'Point',
+                        coordinates: [...coordinate],
+                    }
+                }
+                return new LayerFeature({
+                    layer,
+                    id: feature.id,
+                    data: feature.properties,
+                    coordinates: getGeoJsonFeatureCoordinates(geometry, projection, projection),
+                    geometry,
+                })
+            })
         }
         return []
     } else {
