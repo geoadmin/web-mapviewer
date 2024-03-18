@@ -7,17 +7,15 @@ import log from '@/utils/logging'
 
 /**
  * @param {String} text Mandatory
- * @param {Number} rating Optional
- * @param {Number} maxRating Optional
+ * @param {String} text Mandatory
  * @param {String} kmlFileUrl Optional
  * @param {String} email Optional
  * @param {File} attachment Optional
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(
+    subject,
     text,
-    rating = null,
-    maxRating = null,
     kmlFileUrl = null,
     email = null,
     attachment = null
@@ -48,12 +46,6 @@ export default async function sendFeedback(
                 )
             }
         }
-
-        let subject = '[web-mapviewer]'
-        if (rating && maxRating) {
-            subject += ` [rating: ${rating}/${maxRating}]`
-        }
-        subject += ' User feedback'
 
         const data = {
             subject,

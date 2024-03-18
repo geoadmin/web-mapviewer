@@ -165,12 +165,12 @@ export default {
                 this.closeAndCleanForm()
                 return
             }
+
             this.request.pending = true
             try {
                 const feedbackSentSuccessfully = await sendFeedback(
+                    '[web-mapviewer] Problem report', // subject
                     this.feedback.message,
-                    undefined, // rating
-                    undefined, // max rating
                     undefined, // For the drawing layer, we send the KML file URL
                     this.feedback.email,
                     this.feedback.file
