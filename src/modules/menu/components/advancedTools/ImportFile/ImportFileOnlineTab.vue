@@ -97,6 +97,14 @@ function validateForm() {
         isFormValid.value = true
     }
 }
+
+function onEnter() {
+    if (!isFormValid.value) {
+        log.debug(`Cannot load file invalid form`)
+        return
+    }
+    loadFile()
+}
 </script>
 
 <template>
@@ -112,7 +120,7 @@ function validateForm() {
         aria-labelledby="nav-online-tab"
         data-cy="import-file-online-content"
     >
-        <form class="needs-validation">
+        <div class="needs-validation">
             <TextInput
                 ref="fileUrlInput"
                 v-model="fileUrl"
@@ -123,9 +131,9 @@ function validateForm() {
                 :form-validated="layerAdded"
                 data-cy="import-file-online-url-input"
                 @input="onUrlChange"
-                @keydown.enter="loadFile"
+                @keydown.enter.prevent="onEnter"
             />
-        </form>
+        </div>
         <ImportFileButtons
             class="mt-2"
             :button-state="buttonState"
