@@ -1,6 +1,10 @@
 <script setup>
-import { defineEmits, ref, toRefs } from 'vue'
+import { computed, defineEmits, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+import { isValidUrl } from '@/utils/utils'
+
+const i18n = useI18n()
 const generatedMediaLink = ref('')
 const linkDescription = ref('')
 const props = defineProps({
@@ -18,6 +22,19 @@ const props = defineProps({
     },
 })
 
+const urlValid = computed(() => {
+    if (!isValidUrl(generatedMediaLink.value)) {
+        return false
+    }
+    return true
+})
+
+const urlDescriptionValid = computed(() => {
+    if (!extraUrlDescription.value || linkDescription.value) {
+        return true
+    }
+    return false
+})
 const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
@@ -60,7 +77,17 @@ function addLink(generatedMediaLink) {
                 placeholder="More info ..."
                 data-cy="drawing-style-media-link-Description"
                 class="feature-urlDescription form-control"
+                :class="{
+                    'is-invalid': urlValid && !urlDescriptionValid,
+                }"
             />
+            <div
+                v-if="!urlDescriptionValid"
+                class="invalid-feedback"
+                data-cy="invalid-feedback-error"
+            >
+                {{ i18n.t('empty_description') }}
+            </div>
         </div>
     </div>
     <label class="form-label" for="drawing-style-media-url-description">
@@ -75,9 +102,12 @@ function addLink(generatedMediaLink) {
             placeholder="Paste URL"
             data-cy="drawing-style-media-url-description"
             class="feature-urlDescription form-control"
+            :class="{
+                'is-invalid': !urlValid,
+            }"
         />
         <button
-            v-if="urlDescription?.length > 0"
+            :disabled="!urlValid || !urlDescriptionValid"
             class="btn btn-outline-secondary rounded-end"
             type="button"
             data-cy="text-input-clear"
@@ -85,6 +115,9 @@ function addLink(generatedMediaLink) {
         >
             Add
         </button>
+        <div class="invalid-feedback" data-cy="invalid-feedback-error">
+            {{ i18n.t('invalid_url') }}
+        </div>
     </div>
 </template>
 
