@@ -405,7 +405,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
-    return EditableFeature.newFeature({
+    return new EditableFeature({
         id: featureId,
         featureType: featureType,
         title,

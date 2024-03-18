@@ -41,31 +41,26 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                 state.features.selectedFeatures.forEach((selectedFeature) => {
                     if (selectedFeature instanceof LayerFeature) {
                         reprojectedSelectedFeatures.push(
-                            new LayerFeature(
-                                selectedFeature.layer,
-                                selectedFeature.id,
-                                selectedFeature.name,
-                                selectedFeature.data,
-                                reprojectCoordinates(selectedFeature.coordinates),
-                                projExtent(oldProjection, newProjection, selectedFeature.extent),
-                                selectedFeature.geometry
-                            )
+                            new LayerFeature({
+                                layer: selectedFeature.layer,
+                                id: selectedFeature.id,
+                                name: selectedFeature.name,
+                                data: selectedFeature.data,
+                                coordinates: reprojectCoordinates(selectedFeature.coordinates),
+                                extent: projExtent(
+                                    oldProjection,
+                                    newProjection,
+                                    selectedFeature.extent
+                                ),
+                                geometry: selectedFeature.geometry,
+                            })
                         )
                     } else if (selectedFeature.isEditable) {
                         reprojectedSelectedFeatures.push(
-                            new EditableFeature(
-                                selectedFeature.id,
-                                reprojectCoordinates(selectedFeature.coordinates),
-                                selectedFeature.geometry,
-                                selectedFeature.time,
-                                selectedFeature.description,
-                                selectedFeature.featureType,
-                                selectedFeature.textColor,
-                                selectedFeature.textSize,
-                                selectedFeature.fillColor,
-                                selectedFeature.icon,
-                                selectedFeature.iconSize
-                            )
+                            new EditableFeature({
+                                ...selectedFeature,
+                                coordinates: reprojectCoordinates(selectedFeature.coordinates),
+                            })
                         )
                     } else {
                         log.debug('do not know what to do with this feature', selectedFeature)
