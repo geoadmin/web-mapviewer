@@ -10,7 +10,6 @@ import { useStore } from 'vuex'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
-import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -56,14 +55,10 @@ function setFeatures() {
         log.debug('no GeoJSON data loaded yet, could not create source')
         return
     }
-    // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
-    const matchingDataProjection = allCoordinateSystems.find(
-        (coordinateSystem) => coordinateSystem.epsg === geoJsonData.value?.crs?.properties?.name
-    )
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                reprojectGeoJsonData(geoJsonData.value, projection.value, matchingDataProjection)
+                reprojectGeoJsonData(geoJsonData.value, projection.value)
             ),
         })
     )
