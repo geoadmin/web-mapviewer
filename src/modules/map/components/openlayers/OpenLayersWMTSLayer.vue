@@ -1,13 +1,12 @@
 <script setup>
 import { Tile as TileLayer } from 'ol/layer'
-import { XYZ as XYZSource } from 'ol/source'
-import TileGrid from 'ol/tilegrid/TileGrid'
+import { WMTS as WMTSSource } from 'ol/source'
+import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const props = defineProps({
@@ -44,7 +43,7 @@ const url = computed(() => {
 const layer = new TileLayer({
     id: layerId.value,
     opacity: opacity.value,
-    source: createXYZSourceForProjection(),
+    source: createWMTSSourceForProjection(),
 })
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
@@ -52,12 +51,22 @@ const olMap = inject('olMap', null)
 useAddLayerToMap(layer, olMap, zIndex)
 
 // reacting to changes accordingly
-watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
+watch(url, (newUrl) => {
+    layer.getSource().setUrl(getWMTSUrl(newUrl))
+})
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, () => layer.setSource(createXYZSourceForProjection()))
+watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
+
+function getWMTSUrl(xyzUrl) {
+    return xyzUrl
+        .replace('{z}', '{TileMatrix}')
+        .replace('{x}', '{TileCol}')
+        .replace('{y}', '{TileRow}')
+}
 
 /**
- * Returns an OpenLayers XYZ source, with some customization depending on the projection being used.
+ * Returns an OpenLayers WMTS source, with some customization depending on the projection being
+ * used.
  *
  * If the projection is a CustomCoordinateSystem, it will set the extent of this projection to a
  * dedicated TileGrid object, meaning that tiles outside the extent won't be requested.
@@ -65,22 +74,57 @@ watch(projection, () => layer.setSource(createXYZSourceForProjection()))
  * If the projection is not a CustomCoordinateSystem, it will default to a worldwide coverage,
  * meaning no limit where tiles shouldn't be requested.
  *
- * @returns {XYZ}
+ * @returns {WMTSSource}
  */
-function createXYZSourceForProjection() {
-    let tileGrid = null
-    if (projection.value instanceof CustomCoordinateSystem) {
-        tileGrid = new TileGrid({
-            resolutions: projection.value.getResolutions(),
-            extent: projection.value.bounds.flatten,
-            origin: projection.value.getTileOrigin(),
-        })
-    }
-    return new XYZSource({
-        projection: projection.value.epsg,
-        url: url.value,
-        tileGrid,
+function createWMTSSourceForProjection() {
+    const resolutions = projection.value.getResolutions()
+    const origin = projection.value.getTileOrigin()
+    const extent = projection.value.bounds.flatten
+    const matrixIds = projection.value.getMatrixIds()
+
+    const tileGrid = new WMTSTileGrid({
+        resolutions: resolutions,
+        origin: origin,
+        matrixIds: matrixIds,
+        extent: extent,
     })
+    let timestamp = getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
+    // Use "current" as the default timestamp if not defined in the layer config or
+    timestamp = timestamp || wmtsLayerConfig.value.timeConfig.currentTimestamp || 'current'
+
+    // NOTE(IS): The following code is taken from the old geoadmin
+    // For some obscure reasons, on iOS, displaying a base 64 image
+    // in a tile with an existing crossOrigin attribute generates
+    // CORS errors.
+    // Currently crossOrigin definition is only used for mouse cursor
+    // detection on desktop in TooltipDirective.
+    let crossOrigin = 'anonymous'
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+        crossOrigin = undefined
+    }
+    const wmtsSource = new WMTSSource({
+        dimensions: {
+            Time: timestamp,
+        },
+
+        // Workaround: Set a cache size of zero when layer is
+        // timeEnabled see:
+        // https://github.com/geoadmin/mf-geoadmin3/issues/3491
+        cacheSize: wmtsLayerConfig.value.timeEnabled ? 0 : 2048,
+        layer: layerId.value,
+        format: wmtsLayerConfig.value.format,
+        projection: projection.value.epsg,
+        requestEncoding: 'REST',
+        tileGrid,
+        // tileLoadFunction: tileLoadFunction,
+        url: getWMTSUrl(url.value),
+        crossOrigin: crossOrigin,
+        transition: 0,
+        style: 'default',
+        matrixSet: projection.value.epsg,
+        attributions: wmtsLayerConfig.value.attribution,
+    })
+    return wmtsSource
 }
 </script>
 

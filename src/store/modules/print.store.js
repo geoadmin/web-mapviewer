@@ -7,6 +7,10 @@ export default {
         selectedLayout: {},
         selectedScale: 0,
         printSectionShown: false,
+        printingStatus: false,
+        useGraticule: false,
+        useLegend: false,
+        currentPrintReference: null,
     },
     getters: {
         mapSize(state) {
@@ -19,6 +23,15 @@ export default {
         },
         getSelectedScale(state) {
             return state.selectedScale
+        },
+        useGraticule(state) {
+            return state.useGraticule
+        },
+        useLegend(state) {
+            return state.useLegend
+        },
+        currentPrintReference(state) {
+            return state.currentPrintReference
         },
     },
     actions: {
@@ -39,11 +52,32 @@ export default {
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })
         },
+        setPrintingStatus({ commit }, { isPrinting, dispatcher }) {
+            commit('setPrintingStatus', { isPrinting, dispatcher })
+        },
+        setUseGraticule({ commit }, { useGraticule, dispatcher }) {
+            commit('setUseGraticule', { useGraticule, dispatcher })
+        },
+        setUseLegend({ commit }, { useLegend, dispatcher }) {
+            commit('setUseLegend', { useLegend, dispatcher })
+        },
+        setCurrentPrintReference({ commit }, { reference, dispatcher }) {
+            commit('setCurrentPrintReference', { reference, dispatcher })
+        },
+        setPrintStatusAndReference({ commit }, { isPrinting, reference, dispatcher }) {
+            commit('setPrintingStatus', { isPrinting, dispatcher })
+            commit('setCurrentPrintReference', { reference, dispatcher })
+        },
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
         setSelectedLayout: (state, { layout }) => (state.selectedLayout = layout),
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
+        setPrintingStatus: (state, { isPrinting }) => (state.printingStatus = isPrinting),
+        setUseGraticule: (state, { useGraticule }) => (state.useGraticule = useGraticule),
+        setUseLegend: (state, { useLegend }) => (state.useLegend = useLegend),
+        setCurrentPrintReference: (state, { reference }) =>
+            (state.currentPrintReference = reference),
     },
 }

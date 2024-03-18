@@ -1,3 +1,4 @@
+import { getTopLeft, getWidth } from 'ol/extent'
 import proj4 from 'proj4'
 
 import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
@@ -153,5 +154,55 @@ export default class CoordinateSystem {
      */
     roundCoordinateValue(_value) {
         throw Error('Not yet implemented')
+    }
+
+    /**
+     * A (descending) list of all the available resolutions for this coordinate system. If this is
+     * not the behavior you want, you have to override this function.
+     *
+     * @returns {Number[]}
+     */
+    getResolutions() {
+        const extent = this.bounds.flatten
+        const size = getWidth(extent) / 256
+        const resolutions = []
+        for (let z = 0; z < 19; ++z) {
+            resolutions[z] = size / Math.pow(2, z)
+        }
+        return resolutions
+    }
+
+    /**
+     * The origin to use as anchor for tile coordinate calculations. It will return the bound's
+     * [lowerX, upperY] as default value (meaning the top-left corner of bounds). If this is not the
+     * behavior you want, you have to override this function.
+     *
+     * If no bounds are defined, it will return [0, 0]
+     *
+     * @returns {[Number, Number]}
+     */
+    getTileOrigin() {
+        if (this.bounds) {
+            const extent = this.bounds.flatten
+            const origin = getTopLeft(extent)
+            return origin
+        } else {
+            return [0, 0]
+        }
+    }
+
+    /**
+     * List of matrix identifiers for this coordinate system. If this is not the behavior you want,
+     * you have to override this function.
+     *
+     * @returns {Number[]}
+     */
+    getMatrixIds() {
+        const matrixIds = []
+
+        for (let z = 0; z < this.getResolutions().length; ++z) {
+            matrixIds[z] = z
+        }
+        return matrixIds
     }
 }

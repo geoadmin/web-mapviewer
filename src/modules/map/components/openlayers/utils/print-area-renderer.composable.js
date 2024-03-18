@@ -1,3 +1,10 @@
+import {
+    BaseCustomizer,
+    cancelPrint,
+    getDownloadUrl,
+    MFPEncoder,
+    requestReport,
+} from '@geoblocks/mapfishprint'
 import { Feature } from 'ol'
 import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
@@ -6,6 +13,14 @@ import VectorSource from 'ol/source/Vector'
 import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
+import { createShortLink } from '@/api/shortlink.api'
+import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import i18n from '@/modules/i18n'
+import store from '@/store'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
@@ -40,6 +55,62 @@ function createWorldPolygon() {
     return vectorLayer
 }
 
+function encodeGraticule(dpi, projection) {
+    let gridLayer = 'org.epsg.grid_4326'
+    if (projection instanceof CustomCoordinateSystem) {
+        gridLayer = 'org.epsg.grid_2056'
+    }
+    return {
+        baseURL: WMS_BASE_URL,
+        opacity: 1,
+        singleTile: true,
+        type: 'WMS',
+        layers: [gridLayer],
+        format: 'image/png',
+        styles: [''],
+        customParams: {
+            TRANSPARENT: true,
+            MAP_RESOLUTION: dpi,
+        },
+    }
+}
+
+function encodeLegend() {
+    // const icons = []
+    const visibleLayers = store.getters.visibleLayers
+    const classes = []
+
+    for (const layer of visibleLayers) {
+        // There are some layers that do not have legend but the hasLegend is set to True
+        // It might give a blank legend in the print
+        if (layer.hasLegend) {
+            classes.push({
+                name: layer.name,
+                icons: [
+                    `${API_BASE_URL}static/images/legends/${layer.id}_${store.state.i18n.lang}.png`,
+                ],
+            })
+        }
+    }
+    return {
+        name: i18n.global.t('legend'),
+        classes: classes,
+    }
+}
+
+function encodeAttributions() {
+    const visibleLayers = store.getters.visibleLayers
+    const attributions = new Set()
+
+    for (const layer of visibleLayers) {
+        const layerAttributions = layer.attributions
+        for (const layerAttribution of layerAttributions) {
+            attributions.add(layerAttribution.name)
+        }
+    }
+    return Array.from(attributions).join(', ')
+}
+
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
 
@@ -47,6 +118,8 @@ export default function usePrintAreaRenderer(map) {
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
     const UNITS_RATIO = 39.37 // inches per meter
+    const POLL_INTERVAL = 2000 // interval for multi-page prints (ms)
+    const POLL_MAX_TIME = 600000 // ms (10 minutes)
     let worldPolygon = null
     let printRectangle = []
 
@@ -62,6 +135,10 @@ export default function usePrintAreaRenderer(map) {
         return store.state.print.selectedScale
     })
 
+    const printingStatus = computed(() => {
+        return store.state.print.printingStatus
+    })
+
     watch(isActive, (newValue) => {
         if (newValue) {
             activatePrintArea()
@@ -69,6 +146,99 @@ export default function usePrintAreaRenderer(map) {
             deactivatePrintArea()
         }
     })
+
+    watch(printingStatus, async (newValue) => {
+        if (newValue) {
+            startPrinting()
+        } else {
+            abortPrinting()
+        }
+    })
+
+    async function startPrinting() {
+        const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
+
+        const layout = store.state.print.selectedLayout.name
+
+        const encoder = new MFPEncoder(mapFishPrintUrl)
+        const customizer = new BaseCustomizer([0, 0, 10000, 10000])
+        // Generate QR code url from current shortlink (similar as in share.store.js avoding dispatch)
+        const urlWithoutGeolocation =
+            // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
+            window.location.href.replace('&geolocation', '')
+        const shortLink = await createShortLink(urlWithoutGeolocation)
+        const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
+
+        const mapConfig = {
+            map,
+            scale: selectedScale.value,
+            printResolution: 96,
+            dpi: 96,
+            customizer: customizer,
+        }
+
+        const mapSpec = await encoder.encodeMap(mapConfig)
+
+        const spec = {
+            attributes: {
+                map: mapSpec,
+                copyright: `© ${encodeAttributions()}`,
+                url: store.state.ui.hostname,
+                qrimage: qrCodeUrl,
+            },
+            format: 'pdf',
+            layout: layout,
+        }
+        if (store.state.print.useGraticule) {
+            const legend = encodeLegend()
+            if (legend.classes.length > 0) {
+                spec.attributes.legend = legend
+            } else {
+                spec.attributes.printLegend = 0
+            }
+        } else {
+            spec.attributes.printLegend = 0
+        }
+
+        if (store.state.print.useGraticule) {
+            // Put the graticule in the first layer so it's drawn at the top
+            spec.attributes.map.layers.unshift(encodeGraticule(96, store.state.position.projection))
+        }
+
+        const report = await requestReport(mapFishPrintUrl, spec)
+        store.dispatch('setCurrentPrintReference', { reference: report.ref, ...dispatcher })
+
+        try {
+            const url = await getDownloadUrl(mapFishPrintUrl, report, POLL_INTERVAL, POLL_MAX_TIME)
+            downloadUrl(url)
+        } catch (error) {
+            log.error('result', 'error', error)
+        } finally {
+            store.dispatch('setPrintStatusAndReference', {
+                isPrinting: false,
+                reference: null,
+                ...dispatcher,
+            })
+        }
+    }
+
+    function abortPrinting() {
+        if (store.getters.currentPrintReference) {
+            const printReference = store.getters.currentPrintReference
+            const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
+            cancelPrint(mapFishPrintUrl, printReference)
+
+            store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
+        }
+    }
+
+    function downloadUrl(url) {
+        if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
+            window.open(url)
+        } else {
+            window.location = url
+        }
+    }
 
     function activatePrintArea() {
         if (!worldPolygon) {
