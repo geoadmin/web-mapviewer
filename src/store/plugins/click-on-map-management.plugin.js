@@ -33,7 +33,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang, projection) => {
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
             if ([LayerTypes.GEOJSON, LayerTypes.KML, LayerTypes.GPX].includes(layer.type)) {
-                allFeatures.push(clickInfo.features)
+                allFeatures.push(...clickInfo.features)
             } else if (layer.hasTooltip) {
                 if (
                     !(layer instanceof ExternalLayer) ||

@@ -28,7 +28,7 @@ const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value) {
+    if (hasFeatureStringData.value || !feature.value?.data) {
         return []
     }
     return Object.entries(feature.value.data)
@@ -58,9 +58,12 @@ function sanitizeHtml(htmlText) {
             </div>
         </div>
         <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
-            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
+            <FeatureAreaInfo
+                v-if="feature.geometry?.type === 'Polygon'"
+                :geometry="feature.geometry"
+            />
             <CoordinateCopySlot
-                v-if="feature.geometry.type === 'Point'"
+                v-if="feature.geometry?.type === 'Point'"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
