@@ -120,7 +120,7 @@ function onEnter() {
         aria-labelledby="nav-online-tab"
         data-cy="import-file-online-content"
     >
-        <form class="needs-validation">
+        <div class="needs-validation">
             <TextInput
                 ref="fileUrlInput"
                 v-model="fileUrl"
@@ -131,9 +131,9 @@ function onEnter() {
                 :form-validated="layerAdded"
                 data-cy="import-file-online-url-input"
                 @input="onUrlChange"
-                @keydown.enter="onEnter"
+                @keydown.enter.prevent="onEnter"
             />
-        </form>
+        </div>
         <ImportFileButtons
             class="mt-2"
             :button-state="buttonState"
