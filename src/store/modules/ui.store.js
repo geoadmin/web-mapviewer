@@ -242,17 +242,11 @@ export default {
         },
         /** Flag to display to display give feedback button/form */
         hasGiveFeedbackButton(state) {
-            if (state.hostname.includes('localhost')) {
-                return true
-            }
             return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
         /** Flag to display to display report problem button/form */
-        hasReportProblemButton(state) {
-            if (state.hostname.includes('localhost')) {
-                return true
-            }
-            return !GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
+        hasReportProblemButton(state, getters) {
+            return !getters.hasGiveFeedbackButton
         },
     },
     actions: {
