@@ -36,7 +36,7 @@ const sanitizedFeatureDataEntries = computed(() => {
         .map(([key, value]) => [key, sanitizeHtml(value)])
 })
 function sanitizeHtml(htmlText) {
-    return DOMPurify.sanitize(htmlText)
+    return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
 </script>
 
