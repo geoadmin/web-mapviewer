@@ -20,6 +20,7 @@
         :title="request.completed ? '' : $t('problem_announcement')"
         fluid
         @close="closeAndCleanForm"
+        @open="generateShortLink"
     >
         <div v-if="!request.completed" class="p-2" data-cy="report-problem-form">
             <span>{{ $t('feedback_description') }}</span>
@@ -154,9 +155,7 @@ export default {
             return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
         },
     },
-    async mounted() {
-        this.shortLink = await createShortLink(window.location.href)
-    },
+
     methods: {
         async sendFeedback() {
             // if the request was already sent, we don't allow the user to double send
@@ -200,6 +199,9 @@ export default {
         },
         handleFile(file) {
             this.feedback.file = file
+        },
+        generateShortLink() {
+            this.shortLink = createShortLink(window.location.href)
         },
     },
 }

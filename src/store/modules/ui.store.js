@@ -240,12 +240,24 @@ export default {
         noFeatureInfo(state) {
             return state.featureInfoPosition === FeatureInfoPositions.NONE
         },
-        /** Flag to display to display give feedback button/form */
+        /**
+         * Flag to display to display give feedback button/form. On localhost, it will always shown
+         * for testing purpose
+         */
         hasGiveFeedbackButton(state) {
+            if (state.hostname.includes('localhost')) {
+                return true
+            }
             return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
-        /** Flag to display to display report problem button/form */
+        /**
+         * Flag to display to display report problem button/form. On localhost, it will always shown
+         * for testing purpose
+         */
         hasReportProblemButton(state, getters) {
+            if (state.hostname.includes('localhost')) {
+                return true
+            }
             return !getters.hasGiveFeedbackButton
         },
     },
