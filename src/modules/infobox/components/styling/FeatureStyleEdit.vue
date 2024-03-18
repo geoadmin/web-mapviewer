@@ -9,7 +9,7 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
-import DrawingStyleMedia from '@/modules/infobox/components/styling/DrawingStyleMedia.vue'
+import DrawingStyleMediaLink from '@/modules/infobox/components/styling/DrawingStyleMediaLink.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
@@ -119,7 +119,7 @@ function onIconSizeChange(iconSize) {
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
-function onUpdateDescription(descriptionMediaLink) {
+function onAddMediaLink(descriptionMediaLink) {
     description.value += descriptionMediaLink
 }
 </script>
@@ -152,35 +152,35 @@ function onUpdateDescription(descriptionMediaLink) {
                         class="rounded-0 rounded-top-2 rounded-end-0 btn-sm btn-light d-flex align-items-center"
                         icon="fa-link"
                     >
-                        <DrawingStyleMedia
+                        <DrawingStyleMediaLink
                             media-type="link"
-                            :description-title="$t('url_link')"
-                            :extra-description-title="$t('text_to_display')"
-                            @description-media-link="onUpdateDescription"
+                            :url-description="$t('url_link')"
+                            :extra-url-description="$t('text_to_display')"
+                            @generated-media-link="onAddMediaLink"
                         >
-                        </DrawingStyleMedia>
+                        </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
                         class="rounded-0 btn-sm btn-light d-flex align-items-center"
                         icon="fa-image"
                     >
-                        <DrawingStyleMedia
+                        <DrawingStyleMediaLink
                             media-type="image"
-                            :description-title="$t('url_image')"
-                            @description-media-link="onUpdateDescription"
+                            :url-description="$t('url_image')"
+                            @generated-media-link="onAddMediaLink"
                         >
-                        </DrawingStyleMedia>
+                        </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
                         class="rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
                         icon="fa-film"
                     >
-                        <DrawingStyleMedia
+                        <DrawingStyleMediaLink
                             media-type="video"
-                            :description-title="$t('url_video')"
-                            @description-media-link="onUpdateDescription"
+                            :url-description="$t('url_video')"
+                            @generated-media-link="onAddMediaLink"
                         >
-                        </DrawingStyleMedia>
+                        </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                 </div>
                 <textarea
