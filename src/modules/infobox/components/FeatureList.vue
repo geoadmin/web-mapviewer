@@ -20,13 +20,6 @@ const features = computed(() =>
     store.state.features.selectedFeatures.filter((feature) => !feature.isEditable)
 )
 
-function generateFeatureIdForList(feature, indexInList) {
-    let featureId = feature.id || indexInList
-    if (feature.layer) {
-        featureId = `${feature.layer.id}-${featureId}`
-    }
-    return featureId
-}
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: feature?.id,
@@ -49,7 +42,7 @@ function clearHighlightedFeature() {
     >
         <FeatureDetail
             v-for="(feature, index) in features"
-            :key="generateFeatureIdForList(feature, index)"
+            :key="feature.id ?? index"
             :feature="feature"
             class="feature-list-item"
             @mouseenter.passive="highlightFeature(feature)"

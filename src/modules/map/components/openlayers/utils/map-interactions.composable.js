@@ -94,13 +94,14 @@ export default function useMapInteractions(map) {
         log.debug(`map pointer up event ${event.target?.nodeName}`)
         // see comment in onPointDown why we check that we deal with the canvas only
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
-            const coordinate = map.getCoordinateFromPixel([event.x, event.y])
+            const pixel = [event.x, event.y]
+            const coordinate = map.getCoordinateFromPixel(pixel)
             switch (event.button) {
                 case 0:
-                    onLeftClickUp(event.pixel, coordinate)
+                    onLeftClickUp(pixel, coordinate)
                     break
                 case 2:
-                    onRightClick(event.pixel, coordinate)
+                    onRightClick(pixel, coordinate)
                     break
             }
         }
