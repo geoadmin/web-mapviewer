@@ -18,8 +18,7 @@ export default class LayerFeature extends SelectableFeature {
     constructor(featureData) {
         const { layer, id, name, data, coordinates, extent, geometry = null } = featureData
         super({
-            // making sure we have a unique ID by use the layer ID with the feature ID
-            id: `${layer.id}-${id}`,
+            id,
             coordinates,
             // using the layer name as title (so that user can differentiate the source)
             title: layer.name,

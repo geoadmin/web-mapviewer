@@ -34,9 +34,13 @@ const cloneActiveLayerConfig = (getters, layer) => {
 }
 
 const updateLayerCommit = (state, layer) => {
-    const layer2Update = getActiveLayerById(state, layer.id)
+    let layer2Update = getActiveLayerById(state, layer.id)
     if (layer2Update) {
-        Object.assign(layer2Update, layer)
+        if (layer instanceof AbstractLayer) {
+            state.activeLayers[state.activeLayers.indexOf(layer2Update)] = layer
+        } else {
+            Object.assign(layer2Update, layer)
+        }
     } else {
         throw new Error(`Failed to update layer ${layer.id}: layer not found in active layers`)
     }
