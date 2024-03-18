@@ -135,10 +135,16 @@ function releaseSlider() {
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
     >
-        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'caret-left']" />
+        <FontAwesomeIcon
+            class="compare-slider-caret-left bg-primary text-white rounded-start"
+            :icon="['fas', 'caret-left']"
+        />
         <div class="compare-slider-line"></div>
 
-        <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
+        <FontAwesomeIcon
+            class="compare-slider-caret-right bg-primary text-white rounded-end"
+            :icon="['fas', 'caret-right']"
+        />
     </div>
 </template>
 
@@ -153,18 +159,14 @@ function releaseSlider() {
     &-caret-right {
         position: inherit;
         top: 50%;
-        width: 14px;
-        height: 14px;
-        color: $white;
-        background: $primary;
         z-index: inherit;
-    }
-
-    &-caret-left {
-        translate: 4px;
+        padding-left: 6px;
+        padding-right: 6px;
+        padding-top: 2px;
+        padding-bottom: 2px;
     }
     &-caret-right {
-        translate: 22px;
+        translate: 20px;
     }
     &-line {
         position: relative;
