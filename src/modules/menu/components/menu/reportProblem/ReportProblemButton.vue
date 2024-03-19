@@ -23,13 +23,21 @@
         @open="generateShortLink"
     >
         <div v-if="!request.completed" class="p-2" data-cy="report-problem-form">
-            <span>{{ $t('feedback_description') }}</span>
-            <textarea
-                v-model="feedback.message"
-                :disabled="request.pending"
-                class="form-control feedback-text"
-                data-cy="report-problem-text"
-            ></textarea>
+            <div class="my-3">
+                <span>{{ $t('feedback_description') }}</span>
+                <div class="input-group has-validation">
+                    <textarea
+                        v-model="feedback.message"
+                        :disabled="request.pending"
+                        :class="{ 'is-invalid': !userIsTypingFeedback && !isMessageValid }"
+                        class="form-control feedback-text"
+                        data-cy="report-problem-text"
+                        @focusin="userIsTypingFeedback = true"
+                        @focusout="userIsTypingFeedback = false"
+                    ></textarea>
+                    <div class="invalid-feedback">Message cannot be empty</div>
+                </div>
+            </div>
 
             <div class="my-3">
                 <span>{{ $t('feedback_mail_2') }}</span>
@@ -132,6 +140,7 @@ export default {
     data() {
         return {
             showFeedbackForm: false,
+            userIsTypingFeedback: false,
             userIsTypingEmail: false,
             feedback: {
                 message: null,
@@ -149,7 +158,10 @@ export default {
     },
     computed: {
         feedbackCanBeSent() {
-            return !this.request.pending && this.isEmailValid
+            return !this.request.pending && this.isEmailValid && this.isMessageValid
+        },
+        isMessageValid() {
+            return this.feedback.message != null && this.feedback.message != ''
         },
         isEmailValid() {
             return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
