@@ -38,6 +38,9 @@ const sanitizedFeatureDataEntries = computed(() => {
 function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
+function containsMedia(htmlText) {
+    return htmlText.includes('href') || htmlText.includes('image') || htmlText.includes('iframe')
+}
 </script>
 
 <template>
@@ -48,6 +51,12 @@ function sanitizeHtml(htmlText) {
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
+                <div
+                    v-if="containsMedia(value)"
+                    class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+                >
+                    !!!!!!Disclaimer!!!!!!
+                </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div v-html="value"></div>
