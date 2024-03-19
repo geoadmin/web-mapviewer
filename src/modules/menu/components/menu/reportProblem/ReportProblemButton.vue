@@ -3,7 +3,7 @@
         v-if="showAsLink"
         :primary="true"
         data-cy="report-problem-link-button"
-        @click="showFeedbackForm = true"
+        @click="openForm"
     >
         <strong>{{ $t('problem_announcement') }}</strong>
     </HeaderLink>
@@ -11,7 +11,7 @@
         v-else
         class="btn btn-primary btn-sm mx-1"
         data-cy="report-problem-button"
-        @click="showFeedbackForm = true"
+        @click="openForm"
     >
         {{ $t('problem_announcement') }}
     </button>
@@ -20,13 +20,13 @@
         :title="request.completed ? '' : $t('problem_announcement')"
         fluid
         @close="closeAndCleanForm"
-        @open="generateShortLink"
     >
         <div v-if="!request.completed" class="p-2" data-cy="report-problem-form">
             <div class="my-3">
                 <span>{{ $t('feedback_description') }}</span>
                 <div class="input-group has-validation">
                     <textarea
+                        ref="feedbackMessageTextArea"
                         v-model="feedback.message"
                         :disabled="request.pending"
                         :class="{ 'is-invalid': !userIsTypingFeedback && !isMessageValid }"
@@ -212,8 +212,15 @@ export default {
         handleFile(file) {
             this.feedback.file = file
         },
-        generateShortLink() {
-            this.shortLink = createShortLink(window.location.href)
+        async generateShortLink() {
+            this.shortLink = await createShortLink(window.location.href)
+        },
+        openForm() {
+            this.showFeedbackForm = true
+            this.generateShortLink()
+            this.$nextTick(() => {
+                this.$refs.feedbackMessageTextArea.focus()
+            })
         },
     },
 }
