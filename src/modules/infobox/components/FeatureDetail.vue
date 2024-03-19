@@ -1,6 +1,6 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import { computed, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -20,6 +20,7 @@ const { feature } = toRefs(props)
 
 const i18n = useI18n()
 
+const disclaimerAgree = ref('false')
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
@@ -39,7 +40,14 @@ function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
 function containsMedia(htmlText) {
-    return htmlText.includes('href') || htmlText.includes('image') || htmlText.includes('iframe')
+    if (htmlText.includes('iframe')) {
+        return true
+    } else {
+        return false
+    }
+}
+function setDisclaimerAgree() {
+    disclaimerAgree.value = !disclaimerAgree.value
 }
 </script>
 
@@ -53,14 +61,20 @@ function containsMedia(htmlText) {
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div
-                    v-if="containsMedia(value)"
-                    class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+                    v-if="disclaimerAgree && containsMedia(value)"
+                    class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
                     !!!!!!DISCLAIMER!!!!!!
+                    <button
+                        class="px-3 rounded-2 btn btn-sm btn-light align-items-center"
+                        @click="setDisclaimerAgree"
+                    >
+                        I agree
+                    </button>
                 </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
-                <div v-html="value"></div>
+                <div v-if="!containsMedia(value) || !disclaimerAgree" v-html="value"></div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}

@@ -39,11 +39,18 @@ const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
 function createVideo() {
-    let youtubeRegExp = new RegExp(
-        '^.*(?:(?:youtu.be/|v/|vi/|u/w/|embed/|shorts/)|(?:(?:watch)??v(?:i)?=|&v(?:i)?=))([^#&?]*).*'
-    )
-    let videoId = youtubeRegExp.exec(generatedMediaLink.value)[1]
-    return `<iframe src="${'https://www.youtube.com/embed/' + videoId}" height="200" width="auto"></iframe>`
+    if (
+        generatedMediaLink.value.includes('youtube.com/') ||
+        generatedMediaLink.value.includes('youtu.be/')
+    ) {
+        let youtubeRegExp = new RegExp(
+            '^.*(?:(?:youtu.be/|v/|vi/|u/w/|embed/|shorts/)|(?:(?:watch)??v(?:i)?=|&v(?:i)?=))([^#&?]*).*'
+        )
+        let videoId = youtubeRegExp.exec(generatedMediaLink.value)[1]
+        return `<iframe src="${'https://www.youtube.com/embed/' + videoId}" height="200" width="auto"></iframe>`
+    } else {
+        return `<iframe src="${generatedMediaLink.value}" height="200" width="auto"></iframe>`
+    }
 }
 function createImage() {
     return `<image src="${generatedMediaLink.value}" style="max-height:200px;"/>`
@@ -80,7 +87,7 @@ function addLink(generatedMediaLink) {
                 type="text"
                 placeholder="More info ..."
                 data-cy="drawing-style-media-link-Description"
-                class="feature-urlDescription form-control"
+                class="feature-url-description form-control"
                 :class="{
                     'is-invalid': urlValid && !urlDescriptionValid,
                 }"
@@ -88,7 +95,7 @@ function addLink(generatedMediaLink) {
             <div
                 v-if="!urlDescriptionValid"
                 class="invalid-feedback"
-                data-cy="invalid-feedback-error"
+                data-cy="drawing-style-media-empty-description-error"
             >
                 {{ i18n.t('empty_description') }}
             </div>
@@ -105,7 +112,7 @@ function addLink(generatedMediaLink) {
             type="text"
             placeholder="Paste URL"
             data-cy="drawing-style-media-url-description"
-            class="feature-urlDescription form-control"
+            class="feature-url-description form-control"
             :class="{
                 'is-invalid': !urlValid,
             }"
@@ -114,12 +121,12 @@ function addLink(generatedMediaLink) {
             :disabled="!urlValid || !urlDescriptionValid"
             class="btn btn-outline-secondary rounded-end"
             type="button"
-            data-cy="text-input-clear"
+            data-cy="drawing-style-media-text-input-clear"
             @click="addLink(generatedMediaLink)"
         >
             Add
         </button>
-        <div class="invalid-feedback" data-cy="invalid-feedback-error">
+        <div class="invalid-feedback" data-cy="drawing-style-media-invalid-url-error">
             {{ i18n.t('invalid_url') }}
         </div>
     </div>
