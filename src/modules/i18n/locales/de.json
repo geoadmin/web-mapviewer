@@ -190,6 +190,7 @@
     "feedback_description": "1. Melden Sie uns in diesem Feld Änderungen in der Karte, Verbesserungen der Daten oder Fragen zu dieser Website (erforderlich) :",
     "feedback_disclaimer": "Mit dem Absenden Ihrer Meldung erklären Sie sich mit den <a href='https://www.geo.admin.ch/de/ueber-geo-admin/impressum.html#feedback' target='_blank'>Nutzungsbedingungen</a> einverstanden.",
     "feedback_drawing": "2. Markieren Sie den betroffenen Ort in der Karte :",
+    "feedback_empty_warning": "Die Berichtsnachricht darf nicht leer sein",
     "feedback_error_message": "Problem: Meldung konnte nicht übermittelt werden",
     "feedback_kml_attached": "Die aktuelle Zeichung wird übermittelt. ",
     "feedback_mail": "3. Ihre E-Mail Adresse :",

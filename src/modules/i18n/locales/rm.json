@@ -188,6 +188,7 @@
     "feedback_description": "1. Rapport charta actual (necessari) :",
     "feedback_disclaimer": " <a href='https://www.geo.admin.ch/en/about-swiss-geoportal/responsabilities-and-contacts.html#feedback' target='_blank'>Cundiziuns d'utilisaziun</a>",
     "feedback_drawing": "2. Voss dissegn :",
+    "feedback_empty_warning": "La messadi dal raport po betg esser vegnida lasciada basa",
     "feedback_error_message": "Problem: rapport na tramess cun success",
     "feedback_kml_attached": "Trametter dissegn actual",
     "feedback_mail": "3. Voss e-mail:",
