@@ -2,6 +2,10 @@
 
 import { APP_VERSION } from '@/config'
 
+const text =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+const validEmail = 'this.is.a.valid@email.com'
+
 describe('Testing the report problem form', () => {
     beforeEach(() => {
         cy.goToMapView()
@@ -29,27 +33,37 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
         })
 
-        it('is possible to send a feedback without specifying an email address', () => {
-            cy.get('[data-cy="report-problem-email"').should('be.empty')
-            cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+        context('Email validation', () => {
+            beforeEach(() => {
+                cy.get('[data-cy="report-problem-text"]').type(text)
+            })
+            it('is possible to report a problem without specifying an email address', () => {
+                cy.get('[data-cy="report-problem-email"').should('be.empty')
+                cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+            })
+            it('is not possible to report a problem with a malformed email', () => {
+                cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
+                cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+            })
+            it('validates email before enabling the user to report a problem', () => {
+                cy.get('[data-cy="report-problem-email"').type(validEmail)
+                cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+            })
         })
-        it('is not possible to send a feedback with a malformed email', () => {
-            cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
-            cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+
+        context('Text validation', () => {
+            beforeEach(() => {
+                cy.get('[data-cy="report-problem-email"]').type(validEmail)
+            })
+            it('is not possible to report a problem without filling the message', () => {
+                cy.get('[data-cy="report-problem-text"').should('be.empty')
+                cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+            })
         })
-        it('validates email before enabling the user to send the feedback', () => {
-            cy.get('[data-cy="report-problem-email"').type('this.is.a.valid@email.com')
-            cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
-        })
-        it('is possible to send a feedback without giving a text', () => {
-            cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
-        })
-        // TODO: check report text is needed
-        // Attachfile is not needed
     })
     context('backend interaction', () => {
         beforeEach(() => {
-            // opening the feedback form
+            // opening the report problem form
             cy.get('[data-cy="menu-button"]').click()
             cy.get('[data-cy="menu-settings-section"]').click()
             cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
@@ -94,13 +108,10 @@ describe('Testing the report problem form', () => {
             }
 
             it('generates a complete request to service-feedback', () => {
-                const text =
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-                const email = 'some.valid@email.com'
                 interceptFeedback(true)
+                cy.get('[data-cy="report-problem-email"]').type(validEmail)
                 cy.get('[data-cy="report-problem-text"]').type(text)
-                cy.get('[data-cy="report-problem-email"]').type(email)
-                // Add attachment file here
+
                 cy.get('[data-cy="submit-report-problem-button"]').click()
 
                 cy.wait('@feedback').then((interception) => {
@@ -109,8 +120,7 @@ describe('Testing the report problem form', () => {
                         { name: 'feedback', contains: text },
                         { name: 'version', contains: APP_VERSION },
                         { name: 'ua', contains: navigator.userAgent },
-                        // Add attachment file here
-                        { name: 'email', contains: email },
+                        { name: 'email', contains: validEmail },
                     ].forEach((param) => {
                         expect(interception.request.body).to.be.a('String')
                         const formData = parseFormData(interception.request)
@@ -123,6 +133,8 @@ describe('Testing the report problem form', () => {
         context('successful feedback requests', () => {
             beforeEach(() => {
                 interceptFeedback(true)
+                cy.get('[data-cy="report-problem-text"]').type(text)
+                cy.get('[data-cy="report-problem-email"]').type(validEmail)
                 cy.get('[data-cy="submit-report-problem-button"]').click()
             })
             it('shows the user the feedback was well received with a checkmark in the submit button', () => {
@@ -142,6 +154,8 @@ describe('Testing the report problem form', () => {
         context('failed feedback requests', () => {
             beforeEach(() => {
                 interceptFeedback(false)
+                cy.get('[data-cy="report-problem-text"]').type(text)
+                cy.get('[data-cy="report-problem-email"]').type(validEmail)
                 cy.get('[data-cy="submit-report-problem-button"]').click()
             })
             it('shows a text to the user to tell him something went wrong', () => {
