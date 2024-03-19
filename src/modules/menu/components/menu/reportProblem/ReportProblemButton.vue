@@ -69,7 +69,7 @@
                 <button
                     :disabled="!feedbackCanBeSent"
                     class="btn btn-primary"
-                    data-cy="submit-feedback-button"
+                    data-cy="submit-report-problem-button"
                     @click="sendFeedback"
                 >
                     <FontAwesomeIcon
