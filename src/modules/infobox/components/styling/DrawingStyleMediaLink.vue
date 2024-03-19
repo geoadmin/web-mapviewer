@@ -39,7 +39,11 @@ const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
 function createVideo() {
-    return `<iframe src="${generatedMediaLink.value}" height="200" width="auto"></iframe>`
+    let youtubeRegExp = new RegExp(
+        '^.*(?:(?:youtu.be/|v/|vi/|u/w/|embed/|shorts/)|(?:(?:watch)??v(?:i)?=|&v(?:i)?=))([^#&?]*).*'
+    )
+    let videoId = youtubeRegExp.exec(generatedMediaLink.value)[1]
+    return `<iframe src="${'https://www.youtube.com/embed/' + videoId}" height="200" width="auto"></iframe>`
 }
 function createImage() {
     return `<image src="${generatedMediaLink.value}" style="max-height:200px;"/>`
