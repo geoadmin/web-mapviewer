@@ -170,7 +170,10 @@ function onDelete() {
             >
                 <FontAwesomeIcon class="small pe-2 align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
-            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
+            <FeatureAreaInfo
+                v-if="feature.geometry.type === 'Polygon'"
+                :geometry="feature.geometry"
+            />
         </div>
         <div class="d-flex justify-content-end align-items-center">
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">

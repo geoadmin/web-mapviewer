@@ -100,6 +100,7 @@ export function useMouseOnMap() {
                     )
                 )
             })
+            log.debug('vector features found under mouse cursor', features)
             store.dispatch('click', {
                 clickInfo: new ClickInfo(
                     coordinate,
