@@ -35,7 +35,7 @@
                         @focusin="userIsTypingFeedback = true"
                         @focusout="userIsTypingFeedback = false"
                     ></textarea>
-                    <div class="invalid-feedback">Message cannot be empty</div>
+                    <div class="invalid-feedback">{{ $t('feedback_empty_warning') }}</div>
                 </div>
             </div>
 
