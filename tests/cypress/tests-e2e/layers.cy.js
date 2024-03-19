@@ -218,7 +218,7 @@ describe('Test of layer handling', () => {
                     cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmsBaseUrl2)
                     cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmsLayerId4)
                     cy.wrap(layers[3].name).should('be.eq', fakeWmsLayerName4)
-                    cy.wrap(layers[3].wmsVersion).should('be.eq', '1.3.0')
+                    cy.wrap(layers[3].layers).should('have.length.above', 0)
                     cy.wrap(layers[3].visible).should('be.false')
                     cy.wrap(layers[3].opacity).should('be.eq', 0.4)
                 })
