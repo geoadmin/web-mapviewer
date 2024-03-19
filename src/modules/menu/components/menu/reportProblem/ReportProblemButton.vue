@@ -16,7 +16,7 @@
         {{ $t('problem_announcement') }}
     </button>
     <ModalWithBackdrop
-        v-if="showFeedbackForm"
+        v-if="showReportProblemForm"
         :title="request.completed ? '' : $t('problem_announcement')"
         fluid
         @close="closeAndCleanForm"
@@ -139,7 +139,7 @@ export default {
     },
     data() {
         return {
-            showFeedbackForm: false,
+            showReportProblemForm: false,
             userIsTypingFeedback: false,
             userIsTypingEmail: false,
             feedback: {
@@ -201,7 +201,7 @@ export default {
             }
         },
         closeAndCleanForm() {
-            this.showFeedbackForm = false
+            this.showReportProblemForm = false
             this.feedback.message = null
             this.feedback.email = null
             this.feedback.file = false
@@ -216,7 +216,7 @@ export default {
             this.shortLink = await createShortLink(window.location.href)
         },
         openForm() {
-            this.showFeedbackForm = true
+            this.showReportProblemForm = true
             this.generateShortLink()
             this.$nextTick(() => {
                 this.$refs.feedbackMessageTextArea.focus()
