@@ -5,7 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -30,6 +30,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    focusMoveButton: {
+        type: [String, null],
+        default: null,
+    },
     isTopLayer: {
         type: Boolean,
         default: false,
@@ -43,13 +47,17 @@ const props = defineProps({
         default: false,
     },
 })
-const { index, layer, showLayerDetail, isTopLayer, isBottomLayer, compact } = toRefs(props)
+const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
+    toRefs(props)
 
 const emit = defineEmits(['showLayerLegendPopup', 'toggleLayerDetail', 'moveLayer'])
 
 const store = useStore()
 
 useTippyTooltip('.loading-button[data-tippy-content]')
+
+const layerUpButton = ref(null)
+const layerDownButton = ref(null)
 
 const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const id = computed(() => layer.value.id)
@@ -63,6 +71,16 @@ const showLegendIcon = computed(() => layer.value.hasLegend)
 const showSpinner = computed(
     () => layer.value.isLoading && layer.value.isExternal && !layer.value.hasError
 )
+
+onMounted(() => {
+    if (showLayerDetail.value) {
+        if (focusMoveButton.value === 'up') {
+            layerUpButton.value.focus()
+        } else if (focusMoveButton.value === 'down') {
+            layerDownButton.value.focus()
+        }
+    }
+})
 
 function onRemoveLayer() {
     store.dispatch('removeLayer', { index: index.value, ...dispatcher })
@@ -184,20 +202,22 @@ function showLayerLegendPopup() {
                 @change="onOpacityChange"
             />
             <button
+                ref="layerUpButton"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isTopLayer"
                 :data-cy="`button-raise-order-layer-${id}`"
-                @click="emit('moveLayer', index, index + 1)"
+                @click.prevent="emit('moveLayer', index, index + 1)"
             >
                 <FontAwesomeIcon icon="arrow-up" />
             </button>
             <button
+                ref="layerDownButton"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isBottomLayer"
                 :data-cy="`button-lower-order-layer-${id}`"
-                @click="emit('moveLayer', index, index - 1)"
+                @click.prevent="emit('moveLayer', index, index - 1)"
             >
                 <FontAwesomeIcon icon="arrow-down" />
             </button>

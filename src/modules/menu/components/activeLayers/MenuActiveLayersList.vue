@@ -25,6 +25,7 @@ const activeLayersList = ref(null)
 const aLayerIsDragged = ref(false)
 const showLayerLegendForLayer = ref(null)
 const showLayerDetailIndex = ref(null)
+const layerDetailFocusMoveButton = ref(null)
 
 const store = useStore()
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
@@ -60,6 +61,7 @@ function onMoveLayer(oldIndex, newIndex) {
     if (newIndex !== oldIndex) {
         if (showLayerDetailIndex.value === oldIndex) {
             showLayerDetailIndex.value = newIndex
+            layerDetailFocusMoveButton.value = oldIndex < newIndex ? 'up' : 'down'
         }
         store.dispatch('moveActiveLayerToIndex', { index: oldIndex, newIndex, ...dispatcher })
     }
@@ -93,6 +95,7 @@ function onToggleLayerDetail(index) {
                 :data-layer-id="layer.id"
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
                 :show-layer-detail="showLayerDetailIndex === reverseIndex(index)"
+                :focus-move-button="layerDetailFocusMoveButton"
                 @show-layer-legend-popup="showLayerLegendForLayer = layer"
                 @toggle-layer-detail="onToggleLayerDetail"
                 @move-layer="onMoveLayer"
