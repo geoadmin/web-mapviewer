@@ -56,6 +56,7 @@ export default class KMLLayer extends AbstractLayer {
             // NOTE the pipe character needs to be encoded in order to not break the parsing
             id: `KML|${encodeExternalLayerParam(kmlFileUrl)}`,
             type: LayerTypes.KML,
+            baseUrl: kmlFileUrl,
             opacity: opacity ?? 1.0,
             visible: visible ?? true,
             attributions: [new LayerAttribution(attributionName)],
@@ -80,10 +81,6 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
-    }
-
-    getURL(_epsgNumber, _timestamp) {
-        return this.kmlFileUrl
     }
 
     /**

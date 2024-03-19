@@ -156,7 +156,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.visible).to.be.true
             })
@@ -174,7 +174,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
                 expect(kmlLayer.adminId).to.equal(adminId)
@@ -193,7 +193,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
                 expect(kmlLayer.adminId).to.be.equal(adminId)
@@ -222,7 +222,7 @@ describe('Test on legacy param import', () => {
                 expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
-                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
             })

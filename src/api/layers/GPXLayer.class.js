@@ -38,6 +38,7 @@ export default class GPXLayer extends AbstractLayer {
             // NOTE the pipe character needs to be encoded in order to not break the parsing
             id: `GPX|${encodeExternalLayerParam(gpxFileUrl)}`,
             type: LayerTypes.GPX,
+            baseUrl: gpxFileUrl,
             opacity: opacity,
             visible: visible,
             attributions: [new LayerAttribution(attributionName)],
@@ -49,9 +50,5 @@ export default class GPXLayer extends AbstractLayer {
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
         this.gpxMetadata = gpxMetadata
-    }
-
-    getURL(_epsgNumber, _timestamp) {
-        return this.gpxFileUrl
     }
 }

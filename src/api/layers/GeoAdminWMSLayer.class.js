@@ -98,8 +98,4 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         this.gutter = gutter
         this.wmsVersion = wmsVersion
     }
-
-    getURL() {
-        return this.baseUrl ?? WMS_BASE_URL
-    }
 }

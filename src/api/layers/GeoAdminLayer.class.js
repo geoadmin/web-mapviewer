@@ -98,6 +98,8 @@ export default class GeoAdminLayer extends AbstractLayer {
             name,
             id: geoAdminId,
             type,
+            baseUrl,
+            ensureTrailingSlashInBaseUrl,
             opacity,
             visible,
             attributions,
@@ -108,10 +110,6 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.geoAdminId = geoAdminId
         this.technicalName = technicalName
         this.isBackground = isBackground
-        this.baseUrl = baseUrl
-        if (ensureTrailingSlashInBaseUrl && this.baseUrl && !this.baseUrl.endsWith('/')) {
-            this.baseUrl = this.baseUrl + '/'
-        }
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')

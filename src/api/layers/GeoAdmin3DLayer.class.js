@@ -40,16 +40,4 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
         this.use3dTileSubFolder = use3dTileSubFolder
         this.urlTimestampToUse = urlTimestampToUse
     }
-
-    getURL() {
-        let rootFolder = ''
-        if (this.use3dTileSubFolder) {
-            rootFolder = '3d-tiles/'
-        }
-        let timeFolder = ''
-        if (this.urlTimestampToUse) {
-            timeFolder = `/${this.urlTimestampToUse}`
-        }
-        return `${BASE_URL_3D_TILES}${rootFolder}${this.geoAdminId}${timeFolder}/tileset.json`
-    }
 }
