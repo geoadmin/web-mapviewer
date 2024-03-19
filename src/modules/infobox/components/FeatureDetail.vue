@@ -55,7 +55,7 @@ function containsMedia(htmlText) {
                     v-if="containsMedia(value)"
                     class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
-                    !!!!!!Disclaimer!!!!!!
+                    !!!!!!DISCLAIMER!!!!!!
                 </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
