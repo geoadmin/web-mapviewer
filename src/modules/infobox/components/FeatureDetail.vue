@@ -64,7 +64,7 @@ function setDisclaimerAgree() {
                     v-if="disclaimerAgree && containsMedia(value)"
                     class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
-                    !!!!!!DISCLAIMER!!!!!!
+                    <div class="pb-2">{{ i18n.t('media_disclaimer') }}</div>
                     <button
                         class="px-3 rounded-2 btn btn-sm btn-light align-items-center"
                         @click="setDisclaimerAgree"
