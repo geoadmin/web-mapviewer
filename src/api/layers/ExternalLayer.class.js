@@ -1,6 +1,7 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 /**
  * Information required to create a GetFeatureInfo request to this external WM(T)S server. This
@@ -145,6 +146,10 @@ export default class ExternalLayer extends AbstractLayer {
         this.legends = legends
         this.availableProjections = [...availableProjections]
         if (this.availableProjections.length === 0) {
+            log.error(
+                'No supported projection found within external layer config, falling back to WGS84',
+                externalLayerData
+            )
             this.availableProjections.push(WGS84)
         }
         this.getFeatureInfoCapability = getFeatureInfoCapability

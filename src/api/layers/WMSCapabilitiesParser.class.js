@@ -68,12 +68,19 @@ export default class WMSCapabilitiesParser {
                 if (ignoreError) {
                     return null
                 }
-                throw new CapabilitiesError('Invalid GetFeatureInfo data')
+                throw new CapabilitiesError(
+                    'Invalid GetFeatureInfo data',
+                    'invalid_get_feature_info'
+                )
+            }
+            const formats = []
+            if (this.Capability.Request.GetFeatureInfo.Format) {
+                formats.push(...this.Capability.Request.GetFeatureInfo.Format)
             }
             return {
                 baseUrl,
                 method,
-                formats: [...this.Capability.Request.GetFeatureInfo.Format],
+                formats,
             }
         }
         return null
