@@ -20,12 +20,9 @@ const cloneActiveLayerConfig = (getters, layer) => {
             clone.opacity = layer.opacity
         }
         if (layer.customAttributes.year && clone.timeConfig) {
-            const timeConfigEntry = clone.timeConfig.getTimeEntryForYear(
-                layer.customAttributes.year
+            clone.timeConfig.updateCurrentTimeEntry(
+                clone.timeConfig.getTimeEntryForYear(layer.customAttributes.year)
             )
-            if (timeConfigEntry) {
-                clone.timeConfig.updateCurrentTimeEntry(timeConfigEntry)
-            }
         }
     }
     return clone
@@ -148,7 +145,12 @@ const getters = {
      * @param {number} index Index of the layer to retrieve
      * @returns {AbstractLayer | null} Active layer or null if the index is invalid
      */
-    getActiveLayerByIndex: (state) => (index) => state.activeLayers.at(index) ?? null,
+    getActiveLayerByIndex: (state) => (index) => {
+        if (index < 0 || index == null) {
+            throw new Error(`Failed to get ActiveLayer by index: invalid index ${index}`)
+        }
+        return state.activeLayers.at(index) ?? null
+    },
 
     /**
      * Get layers with time config
