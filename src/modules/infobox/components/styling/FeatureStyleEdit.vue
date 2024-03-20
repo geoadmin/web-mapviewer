@@ -149,7 +149,7 @@ function onAddMediaLink(descriptionMediaLink) {
             <div>
                 <div class="d-flex justify-content-end align-items-center">
                     <DrawingStylePopoverButton
-                        class="rounded-0 rounded-top-2 rounded-end-0 btn-sm btn-light d-flex align-items-center"
+                        button-class-override="rounded-0 rounded-top-2 rounded-end-0 btn btn-sm btn-light d-flex align-items-center"
                         icon="fa-link"
                     >
                         <DrawingStyleMediaLink
@@ -161,7 +161,7 @@ function onAddMediaLink(descriptionMediaLink) {
                         </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
-                        class="rounded-0 btn-sm btn-light d-flex align-items-center"
+                        button-class-override="rounded-0 btn-sm btn btn-light d-flex align-items-center"
                         icon="fa-image"
                     >
                         <DrawingStyleMediaLink
@@ -172,7 +172,7 @@ function onAddMediaLink(descriptionMediaLink) {
                         </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
-                        class="rounded-0 rounded-top-2 rounded-start-0 btn-sm btn-light d-flex align-items-center"
+                        button-class-override="rounded-0 rounded-top-2 rounded-start-0 btn btn-sm btn-light d-flex align-items-center"
                         icon="fa-film"
                     >
                         <DrawingStyleMediaLink

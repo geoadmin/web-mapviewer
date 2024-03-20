@@ -1,9 +1,12 @@
 <template>
     <div>
         <button
-            v-bind="$attrs"
             ref="popoverButton"
-            class="btn btn-sm btn-light d-flex align-items-center"
+            :class="[
+                buttonClassOverride
+                    ? buttonClassOverride
+                    : 'btn btn-sm btn-light d-flex align-items-center',
+            ]"
         >
             <FontAwesomeIcon :icon="icon" />
         </button>
@@ -46,6 +49,10 @@ export default {
             default: 'pen',
         },
         popoverTitle: {
+            type: String,
+            default: null,
+        },
+        buttonClassOverride: {
             type: String,
             default: null,
         },
