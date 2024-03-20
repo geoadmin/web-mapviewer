@@ -77,6 +77,7 @@ export default {
     methods: {
         /** Hides the popover container, can be called outside (by this component's parent) */
         hidePopover() {
+            console.log('debug: closing')
             this.popover.hide()
         },
     },
