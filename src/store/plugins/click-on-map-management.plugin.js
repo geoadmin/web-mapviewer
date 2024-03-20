@@ -1,6 +1,11 @@
-import { identify } from '@/api/features/features.api.js'
+import { containsCoordinate } from 'ol/extent'
+
+import { identify } from '@/api/features/features.api'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
+import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
 import { FeatureInfoPositions } from '../modules/ui.store'
@@ -15,37 +20,90 @@ const dispatcher = { dispatcher: 'click-on-map-management.plugin' }
  * @param {GeoAdminLayer[]} visibleLayers All currently visible layers on the map
  * @param {String} lang
  * @param {CoordinateSystem} projection
+ * @returns {Promise<LayerFeature[]>}
  */
-const runIdentify = async (store, clickInfo, visibleLayers, lang, projection) => {
-    // we run identify only if there are visible layers (other than background)
-    if (visibleLayers.length > 0) {
-        const allRequests = []
+const runIdentify = (store, clickInfo, visibleLayers, lang, projection) => {
+    return new Promise((resolve, reject) => {
+        // we run identify only if there are visible layers
+        if (visibleLayers.length === 0) {
+            resolve([])
+        }
+        const allFeatures = []
+        const pendingRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
             if ([LayerTypes.GEOJSON, LayerTypes.KML, LayerTypes.GPX].includes(layer.type)) {
-                allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
+                allFeatures.push(...clickInfo.features)
             } else if (layer.hasTooltip) {
-                allRequests.push(
-                    identify(
+                if (
+                    !(layer instanceof ExternalLayer) ||
+                    containsCoordinate(flattenExtent(layer.extent), clickInfo.coordinate)
+                ) {
+                    if (layer instanceof ExternalGroupOfLayers) {
+                        // for group of layers, we fire a request per sublayer
+                        layer.layers.forEach((sublayer) => {
+                            pendingRequests.push(
+                                identify({
+                                    layer: sublayer,
+                                    coordinate: clickInfo.coordinate,
+                                    resolution: store.getters.resolution,
+                                    mapExtent: store.getters.extent.flat(),
+                                    screenWidth: store.state.ui.width,
+                                    screenHeight: store.state.ui.height,
+                                    lang,
+                                    projection,
+                                })
+                            )
+                        })
+                    } else {
+                        pendingRequests.push(
+                            identify({
+                                layer,
+                                coordinate: clickInfo.coordinate,
+                                resolution: store.getters.resolution,
+                                mapExtent: store.getters.extent.flat(),
+                                screenWidth: store.state.ui.width,
+                                screenHeight: store.state.ui.height,
+                                lang,
+                                projection,
+                            })
+                        )
+                    }
+                } else {
+                    log.debug(
+                        'ignoring layer',
                         layer,
+                        'coordinate',
                         clickInfo.coordinate,
-                        store.getters.extent.flat(),
-                        store.state.ui.width,
-                        store.state.ui.height,
-                        lang,
-                        projection
+                        'outside of extent',
+                        layer.extent
                     )
-                )
+                }
             } else {
                 log.debug('ignoring layer', layer, 'no tooltip')
             }
         })
-        const values = await Promise.all(allRequests)
         // grouping all features from the different requests
-        const allFeatures = values.flat()
-        // dispatching all features by going through them in order to keep only one time each of them (no double)
-        return allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
-    }
+        Promise.allSettled(pendingRequests)
+            .then((responses) => {
+                responses.forEach((response) => {
+                    if (response.status === 'fulfilled') {
+                        allFeatures.push(...response.value)
+                    } else {
+                        log.error('Error while identifying features', response.reason?.message)
+                        // no reject, so that we may see at least the result of requests that have been fulfilled
+                    }
+                })
+                // filtering out doppelgangers
+                resolve(
+                    allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
+                )
+            })
+            .catch((error) => {
+                log.error('Error while identifying features', error)
+                reject(error)
+            })
+    })
 }
 
 /**
