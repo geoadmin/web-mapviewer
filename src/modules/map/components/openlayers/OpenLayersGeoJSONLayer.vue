@@ -43,21 +43,23 @@ const isLoading = computed(() => geoJsonConfig.value.isLoading)
 
 const layer = new VectorLayer({ id: layerId.value, opacity: opacity.value })
 
-function createSourceForProjection() {
-    if (!geoJsonData.value) {
-        log.debug('no GeoJSON data loaded yet, could not create source')
-        return
-    }
+function setGeoJsonStyle() {
     if (!geoJsonStyle.value) {
         log.debug('style was not loaded, could not create source')
+        return
+    }
+    const styleFunction = new OlStyleForPropertyValue(geoJsonStyle.value)
+    layer.setStyle((feature, res) => styleFunction.getFeatureStyle(feature, res))
+}
+function setFeatures() {
+    if (!geoJsonData.value) {
+        log.debug('no GeoJSON data loaded yet, could not create source')
         return
     }
     // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
     const matchingDataProjection = allCoordinateSystems.find(
         (coordinateSystem) => coordinateSystem.epsg === geoJsonData.value?.crs?.properties?.name
     )
-    const styleFunction = new OlStyleForPropertyValue(geoJsonStyle.value)
-    layer.setStyle((feature, res) => styleFunction.getFeatureStyle(feature, res))
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
@@ -65,6 +67,11 @@ function createSourceForProjection() {
             ),
         })
     )
+}
+
+function createSourceForProjection() {
+    setGeoJsonStyle()
+    setFeatures()
 }
 
 const olMap = inject('olMap')
@@ -75,6 +82,7 @@ createSourceForProjection()
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
 watch(isLoading, createSourceForProjection)
+watch(geoJsonData, setFeatures)
 </script>
 
 <template>

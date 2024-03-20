@@ -100,7 +100,7 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
     if (!reprojectedGeoJSON) {
         log.error(
             `Unable to reproject GeoJSON data in order to find features at coordinates`,
-            geoJsonLayer.id,
+            geoJsonLayer,
             coordinate
         )
         return []
