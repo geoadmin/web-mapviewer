@@ -107,15 +107,17 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
     }
     return identifyInGeoJson(reprojectedGeoJSON, coordinate, projection, resolution).map(
         (feature) => {
-            return new LayerFeature(
-                geoJsonLayer,
-                feature.id,
-                feature.properties.station_name || feature.id,
-                { title: feature.properties.name, description: feature.properties.description },
-                reprojectCoordinates(feature.geometry.coordinates, projection),
-                null,
-                reproject(feature.geometry, WGS84.epsg, projection.epsg)
-            )
+            return new LayerFeature({
+                layer: geoJsonLayer,
+                id: feature.id,
+                name: feature.properties.station_name || feature.id,
+                data: {
+                    title: feature.properties.name,
+                    description: feature.properties.description,
+                },
+                coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+            })
         }
     )
 }
@@ -145,15 +147,17 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
         const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                return new LayerFeature(
-                    kmlLayer,
-                    feature.id,
-                    kmlLayer.name,
-                    { title: feature.properties.name, description: feature.properties.description },
-                    reprojectCoordinates(feature.geometry.coordinates, projection),
-                    null,
-                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
-                )
+                return new LayerFeature({
+                    layer: kmlLayer,
+                    id: feature.id,
+                    name: kmlLayer.name,
+                    data: {
+                        title: feature.properties.name,
+                        description: feature.properties.description,
+                    },
+                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+                })
             }
         )
     }
@@ -176,15 +180,14 @@ export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolutio
         const convertedGpx = gpxToGeoJSON(parseGpx)
         return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
             (feature) => {
-                return new LayerFeature(
-                    gpxLayer,
-                    `${gpxLayer.name}-${feature.properties?.name}`,
-                    feature.properties?.name,
-                    { ...feature.properties },
-                    reprojectCoordinates(feature.geometry.coordinates, projection),
-                    null,
-                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
-                )
+                return new LayerFeature({
+                    layer: gpxLayer,
+                    id: `${gpxLayer.name}-${feature.properties?.name}`,
+                    name: feature.properties?.name,
+                    data: { ...feature.properties },
+                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+                })
             }
         )
     }

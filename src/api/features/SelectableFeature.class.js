@@ -15,27 +15,39 @@ import log from '@/utils/logging.js'
  */
 export default class SelectableFeature extends EventEmitter {
     /**
-     * @param {String | Number} id Unique identifier for this feature (unique in the context it
-     *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of the center of this feature
-     * @param {String} title Title of this feature
-     * @param {String} description A description of this feature, can not be HTML content (only
-     *   text)
-     * @param {Object} geometry GeoJSON representation of this feature (if it has a geometry, for
-     *   points it isn't necessary)
-     * @param {Boolean} isEditable Whether this feature is editable when selected (color, size,
-     *   etc...)
+     * @param {String | Number} featureData.id Unique identifier for this feature (unique in the
+     *   context it comes from, not for the whole app)
+     * @param {[[Number, Number]]} featureData.coordinates Coordinates of the center of this
+     *   feature. Format is [[x,y],[x2,y2],...]
+     * @param {String} featureData.title Title of this feature
+     * @param {String | null} [featureData.description=null] A description of this feature, cannot
+     *   be HTML content (only text). Default is `null`
+     * @param {[Number, Number, Number, Number] | null} [featureData.extent=null] Extent of this
+     *   feature (if any) expressed as [minX, minY, maxX, maxY]. Default is `null`
+     * @param {Object | null} [featureData.geometry=null] GeoJSON representation of this feature (if
+     *   it has a geometry, for points it isn't necessary). Default is `null`
+     * @param {Boolean} [featureData.isEditable=false] Whether this feature is editable when
+     *   selected (color, size, etc...). Default is `false`
      */
-    constructor(id, coordinates, title, description, geometry = null, isEditable = false) {
+    constructor(featureData) {
         super()
-        this._id = id
+        const {
+            id,
+            coordinates,
+            title,
+            description = null,
+            extent = null,
+            geometry = null,
+            isEditable = false,
+        } = featureData
+        this.id = id
         // using the setter for coordinate (see below)
         this.coordinates = coordinates
         this.title = title
         this.description = description
         this.geometry = geometry
-        this._isEditable = !!isEditable
-        this._isDragged = false
+        this.extent = extent
+        this.isEditable = !!isEditable
     }
 
     /**
@@ -62,11 +74,6 @@ export default class SelectableFeature extends EventEmitter {
         this.emit('change:style', this)
         this.emitChangeEvent(changeType)
     }
-
-    get id() {
-        return this._id
-    }
-    // ID is immutable, no setter
 
     get coordinates() {
         return this._coordinates
@@ -118,9 +125,4 @@ export default class SelectableFeature extends EventEmitter {
         this._description = newDescription
         this.emitStylingChangeEvent('description')
     }
-
-    get isEditable() {
-        return this._isEditable
-    }
-    // isEditable is immutable, no setter
 }

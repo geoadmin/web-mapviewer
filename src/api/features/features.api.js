@@ -206,15 +206,15 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
                 }
 
                 resolve(
-                    new LayerFeature(
+                    new LayerFeature({
                         layer,
-                        featureID,
-                        featureName,
-                        featureHtmlPopup,
-                        featureCoordinate,
-                        featureExtent,
-                        featureGeoJSONGeometry
-                    )
+                        id: featureID,
+                        name: featureName,
+                        data: featureHtmlPopup,
+                        coordinates: featureCoordinate,
+                        extent: featureExtent,
+                        geometry: featureGeoJSONGeometry,
+                    })
                 )
             })
             .catch((error) => {

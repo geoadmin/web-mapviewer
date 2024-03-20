@@ -16,36 +16,37 @@ export const EditableFeatureTypes = {
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
 export default class EditableFeature extends SelectableFeature {
     /**
-     * @param {String | Number} id Unique identifier for this feature (unique in the context it
-     *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates Coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry
-     *   coordinates of this feature
-     * @param {Object} geometry GeoJSON representation of this feature
-     * @param {String} title Title of this feature
-     * @param {String} description A description of this feature, can not be HTML content (only
-     *   text)
-     * @param {EditableFeatureTypes} featureType Type of this editable feature
-     * @param {FeatureStyleColor} textColor Color for the text of this feature
-     * @param {FeatureStyleSize} textSize Size of the text for this feature
-     * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
-     * @param {DrawingIcon} icon Icon that will be covering this feature, can be null
-     * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this
-     *   feature
+     * @param {String | Number} featureData.id Unique identifier for this feature (unique in the
+     *   context it comes from, not for the whole app)
+     * @param {Number[][]} featureData.coordinates Coordinates [[x,y],[x2.y2],...] or [x,y] if point
+     *   geometry coordinates of this feature
+     * @param {Object} featureData.geometry GeoJSON representation of this feature
+     * @param {String} featureData.title Title of this feature
+     * @param {String} featureData.description A description of this feature, can not be HTML
+     *   content (only text)
+     * @param {EditableFeatureTypes} featureData.featureType Type of this editable feature
+     * @param {FeatureStyleColor} featureData.textColor Color for the text of this feature
+     * @param {FeatureStyleSize} featureData.textSize Size of the text for this feature
+     * @param {FeatureStyleColor} featureData.fillColor Color of the icon (if defined)
+     * @param {DrawingIcon} featureData.icon Icon that will be covering this feature, can be null
+     * @param {FeatureStyleSize} featureData.iconSize Size of the icon (if defined) that will be
+     *   covering this feature
      */
-    constructor(
-        id,
-        coordinates,
-        geometry,
-        title = '',
-        description = '',
-        featureType,
-        textColor = RED,
-        textSize = MEDIUM,
-        fillColor = RED,
-        icon = null,
-        iconSize = MEDIUM
-    ) {
-        super(id, coordinates, title, description, geometry, true)
+    constructor(featureData) {
+        const {
+            id,
+            coordinates,
+            geometry,
+            title = '',
+            description = '',
+            featureType,
+            textColor = RED,
+            textSize = MEDIUM,
+            fillColor = RED,
+            icon = null,
+            iconSize = MEDIUM,
+        } = featureData
+        super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
         this._textColor = textColor
         this._textSize = textSize
@@ -53,29 +54,7 @@ export default class EditableFeature extends SelectableFeature {
         this._icon = icon
         this._iconSize = iconSize
         this._geodesicCoordinates = null
-    }
-
-    /**
-     * Create a new Editable Features. Omitted parameters means the default value of the constructor
-     * will be used.
-     *
-     * @param {any} obj An object with key value pairs for the parameters of the constructor
-     * @returns The new object
-     */
-    static newFeature(obj) {
-        return new EditableFeature(
-            obj.id,
-            obj.coordinates,
-            obj.geometry,
-            obj.title,
-            obj.description,
-            obj.featureType,
-            obj.textColor,
-            obj.textSize,
-            obj.fillColor,
-            obj.icon,
-            obj.iconSize
-        )
+        this._isDragged = false
     }
 
     /**
