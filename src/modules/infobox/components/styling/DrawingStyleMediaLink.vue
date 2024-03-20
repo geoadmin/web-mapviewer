@@ -86,7 +86,7 @@ function addLink(generatedMediaLink) {
                 v-model="linkDescription"
                 type="text"
                 placeholder="More info ..."
-                data-cy="drawing-style-media-link-Description"
+                data-cy="drawing-style-media-description-input"
                 class="feature-url-description form-control"
                 :class="{
                     'is-invalid': urlValid && !urlDescriptionValid,
@@ -111,7 +111,7 @@ function addLink(generatedMediaLink) {
             v-model="generatedMediaLink"
             type="text"
             placeholder="Paste URL"
-            data-cy="drawing-style-media-url-description"
+            data-cy="drawing-style-media-url-input"
             class="feature-url-description form-control"
             :class="{
                 'is-invalid': !urlValid,
@@ -121,7 +121,7 @@ function addLink(generatedMediaLink) {
             :disabled="!urlValid || !urlDescriptionValid"
             class="btn btn-outline-secondary rounded-end"
             type="button"
-            data-cy="drawing-style-media-text-input-clear"
+            data-cy="drawing-style-media-generate-button"
             @click="addLink(generatedMediaLink)"
         >
             Add

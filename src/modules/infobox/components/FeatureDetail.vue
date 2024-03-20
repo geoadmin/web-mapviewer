@@ -61,10 +61,12 @@ function setDisclaimerAgree() {
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div
                     v-if="disclaimerAgree && containsMedia(value)"
+                    data-cy="feature-detail-media-disclaimer"
                     class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
                     <div class="pb-2">{{ i18n.t('media_disclaimer') }}</div>
                     <button
+                        data-cy="feature-detail-media-disclaimer-button"
                         class="px-3 rounded-2 btn btn-sm btn-light align-items-center"
                         @click="setDisclaimerAgree"
                     >
@@ -73,7 +75,11 @@ function setDisclaimerAgree() {
                 </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
-                <div v-if="!containsMedia(value) || !disclaimerAgree" v-html="value"></div>
+                <div
+                    v-if="!containsMedia(value) || !disclaimerAgree"
+                    data-cy="feature-detail-description-content"
+                    v-html="value"
+                ></div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}
