@@ -83,6 +83,16 @@ export default {
                 })
             }
         },
+
+        changeFeatureGeometry({ commit, state }, { feature, geometry }) {
+            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable && geometry) {
+                commit('changeFeatureGeometry', {
+                    feature: selectedFeature,
+                    geometry,
+                })
+            }
+        },
         /**
          * Changes the title of the feature. Only change the title if the feature is editable and
          * part of the currently selected features
@@ -259,6 +269,9 @@ export default {
         changeFeatureCoordinates(state, { feature, coordinates, geodesicCoordinates }) {
             feature.coordinates = coordinates
             feature.geodesicCoordinates = geodesicCoordinates
+        },
+        changeFeatureGeometry(state, { feature, geometry }) {
+            feature.geometry = geometry
         },
         changeFeatureTitle(state, { feature, title }) {
             feature.title = title
