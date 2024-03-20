@@ -123,9 +123,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index]) {
-                layer.timeConfig.updateCurrentTimeEntry(
-                    layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
-                )
+                layer.timeConfig.updateCurrentTimeEntry(layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }

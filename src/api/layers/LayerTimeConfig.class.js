@@ -54,9 +54,7 @@ export default class LayerTimeConfig {
             this.updateCurrentTimeEntry(this.timeEntries[0])
         } else if (this.behaviour) {
             // otherwise if it is a layer that has a specific behaviour (could be "all" for WMS, or a specific timestamp for either type)
-            this.updateCurrentTimeEntry(
-                this.timeEntries.find((entry) => entry.timestamp === behaviour)
-            )
+            this.updateCurrentTimeEntry(behaviour)
         }
 
         this.years = this.timeEntries
@@ -72,12 +70,18 @@ export default class LayerTimeConfig {
      * - @WARNING USE ONLY THIS METHOD inside a vuex mutation ! This has side effects and could cause
      *   reactivity issue when used outside a vuex mutation context.
      *
-     * @param {LayerTimeConfigEntry} currentTimeEntry New current time entry to set
+     * @param {LayerTimeConfigEntry | string | null} entry Timestamp of the entry to set
      */
-    updateCurrentTimeEntry(currentTimeEntry) {
+    updateCurrentTimeEntry(entry) {
+        let currentTimeEntry = null
+        if (entry instanceof LayerTimeConfigEntry) {
+            currentTimeEntry = entry
+        } else if (entry) {
+            currentTimeEntry = this.timeEntries.find((e) => e.timestamp === entry) ?? null
+        }
         this.currentTimeEntry = currentTimeEntry
-        this.currentTimestamp = this.currentTimeEntry?.timestamp || null
-        this.currentYear = this.currentTimeEntry?.year || null
+        this.currentTimestamp = this.currentTimeEntry?.timestamp ?? null
+        this.currentYear = this.currentTimeEntry?.year ?? null
     }
 
     /**

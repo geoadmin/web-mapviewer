@@ -22,6 +22,9 @@ yarn-error.log*
 *.sublime-*
 *.code-*
 
+# vite
+vite.config.js.timestamp-*.mjs
+
 # Cypress and friends
 tests/cypress/downloads
 tests/cypress/videos

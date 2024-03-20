@@ -23,7 +23,7 @@ async function loadGpx(store, gpxLayer) {
         const gpxContent = response.data
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(gpxContent)
-        store.dispatch('updateKmlGpxLayer', {
+        store.dispatch('setKmlGpxLayerData', {
             layerId: gpxLayer.id,
             metadata,
             data: gpxContent,

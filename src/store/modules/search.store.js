@@ -101,14 +101,21 @@ const actions = {
      * @param dispatch
      * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
      */
-    selectResultEntry: ({ dispatch }, { entry, dispatcher }) => {
+    selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
         const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
-                dispatch('addLayer', {
-                    layerConfig: new ActiveLayerConfig(entry.layerId, true),
-                    dispatcher: dipsatcherSelectResultEntry,
-                })
+                if (getters.getActiveLayersById(entry.layerId).length === 0) {
+                    dispatch('addLayer', {
+                        layerConfig: new ActiveLayerConfig(entry.layerId, true),
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                } else {
+                    dispatch('updateLayers', {
+                        layers: [{ id: entry.layerId, visible: true }],
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                }
                 break
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {

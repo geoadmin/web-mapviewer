@@ -95,9 +95,9 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
         parsedLayers
     )
     const featuresRequests = []
-    const layers = parsedLayers.map((parsedLayer) => {
+    const layers = parsedLayers.map((parsedLayer, index) => {
         // First check if we already have the layer in the active layers
-        const currentLayer = store.getters.getActiveLayerById(parsedLayer.id)
+        const currentLayer = store.getters.getActiveLayerByIndex(index)
         const layerObject = createLayerObject(parsedLayer, currentLayer)
         if (layerObject) {
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
@@ -194,9 +194,10 @@ export default class LayerParamConfig extends AbstractParamConfig {
             [
                 'toggleLayerVisibility',
                 'addLayer',
-                'removeLayerWithId',
+                'removeLayersById',
+                'removeLayerByIndex',
                 'clearLayers',
-                'moveActiveLayerFromIndexToIndex',
+                'moveActiveLayerToIndex',
                 'setLayerOpacity',
                 'setLayerYear',
                 'setLayers',
