@@ -49,10 +49,10 @@ export default class AbstractLayer {
      * @param {String} layerData.baseUrl What's the backend base URL to use when requesting
      *   tiles/image for this layer, will be used to construct the URL of this layer later on (if
      *   null or undefined, it will raise an error)
-     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=true] Flag telling if the base URL
+     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=false] Flag telling if the base URL
      *   must always have a trailing slash. It might be sometime the case that this is unwanted
      *   (i.e. for an external WMS URL already built past the point of URL params, a trailing slash
-     *   would render this URL invalid). Default is `true`
+     *   would render this URL invalid). Default is `false`
      * @param {Number} [layerData.opacity=1.0] Value from 0.0 to 1.0 telling with which opacity this
      *   layer should be shown on the map. Default is `1.0`
      * @param {boolean} [layerData.visible=false] If the layer should be visible on the map or
@@ -79,7 +79,7 @@ export default class AbstractLayer {
             id = null,
             type = null,
             baseUrl = null,
-            ensureTrailingSlashInBaseUrl = true,
+            ensureTrailingSlashInBaseUrl = false,
             opacity = 1.0,
             visible = false,
             attributions = [],

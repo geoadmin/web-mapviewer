@@ -45,10 +45,10 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   on. Default is `false`
      * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
      *   is `[]`
-     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=true] Flag telling if the base URL
+     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=false] Flag telling if the base URL
      *   must always have a trailing slash. It might be sometime the case that this is unwanted
      *   (i.e. for an external WMS URL already built past the point of URL params, a trailing slash
-     *   would render this URL invalid). Default is `true`
+     *   would render this URL invalid). Default is `false`
      * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
      *   metadata) are still loading. Default is `false`
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
@@ -74,7 +74,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             isHighlightable = false,
             hasTooltip = false,
             topics = [],
-            ensureTrailingSlashInBaseUrl = true,
+            ensureTrailingSlashInBaseUrl = false,
             isLoading = false,
             timeConfig = null,
             hasLegend = false,

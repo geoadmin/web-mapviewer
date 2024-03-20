@@ -77,6 +77,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             attributions,
             isBackground,
             baseUrl,
+            // as we will be building URL based on / paths with WMTS, we want to make sure the base URL ends with a /
+            ensureTrailingSlashInBaseUrl: true,
             isHighlightable,
             hasTooltip,
             topics,
