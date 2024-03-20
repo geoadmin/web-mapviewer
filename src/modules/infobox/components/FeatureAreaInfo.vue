@@ -1,12 +1,12 @@
 <script setup>
 import area from '@turf/area'
 import { computed, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { WGS84 } from '@/utils/coordinates/coordinateSystems.js'
-import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils.js'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { round } from '@/utils/numberUtils'
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const props = defineProps({
     geometry: {
@@ -17,9 +17,9 @@ const props = defineProps({
 })
 const { geometry } = toRefs(props)
 
-const i18n = useI18n()
-const store = useStore()
+useTippyTooltip('.area-information-container[data-tippy-content]', { placement: 'right' })
 
+const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 const geometryWgs84 = computed(() => {
@@ -53,7 +53,7 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </script>
 
 <template>
-    <div :title="i18n.t('area')" class="d-flex align-items-center">
+    <div class="area-information-container d-flex align-items-center" data-tippy-content="area">
         <div class="rectangle"></div>
         <div class="area-information ps-2">
             <span class="align-middle" data-cy="feature-area-information"
