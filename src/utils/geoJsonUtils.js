@@ -1,4 +1,5 @@
 import bbox from '@turf/bbox'
+import centroid from '@turf/centroid'
 import {
     featureCollection,
     lineString,
@@ -8,6 +9,7 @@ import {
     point,
     polygon,
 } from '@turf/helpers'
+import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
@@ -79,6 +81,34 @@ export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84)
     }
     log.error('Unknown geometry type', geometryWGS84.type)
     return null
+}
+
+/**
+ * @param {Object} geoJsonFeature Some GeoJSON feature
+ * @param {CoordinateSystem} inputProjection Source projection (in which the GeoJSON feature is
+ *   described as)
+ * @param {CoordinateSystem} outputProjection Wanted output projection, if different thant the input
+ *   projection reprojection will be automatically applied before returning the coordinates
+ * @returns {[[Number, Number]]} Coordinates of this GeoJSON feature (if it's a point, it will still
+ *   be wrapped in an array)
+ */
+export function getGeoJsonFeatureCoordinates(geoJsonFeature, inputProjection, outputProjection) {
+    let featureCoordinate = []
+    // if GeoJSON type is Point, we grab the coordinates
+    if (geoJsonFeature.type === 'Point') {
+        featureCoordinate = geoJsonFeature.coordinates
+    } else if (geoJsonFeature.type === 'MultiPoint' && geoJsonFeature.coordinates.length === 1) {
+        // or if the GeoJSON type is MultiPoint, but there's only one point in the array, we grab it
+        featureCoordinate = geoJsonFeature.coordinates[0]
+    } else {
+        // this feature has a geometry more complex that a single point, we calculate its centroid as single coordinate
+        featureCoordinate = centroid(geoJsonFeature)
+    }
+
+    if (outputProjection.epsg !== inputProjection.epsg) {
+        featureCoordinate = proj4(inputProjection.epsg, outputProjection.epsg, featureCoordinate)
+    }
+    return featureCoordinate
 }
 
 /**

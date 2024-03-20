@@ -28,6 +28,7 @@
         "build:int": "npm run build -- --mode integration",
         "build:prod": "npm run build -- --mode production",
         "update:translations": "node scripts/generate-i18n-files.js",
+        "check:external": "npx vite-node scripts/check-external-layers-providers.js",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true"
     },
@@ -47,6 +48,7 @@
         "@turf/bbox": "^6.5.0",
         "@turf/boolean-contains": "^6.5.0",
         "@turf/boolean-point-in-polygon": "^6.5.0",
+        "@turf/buffer": "^6.5.0",
         "@turf/centroid": "^6.5.0",
         "@turf/distance": "^6.5.0",
         "@turf/explode": "^6.5.0",
