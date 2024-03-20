@@ -97,6 +97,9 @@ export default class ExternalLayer extends AbstractLayer {
             legends = [],
             isLoading = true,
         } = externalLayerData
+        // keeping this checks, even though it will be checked again by the super constructor, because we use the baseUrl
+        // to build our call to the super constructor (with a URL construction, which could raise an error if baseUrl is
+        // not defined)
         if (baseUrl === null) {
             throw new InvalidLayerDataError('Missing external layer base URL', externalLayerData)
         }
@@ -104,6 +107,7 @@ export default class ExternalLayer extends AbstractLayer {
             name,
             id,
             type,
+            baseUrl,
             opacity,
             visible,
             attributions: attributions ?? [new LayerAttribution(new URL(baseUrl).hostname)],
@@ -113,13 +117,8 @@ export default class ExternalLayer extends AbstractLayer {
             hasLegend: abstract?.length > 0 || legends?.length > 0,
         })
         this.externalLayerId = externalLayerId
-        this.baseUrl = baseUrl
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
-    }
-
-    getURL() {
-        return this.baseUrl
     }
 }

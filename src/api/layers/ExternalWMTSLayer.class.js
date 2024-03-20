@@ -62,6 +62,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             type: LayerTypes.WMTS,
             externalLayerId,
             baseUrl,
+            ensureTrailingSlashInBaseUrl: true,
             opacity,
             visible,
             attributions,

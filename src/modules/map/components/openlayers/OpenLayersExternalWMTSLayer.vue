@@ -34,7 +34,7 @@ const projection = computed(() => store.state.position.projection)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => externalWmtsLayerConfig.value.externalLayerId)
 const opacity = computed(() => parentLayerOpacity.value || externalWmtsLayerConfig.value.opacity)
-const getCapabilitiesUrl = computed(() => externalWmtsLayerConfig.value.getURL())
+const getCapabilitiesUrl = computed(() => externalWmtsLayerConfig.value.baseUrl)
 
 const wmtsGetCapParser = new WMTSCapabilities()
 const layer = new TileLayer({

@@ -117,12 +117,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
         this.subLayers = [...subLayers]
     }
 
-    getURL() {
-        throw new Error(
-            "Aggregate layers shouldn't be asked directly for URL, but sub-layers should"
-        )
-    }
-
     clone() {
         let clone = super.clone()
         clone.subLayers = this.subLayers.map((subLayer) => subLayer.clone())

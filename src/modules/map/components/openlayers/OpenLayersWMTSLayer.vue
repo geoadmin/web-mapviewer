@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { getTimestampFromConfig, getWmtsXyzUrl } from '@/utils/layerUtils'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -32,12 +32,29 @@ const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
-const opacity = computed(() => parentLayerOpacity.value || wmtsLayerConfig.value.opacity)
-const url = computed(() => {
-    return wmtsLayerConfig.value.getURL(
-        projection.value.epsgNumber,
-        getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
-    )
+const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
+// Use "current" as the default timestamp if not defined in the layer config (or no preview year)
+const timestamp = computed(
+    () => getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value) ?? 'current'
+)
+const wmtsSourceConfig = computed(() => {
+    return {
+        dimensions: {
+            Time: timestamp.value,
+        },
+        // No local cache, so that our CloudFront cache is always used. Was creating an issue on mf-geoadmin3, see :
+        // https://github.com/geoadmin/mf-geoadmin3/issues/3491
+        cacheSize: 0,
+        layer: layerId.value,
+        format: wmtsLayerConfig.value.format,
+        projection: projection.value.epsg,
+        tileGrid: createTileGridForProjection(),
+        url: getTransformedXYZUrl(),
+        matrixSet: projection.value.epsg,
+        attributions: wmtsLayerConfig.value.attribution,
+        // so that XYZ values will be filled as TileCol, TileRow and TileMatrix in the URL (see getWMTSUrl below)
+        requestEncoding: 'REST',
+    }
 })
 
 const layer = new TileLayer({
@@ -51,17 +68,24 @@ const olMap = inject('olMap', null)
 useAddLayerToMap(layer, olMap, zIndex)
 
 // reacting to changes accordingly
-watch(url, (newUrl) => {
-    layer.getSource().setUrl(getWMTSUrl(newUrl))
-})
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
+watch(wmtsSourceConfig, () => layer.setSource(createWMTSSourceForProjection()), { deep: true })
 
-function getWMTSUrl(xyzUrl) {
-    return xyzUrl
+function getTransformedXYZUrl() {
+    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, previewYear.value)
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')
+}
+
+function createTileGridForProjection() {
+    return new WMTSTileGrid({
+        resolutions: projection.value.getResolutions(),
+        origin: projection.value.getTileOrigin(),
+        matrixIds: projection.value.getMatrixIds(),
+        extent: projection.value.bounds.flatten,
+    })
 }
 
 /**
@@ -77,54 +101,7 @@ function getWMTSUrl(xyzUrl) {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
-    const resolutions = projection.value.getResolutions()
-    const origin = projection.value.getTileOrigin()
-    const extent = projection.value.bounds.flatten
-    const matrixIds = projection.value.getMatrixIds()
-
-    const tileGrid = new WMTSTileGrid({
-        resolutions: resolutions,
-        origin: origin,
-        matrixIds: matrixIds,
-        extent: extent,
-    })
-    let timestamp = getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
-    // Use "current" as the default timestamp if not defined in the layer config or
-    timestamp = timestamp || wmtsLayerConfig.value.timeConfig.currentTimestamp || 'current'
-
-    // NOTE(IS): The following code is taken from the old geoadmin
-    // For some obscure reasons, on iOS, displaying a base 64 image
-    // in a tile with an existing crossOrigin attribute generates
-    // CORS errors.
-    // Currently crossOrigin definition is only used for mouse cursor
-    // detection on desktop in TooltipDirective.
-    let crossOrigin = 'anonymous'
-    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-        crossOrigin = undefined
-    }
-    const wmtsSource = new WMTSSource({
-        dimensions: {
-            Time: timestamp,
-        },
-
-        // Workaround: Set a cache size of zero when layer is
-        // timeEnabled see:
-        // https://github.com/geoadmin/mf-geoadmin3/issues/3491
-        cacheSize: wmtsLayerConfig.value.timeEnabled ? 0 : 2048,
-        layer: layerId.value,
-        format: wmtsLayerConfig.value.format,
-        projection: projection.value.epsg,
-        requestEncoding: 'REST',
-        tileGrid,
-        // tileLoadFunction: tileLoadFunction,
-        url: getWMTSUrl(url.value),
-        crossOrigin: crossOrigin,
-        transition: 0,
-        style: 'default',
-        matrixSet: projection.value.epsg,
-        attributions: wmtsLayerConfig.value.attribution,
-    })
-    return wmtsSource
+    return new WMTSSource(wmtsSourceConfig.value)
 }
 </script>
 

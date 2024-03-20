@@ -170,7 +170,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
                 expect(kmlLayer.id).to.eq(`KML|${kmlFileUrl}`)
-                expect(kmlLayer.getURL()).to.eq(kmlFileUrl)
+                expect(kmlLayer.baseUrl).to.eq(kmlFileUrl)
             })
             it('Handles opacity/visibility correctly with external layers', () => {
                 const result = getLayersFromLegacyUrlParams(

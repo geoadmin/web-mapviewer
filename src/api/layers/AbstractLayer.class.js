@@ -46,6 +46,13 @@ export default class AbstractLayer {
      * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
      *   identify it (and also in subsequent backend services for GeoAdmin layers)
      * @param {LayerTypes} layerData.type See {@link LayerTypes}
+     * @param {String} layerData.baseUrl What's the backend base URL to use when requesting
+     *   tiles/image for this layer, will be used to construct the URL of this layer later on (if
+     *   null or undefined, it will raise an error)
+     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=false] Flag telling if the base URL
+     *   must always have a trailing slash. It might be sometime the case that this is unwanted
+     *   (i.e. for an external WMS URL already built past the point of URL params, a trailing slash
+     *   would render this URL invalid). Default is `false`
      * @param {Number} [layerData.opacity=1.0] Value from 0.0 to 1.0 telling with which opacity this
      *   layer should be shown on the map. Default is `1.0`
      * @param {boolean} [layerData.visible=false] If the layer should be visible on the map or
@@ -61,7 +68,7 @@ export default class AbstractLayer {
      * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
      *   metadata) are still loading. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
-     *   `layerData.type` aren't valid
+     *   `layerData.type` or `layer.baseUrl` aren't valid
      */
     constructor(layerData) {
         if (!layerData) {
@@ -71,6 +78,8 @@ export default class AbstractLayer {
             name = null,
             id = null,
             type = null,
+            baseUrl = null,
+            ensureTrailingSlashInBaseUrl = false,
             opacity = 1.0,
             visible = false,
             attributions = [],
@@ -88,9 +97,16 @@ export default class AbstractLayer {
         if (type === null) {
             throw new InvalidLayerDataError('Missing layer type', layerData)
         }
+        if (baseUrl === null) {
+            throw new InvalidLayerDataError('Missing base URL', layerData)
+        }
         this.name = name
         this.id = id
         this.type = type
+        this.baseUrl = baseUrl
+        if (ensureTrailingSlashInBaseUrl && this.baseUrl && !this.baseUrl.endsWith('/')) {
+            this.baseUrl = this.baseUrl + '/'
+        }
         this.opacity = opacity
         this.visible = visible
         this.attributions = [...attributions]
@@ -100,19 +116,6 @@ export default class AbstractLayer {
         this.hasLegend = hasLegend
         this.errorKey = null
         this.hasError = false
-    }
-
-    /**
-     * @abstract
-     * @param {Number | null} epsgNumber The EPSG number of the projection system to use if needed
-     *   for the layer
-     * @param {String | null} timestamp A timestamp to be used, instead of the one define in the
-     *   time config of the layer. Is used to preview a specific timestamp without having to change
-     *   the layer's config (very useful for the time slider for instance)
-     * @returns {String} The URL to use to request tile/image/data for this layer
-     */
-    getURL(_epsgNumber = null, _timestamp = null) {
-        throw new Error('You have to implement the method getURL!')
     }
 
     clone() {

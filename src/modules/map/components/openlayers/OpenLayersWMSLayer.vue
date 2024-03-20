@@ -44,7 +44,7 @@ const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value || wmsLayerConfig.value.opacity)
-const url = computed(() => wmsLayerConfig.value.getURL())
+const url = computed(() => wmsLayerConfig.value.baseUrl)
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value, previewYear.value))
 
 /**

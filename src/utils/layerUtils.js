@@ -1,5 +1,6 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 
 export class ActiveLayerConfig {
     /**
@@ -40,4 +41,21 @@ export function getTimestampFromConfig(config, previewYear) {
         }
     }
     return config instanceof GeoAdminWMTSLayer ? null : ''
+}
+
+/**
+ * @param {GeoAdminWMTSLayer | ExternalWMTSLayer} wmtsLayerConfig
+ * @param {CoordinateSystem} projection
+ * @param {Number} previewYear
+ * @returns {String | null}
+ */
+export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear) {
+    if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
+        const timestamp = getTimestampFromConfig(wmtsLayerConfig, previewYear) ?? 'current'
+        const layerId = wmtsLayerConfig.isExternal
+            ? wmtsLayerConfig.externalLayerId
+            : wmtsLayerConfig.technicalName
+        return `${wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
+    }
+    return null
 }
