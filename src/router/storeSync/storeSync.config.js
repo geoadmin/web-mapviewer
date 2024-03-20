@@ -11,6 +11,7 @@ import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 import CompareSliderParamConfig from './CompareSliderParamConfig.class'
+
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
  * vice-versa)
@@ -33,7 +34,9 @@ const storeSyncConfig = [
         (store) => store.state.position.projection.epsgNumber,
         false,
         Number,
-        DEFAULT_PROJECTION.epsgNumber,
+        // Unit tests somehow come to this line without having set DEFAULT_PROJECTION correcty.
+        // So as defensive measure for this, we set a "just in case" default hard-coded value.
+        DEFAULT_PROJECTION?.epsgNumber ?? 2056,
         'projection'
     ),
     // Position must be processed after the projection param,
