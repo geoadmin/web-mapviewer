@@ -9,7 +9,7 @@ import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import EditableFeature from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -74,44 +74,13 @@ export function getKmlExtent(content) {
  * Get the KML feature type
  *
  * The type is taken from the geoadmin proprietary "type" property, and if this property is not
- * available it is guess from the geometry and style. The only use case that cannot be guess is for
- * measure which will always fallback to line.
+ * available it means that it is not a Geoadmin drawing and is therefore returning null.
  *
  * @param {ol/Feature} kmlFeature Open layer kml feature
  * @returns {String | null} KML feature type or null if this is not a geoadmin kml feature
  */
 export function getFeatureType(kmlFeature) {
-    let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
-    if (!Object.values(EditableFeatureTypes).includes(featureType)) {
-        log.error(
-            `Type ${featureType} of feature in kml not recognized, guessing it from geometry`,
-            kmlFeature
-        )
-
-        const style = getStyle(kmlFeature)
-        switch (kmlFeature.getGeometry().getType()) {
-            case 'Point':
-                if (style?.getImage()?.getScale() > 0) {
-                    featureType = EditableFeatureTypes.MARKER
-                } else {
-                    featureType = EditableFeatureTypes.ANNOTATION
-                }
-                break
-            case 'LineString':
-                // Here this could also be a measure but cannot differentiate between measure
-                // and line
-                featureType = EditableFeatureTypes.LINEPOLYGON
-                break
-            case 'Polygon':
-                featureType = EditableFeatureTypes.LINEPOLYGON
-                break
-            default:
-                log.error(`Could not guess the feature type, fallback to marker`, kmlFeature, style)
-                featureType = EditableFeatureTypes.MARKER
-                break
-        }
-    }
-    return featureType
+    return kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
 }
 
 /**
@@ -365,9 +334,13 @@ export function getFillColor(style, geometryType, iconArgs) {
  *   feature
  */
 export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
-    const featureType = getFeatureType(kmlFeature)
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
+        return null
+    }
+    const featureType = getFeatureType(kmlFeature)
+    if (!featureType) {
+        log.debug('External KML detected, cannot modify it to an EditableFeature')
         return null
     }
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
