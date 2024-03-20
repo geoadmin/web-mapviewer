@@ -54,7 +54,7 @@ const emit = defineEmits(['showLayerLegendPopup', 'toggleLayerDetail', 'moveLaye
 
 const store = useStore()
 
-useTippyTooltip('.loading-button[data-tippy-content]')
+useTippyTooltip('.menu-layer-item [data-tippy-content]')
 
 const layerUpButton = ref(null)
 const layerDownButton = ref(null)
@@ -65,6 +65,7 @@ const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )
 const showLegendIcon = computed(() => layer.value.hasLegend)
+const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -100,6 +101,10 @@ function onOpacityChange(e) {
 
 function showLayerLegendPopup() {
     emit('showLayerLegendPopup', id.value)
+}
+
+function duplicateLayer() {
+    store.dispatch('addLayer', { layer: layer.value.clone(), ...dispatcher })
 }
 </script>
 
@@ -152,7 +157,7 @@ function showLayerLegendPopup() {
                 :data-cy="`button-error-${id}`"
             />
             <MenuActiveLayersListItemTimeSelector
-                v-if="layer.timeConfig"
+                v-if="hasMultipleTimestamps"
                 :layer-index="index"
                 :layer-id="id"
                 :time-config="layer.timeConfig"
@@ -201,6 +206,16 @@ function showLayerLegendPopup() {
                 :data-cy="`slider-opacity-layer-${id}`"
                 @change="onOpacityChange"
             />
+            <button
+                v-if="hasMultipleTimestamps"
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
+                :data-cy="`button-duplicate-layer-${id}`"
+                data-tippy-content="duplicate_layer"
+                @click.prevent="duplicateLayer()"
+            >
+                <FontAwesomeIcon :icon="['far', 'copy']" />
+            </button>
             <button
                 ref="layerUpButton"
                 class="btn d-flex align-items-center"
