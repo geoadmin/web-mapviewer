@@ -33,6 +33,9 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
+const mediaLinkPopover = ref(null)
+const mediaImagePopover = ref(null)
+const mediaFilmPopover = ref(null)
 
 // Update the UI when the feature changes
 watch(
@@ -120,6 +123,9 @@ function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
 function onAddMediaLink(descriptionMediaLink) {
+    mediaLinkPopover.value.hidePopover()
+    mediaImagePopover.value.hidePopover()
+    mediaFilmPopover.value.hidePopover()
     description.value += descriptionMediaLink
 }
 </script>
@@ -149,6 +155,8 @@ function onAddMediaLink(descriptionMediaLink) {
             <div>
                 <div class="d-flex justify-content-end align-items-center">
                     <DrawingStylePopoverButton
+                        ref="mediaLinkPopover"
+                        data-cy="drawing-style-link-button"
                         button-class-override="rounded-0 rounded-top-2 rounded-end-0 btn btn-sm btn-light d-flex align-items-center"
                         icon="fa-link"
                     >
@@ -161,6 +169,8 @@ function onAddMediaLink(descriptionMediaLink) {
                         </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
+                        ref="mediaImagePopover"
+                        data-cy="drawing-style-image-button"
                         button-class-override="rounded-0 btn-sm btn btn-light d-flex align-items-center"
                         icon="fa-image"
                     >
@@ -172,6 +182,8 @@ function onAddMediaLink(descriptionMediaLink) {
                         </DrawingStyleMediaLink>
                     </DrawingStylePopoverButton>
                     <DrawingStylePopoverButton
+                        ref="mediaFilmPopover"
+                        data-cy="drawing-style-film-button"
                         button-class-override="rounded-0 rounded-top-2 rounded-start-0 btn btn-sm btn-light d-flex align-items-center"
                         icon="fa-film"
                     >
