@@ -23,18 +23,13 @@ const props = defineProps({
 })
 
 const urlValid = computed(() => {
-    if (!isValidUrl(generatedMediaLink.value)) {
-        return false
-    }
-    return true
+    return isValidUrl(generatedMediaLink.value)
 })
 
 const urlDescriptionValid = computed(() => {
-    if (!extraUrlDescription.value || linkDescription.value) {
-        return true
-    }
-    return false
+    return !extraUrlDescription.value || linkDescription.value
 })
+
 const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
@@ -75,59 +70,65 @@ function addLink(generatedMediaLink) {
 </script>
 
 <template>
-    <div v-if="extraUrlDescription" class="pb-2">
-        <label class="form-label" for="drawing-style-media-link-description">
-            {{ extraUrlDescription }}
+    <div class="px-3 pb-2">
+        <div v-if="extraUrlDescription" class="pb-2">
+            <label class="form-label" for="drawing-style-media-link-description">
+                {{ extraUrlDescription }}
+            </label>
+            <div class="input-group d-flex needs-validation">
+                <input
+                    id="drawing-style-media-link-description"
+                    ref="inputElement"
+                    v-model="linkDescription"
+                    type="text"
+                    placeholder="More info ..."
+                    data-cy="drawing-style-media-description-input"
+                    class="feature-url-description form-control"
+                    :class="{
+                        'is-invalid': urlValid && !urlDescriptionValid,
+                    }"
+                />
+                <div
+                    v-if="!urlDescriptionValid"
+                    class="invalid-feedback"
+                    data-cy="drawing-style-media-empty-description-error"
+                >
+                    {{ i18n.t('empty_description') }}
+                </div>
+            </div>
+        </div>
+        <label class="form-label" for="drawing-style-media-url-description">
+            {{ urlDescription }}
         </label>
         <div class="input-group d-flex needs-validation">
             <input
-                id="drawing-style-media-link-description"
+                id="drawing-style-media-url-description"
                 ref="inputElement"
-                v-model="linkDescription"
+                v-model="generatedMediaLink"
                 type="text"
-                placeholder="More info ..."
-                data-cy="drawing-style-media-description-input"
-                class="feature-url-description form-control"
+                placeholder="Paste URL"
+                data-cy="drawing-style-media-url-input"
+                class="feature-url-description form-control text-truncate"
                 :class="{
-                    'is-invalid': urlValid && !urlDescriptionValid,
+                    'is-invalid': !urlValid && generatedMediaLink,
                 }"
             />
-            <div
-                v-if="!urlDescriptionValid"
-                class="invalid-feedback"
-                data-cy="drawing-style-media-empty-description-error"
+            <button
+                :disabled="!urlValid || !urlDescriptionValid"
+                class="btn btn-outline-secondary rounded-end"
+                type="button"
+                data-cy="drawing-style-media-generate-button"
+                @click="addLink(generatedMediaLink)"
             >
-                {{ i18n.t('empty_description') }}
+                Add
+            </button>
+            <div
+                v-if="generatedMediaLink"
+                class="invalid-feedback"
+                data-cy="drawing-style-media-invalid-url-error"
+            >
+                {{ i18n.t('invalid_url') }}
             </div>
-        </div>
-    </div>
-    <label class="form-label" for="drawing-style-media-url-description">
-        {{ urlDescription }}
-    </label>
-    <div class="input-group d-flex needs-validation">
-        <input
-            id="drawing-style-media-url-description"
-            ref="inputElement"
-            v-model="generatedMediaLink"
-            type="text"
-            placeholder="Paste URL"
-            data-cy="drawing-style-media-url-input"
-            class="feature-url-description form-control"
-            :class="{
-                'is-invalid': !urlValid,
-            }"
-        />
-        <button
-            :disabled="!urlValid || !urlDescriptionValid"
-            class="btn btn-outline-secondary rounded-end"
-            type="button"
-            data-cy="drawing-style-media-generate-button"
-            @click="addLink(generatedMediaLink)"
-        >
-            Add
-        </button>
-        <div class="invalid-feedback" data-cy="drawing-style-media-invalid-url-error">
-            {{ i18n.t('invalid_url') }}
         </div>
     </div>
 </template>
