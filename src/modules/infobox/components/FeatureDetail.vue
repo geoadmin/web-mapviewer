@@ -39,13 +39,6 @@ const sanitizedFeatureDataEntries = computed(() => {
 function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
-function containsMedia(htmlText) {
-    if (htmlText.includes('iframe')) {
-        return true
-    } else {
-        return false
-    }
-}
 function setDisclaimerAgree() {
     disclaimerAgree.value = !disclaimerAgree.value
 }
@@ -60,7 +53,7 @@ function setDisclaimerAgree() {
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div
-                    v-if="disclaimerAgree && containsMedia(value)"
+                    v-if="disclaimerAgree && value.includes('iframe')"
                     data-cy="feature-detail-media-disclaimer"
                     class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
@@ -70,13 +63,13 @@ function setDisclaimerAgree() {
                         class="px-3 rounded-2 btn btn-sm btn-light align-items-center"
                         @click="setDisclaimerAgree"
                     >
-                        I agree
+                        {{ i18n.t('disclaimer_agree') }}
                     </button>
                 </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div
-                    v-if="!containsMedia(value) || !disclaimerAgree"
+                    v-if="!value.includes('iframe') || !disclaimerAgree"
                     data-cy="feature-detail-description-content"
                     v-html="value"
                 ></div>
