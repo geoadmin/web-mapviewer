@@ -10,6 +10,22 @@ import { useStore } from 'vuex'
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 const printAreaLayerName = 'printAreaLayer'
 
+// class GeoAdminCustomizer extends BaseCustomizer {
+//     constructor(layerNamesToExclude) {
+//         super()
+//         this.layerNamesToExclude = layerNamesToExclude
+//         this.layerFilter = this.layerFilter.bind(this)
+//     }
+
+//     layerFilter(layerState) {
+//         if (this.layerNamesToExclude.includes(layerState.layer.get('name'))) {
+//             return false
+//         }
+//         // Call parent layerFilter method for other layers
+//         return super.layerFilter(layerState)
+//     }
+// }
+
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
     const worldPolygon = new Feature({
