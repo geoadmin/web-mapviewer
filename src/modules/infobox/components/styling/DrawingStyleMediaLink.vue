@@ -89,8 +89,8 @@ function addLink(generatedMediaLink) {
                     }"
                 />
                 <div
-                    v-if="!urlDescriptionValid"
-                    class="invalid-feedback"
+                    v-if="!urlDescriptionValid && urlValid"
+                    class="invalid-feedback-description invalid-feedback"
                     data-cy="drawing-style-media-empty-description-error"
                 >
                     {{ i18n.t('empty_description') }}
@@ -123,8 +123,8 @@ function addLink(generatedMediaLink) {
                 Add
             </button>
             <div
-                v-if="generatedMediaLink"
-                class="invalid-feedback"
+                v-if="generatedMediaLink && !urlValid"
+                class="invalid-feedback-url invalid-feedback"
                 data-cy="drawing-style-media-invalid-url-error"
             >
                 {{ i18n.t('invalid_url') }}
