@@ -90,6 +90,7 @@
     "description": "Description",
     "description_instructions": "Description of the WMS layer",
     "desktop_redirect": "Link to desktop version",
+    "disclaimer_agree": "I agree",
     "display_profile": "Display profile",
     "distance_label": "Distance",
     "district": "District",
