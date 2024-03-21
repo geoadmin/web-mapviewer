@@ -1,9 +1,12 @@
+import GeoJSON from 'ol/format/GeoJSON'
 import { defaults as getDefaultInteractions, DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import log from '@/utils/logging'
@@ -13,6 +16,11 @@ export default function useMapInteractions(map) {
     const store = useStore()
 
     const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+    const activeVectorLayers = computed(() =>
+        store.state.layers.activeLayers.filter((layer) =>
+            [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
+        )
+    )
 
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
     const freeMouseWheelInteraction = new MouseWheelZoom()
@@ -90,7 +98,8 @@ export default function useMapInteractions(map) {
         // such as the floating tooltip. Without this check, clicking on the floating tooltip button
         // will trigger an identification of feature at the position of the button.
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
-            onLeftClickDown(event.pixel, map.getCoordinateFromPixel([event.x, event.y]))
+            const pixel = [event.x, event.y]
+            onLeftClickDown(event.pixel, map.getCoordinateFromPixel(pixel))
         }
     }
     function onPointerUp(event) {
@@ -99,9 +108,49 @@ export default function useMapInteractions(map) {
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
             const pixel = [event.x, event.y]
             const coordinate = map.getCoordinateFromPixel(pixel)
+            const features = []
+            activeVectorLayers.value.forEach((vectorLayer) => {
+                map.getLayers().forEach((olLayer) => {
+                    if (olLayer.get('id') === vectorLayer.id) {
+                        const layerFeatures = map
+                            .getFeaturesAtPixel(pixel, {
+                                layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
+                                hitTolerance: DRAWING_HIT_TOLERANCE,
+                            })
+                            .map(
+                                (olFeature) =>
+                                    new LayerFeature({
+                                        layer: vectorLayer,
+                                        id: olFeature.getId(),
+                                        name: olFeature.getId(),
+                                        data: {
+                                            title: olFeature.get('name'),
+                                            description: olFeature.get('description'),
+                                        },
+                                        coordinates: olFeature.getGeometry().coordinates,
+                                        geometry: new GeoJSON().writeGeometryObject(
+                                            olFeature.getGeometry()
+                                        ),
+                                    })
+                            )
+                            // unique filter on features (OL sometimes return twice the same features)
+                            .filter(
+                                (feature, index, self) =>
+                                    self.indexOf(
+                                        self.find(
+                                            (anotherFeature) => anotherFeature.id === feature.id
+                                        )
+                                    ) === index
+                            )
+                        if (layerFeatures.length > 0) {
+                            features.push(...layerFeatures)
+                        }
+                    }
+                })
+            })
             switch (event.button) {
                 case 0:
-                    onLeftClickUp(pixel, coordinate)
+                    onLeftClickUp(pixel, coordinate, features)
                     break
                 case 2:
                     onRightClick(pixel, coordinate)
