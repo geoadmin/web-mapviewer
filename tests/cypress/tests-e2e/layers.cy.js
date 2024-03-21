@@ -242,6 +242,42 @@ describe('Test of layer handling', () => {
                     { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
                     { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
                 ])
+
+                cy.log('getFeatureInfo testing')
+                // layer 1 and 2 have the same "backend", so we deactivate layer 2 and activate layer 3
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId2}-"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId3}-"]`).click()
+                cy.checkOlLayer([
+                    bgLayer,
+                    { id: fakeWmsLayerId1, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId2, visible: false, opacity: 0.8 },
+                    { id: fakeWmsLayerId3, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
+                ])
+
+                // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
+                // So we start by defining intercepts for these two requests
+                cy.intercept(`${fakeWmsBaseUrl1}**`, { features: [] }).as('getFeatureInfoLayer1')
+                cy.intercept(`${fakeWmsBaseUrl2}**`, { features: [] }).as('getFeatureInfoLayer2')
+                cy.closeMenuIfMobile()
+                cy.get('[data-cy="ol-map"]').click()
+                cy.wait('@getFeatureInfoLayer1').then((intercept) => {
+                    // layer1 only support POST method, so this should have been sent with this HTTP method
+                    cy.wrap(intercept.request.method).should('eq', 'POST')
+                    // as this server support application/json, this must be the data type requested
+                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                    cy.wrap(intercept.request.query.INFO_FORMAT).should('eq', 'application/json')
+                })
+                cy.wait('@getFeatureInfoLayer2').then((intercept) => {
+                    // layer 2 support both POST and GET, so the app should default to GET
+                    cy.wrap(intercept.request.method).should('eq', 'GET')
+                    //this server doesn't support application/json but GML, GML must be the data type requested
+                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                    cy.wrap(intercept.request.query.INFO_FORMAT).should(
+                        'eq',
+                        'application/vnd.ogc.gml'
+                    )
+                })
             })
             it('reads and adds an external WMTS correctly', () => {
                 const layers = [
