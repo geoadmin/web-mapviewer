@@ -1045,4 +1045,17 @@ describe('Test of layer handling', () => {
             cy.get('[data-cy="layers-copyrights"]').should('have.length', 1)
         })
     })
+    context('GeoJSON layer data auto reload', () => {
+        it('reloads periodically GeoJSON data when an update delay is set', () => {
+            cy.goToMapView({
+                layers: 'test.geojson.layer',
+            })
+            // waiting on initial load
+            cy.wait('@geojson-data')
+            // now it should reload every 2500ms (according to layers.fixture.json)
+            cy.wait('@geojson-data', { timeout: 5000 })
+            cy.wait('@geojson-data', { timeout: 5000 })
+            cy.wait('@geojson-data', { timeout: 5000 })
+        })
+    })
 })

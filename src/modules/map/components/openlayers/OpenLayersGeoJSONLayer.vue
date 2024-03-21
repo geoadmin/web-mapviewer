@@ -10,7 +10,6 @@ import { useStore } from 'vuex'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
-import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -43,28 +42,31 @@ const isLoading = computed(() => geoJsonConfig.value.isLoading)
 
 const layer = new VectorLayer({ id: layerId.value, opacity: opacity.value })
 
-function createSourceForProjection() {
-    if (!geoJsonData.value) {
-        log.debug('no GeoJSON data loaded yet, could not create source')
-        return
-    }
+function setGeoJsonStyle() {
     if (!geoJsonStyle.value) {
         log.debug('style was not loaded, could not create source')
         return
     }
-    // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
-    const matchingDataProjection = allCoordinateSystems.find(
-        (coordinateSystem) => coordinateSystem.epsg === geoJsonData.value?.crs?.properties?.name
-    )
     const styleFunction = new OlStyleForPropertyValue(geoJsonStyle.value)
     layer.setStyle((feature, res) => styleFunction.getFeatureStyle(feature, res))
+}
+function setFeatures() {
+    if (!geoJsonData.value) {
+        log.debug('no GeoJSON data loaded yet, could not create source')
+        return
+    }
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                reprojectGeoJsonData(geoJsonData.value, projection.value, matchingDataProjection)
+                reprojectGeoJsonData(geoJsonData.value, projection.value)
             ),
         })
     )
+}
+
+function createSourceForProjection() {
+    setGeoJsonStyle()
+    setFeatures()
 }
 
 const olMap = inject('olMap')
@@ -75,6 +77,7 @@ createSourceForProjection()
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
 watch(isLoading, createSourceForProjection)
+watch(geoJsonData, setFeatures)
 </script>
 
 <template>

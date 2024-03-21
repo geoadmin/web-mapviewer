@@ -11,7 +11,6 @@ import { Vector as VectorSource } from 'ol/source'
 
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -49,18 +48,10 @@ export default {
                     const geojsonData = responses[0].data
                     const geojsonStyleLiterals = responses[1].data
                     const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
-                    const matchingDataProjection = allCoordinateSystems.find(
-                        (coordinateSystem) =>
-                            coordinateSystem.epsg === geojsonData?.crs?.properties?.name
-                    )
                     this.olLayer.setSource(
                         new VectorSource({
                             features: new GeoJSON().readFeatures(
-                                reprojectGeoJsonData(
-                                    geojsonData,
-                                    this.projection,
-                                    matchingDataProjection
-                                )
+                                reprojectGeoJsonData(geojsonData, this.projection)
                             ),
                         })
                     )

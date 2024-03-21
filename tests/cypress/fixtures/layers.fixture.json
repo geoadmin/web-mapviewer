@@ -192,7 +192,7 @@
         "tooltip": false,
         "background": false,
         "label": "test.geojson.layer",
-        "updateDelay": 1800000,
+        "updateDelay": 2500,
         "attribution": "attribution.test.geojson.layer",
         "hasLegend": true,
         "serverLayerName": "ch.meteoschweiz.messwerte-niederschlag-1d",
