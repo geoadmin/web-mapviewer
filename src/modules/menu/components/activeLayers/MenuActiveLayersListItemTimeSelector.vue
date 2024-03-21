@@ -104,7 +104,7 @@ function hidePopover() {
         :class="{
             'btn-sm': compact,
         }"
-        :data-cy="`time-selector-${layerId}`"
+        :data-cy="`time-selector-${layerId}-${layerIndex}`"
     >
         {{ humanReadableCurrentTimestamp }}
     </button>

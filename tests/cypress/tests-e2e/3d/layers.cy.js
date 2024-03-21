@@ -102,7 +102,9 @@ describe('Test of layer handling in 3D', () => {
         cy.openMenuIfMobile()
         // lower the order of the first layer
         cy.openLayerSettings(firstLayerId)
-        cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`).should('be.visible').click()
+        cy.get(`[data-cy^="button-raise-order-layer-${firstLayerId}-"]`)
+            .should('be.visible')
+            .click()
         // checking that the order has changed
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
@@ -111,7 +113,9 @@ describe('Test of layer handling in 3D', () => {
             expect(viewer.scene.imageryLayers.get(2).imageryProvider.layers).to.eq(firstLayerId)
         })
         // using the other button
-        cy.get(`[data-cy="button-lower-order-layer-${firstLayerId}"]`).should('be.visible').click()
+        cy.get(`[data-cy^="button-lower-order-layer-${firstLayerId}-"]`)
+            .should('be.visible')
+            .click()
         // re-checking the order that should be back to the starting values
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.imageryLayers.get(1).imageryProvider.layers).to.eq(firstLayerId)
@@ -158,7 +162,9 @@ describe('Test of layer handling in 3D', () => {
             expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
         })
         cy.openMenuIfMobile()
-        cy.get(`[data-cy="button-remove-layer-${visibleLayerIds[3]}"]`).should('be.visible').click()
+        cy.get(`[data-cy^="button-remove-layer-${visibleLayerIds[3]}-"]`)
+            .should('be.visible')
+            .click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
         })

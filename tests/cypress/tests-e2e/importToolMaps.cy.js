@@ -363,14 +363,16 @@ describe('The Import Maps Tool', () => {
         cy.wait('@wms-get-capabilities')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
-        cy.get(`[data-cy="active-layer-name-${singleLayerFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${singleLayerFullId}"]`).should(
+        cy.get(`[data-cy^="active-layer-name-${singleLayerFullId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${singleLayerFullId}-"]`).should(
             'not.exist'
         )
-        cy.get(`[data-cy="active-layer-name-${firstSubItemId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${firstSubItemId}"]`).should('not.exist')
-        cy.get(`[data-cy="active-layer-name-${itemFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${itemFullId}"]`).should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-${firstSubItemId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${firstSubItemId}-"]`).should(
+            'not.exist'
+        )
+        cy.get(`[data-cy^="active-layer-name-${itemFullId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${itemFullId}-"]`).should('not.exist')
     })
     it('Import external WMTS layers', () => {
         cy.intercept(

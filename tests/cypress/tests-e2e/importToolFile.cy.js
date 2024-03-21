@@ -191,7 +191,7 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing an external layer')
-        cy.get(`[data-cy="button-remove-layer-KML|${validOnlineUrl}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${validOnlineUrl}-"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 3)
 
@@ -208,8 +208,8 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
-        cy.get(`[data-cy="active-layer-name-KML|${secondValidOnlineUrl}"]`).should('be.visible')
-        cy.get('[data-cy="button-loading-metadata-spinner"]').should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-KML|${secondValidOnlineUrl}-"]`).should('be.visible')
+        cy.get('[data-cy^="button-loading-metadata-spinner-"]').should('not.exist')
     })
     it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
@@ -258,15 +258,15 @@ describe('The Import File Tool', () => {
                     .should('be.visible')
                 cy.wrap($layer).find('[data-cy^="button-error-"]').should('be.visible').click()
                 if (index === 0) {
-                    cy.get(`[data-cy="tippy-button-error-KML|${onlineUrlNotReachable}"]`)
+                    cy.get(`[data-cy^="tippy-button-error-KML|${onlineUrlNotReachable}-"]`)
                         .should('be.visible')
                         .contains('file not accessible')
                 } else if (index === 1) {
-                    cy.get(`[data-cy="tippy-button-error-KML|${invalidFileOnlineUrl}"]`)
+                    cy.get(`[data-cy^="tippy-button-error-KML|${invalidFileOnlineUrl}-"]`)
                         .should('be.visible')
                         .contains('file is empty')
                 } else {
-                    cy.get(`[data-cy="tippy-button-error-KML|${outOfBoundKMLUrl}"]`)
+                    cy.get(`[data-cy^="tippy-button-error-KML|${outOfBoundKMLUrl}-"]`)
                         .should('be.visible')
                         .contains('out of projection bounds')
                 }
@@ -278,9 +278,9 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing all invalid kml layer')
-        cy.get(`[data-cy="button-remove-layer-KML|${invalidFileOnlineUrl}"]:visible`).click()
-        cy.get(`[data-cy="button-remove-layer-KML|${onlineUrlNotReachable}"]:visible`).click()
-        cy.get(`[data-cy="button-remove-layer-KML|${outOfBoundKMLUrl}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${invalidFileOnlineUrl}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${onlineUrlNotReachable}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${outOfBoundKMLUrl}-"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
 
@@ -551,7 +551,7 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
         cy.openMenuIfMobile()
-        cy.get(`[data-cy="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}-"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
     })
 })

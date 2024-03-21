@@ -472,7 +472,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
+                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -490,7 +490,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
+                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -507,7 +507,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
+                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -551,10 +551,10 @@ describe('Drawing module tests', () => {
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
                     )
                     cy.get(
-                        `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
+                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                     ).should('not.exist')
                     cy.get(
-                        `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}"]`
+                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
                     )
                         .should('be.visible')
                         .contains('Drawing')

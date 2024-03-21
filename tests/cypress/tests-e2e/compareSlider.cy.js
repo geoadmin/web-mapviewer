@@ -182,7 +182,7 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], false)
                 cy.openMenuIfMobile()
-                cy.get(`[data-cy="button-lower-order-layer-${layer1}"]`)
+                cy.get(`[data-cy^="button-lower-order-layer-${layer1}-"]`)
                     .should('be.visible')
                     .click()
                 cy.closeMenuIfMobile()
@@ -192,7 +192,7 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
                 // making a clean state for the next parts of the tests
                 cy.openMenuIfMobile()
-                cy.get(`[data-cy="button-lower-order-layer-${layer2}"]`)
+                cy.get(`[data-cy^="button-lower-order-layer-${layer2}-"]`)
                     .should('be.visible')
                     .click()
                 cy.closeMenuIfMobile()
@@ -218,7 +218,7 @@ describe('Testing of the compare slider', () => {
                     'checking that if we remove a layer, the compare slider will cut the other layer'
                 )
                 cy.openMenuIfMobile()
-                cy.get(`[data-cy="button-toggle-visibility-layer-${layer1}"`)
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${layer1}-"`)
                     .should('be.visible')
                     .click()
                 cy.closeMenuIfMobile()
@@ -230,7 +230,7 @@ describe('Testing of the compare slider', () => {
                     'checking that we remove the compare slider upon removing the last visible layer'
                 )
                 cy.openMenuIfMobile()
-                cy.get(`[data-cy="button-toggle-visibility-layer-${layer2}"`)
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${layer2}-"`)
                     .should('be.visible')
                     .click()
                 cy.closeMenuIfMobile()
@@ -272,7 +272,7 @@ describe('Testing of the compare slider', () => {
                     })
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
 
-                    cy.get(`[data-cy="button-remove-layer-test-1.wms.layer"]`)
+                    cy.get(`[data-cy^="button-remove-layer-test-1.wms.layer-"]`)
                         .should('be.visible')
                         .click()
 
