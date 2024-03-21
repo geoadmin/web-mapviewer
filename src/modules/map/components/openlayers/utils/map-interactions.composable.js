@@ -1,5 +1,5 @@
 import { platformModifierKeyOnly } from 'ol/events/condition'
-import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interaction'
+import { defaults as getDefaultInteractions, DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
 import { computed, onBeforeUnmount, watch } from 'vue'
@@ -24,6 +24,12 @@ export default function useMapInteractions(map) {
     const interactions = getDefaultInteractions().extend([
         new DragRotateInteraction({
             condition: platformModifierKeyOnly,
+        }),
+        // Add middle mouse button for panning
+        new DragPan({
+            condition: function (event) {
+                return event.originalEvent.buttons === 4
+            },
         }),
     ])
     interactions.forEach((interaction) => map.addInteraction(interaction))
