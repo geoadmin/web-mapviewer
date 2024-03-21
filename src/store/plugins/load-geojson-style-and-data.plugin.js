@@ -36,6 +36,7 @@ async function autoReloadData(store, geoJsonLayer) {
     // creating the new interval to reload this layer's data
     intervalsByLayerId[geoJsonLayer.id] = setInterval(async () => {
         try {
+            store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
             const { data } = await load(geoJsonLayer.geoJsonUrl)
             const layerCopy = geoJsonLayer.clone()
             layerCopy.geoJsonData = data
@@ -45,6 +46,7 @@ async function autoReloadData(store, geoJsonLayer) {
                 layers: [layerCopy],
                 ...dispatcher,
             })
+            store.dispatch('setShowLoadingBar', { loading: false, ...dispatcher })
             log.debug(`Data reloaded according to updateDelay for layer ${geoJsonLayer.id}`)
         } catch (error) {
             log.error(`Error while reloading GeoJSON data for layer ${geoJsonLayer.id}`, error)
@@ -107,6 +109,7 @@ export default function loadGeojsonStyleAndData(store) {
                         self.indexOf(self.find((layer) => layer.id === geoJsonLayer.id)) === index
                 )
 
+            store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
             const updatedLayers = await Promise.all(
                 geoJsonLayers
                     .filter((layer) => layer.isLoading)
@@ -115,6 +118,7 @@ export default function loadGeojsonStyleAndData(store) {
             if (updatedLayers.length > 0) {
                 store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
             }
+            store.dispatch('setShowLoadingBar', { loading: false, ...dispatcher })
 
             // after the initial load is done,
             // going through all layers that have an update delay and launching the routine to reload their data
