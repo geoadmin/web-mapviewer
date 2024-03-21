@@ -2,8 +2,6 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-// import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-// import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
@@ -320,76 +318,3 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
 })
-
-// TODO zindex unit tests
-// describe('Layer z-index are calculated correctly in the store', () => {
-//     const getZIndex = (layer) => store.getters.zIndexForVisibleLayer(layer)
-
-//     beforeEach( () => {
-//         resetStore()
-//         store.dispatch('setLayerConfig', {
-//             config: [bgLayer, firstLayer, secondLayer],
-//             ...dispatcher,
-//         })
-//         // setting up the background layer
-//         store.dispatch('setBackground', { bgLayer: bgLayer, ...dispatcher })
-//     })
-
-//     it('gives a z-index of -1 if the given layer is not valid', () => {
-//         expect(getZIndex(null)).to.eq(-1)
-//         expect(getZIndex(undefined)).to.eq(-1)
-//         expect(getZIndex({})).to.eq(-1)
-//         expect(getZIndex('')).to.eq(-1)
-//         expect(getZIndex(0)).to.eq(-1)
-//         expect(getZIndex(true)).to.eq(-1)
-//     })
-
-//     it('counts the BG layer',  () => {
-//         store.dispatch('addLayer', { layer: firstLayer, ...dispatcher })
-//         expect(getZIndex(firstLayer)).to.eq(1) // BG layer takes the 0 spot
-//     })
-
-//     it('counts two non group layer correctly',  () => {
-//         store.dispatch('addLayer', { layer: firstLayer, ...dispatcher })
-//         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
-//         expect(getZIndex(firstLayer)).to.eq(1)
-//         expect(getZIndex(secondLayer)).to.eq(2)
-//     })
-
-//     it('counts a group layers correctly',  () => {
-//         const baseUrl = 'https://wms.com'
-//         const groupLayer = new ExternalGroupOfLayers({
-//             name: 'group',
-//             baseUrl,
-//             externalLayerId: 'group',
-//             layers: [
-//                 new ExternalWMSLayer({
-//                     name: 'Layer 1',
-//                     externalLayerId: 'layer1',
-//                     baseUrl,
-//                 }),
-//                 new ExternalWMSLayer({
-//                     name: 'Layer 2',
-//                     externalLayerId: 'layer2',
-//                     baseUrl,
-//                 }),
-//                 new ExternalWMSLayer({
-//                     name: 'Layer 3',
-//                     externalLayerId: 'layer3',
-//                     baseUrl,
-//                 }),
-//                 new ExternalWMSLayer({
-//                     name: 'Layer 4',
-//                     externalLayerId: 'layer4',
-//                     baseUrl,
-//                 }),
-//             ],
-//         })
-//         store.dispatch('addLayer', { layer: firstLayer, ...dispatcher })
-//         store.dispatch('addLayer', { layer: groupLayer, ...dispatcher })
-//         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
-//         expect(getZIndex(firstLayer)).to.eq(1)
-//         expect(getZIndex(groupLayer)).to.eq(2)
-//         expect(getZIndex(secondLayer)).to.eq(6)
-//     })
-// })
