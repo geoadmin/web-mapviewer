@@ -74,8 +74,6 @@
                 </DCPType>
             </GetMap>
             <GetFeatureInfo>
-                <Format>application/json</Format>
-                <Format>application/json; subtype=geojson</Format>
                 <Format>application/vnd.ogc.gml</Format>
                 <Format>text/plain</Format>
                 <Format>text/xml</Format>
