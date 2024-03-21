@@ -113,13 +113,13 @@ function duplicateLayer() {
         ref="menuLayerItem"
         class="menu-layer-item"
         :class="{ compact: compact }"
-        :data-cy="`menu-active-layer-${id}`"
+        :data-cy="`menu-active-layer-${id}-${index}`"
     >
         <div class="menu-layer-item-title">
             <button
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-remove-layer-${id}`"
+                :data-cy="`button-remove-layer-${id}-${index}`"
                 @click="onRemoveLayer"
             >
                 <FontAwesomeIcon icon="times-circle" />
@@ -127,7 +127,7 @@ function duplicateLayer() {
             <button
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-toggle-visibility-layer-${id}`"
+                :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
             >
                 <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
@@ -135,7 +135,7 @@ function duplicateLayer() {
             <TextTruncate
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
-                :data-cy="`active-layer-name-${id}`"
+                :data-cy="`active-layer-name-${id}-${index}`"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
@@ -146,7 +146,7 @@ function duplicateLayer() {
                     'btn-lg': !compact,
                 }"
                 data-tippy-content="loading_external_layer"
-                :data-cy="`button-loading-metadata-spinner-${id}`"
+                :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
             >
                 <FontAwesomeIcon icon="spinner" pulse />
             </button>
@@ -154,7 +154,7 @@ function duplicateLayer() {
                 v-else-if="layer.hasError"
                 :compact="compact"
                 :error-message="layer.errorKey"
-                :data-cy="`button-error-${id}`"
+                :data-cy="`button-error-${id}-${index}`"
             />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
@@ -181,7 +181,7 @@ function duplicateLayer() {
                     'btn-lg': !compact,
                     'flip text-primary': showLayerDetail,
                 }"
-                :data-cy="`button-open-visible-layer-settings-${id}`"
+                :data-cy="`button-open-visible-layer-settings-${id}-${index}`"
                 @click="emit('toggleLayerDetail', index)"
             >
                 <FontAwesomeIcon icon="cog" />
@@ -190,7 +190,7 @@ function duplicateLayer() {
         <div
             v-show="showLayerDetail"
             class="menu-layer-item-details"
-            :data-cy="`div-layer-settings-${id}`"
+            :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
                 {{ $t('transparency') }}
@@ -203,14 +203,14 @@ function duplicateLayer() {
                 max="1.0"
                 step="0.01"
                 :value="layer.opacity"
-                :data-cy="`slider-opacity-layer-${id}`"
+                :data-cy="`slider-opacity-layer-${id}-${index}`"
                 @change="onOpacityChange"
             />
             <button
                 v-if="hasMultipleTimestamps"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-duplicate-layer-${id}`"
+                :data-cy="`button-duplicate-layer-${id}-${index}`"
                 data-tippy-content="duplicate_layer"
                 @click.prevent="duplicateLayer()"
             >
@@ -221,7 +221,7 @@ function duplicateLayer() {
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isTopLayer"
-                :data-cy="`button-raise-order-layer-${id}`"
+                :data-cy="`button-raise-order-layer-${id}-${index}`"
                 @click.prevent="emit('moveLayer', index, index + 1)"
             >
                 <FontAwesomeIcon icon="arrow-up" />
@@ -231,7 +231,7 @@ function duplicateLayer() {
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isBottomLayer"
-                :data-cy="`button-lower-order-layer-${id}`"
+                :data-cy="`button-lower-order-layer-${id}-${index}`"
                 @click.prevent="emit('moveLayer', index, index - 1)"
             >
                 <FontAwesomeIcon icon="arrow-down" />
@@ -240,7 +240,7 @@ function duplicateLayer() {
                 v-if="showLegendIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-show-legend-layer-${id}`"
+                :data-cy="`button-show-legend-layer-${id}-${index}`"
                 @click="showLayerLegendPopup"
             >
                 <FontAwesomeIcon icon="info-circle" />

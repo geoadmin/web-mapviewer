@@ -14,6 +14,10 @@ import { useI18n } from 'vue-i18n'
  * translated. The translation happens during renderer so we don't have to listen to language
  * changes.
  *
+ * The tippy element will automatically also have a data-cy=tippy-${dataCyFromElement} attribute
+ * with dataCyFromElement being the data-cy attribute value of the tippy target. This data-cy
+ * attribute can be used then to test the tippy in cypress see example below.
+ *
  * WARNING: the selector should not be too general as it might match other component outside of this
  * one and it can set multiple tooltip to component resulting to subtle bugs.
  *
@@ -29,6 +33,18 @@ import { useI18n } from 'vue-i18n'
  *     <div data-tippy-content="My Tooltip 1">sub element 1</div>
  *     <div data-tippy-content="My Tooltip 2">sub element 2</div>
  *     </div>
+ *
+ * @example
+ *     useTippyTooltip('#myId [data-tippy-content]')
+ *
+ *     <div id="myId">
+ *     <div data-tippy-content="My Tooltip 1" data-cy="my-div-1">sub element 1</div>
+ *     <div data-tippy-content="My Tooltip 2" data-cy="my-div-2">sub element 2</div>
+ *     </div>
+ *
+ *     // Then in cypress you can use the following code snippet to test the tippy content
+ *     cy.get('[data-cy="my-div-1"]').realHover()
+ *     cy.get('[data-cy="tippy-my-div-1"]').should('be.visible')
  *
  * @param {string | Component} selector Selector for element(s) to add a tooltip. You can also use
  *   an element reference or list of elements reference to attach the tooltip
@@ -81,6 +97,13 @@ export function useTippyTooltip(
             // we need to set the content dynamically onTrigger otherwise the tippy would
             // not be reactive when the data-tippy-content changes
             onTrigger: () => setContent(),
+            onCreate: (instance) => {
+                // Set a data-cy attribute that can be used for e2e tests
+                const dataCy = instance.reference.getAttribute('data-cy')
+                if (dataCy) {
+                    instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
+                }
+            },
         })
         if (
             !(

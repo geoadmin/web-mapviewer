@@ -607,9 +607,11 @@ Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
 })
 
 Cypress.Commands.add('openLayerSettings', (layerId) => {
-    cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
-    cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`).should('be.visible').click()
-    cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+    cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('be.hidden')
+    cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]`)
+        .should('be.visible')
+        .click()
+    cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('be.visible')
 })
 
 Cypress.Commands.add(
