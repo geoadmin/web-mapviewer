@@ -28,7 +28,7 @@ export default function useMapInteractions(map) {
         // Add middle mouse button for panning
         new DragPan({
             condition: function (event) {
-                return event.originalEvent.buttons == 4
+                return event.originalEvent.buttons === 4
             },
         }),
     ])
