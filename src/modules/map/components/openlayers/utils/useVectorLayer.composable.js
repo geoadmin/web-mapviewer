@@ -2,8 +2,8 @@ import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { toValue, watchEffect } from 'vue'
 
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 /**

@@ -5,7 +5,7 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 
 const props = defineProps({

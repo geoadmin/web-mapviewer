@@ -16,9 +16,9 @@ import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/O
 import OpenLayersHighlightedFeature from '@/modules/map/components/openlayers/OpenLayersHighlightedFeatures.vue'
 import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLayersPinnedLocation.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
-import useMapInteractions from '@/modules/map/components/openlayers/utils/map-interactions.composable'
-import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
-import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/print-area-renderer.composable'
+import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
+import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
+import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 

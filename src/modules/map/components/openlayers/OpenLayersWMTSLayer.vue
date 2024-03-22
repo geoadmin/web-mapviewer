@@ -6,7 +6,7 @@ import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl } from '@/utils/layerUtils'
 
 const props = defineProps({
