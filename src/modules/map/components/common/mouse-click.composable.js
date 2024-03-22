@@ -102,12 +102,12 @@ export function useMouseOnMap() {
             })
             log.debug('vector features found under mouse cursor', features)
             store.dispatch('click', {
-                clickInfo: new ClickInfo(
+                clickInfo: new ClickInfo({
                     coordinate,
-                    screenPosition,
+                    pixelCoordinate: screenPosition,
                     features,
-                    ClickType.LEFT_SINGLECLICK
-                ),
+                    clickType: ClickType.LEFT_SINGLECLICK,
+                }),
                 ...dispatcher,
             })
         }
@@ -132,7 +132,11 @@ export function useMouseOnMap() {
 
     function onRightClick(screenPosition, coordinate) {
         store.dispatch('click', {
-            clickInfo: new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU),
+            clickInfo: new ClickInfo({
+                coordinate,
+                pixelCoordinate: screenPosition,
+                clickType: ClickType.CONTEXTMENU,
+            }),
             ...dispatcher,
         })
     }
