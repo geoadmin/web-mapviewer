@@ -2,6 +2,7 @@
 
 import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import { encodeLayerParam } from '@/router/storeSync/layersParamParser'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems.js'
 
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
@@ -277,6 +278,12 @@ describe('Test of layer handling', () => {
                         'eq',
                         'application/vnd.ogc.gml'
                     )
+                    // this serveur doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
+                    cy.wrap(intercept.request.query).should('have.a.property', 'CRS')
+                    cy.wrap(intercept.request.query.CRS).should('be.oneOf', [
+                        WGS84.epsg,
+                        WEBMERCATOR.epsg,
+                    ])
                 })
             })
             it('reads and adds an external WMTS correctly', () => {
