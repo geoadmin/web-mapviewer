@@ -117,7 +117,7 @@ async function identifyOnGeomAdminLayer({
                 mapExtent: mapExtent.join(','),
                 imageDisplay: `${screenWidth},${screenHeight},96`,
                 geometryFormat: 'geojson',
-                geometryType: 'esriGeometryPoint',
+                geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
                 limit: featureCount,
                 tolerance: DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
                 returnGeometry: true,
@@ -423,7 +423,7 @@ export const identify = (config) => {
             log.error('Non queriable layer/no tooltip on this layer', layer)
             reject(new Error('Non queriable layer/no tooltip on this layer'))
         }
-        if (!Array.isArray(coordinate) || coordinate.length !== 2) {
+        if (!Array.isArray(coordinate) || (coordinate.length !== 2 && coordinate.length !== 4)) {
             log.error('Invalid coordinate', coordinate)
             reject(new Error('Needs a valid coordinate to run identification'))
         }

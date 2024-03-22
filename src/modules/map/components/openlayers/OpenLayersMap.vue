@@ -96,4 +96,9 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
     position: absolute; // Element must be positioned to set a z-index
     z-index: $zindex-map;
 }
+
+:global(.ol-dragbox) {
+    border: 3px solid $info;
+    border-radius: 2px;
+}
 </style>
