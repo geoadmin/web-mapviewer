@@ -36,7 +36,15 @@ export const SearchResultTypes = {
 
 // comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
 const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
-function sanitizeTitle(title = '') {
+
+/**
+ * Exported so that it may be unit tested, it is intended to only care for search results title and
+ * nothing more
+ *
+ * @param title
+ * @returns {string}
+ */
+export function sanitizeTitle(title = '') {
     return title.replace(REGEX_DETECT_HTML_TAGS, '')
 }
 
