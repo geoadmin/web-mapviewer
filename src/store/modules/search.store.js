@@ -1,4 +1,4 @@
-import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
+import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -16,9 +16,9 @@ const state = {
     /**
      * Search results from the backend for the current query
      *
-     * @type CombinedSearchResults
+     * @type {SearchResult[]}
      */
-    results: new CombinedSearchResults(),
+    results: [],
 }
 
 const getters = {}
@@ -29,8 +29,11 @@ const actions = {
      * @param {Object} payload
      * @param {String} payload.query
      */
-    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '', dispatcher }) => {
-        let results = new CombinedSearchResults()
+    setSearchQuery: async (
+        { commit, rootState, dispatch, getters },
+        { query = '', dispatcher }
+    ) => {
+        let results = []
         commit('setSearchQuery', { query, dispatcher })
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
@@ -84,7 +87,11 @@ const actions = {
                 })
             } else {
                 try {
-                    results = await search(currentProjection, query, rootState.i18n.lang)
+                    results = await search({
+                        outputProjection: currentProjection,
+                        queryString: query,
+                        lang: rootState.i18n.lang,
+                    })
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }
@@ -99,12 +106,12 @@ const actions = {
     /**
      * @param commit
      * @param dispatch
-     * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
+     * @param {SearchResult} entry
      */
     selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
         const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
-            case RESULT_TYPE.LAYER:
+            case SearchResultTypes.LAYER:
                 if (getters.getActiveLayersById(entry.layerId).length === 0) {
                     dispatch('addLayer', {
                         layerConfig: new ActiveLayerConfig(entry.layerId, true),
@@ -117,7 +124,8 @@ const actions = {
                     })
                 }
                 break
-            case RESULT_TYPE.LOCATION:
+            case SearchResultTypes.LOCATION:
+            case SearchResultTypes.FEATURE:
                 if (entry.extent.length === 2) {
                     dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
@@ -137,7 +145,7 @@ const actions = {
                 break
         }
         dispatch('setSearchQuery', {
-            query: entry.getSimpleTitle(),
+            query: entry.sanitizedTitle,
             dispatcher: dipsatcherSelectResultEntry,
         })
     },

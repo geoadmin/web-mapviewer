@@ -15,7 +15,7 @@ const results = ref(null)
 const selectedEntry = ref(null)
 
 const searchQuery = computed(() => store.state.search.query)
-const hasResults = computed(() => store.state.search.results.count())
+const hasResults = computed(() => store.state.search.results.length > 0)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 watch(hasResults, (newValue) => {

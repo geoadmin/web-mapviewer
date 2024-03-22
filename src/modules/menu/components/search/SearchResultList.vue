@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { SearchResultTypes } from '@/api/search.api'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 
@@ -18,6 +19,13 @@ const layerCategory = ref(null)
 const results = computed(() => store.state.search.results)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+const layerResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.LAYER)
+)
+const locationResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
+)
 
 function showLayerLegend(layerResult) {
     layerLegendId.value = layerResult.layerId
@@ -39,10 +47,10 @@ function gotToLayerCategory() {
 }
 
 function focusFirstEntry() {
-    if (results.value.locationResults?.length) {
-        locationCategory.value.focusFirstEntry()
-    } else if (results.value.layerResults?.length) {
-        layerCategory.value.focusFirstEntry()
+    if (locationResults.value.length) {
+        gotToLocationCategory()
+    } else if (layerResults.value.length) {
+        gotToLayerCategory()
     }
 }
 
@@ -65,19 +73,19 @@ defineExpose({ focusFirstEntry })
         >
             <div class="search-results-inner">
                 <SearchResultCategory
-                    v-show="results?.locationResults?.length > 0"
+                    v-show="locationResults.length > 0"
                     ref="locationCategory"
                     :title="i18n.t('locations_results_header')"
-                    :results="results.locationResults"
+                    :results="locationResults"
                     data-cy="search-results-locations"
                     @first-entry-reached="emit('firstResultEntryReached')"
                     @last-entry-reached="gotToLayerCategory()"
                 />
                 <SearchResultCategory
-                    v-show="results?.layerResults?.length > 0"
+                    v-show="layerResults.length > 0"
                     ref="layerCategory"
                     :title="i18n.t('layers_results_header')"
-                    :results="results.layerResults"
+                    :results="layerResults"
                     data-cy="search-results-layers"
                     @show-layer-legend-popup="showLayerLegend"
                     @first-entry-reached="gotToLocationCategory()"

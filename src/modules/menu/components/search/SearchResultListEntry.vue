@@ -38,7 +38,6 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import { SearchResult } from '@/api/search.api'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
@@ -52,7 +51,7 @@ export default {
             required: true,
         },
         entry: {
-            type: SearchResult,
+            type: Object,
             required: true,
         },
     },
