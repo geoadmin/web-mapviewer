@@ -31,6 +31,7 @@ export class SearchError extends Error {
 export const SearchResultTypes = {
     LAYER: 'LAYER',
     LOCATION: 'LOCATION',
+    FEATURE: 'FEATURE',
 }
 
 // comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
@@ -213,6 +214,50 @@ async function searchLocation(outputProjection, queryString, lang, cancelToken) 
     }
 }
 
+/**
+ * @param outputProjection
+ * @param queryString
+ * @param layer
+ * @param lang
+ * @param cancelToken
+ * @returns {Promise<LayerFeatureSearchResult[]>}
+ */
+async function searchLayerFeatures(outputProjection, queryString, layer, lang, cancelToken) {
+    try {
+        const layerFeatureResponse = await generateAxiosSearchRequest(
+            queryString,
+            lang,
+            'featuresearch',
+            cancelToken.token,
+            {
+                features: layer.id,
+                timeEnabled: false,
+            }
+        )
+        // checking that there is something of interest to parse
+        const resultWithAttrs = layerFeatureResponse?.data.results?.filter((result) => result.attrs)
+        return (
+            resultWithAttrs.map((layerFeature) => {
+                const layerContent = parseLayerResult(layerFeature)
+                const locationContent = parseLocationResult(layerFeature, outputProjection)
+                const title = `<strong>${layer.name}</strong><br/>${layerContent.title}&nbsp;<small>${layerContent.description}</small>`
+                return {
+                    ...layerContent,
+                    ...locationContent,
+                    resultType: SearchResultTypes.FEATURE,
+                    title,
+                }
+            }) ?? []
+        )
+    } catch (error) {
+        log.error(
+            `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+            error
+        )
+        return []
+    }
+}
+
 let cancelToken = null
 /**
  * @param {CoordinateSystem} config.outputProjection The projection in which the search results must
@@ -250,6 +295,16 @@ export default async function search(config) {
         searchLayers(queryString, lang, cancelToken),
         searchLocation(outputProjection, queryString, lang, cancelToken),
     ]
+
+    if (layersToSearch.some((layer) => layer.searchable)) {
+        allRequests.push(
+            ...layersToSearch
+                .filter((layer) => layer.searchable)
+                .map((layer) =>
+                    searchLayerFeatures(outputProjection, queryString, layer, lang, cancelToken)
+                )
+        )
+    }
 
     // letting all requests finish in parallel
     const allResults = await Promise.all(allRequests)

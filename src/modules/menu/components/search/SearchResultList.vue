@@ -15,6 +15,7 @@ const layerLegendId = ref(null)
 const layerLegendName = ref(null)
 const locationCategory = ref(null)
 const layerCategory = ref(null)
+const layerFeatureCategory = ref(null)
 
 const results = computed(() => store.state.search.results)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
@@ -25,6 +26,9 @@ const layerResults = computed(() =>
 )
 const locationResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
+)
+const layerFeatureResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
 )
 
 function showLayerLegend(layerResult) {
@@ -46,11 +50,17 @@ function gotToLayerCategory() {
     layerCategory.value.focusFirstEntry()
 }
 
+function gotToLayerFeaturesCategory() {
+    layerFeatureCategory.value.focusFirstEntry()
+}
+
 function focusFirstEntry() {
     if (locationResults.value.length) {
         gotToLocationCategory()
     } else if (layerResults.value.length) {
         gotToLayerCategory()
+    } else if (layerFeatureResults.value.length) {
+        gotToLayerFeaturesCategory()
     }
 }
 
@@ -89,6 +99,15 @@ defineExpose({ focusFirstEntry })
                     data-cy="search-results-layers"
                     @show-layer-legend-popup="showLayerLegend"
                     @first-entry-reached="gotToLocationCategory()"
+                />
+                <SearchResultCategory
+                    v-show="layerFeatureResults.length > 0"
+                    ref="layerFeatureResults"
+                    :title="i18n.t('featuresearch_results_header')"
+                    :results="layerFeatureResults"
+                    data-cy="search-results-layer-features"
+                    @show-layer-legend-popup="showLayerLegend"
+                    @first-entry-reached="gotToLayerFeaturesCategory()"
                 />
             </div>
         </div>

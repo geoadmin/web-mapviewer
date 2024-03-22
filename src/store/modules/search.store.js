@@ -91,6 +91,7 @@ const actions = {
                         outputProjection: currentProjection,
                         queryString: query,
                         lang: rootState.i18n.lang,
+                        layersToSearch: getters.visibleLayers,
                     })
                 } catch (error) {
                     log.error(`Search failed`, error)
