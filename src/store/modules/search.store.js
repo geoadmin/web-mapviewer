@@ -131,7 +131,7 @@ const actions = {
                     dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
                     dispatch('setCenter', {
-                        center: entry.coordinates,
+                        center: entry.coordinate,
                         dispatcher: dipsatcherSelectResultEntry,
                     })
                     dispatch('setZoom', {
@@ -140,7 +140,7 @@ const actions = {
                     })
                 }
                 dispatch('setPinnedLocation', {
-                    coordinates: entry.coordinates,
+                    coordinates: entry.coordinate,
                     dispatcher: dipsatcherSelectResultEntry,
                 })
                 break
@@ -154,8 +154,7 @@ const actions = {
 
 const mutations = {
     setSearchQuery: (state, { query }) => (state.query = query),
-    setSearchResults: (state, { results }) =>
-        (state.results = results ? results : new CombinedSearchResults()),
+    setSearchResults: (state, { results }) => (state.results = results ?? []),
 }
 
 export default {

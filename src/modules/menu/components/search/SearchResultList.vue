@@ -10,8 +10,6 @@ const emit = defineEmits(['close', 'firstResultEntryReached'])
 const store = useStore()
 const i18n = useI18n()
 
-const layerLegendId = ref(null)
-const layerLegendName = ref(null)
 const locationCategory = ref(null)
 const layerCategory = ref(null)
 const layerFeatureCategory = ref(null)
@@ -29,12 +27,6 @@ const locationResults = computed(() =>
 const layerFeatureResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
 )
-
-function showLayerLegend(layerResult) {
-    layerLegendId.value = layerResult.layerId
-    // NOTE: the service search wsgi is setting the title in <b></b> tags
-    layerLegendName.value = layerResult.title.replace(/<[^>]*>?/gm, '')
-}
 
 function gotToLocationCategory() {
     locationCategory.value.focusLastEntry()

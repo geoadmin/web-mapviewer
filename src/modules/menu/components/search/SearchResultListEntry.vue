@@ -87,13 +87,17 @@ function stopResultPreview() {
         store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
     }
 }
+
+defineExpose({
+    goToFirst,
+})
 </script>
 
 <template>
     <li
         ref="item"
         class="search-category-entry d-flex"
-        :data-cy="`search-result-entry-${resultType}`"
+        :data-cy="`search-result-entry-${resultType.toLowerCase()}`"
         :tabindex="index === 0 ? 0 : -1"
         @keydown.up.prevent="goToPrevious"
         @keydown.down.prevent="goToNext"

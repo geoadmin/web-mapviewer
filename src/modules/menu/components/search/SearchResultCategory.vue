@@ -23,11 +23,11 @@ function onEntrySelected(entry) {
 }
 
 function focusFirstEntry() {
-    entries.value[0].$el.focus()
+    entries.value[0].goToFirst()
 }
 
 function focusLastEntry() {
-    entries.value[entries.value.length - 1].$el.focus()
+    entries.value[entries.value.length - 1].goToFirst()
 }
 
 defineExpose({ focusFirstEntry, focusLastEntry })
@@ -38,7 +38,7 @@ defineExpose({ focusFirstEntry, focusLastEntry })
         <div class="search-category-header px-2 py-1 text-bg-secondary">
             {{ title }}
         </div>
-        <ul class="search-category-body">
+        <ul class="search-category-body" tabindex="-1">
             <SearchResultListEntry
                 v-for="(entry, index) in results"
                 ref="entries"

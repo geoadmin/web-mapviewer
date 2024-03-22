@@ -127,6 +127,7 @@ const focusSearchInput = () => {
             aria-describedby="searchIconText clearSearchButton"
             :value="searchValue"
             data-cy="searchbar"
+            tabindex="0"
             @input="updateSearchQuery"
             @focus="onSearchInputFocus"
             @keydown.down.prevent="goToFirstResult"
@@ -138,6 +139,7 @@ const focusSearchInput = () => {
             class="btn btn-outline-group rounded-end"
             :class="{ 'rounded-bottom-0': showResults && !isPhoneMode }"
             type="button"
+            tabindex="0"
             data-cy="searchbar-clear"
             @click="clearSearchQuery"
         >
