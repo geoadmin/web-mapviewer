@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 
 const emit = defineEmits(['close', 'firstResultEntryReached'])
@@ -35,11 +34,6 @@ function showLayerLegend(layerResult) {
     layerLegendId.value = layerResult.layerId
     // NOTE: the service search wsgi is setting the title in <b></b> tags
     layerLegendName.value = layerResult.title.replace(/<[^>]*>?/gm, '')
-}
-
-function hideLayerLegend() {
-    layerLegendId.value = null
-    layerLegendName.value = null
 }
 
 function gotToLocationCategory() {
@@ -97,7 +91,6 @@ defineExpose({ focusFirstEntry })
                     :title="i18n.t('layers_results_header')"
                     :results="layerResults"
                     data-cy="search-results-layers"
-                    @show-layer-legend-popup="showLayerLegend"
                     @first-entry-reached="gotToLocationCategory()"
                 />
                 <SearchResultCategory
@@ -106,17 +99,10 @@ defineExpose({ focusFirstEntry })
                     :title="i18n.t('featuresearch_results_header')"
                     :results="layerFeatureResults"
                     data-cy="search-results-layer-features"
-                    @show-layer-legend-popup="showLayerLegend"
                     @first-entry-reached="gotToLayerFeaturesCategory()"
                 />
             </div>
         </div>
-        <LayerLegendPopup
-            v-if="layerLegendId"
-            :layer-id="layerLegendId"
-            :layer-name="layerLegendName"
-            @close="hideLayerLegend()"
-        />
     </div>
 </template>
 

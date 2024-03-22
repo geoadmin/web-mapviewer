@@ -64,7 +64,7 @@ function sanitizeTitle(title = '') {
  * @param {String} featureId ID of this feature given by the backend (can be then used to access
  *   other information about the feature, such as the HTML popup). If the backend doesn't give a
  *   feature ID for this feature, the description will be used as a fallback ID.
- * @param {[Number, Number]} coordinates Coordinate of this feature where to anchor the popup
+ * @param {[Number, Number]} coordinate Coordinate of this feature where to anchor the popup
  * @param {[Number, Number, Number, Number]} extent Extent of this feature described as `[
  *   [bottomLeftCoords], [topRightCoords] ]` (if this feature is a point, there will be two times
  *   the same point in the extent)
@@ -291,6 +291,7 @@ export default async function search(config) {
     }
     cancelToken = axios.CancelToken.source()
 
+    /** @type {Promise<SearchResult[]>[]} */
     const allRequests = [
         searchLayers(queryString, lang, cancelToken),
         searchLocation(outputProjection, queryString, lang, cancelToken),
