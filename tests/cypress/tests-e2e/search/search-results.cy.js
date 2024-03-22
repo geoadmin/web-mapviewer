@@ -92,6 +92,28 @@ describe('Test the search bar result handling', () => {
             { attrs: { label: 'Test layer #3' } },
         ],
     }
+    const layerFeatureResponse = {
+        results: [
+            {
+                id: 5678,
+                weight: 4,
+                attrs: {
+                    x: expectedCenterDefaultProjection[0],
+                    y: expectedCenterDefaultProjection[1],
+                    lon: expectedCenterEpsg4326[0],
+                    lat: expectedCenterEpsg4326[1],
+                    rank: 1,
+                    // we create an extent of 1km around the center
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0] - 500} ${
+                        expectedCenterDefaultProjection[1] - 500
+                    },${expectedCenterDefaultProjection[0] + 500} ${
+                        expectedCenterDefaultProjection[1] + 500
+                    })`,
+                    label: expectedLocationLabel,
+                },
+            },
+        ],
+    }
     const calculateExpectedZoom = (currentViewportWidth, currentViewPortHeight) => {
         // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
         // on the smaller value between width or height
@@ -123,51 +145,36 @@ describe('Test the search bar result handling', () => {
             locationResponse,
             'search-locations'
         )
+        cy.mockupBackendResponse(
+            'rest/services/ech/SearchServer*?type=featuresearch*',
+            layerFeatureResponse,
+            'search-layer-features'
+        )
     })
 
-    it('handles search result thoroughly (zoom, center, pin)', () => {
+    it('search different type of entries correctly', () => {
         cy.goToMapView()
         cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
+        cy.wait(['@search-locations', '@search-layers'])
+
+        cy.log('Checking that it handles search result thoroughly (zoom, center, pin)')
         cy.get('[data-cy="search-result-entry-location"]')
             .first()
             .invoke('text')
             .should('eq', expectedLocationLabel.replaceAll(/<\/?b>/g, ''))
-        cy.get('[data-cy="search-result-entry-location"]').first().click()
-        // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').then((center) =>
-            checkLocation(expectedCenterDefaultProjection, center)
-        )
-        // checking that the zoom level corresponds to the extent of the feature
-        // TODO: this somehow fail on the desktop viewport, see https://jira.swisstopo.ch/browse/BGDIINF_SB-2156
-        const width = Cypress.config('viewportWidth')
-        const height = Cypress.config('viewportHeight')
-        if (width < BREAKPOINT_TABLET)
-            cy.readStoreValue('state.position.zoom').then((zoom) => {
-                expect(zoom).be.closeTo(calculateExpectedZoom(width, height), 0.2)
-            })
-        // checking that a dropped pin has been placed at the feature's location
-        cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
-            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
-        )
-    })
-    it('adds the search query as swisssearch URL param', () => {
-        cy.goToMapView()
-        cy.get(searchbarSelector).paste('test')
+
+        cy.log('Checking that it adds the search query as swisssearch URL param')
         cy.url().should('contain', 'swisssearch=test')
-    })
-    it('reads the swisssearch URL param at startup and launch a search with its content', () => {
-        cy.goToMapView({
-            swisssearch: 'Test',
-        })
+
+        cy.log(
+            'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
+        )
+        cy.reload()
         cy.wait(['@search-locations', '@search-layers'])
-        cy.readStoreValue('state.search.query').should('eq', 'Test')
+        cy.readStoreValue('state.search.query').should('eq', 'test')
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
-    })
-    it('displays layer results with info-buttons', () => {
-        cy.goToMapView()
-        cy.get(searchbarSelector).paste('test')
-        cy.wait(['@search-locations', '@search-layers'])
+
+        cy.log('Checking that it displays layer results with info-buttons')
         // Ensure that all layers have been added and contain an info-button.
         cy.get('[data-cy="search-result-entry-layer"]')
             .should('have.length', layerResponse.results.length)
@@ -176,15 +183,12 @@ describe('Test the search bar result handling', () => {
         cy.get('[data-cy="search-result-entry-layer"]')
             .find('[data-cy^="button-show-legend-layer-"]')
             .should('exist')
-    })
-    it('shows a legend when clicking an info-button', () => {
+
+        cy.log('Opening up a layer legend from the search results')
         // As we only test one of the buttons we can send the same content for all legends.
         cy.intercept('**/rest/services/all/MapServer/*/legend**', expectedLegendContent).as(
             'legend'
         )
-        cy.goToMapView()
-        cy.get(searchbarSelector).paste('test')
-        cy.wait(['@search-locations', '@search-layers'])
         // Click on the first info-button and check if the legend loads correctly.
         cy.get('[data-cy="search-result-entry-layer"] [data-cy^="button-show-legend-layer-"]')
             .first()
@@ -195,8 +199,10 @@ describe('Test the search bar result handling', () => {
             .then(([legend]) => {
                 expect(legend.innerHTML).to.contain(expectedLegendContent)
             })
-    })
-    it('allows navigating the results by keyboard', () => {
+        // closing legend
+        cy.get('[data-cy="modal-close-button"]').click()
+
+        cy.log('Testing keyboard navigation')
         cy.goToMapView()
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
@@ -260,12 +266,13 @@ describe('Test the search bar result handling', () => {
         cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
-    })
-    it('previews the location or layer on hover', () => {
-        cy.goToMapView()
+        // clearing selected entry by clearing the search bar and re-entering a search text
+        cy.get('[data-cy="searchbar-clear"]').click()
+        cy.readStoreValue('state.map.pinnedLocation').should('be.null')
         cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
+        cy.wait(['@search-locations', '@search-layers'])
 
+        cy.log('Testing previewing the location or layer on hover')
         const locationSelector =
             '[data-cy="search-result-entry-location"] .search-category-entry-main'
         const layerSelector = '[data-cy="search-result-entry-layer"] .search-category-entry-main'
@@ -277,9 +284,7 @@ describe('Test the search bar result handling', () => {
         })
         // Location - Leave
         cy.get(locationSelector).first().trigger('mouseleave')
-        cy.readStoreValue('state.map').then((map) => {
-            expect(map.pinnedLocation).to.be.null
-        })
+        cy.readStoreValue('state.map.previewedPinnedLocation').should('be.null')
 
         // Layer - Enter
         cy.get(layerSelector).first().trigger('mouseenter')
@@ -293,24 +298,55 @@ describe('Test the search bar result handling', () => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).not.to.contain(expectedLayerId)
         })
-    })
-    it('hides the results when the user clicks on the map', () => {
-        cy.goToMapView()
-        cy.readStoreValue('state.ui.fullscreenMode').should('be.false')
-        cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
+
+        cy.log('Clicking on the first entry to test handling of zoom/extent/position')
+        cy.get('[data-cy="search-result-entry-location"]').first().click()
+        // checking that the view has centered on the feature
+        cy.readStoreValue('state.position.center').then((center) =>
+            checkLocation(expectedCenterDefaultProjection, center)
+        )
+
+        // checking that the zoom level corresponds to the extent of the feature
+        // TODO: this somehow fail on the desktop viewport, see https://jira.swisstopo.ch/browse/BGDIINF_SB-2156
+        const width = Cypress.config('viewportWidth')
+        const height = Cypress.config('viewportHeight')
+        if (width < BREAKPOINT_TABLET) {
+            cy.readStoreValue('state.position.zoom').should(
+                'be.closeTo',
+                calculateExpectedZoom(width, height),
+                0.2
+            )
+        }
+        // checking that a dropped pin has been placed at the feature's location
+        cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
+            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
+        )
+
+        cy.log('It hides the results when the user clicks on the map')
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
         cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
         cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
-    })
-    it('shows the results once again if the user clicks back on the search input', () => {
-        cy.goToMapView()
-        cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
-        cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
-        cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
-        cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
+
+        cy.log('It shows the results once again if the user clicks back on the search input')
         cy.get(searchbarSelector).click()
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+
+        cy.log('It adds a search for layers features if a visible layers is set to be searchable')
+        // the layer feature category should not be present (no searchable layer added yet)
+        cy.get('[data-cy="search-results-layer-features"]').should('be.hidden')
+        // adding the layer through the search results
+        cy.get(`[data-cy="search-result-entry-layer"]:first`).click()
+        // checking that the layer has been added to the map
+        cy.checkOlLayer([
+            'test.background.layer2', // bg layer
+            expectedLayerId,
+        ])
+        // running a new search
+        cy.get('[data-cy="searchbar-clear"]').click()
+        cy.get(searchbarSelector).paste('test')
+        // it now must add a search request for the newly added layer
+        cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
+
+        cy.get('[data-cy="search-results-layer-features"]').should('be.visible')
     })
 })
