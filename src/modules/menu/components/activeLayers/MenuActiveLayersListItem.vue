@@ -64,7 +64,7 @@ const id = computed(() => layer.value.id)
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )
-const showLegendIcon = computed(() => layer.value.hasLegend)
+const showLegendIcon = computed(() => layer.value.hasDescription)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
@@ -239,6 +239,7 @@ function duplicateLayer() {
                 <FontAwesomeIcon icon="arrow-down" />
             </button>
             <button
+                v-if="showLegendIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-show-legend-layer-${id}-${index}`"

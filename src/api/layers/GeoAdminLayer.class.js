@@ -53,6 +53,9 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   metadata) are still loading. Default is `false`
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
      *   available). Default is `null`
+     * @param {Boolean} [layerData.hasDescription=true] Define if this layer has a description that
+     *   can be shown to users to explain its content. All internal layer (should) have a
+     *   description. TODO: update the backend API to return this value. Default is `true`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
@@ -79,6 +82,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             ensureTrailingSlashInBaseUrl = false,
             isLoading = false,
             timeConfig = null,
+            hasDescription = true,
             hasLegend = false,
             searchable = false,
         } = layerData
@@ -108,6 +112,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             attributions,
             hasTooltip,
             isLoading,
+            hasDescription,
             hasLegend,
         })
         this.geoAdminId = geoAdminId
