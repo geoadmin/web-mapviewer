@@ -199,25 +199,21 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
  * layers param if it exists and the layer is not part of it, or we need to insert the features to
  * the existing layer
  *
- * @param {Object} params The parameters sent to the legacy router, as a key - value pair object
+ * @param {URLSearchParams} params The parameters sent to the legacy router
  * @param {Store} store
  * @param {Query} newQuery
  */
 export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
-    const relevantParams = []
-
     // we begin by removing all params that are either a standard URL param, or a
     // legacy specific param
-    params.forEach((value, key) => {
-        !(standardURLParams.includes(key) || legacyOnlyURLParams.includes(key))
-            ? relevantParams.push([key, value])
-            : null
-    })
+    const relevantParams = Object.entries(Object.fromEntries(params)).filter(
+        ([key]) => !(standardURLParams.includes(key) || legacyOnlyURLParams.includes(key))
+    )
     relevantParams
         .filter(([key]) => store.state.layers.config.some((layer) => layer.id === key))
         .forEach(([layerId, featuresIds]) => {
             // we only iterate on layers
-            if (newQuery.layers?.includes(layerId)) {
+            if (newQuery.layers?.match(new RegExp(`\\b${layerId}\\b`))) {
                 // the layer given as key is also in the query 'layers'
                 // we need to ensure all params are kept intact
                 newQuery.layers = createLayersParamForFeaturePreselection(
@@ -225,14 +221,13 @@ export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
                     featuresIds,
                     newQuery.layers
                 )
-            } else if (newQuery.layers) {
-                // there is a 'layers' query, but the layer given as key is not part of it,
-                // we simply add the layer and its features at the end of the existing query
-                newQuery.layers =
-                    newQuery.layers + `;${layerId}@features=${featuresIds.split(',').join(':')}`
             } else {
-                // there was no 'layers' param within the query, we create one and add this layer ot it.
-                newQuery.layers = `${layerId}@features=${featuresIds.split(',').join(':')}`
+                // the layer is not yet part of the `layers` parameter
+                if (!newQuery.layers) {
+                    // if there are no layers parameters at all, we need to create one
+                    newQuery.layers = ''
+                }
+                newQuery.layers += `;${layerId}@features=${featuresIds.split(',').join(':')}`
             }
         })
 }

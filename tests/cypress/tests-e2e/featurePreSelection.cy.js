@@ -12,7 +12,6 @@ describe('Testing the feature selection in the URL', () => {
                     // thus a small adaptation to check we get the correct result
                     (featureId) => `${features[0].layer.id}-${featureId}`
                 )
-                console.log(modifiedFeaturesIds)
                 features.forEach((feature) => {
                     cy.log('checking feature', feature.id, 'is part of', featuresIds.join(','))
                     cy.wrap(featuresIds.includes(feature.id)).should('be.true')
