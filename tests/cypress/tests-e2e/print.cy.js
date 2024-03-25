@@ -698,6 +698,7 @@ describe('Testing print', () => {
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
                 expect(layers).to.have.length(1)
+                expect(layers[0]['matrixSet']).to.equals('EPSG:2056')
             })
         })
 
@@ -709,6 +710,11 @@ describe('Testing print', () => {
             cy.get('[data-cy="checkboxLegend"]').should('be.checked')
             cy.get('[data-cy="checkboxGraticule"]').check()
             cy.get('[data-cy="checkboxGraticule"]').should('be.checked')
+
+            cy.get('[data-cy="debug-tools-header"]').should('be.visible').click()
+            cy.get('[data-cy="current-projection"]').should('be.visible').contains('2056')
+            cy.get('[data-cy="toggle-projection-button"]').should('be.visible').click()
+            cy.get('[data-cy="current-projection"]').should('be.visible').contains('3857')
 
             cy.get('[data-cy="print-map-button"]').should('be.visible').click()
             cy.get('[data-cy="abort-print-button"]').should('be.visible').click()
@@ -730,11 +736,12 @@ describe('Testing print', () => {
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(500000)
                 expect(mapAttributes['dpi']).to.equals(96)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+                expect(mapAttributes['projection']).to.equals('EPSG:3857')
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
                 expect(layers).to.have.length(2) // with grid line
+                expect(layers[1]['matrixSet']).to.equals('EPSG:3857')
             })
         })
     })
