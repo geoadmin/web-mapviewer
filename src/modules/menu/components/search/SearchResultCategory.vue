@@ -16,23 +16,18 @@ const props = defineProps({
 
 const { title, results } = toRefs(props)
 const entries = ref(null)
-const emit = defineEmits([
-    'entrySelected',
-    'showLayerLegendPopup',
-    'firstEntryReached',
-    'lastEntryReached',
-])
+const emit = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReached'])
 
 function onEntrySelected(entry) {
     emit('entrySelected', entry)
 }
 
 function focusFirstEntry() {
-    entries.value[0].$el.focus()
+    entries.value[0].goToFirst()
 }
 
 function focusLastEntry() {
-    entries.value[entries.value.length - 1].$el.focus()
+    entries.value[entries.value.length - 1].goToLast()
 }
 
 defineExpose({ focusFirstEntry, focusLastEntry })
@@ -43,17 +38,17 @@ defineExpose({ focusFirstEntry, focusLastEntry })
         <div class="search-category-header px-2 py-1 text-bg-secondary">
             {{ title }}
         </div>
-        <ul class="search-category-body">
+        <ul class="search-category-body" tabindex="-1">
             <SearchResultListEntry
                 v-for="(entry, index) in results"
                 ref="entries"
                 :key="index"
                 :index="index"
                 :entry="entry"
+                data-cy="search-result-entry"
                 @entry-selected="onEntrySelected(entry)"
                 @first-entry-reached="emit('firstEntryReached')"
                 @last-entry-reached="emit('lastEntryReached')"
-                @show-layer-legend-popup="(entry) => emit('showLayerLegendPopup', entry)"
             />
         </ul>
     </div>

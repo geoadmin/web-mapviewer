@@ -3,46 +3,65 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import { SearchResultTypes } from '@/api/search.api'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 
 const emit = defineEmits(['close', 'firstResultEntryReached'])
 const store = useStore()
 const i18n = useI18n()
 
-const layerLegendId = ref(null)
-const layerLegendName = ref(null)
-const locationCategory = ref(null)
-const layerCategory = ref(null)
+const resultCategories = ref([])
 
 const results = computed(() => store.state.search.results)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
-function showLayerLegend(layerResult) {
-    layerLegendId.value = layerResult.layerId
-    // NOTE: the service search wsgi is setting the title in <b></b> tags
-    layerLegendName.value = layerResult.title.replace(/<[^>]*>?/gm, '')
-}
+const locationResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
+)
+const layerResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.LAYER)
+)
+const layerFeatureResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
+)
 
-function hideLayerLegend() {
-    layerLegendId.value = null
-    layerLegendName.value = null
-}
-
-function gotToLocationCategory() {
-    locationCategory.value.focusLastEntry()
-}
-
-function gotToLayerCategory() {
-    layerCategory.value.focusFirstEntry()
-}
+const categories = computed(() => {
+    return [
+        {
+            id: 'locations',
+            results: locationResults.value,
+        },
+        {
+            id: 'layers',
+            results: layerResults.value,
+        },
+        {
+            id: 'featuresearch',
+            results: layerFeatureResults.value,
+        },
+    ]
+})
 
 function focusFirstEntry() {
-    if (results.value.locationResults?.length) {
-        locationCategory.value.focusFirstEntry()
-    } else if (results.value.layerResults?.length) {
-        layerCategory.value.focusFirstEntry()
+    const firstCategoryWithResults = categories.value.find(
+        (category) => category.results.length > 0
+    )
+    resultCategories.value[categories.value.indexOf(firstCategoryWithResults)]?.focusFirstEntry()
+}
+
+function onFirstEntryReached(index) {
+    if (index === 0) {
+        emit('firstResultEntryReached')
+    } else if (index > 0) {
+        // jumping up to the previous category's last result
+        resultCategories.value[index - 1]?.focusLastEntry()
+    }
+}
+
+function onLastEntryReached(index) {
+    if (index < resultCategories.value.length - 1) {
+        resultCategories.value[index + 1]?.focusFirstEntry()
     }
 }
 
@@ -65,31 +84,18 @@ defineExpose({ focusFirstEntry })
         >
             <div class="search-results-inner">
                 <SearchResultCategory
-                    v-show="results?.locationResults?.length > 0"
-                    ref="locationCategory"
-                    :title="i18n.t('locations_results_header')"
-                    :results="results.locationResults"
-                    data-cy="search-results-locations"
-                    @first-entry-reached="emit('firstResultEntryReached')"
-                    @last-entry-reached="gotToLayerCategory()"
-                />
-                <SearchResultCategory
-                    v-show="results?.layerResults?.length > 0"
-                    ref="layerCategory"
-                    :title="i18n.t('layers_results_header')"
-                    :results="results.layerResults"
-                    data-cy="search-results-layers"
-                    @show-layer-legend-popup="showLayerLegend"
-                    @first-entry-reached="gotToLocationCategory()"
+                    v-for="(category, index) in categories"
+                    v-show="category.results.length > 0"
+                    :key="category.id"
+                    ref="resultCategories"
+                    :title="i18n.t(`${category.id}_results_header`)"
+                    :results="category.results"
+                    :data-cy="`search-results-${category.id}`"
+                    @first-entry-reached="onFirstEntryReached(index)"
+                    @last-entry-reached="onLastEntryReached(index)"
                 />
             </div>
         </div>
-        <LayerLegendPopup
-            v-if="layerLegendId"
-            :layer-id="layerLegendId"
-            :layer-name="layerLegendName"
-            @close="hideLayerLegend()"
-        />
     </div>
 </template>
 

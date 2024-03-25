@@ -42,7 +42,7 @@ describe('Test of layer handling in 3D', () => {
         cy.openMenuIfMobile()
         cy.get('[data-cy="searchbar"]').paste('test')
         cy.wait(['@search-locations', '@search-layers'])
-        cy.get('[data-cy="search-result-entry-layer"]').first().click()
+        cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const layers = viewer.scene.imageryLayers

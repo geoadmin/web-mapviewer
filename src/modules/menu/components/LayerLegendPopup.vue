@@ -1,6 +1,5 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
-import { onMounted } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -80,7 +79,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="mt-2 text-primary text-end" data-cy="layer-legend-popup-attributions">
-                    <span class="me-1">{{ $t('copyright_data') }}</span>
+                    <span class="me-1">{{ i18n.t('copyright_data') }}</span>
                     <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{
                         attributionName
                     }}</a>

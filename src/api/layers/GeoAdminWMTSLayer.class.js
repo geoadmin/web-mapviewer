@@ -45,6 +45,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      *   is `[]`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
+     *   through the search bar. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -66,6 +68,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             hasTooltip = false,
             topics = [],
             hasLegend = false,
+            searchable = false,
         } = layerData
         super({
             name,
@@ -83,6 +86,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             hasTooltip,
             topics,
             hasLegend,
+            searchable,
             timeConfig,
         })
         this.format = format

@@ -23,7 +23,7 @@ For instance, all things related to layer management (opacity, order, visibility
 
 Plugins are in essence subscriptions to the store that complement the actions and mutations by the components.
 
-They allow the store to update itself according to events instead of having to add these changes to the events. For instance, the `redo-search-on-lang-change.plugin.js` dispatches a new search after a language change mutation.
+They allow the store to update itself according to events instead of having to add these changes to the events. For instance, the `redo-search-when-needed.plugin.js` dispatches a new search after a language change mutation.
 
 ## Nomenclature
 

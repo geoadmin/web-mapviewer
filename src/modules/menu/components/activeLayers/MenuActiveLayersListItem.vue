@@ -279,6 +279,7 @@ function duplicateLayer() {
     display: flex;
     flex-grow: 1;
     cursor: pointer;
+    width: 100%;
 }
 
 svg {

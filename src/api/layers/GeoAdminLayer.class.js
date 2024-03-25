@@ -55,6 +55,8 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   available). Default is `null`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
+     *   through the search bar. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -78,6 +80,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             isLoading = false,
             timeConfig = null,
             hasLegend = false,
+            searchable = false,
         } = layerData
         if (geoAdminId === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
@@ -115,6 +118,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        this.searchable = searchable
     }
 
     /**

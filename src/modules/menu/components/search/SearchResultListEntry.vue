@@ -1,8 +1,107 @@
+<script setup>
+/** Component showing one search result entry (and dispatching its selection to the store) */
+
+import { computed, ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import { SearchResultTypes } from '@/api/search.api'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+
+const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
+
+const props = defineProps({
+    index: {
+        type: Number,
+        required: true,
+    },
+    entry: {
+        type: Object,
+        required: true,
+    },
+})
+
+const emits = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReached'])
+
+const { index, entry } = toRefs(props)
+
+const resultType = computed(() => entry.value.resultType)
+const showLayerLegend = ref(false)
+
+const item = ref(null)
+
+const store = useStore()
+const compact = computed(() => store.getters.isDesktopMode)
+const searchQuery = computed(() => store.state.search.query)
+const layerName = computed(() => {
+    if (resultType.value === SearchResultTypes.LAYER) {
+        return store.state.layers.config.find((layer) => layer.id === entry.value.layerId)?.name
+    }
+    return null
+})
+
+function selectItem() {
+    emits('entrySelected')
+    store.dispatch('selectResultEntry', { entry: entry.value, ...dispatcher })
+}
+
+function goToFirst() {
+    item.value.parentElement.firstElementChild?.focus()
+}
+
+function goToPrevious() {
+    if (item.value.previousElementSibling) {
+        item.value.previousElementSibling.focus()
+    } else {
+        emits('firstEntryReached')
+    }
+}
+
+function goToNext() {
+    if (item.value.nextElementSibling) {
+        item.value.nextElementSibling.focus()
+    } else {
+        emits('lastEntryReached')
+    }
+}
+
+function goToLast() {
+    item.value.parentElement.lastElementChild?.focus()
+}
+
+function startResultPreview() {
+    if (resultType.value === SearchResultTypes.LAYER) {
+        store.dispatch('setPreviewLayer', {
+            layer: entry.value.layerId,
+            ...dispatcher,
+        })
+    } else if (entry.value.coordinate) {
+        store.dispatch('setPreviewedPinnedLocation', {
+            coordinates: entry.value.coordinate,
+            ...dispatcher,
+        })
+    }
+}
+
+function stopResultPreview() {
+    if (resultType.value === SearchResultTypes.LAYER) {
+        store.dispatch('clearPreviewLayer', dispatcher)
+    } else {
+        store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
+    }
+}
+
+defineExpose({
+    goToFirst,
+    goToLast,
+})
+</script>
+
 <template>
     <li
         ref="item"
         class="search-category-entry d-flex"
-        :data-cy="`search-result-entry-${resultType}`"
+        :data-cy="`search-result-entry-${resultType.toLowerCase()}`"
         :tabindex="index === 0 ? 0 : -1"
         @keydown.up.prevent="goToPrevious"
         @keydown.down.prevent="goToNext"
@@ -21,116 +120,28 @@
             @click="selectItem"
         />
 
-        <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
+        <div
+            v-if="resultType === SearchResultTypes.LAYER"
+            class="search-category-entry-controls flex-grow-0"
+        >
             <button
                 class="btn btn-default"
                 :class="{ 'btn-xs': compact }"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"
                 tabindex="-1"
-                @click="showLayerLegendPopup"
+                @click="showLayerLegend = true"
             >
                 <FontAwesomeIcon size="lg" :icon="['fas', 'info-circle']" />
             </button>
         </div>
+        <LayerLegendPopup
+            v-if="showLayerLegend"
+            :layer-id="entry.layerId"
+            :layer-name="layerName"
+            @close="showLayerLegend = false"
+        />
     </li>
 </template>
-
-<script>
-import { mapActions, mapGetters, mapState } from 'vuex'
-
-import { SearchResult } from '@/api/search.api'
-import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-
-const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
-
-/** Component showing one search result entry (and dispatching its selection to the store) */
-export default {
-    components: { TextSearchMarker },
-    props: {
-        index: {
-            type: Number,
-            required: true,
-        },
-        entry: {
-            type: SearchResult,
-            required: true,
-        },
-    },
-    emits: ['showLayerLegendPopup', 'entrySelected', 'firstEntryReached', 'lastEntryReached'],
-    computed: {
-        ...mapGetters(['isDesktopMode']),
-        ...mapState({
-            searchQuery: (state) => state.search.query,
-        }),
-        compact() {
-            return this.isDesktopMode
-        },
-        resultType() {
-            return this.entry.resultType.toLowerCase()
-        },
-    },
-    methods: {
-        ...mapActions([
-            'selectResultEntry',
-            'setPreviewedPinnedLocation',
-            'setPreviewLayer',
-            'clearPreviewLayer',
-        ]),
-        selectItem() {
-            this.$emit('entrySelected')
-            this.selectResultEntry({ entry: this.entry, ...dispatcher })
-        },
-        showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup', this.entry)
-        },
-        goToPrevious() {
-            if (this.$refs.item.previousElementSibling) {
-                this.changeFocus(this.$refs.item.previousElementSibling)
-            } else {
-                this.$emit('firstEntryReached')
-            }
-        },
-        goToNext() {
-            if (this.$refs.item.nextElementSibling) {
-                this.changeFocus(this.$refs.item.nextElementSibling)
-            } else {
-                this.$emit('lastEntryReached')
-            }
-        },
-        goToFirst() {
-            this.changeFocus(this.$refs.item.parentElement.firstElementChild)
-        },
-        goToLast() {
-            this.changeFocus(this.$refs.item.parentElement.lastElementChild)
-        },
-        changeFocus(target) {
-            if (target) {
-                target.focus()
-            }
-        },
-        startResultPreview() {
-            if (this.resultType === 'layer') {
-                this.setPreviewLayer({
-                    layer: this.entry.layerId,
-                    ...dispatcher,
-                })
-            } else {
-                this.setPreviewedPinnedLocation({
-                    coordinates: this.entry.coordinates,
-                    ...dispatcher,
-                })
-            }
-        },
-        stopResultPreview() {
-            if (this.resultType === 'layer') {
-                this.clearPreviewLayer(dispatcher)
-            } else {
-                this.setPreviewedPinnedLocation({ coordinates: null, ...dispatcher })
-            }
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
