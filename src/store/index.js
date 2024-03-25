@@ -26,7 +26,7 @@ import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-data.plugin'
 import loadLayersConfigOnLangChange from '@/store/plugins/load-layersconfig-on-lang-change'
 import loadingBarManagementPlugin from '@/store/plugins/loading-bar-management.plugin'
-import redoSearchOnLangChange from '@/store/plugins/redo-search-on-lang-change.plugin'
+import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin.js'
 import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.plugin'
 import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
@@ -38,7 +38,7 @@ const store = createStore({
     state: {},
     plugins: [
         loadLayersConfigOnLangChange,
-        redoSearchOnLangChange,
+        redoSearchWhenNeeded,
         clickOnMapManagementPlugin,
         appReadinessPlugin,
         geolocationManagementPlugin,
