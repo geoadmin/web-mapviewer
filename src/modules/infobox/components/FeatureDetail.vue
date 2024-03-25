@@ -20,7 +20,7 @@ const { feature } = toRefs(props)
 
 const i18n = useI18n()
 
-const disclaimerAgree = ref('false')
+const disclaimerAgree = ref(false)
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
@@ -40,7 +40,7 @@ function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
 function setDisclaimerAgree() {
-    disclaimerAgree.value = !disclaimerAgree.value
+    disclaimerAgree.value = true
 }
 </script>
 
@@ -54,7 +54,7 @@ function setDisclaimerAgree() {
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div
-                    v-if="disclaimerAgree && value.includes('iframe')"
+                    v-if="!disclaimerAgree && value.includes('iframe')"
                     data-cy="feature-detail-media-disclaimer"
                     class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
                 >
@@ -70,7 +70,8 @@ function setDisclaimerAgree() {
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div
-                    v-if="!value.includes('iframe') || !disclaimerAgree"
+                    v-if="!value.includes('iframe') || disclaimerAgree"
+                    class="text-center"
                     data-cy="feature-detail-description-content"
                     v-html="value"
                 ></div>
