@@ -112,11 +112,16 @@ defineExpose({
         @click:header="togglePrintMenu"
         @open-menu-section="(id) => emits('openMenuSection', id)"
     >
-        <div class="p-2 d-grid gap-2 menu-print-settings mx-4">
-            <label for="print-layout-selector " class="col-form-label fw-bold me-2">{{
+        <div class="p-2 d-grid gap-2 menu-print-settings mx-4" data-cy="menu-print-form">
+            <label for="print-layout-selector" class="col-form-label fw-bold me-2">{{
                 i18n.t('print_layout')
             }}</label>
-            <select id="print-layout-selector " v-model="selectedLayoutName" class="form-select">
+            <select
+                id="print-layout-selector"
+                v-model="selectedLayoutName"
+                class="form-select"
+                data-cy="print-layout-selector"
+            >
                 <option
                     v-for="layout in availablePrintLayouts"
                     :key="layout.name"
@@ -128,12 +133,17 @@ defineExpose({
                     {{ layout.name.replace(/^\d+\.\s*/, '') }}
                 </option>
             </select>
-            <label for="print-scale-selector " class="col-form-label fw-bold me-2">{{
+            <label for="print-scale-selector" class="col-form-label fw-bold me-2">{{
                 i18n.t('print_scale')
             }}</label>
-            <select id="print-scale-selector " v-model="selectedScale" class="form-select">
+            <select
+                id="print-scale-selector"
+                v-model="selectedScale"
+                class="form-select"
+                data-cy="print-scale-selector"
+            >
                 <option v-for="scale in scales" :key="scale" :value="scale">
-                    1:{{ formatThousand(scale) }}
+                    {{ '1:' + formatThousand(scale) }}
                 </option>
             </select>
             <div class="form-check">
