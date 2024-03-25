@@ -27,7 +27,7 @@ function focusFirstEntry() {
 }
 
 function focusLastEntry() {
-    entries.value[entries.value.length - 1].goToFirst()
+    entries.value[entries.value.length - 1].goToLast()
 }
 
 defineExpose({ focusFirstEntry, focusLastEntry })

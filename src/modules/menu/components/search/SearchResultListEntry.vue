@@ -48,6 +48,7 @@ function selectItem() {
 function goToFirst() {
     item.value.parentElement.firstElementChild?.focus()
 }
+
 function goToPrevious() {
     if (item.value.previousElementSibling) {
         item.value.previousElementSibling.focus()
@@ -55,6 +56,7 @@ function goToPrevious() {
         emits('firstEntryReached')
     }
 }
+
 function goToNext() {
     if (item.value.nextElementSibling) {
         item.value.nextElementSibling.focus()
@@ -80,6 +82,7 @@ function startResultPreview() {
         })
     }
 }
+
 function stopResultPreview() {
     if (resultType.value === SearchResultTypes.LAYER) {
         store.dispatch('clearPreviewLayer', dispatcher)
@@ -90,6 +93,7 @@ function stopResultPreview() {
 
 defineExpose({
     goToFirst,
+    goToLast,
 })
 </script>
 

@@ -10,43 +10,58 @@ const emit = defineEmits(['close', 'firstResultEntryReached'])
 const store = useStore()
 const i18n = useI18n()
 
-const locationCategory = ref(null)
-const layerCategory = ref(null)
-const layerFeatureCategory = ref(null)
+const resultCategories = ref([])
 
 const results = computed(() => store.state.search.results)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
-const layerResults = computed(() =>
-    results.value.filter((result) => result.resultType === SearchResultTypes.LAYER)
-)
 const locationResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
+)
+const layerResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.LAYER)
 )
 const layerFeatureResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
 )
 
-function gotToLocationCategory() {
-    locationCategory.value.focusLastEntry()
-}
-
-function gotToLayerCategory() {
-    layerCategory.value.focusFirstEntry()
-}
-
-function gotToLayerFeaturesCategory() {
-    layerFeatureCategory.value.focusFirstEntry()
-}
+const categories = computed(() => {
+    return [
+        {
+            id: 'locations',
+            results: locationResults.value,
+        },
+        {
+            id: 'layers',
+            results: layerResults.value,
+        },
+        {
+            id: 'featuresearch',
+            results: layerFeatureResults.value,
+        },
+    ]
+})
 
 function focusFirstEntry() {
-    if (locationResults.value.length) {
-        gotToLocationCategory()
-    } else if (layerResults.value.length) {
-        gotToLayerCategory()
-    } else if (layerFeatureResults.value.length) {
-        gotToLayerFeaturesCategory()
+    const firstCategoryWithResults = categories.value.find(
+        (category) => category.results.length > 0
+    )
+    resultCategories.value[categories.value.indexOf(firstCategoryWithResults)]?.focusFirstEntry()
+}
+
+function onFirstEntryReached(index) {
+    if (index === 0) {
+        emit('firstResultEntryReached')
+    } else if (index > 0) {
+        // jumping up to the previous category's last result
+        resultCategories.value[index - 1]?.focusLastEntry()
+    }
+}
+
+function onLastEntryReached(index) {
+    if (index < resultCategories.value.length - 1) {
+        resultCategories.value[index + 1]?.focusFirstEntry()
     }
 }
 
@@ -69,29 +84,14 @@ defineExpose({ focusFirstEntry })
         >
             <div class="search-results-inner">
                 <SearchResultCategory
-                    v-show="locationResults.length > 0"
-                    ref="locationCategory"
-                    :title="i18n.t('locations_results_header')"
-                    :results="locationResults"
-                    data-cy="search-results-locations"
-                    @first-entry-reached="emit('firstResultEntryReached')"
-                    @last-entry-reached="gotToLayerCategory()"
-                />
-                <SearchResultCategory
-                    v-show="layerResults.length > 0"
-                    ref="layerCategory"
-                    :title="i18n.t('layers_results_header')"
-                    :results="layerResults"
-                    data-cy="search-results-layers"
-                    @first-entry-reached="gotToLocationCategory()"
-                />
-                <SearchResultCategory
-                    v-show="layerFeatureResults.length > 0"
-                    ref="layerFeatureResults"
-                    :title="i18n.t('featuresearch_results_header')"
-                    :results="layerFeatureResults"
-                    data-cy="search-results-layer-features"
-                    @first-entry-reached="gotToLayerFeaturesCategory()"
+                    v-for="(category, index) in categories"
+                    v-show="category.results.length > 0"
+                    :key="category.id"
+                    ref="resultCategories"
+                    :title="i18n.t(`${category.id}_results_header`)"
+                    :results="category.results"
+                    @first-entry-reached="onFirstEntryReached(index)"
+                    @last-entry-reached="onLastEntryReached(index)"
                 />
             </div>
         </div>
