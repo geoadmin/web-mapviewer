@@ -1,0 +1,1728 @@
+<?xml version="1.0"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+  <Document>
+    <name>Drawing</name>
+    <Placemark id="annotation_1448263222238">
+      <name>Dusch-WAgen</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649730458643704,46.83347437022299,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262738316">
+      <name>Behinderten</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649457242380227,46.83381139102615,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448263040814">
+      <name>Bike-Rep-Service, Speaker, Infostand, etc.</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.651114360549518,46.83719250428629,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262424010">
+      <name>Zelt f&#xFC;r 2000 Pers.</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649620583219677,46.82142782697658,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1452588920914">
+      <name>Samariter, Sanit&#xE4;t</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649183055688201,46.822157483662636,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1452588892439">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.649326782766625,46.82213192019825,0
+              8.649400956000859,46.822025930641544,0 8.649865429845503,46.82216910234604,0
+              8.64979270694582,46.82227689960652,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1452588951386">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.649923068707107,46.821949293608725,0
+              8.649983618537502,46.82172783462111,0 8.650239624187966,46.82172102785288,0
+              8.650221202301844,46.82196246230972,0 8.649923068707107,46.821949293608725,0
+              8.649923068707107,46.821949293608725,0 8.649923068707107,46.821949293608725,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448263271953">
+      <name>Wasch-Tr&#xF6;ge</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649748289628583,46.83260026957262,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1452588973018">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.650230468642176,46.82184101932524,0 8.651456900868714,46.821810362630345,0
+          8.651415415897593,46.82181894456439,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="annotation_1452588956184">
+      <name>ST. Galler</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.651754915289512,46.82181534187212,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448260491924">
+      <name>Parking Sponsoren und Organisation</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff000000</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff000000</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66000000</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.652322618340752,46.82210660236295,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448263246517">
+      <name>WC-Anlagen</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649851401226325,46.83302326830515,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448262599954">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff808080</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66808080</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.649237113586,46.82030007272352,0 8.649058601396694,46.82040452259723,0
+              8.64906079177473,46.8206186143859,0 8.649130138792754,46.820671858537686,0
+              8.64945133598149,46.820501572678815,0 8.649237113586,46.82030007272352,0
+              8.649237113586,46.82030007272352,0 8.649237113586,46.82030007272352,0
+              8.649237113586,46.82030007272352,0 8.649237113586,46.82030007272352,0
+              8.649237113586,46.82030007272352,0 8.649237113586,46.82030007272352,0
+              8.649237113586,46.82030007272352,0 8.649237113586,46.82030007272352,0
+              8.649237113586,46.82030007272352,0 8.649237113586,46.82030007272352,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448262327140">
+      <name>Speaker, Ton, Technik</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648328187958219,46.81968556884933,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1449223992022">
+      <name>Wechselzone Inline-Velo</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64828844979231,46.8198871329116,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448261948972">
+      <name>Produktion</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648377694889665,46.81899161401329,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262603162">
+      <name>Parkpl&#xE4;tze Medien</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff808080</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648910966227076,46.820696572030954,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448261883426">
+      <name>Check-In</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648064741704725,46.81863397549835,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448261486113">
+      <name>Zufahrt Produktion</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.649819724516501,46.81860427212141,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448261209924">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff808080</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66808080</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.649326782766625,46.82213192019825,0 8.649968036687065,46.82121558744503,0
+              8.650273723003348,46.8212879174045,0 8.650239684792172,46.82163913895418,0
+              8.649936504899232,46.821678337982085,0 8.649842972781947,46.82171531485106,0
+              8.65024351333663,46.82210061511917,0 8.6501767724388,46.82239640541887,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0 8.649326782766625,46.82213192019825,0
+              8.649326782766625,46.82213192019825,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1452588607809">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.649670762370208,46.82164038793139,0 8.649968036687065,46.82121558744503,0
+              8.650273723003348,46.8212879174045,0 8.650239684792172,46.82163913895418,0
+              8.649951317083315,46.821617340877104,0 8.649842972781947,46.82171531485106,0
+              8.649580781264678,46.8220416701192,0 8.64942343973231,46.82199380250806,0
+              8.649670762370208,46.82164038793139,0 8.649670762370208,46.82164038793139,0
+              8.649670762370208,46.82164038793139,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448262034836">
+      <name>VIP</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647288775542001,46.819825438705514,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448262226570">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.64701778934709,46.82001408013892,0 8.647064511798346,46.81987684053455,0
+              8.647438158212841,46.81994126234087,0 8.647370553366641,46.82008232152809,0
+              8.64701778934709,46.82001408013892,0 8.64701778934709,46.82001408013892,0
+              8.64701778934709,46.82001408013892,0 8.64701778934709,46.82001408013892,0
+              8.64701778934709,46.82001408013892,0 8.64701778934709,46.82001408013892,0
+              8.64701778934709,46.82001408013892,0 8.64701778934709,46.82001408013892,0
+              8.64701778934709,46.82001408013892,0 8.64701778934709,46.82001408013892,0
+              8.64701778934709,46.82001408013892,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448262017808">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.64752367295273,46.820101843773905,0 8.647571884095933,46.81991420819778,0
+              8.647703717282382,46.819948799426115,0 8.64768142911753,46.8201235658424,0
+              8.64752367295273,46.820101843773905,0 8.64752367295273,46.820101843773905,0
+              8.64752367295273,46.820101843773905,0 8.64752367295273,46.820101843773905,0
+              8.64752367295273,46.820101843773905,0 8.64752367295273,46.820101843773905,0
+              8.64752367295273,46.820101843773905,0 8.64752367295273,46.820101843773905,0
+              8.64752367295273,46.820101843773905,0 8.64752367295273,46.820101843773905,0
+              8.64752367295273,46.820101843773905,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448262948947">
+      <name>WZ-Bike-Laufen</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648134937989811,46.83829238372222,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448261006390">
+      <name>Zielverpflegung</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647695053901806,46.820205064363044,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262245637">
+      <name>Info-Zentrale</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64722463973509,46.82005409502443,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262934236">
+      <name>WZ Velo-Bike</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64782225618845,46.837752083268704,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448262230485">
+      <name>OK-B&#xFC;ros</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647197757015691,46.820119316126906,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448263076760">
+      <name>Bike-Waschanlage</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.648419262390581,46.83879542344363,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448262373720">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647472218772087,46.81944429940648,0 8.647514869561334,46.81935928188766,0
+              8.647859364511953,46.81940961633811,0 8.647837718616402,46.81949621103058,0
+              8.647472218772087,46.81944429940648,0 8.647472218772087,46.81944429940648,0
+              8.647472218772087,46.81944429940648,0 8.647472218772087,46.81944429940648,0
+              8.647472218772087,46.81944429940648,0 8.647472218772087,46.81944429940648,0
+              8.647472218772087,46.81944429940648,0 8.647472218772087,46.81944429940648,0
+              8.647472218772087,46.81944429940648,0 8.647472218772087,46.81944429940648,0
+              8.647472218772087,46.81944429940648,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448262377265">
+      <name>B&#xFC;hne</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647636703919246,46.81941557037303,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448262491141">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.646706978316316,46.819595883161305,0
+              8.646718224761235,46.819512997206765,0 8.647015187746175,46.81954764299542,0
+              8.646959776761265,46.81964808910938,0 8.646706978316316,46.819595883161305,0
+              8.646706978316316,46.819595883161305,0 8.646706978316316,46.819595883161305,0
+              8.646706978316316,46.819595883161305,0 8.646706978316316,46.819595883161305,0
+              8.646706978316316,46.819595883161305,0 8.646706978316316,46.819595883161305,0
+              8.646706978316316,46.819595883161305,0 8.646706978316316,46.819595883161305,0
+              8.646706978316316,46.819595883161305,0 8.646706978316316,46.819595883161305,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1449223972889">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff00a5ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>6600a5ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.646937124947797,46.81975281827399,0
+              8.646916457464524,46.819675709456014,0 8.64732874842315,46.81970595594864,0
+              8.64865294384834,46.819908689691324,0 8.648670463340678,46.81992256564192,0
+              8.64866831406279,46.81995115205508,0 8.648631326164203,46.819981906570284,0
+              8.648267162852514,46.819925825922304,0 8.646937124947797,46.81975281827399,0
+              8.647576139395113,46.81980112717508,0 8.647576139395113,46.81980112717508,0
+              8.647576139395113,46.81980112717508,0 8.646937124947797,46.81975281827399,0
+              8.646937124947797,46.81975281827399,0 8.646937124947797,46.81975281827399,0
+              8.646937124947797,46.81975281827399,0 8.646937124947797,46.81975281827399,0
+              8.646937124947797,46.81975281827399,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448261120130">
+      <name>Zieleinlauf</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff008000</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64699565942697,46.81972867759268,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448261058576">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.6468199843647,46.819765547664566,0 8.647326075614707,46.819764768240866,0
+              8.647576139395113,46.81980112717508,0 8.647571318812367,46.819889024155685,0
+              8.647703717282382,46.819948799426115,0 8.64777739571271,46.81978661399887,0
+              8.647343127234227,46.81970701077959,0 8.646823289539886,46.81966887425909,0
+              8.6468199843647,46.819765547664566,0 8.6468199843647,46.819765547664566,0
+              8.6468199843647,46.819765547664566,0 8.6468199843647,46.819765547664566,0
+              8.6468199843647,46.819765547664566,0 8.6468199843647,46.819765547664566,0
+              8.6468199843647,46.819765547664566,0 8.6468199843647,46.819765547664566,0
+              8.6468199843647,46.819765547664566,0 8.6468199843647,46.819765547664566,0
+              8.6468199843647,46.819765547664566,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448262321281">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647521996737262,46.819706018748164,0
+              8.647562430767683,46.81963901754934,0 8.647764935906861,46.81966926259876,0
+              8.647727324480307,46.8197452304395,0 8.647521996737262,46.819706018748164,0
+              8.647521996737262,46.819706018748164,0 8.647521996737262,46.819706018748164,0
+              8.647521996737262,46.819706018748164,0 8.647521996737262,46.819706018748164,0
+              8.647521996737262,46.819706018748164,0 8.647521996737262,46.819706018748164,0
+              8.647521996737262,46.819706018748164,0 8.647521996737262,46.819706018748164,0
+              8.647521996737262,46.819706018748164,0 8.647521996737262,46.819706018748164,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448262029303">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647124903761955,46.81985236147819,0
+              8.647149444978167,46.819765040521936,0 8.647507413746973,46.81979113461848,0
+              8.647456420070915,46.819908232235875,0 8.647124903761955,46.81985236147819,0
+              8.647124903761955,46.81985236147819,0 8.647124903761955,46.81985236147819,0
+              8.647124903761955,46.81985236147819,0 8.647124903761955,46.81985236147819,0
+              8.647124903761955,46.81985236147819,0 8.647124903761955,46.81985236147819,0
+              8.647124903761955,46.81985236147819,0 8.647124903761955,46.81985236147819,0
+              8.647124903761955,46.81985236147819,0 8.647124903761955,46.81985236147819,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448260944088">
+      <name>Ziel</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647545249641824,46.81976690351707,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448261602856">
+      <name>Partner-Park</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.647568705647284,46.818488083251616,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448261908580">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647728938621305,46.81897062098973,0 8.64758444964416,46.818955955789285,0
+              8.647638142652001,46.81877905787916,0 8.647393471278796,46.81873846286239,0
+              8.647424913106943,46.81862117678062,0 8.647469995588725,46.818644540527224,0
+              8.647489404876132,46.81857506271062,0 8.647762617785465,46.81860276060106,0
+              8.647787494125005,46.81866007458754,0 8.647881337808264,46.81869551732466,0
+              8.647789401020265,46.81897852794636,0 8.647728938621305,46.81897062098973,0
+              8.647728938621305,46.81897062098973,0 8.647728938621305,46.81897062098973,0
+              8.647728938621305,46.81897062098973,0 8.647728938621305,46.81897062098973,0
+              8.647728938621305,46.81897062098973,0 8.647728938621305,46.81897062098973,0
+              8.647728938621305,46.81897062098973,0 8.647728938621305,46.81897062098973,0
+              8.647728938621305,46.81897062098973,0 8.647728938621305,46.81897062098973,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448261879355">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647832527679661,46.81897312366822,0 8.647881337808264,46.81869551732466,0
+              8.648179849719504,46.81874093938325,0 8.64810225638489,46.81902064976118,0
+              8.647832527679661,46.81897312366822,0 8.647832527679661,46.81897312366822,0
+              8.647832527679661,46.81897312366822,0 8.647832527679661,46.81897312366822,0
+              8.647832527679661,46.81897312366822,0 8.647832527679661,46.81897312366822,0
+              8.647832527679661,46.81897312366822,0 8.647832527679661,46.81897312366822,0
+              8.647832527679661,46.81897312366822,0 8.647832527679661,46.81897312366822,0
+              8.647832527679661,46.81897312366822,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1452589076972">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.64664669303814,46.81906134384446,0 8.646698357067334,46.818709127532124,0
+              8.647080051758164,46.818729607575854,0 8.64699757410213,46.81903721275107,0
+              8.64664669303814,46.81906134384446,0 8.64664669303814,46.81906134384446,0
+              8.64664669303814,46.81906134384446,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448262264942">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.647216061599461,46.81892116712326,0 8.647267660130959,46.81876768224299,0
+              8.647541439161708,46.818820564709135,0 8.647492138793824,46.81895963114295,0
+              8.647216061599461,46.81892116712326,0 8.647216061599461,46.81892116712326,0
+              8.647216061599461,46.81892116712326,0 8.647216061599461,46.81892116712326,0
+              8.647216061599461,46.81892116712326,0 8.647216061599461,46.81892116712326,0
+              8.647216061599461,46.81892116712326,0 8.647216061599461,46.81892116712326,0
+              8.647216061599461,46.81892116712326,0 8.647216061599461,46.81892116712326,0
+              8.647216061599461,46.81892116712326,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448262268200">
+      <name>Helferzentrale</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64723511704661,46.8188644849363,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1452589083848">
+      <name>Bike-Park</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.6464256724198,46.81876927153691,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448263314755">
+      <name>Festwirtschaft</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64701635286151,46.81915893149215,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448263312051">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.646797914161275,46.81932637869099,0 8.646834800265978,46.81921803167611,0
+              8.64714610377932,46.81924937678361,0 8.647106436389291,46.81935055614326,0
+              8.646797914161275,46.81932637869099,0 8.646797914161275,46.81932637869099,0
+              8.646797914161275,46.81932637869099,0 8.646797914161275,46.81932637869099,0
+              8.646797914161275,46.81932637869099,0 8.646797914161275,46.81932637869099,0
+              8.646797914161275,46.81932637869099,0 8.646797914161275,46.81932637869099,0
+              8.646797914161275,46.81932637869099,0 8.646797914161275,46.81932637869099,0
+              8.646797914161275,46.81932637869099,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1449226681016">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff000000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66000000</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.644659903962876,46.83645048539558,0 8.644823212752566,46.83605535272734,0
+          8.645291552409167,46.83612270801035,0 8.645694767556326,46.83607724829197,0
+          8.64602030633954,46.835736445864335,0 8.645877898676714,46.835231902000864,0
+          8.644893011102617,46.83515175970723,0 8.643325523942023,46.835121511037045,0
+          8.63990873492,46.83474604520246,0 8.639896861344034,46.834676949502104,0
+          8.639974225079866,46.83461672612794,0 8.640281520461147,46.83446939968036,0
+          8.640467836881553,46.83448677056215,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1448263972481">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff000000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66000000</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.644365358474193,46.83749844743985,0 8.644823212752566,46.83605535272734,0
+          8.64602030633954,46.835736445864335,0 8.645877898676714,46.835231902000864,0
+          8.644893011102617,46.83515175970723,0 8.643325523942023,46.835121511037045,0
+          8.63990873492,46.83474604520246,0 8.64027334869501,46.83451039854402,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1448263874052">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.645808431209443,46.83590889340504,0 8.646011970211558,46.83538621224849,0
+          8.645702090663356,46.835258616715805,0 8.645388235442846,46.83512938269067,0
+          8.64265772429553,46.83511895462152,0 8.640875613223347,46.834918196025974,0
+          8.64002737815493,46.834722247232975,0 8.640256247240596,46.83459619866532,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1448260117762">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.637426562659946,46.839687861192175,0
+              8.637188196218955,46.83722535052212,0 8.637072720445941,46.835571225603736,0
+              8.637761636146793,46.834718342214025,0 8.638570456151965,46.83571745182749,0
+              8.638274177229952,46.83771775894423,0 8.638758704660791,46.83945797346759,0
+              8.637426562659946,46.839687861192175,0 8.637426562659946,46.839687861192175,0
+              8.637426562659946,46.839687861192175,0 8.637426562659946,46.839687861192175,0
+              8.637426562659946,46.839687861192175,0 8.637426562659946,46.839687861192175,0
+              8.637426562659946,46.839687861192175,0 8.637426562659946,46.839687861192175,0
+              8.637426562659946,46.839687861192175,0 8.637426562659946,46.839687861192175,0
+              8.637426562659946,46.839687861192175,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1450711034329">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.642326275144695,46.83542378064677,0 8.646606181872226,46.83757582988136,0
+          8.646310626550294,46.83772082864591,0 8.646997881101883,46.83738366074897,0
+          8.646929710716978,46.83775179432001,0 8.646310626550294,46.83772082864591,0
+          8.646929710716978,46.83775179432001,0 8.646310626550294,46.83772082864591,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="annotation_1448262944929">
+      <name>6'500 m2</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64198620316295,46.83463527093687,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448260076955">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.634951926404642,46.841013755555764,0
+              8.633789261423832,46.84061208071984,0 8.634056569170292,46.83729861956471,0
+              8.635019512615208,46.8357951475145,0 8.635484279661485,46.83901098863866,0
+              8.634951926404642,46.841013755555764,0 8.634951926404642,46.841013755555764,0
+              8.634951926404642,46.841013755555764,0 8.634951926404642,46.841013755555764,0
+              8.634951926404642,46.841013755555764,0 8.634951926404642,46.841013755555764,0
+              8.634951926404642,46.841013755555764,0 8.634951926404642,46.841013755555764,0
+              8.634951926404642,46.841013755555764,0 8.634951926404642,46.841013755555764,0
+              8.634951926404642,46.841013755555764,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1448260125161">
+      <name>Parkplatz (2. Prio)</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.638063498230046,46.838853513759936,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448260083181">
+      <name>Parkplatz (1. Prio)</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.633337085693108,46.83914140027807,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448260582980">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff808080</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66808080</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.64189646857094,46.82510542517351,0 8.642720071856407,46.82442382109035,0
+              8.643059790129214,46.82461096603548,0 8.642180786546776,46.82524785032961,0
+              8.64189646857094,46.82510542517351,0 8.64189646857094,46.82510542517351,0
+              8.64189646857094,46.82510542517351,0 8.64189646857094,46.82510542517351,0
+              8.64189646857094,46.82510542517351,0 8.64189646857094,46.82510542517351,0
+              8.64189646857094,46.82510542517351,0 8.64189646857094,46.82510542517351,0
+              8.64189646857094,46.82510542517351,0 8.64189646857094,46.82510542517351,0
+              8.64189646857094,46.82510542517351,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448260187980">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff008000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66008000</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.643656259908034,46.83275812472842,0 8.64502171545113,46.82934308264045,0
+              8.646364058335075,46.82958080838336,0 8.645988253558862,46.83035846916737,0
+              8.645366867354283,46.83070689380673,0 8.644684144800496,46.832999185274176,0
+              8.643656259908034,46.83275812472842,0 8.643656259908034,46.83275812472842,0
+              8.643656259908034,46.83275812472842,0 8.643656259908034,46.83275812472842,0
+              8.643656259908034,46.83275812472842,0 8.643656259908034,46.83275812472842,0
+              8.643656259908034,46.83275812472842,0 8.643656259908034,46.83275812472842,0
+              8.643656259908034,46.83275812472842,0 8.643656259908034,46.83275812472842,0
+              8.643656259908034,46.83275812472842,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1449502021667">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.640801756298461,46.832265603002604,0
+              8.641016089904685,46.83169059316198,0 8.641455470939654,46.83179842623044,0
+              8.641227703239881,46.832361613017795,0 8.640801756298461,46.832265603002604,0
+              8.640801756298461,46.832265603002604,0 8.640801756298461,46.832265603002604,0
+              8.640801756298461,46.832265603002604,0 8.640801756298461,46.832265603002604,0
+              8.640801756298461,46.832265603002604,0 8.640801756298461,46.832265603002604,0
+              8.640801756298461,46.832265603002604,0 8.640801756298461,46.832265603002604,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1448262903376">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.640236183714801,46.83469685951311,0 8.640245287740079,46.83465118369501,0
+              8.640300081509751,46.83437627613606,0 8.641434063152635,46.83447389519388,0
+              8.642419718561258,46.83455873612393,0 8.642353884738941,46.83489769382201,0
+              8.640236183714801,46.83469685951311,0 8.640236183714801,46.83469685951311,0
+              8.640236183714801,46.83469685951311,0 8.640236183714801,46.83469685951311,0
+              8.640236183714801,46.83469685951311,0 8.640236183714801,46.83469685951311,0
+              8.640236183714801,46.83469685951311,0 8.640236183714801,46.83469685951311,0
+              8.640236183714801,46.83469685951311,0 8.640236183714801,46.83469685951311,0
+              8.640236183714801,46.83469685951311,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1450766035567">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff008000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66008000</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.640227920653403,46.834456623206734,0 8.639900934500616,46.834611873430575,0
+          8.639836448610147,46.834659399688725,0 8.639023457750404,46.83457610769471,0
+          8.637957378887062,46.83441110149231,0 8.637771104975515,46.83438494162671,0
+          8.637496524512823,46.83414755005316,0 8.637244722116623,46.8342457768173,0
+          8.637326418346012,46.83435737518111,0 8.637117373480112,46.83441392742639,0
+          8.63648202261387,46.83436022003837,0 8.636545853826792,46.834160888462044,0
+          8.636288579515271,46.83413547009114,0 8.636265370641574,46.83431939693275,0
+          8.636178527428313,46.83434466435679,0 8.636186570451407,46.83470630241423,0
+          8.636273159190272,46.8355300717066,0 8.636353322715592,46.83606339241581,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="annotation_1448260192729">
+      <name>Camp</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff008000</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.645887045899927,46.83169100685594,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448263033688">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.640284041765916,46.834315449157494,0
+              8.640300560094061,46.83426849428647,0 8.641738987665757,46.83436876095982,0
+              8.641747974300205,46.834404269606594,0 8.640284041765916,46.834315449157494,0
+              8.640284041765916,46.834315449157494,0 8.640284041765916,46.834315449157494,0
+              8.640284041765916,46.834315449157494,0 8.640284041765916,46.834315449157494,0
+              8.640284041765916,46.834315449157494,0 8.640284041765916,46.834315449157494,0
+              8.640284041765916,46.834315449157494,0 8.640284041765916,46.834315449157494,0
+              8.640284041765916,46.834315449157494,0 8.640284041765916,46.834315449157494,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1449502026344">
+      <name>Camper</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.640666760491898,46.83189668560704,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1449224331627">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.644518114213255,46.83319534048437,0 8.648056386055122,46.833145010382225,0
+          8.647714113893561,46.83291742306465,0 8.64761115849938,46.83332964760592,0
+          8.647925619168708,46.833159348494824,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1452588988281">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.645780907065988,46.81971742398893,0 8.645478565388359,46.81978197212575,0
+              8.64545527546214,46.81954093418305,0 8.645734934429477,46.819525700741515,0
+              8.645780907065988,46.81971742398893,0 8.645780907065988,46.81971742398893,0
+              8.645780907065988,46.81971742398893,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1449226851541">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff008000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66008000</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.635116169330125,46.8338036684089,0 8.638520462950781,46.82920974252072,0
+          8.63821382742425,46.82735701859067,0 8.641121404983792,46.82633370184381,0
+          8.643766803965943,46.824373053909284,0 8.64518106964231,46.823163824248695,0
+          8.645397736821094,46.82225758540055,0 8.645874644456871,46.82095614778897,0
+          8.64586208106152,46.820501969809996,0 8.64582250618206,46.820094332562455,0
+          8.645778845942631,46.81978386349895,0 8.646746907203555,46.8197451668445,0
+          8.64777739571271,46.81978661399887,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1448263585892">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff00a5ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>6600a5ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.638543712169164,46.83781164181066,0 8.638355239212813,46.83717048936037,0
+          8.63859534106705,46.83615756372874,0 8.638607235869592,46.83586775508246,0
+          8.63860329006406,46.83551423834917,0 8.638456730808807,46.83529086671952,0
+          8.638119478706542,46.834981330984654,0 8.637910894024225,46.83459217612332,0
+          8.637871432530534,46.83446843982772,0 8.637730898949726,46.83389729355781,0
+          8.637881800265564,46.833403608143016,0 8.640793542702407,46.827719240209284,0
+          8.642453081520797,46.8265520350983,0 8.644201396547071,46.82595784001951,0
+          8.645948058565553,46.824823850165544,0 8.646275379900037,46.82400058258606,0
+          8.646431427696626,46.823608087201684,0 8.646515414191222,46.82276540476108,0
+          8.646330468875017,46.822028303032425,0 8.646654388694846,46.820893287395194,0
+          8.64670410626997,46.820563762681424,0 8.6465722146829,46.82021398123226,0
+          8.646688186970383,46.819710291742034,0 8.647211075534786,46.81973368747296,0
+          8.647917118519766,46.81981849599928,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="linepolygon_1449224037272">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.648670463340678,46.81992256564192,0 8.649552211515745,46.81878060284361,0
+          8.650881503688237,46.81721010268269,0 8.653227612097907,46.8162068316131,0
+          8.654494474555958,46.81681744447502,0 8.654483300989571,46.81704814220048,0
+          8.654131380431435,46.817057463176816,0 8.653906162553564,46.816879929328834,0
+          8.652590975171437,46.81812533875696,0 8.650434219006687,46.820964135100375,0
+          8.650415247198312,46.82147231964206,0 8.650398583835233,46.82264524825028,0
+          8.65037742855967,46.82282924704676,0 8.649902380316554,46.825301281800264,0
+          8.647729363878051,46.82691791280216,0 8.64668458179754,46.830006360672264,0
+          8.644786971624148,46.83617311364054,0 8.644254572483612,46.83733524982004,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="annotation_1452588991839">
+      <name>Versammlungsort ToF</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.645131319283432,46.819597118161596,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1449224576983">
+      <name>L&#xE4;ufer</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff008000</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>ffffffff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64573647741777,46.81993105641823,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="annotation_1448260483495">
+      <name>Parking</name>
+      <description />
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+        </IconStyle>
+        <LabelStyle>
+          <color>ff0000ff</color>
+        </LabelStyle>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>1</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Point>
+        <coordinates>8.64454992112743,46.82328347938875,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1448260478293">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.643628070402037,46.823766061353005,0
+              8.644136559433263,46.823998205181546,0 8.644913432051504,46.82310476208613,0
+              8.645397736821094,46.82225758540055,0 8.64562093457079,46.82145634674274,0
+              8.645756721151158,46.82096550753206,0 8.645297595085653,46.8214147785272,0
+              8.645040855335628,46.82165499401791,0 8.644898284812479,46.82231143788504,0
+              8.64466540493132,46.822680949139595,0 8.644265616511973,46.8226203924386,0
+              8.643628070402037,46.823766061353005,0 8.643628070402037,46.823766061353005,0
+              8.643628070402037,46.823766061353005,0 8.643628070402037,46.823766061353005,0
+              8.643628070402037,46.823766061353005,0 8.643628070402037,46.823766061353005,0
+              8.643628070402037,46.823766061353005,0 8.643628070402037,46.823766061353005,0
+              8.643628070402037,46.823766061353005,0 8.643628070402037,46.823766061353005,0
+              8.643628070402037,46.823766061353005,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="linepolygon_1449646591125">
+      <description />
+      <Style>
+        <LineStyle>
+          <color>ffffffff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66ffffff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.64393129922751,46.83128419750794,0 8.644693088866237,46.82944323512212,0
+          8.645119767567592,46.82801046260543,0 8.646817700484003,46.827270073032224,0
+          8.647053334247481,46.82701263015878,0 8.646707999044066,46.82672411548804,0
+          8.646277060329444,46.82590503995558,0 8.64667028833065,46.82579758364662,0
+          8.646845758495311,46.82539588335959,0 8.645948058565553,46.824823850165544,0
+          8.646347141225504,46.82404083347311,0 8.646436623921422,46.823849298890416,0
+          8.647196582819276,46.82396775613389,0 8.647351609086827,46.82357535734932,0
+          8.647488551820885,46.82277885038165,0 8.648246070444994,46.82287820893197,0
+          8.648601837943877,46.82194164915189,0 8.648734004843243,46.82144544656667,0
+          8.649115970817815,46.820699526799096,0 8.649393264792268,46.8205323598398,0
+          8.650353016426065,46.82098913412863,0 8.650892804419173,46.820224336513355,0
+          8.650623146392456,46.820072592545024,0</coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>
