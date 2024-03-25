@@ -7,10 +7,10 @@ import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { API_BASE_URL } from '@/config'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import { createPixelExtentAround } from '@/utils/extentUtils'
-import { getGeoJsonFeatureCoordinates } from '@/utils/geoJsonUtils'
+import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 const DEFAULT_FEATURE_COUNT = 10
@@ -188,26 +188,39 @@ async function identifyOnExternalLayer(config) {
     if (lang === null) {
         throw new GetFeatureInfoError('A lang is required to build a getFeatureInfo request')
     }
+    // deciding on which projection we should land to ask the WMS server (the current map projection might not be supported)
+    let requestProjection = projection
+    if (!requestProjection) {
+        throw new GetFeatureInfoError('Missing projection to build a getFeatureInfo request')
+    }
     if (
-        !projection ||
         !layer.availableProjections.some(
-            (availableProjection) => availableProjection.epsg === projection.epsg
+            (availableProjection) => availableProjection.epsg === requestProjection.epsg
         )
     ) {
+        // trying to find a candidate among the app supported projections
+        requestProjection = allCoordinateSystems.find((candidate) =>
+            layer.availableProjections.some(
+                (availableProjection) => availableProjection.epsg === candidate.epsg
+            )
+        )
+    }
+    if (!requestProjection) {
         throw new GetFeatureInfoError(
-            `Wanted projection ${projection?.epsg} isn't supported by layer ${layer.externalLayerId}, possible projections are ${layer.availableProjections.map((projection) => projection.epsg).join(', ')}`
+            `No common projection found with external WMS provider, possible projection were ${layer.availableProjections.map((proj) => proj.epsg).join(', ')}`
         )
     }
     if (layer instanceof ExternalWMSLayer) {
-        return await identifyOnExternalWmsLayer(
+        return await identifyOnExternalWmsLayer({
             coordinate,
-            projection,
+            projection: requestProjection,
             resolution,
             layer,
             featureCount,
             lang,
-            tolerance
-        )
+            tolerance,
+            outputProjection: projection,
+        })
     } else {
         throw new GetFeatureInfoError(
             `Unsupported external layer type to build getFeatureInfo request: ${layer.type}`
@@ -230,24 +243,30 @@ async function identifyOnExternalLayer(config) {
  * instance of the WMS source to this function to use the utils directly, and preferred to implement
  * it on my own.
  *
- * @param {[Number, Number]} coordinate
- * @param {CoordinateSystem} projection
- * @param {Number} resolution
- * @param {ExternalWMSLayer} layer
- * @param {Number} featureCount
- * @param {String} lang
- * @param {Number} tolerance
+ * @param {[Number, Number]} config.coordinate
+ * @param {CoordinateSystem} config.projection
+ * @param {Number} config.resolution
+ * @param {ExternalWMSLayer} config.layer
+ * @param {Number} config.featureCount
+ * @param {String} config.lang
+ * @param {Number} config.tolerance
+ * @param {CoordinateSystem} config.outputProjection The wanted output projection. Enable us to
+ *   request this WMS with a different projection and then reproject on the fly if this WMS doesn't
+ *   suppor the current map projection.
  * @returns {Promise<LayerFeature[]>}
  */
-async function identifyOnExternalWmsLayer(
-    coordinate,
-    projection,
-    resolution,
-    layer,
-    featureCount,
-    lang,
-    tolerance
-) {
+async function identifyOnExternalWmsLayer(config) {
+    const {
+        coordinate,
+        projection,
+        resolution,
+        layer,
+        featureCount,
+        lang,
+        tolerance,
+        outputProjection = null,
+    } = config
+
     const requestExtent = createPixelExtentAround({
         size: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
         coordinate,
@@ -351,8 +370,16 @@ async function identifyOnExternalWmsLayer(
                 layer,
                 id: feature.id,
                 data: feature.properties,
-                coordinates: getGeoJsonFeatureCoordinates(geometry, projection, projection),
-                geometry,
+                coordinates: getGeoJsonFeatureCoordinates(
+                    geometry,
+                    projection,
+                    outputProjection ?? projection
+                ),
+                geometry: reprojectGeoJsonData(
+                    geometry,
+                    outputProjection ?? projection,
+                    projection
+                ),
             })
         })
     }
