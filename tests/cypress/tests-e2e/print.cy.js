@@ -596,7 +596,6 @@ describe('Testing print', () => {
                     },
                     formats: ['bmp', 'gif', 'jpeg', 'jpg', 'pdf', 'png', 'svg', 'tif', 'tiff'],
                 },
-                delay: 1000,
             })
         }).as('capabilities')
     }
@@ -609,7 +608,7 @@ describe('Testing print', () => {
                     statusURL: '/print/status/' + printID,
                     downloadURL: '/print/report/' + printID,
                 },
-                delay: 1000,
+                delay: 500,
             })
         }).as('printRequest')
     }
@@ -623,7 +622,7 @@ describe('Testing print', () => {
                     waitingTime: 0,
                     downloadURL: '/print/report/' + printID,
                 },
-                delay: 1000,
+                delay: 500,
             })
         }).as('printStatus')
     }
@@ -637,7 +636,7 @@ describe('Testing print', () => {
                     waitingTime: 0,
                     downloadURL: '/print/report/' + printID,
                 },
-                delay: 1000,
+                delay: 500,
             })
         }).as('downloadReport')
     }
