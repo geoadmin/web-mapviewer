@@ -1,12 +1,11 @@
-import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions, DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-import DragRotateInteraction from 'ol/interaction/DragRotate'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
+import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
@@ -18,13 +17,11 @@ export default function useMapInteractions(map) {
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
     const freeMouseWheelInteraction = new MouseWheelZoom()
 
-    // Make it possible to rotate the map with ctrl+drag (in addition to OpenLayers default Alt+Shift+Drag).
-    // This is probably more intuitive. Also, Windows and some Linux distros use alt+shift to switch the
-    // keyboard layout, so using alt+shift may have unintended side effects or not work at all.
+    // Make it possible to select by dragging the map with ctrl down
+    const { dragBoxSelect } = useDragBoxSelect()
+
     const interactions = getDefaultInteractions().extend([
-        new DragRotateInteraction({
-            condition: platformModifierKeyOnly,
-        }),
+        dragBoxSelect,
         // Add middle mouse button for panning
         new DragPan({
             condition: function (event) {

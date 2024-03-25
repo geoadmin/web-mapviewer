@@ -8,7 +8,7 @@ import { computed, inject, onMounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import log from '@/utils/logging'
 
 const props = defineProps({

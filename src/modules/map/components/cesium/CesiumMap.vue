@@ -552,24 +552,23 @@ export default {
                 coordinates = proj4(this.projection.epsg, WEBMERCATOR.epsg, featureCoords)
             }
             this.click({
-                clickInfo: new ClickInfo(
-                    coordinates,
-                    [event.position.x, event.position.y],
+                clickInfo: new ClickInfo({
+                    coordinate: coordinates,
+                    pixelCoordinate: [event.position.x, event.position.y],
                     features,
-                    ClickType.LEFT_SINGLECLICK
-                ),
+                    clickType: ClickType.LEFT_SINGLECLICK,
+                }),
                 ...dispatcher,
             })
         },
         onContextMenu(event) {
             const coordinates = this.getCoordinateAtScreenCoordinate(event.clientX, event.clientY)
             this.click({
-                clickInfo: new ClickInfo(
-                    coordinates,
-                    [event.clientX, event.clientY],
-                    [],
-                    ClickType.CONTEXTMENU
-                ),
+                clickInfo: new ClickInfo({
+                    coordinate: coordinates,
+                    pixelCoordinate: [event.clientX, event.clientY],
+                    clickType: ClickType.CONTEXTMENU,
+                }),
                 ...dispatcher,
             })
         },

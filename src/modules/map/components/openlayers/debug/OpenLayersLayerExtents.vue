@@ -9,7 +9,7 @@ import { useStore } from 'vuex'
 
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 const props = defineProps({

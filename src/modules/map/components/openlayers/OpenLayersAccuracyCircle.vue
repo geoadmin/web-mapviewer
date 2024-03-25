@@ -12,7 +12,7 @@ import { Fill, Stroke, Style } from 'ol/style'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const props = defineProps({
     zIndex: {
