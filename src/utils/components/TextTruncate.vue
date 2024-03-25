@@ -19,20 +19,31 @@ let tippyInstance = null
 let resizeObserver = null
 
 const props = defineProps({
+    /**
+     * Text to use in tooltip.
+     *
+     * This text is taken instead of the content of the slot. If not provided and the slot is
+     * content is a simple text then the slot content is taken as tooltip
+     *
+     * @type {string}
+     */
     text: {
-        /**
-         * Text to use in tooltip.
-         *
-         * This text is taken instead of the content of the slot. If not provided and the slot is
-         * content is a simple text then the slot content is taken as tooltip
-         *
-         * @type {string}
-         */
         type: String,
         default: '',
     },
+    /**
+     * Tippy options to pass
+     *
+     * For more details see tippy js documentations
+     */
+    tippyOptions: {
+        type: Object,
+        default() {
+            return {}
+        },
+    },
 })
-const { text } = toRefs(props)
+const { text, tippyOptions } = toRefs(props)
 
 const slots = useSlots()
 
@@ -69,23 +80,23 @@ onUnmounted(() => {
 })
 
 function initializeTippy() {
+    if (tippyInstance) {
+        tippyInstance.unmount()
+        tippyInstance.destroy()
+        tippyInstance = null
+    }
     // We add a tooltip only if the text is truncated
     if (
         innerElement.value?.getBoundingClientRect().width >
         outterElement.value?.getBoundingClientRect().width
     ) {
         tippyInstance = tippy(outterElement.value, {
-            theme: 'dark',
             content: tippyContent.value,
-            placement: 'top',
             arrow: true,
             delay: 500,
             touch: ['hold', 500], // 500ms delay
+            ...tippyOptions.value,
         })
-    } else if (tippyInstance) {
-        tippyInstance.unmount()
-        tippyInstance.destroy()
-        tippyInstance = null
     }
 }
 </script>

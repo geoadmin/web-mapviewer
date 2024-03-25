@@ -66,6 +66,7 @@ const attributionName = computed(() =>
 )
 const showLegendIcon = computed(() => layer.value.hasLegend)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -136,6 +137,7 @@ function duplicateLayer() {
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
+                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
