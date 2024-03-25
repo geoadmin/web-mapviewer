@@ -157,7 +157,7 @@ function onAddMediaLink(descriptionMediaLink) {
                     <DrawingStylePopoverButton
                         ref="mediaLinkPopover"
                         data-cy="drawing-style-link-button"
-                        button-class-override="rounded-0 rounded-top-2 rounded-end-0 btn btn-sm btn-light d-flex align-items-center"
+                        button-class-options="rounded-0 rounded-top-2 rounded-end-0"
                         icon="fa-link"
                     >
                         <DrawingStyleMediaLink
@@ -171,7 +171,7 @@ function onAddMediaLink(descriptionMediaLink) {
                     <DrawingStylePopoverButton
                         ref="mediaImagePopover"
                         data-cy="drawing-style-image-button"
-                        button-class-override="rounded-0 btn-sm btn btn-light d-flex align-items-center"
+                        button-class-options="rounded-0"
                         icon="fa-image"
                     >
                         <DrawingStyleMediaLink
@@ -184,7 +184,7 @@ function onAddMediaLink(descriptionMediaLink) {
                     <DrawingStylePopoverButton
                         ref="mediaFilmPopover"
                         data-cy="drawing-style-film-button"
-                        button-class-override="rounded-0 rounded-top-2 rounded-start-0 btn btn-sm btn-light d-flex align-items-center"
+                        button-class-options="rounded-0 rounded-top-2 rounded-start-0"
                         icon="fa-film"
                     >
                         <DrawingStyleMediaLink

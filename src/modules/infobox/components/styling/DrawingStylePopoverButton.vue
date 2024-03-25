@@ -2,11 +2,8 @@
     <div>
         <button
             ref="popoverButton"
-            :class="[
-                buttonClassOverride
-                    ? buttonClassOverride
-                    : 'btn btn-sm btn-light d-flex align-items-center',
-            ]"
+            class="btn btn-sm btn-light d-flex align-items-center"
+            :class="[buttonClassOptions ? buttonClassOptions : '']"
         >
             <FontAwesomeIcon :icon="icon" />
         </button>
@@ -52,7 +49,7 @@ export default {
             type: String,
             default: null,
         },
-        buttonClassOverride: {
+        buttonClassOptions: {
             type: String,
             default: null,
         },
@@ -77,7 +74,6 @@ export default {
     methods: {
         /** Hides the popover container, can be called outside (by this component's parent) */
         hidePopover() {
-            console.log('debug: closing')
             this.popover.hide()
         },
     },
