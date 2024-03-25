@@ -88,6 +88,7 @@
         "@cypress/vite-dev-server": "^5.0.7",
         "@cypress/vue": "^6.0.0",
         "@nuintun/qrcode": "^3.4.0",
+        "@prettier/plugin-xml": "^3.3.1",
         "@rushstack/eslint-patch": "^1.7.2",
         "@types/jsdom": "^21.1.6",
         "@types/node": "^18.19.21",
