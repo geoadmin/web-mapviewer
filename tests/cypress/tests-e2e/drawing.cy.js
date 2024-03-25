@@ -65,113 +65,6 @@ describe('Drawing module tests', () => {
         beforeEach(() => {
             cy.goToDrawing()
         })
-        it('can generate and display media links', () => {
-            const valid_url = 'http:dummy'
-            const invalid_url = 'invalidurl'
-            const description = 'description'
-            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(40, 160)
-            cy.wait('@post-kml')
-
-            cy.log('Open hyperlink popup')
-            cy.get('[data-cy="drawing-style-link-button"]').click()
-
-            cy.log('Button should be disabled if url and description empty')
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
-            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
-
-            cy.log('Button should be disabled if description empty')
-            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
-            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('be.visible')
-
-            cy.log('Button should be enabled if url and description valid')
-            cy.get('[data-cy="drawing-style-media-description-input"]').type(description)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
-            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
-
-            cy.log('Button should be disabled if url invalid')
-            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
-            cy.get('[data-cy="drawing-style-media-url-input"]').type(invalid_url)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('be.visible')
-            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
-
-            cy.log('Generate hyperlink')
-            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
-            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-            cy.get('[data-cy="drawing-style-feature-description"]').should(
-                'have.value',
-                `<a target="_blank" href="${valid_url}">${description}</a>`
-            )
-
-            cy.log('Open image embed popup')
-            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(80, 160)
-            cy.get('[data-cy="drawing-style-image-button"]').click()
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-
-            cy.log('Generate image link')
-            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-            cy.get('[data-cy="drawing-style-feature-description"]').should(
-                'have.value',
-                `<image src="${valid_url}" style="max-height:200px;"/>`
-            )
-
-            cy.log('Open video embed popup')
-            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(120, 160)
-            cy.get('[data-cy="drawing-style-film-button"]').click()
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-
-            cy.log('Generate video link')
-            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-            cy.get('[data-cy="drawing-style-feature-description"]').should(
-                'have.value',
-                `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
-            )
-
-            cy.closeDrawingMode()
-            cy.closeMenuIfMobile()
-
-            cy.log('Hyperlink exists after sanitize')
-            cy.get('[data-cy="ol-map"]').click(40, 160)
-            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-            cy.get('[data-cy="feature-detail-description-content"]')
-                .find('a')
-                .invoke('attr', 'href')
-                .should('eq', `${valid_url}`)
-
-            cy.log('Image link exists after sanitize')
-            cy.get('[data-cy="ol-map"]').click(80, 160)
-            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-            cy.get('[data-cy="feature-detail-description-content"]')
-                .find('img')
-                .invoke('attr', 'src')
-                .should('eq', `${valid_url}`)
-
-            cy.log('Video link has disclaimer')
-            cy.get('[data-cy="ol-map"]').click(120, 160)
-            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
-            cy.get('[data-cy="feature-detail-description-content"]').should('not.exist')
-            cy.get('[data-cy="feature-detail-media-disclaimer-button"]').click()
-            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-
-            cy.log('Video link exists after sanitize')
-            cy.get('[data-cy="feature-detail-description-content"]')
-                .find('iframe')
-                .invoke('attr', 'src')
-                .should('eq', `${valid_url}`)
-        })
         it('can create marker/icons and edit them', () => {
             // it should load all icon sets as soon as we enter the drawing module
             cy.wait('@icon-sets')
@@ -373,6 +266,113 @@ describe('Drawing module tests', () => {
             cy.log('Coordinates for marker are updated when selecting new marker')
             cy.get('[data-cy="ol-map"]').click(200, 234)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'680'013.50, 1'210'172.00")
+        })
+        it('can generate and display media links', () => {
+            const valid_url = 'http:dummy'
+            const invalid_url = 'invalidurl'
+            const description = 'description'
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(40, 160)
+            cy.wait('@post-kml')
+
+            cy.log('Open hyperlink popup')
+            cy.get('[data-cy="drawing-style-link-button"]').click()
+
+            cy.log('Button should be disabled if url and description empty')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
+
+            cy.log('Button should be disabled if description empty')
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('be.visible')
+
+            cy.log('Button should be enabled if url and description valid')
+            cy.get('[data-cy="drawing-style-media-description-input"]').type(description)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
+
+            cy.log('Button should be disabled if url invalid')
+            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(invalid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('be.visible')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
+
+            cy.log('Generate hyperlink')
+            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<a target="_blank" href="${valid_url}">${description}</a>`
+            )
+
+            cy.log('Open image embed popup')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(80, 160)
+            cy.get('[data-cy="drawing-style-image-button"]').click()
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+
+            cy.log('Generate image link')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<image src="${valid_url}" style="max-height:200px;"/>`
+            )
+
+            cy.log('Open video embed popup')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(120, 160)
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+
+            cy.log('Generate video link')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
+            )
+
+            cy.closeDrawingMode()
+            cy.closeMenuIfMobile()
+
+            cy.log('Hyperlink exists after sanitize')
+            cy.get('[data-cy="ol-map"]').click(40, 160)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('a')
+                .invoke('attr', 'href')
+                .should('eq', `${valid_url}`)
+
+            cy.log('Image link exists after sanitize')
+            cy.get('[data-cy="ol-map"]').click(80, 160)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('img')
+                .invoke('attr', 'src')
+                .should('eq', `${valid_url}`)
+
+            cy.log('Video link has disclaimer')
+            cy.get('[data-cy="ol-map"]').click(120, 160)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
+            cy.get('[data-cy="feature-detail-description-content"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-media-disclaimer-button"]').click()
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+
+            cy.log('Video link exists after sanitize')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('iframe')
+                .invoke('attr', 'src')
+                .should('eq', `${valid_url}`)
         })
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)

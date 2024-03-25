@@ -33,9 +33,7 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
-const mediaLinkPopover = ref(null)
-const mediaImagePopover = ref(null)
-const mediaFilmPopover = ref(null)
+const mediaPopover = ref(null)
 
 // Update the UI when the feature changes
 watch(
@@ -123,10 +121,29 @@ function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
 function onAddMediaLink(descriptionMediaLink) {
-    mediaLinkPopover.value.hidePopover()
-    mediaImagePopover.value.hidePopover()
-    mediaFilmPopover.value.hidePopover()
+    mediaPopover.value?.forEach((popover) => popover.hidePopover())
     description.value += descriptionMediaLink
+}
+
+function mediaTypes() {
+    return [
+        {
+            type: 'link',
+            buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
+            icon: 'fa-link',
+            extraUrlDescription: 'text_to_display',
+        },
+        {
+            type: 'image',
+            buttonClassOptions: 'rounded-0',
+            icon: 'fa-image',
+        },
+        {
+            type: 'video',
+            buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
+            icon: 'fa-film',
+        },
+    ]
 }
 </script>
 
@@ -154,46 +171,23 @@ function onAddMediaLink(descriptionMediaLink) {
             </label>
             <div>
                 <div class="d-flex justify-content-end align-items-center">
-                    <DrawingStylePopoverButton
-                        ref="mediaLinkPopover"
-                        data-cy="drawing-style-link-button"
-                        button-class-options="rounded-0 rounded-top-2 rounded-end-0"
-                        icon="fa-link"
-                    >
-                        <DrawingStyleMediaLink
-                            media-type="link"
-                            :url-description="$t('url_link')"
-                            :extra-url-description="$t('text_to_display')"
-                            @generated-media-link="onAddMediaLink"
+                    <div v-for="media in mediaTypes()" :key="media.type">
+                        <DrawingStylePopoverButton
+                            ref="mediaPopover"
+                            :data-cy="`drawing-style-${media.type}-button`"
+                            :button-class-options="media.buttonClassOptions"
+                            :icon="media.icon"
                         >
-                        </DrawingStyleMediaLink>
-                    </DrawingStylePopoverButton>
-                    <DrawingStylePopoverButton
-                        ref="mediaImagePopover"
-                        data-cy="drawing-style-image-button"
-                        button-class-options="rounded-0"
-                        icon="fa-image"
-                    >
-                        <DrawingStyleMediaLink
-                            media-type="image"
-                            :url-description="$t('url_image')"
-                            @generated-media-link="onAddMediaLink"
-                        >
-                        </DrawingStyleMediaLink>
-                    </DrawingStylePopoverButton>
-                    <DrawingStylePopoverButton
-                        ref="mediaFilmPopover"
-                        data-cy="drawing-style-film-button"
-                        button-class-options="rounded-0 rounded-top-2 rounded-start-0"
-                        icon="fa-film"
-                    >
-                        <DrawingStyleMediaLink
-                            media-type="video"
-                            :url-description="$t('url_video')"
-                            @generated-media-link="onAddMediaLink"
-                        >
-                        </DrawingStyleMediaLink>
-                    </DrawingStylePopoverButton>
+                            <DrawingStyleMediaLink
+                                :media-type="media.type"
+                                :url-description="$t('url_' + media.type)"
+                                :extra-url-description="
+                                    media.extraUrlDescription ? $t(media.extraUrlDescription) : null
+                                "
+                                @generated-media-link="onAddMediaLink"
+                            />
+                        </DrawingStylePopoverButton>
+                    </div>
                 </div>
                 <textarea
                     id="drawing-style-feature-description"
