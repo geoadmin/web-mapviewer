@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { isValidUrl } from '@/utils/utils'
 
 const i18n = useI18n()
-const generatedMediaLink = ref('')
-const linkDescription = ref('')
+const generatedMediaLink = ref(null)
+const linkDescription = ref(null)
 const props = defineProps({
     mediaType: {
         type: String,
@@ -22,6 +22,9 @@ const props = defineProps({
     },
 })
 
+const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
+const emit = defineEmits(['generatedMediaLink'])
+
 const urlValid = computed(() => {
     return isValidUrl(generatedMediaLink.value)
 })
@@ -29,9 +32,6 @@ const urlValid = computed(() => {
 const urlDescriptionValid = computed(() => {
     return !extraUrlDescription.value || linkDescription.value
 })
-
-const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
-const emit = defineEmits(['generatedMediaLink'])
 
 function createVideo() {
     if (
@@ -78,7 +78,6 @@ function addLink(generatedMediaLink) {
             <div class="input-group d-flex needs-validation">
                 <input
                     id="drawing-style-media-link-description"
-                    ref="inputElement"
                     v-model="linkDescription"
                     type="text"
                     placeholder="More info ..."
@@ -103,7 +102,6 @@ function addLink(generatedMediaLink) {
         <div class="input-group d-flex needs-validation">
             <input
                 id="drawing-style-media-url-description"
-                ref="inputElement"
                 v-model="generatedMediaLink"
                 type="text"
                 placeholder="Paste URL"
