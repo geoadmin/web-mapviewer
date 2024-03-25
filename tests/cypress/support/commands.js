@@ -127,6 +127,12 @@ const addCesiumTilesetIntercepts = () => {
     }).as('cesiumTerrainConfig')
 }
 
+const addHtmlPopupIntercepts = () => {
+    cy.intercept('**/MapServer/**/htmlPopup**', {
+        fixture: 'html-popup.fixture.html',
+    }).as('htmlPopup')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
@@ -142,6 +148,7 @@ export function getDefaultFixturesAndIntercepts() {
         addSecondIconsFixtureAndIntercept,
         addGeoJsonIntercept,
         addCesiumTilesetIntercepts,
+        addHtmlPopupIntercepts,
     }
 }
 
@@ -213,6 +220,7 @@ Cypress.Commands.add(
         cy.visit(`/${withHash ? '#/' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
+
         // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
             'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
@@ -323,6 +331,16 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             if (legacy && 'adminId' in queryParams) {
                 // In legacy drawing with adminId the layer is not added to the layers parameter
                 target += 1
+            }
+            // When handling a legacy parameter, the {bod Layer Id} parameter,
+            // which has been reworked into the 'features' layer attribute might add extra
+            // layers, thus the need to check if those extra layers have been added
+            if (legacy) {
+                const layersConfig = state.layers.config
+                target += Object.keys(queryParams)
+                    .filter((key) => layersConfig.find((layer) => layer.id === key)) // this removes all parameters that are not layers ids
+                    .filter((key) => !queryParams.layers?.split(',').includes(key)).length // we removes all layers that are in the query params
+                // filter out standard params, legacy specific params, non layers config
             }
             return active === target
         },

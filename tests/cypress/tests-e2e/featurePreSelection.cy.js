@@ -42,14 +42,6 @@ describe('Testing the feature selection in the URL', () => {
         })
     }
     beforeEach(() => {
-        // add intercept for layer config
-        cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
-            fixture: 'layers.fixture',
-        })
-        // add intercept for the html popup
-        cy.intercept('**/MapServer/**/htmlPopup**', {
-            fixture: 'html-popup.fixture.html',
-        })
         // add intercept for all features, and allow their Ids to be used in tests
         cy.fixture('features.fixture.json').then((jsonResult) => {
             const features = [...jsonResult.results]

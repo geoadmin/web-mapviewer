@@ -13,6 +13,9 @@ import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 /**
+ * Parse layers such as described in
+ * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
+ *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the

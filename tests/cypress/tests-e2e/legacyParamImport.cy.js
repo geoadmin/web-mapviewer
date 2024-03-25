@@ -3,6 +3,7 @@
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test on legacy param import', () => {
@@ -447,6 +448,90 @@ describe('Test on legacy param import', () => {
 
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
             cy.get('[data-cy="compareSlider"]').should('be.visible')
+        })
+    })
+
+    context('Feature Pre Selection Import', () => {
+        function checkFeatures() {
+            cy.get('@featuresIds').then((featuresIds) => {
+                cy.readStoreValue('state.features.selectedFeatures').should((features) => {
+                    expect(features.length).to.eq(featuresIds.length)
+
+                    features.forEach((feature) => {
+                        expect(featuresIds.includes(feature.id)).to.eq(true)
+                    })
+                })
+            })
+        }
+
+        beforeEach(() => {
+            // add intercept for all features, and allow their Ids to be used in tests
+            cy.fixture('features.fixture.json').then((jsonResult) => {
+                const features = [...jsonResult.results]
+                const featuresIds = features.map((feature) => feature.id.toString())
+                cy.wrap(features).as('features')
+                cy.wrap(featuresIds).as('featuresIds')
+                features.forEach((feature) => {
+                    cy.intercept(`**/MapServer/${feature.layerBodId}/${feature.id}`, {
+                        results: feature,
+                    })
+                })
+            })
+        })
+
+        describe('Checks that the legacy bod layer id translate in the new implementation', () => {
+            it('Select a few features and shows the tooltip in its correct spot', () => {
+                // ---------------------------------------------------------------------------------
+                cy.log('When showTooltip is not specified, we should have no tooltip')
+
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                    }
+                    cy.goToMapView(params, false)
+                })
+                checkFeatures()
+                cy.readStoreValue('state.ui.featureInfoPosition').should(
+                    'be.equal',
+                    FeatureInfoPositions.NONE
+                )
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('not.exist')
+                // ---------------------------------------------------------------------------------
+                cy.log('When showTooltip is true, featureInfo should be none ')
+
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                        showTooltip: 'true',
+                    }
+                    cy.goToMapView(params, false)
+                })
+                checkFeatures()
+                cy.readStoreValue('state.ui.featureInfoPosition').should(
+                    'be.equal',
+                    FeatureInfoPositions.DEFAULT
+                )
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('be.visible')
+                // ---------------------------------------------------------------------------------
+                cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
+
+                cy.get('@featuresIds').then((featuresIds) => {
+                    const params = {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                        showTooltip: 'aFantasyValue',
+                    }
+                    cy.goToMapView(params, false)
+                })
+                checkFeatures()
+                cy.readStoreValue('state.ui.featureInfoPosition').should(
+                    'be.equal',
+                    FeatureInfoPositions.NONE
+                )
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('not.exist')
+            })
         })
     })
 })

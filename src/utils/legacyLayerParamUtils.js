@@ -2,8 +2,29 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
 
+const standardURLParams = storeSyncConfig.map((param) => {
+    return param.urlParamName
+})
+const legacyOnlyURLParams = [
+    'E',
+    'X',
+    'N',
+    'Y',
+    'lat',
+    'lon',
+    'zoom',
+    'layers_visibility',
+    'layers_opacity',
+    'layers_timestamp',
+    'swipe_ratio',
+    'elevation',
+    'pitch',
+    'heading',
+    'showTooltip',
+]
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
         const urlStartingAtParamDeclaration = url.substr(url.indexOf(paramName) + 1)
@@ -170,4 +191,93 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
         adminId: kmlMetadata.adminId,
         kmlMetadata,
     })
+}
+
+/**
+ * Parse all params to check if a layer-id=features-ids parameter has been sent. If this is the
+ * case, we either add the layers parameter if it doesn't exist, add the layer to the existing
+ * layers param if it exists and the layer is not part of it, or we need to insert the features to
+ * the existing layer
+ *
+ * @param {URLSearchParams} params The parameters sent to the legacy router
+ * @param {Store} store
+ * @param {Query} newQuery
+ */
+export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
+    // we begin by removing all params that are either a standard URL param, or a
+    // legacy specific param
+    const relevantParams = Object.entries(Object.fromEntries(params)).filter(
+        ([key]) => !(standardURLParams.includes(key) || legacyOnlyURLParams.includes(key))
+    )
+    relevantParams
+        .filter(([key]) => store.state.layers.config.some((layer) => layer.id === key))
+        .forEach(([layerId, featuresIds]) => {
+            // we only iterate on layers
+            if (newQuery.layers?.match(new RegExp(`\\b${layerId}\\b`))) {
+                // the layer given as key is also in the query 'layers'
+                // we need to ensure all params are kept intact
+                newQuery.layers = createLayersParamForFeaturePreselection(
+                    layerId,
+                    featuresIds,
+                    newQuery.layers
+                )
+            } else {
+                // the layer is not yet part of the `layers` parameter
+                if (!newQuery.layers) {
+                    // if there are no layers parameters at all, we need to create one
+                    newQuery.layers = ''
+                }
+                newQuery.layers += `;${layerId}@features=${featuresIds.split(',').join(':')}`
+            }
+        })
+}
+
+/**
+ * @param {String} layerId The layer Id for which we have features
+ * @param {String} featuresIds The features ids we need to add as a parameter. This a coma-separated
+ *   string
+ * @param {String} layers The new Query layers parameter, a semicolon separated string
+ * @returns
+ */
+export function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
+    // if the features Ids are null, we replace them with an empty array
+    // we also remove all empty strings from the featuresIds
+    const featuresArray = (featuresIds ? featuresIds.split(',') : []).filter(
+        (featureId) => featureId !== ''
+    )
+    // if there are no features to add, we simply return the layers
+    if (featuresArray.length === 0) {
+        return layers
+    }
+    const layersArray = layers.split(';')
+
+    // we find the Layer which is already present
+    const layer = layersArray.find((l) => l.match(new RegExp(`^${layerId}([@,].*)?$`)))
+
+    const [layerIdWithCustomParams, visible, opacity] = layer.split(',')
+
+    let layerString = layerIdWithCustomParams
+    const featuresParam = layerIdWithCustomParams
+        .split('@')
+        .filter((extraParam) => extraParam.includes('features='))
+    if (featuresParam.length > 0) {
+        const layerAndParams = layerIdWithCustomParams.split('@')
+        // in case there are extra parameters other than 'features', we ensure they are kept
+        layerString = layerAndParams.filter((param) => !param.includes('features=')).join('@')
+
+        const featuresIds = featuresParam[0].split('=')[1].split(':')
+        featuresIds.forEach((featureId) => {
+            if (!featuresArray.includes(featureId)) {
+                featuresArray.push(featureId)
+            }
+        })
+    }
+    layerString += `@features=${featuresArray.join(':')}`
+    if (visible || opacity) {
+        // we add back the visibility and the opacity
+        layerString = `${layerString},${visible},${opacity}`
+    }
+    // we replace the original layer by the updated layer
+    layersArray[layersArray.indexOf(layer)] = layerString
+    return layersArray.join(';')
 }
