@@ -43,6 +43,7 @@ export default class GPXLayer extends AbstractLayer {
             visible: visible,
             attributions: [new LayerAttribution(attributionName)],
             hasTooltip: false,
+            hasDescription: false,
             hasLegend: false,
             isExternal: true,
             isLoading: !!gpxData && !!gpxMetadata,
