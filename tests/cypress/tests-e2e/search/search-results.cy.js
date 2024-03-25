@@ -262,7 +262,7 @@ describe('Test the search bar result handling', () => {
         cy.focused().trigger('keydown', { key: 'ArrowDown' })
         cy.focused().trigger('keyup', { key: 'Enter' })
 
-        cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
+        cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
         // clearing selected entry by clearing the search bar and re-entering a search text
@@ -275,7 +275,7 @@ describe('Test the search bar result handling', () => {
 
         // Location - Enter
         cy.get('@locationSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('state.map.previewedPinnedLocation').then((pinnedLocation) => {
+        cy.readStoreValue('state.map.previewedPinnedLocation').should((pinnedLocation) => {
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         })
         // Location - Leave
@@ -284,13 +284,13 @@ describe('Test the search bar result handling', () => {
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).to.contain(expectedLayerId)
         })
         // Layer - Leave
         cy.get('@layerSearchResults').first().trigger('mouseleave')
-        cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).not.to.contain(expectedLayerId)
         })
@@ -298,7 +298,7 @@ describe('Test the search bar result handling', () => {
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
         cy.get('@locationSearchResults').first().click()
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').then((center) =>
+        cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
         )
 
@@ -314,7 +314,7 @@ describe('Test the search bar result handling', () => {
             )
         }
         // checking that a dropped pin has been placed at the feature's location
-        cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
+        cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
 
