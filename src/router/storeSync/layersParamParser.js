@@ -127,7 +127,8 @@ export function orderFeaturesByLayers(selectedFeatures) {
         }
         // In some features, the 'id' get attribute is built by concatening {layer.id}-{feature.id}
         // We remove this concatenation here.
-        layersFeatures[feature.layer.id].push(feature.id.replace(`${feature.layer.id}-`, ''))
+
+        layersFeatures[feature.layer.id].push(feature.id)
     })
     return layersFeatures
 }
