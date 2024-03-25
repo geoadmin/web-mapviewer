@@ -158,7 +158,8 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@search-locations', '@search-layers'])
 
         cy.log('Checking that it handles search result thoroughly (zoom, center, pin)')
-        cy.get('[data-cy="search-result-entry-location"]')
+        cy.get('[data-cy="search-results-locations"] [data-cy="search-result-entry"]')
+            .as('locationSearchResults')
             .first()
             .invoke('text')
             .should('eq', expectedLocationLabel.replaceAll(/<\/?b>/g, ''))
@@ -172,17 +173,17 @@ describe('Test the search bar result handling', () => {
         cy.reload()
         cy.wait(['@search-locations', '@search-layers'])
         cy.readStoreValue('state.search.query').should('eq', 'test')
-        cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+        cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('Checking that it displays layer results with info-buttons')
         // Ensure that all layers have been added and contain an info-button.
-        cy.get('[data-cy="search-result-entry-layer"]')
+        cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]')
+            .as('layerSearchResults')
             .should('have.length', layerResponse.results.length)
+        cy.get('@layerSearchResults')
             .invoke('text')
             .should('contain', expectedLayerLabel.replaceAll(/<\/?b>/g, ''))
-        cy.get('[data-cy="search-result-entry-layer"]')
-            .find('[data-cy^="button-show-legend-layer-"]')
-            .should('exist')
+        cy.get('@layerSearchResults').find('[data-cy^="button-show-legend-layer-"]').should('exist')
 
         cy.log('Opening up a layer legend from the search results')
         // As we only test one of the buttons we can send the same content for all legends.
@@ -190,9 +191,7 @@ describe('Test the search bar result handling', () => {
             'legend'
         )
         // Click on the first info-button and check if the legend loads correctly.
-        cy.get('[data-cy="search-result-entry-layer"] [data-cy^="button-show-legend-layer-"]')
-            .first()
-            .click()
+        cy.get('@layerSearchResults').find('[data-cy^="button-show-legend-layer-"]').first().click()
         cy.wait('@legend')
         cy.get('[data-cy="layer-legend"]')
             .should('be.visible')
@@ -237,7 +236,7 @@ describe('Test the search bar result handling', () => {
         cy.focused().then(checkSiblingIndex(0, 'First location'))
 
         // Layers
-        cy.get('[data-cy="search-results-layers"] [tabindex="0"').focus()
+        cy.get('[data-cy="search-results-layers"] [tabindex="0"]').focus()
         cy.focused()
             .then(checkDescendantOf(layersSelector, 'Child of layers'))
             .then(checkSiblingIndex(0, 'First layer'))
@@ -273,34 +272,31 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@search-locations', '@search-layers'])
 
         cy.log('Testing previewing the location or layer on hover')
-        const locationSelector =
-            '[data-cy="search-result-entry-location"] .search-category-entry-main'
-        const layerSelector = '[data-cy="search-result-entry-layer"] .search-category-entry-main'
 
         // Location - Enter
-        cy.get(locationSelector).first().trigger('mouseenter')
+        cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.readStoreValue('state.map.previewedPinnedLocation').then((pinnedLocation) => {
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         })
         // Location - Leave
-        cy.get(locationSelector).first().trigger('mouseleave')
+        cy.get('@locationSearchResults').first().trigger('mouseleave')
         cy.readStoreValue('state.map.previewedPinnedLocation').should('be.null')
 
         // Layer - Enter
-        cy.get(layerSelector).first().trigger('mouseenter')
+        cy.get('@layerSearchResults').first().trigger('mouseenter')
         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).to.contain(expectedLayerId)
         })
         // Layer - Leave
-        cy.get(layerSelector).first().trigger('mouseleave')
+        cy.get('@layerSearchResults').first().trigger('mouseleave')
         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).not.to.contain(expectedLayerId)
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
-        cy.get('[data-cy="search-result-entry-location"]').first().click()
+        cy.get('@locationSearchResults').first().click()
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').then((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
@@ -323,19 +319,21 @@ describe('Test the search bar result handling', () => {
         )
 
         cy.log('It hides the results when the user clicks on the map')
-        cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+        cy.get('@locationSearchResults').should('be.visible')
         cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
-        cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
+        cy.get('@locationSearchResults').should('not.be.visible')
 
         cy.log('It shows the results once again if the user clicks back on the search input')
         cy.get(searchbarSelector).click()
-        cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+        cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('It adds a search for layers features if a visible layers is set to be searchable')
         // the layer feature category should not be present (no searchable layer added yet)
-        cy.get('[data-cy="search-results-layer-features"]').should('be.hidden')
+        cy.get('[data-cy="search-results-featuresearch"]')
+            .as('layerFeatureSearchCategory')
+            .should('be.hidden')
         // adding the layer through the search results
-        cy.get(`[data-cy="search-result-entry-layer"]:first`).click()
+        cy.get('@layerSearchResults').first().click()
         // checking that the layer has been added to the map
         cy.checkOlLayer([
             'test.background.layer2', // bg layer
@@ -347,6 +345,6 @@ describe('Test the search bar result handling', () => {
         // it now must add a search request for the newly added layer
         cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
 
-        cy.get('[data-cy="search-results-layer-features"]').should('be.visible')
+        cy.get('@layerFeatureSearchCategory').should('be.visible')
     })
 })

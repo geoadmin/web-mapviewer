@@ -45,6 +45,7 @@ defineExpose({ focusFirstEntry, focusLastEntry })
                 :key="index"
                 :index="index"
                 :entry="entry"
+                data-cy="search-result-entry"
                 @entry-selected="onEntrySelected(entry)"
                 @first-entry-reached="emit('firstEntryReached')"
                 @last-entry-reached="emit('lastEntryReached')"

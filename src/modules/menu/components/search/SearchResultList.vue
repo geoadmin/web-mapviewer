@@ -90,6 +90,7 @@ defineExpose({ focusFirstEntry })
                     ref="resultCategories"
                     :title="i18n.t(`${category.id}_results_header`)"
                     :results="category.results"
+                    :data-cy="`search-results-${category.id}`"
                     @first-entry-reached="onFirstEntryReached(index)"
                     @last-entry-reached="onLastEntryReached(index)"
                 />
