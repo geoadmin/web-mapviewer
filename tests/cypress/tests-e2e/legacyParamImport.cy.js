@@ -456,11 +456,9 @@ describe('Test on legacy param import', () => {
             cy.get('@featuresIds').then((featuresIds) => {
                 cy.readStoreValue('state.features.selectedFeatures').should((features) => {
                     expect(features.length).to.eq(featuresIds.length)
-                    const modifiedFeaturesIds = featuresIds.map(
-                        (featureId) => `${features[0].layer.id}-${featureId}`
-                    )
+
                     features.forEach((feature) => {
-                        expect(modifiedFeaturesIds.includes(feature.id)).to.eq(true)
+                        expect(featuresIds.includes(feature.id)).to.eq(true)
                     })
                 })
             })

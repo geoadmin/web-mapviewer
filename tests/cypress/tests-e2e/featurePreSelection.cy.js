@@ -7,11 +7,6 @@ describe('Testing the feature selection in the URL', () => {
             cy.get('@featuresIds').then((featuresIds) => {
                 cy.wrap(features.length).should('be.equal', featuresIds.length)
 
-                const modifiedFeaturesIds = featuresIds.map(
-                    // feature.id returns a string in the form of `layer.id-feature.id`
-                    // thus a small adaptation to check we get the correct result
-                    (featureId) => `${features[0].layer.id}-${featureId}`
-                )
                 features.forEach((feature) => {
                     cy.log('checking feature', feature.id, 'is part of', featuresIds.join(','))
                     cy.wrap(featuresIds.includes(feature.id)).should('be.true')
