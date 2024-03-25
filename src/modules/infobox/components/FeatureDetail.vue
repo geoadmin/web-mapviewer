@@ -70,7 +70,6 @@ function setDisclaimerAgree() {
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div
                     v-if="!value.includes('iframe') || disclaimerAgree"
-                    class="text-center"
                     data-cy="feature-detail-description-content"
                     v-html="value"
                 ></div>
