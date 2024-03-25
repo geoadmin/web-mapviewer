@@ -17,11 +17,9 @@ export default function useMapInteractions(map) {
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
     const freeMouseWheelInteraction = new MouseWheelZoom()
 
+    // Make it possible to select by dragging the map with ctrl down
     const { dragBoxSelect } = useDragBoxSelect()
 
-    // Make it possible to rotate the map with ctrl+drag (in addition to OpenLayers default Alt+Shift+Drag).
-    // This is probably more intuitive. Also, Windows and some Linux distros use alt+shift to switch the
-    // keyboard layout, so using alt+shift may have unintended side effects or not work at all.
     const interactions = getDefaultInteractions().extend([
         dragBoxSelect,
         // Add middle mouse button for panning

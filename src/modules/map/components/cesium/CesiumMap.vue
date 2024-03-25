@@ -553,7 +553,7 @@ export default {
             }
             this.click({
                 clickInfo: new ClickInfo({
-                    coordinates,
+                    coordinate: coordinates,
                     pixelCoordinate: [event.position.x, event.position.y],
                     features,
                     clickType: ClickType.LEFT_SINGLECLICK,
@@ -565,7 +565,7 @@ export default {
             const coordinates = this.getCoordinateAtScreenCoordinate(event.clientX, event.clientY)
             this.click({
                 clickInfo: new ClickInfo({
-                    coordinates,
+                    coordinate: coordinates,
                     pixelCoordinate: [event.clientX, event.clientY],
                     clickType: ClickType.CONTEXTMENU,
                 }),
