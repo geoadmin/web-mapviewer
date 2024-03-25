@@ -218,7 +218,7 @@ function duplicateLayer() {
             </button>
             <button
                 ref="layerUpButton"
-                class="btn d-flex align-items-center"
+                class="btn-layer-up-down btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isTopLayer"
                 :data-cy="`button-raise-order-layer-${id}-${index}`"
@@ -228,7 +228,7 @@ function duplicateLayer() {
             </button>
             <button
                 ref="layerDownButton"
-                class="btn d-flex align-items-center"
+                class="btn-layer-up-down btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isBottomLayer"
                 :data-cy="`button-lower-order-layer-${id}-${index}`"
@@ -293,5 +293,9 @@ svg {
 
 .loading-button {
     cursor: default;
+}
+
+.btn-layer-up-down:disabled {
+    border: none;
 }
 </style>
