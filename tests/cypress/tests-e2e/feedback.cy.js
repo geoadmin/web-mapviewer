@@ -6,19 +6,21 @@ describe('Testing the feedback form', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
+
     context('Feedback button placement', () => {
-        it('should be in the configuration section of the menu on mobile', () => {
+        it('should be shown based on the view size', () => {
             cy.get('[data-cy="menu-button"]').click()
             cy.get('[data-cy="menu-settings-section"]').click()
 
+            cy.log('should be in the header as a link on mobile')
             cy.get('[data-cy="feedback-button"]').should('be.visible').click()
             cy.get('[data-cy="feedback-form"]').should('be.visible')
-        })
-        it('should be in the header as a link on desktop', () => {
-            cy.viewport(1920, 1080)
+            // Close the form
+            cy.get('[data-cy="modal-close-button"]').click()
 
-            cy.get('[data-cy="feedback-link-button"]').should('be.visible').click()
-            cy.get('[data-cy="feedback-form"]').should('be.visible')
+            cy.log('should be in the header as a link on desktop')
+            cy.goToMapView()
+            cy.viewport(1920, 1080)
         })
     })
     context('From validation', () => {

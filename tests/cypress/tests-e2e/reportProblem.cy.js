@@ -10,19 +10,26 @@ describe('Testing the report problem form', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
+
     context('Report problem button placement', () => {
-        it('should be in the configuration section of the menu on mobile', () => {
+        it('should be shown based on the view size', () => {
             cy.get('[data-cy="menu-button"]').click()
             cy.get('[data-cy="menu-settings-section"]').click()
 
+            cy.log('should be in the header as a link on mobile')
             cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
             cy.get('[data-cy="report-problem-form"]').should('be.visible')
-        })
-        it('should be in the header as a link on desktop', () => {
-            cy.viewport(1920, 1080)
+            cy.get('[data-cy="report-problem-form"]').should('be.visible')
+            // Close the form
+            cy.get('[data-cy="modal-close-button"]').click()
 
+            cy.log('should be in the header as a link on desktop')
+            cy.goToMapView()
+            cy.viewport(1920, 1080)
             cy.get('[data-cy="report-problem-link-button"]').should('be.visible').click()
             cy.get('[data-cy="report-problem-form"]').should('be.visible')
+            // Close the form
+            cy.get('[data-cy="modal-close-button"]').click()
         })
     })
     context('From validation', () => {
@@ -33,32 +40,29 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
         })
 
-        context('Email validation', () => {
-            beforeEach(() => {
-                cy.get('[data-cy="report-problem-text"]').type(text)
-            })
-            it('is possible to report a problem without specifying an email address', () => {
-                cy.get('[data-cy="report-problem-email"').should('be.empty')
-                cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
-            })
-            it('is not possible to report a problem with a malformed email', () => {
-                cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
-                cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
-            })
-            it('validates email before enabling the user to report a problem', () => {
-                cy.get('[data-cy="report-problem-email"').type(validEmail)
-                cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
-            })
-        })
+        it('validates email and text properly', () => {
+            cy.get('[data-cy="report-problem-text"]').type(text)
 
-        context('Text validation', () => {
-            beforeEach(() => {
-                cy.get('[data-cy="report-problem-email"]').type(validEmail)
-            })
-            it('is not possible to report a problem without filling the message', () => {
-                cy.get('[data-cy="report-problem-text"').should('be.empty')
-                cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
-            })
+            cy.log('is possible to report a problem without specifying an email address')
+            cy.get('[data-cy="report-problem-email"').should('be.empty')
+            cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+
+            cy.log('is not possible to report a problem with a malformed email')
+            cy.get('[data-cy="report-problem-email"').clear()
+            cy.log('is possible to report a problem without specifying an email address')
+            cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
+            cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+
+            cy.log('validates email before enabling the user to report a problem')
+            cy.get('[data-cy="report-problem-email"').clear()
+            cy.get('[data-cy="report-problem-email"').type(validEmail)
+            cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+
+            cy.log('is not possible to report a problem without filling the message')
+            cy.get('[data-cy="report-problem-email"]').type(validEmail)
+            cy.get('[data-cy="report-problem-text"').clear()
+            cy.get('[data-cy="report-problem-text"').should('be.empty')
+            cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
         })
     })
     context('backend interaction', () => {
@@ -144,9 +148,8 @@ describe('Testing the report problem form', () => {
                 cy.wait('@feedback')
                 cy.get('[data-cy="report-problem-form"]').should('not.exist')
                 cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
-            })
-            it('closes the modal if the close button is clicked', () => {
-                cy.wait('@feedback')
+
+                cy.log('closes the modal if the close button is clicked')
                 cy.get('[data-cy="report-problem-close-successful"]').click()
                 cy.get('[data-cy="report-problem-form"]').should('not.exist')
             })
