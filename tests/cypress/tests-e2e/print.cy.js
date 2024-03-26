@@ -608,7 +608,7 @@ describe('Testing print', () => {
                     statusURL: '/print/status/' + printID,
                     downloadURL: '/print/report/' + printID,
                 },
-                delay: 500,
+                delay: 200,
             })
         }).as('printRequest')
     }
@@ -640,7 +640,6 @@ describe('Testing print', () => {
             })
         }).as('downloadReport')
     }
-
     function interceptShortLink() {
         let shortUrl = 'https://s.geo.admin.ch/0000000'
         cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
