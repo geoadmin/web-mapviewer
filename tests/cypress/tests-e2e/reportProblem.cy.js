@@ -49,7 +49,6 @@ describe('Testing the report problem form', () => {
 
             cy.log('is not possible to report a problem with a malformed email')
             cy.get('[data-cy="report-problem-email"').clear()
-            cy.log('is possible to report a problem without specifying an email address')
             cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
             cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
 
