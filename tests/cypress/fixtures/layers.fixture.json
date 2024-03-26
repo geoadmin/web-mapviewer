@@ -109,7 +109,7 @@
         "chargeable": false,
         "timestamps": ["current"],
         "hasLegend": true,
-        "label": "WMTS test layer",
+        "label": "WMTS test layer, with very long title that should be truncated on the menu",
         "type": "wmts",
         "serverLayerName": "test.wmts.layer"
     },

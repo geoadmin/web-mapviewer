@@ -95,6 +95,13 @@ function initializeTippy() {
             arrow: true,
             delay: 500,
             touch: ['hold', 500], // 500ms delay
+            onCreate: (instance) => {
+                // Set a data-cy attribute that can be used for e2e tests
+                const dataCy = instance.reference.getAttribute('data-cy')
+                if (dataCy) {
+                    instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
+                }
+            },
             ...tippyOptions.value,
         })
     }

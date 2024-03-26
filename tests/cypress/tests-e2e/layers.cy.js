@@ -604,6 +604,16 @@ describe('Test of layer handling', () => {
                 visibleLayerIds.forEach((layerId) => {
                     cy.get(`[data-cy^="active-layer-name-${layerId}-"]`).should('be.visible')
                 })
+                cy.log(`Check that long title are truncated and have a tippy`)
+                cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]')
+                    .should('be.visible')
+                    .contains('WMTS test layer')
+                cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]').trigger('mouseenter')
+                cy.get('[data-cy="tippy-active-layer-name-test.wmts.layer-1"]')
+                    .should('be.visible')
+                    .contains(
+                        'WMTS test layer, with very long title that should be truncated on the menu'
+                    )
             })
             it('removes a layer from the visible layers when the "remove" button is pressed', () => {
                 goToMenuWithLayers()

@@ -336,6 +336,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="search-catalogue-input"]')
             .should('be.visible')
             .should('have.value', firstSubItemName)
+        cy.get(`[data-cy="search-catalogue-clear"]`).click()
+
+        //---------------------------------------------------------------------
+        cy.log(`Check that long title are truncated and have a tippy`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).trigger('mouseenter')
+        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerFullId}"]`)
+            .should('be.visible')
+            .contains(singleLayerName)
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
