@@ -1,10 +1,5 @@
 <template>
-    <HeaderLink
-        v-if="showAsLink"
-        :primary="true"
-        data-cy="report-problem-link-button"
-        @click="openForm"
-    >
+    <HeaderLink v-if="showAsLink" primary data-cy="report-problem-link-button" @click="openForm">
         <strong>{{ $t('problem_announcement') }}</strong>
     </HeaderLink>
     <button
@@ -40,7 +35,7 @@
             </div>
 
             <div class="my-3">
-                <span>{{ $t('feedback_mail_2') }}</span>
+                <span>{{ $t('feedback_mail') }}</span>
                 <div class="input-group has-validation">
                     <input
                         v-model="feedback.email"
@@ -161,7 +156,7 @@ export default {
             return !this.request.pending && this.isEmailValid && this.isMessageValid
         },
         isMessageValid() {
-            return this.feedback.message != null && this.feedback.message != ''
+            return this.feedback.message?.length > 0
         },
         isEmailValid() {
             return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
