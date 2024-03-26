@@ -6,7 +6,6 @@ const printID = 'print-123456789'
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
-        cy.goToMapView()
 
         interceptCapabilities()
         interceptShortLink()
@@ -649,6 +648,7 @@ describe('Testing print', () => {
 
     context('Print UI', () => {
         it('should populate the UI with the capabilities from mapfishprint', () => {
+            cy.goToMapView()
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
             cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 2)
@@ -664,6 +664,7 @@ describe('Testing print', () => {
 
     context('Send print request', () => {
         beforeEach(() => {
+            cy.goToMapView()
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
             interceptPrintRequest()
@@ -743,8 +744,12 @@ describe('Testing print', () => {
                 expect(layers[1]['matrixSet']).to.equals('EPSG:3857')
             })
         })
-
+    })
+    context('Send print request with layers', () => {
         it('should send a print request to mapfishprint (with layers added)', () => {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
             cy.goToMapView({
                 layers: [
                     'test-1.wms.layer',
