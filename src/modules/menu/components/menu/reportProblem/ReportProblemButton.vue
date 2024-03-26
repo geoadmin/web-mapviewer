@@ -1,5 +1,126 @@
+<script setup>
+import { computed, nextTick, ref } from 'vue'
+
+import sendFeedback from '@/api/feedback.api'
+import { createShortLink } from '@/api/shortlink.api'
+import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
+import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import log from '@/utils/logging'
+
+// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
+const EMAIL_REGEX =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+const props = defineProps({
+    showAsLink: {
+        type: Boolean,
+        default: false,
+    },
+})
+const feedbackMessageTextArea = ref(null)
+const requestResults = ref(null)
+
+const showReportProblemForm = ref(false)
+const userIsTypingFeedback = ref(false)
+const userIsTypingEmail = ref(false)
+const feedback = ref({
+    message: null,
+    kml: null,
+    email: null,
+    file: null,
+})
+const request = ref({
+    pending: false,
+    failed: false,
+    completed: false,
+})
+const shortLink = ref('')
+
+//  Computed properties
+const feedbackCanBeSent = computed(() => {
+    // log.info(
+    //     'Checking if feedback can be sent',
+    //     !request.value.pending,
+    //     isEmailValid,
+    //     isMessageValid
+    // )
+    return !request.value.pending && isEmailValid.value && isMessageValid.value
+})
+const isMessageValid = computed(() => feedback.value.message?.length > 0)
+const isEmailValid = computed(() => {
+    // log.info(
+    //     'Checking email validity',
+    //     !feedback.value.email,
+    //     EMAIL_REGEX.test(feedback.value.email),
+    //     !feedback.value.email || EMAIL_REGEX.test(feedback.value.email)
+    // )
+    return !feedback.value.email || EMAIL_REGEX.test(feedback.value.email)
+})
+
+// Methods
+async function sendReportProblem() {
+    // if the request was already sent, we don't allow the user to double send
+    if (request.value.completed) {
+        // we instead close the modal if he/she clicks on the check mark
+        closeAndCleanForm()
+        return
+    }
+
+    request.value.pending = true
+    try {
+        const feedbackSentSuccessfully = await sendFeedback(
+            '[web-mapviewer] Problem report', // subject
+            feedback.value.message,
+            undefined, // For the drawing layer, we send the KML file URL
+            feedback.value.email,
+            feedback.value.file
+        )
+        request.value.completed = feedbackSentSuccessfully
+        request.value.failed = !feedbackSentSuccessfully
+    } catch (err) {
+        log.error('Error while sending feedback', err)
+        request.value.failed = true
+    } finally {
+        request.value.pending = false
+    }
+    await nextTick()
+    // scrolling down to make sure the message with request results is visible to the user
+    if (request.value.failed) {
+        requestResults.value.scrollIntoView()
+    }
+}
+function closeAndCleanForm() {
+    showReportProblemForm.value = false
+    feedback.value.message = null
+    feedback.value.email = null
+    feedback.value.file = false
+    // reset also the completed/failed state, so that the user can send another feedback later on
+    request.value.failed = false
+    request.value.completed = false
+}
+function handleFile(file) {
+    feedback.value.file = file
+}
+async function generateShortLink() {
+    shortLink.value = await createShortLink(window.location.href)
+}
+function openForm() {
+    showReportProblemForm.value = true
+    generateShortLink()
+    nextTick(() => {
+        feedbackMessageTextArea.value.focus()
+    })
+}
+</script>
+
 <template>
-    <HeaderLink v-if="showAsLink" primary data-cy="report-problem-link-button" @click="openForm">
+    <HeaderLink
+        v-if="props.showAsLink"
+        primary
+        data-cy="report-problem-link-button"
+        @click="openForm"
+    >
         <strong>{{ $t('problem_announcement') }}</strong>
     </HeaderLink>
     <button
@@ -73,7 +194,7 @@
                     :disabled="!feedbackCanBeSent"
                     class="btn btn-primary"
                     data-cy="submit-report-problem-button"
-                    @click="sendFeedback"
+                    @click="sendReportProblem"
                 >
                     <FontAwesomeIcon
                         v-if="request.pending"
@@ -81,7 +202,9 @@
                         pulse
                         data-cy="report-problem-pending-icon"
                     />
-                    <span v-else data-cy="report-problem-send-text">{{ $t('send') }}</span>
+                    <span v-else data-cy="report-problem-send-text">{{
+                        $t('send') + ': ' + feedbackCanBeSent + ', email valid:' + isEmailValid
+                    }}</span>
                 </button>
             </div>
             <div
@@ -107,119 +230,6 @@
         </div>
     </ModalWithBackdrop>
 </template>
-
-<script>
-import sendFeedback from '@/api/feedback.api'
-import { createShortLink } from '@/api/shortlink.api'
-import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import log from '@/utils/logging'
-
-// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
-const EMAIL_REGEX =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-export default {
-    components: {
-        ModalWithBackdrop,
-        HeaderLink,
-        ImportFileLocal,
-    },
-    props: {
-        showAsLink: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    data() {
-        return {
-            showReportProblemForm: false,
-            userIsTypingFeedback: false,
-            userIsTypingEmail: false,
-            feedback: {
-                message: null,
-                kml: null, // used for the future (drawing)
-                email: null,
-                file: null,
-            },
-            request: {
-                pending: false,
-                failed: false,
-                completed: false,
-            },
-            shortLink: '',
-        }
-    },
-    computed: {
-        feedbackCanBeSent() {
-            return !this.request.pending && this.isEmailValid && this.isMessageValid
-        },
-        isMessageValid() {
-            return this.feedback.message?.length > 0
-        },
-        isEmailValid() {
-            return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
-        },
-    },
-
-    methods: {
-        async sendFeedback() {
-            // if the request was already sent, we don't allow the user to double send
-            if (this.request.completed) {
-                // we instead close the modal if he/she clicks on the check mark
-                this.closeAndCleanForm()
-                return
-            }
-
-            this.request.pending = true
-            try {
-                const feedbackSentSuccessfully = await sendFeedback(
-                    '[web-mapviewer] Problem report', // subject
-                    this.feedback.message,
-                    undefined, // For the drawing layer, we send the KML file URL
-                    this.feedback.email,
-                    this.feedback.file
-                )
-                this.request.completed = feedbackSentSuccessfully
-                this.request.failed = !feedbackSentSuccessfully
-            } catch (err) {
-                log.error('Error while sending feedback', err)
-                this.request.failed = true
-            } finally {
-                this.request.pending = false
-            }
-            await this.$nextTick()
-            // scrolling down to make sure the message with request results is visible to the user
-            if (this.request.failed) {
-                this.$refs.requestResults.scrollIntoView()
-            }
-        },
-        closeAndCleanForm() {
-            this.showReportProblemForm = false
-            this.feedback.message = null
-            this.feedback.email = null
-            this.feedback.file = false
-            // reset also the completed/failed state, so that the user can send another feedback later on
-            this.request.failed = false
-            this.request.completed = false
-        },
-        handleFile(file) {
-            this.feedback.file = file
-        },
-        async generateShortLink() {
-            this.shortLink = await createShortLink(window.location.href)
-        },
-        openForm() {
-            this.showReportProblemForm = true
-            this.generateShortLink()
-            this.$nextTick(() => {
-                this.$refs.feedbackMessageTextArea.focus()
-            })
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 .feedback-text {
