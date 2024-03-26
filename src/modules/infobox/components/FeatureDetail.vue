@@ -56,24 +56,22 @@ function setDisclaimerAgree() {
                 <div
                     v-if="!disclaimerAgree && value.includes('iframe')"
                     data-cy="feature-detail-media-disclaimer"
-                    class="py-3 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+                    class="p-1 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
                 >
-                    <div class="pb-2">{{ i18n.t('media_disclaimer') }}</div>
-                    <button
-                        data-cy="feature-detail-media-disclaimer-button"
-                        class="px-3 rounded-2 btn btn-sm btn-light align-items-center"
-                        @click="setDisclaimerAgree"
-                    >
-                        {{ i18n.t('disclaimer_agree') }}
-                    </button>
+                    <div class="d-flex align-items-center">
+                        <div class="px-1 d-flex">{{ i18n.t('media_disclaimer') }}</div>
+                        <button
+                            class="d-flex small btn btn-sm btn-light"
+                            data-cy="feature-detail-media-disclaimer-button"
+                            @click="setDisclaimerAgree"
+                        >
+                            <FontAwesomeIcon class="small" icon="times" />
+                        </button>
+                    </div>
                 </div>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
-                <div
-                    v-if="!value.includes('iframe') || disclaimerAgree"
-                    data-cy="feature-detail-description-content"
-                    v-html="value"
-                ></div>
+                <div data-cy="feature-detail-description-content" v-html="value"></div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}
