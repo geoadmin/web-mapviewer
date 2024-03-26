@@ -266,14 +266,15 @@ describe('Drawing module tests', () => {
             cy.log('Coordinates for marker are updated when selecting new marker')
             cy.get('[data-cy="ol-map"]').click(200, 234)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'680'013.50, 1'210'172.00")
-        })
-        it('can generate and display media links', () => {
+
+            cy.log('Can generate and display media links')
+            cy.openDrawingMode()
             const valid_url = 'http:dummy'
             const invalid_url = 'invalidurl'
-            const description = 'description'
+            const media_description = 'description'
+
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(40, 160)
-            cy.wait('@post-kml')
 
             cy.log('Open hyperlink popup')
             cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -290,7 +291,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('be.visible')
 
             cy.log('Button should be enabled if url and description valid')
-            cy.get('[data-cy="drawing-style-media-description-input"]').type(description)
+            cy.get('[data-cy="drawing-style-media-description-input"]').type(media_description)
             cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
             cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
             cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
@@ -309,7 +310,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
             cy.get('[data-cy="drawing-style-feature-description"]').should(
                 'have.value',
-                `<a target="_blank" href="${valid_url}">${description}</a>`
+                `<a target="_blank" href="${valid_url}">${media_description}</a>`
             )
 
             cy.log('Open image embed popup')
