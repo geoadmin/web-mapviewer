@@ -1,7 +1,7 @@
 <template>
     <HeaderLink
         v-if="showAsLink"
-        :primary="true"
+        primary
         data-cy="feedback-link-button"
         @click="showFeedbackForm = true"
     >
