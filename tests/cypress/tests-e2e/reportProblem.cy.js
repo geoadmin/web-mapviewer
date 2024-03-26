@@ -32,7 +32,7 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="modal-close-button"]').click()
         })
     })
-    context('From validation', () => {
+    context('Form validation', () => {
         beforeEach(() => {
             // opening the report problem form
             cy.get('[data-cy="menu-button"]').click()
