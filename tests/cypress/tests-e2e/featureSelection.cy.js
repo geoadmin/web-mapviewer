@@ -3,13 +3,14 @@ import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 describe('Testing the feature selection in the URL', () => {
     function checkFeatures() {
-        cy.readStoreValue('state.features.selectedFeatures').then((features) => {
-            cy.get('@featuresIds').then((featuresIds) => {
-                cy.wrap(features.length).should('be.equal', featuresIds.length)
+        cy.get('@featuresIds').then((featuresIds) => {
+            cy.log(`Ensuring there are 10 selected features, and they're all different`)
+
+            cy.readStoreValue('state.features.selectedFeatures').should((features) => {
+                expect(features.length).to.eq(featuresIds.length)
 
                 features.forEach((feature) => {
-                    cy.log('checking feature', feature.id, 'is part of', featuresIds.join(','))
-                    cy.wrap(featuresIds.includes(feature.id)).should('be.true')
+                    expect(featuresIds.includes(feature.id)).to.eq(true)
                 })
             })
         })
