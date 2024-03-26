@@ -744,5 +744,56 @@ describe('Testing print', () => {
                 expect(layers[1]['matrixSet']).to.equals('EPSG:3857')
             })
         })
+
+        it('should send a print request to mapfishprint (with layers added)', () => {
+            cy.goToMapView({
+                layers: [
+                    'test-1.wms.layer',
+                    'test-2.wms.layer,,',
+                    'test-3.wms.layer,f',
+                    'test-4.wms.layer,f,0.4',
+                    'test.wmts.layer,,0.5',
+                ].join(';'),
+            })
+            cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-form"]').should('be.visible')
+
+            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+            cy.get('[data-cy="abort-print-button"]').should('be.visible').click()
+
+            cy.wait('@printRequest').then((interception) => {
+                expect(interception.request.body).to.haveOwnProperty('layout')
+                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
+                expect(interception.request.body).to.haveOwnProperty('format')
+                expect(interception.request.body['format']).to.equal('pdf')
+
+                const attributes = interception.request.body.attributes
+                expect(attributes).to.haveOwnProperty('printLegend')
+                expect(attributes['printLegend']).to.equals(0)
+                expect(attributes).to.haveOwnProperty('qrimage')
+                expect(attributes['qrimage']).to.contains(
+                    encodeURIComponent('https://s.geo.admin.ch/0000000')
+                )
+
+                const mapAttributes = attributes.map
+                expect(mapAttributes['scale']).to.equals(1500000)
+                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+
+                const layers = mapAttributes.layers
+                expect(layers).to.be.an('array')
+                expect(layers).to.have.length(4)
+                expect(layers[0]['layer']).to.equals('test.wmts.layer')
+                expect(layers[1]['layers'][0]).to.equals('test-2.wms.layer')
+                expect(layers[2]['layers'][0]).to.equals('test-1.wms.layer')
+                expect(layers[3]['layer']).to.equals('test.background.layer2')
+
+                expect(layers[0]['type']).to.equals('wmts')
+                expect(layers[1]['type']).to.equals('wms')
+                expect(layers[2]['type']).to.equals('wms')
+                expect(layers[3]['type']).to.equals('wmts')
+            })
+        })
     })
 })
