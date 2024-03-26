@@ -6,11 +6,11 @@ import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
 import log from '@/utils/logging'
 
 /**
+ * @param {String} subject Mandatory
  * @param {String} text Mandatory
- * @param {String} text Mandatory
- * @param {String} kmlFileUrl Optional
- * @param {String} email Optional
- * @param {File} attachment Optional
+ * @param {String | null} [kmlFileUrl=null] Default is `null`
+ * @param {String | null} [email=null] Default is `null`
+ * @param {File | null} [attachment=null] Default is `null`
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(

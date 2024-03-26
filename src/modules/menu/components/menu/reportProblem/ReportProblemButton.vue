@@ -63,7 +63,7 @@
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_permalink')" />
                 <!-- eslint-enable vue/no-v-html-->
-                <a :href="shortLink">{{ $t('permalink') }}</a>
+                <a target="_blank" :href="shortLink">{{ $t('permalink') }}</a>
             </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->

@@ -244,8 +244,8 @@ export default {
          * Flag to display to display give feedback button/form. On localhost, it will always shown
          * for testing purpose
          */
-        hasGiveFeedbackButton(state) {
-            if (state.hostname.includes('localhost')) {
+        hasGiveFeedbackButton(state, getters) {
+            if (getters.hasDevSiteWarning) {
                 return true
             }
             return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
@@ -255,7 +255,7 @@ export default {
          * for testing purpose
          */
         hasReportProblemButton(state, getters) {
-            if (state.hostname.includes('localhost')) {
+            if (getters.hasDevSiteWarning) {
                 return true
             }
             return !getters.hasGiveFeedbackButton

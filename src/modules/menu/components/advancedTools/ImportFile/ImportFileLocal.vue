@@ -7,6 +7,8 @@ const LOCAL_UPLOAD_MAX_SIZE = 250 * 1024 * 1024 // 250mb
 
 const i18n = useI18n()
 
+const emits = defineEmits(['file-selected'])
+
 // Reactive data
 const importFileLocalInput = ref(null)
 const selectedFile = ref(null)
@@ -22,8 +24,6 @@ const filePathInfo = computed(() =>
 
 watch(errorMessage, validateForm)
 watch(selectedFile, validateForm)
-
-const emits = defineEmits(['file-selected'])
 
 // Methods
 function onFileSelected(evt) {

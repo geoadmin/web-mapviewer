@@ -23,7 +23,7 @@ describe('Testing the feedback form', () => {
             cy.viewport(1920, 1080)
         })
     })
-    context('From validation', () => {
+    context('Form validation', () => {
         beforeEach(() => {
             // opening the feedback form
             cy.get('[data-cy="menu-button"]').click()
