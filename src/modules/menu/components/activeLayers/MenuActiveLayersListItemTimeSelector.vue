@@ -100,7 +100,7 @@ function hidePopover() {
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary"
+        class="btn btn-secondary me-2"
         :class="{
             'btn-sm': compact,
         }"

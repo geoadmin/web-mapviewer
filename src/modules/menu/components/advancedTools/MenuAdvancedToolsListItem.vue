@@ -62,11 +62,11 @@ onUnmounted(() => {
             @click="emit('toggleMenu')"
         >
             <FontAwesomeIcon
-                class="dropdown-icon me-2"
-                :class="{ invisible: !dropdownMenu }"
+                class="btn border-0 px-2"
+                :class="{ invisible: !dropdownMenu, 'text-primary': isSelected }"
                 :icon="`caret-${isSelected ? 'down' : 'right'}`"
             />
-            <span ref="tippyTooltip" class="pe-1">{{ i18n.t(title) }} </span>
+            <span ref="tippyTooltip" class="px-1">{{ i18n.t(title) }} </span>
         </a>
         <slot />
     </div>
@@ -76,11 +76,6 @@ onUnmounted(() => {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
 .advanced-tools-item {
-    .dropdown-icon {
-        // The min-width here is to avoid size changes when toggling the dropdown, the caret-down
-        // icon is wider than the caret right
-        min-width: 8.5px;
-    }
     .advanced-tools-title {
         // Here we add the menu-item styling to the title only to avoid hover
         // on the content once the item has been opened

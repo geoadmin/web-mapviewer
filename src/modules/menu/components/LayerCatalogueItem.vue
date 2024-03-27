@@ -228,7 +228,7 @@ function containsLayer(layers, searchText) {
         >
             <button
                 v-if="canBeAddedToTheMap"
-                class="btn"
+                class="btn border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -242,7 +242,7 @@ function containsLayer(layers, searchText) {
             </button>
             <button
                 v-if="hasChildren"
-                class="btn btn-rounded"
+                class="btn border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -250,13 +250,12 @@ function containsLayer(layers, searchText) {
                 :data-cy="`catalogue-collapse-layer-button-${item.id}`"
                 @click.stop="onCollapseClick"
             >
-                <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
-                <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
+                <FontAwesomeIcon :icon="['fas', showChildren ? 'caret-down' : 'caret-right']" />
             </button>
 
             <TextTruncate
                 :text="item.name"
-                class="menu-catalogue-item-name"
+                class="menu-catalogue-item-name px-1"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
                 :data-cy="`catalogue-tree-item-name-${item.id}`"
                 :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
