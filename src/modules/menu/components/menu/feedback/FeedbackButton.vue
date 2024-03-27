@@ -96,10 +96,10 @@
 <script>
 import { mapGetters } from 'vuex'
 
+import { isValidEmail } from '@//modules/menu/components/menu/common/utils'
 import sendFeedback from '@/api/feedback.api'
-import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import EmailValidationField from '@/modules/menu/components/menu/components/EmailValidationField.vue'
+import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
