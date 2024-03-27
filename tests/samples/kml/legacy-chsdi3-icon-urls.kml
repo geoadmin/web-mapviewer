@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+  <Document>
+    <Placemark id="marker_1452588951386">
+      <Style>
+        <IconStyle>
+          <scale>0.25</scale>
+          <Icon>
+            <href>http://map.geo.admin.ch/1417604350/img/maki/restaurant-24@2x.png</href>
+          </Icon>
+          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>8.573768593248698,47.384306884970954</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="marker_1452588951387">
+      <Style>
+        <IconStyle>
+          <scale>0.25</scale>
+          <Icon>
+            <href>http://map.geo.admin.ch/1417604350/img/maki/bus-24@2x.png</href>
+          </Icon>
+          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>8.574025952364934,47.38395354434705</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="marker_1452588951388">
+      <Style>
+        <IconStyle>
+          <scale>0.25</scale>
+          <Icon>
+            <href>http://map.geo.admin.ch/1417604350/img/maki/car-24@2x.png</href>
+          </Icon>
+          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>8.576817994101736,47.38414645260196</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="marker_1452588951389">
+      <Style>
+        <IconStyle>
+          <scale>0.25</scale>
+          <Icon>
+            <href>http://map.geo.admin.ch/1417604350/img/maki/car-24@2x.png</href>
+          </Icon>
+          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>8.577184522139419,47.38363461353094</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="marker_14525889513810">
+      <Style>
+        <IconStyle>
+          <scale>0.25</scale>
+          <Icon>
+            <href>http://map.geo.admin.ch/1417604350/img/maki/toilets-24@2x.png</href>
+          </Icon>
+          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>8.574805266605779,47.384786931215785</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1452588951386">
+      <Style>
+        <LineStyle>
+          <color>ffff0000</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>66ff0000</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>8.577442791807954,47.384370161536694 8.57793979075316,47.3839110330132
+              8.578355626470515,47.384122014363065 8.578507049172773,47.38402125160151
+              8.579741965274337,47.38465028124408 8.578997256316782,47.38533089471021
+              8.577771113918006,47.384705154207744 8.577885309740342,47.38455148902867
+              8.577540254722178,47.384369902519715 8.577509319542195,47.38442352446814
+              8.577442791807954,47.384370161536694</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="annotation_1452588951386">
+      <name>MASOALA Regenwald</name>
+      <Style>
+        <IconStyle>
+          <scale>0</scale>
+          <!-- NOTE the empty Icon tag is needed otherwise open layer won't print
+               the label if any -->
+          <!-- <Icon></Icon> -->
+        </IconStyle>
+        <LabelStyle>
+          <color>ff008000</color>
+        </LabelStyle>
+      </Style>
+      <Point>
+        <coordinates>8.578637237401265,47.38463616948473</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="linepolygon_1452588951387">
+      <Style>
+        <LineStyle>
+          <color>ff00a5ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>6600a5ff</color>
+        </PolyStyle>
+      </Style>
+      <LineString>
+        <coordinates>8.574294678237534,47.38423101447371 8.574537059476459,47.38410719677265
+          8.574722632811747,47.384114367192076 8.57517246170744,47.38409195241952
+          8.575782435988177,47.38412642830969 8.57612086323247,47.38415907735783
+          8.576225451789089,47.38409508131821 8.577167722318235,47.38449507951347
+          8.577492324584878,47.384190541735435</coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

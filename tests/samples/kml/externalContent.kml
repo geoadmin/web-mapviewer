@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PunkteFilmSlidesPhoto</name>
+    <description><![CDATA[Beispiele, wie Information und Media in ein KML eingebettet werden können und üb https://help.geo.admin.ch/?id=64&lang=de in map.geo.admin.ch genutzt werden können]]></description>
+    <Style id="style1">
+      <IconStyle>
+        <Icon>
+          <href>https://maps.gstatic.com/mapfiles/ms2/micons/tree.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Style id="style2">
+      <IconStyle>
+        <Icon>
+          <href>https://maps.gstatic.com/mapfiles/ms2/micons/electronics.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Style id="style3">
+      <IconStyle>
+        <Icon>
+          <href>https://maps.gstatic.com/mapfiles/ms2/micons/movies.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Style id="style4">
+      <IconStyle>
+        <Icon>
+          <href>https://maps.gstatic.com/mapfiles/ms2/micons/camera.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Placemark>
+      <name>Bild + Text</name>
+      <description><![CDATA[<img src="https://www.lfi.ch/resultate/images/sommerlinde.jpg"><br>Die Sommerlinde bevorzugt sommerwarme kolline und submontane Laubmischwälder. Ihr Areal reicht weniger weit nach Norden, dafür
+weiter nach Süden als dasjenige der Winterlinde. Da die Sommerlinde eine höhere Luftfeuchtigkeit benötigt als die
+Winterlinde, findet man sie vorwiegend im Jura, im Chablais und im Tessin. Nur gerade im Jura ist sie häufiger,
+als die Winterlinde; an den übrigen Standorten dominiert diese.<br><br><a href="https://www.lfi.ch/resultate/daten/trees/sommerlinde1.php" target="_blank">Link&nbsp; hier</a><br>]]></description>
+      <styleUrl>#style1</styleUrl>
+      <Point>
+        <coordinates>6.998291,46.897739,0.000000</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>"Film + Text" </name>
+      <description><![CDATA[<iframe src="https://www.youtube.com/embed/6AAMh8zBSwY" width="240" height="180" frameborder="0"></iframe> <br>
+oder auch <a href="https://www.bafu.ch" target="_blank">hier </a>gibt es noch mehr<br>
+
+]]></description>
+      <styleUrl>#style3</styleUrl>
+      <Point>
+        <coordinates>8.000793,46.997112,0.000000</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Slides Google Drive</name>
+      <description><![CDATA[<iframe src="https://docs.google.com/presentation/d/1nmhfwWdORCZ8oMDejHjPnluPQqUnhU3NzDKxC9bmcFI/embed?start=false&loop=false&delayms=3000" frameborder="0" width="342" height="291" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe><div style="margin-bottom:5px"> <strong> <a href="https://www.bafu.admin.ch" title="Hier ein BAFU LINK" target="_blank">Hier ein BAFU LINK</a>  </div>]]></description>
+      <styleUrl>#style2</styleUrl>
+      <Point>
+        <coordinates>7.995737,47.311631,0.000000</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Slides Slideshare</name>
+      <description><![CDATA[<iframe src="https://www.slideshare.net/slideshow/embed_code/30393407?rel=0" width="342" height="291" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/swiss_geoportal/kolloquium-swisstopo-mapgeoadminch-version-3" title="Kolloquium swisstopo: map.geo.admin.ch Version 3" target="_blank">Kolloquium swisstopo: map.geo.admin.ch Version 3</a>  </div>]]></description>
+      <styleUrl>#style2</styleUrl>
+      <Point>
+        <coordinates>7.595737,46.511631,0.000000</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Photos Flickr/Picasa</name>
+      <description><![CDATA[<object width="240" height="180"> <param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fphotos%2F60755934%40N06%2Fsets%2F72157633559612172%2Fshow%2Fwith%2F8765029782%2F&page_show_back_url=%2Fphotos%2F60755934%40N06%2Fsets%2F72157633559612172%2Fwith%2F8765029782%2F&set_id=72157633559612172&jump_to=8765029782"></param> <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="https://www.flickr.com/apps/slideshow/show.swf?v=140556" allowFullScreen="true" flashvars="offsite=true&lang=en-us&page_show_url=%2Fphotos%2F60755934%40N06%2Fsets%2F72157633559612172%2Fshow%2Fwith%2F8765029782%2F&page_show_back_url=%2Fphotos%2F60755934%40N06%2Fsets%2F72157633559612172%2Fwith%2F8765029782%2F&set_id=72157633559612172&jump_to=8765029782" width="400" height="300"></embed></object><br/><small>Achtung: funktioniert nicht auf iOS: <a href="https://en.wikipedia.org/wiki/Apple_and_Adobe_Flash_controversy" title=" iOS + Flash"> iOS + Flash</a> </small>]]></description>
+      <styleUrl>#style4</styleUrl>
+      <Point>
+        <coordinates> 7.44415, 46.9470,0.000000</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>
