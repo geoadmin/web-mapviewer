@@ -6,6 +6,7 @@ import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
 import { wrapDegrees } from '@/utils/numberUtils.js'
 
@@ -265,16 +266,18 @@ const actions = {
                 targetResolution,
                 centerOfExtent
             )
+            let computedMaxZoom = maxZoom ?? STANDARD_ZOOM_LEVEL_1_25000_MAP
+            if (state.projection instanceof CustomCoordinateSystem) {
+                computedMaxZoom =
+                    state.projection.transformStandardZoomLevelToCustom(computedMaxZoom)
+            }
             // Zoom levels are fixed value with LV95, the one calculated is the fixed zoom the closest to the floating
             // zoom level required to show the full extent on the map (scale to fill).
             // So the view will be too zoomed-in to have an overview of the extent.
             // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
             // We also cannot zoom further than the maxZoom specified if it is specified
             commit('setZoom', {
-                zoom: Math.min(
-                    Math.max(zoomForResolution - 1, 0),
-                    maxZoom ? maxZoom : zoomForResolution
-                ),
+                zoom: Math.min(Math.max(zoomForResolution - 1, 0), computedMaxZoom),
                 dispatcher: `${dispatcher}/zoomToExtent`,
             })
         }

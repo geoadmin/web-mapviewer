@@ -20,10 +20,7 @@ export default class LayerFeature extends SelectableFeature {
         super({
             id,
             coordinates,
-            // using the layer name as title (so that user can differentiate the source)
-            title: layer.name,
-            // and the name as description (so that we do not lose track of this data)
-            description: name,
+            title: name,
             extent,
             geometry,
             isEditable: false,
