@@ -150,6 +150,13 @@ export default {
          * @type Boolean
          */
         isCompareSliderActive: false,
+
+        /**
+         * Flag telling if iframe marker description has disclaimer shown
+         *
+         * @type Boolean
+         */
+        showDisclaimer: true,
     },
     getters: {
         showLoadingBar(state) {
@@ -352,6 +359,9 @@ export default {
                 dispatcher: dispatcher,
             })
         },
+        setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
+            commit('setShowDisclaimer', { showDisclaimer, dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -413,5 +423,6 @@ export default {
         setFeatureInfoPosition(state, { position }) {
             state.featureInfoPosition = position
         },
+        setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
     },
 }
