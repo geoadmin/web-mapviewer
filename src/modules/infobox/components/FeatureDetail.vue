@@ -1,6 +1,7 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import { computed, toRefs } from 'vue'
+import tippy from 'tippy.js'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -23,6 +24,8 @@ const { feature } = toRefs(props)
 const i18n = useI18n()
 
 const store = useStore()
+let copyTooltipInstance = null
+let shareTabButton = ref(null)
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
@@ -40,6 +43,14 @@ const sanitizedFeatureDataEntries = computed(() => {
         .filter(([_, value]) => value) // filtering out null values
         .map(([key, value]) => [key, sanitizeHtml(value)])
 })
+onMounted(() => {
+    copyTooltipInstance = tippy(shareTabButton.value, {
+        content: i18n.t('copy_success'),
+        arrow: true,
+        placement: 'right',
+    })
+})
+
 function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
@@ -68,6 +79,7 @@ function setDisclaimerAgree() {
                         <FontAwesomeIcon icon="fa-circle-info" />
                         <div class="px-1 d-flex">{{ i18n.t('media_disclaimer') }}</div>
                         <button
+                            ref="shareTabButton"
                             class="d-flex small btn btn-sm btn-light"
                             data-cy="feature-detail-media-disclaimer-button"
                             @click="setDisclaimerAgree"
