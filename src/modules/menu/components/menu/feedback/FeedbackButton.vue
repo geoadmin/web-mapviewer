@@ -159,9 +159,10 @@ export default {
                 const feedbackSentSuccessfully = await sendFeedback(
                     subject,
                     this.feedback.message,
-                    this.activeKmlLayer?.kmlFileUrl,
-                    this.feedback.email,
-                    undefined // file attachment
+                    {
+                        kmlFileUrl: this.activeKmlLayer?.kmlFileUrl,
+                        email: this.feedback.email,
+                    }
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully

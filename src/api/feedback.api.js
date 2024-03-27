@@ -8,18 +8,14 @@ import log from '@/utils/logging'
 /**
  * @param {String} subject Mandatory
  * @param {String} text Mandatory
- * @param {String | null} [kmlFileUrl=null] Default is `null`
- * @param {String | null} [email=null] Default is `null`
- * @param {File | null} [attachment=null] Default is `null`
+ * @param {String | null} [options.kmlFileUrl=null] Default is `null`
+ * @param {String | null} [options.email=null] Default is `null`
+ * @param {File | null} [options.attachment=null] Default is `null`
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
-export default async function sendFeedback(
-    subject,
-    text,
-    kmlFileUrl = null,
-    email = null,
-    attachment = null
-) {
+export default async function sendFeedback(subject, text, options) {
+    const { kmlFileUrl = null, email = null, attachment = null } = options
+
     try {
         let shortLink = null
         try {

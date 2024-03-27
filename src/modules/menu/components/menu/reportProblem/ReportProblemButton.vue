@@ -58,9 +58,10 @@ async function sendReportProblem() {
         const feedbackSentSuccessfully = await sendFeedback(
             '[web-mapviewer] Problem report', // subject
             feedback.value.message,
-            undefined, // For the drawing layer, we send the KML file URL
-            feedback.value.email,
-            feedback.value.file
+            {
+                email: feedback.value.email,
+                attachment: feedback.value.file,
+            }
         )
         request.value.completed = feedbackSentSuccessfully
         request.value.failed = !feedbackSentSuccessfully
