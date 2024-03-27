@@ -50,4 +50,9 @@ export default function useAddLayerToMap(layer, map, zIndex) {
     function removeLayerFromMap() {
         map.removeLayer(layer)
     }
+
+    return {
+        addLayerToMap,
+        removeLayerFromMap,
+    }
 }
