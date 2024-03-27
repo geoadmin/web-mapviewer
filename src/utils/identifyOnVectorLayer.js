@@ -11,7 +11,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-const pixelToleranceForIdentify = 10
+const pixelToleranceForIdentify = 20
 
 /**
  * @param {Array} coordinates
@@ -94,28 +94,34 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
  *   were found
  */
 export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, resolution) {
+    if (!geoJsonLayer?.geoJsonData) {
+        log.error('No data for layer', geoJsonLayer, 'no identification of feature possible')
+        return []
+    }
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     // to use turf functions, we need to have lat/lon (WGS84) coordinates
     const reprojectedGeoJSON = reprojectGeoJsonData(geoJsonLayer.geoJsonData, WGS84, projection)
     if (!reprojectedGeoJSON) {
         log.error(
             `Unable to reproject GeoJSON data in order to find features at coordinates`,
-            geoJsonLayer.id,
+            geoJsonLayer,
             coordinate
         )
         return []
     }
     return identifyInGeoJson(reprojectedGeoJSON, coordinate, projection, resolution).map(
         (feature) => {
-            return new LayerFeature(
-                geoJsonLayer,
-                feature.id,
-                feature.properties.station_name || feature.id,
-                { title: feature.properties.name, description: feature.properties.description },
-                reprojectCoordinates(feature.geometry.coordinates, projection),
-                null,
-                reproject(feature.geometry, WGS84.epsg, projection.epsg)
-            )
+            return new LayerFeature({
+                layer: geoJsonLayer,
+                id: feature.id,
+                name: feature.properties.station_name || feature.id,
+                data: {
+                    title: feature.properties.name,
+                    description: feature.properties.description,
+                },
+                coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+            })
         }
     )
 }
@@ -145,15 +151,17 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
         const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                return new LayerFeature(
-                    kmlLayer,
-                    feature.id,
-                    kmlLayer.name,
-                    { title: feature.properties.name, description: feature.properties.description },
-                    reprojectCoordinates(feature.geometry.coordinates, projection),
-                    null,
-                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
-                )
+                return new LayerFeature({
+                    layer: kmlLayer,
+                    id: feature.id,
+                    name: kmlLayer.name,
+                    data: {
+                        title: feature.properties.name,
+                        description: feature.properties.description,
+                    },
+                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+                })
             }
         )
     }
@@ -176,15 +184,14 @@ export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolutio
         const convertedGpx = gpxToGeoJSON(parseGpx)
         return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
             (feature) => {
-                return new LayerFeature(
-                    gpxLayer,
-                    `${gpxLayer.name}-${feature.properties?.name}`,
-                    feature.properties?.name,
-                    { ...feature.properties },
-                    reprojectCoordinates(feature.geometry.coordinates, projection),
-                    null,
-                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
-                )
+                return new LayerFeature({
+                    layer: gpxLayer,
+                    id: `${gpxLayer.name}-${feature.properties?.name}`,
+                    name: feature.properties?.name,
+                    data: { ...feature.properties },
+                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
+                })
             }
         )
     }

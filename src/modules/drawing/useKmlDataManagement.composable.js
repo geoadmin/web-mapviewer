@@ -76,7 +76,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 // (once the pristine "old" KML, and once the new copy)
                 if (activeKmlLayer.value) {
                     await store.dispatch('removeLayer', {
-                        layer: activeKmlLayer.value,
+                        layerId: activeKmlLayer.value.id,
                         ...dispatcher,
                     })
                 }
@@ -92,7 +92,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     activeKmlLayer.value.adminId,
                     kmlData
                 )
-                await store.dispatch('updateKmlGpxLayer', {
+                await store.dispatch('setKmlGpxLayerData', {
                     layerId: activeKmlLayer.value.id,
                     data: kmlData,
                     metadata: kmlMetadata,

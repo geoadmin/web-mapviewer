@@ -10,7 +10,8 @@ import { useStore } from 'vuex'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { WMS_TILE_SIZE } from '@/config'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
@@ -44,7 +45,7 @@ const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value || wmsLayerConfig.value.opacity)
-const url = computed(() => wmsLayerConfig.value.getURL())
+const url = computed(() => wmsLayerConfig.value.baseUrl)
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value, previewYear.value))
 
 /**
@@ -59,7 +60,7 @@ const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value, pr
 const wmsUrlParams = computed(() => ({
     SERVICE: 'WMS',
     REQUEST: 'GetMap',
-    TRANSPARENT: true,
+    TRANSPARENT: format.value === 'png',
     LAYERS: layerId.value,
     FORMAT: `image/${format.value}`,
     LANG: currentLang.value,
@@ -81,6 +82,11 @@ if (gutter.value !== -1) {
         opacity: opacity.value,
         source: createSourceForProjection(),
     })
+}
+// If the layer config comes with an extent, we set it up to both types of WMS layer.
+// That means that data will not be requested if the map viewport is outside the extent.
+if (wmsLayerConfig.value.extent) {
+    layer.setExtent(flattenExtent(wmsLayerConfig.value.extent))
 }
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map

@@ -52,6 +52,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   requesting images on this layer. Default is `'1.3.0'`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
+     *   through the search bar. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -75,6 +77,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             hasTooltip = false,
             topics = [],
             hasLegend = false,
+            searchable = false,
         } = layerData
         super({
             name,
@@ -92,14 +95,11 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             ensureTrailingSlashInBaseUrl: false,
             timeConfig,
             hasLegend,
+            searchable,
         })
         this.format = format
         this.lang = lang
         this.gutter = gutter
         this.wmsVersion = wmsVersion
-    }
-
-    getURL() {
-        return this.baseUrl ?? WMS_BASE_URL
     }
 }

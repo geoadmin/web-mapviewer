@@ -5,12 +5,12 @@ import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { computed, inject, toRefs, watch } from 'vue'
 
-import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
 import {
     getMarkerStyle,
     highlightFeatureStyle,
     OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
+import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 const props = defineProps({

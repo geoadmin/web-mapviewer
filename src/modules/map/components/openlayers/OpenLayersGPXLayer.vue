@@ -6,9 +6,9 @@ import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import GPXLayer from '@/api/layers/GPXLayer.class.js'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { parseGpx } from '@/utils/gpxUtils'
 import log from '@/utils/logging'
 
@@ -35,7 +35,7 @@ const projection = computed(() => store.state.position.projection)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => gpxLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value || gpxLayerConfig.value.opacity)
-const url = computed(() => gpxLayerConfig.value.getURL())
+const url = computed(() => gpxLayerConfig.value.baseUrl)
 const gpxData = computed(() => gpxLayerConfig.value.gpxData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

@@ -45,16 +45,21 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   on. Default is `false`
      * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
      *   is `[]`
-     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=true] Flag telling if the base URL
+     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=false] Flag telling if the base URL
      *   must always have a trailing slash. It might be sometime the case that this is unwanted
      *   (i.e. for an external WMS URL already built past the point of URL params, a trailing slash
-     *   would render this URL invalid). Default is `true`
+     *   would render this URL invalid). Default is `false`
      * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
      *   metadata) are still loading. Default is `false`
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
      *   available). Default is `null`
+     * @param {Boolean} [layerData.hasDescription=true] Define if this layer has a description that
+     *   can be shown to users to explain its content. All internal layer (should) have a
+     *   description. TODO: update the backend API to return this value. Default is `true`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
+     *   through the search bar. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -74,10 +79,12 @@ export default class GeoAdminLayer extends AbstractLayer {
             isHighlightable = false,
             hasTooltip = false,
             topics = [],
-            ensureTrailingSlashInBaseUrl = true,
+            ensureTrailingSlashInBaseUrl = false,
             isLoading = false,
             timeConfig = null,
+            hasDescription = true,
             hasLegend = false,
+            searchable = false,
         } = layerData
         if (geoAdminId === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
@@ -98,25 +105,25 @@ export default class GeoAdminLayer extends AbstractLayer {
             name,
             id: geoAdminId,
             type,
+            baseUrl,
+            ensureTrailingSlashInBaseUrl,
             opacity,
             visible,
             attributions,
             hasTooltip,
             isLoading,
+            hasDescription,
             hasLegend,
         })
         this.geoAdminId = geoAdminId
         this.technicalName = technicalName
         this.isBackground = isBackground
-        this.baseUrl = baseUrl
-        if (ensureTrailingSlashInBaseUrl && this.baseUrl && !this.baseUrl.endsWith('/')) {
-            this.baseUrl = this.baseUrl + '/'
-        }
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        this.searchable = searchable
     }
 
     /**

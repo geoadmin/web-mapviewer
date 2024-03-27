@@ -43,7 +43,7 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
  * @returns {string} Return KML name
  */
 export function parseKmlName(content) {
-    const kml = new KML()
+    const kml = new KML({ extractStyles: false })
 
     return kml.readName(content)
 }
@@ -55,7 +55,7 @@ export function parseKmlName(content) {
  * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
  */
 export function getKmlExtent(content) {
-    const kml = new KML()
+    const kml = new KML({ extractStyles: false })
     const features = kml.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -74,42 +74,28 @@ export function getKmlExtent(content) {
  * Get the KML feature type
  *
  * The type is taken from the geoadmin proprietary "type" property, and if this property is not
- * available it is guess from the geometry and style. The only use case that cannot be guess is for
- * measure which will always fallback to line.
+ * available it means that it is not a Geoadmin drawing and is therefore returning null.
  *
  * @param {ol/Feature} kmlFeature Open layer kml feature
  * @returns {String | null} KML feature type or null if this is not a geoadmin kml feature
  */
 export function getFeatureType(kmlFeature) {
     let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
+    if (!featureType) {
+        // Very old geoadmin KML don't have the type property but the type can be taken from the
+        // id
+        log.debug(
+            `Missing feature type property trying to guess it from the feature ID: ${kmlFeature.getId()}`
+        )
+        featureType = /(?<type>\w+)_\d+/.exec(kmlFeature.getId())?.groups?.type?.toUpperCase()
+    }
+
     if (!Object.values(EditableFeatureTypes).includes(featureType)) {
-        log.error(
-            `Type ${featureType} of feature in kml not recognized, guessing it from geometry`,
+        log.info(
+            `Type ${featureType} of feature in kml not recognized, not a geoadmin feature ignoring it`,
             kmlFeature
         )
-
-        const style = getStyle(kmlFeature)
-        switch (kmlFeature.getGeometry().getType()) {
-            case 'Point':
-                if (style?.getImage()?.getScale() > 0) {
-                    featureType = EditableFeatureTypes.MARKER
-                } else {
-                    featureType = EditableFeatureTypes.ANNOTATION
-                }
-                break
-            case 'LineString':
-                // Here this could also be a measure but cannot differentiate between measure
-                // and line
-                featureType = EditableFeatureTypes.LINEPOLYGON
-                break
-            case 'Polygon':
-                featureType = EditableFeatureTypes.LINEPOLYGON
-                break
-            default:
-                log.error(`Could not guess the feature type, fallback to marker`, kmlFeature, style)
-                featureType = EditableFeatureTypes.MARKER
-                break
-        }
+        return null
     }
     return featureType
 }
@@ -187,14 +173,15 @@ class IconArgs {
 /**
  * Parse an Icon URL
  *
- * This handle also the legacy icon url to the following two url style:
+ * This handle also the legacy icon url of the following styles:
  *
- * - Api3.geo.admin.ch/color/{r},{g},{b}/{image}-{size}@{scale}x.png
- * - Api3.geo.admin.ch/images/{set_name}/{image}
+ * - /color/{r},{g},{b}/{image}-{size}@{scale}x.png
+ * - /{version}/img/maki/{image}-{size}@{scale}x.png
+ * - /images/{set_name}/{image}
  *
  * As well as the new style:
  *
- * - Map.geo.admin.ch/api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
+ * - /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
  *
  * @param {string} url URL string
  * @returns {IconArgs | null} Returns the parsed URL or nul in case of invalid non recognize url
@@ -202,11 +189,15 @@ class IconArgs {
 export function parseIconUrl(url) {
     // legacy icon urls pattern
     // default set := /color/{r},{g},{b}/{image}-{size}@{scale}x.png
-    // babs set := /images/{set_name}/{image}
+    // default set legacy versioned url := /{version}/img/maki/{image}-{size}@{scale}x.png
     const legacyDefaultMatch =
         /color\/(?<r>\d+),(?<g>\d+),(?<b>\d+)\/(?<name>[^/]+)-(?<size>\d+)@(?<scale>\d+)x\.png$/.exec(
             url
         )
+    const legacyUrlDefaultMatch =
+        /\d+\/img\/maki\/(?<name>[^/]+)-(?<size>\d+)@(?<scale>\d+)x\.png$/.exec(url)
+
+    // babs set := /images/{set_name}/{image}
     const legacySetMatch = /images\/(?<set>\w+)\/(?<name>[^/]+)\.png$/.exec(url)
 
     // new icon urls pattern
@@ -218,7 +209,7 @@ export function parseIconUrl(url) {
             url
         )
 
-    const match = legacyDefaultMatch ?? legacySetMatch ?? setMatch
+    const match = legacyDefaultMatch ?? legacyUrlDefaultMatch ?? legacySetMatch ?? setMatch
 
     if (!match) {
         log.warn(`Could not retrieve icon infos from URL ${url}`)
@@ -227,7 +218,7 @@ export function parseIconUrl(url) {
 
     const setName = match.groups.set ?? 'default'
     const name = match.groups.name ?? 'unknown'
-    const isLegacy = !!(legacyDefaultMatch || legacySetMatch)
+    const isLegacy = !!(legacyDefaultMatch || legacyUrlDefaultMatch || legacySetMatch)
 
     return new IconArgs(
         setName,
@@ -365,9 +356,13 @@ export function getFillColor(style, geometryType, iconArgs) {
  *   feature
  */
 export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
-    const featureType = getFeatureType(kmlFeature)
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
+        return null
+    }
+    const featureType = getFeatureType(kmlFeature)
+    if (!featureType) {
+        log.debug('External KML detected, cannot modify it to an EditableFeature')
         return null
     }
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
@@ -405,7 +400,32 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
-    return EditableFeature.newFeature({
+    if (iconArgs?.isLegacy && iconStyle && icon) {
+        // The legacy drawing uses icons from old URLs, some of them have already been removed
+        // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others
+        // will be probably removed in the near future. Therefore we overwrite those legacy icons
+        // urls using the new service icons here, before the icons are fetched.
+        // NOTE: we need to do this here and cannot use the iconUrlFunction of the ol/KML constructor
+        // because for the url translation we need to have the available iconsets which we don't
+        // always have when using iconUrlFunction
+        log.warn(`Legacy icons style detected overwritting the style with the new icon url`)
+        const newIconStyle = new IconStyle({
+            opacity: iconStyle.getOpacity(),
+            rotation: iconStyle.getRotation(),
+            scale: iconStyle.getScale(),
+            rotateWithView: iconStyle.getRotateWithView(),
+            displacement: iconStyle.getDisplacement(),
+            declutterMode: iconStyle.getDeclutterMode(),
+            anchor: iconStyle.getAnchor(),
+            anchorOrigin: iconStyle.anchorOrigin,
+            anchorXUnits: iconStyle.anchorXUnits,
+            anchorYUnits: iconStyle.anchorYUnits,
+            src: icon.generateURL(fillColor),
+        })
+        style.setImage(newIconStyle)
+    }
+
+    return new EditableFeature({
         id: featureId,
         featureType: featureType,
         title,

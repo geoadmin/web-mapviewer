@@ -18,7 +18,7 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
-        store.dispatch('updateKmlGpxLayer', {
+        store.dispatch('setKmlGpxLayerData', {
             layerId: kmlLayer?.id,
             metadata,
             ...dispatcher,
@@ -37,7 +37,7 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
         const data = await loadKmlData(kmlLayer)
-        store.dispatch('updateKmlGpxLayer', {
+        store.dispatch('setKmlGpxLayerData', {
             layerId: kmlLayer?.id,
             data,
             ...dispatcher,

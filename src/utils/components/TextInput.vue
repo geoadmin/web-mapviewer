@@ -99,6 +99,7 @@ function onFocusOut(event) {
 function onClearInput() {
     value.value = ''
     error.value = ''
+    inputElement.value.focus()
     emit('clear')
 }
 

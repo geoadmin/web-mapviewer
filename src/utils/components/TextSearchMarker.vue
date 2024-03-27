@@ -62,7 +62,7 @@ function getClasses(match) {
 </script>
 
 <template>
-    <div v-if="allowHtml" @click="emit('click')">
+    <span v-if="allowHtml" @click="emit('click')">
         <!-- eslint-disable vue/no-v-html-->
         <span
             v-for="(segment, index) in segments"
@@ -72,8 +72,8 @@ function getClasses(match) {
             v-html="segment.text"
         />
         <!-- eslint-enable vue/no-v-html-->
-    </div>
-    <div v-else @click="emit('click')">
+    </span>
+    <span v-else @click="emit('click')">
         <span
             v-for="(segment, index) in segments"
             :key="`${segment.text}-${index}`"
@@ -81,5 +81,5 @@ function getClasses(match) {
             :data-cy="`segment${segment.match ? '-match' : ''}`"
             >{{ segment.text }}</span
         >
-    </div>
+    </span>
 </template>

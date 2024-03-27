@@ -57,7 +57,11 @@ export function handleFileContent(store, content, source) {
             throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
         }
         store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
-        store.dispatch('addLayer', { layer, ...dispatcher })
+        if (store.getters.getActiveLayersById(layer.id).length > 0) {
+            store.dispatch('updateLayers', { layers: [layer], ...dispatcher })
+        } else {
+            store.dispatch('addLayer', { layer, ...dispatcher })
+        }
     } else if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)

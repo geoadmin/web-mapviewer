@@ -1,3 +1,4 @@
+import LayerFeature from '@/api/features/LayerFeature.class.js'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { isNumber } from '@/utils/numberUtils'
 
@@ -86,13 +87,17 @@ export function parseLayersParam(queryValue) {
  *
  * @param {AbstractLayer} layer
  * @param {GeoAdminLayer} [defaultLayerConfig]
+ * @param {String[] | null} featuresIds
  * @returns {string}
  */
-export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
+export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(layer.id)
     if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
+    }
+    if (featuresIds) {
+        layerUrlString += `@features=${featuresIds.join(':')}`
     }
     if (!layer.visible) {
         layerUrlString += `,f`
@@ -108,4 +113,23 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
         layerUrlString += `,${layer.opacity}`
     }
     return layerUrlString
+}
+
+/**
+ * @param {SelectableFeature[]} selectedFeatures An array of selectable Features
+ * @returns {Object} A simple object with the layer id as a key for a feature Ids list as value
+ */
+export function orderFeaturesByLayers(selectedFeatures) {
+    const layersFeatures = {}
+
+    selectedFeatures
+        .filter((feature) => feature instanceof LayerFeature)
+        .forEach((feature) => {
+            if (!layersFeatures[feature.layer.id]) {
+                layersFeatures[feature.layer.id] = []
+            }
+
+            layersFeatures[feature.layer.id].push(feature.id)
+        })
+    return layersFeatures
 }

@@ -4,21 +4,20 @@ import log from '@/utils/logging.js'
 export default {
     state: {
         layouts: [],
-        selectedLayout: {},
+        selectedLayout: null,
         selectedScale: 0,
         printSectionShown: false,
     },
     getters: {
         mapSize(state) {
-            const mapAttributes = state.selectedLayout.attributes.find((atr) => atr.name === 'map')
+            const mapAttributes = state.selectedLayout.attributes.find(
+                (attribute) => attribute.name === 'map'
+            )
 
             return {
                 width: mapAttributes?.clientParams?.width?.default,
                 height: mapAttributes?.clientParams?.height?.default,
             }
-        },
-        getSelectedScale(state) {
-            return state.selectedScale
         },
     },
     actions: {
@@ -35,6 +34,7 @@ export default {
         },
         setSelectedLayout({ commit }, { layout, dispatcher }) {
             commit('setSelectedLayout', { layout, dispatcher })
+            commit('setSelectedScale', { scale: layout.scales[0], dispatcher })
         },
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })

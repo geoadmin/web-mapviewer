@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -30,6 +30,10 @@ const searchText = ref('')
 const searchInput = ref(null)
 
 const showSearchBar = computed(() => withSearchBar.value && layerCatalogue.value.length > 0)
+
+watch(layerCatalogue, () => {
+    searchText.value = ''
+})
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
@@ -85,8 +89,8 @@ function clearSearchText() {
             </button>
         </div>
         <LayerCatalogueItem
-            v-for="item in layerCatalogue"
-            :key="item.id"
+            v-for="(item, index) in layerCatalogue"
+            :key="`${index}-${item.id}`"
             :item="item"
             :search="searchText.toLowerCase()"
             :compact="compact"

@@ -9,9 +9,9 @@ describe('<TextTruncate />', () => {
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },
         })
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('be.visible').contains(slotContent)
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
     })
 
     it("It don't add a tippy with a complex slot", () => {
@@ -20,9 +20,9 @@ describe('<TextTruncate />', () => {
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },
         })
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('not.exist')
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
     })
 
     it('It add a tippy with a custom content', () => {
@@ -33,9 +33,9 @@ describe('<TextTruncate />', () => {
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },
         })
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('be.visible').contains(textContent)
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
     })
 
     it('It add a tippy with a custom content and span slot', () => {
@@ -46,9 +46,9 @@ describe('<TextTruncate />', () => {
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },
         })
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('be.visible').contains(textContent)
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
     })
 
     // The following test is flaky and don't allways pass, I tried several method to make it more
@@ -62,18 +62,18 @@ describe('<TextTruncate />', () => {
         cy.mount(TextTruncate, {
             slots: { default: slotContent },
         })
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('not.exist')
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
 
         cy.viewport(50, 480)
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('be.visible').contains(slotContent)
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
 
         cy.viewport(300, 480)
-        cy.get('[data-cy="inner-element"]').realHover({ position: 'left' })
+        cy.get('[data-cy="outter-element"]').trigger('mouseenter')
         cy.get('.tippy-box').should('not.exist')
-        cy.get('[data-cy="inner-element"]').click('left')
+        cy.get('[data-cy="outter-element"]').click('left')
     })
 })

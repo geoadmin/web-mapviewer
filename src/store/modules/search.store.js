@@ -1,4 +1,4 @@
-import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
+import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -16,9 +16,9 @@ const state = {
     /**
      * Search results from the backend for the current query
      *
-     * @type CombinedSearchResults
+     * @type {SearchResult[]}
      */
-    results: new CombinedSearchResults(),
+    results: [],
 }
 
 const getters = {}
@@ -29,8 +29,11 @@ const actions = {
      * @param {Object} payload
      * @param {String} payload.query
      */
-    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '', dispatcher }) => {
-        let results = new CombinedSearchResults()
+    setSearchQuery: async (
+        { commit, rootState, dispatch, getters },
+        { query = '', dispatcher }
+    ) => {
+        let results = []
         commit('setSearchQuery', { query, dispatcher })
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
@@ -84,7 +87,12 @@ const actions = {
                 })
             } else {
                 try {
-                    results = await search(currentProjection, query, rootState.i18n.lang)
+                    results = await search({
+                        outputProjection: currentProjection,
+                        queryString: query,
+                        lang: rootState.i18n.lang,
+                        layersToSearch: getters.visibleLayers,
+                    })
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }
@@ -99,23 +107,31 @@ const actions = {
     /**
      * @param commit
      * @param dispatch
-     * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
+     * @param {SearchResult} entry
      */
-    selectResultEntry: ({ dispatch }, { entry, dispatcher }) => {
+    selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
         const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
-            case RESULT_TYPE.LAYER:
-                dispatch('addLayer', {
-                    layerConfig: new ActiveLayerConfig(entry.layerId, true),
-                    dispatcher: dipsatcherSelectResultEntry,
-                })
+            case SearchResultTypes.LAYER:
+                if (getters.getActiveLayersById(entry.layerId).length === 0) {
+                    dispatch('addLayer', {
+                        layerConfig: new ActiveLayerConfig(entry.layerId, true),
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                } else {
+                    dispatch('updateLayers', {
+                        layers: [{ id: entry.layerId, visible: true }],
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                }
                 break
-            case RESULT_TYPE.LOCATION:
+            case SearchResultTypes.LOCATION:
+            case SearchResultTypes.FEATURE:
                 if (entry.extent.length === 2) {
                     dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
                     dispatch('setCenter', {
-                        center: entry.coordinates,
+                        center: entry.coordinate,
                         dispatcher: dipsatcherSelectResultEntry,
                     })
                     dispatch('setZoom', {
@@ -124,13 +140,13 @@ const actions = {
                     })
                 }
                 dispatch('setPinnedLocation', {
-                    coordinates: entry.coordinates,
+                    coordinates: entry.coordinate,
                     dispatcher: dipsatcherSelectResultEntry,
                 })
                 break
         }
         dispatch('setSearchQuery', {
-            query: entry.getSimpleTitle(),
+            query: entry.sanitizedTitle,
             dispatcher: dipsatcherSelectResultEntry,
         })
     },
@@ -138,8 +154,7 @@ const actions = {
 
 const mutations = {
     setSearchQuery: (state, { query }) => (state.query = query),
-    setSearchResults: (state, { results }) =>
-        (state.results = results ? results : new CombinedSearchResults()),
+    setSearchResults: (state, { results }) => (state.results = results ?? []),
 }
 
 export default {

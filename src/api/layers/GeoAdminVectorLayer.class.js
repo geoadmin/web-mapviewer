@@ -35,8 +35,4 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
             hasLegend: false,
         })
     }
-
-    getURL() {
-        return `${VECTOR_TILE_BASE_URL}styles/${this.geoAdminId}/style.json`
-    }
 }

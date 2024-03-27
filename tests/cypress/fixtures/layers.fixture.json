@@ -109,7 +109,7 @@
         "chargeable": false,
         "timestamps": ["current"],
         "hasLegend": true,
-        "label": "WMTS test layer",
+        "label": "WMTS test layer, with very long title that should be truncated on the menu",
         "type": "wmts",
         "serverLayerName": "test.wmts.layer"
     },
@@ -192,7 +192,7 @@
         "tooltip": false,
         "background": false,
         "label": "test.geojson.layer",
-        "updateDelay": 1800000,
+        "updateDelay": 2500,
         "attribution": "attribution.test.geojson.layer",
         "hasLegend": true,
         "serverLayerName": "ch.meteoschweiz.messwerte-niederschlag-1d",

@@ -1,4 +1,5 @@
 import bbox from '@turf/bbox'
+import centroid from '@turf/centroid'
 import {
     featureCollection,
     lineString,
@@ -8,10 +9,11 @@ import {
     point,
     polygon,
 } from '@turf/helpers'
+import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
@@ -21,26 +23,46 @@ import log from '@/utils/logging'
  * The default projection for GeoJSON is WGS84 as stated in the reference
  * https://tools.ietf.org/html/rfc7946#section-4
  *
- * If another projection was set in the GeoJSON (through the "crs" property), it should be given as
- * `fromProjection`
+ * This function will look first in the GeoJSON own CRS property, to determine which projection
+ * system is used to describe the coordinate. If no CRS is defined, it will default to the given
+ * fromProjection, and if nothing is found in both places it will default to WGS84.
  *
  * @param {Object} geoJsonData Data to be reprojected
  * @param {CoordinateSystem} toProjection Wanted projection for these data
- * @param {CoordinateSystem} fromProjection Source projection, in which the data is currently being
- *   described (or `null` if none were set in the GeoJSON data, meaning it is described with WGS84)
+ * @param {CoordinateSystem} fromProjection Source projection, in which the data is being described
+ *   (or `null` if none were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection = null) {
+    if (!geoJsonData) {
+        return null
+    }
+    const matchingProjection =
+        // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
+        allCoordinateSystems.find(
+            (coordinateSystem) => coordinateSystem.epsg === geoJsonData.crs?.properties?.name
+        ) ??
+        // if no projection is given by the GeoJSON we use the one given as param
+        fromProjection ??
+        // if nothing is found in the GeoJSON or the param value, we default to WGS84
+        // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
+        WGS84
     let reprojectedGeoJSON
-    if (fromProjection instanceof CoordinateSystem && toProjection instanceof CoordinateSystem) {
-        if (fromProjection.epsg !== toProjection.epsg) {
-            reprojectedGeoJSON = reproject(geoJsonData, fromProjection.epsg, toProjection.epsg)
+    if (
+        matchingProjection instanceof CoordinateSystem &&
+        toProjection instanceof CoordinateSystem
+    ) {
+        if (matchingProjection.epsg !== toProjection.epsg) {
+            reprojectedGeoJSON = reproject(
+                // (deep) cloning the geom before reprojecting it, because reproject function might alter something in the geom
+                // and the geom comes sometimes directly from the Vuex store (ending in an error when that happen)
+                JSON.parse(JSON.stringify(geoJsonData)),
+                matchingProjection.epsg,
+                toProjection.epsg
+            )
         } else {
             // it's already in the correct projection, we don't re-project
             reprojectedGeoJSON = geoJsonData
         }
-    } else if (toProjection instanceof CoordinateSystem) {
-        // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
-        reprojectedGeoJSON = reproject(geoJsonData, WGS84.epsg, toProjection.epsg)
     }
     return reprojectedGeoJSON
 }
@@ -51,8 +73,9 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
  * geometry type we are dealing with.
  *
  * @param geoJsonData
- * @param {CoordinateSystem} fromProjection In which coordinate-system is this GeoJSON data
- *   described as. If nothing is specified, the default projection of GeoJSON data must be WGS84.
+ * @param {CoordinateSystem | null} [fromProjection=null] In which coordinate-system is this GeoJSON
+ *   data described as. If nothing is specified, the default projection of GeoJSON data must be
+ *   WGS84. Default is `null`
  * @returns {Feature<MultiPoint, Properties>
  *     | Feature<LineString, Properties>
  *     | Feature<MultiLineString, Properties>
@@ -61,7 +84,7 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
  *     | Feature<Point, Properties>
  *     | Feature<Polygon, Properties>}
  */
-export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84) {
+export function transformIntoTurfEquivalent(geoJsonData, fromProjection = null) {
     const geometryWGS84 = reprojectGeoJsonData(geoJsonData, WGS84, fromProjection)
     switch (geometryWGS84.type) {
         case 'Point':
@@ -79,6 +102,34 @@ export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84)
     }
     log.error('Unknown geometry type', geometryWGS84.type)
     return null
+}
+
+/**
+ * @param {Object} geoJsonFeature Some GeoJSON feature
+ * @param {CoordinateSystem} inputProjection Source projection (in which the GeoJSON feature is
+ *   described as)
+ * @param {CoordinateSystem} outputProjection Wanted output projection, if different thant the input
+ *   projection reprojection will be automatically applied before returning the coordinates
+ * @returns {[[Number, Number]]} Coordinates of this GeoJSON feature (if it's a point, it will still
+ *   be wrapped in an array)
+ */
+export function getGeoJsonFeatureCoordinates(geoJsonFeature, inputProjection, outputProjection) {
+    let featureCoordinate = []
+    // if GeoJSON type is Point, we grab the coordinates
+    if (geoJsonFeature.type === 'Point') {
+        featureCoordinate = geoJsonFeature.coordinates
+    } else if (geoJsonFeature.type === 'MultiPoint' && geoJsonFeature.coordinates.length === 1) {
+        // or if the GeoJSON type is MultiPoint, but there's only one point in the array, we grab it
+        featureCoordinate = geoJsonFeature.coordinates[0]
+    } else {
+        // this feature has a geometry more complex that a single point, we calculate its centroid as single coordinate
+        featureCoordinate = centroid(geoJsonFeature)
+    }
+
+    if (outputProjection.epsg !== inputProjection.epsg) {
+        featureCoordinate = proj4(inputProjection.epsg, outputProjection.epsg, featureCoordinate)
+    }
+    return featureCoordinate
 }
 
 /**

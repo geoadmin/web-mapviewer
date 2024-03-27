@@ -1,76 +1,100 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import {
+    PrintStatus,
+    usePrint,
+} from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import log from '@/utils/logging'
-import { formatThousand } from '@/utils/numberUtils.js'
+import { formatThousand } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'MapPrintSection.vue' }
 
 const emits = defineEmits(['openMenuSection'])
 
 const isSectionShown = ref(false)
-const selectedLayoutName = ref(null)
-const useLegend = ref(false)
-const useGraticule = ref(false)
+const printGrid = ref(false)
+const printLegend = ref(false)
+
+const olMap = inject('olMap')
+const { printStatus, print, abortCurrentJob } = usePrint(olMap)
 
 const i18n = useI18n()
 const store = useStore()
-const printLayouts = computed(() => store.state.print.layouts)
-const selectedLayout = computed(() =>
-    printLayouts.value.find((layout) => layout.name === selectedLayoutName.value)
-)
+const availablePrintLayouts = computed(() => store.state.print.layouts)
+const selectedLayout = computed(() => store.state.print.selectedLayout)
 const scales = computed(() => selectedLayout.value?.scales || [])
+
+const selectedLayoutName = computed({
+    get() {
+        return store.state.print.selectedLayout?.name
+    },
+    set(value) {
+        store.dispatch('setSelectedLayout', {
+            layout: availablePrintLayouts.value.find((layout) => layout.name === value),
+            ...dispatcher,
+        })
+    },
+})
 
 const selectedScale = computed({
     get() {
-        return store.getters.getSelectedScale
+        return store.state.print.selectedScale
     },
     set(value) {
         store.dispatch('setSelectedScale', { scale: value, ...dispatcher })
     },
 })
 
-watch(selectedLayout, () => {
-    store.dispatch('setSelectedLayout', { layout: selectedLayout.value, ...dispatcher })
-})
-
 watch(isSectionShown, () => {
     store.dispatch('setPrintSectionShown', { show: isSectionShown.value, ...dispatcher })
 })
 
-watch(printLayouts, () => {
+watch(availablePrintLayouts, () => {
     // whenever layouts are loaded form the backend, we select the first one as default value
-    if (printLayouts.value.length > 0) {
-        selectLayout(printLayouts.value[0])
+    if (availablePrintLayouts.value.length > 0) {
+        selectLayout(availablePrintLayouts.value[0])
     }
 })
 
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
-    if (printLayouts.value.length === 0) {
+    if (availablePrintLayouts.value.length === 0) {
         store.dispatch('loadPrintLayouts', dispatcher).then(() => {
             isSectionShown.value = !isSectionShown.value
         })
     } else {
         // if layouts are already present, we select the first one as default value
-        selectLayout(printLayouts.value[0])
+        selectLayout(availablePrintLayouts.value[0])
         isSectionShown.value = !isSectionShown.value
     }
 }
 function selectLayout(layout) {
     selectedLayoutName.value = layout.name
-    selectedScale.value = layout.scales[0]
 }
 
 function close() {
     isSectionShown.value = false
 }
 
-function printMap() {
-    log.info('Print Map...')
+async function printMap() {
+    try {
+        const documentUrl = await print(printGrid.value, printLegend.value)
+        if (documentUrl) {
+            if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
+                window.open(documentUrl)
+            } else {
+                window.location = documentUrl
+            }
+        } else {
+            log.error('Print failed, received null')
+        }
+    } catch (error) {
+        log.error('Print failed', error)
+    }
 }
 
 defineExpose({
@@ -94,7 +118,7 @@ defineExpose({
             }}</label>
             <select id="print-layout-selector " v-model="selectedLayoutName" class="form-select">
                 <option
-                    v-for="layout in printLayouts"
+                    v-for="layout in availablePrintLayouts"
                     :key="layout.name"
                     :value="layout.name"
                     @click="selectLayout(layout)"
@@ -113,7 +137,7 @@ defineExpose({
             <div class="form-check">
                 <input
                     id="checkboxLegend"
-                    v-model="useLegend"
+                    v-model="printLegend"
                     class="form-check-input"
                     type="checkbox"
                 />
@@ -121,19 +145,27 @@ defineExpose({
             </div>
             <div class="form-check">
                 <input
-                    id="checkboxGraticule"
-                    v-model="useGraticule"
+                    id="checkboxGrid"
+                    v-model="printGrid"
                     class="form-check-input"
                     type="checkbox"
                 />
-                <label class="form-check-label" for="checkboxGraticule">{{
-                    i18n.t('graticule')
-                }}</label>
+                <label class="form-check-label" for="checkboxGrid">{{ i18n.t('graticule') }}</label>
             </div>
             <div class="full-width justify-content-center">
-                <button type="button" class="btn btn-light w-100" @click="printMap">
+                <button
+                    v-if="printStatus === PrintStatus.PRINTING"
+                    type="button"
+                    class="btn btn-danger w-100 text-white"
+                    @click="abortCurrentJob"
+                >
+                    {{ i18n.t('abort') }}
+                </button>
+                <button v-else type="button" class="btn btn-light w-100" @click="printMap">
                     {{ i18n.t('print_action') }}
                 </button>
+                <!-- TODO: manage failing print job-->
+                <!-- TODO: give a UI feedback for a print success-->
             </div>
         </div>
     </MenuSection>

@@ -1,4 +1,5 @@
 import { noModifierKeys, singleClick } from 'ol/events/condition'
+import GeoJSON from 'ol/format/GeoJSON'
 import ModifyInteraction from 'ol/interaction/Modify'
 import { inject, onBeforeUnmount, onMounted } from 'vue'
 import { useStore } from 'vuex'
@@ -6,7 +7,7 @@ import { useStore } from 'vuex'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api.js'
+} from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
@@ -96,6 +97,10 @@ export default function useModifyInteraction(features) {
                 coordinates: extractOlFeatureCoordinates(feature),
                 geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
                 ...dispatcher,
+            })
+            store.dispatch('changeFeatureGeometry', {
+                feature: storeFeature,
+                geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
             })
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()

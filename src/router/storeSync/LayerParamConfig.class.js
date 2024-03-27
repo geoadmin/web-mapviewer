@@ -8,11 +8,18 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
-import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import {
+    orderFeaturesByLayers,
+    parseLayersParam,
+    transformLayerIntoUrlString,
+} from '@/router/storeSync/layersParamParser'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 /**
+ * Parse layers such as described in
+ * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
+ *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
@@ -95,9 +102,9 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
         parsedLayers
     )
     const featuresRequests = []
-    const layers = parsedLayers.map((parsedLayer) => {
+    const layers = parsedLayers.map((parsedLayer, index) => {
         // First check if we already have the layer in the active layers
-        const currentLayer = store.getters.getActiveLayerById(parsedLayer.id)
+        const currentLayer = store.getters.getActiveLayerByIndex(index)
         const layerObject = createLayerObject(parsedLayer, currentLayer)
         if (layerObject) {
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
@@ -177,11 +184,13 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
 }
 
 function generateLayerUrlParamFromStoreValues(store) {
+    const featuresIds = orderFeaturesByLayers(store.state.features.selectedFeatures)
     return store.state.layers.activeLayers
         .map((layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config) => config.id === layer.id)
+                store.state.layers.config.find((config) => config.id === layer.id),
+                featuresIds[layer.id]
             )
         )
         .join(';')
@@ -194,12 +203,14 @@ export default class LayerParamConfig extends AbstractParamConfig {
             [
                 'toggleLayerVisibility',
                 'addLayer',
-                'removeLayerWithId',
+                'removeLayersById',
+                'removeLayerByIndex',
                 'clearLayers',
-                'moveActiveLayerFromIndexToIndex',
+                'moveActiveLayerToIndex',
                 'setLayerOpacity',
                 'setLayerYear',
                 'setLayers',
+                'setSelectedFeatures',
             ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,

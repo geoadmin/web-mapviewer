@@ -28,11 +28,11 @@ const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value) {
+    if (hasFeatureStringData.value || !feature.value?.data) {
         return []
     }
     return Object.entries(feature.value.data)
-        .filter(([_, value]) => value)
+        .filter(([_, value]) => value) // filtering out null values
         .map(([key, value]) => [key, sanitizeHtml(value)])
 })
 function sanitizeHtml(htmlText) {
@@ -46,7 +46,7 @@ function sanitizeHtml(htmlText) {
     <!-- eslint-disable-next-line vue/no-v-html-->
     <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <div v-else class="htmlpopup-container">
-        <div class="htmlpopup-header">{{ feature.layer.name }}</div>
+        <div class="htmlpopup-header">{{ feature.title }}</div>
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
@@ -58,9 +58,12 @@ function sanitizeHtml(htmlText) {
             </div>
         </div>
         <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
-            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
+            <FeatureAreaInfo
+                v-if="feature.geometry?.type === 'Polygon'"
+                :geometry="feature.geometry"
+            />
             <CoordinateCopySlot
-                v-if="feature.geometry.type === 'Point'"
+                v-if="feature.geometry?.type === 'Point'"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"

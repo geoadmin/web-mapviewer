@@ -651,5 +651,6 @@
     "kml_gpx_file_out_of_bounds": "File content is out of projection bounds",
     "kml_gpx_file_empty": "KML/GPX file is empty",
     "large_size": "Large",
-    "extra_large_size": "Extra Large"
+    "extra_large_size": "Extra Large",
+    "duplicate_layer": "Duplicate map"
 }

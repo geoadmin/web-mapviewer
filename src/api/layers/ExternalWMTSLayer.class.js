@@ -36,6 +36,9 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {[LayerLegend]} [externalWmtsData.legends=[]] Layer legends. Default is `[]`
      * @param {boolean} [externalWmtsData.isLoading=true] Set to true if some parts of the layer
      *   (e.g. metadata) are still loading. Default is `true`
+     * @param {CoordinateSystem[]} [externalWmtsData.availableProjections=[]] All projection that
+     *   can be used to request this layer. Default is `[]`
+     * @param {ol/WMTS/Options} [externalWmtsData.options] WMTS Get Capabilities options
      * @throws InvalidLayerDataError if no `externalWmtsData` is given or if it is invalid
      */
     constructor(externalWmtsData) {
@@ -53,6 +56,8 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             extent = null,
             legends = [],
             isLoading = true,
+            availableProjections = [],
+            options = null,
         } = externalWmtsData
         super({
             name,
@@ -62,6 +67,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             type: LayerTypes.WMTS,
             externalLayerId,
             baseUrl,
+            ensureTrailingSlashInBaseUrl: true,
             opacity,
             visible,
             attributions,
@@ -69,6 +75,8 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             extent,
             legends,
             isLoading,
+            availableProjections,
         })
+        this.options = options
     }
 }

@@ -42,3 +42,13 @@ li {
         outline: $focus-outline;
     }
 }
+
+.cursor-grab {
+    cursor: grab;
+}
+.cursor-grabbing {
+    cursor: grabbing;
+}
+.cursor-pointer {
+    cursor: pointer;
+}

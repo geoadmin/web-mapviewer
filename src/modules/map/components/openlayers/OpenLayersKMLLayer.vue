@@ -8,7 +8,7 @@ import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
@@ -40,7 +40,7 @@ const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => kmlLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.opacity)
-const url = computed(() => kmlLayerConfig.value.getURL())
+const url = computed(() => kmlLayerConfig.value.baseUrl)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

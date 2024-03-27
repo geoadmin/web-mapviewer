@@ -1,5 +1,4 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { getGpxExtent } from '@/utils/gpxUtils.js'
@@ -7,10 +6,9 @@ import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
-const getActiveLayerById = (state, layerId) =>
-    state.activeLayers.find((layer) => layer.id === layerId)
-const removeActiveLayerById = (state, layerId) =>
-    state.activeLayers.filter((layer) => layer.id !== layerId)
+const getActiveLayersById = (state, layerId) =>
+    state.activeLayers.filter((layer) => layer.id === layerId)
+const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
     const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
@@ -22,47 +20,12 @@ const cloneActiveLayerConfig = (getters, layer) => {
             clone.opacity = layer.opacity
         }
         if (layer.customAttributes.year && clone.timeConfig) {
-            const timeConfigEntry = clone.timeConfig.getTimeEntryForYear(
-                layer.customAttributes.year
+            clone.timeConfig.updateCurrentTimeEntry(
+                clone.timeConfig.getTimeEntryForYear(layer.customAttributes.year)
             )
-            if (timeConfigEntry) {
-                clone.timeConfig.updateCurrentTimeEntry(timeConfigEntry)
-            }
         }
     }
     return clone
-}
-
-const updateLayerCommit = (state, layer) => {
-    const layer2Update = getActiveLayerById(state, layer.id)
-    if (layer2Update) {
-        Object.assign(layer2Update, layer)
-    } else {
-        throw new Error(`Failed to update layer ${layer.id}: layer not found in active layers`)
-    }
-}
-
-const updateLayerAction = ({ commit, getters }, { layer, dispatcher }) => {
-    if (layer instanceof AbstractLayer) {
-        commit('updateLayer', { layer, dispatcher })
-    } else if (layer instanceof Object && layer.id) {
-        // Partial update of a layer
-        const currentLayer = getters.getActiveLayerById(layer.id)
-        if (!currentLayer) {
-            throw new Error(
-                `Failed to update layer "${layer.id}", layer not found in active layers`
-            )
-        }
-        const updatedLayer = currentLayer.clone()
-        Object.entries(layer).forEach((entry) => {
-            if (entry[0] !== 'id') {
-                updatedLayer[entry[0]] = entry[1]
-            }
-        })
-        commit('updateLayer', { layer: updatedLayer, dispatcher })
-    } else {
-        throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
-    }
 }
 
 const state = {
@@ -113,7 +76,6 @@ const getters = {
      *
      * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
-     * @param state
      * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
     visibleLayers: (state) => {
@@ -123,12 +85,19 @@ const getters = {
         }
         return visibleLayers
     },
+
+    /**
+     * Return the visible layer on top (layer with visible flag to true)
+     *
+     * @returns {AbstractLayer | null} The visible layer or null if no layer are visible
+     */
     visibleLayerOnTop: (state, getters) => {
         if (getters.visibleLayers.length > 0) {
             return getters.visibleLayers.slice(-1)[0]
         }
         return null
     },
+
     /**
      * Get current KML layer selected for drawing.
      *
@@ -138,38 +107,50 @@ const getters = {
      *
      * @returns {KMLLayer | null}
      */
-    activeKmlLayer: (state) => {
-        return state.activeLayers.find(
-            (layer) => layer.type === LayerTypes.KML && !layer.isExternal
-        )
-    },
+    activeKmlLayer: (state) =>
+        state.activeLayers.find((layer) => layer.type === LayerTypes.KML && !layer.isExternal) ??
+        null,
+
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
      *
-     * @returns Object returned with the same structure as the config, meaning keys of the object
-     *   are BG layer IDs and values are BG layer metadata.
+     * @returns {[AbstractLayer]} List of background layers.
      */
     backgroundLayers: (state, _, rootState) =>
         state.config.filter(
             (layer) => layer.isBackground && rootState.cesium.active === layer.isSpecificFor3D
         ),
+
     /**
      * Retrieves a layer config metadata defined by its unique ID
      *
-     * @param state
-     * @returns {GeoAdminLayer}
+     * @returns {AbstractLayer | null}
      */
     getLayerConfigById: (state) => (geoAdminLayerId) =>
-        state.config.find((layer) => layer.id === geoAdminLayerId),
+        state.config.find((layer) => layer.id === geoAdminLayerId) ?? null,
+
     /**
-     * Retrieves an active layer metadata defined by its unique ID
+     * Retrieves active layer(s) by ID
      *
-     * @param state
-     * @returns {GeoAdminLayer}
+     * @param {string} layerId ID of the layer(s) to retrieve
+     * @returns {[AbstractLayer]} All active layers matching the ID
      */
-    getActiveLayerById: (state) => (geoAdminLayerId) =>
-        state.activeLayers.find((layer) => layer.id === geoAdminLayerId),
+    getActiveLayersById: (state) => (layerId) =>
+        state.activeLayers.filter((layer) => layer.id === layerId),
+
+    /**
+     * Retrieves active layer by index
+     *
+     * @param {number} index Index of the layer to retrieve
+     * @returns {AbstractLayer | null} Active layer or null if the index is invalid
+     */
+    getActiveLayerByIndex: (state) => (index) => {
+        if (index < 0 || index == null) {
+            throw new Error(`Failed to get ActiveLayer by index: invalid index ${index}`)
+        }
+        return state.activeLayers.at(index) ?? null
+    },
 
     /**
      * Get layers with time config
@@ -191,48 +172,6 @@ const getters = {
         const layer = state.activeLayers.find((layer) => layer.id === layerId)
         return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
     },
-    /**
-     * Returns the z-index of a visible layer, taking into account the background layer(s) and/or if
-     * one of them is a group of layer (and thus all sub-layers are counted in the index)
-     *
-     * If the layer is not part of the visible layers (or is null or invalid), this will return -1
-     * as a result
-     *
-     * @param {AbstractLayer | String} layerIdOrObject
-     * @returns {Number}
-     */
-    zIndexForVisibleLayer: (state, getters) => (layerIdOrObject) => {
-        let lookupId
-        if (layerIdOrObject instanceof AbstractLayer) {
-            lookupId = layerIdOrObject.id
-        } else if (typeof layerIdOrObject === 'string') {
-            lookupId = layerIdOrObject
-        } else {
-            log.error("wrong type of layer definition, can't toggle visibility", layerIdOrObject)
-            return -1
-        }
-        const matchingLayer = getters.visibleLayers.find((layer) => layer.id === lookupId)
-        if (!matchingLayer) {
-            return -1
-        }
-        // we start by counting the background layer
-        let bgZIndex = state.currentBackgroundLayer ? 1 : 0
-        // we now count layers, checking if there are sub-layers (if the layer is a group of layer)
-        return (
-            getters.visibleLayers
-                // only keeping visible layer below the one that we want the z-index of
-                .slice(0, getters.visibleLayers.indexOf(matchingLayer))
-                // transforming layers into "z-indexes" by counting layers for groups, or 1 for normal layers
-                .map((layer) => {
-                    if (layer instanceof ExternalGroupOfLayers) {
-                        return layer.layers.length
-                    }
-                    return 1
-                })
-                // sum of all "z-index", and setting the initial value to the background's z-index
-                .reduce((a, b) => a + b, bgZIndex)
-        )
-    },
 }
 
 const actions = {
@@ -240,7 +179,9 @@ const actions = {
      * Will set the background to the given layer (or layer ID), but only if this layer's
      * configuration states that this layer can be a background layer (isBackground flag)
      *
-     * @param {String | AbstractLayer} layerIdOrObject
+     * @param {String | AbstractLayer} bgLayer Either the background layer id or an AbstractLayer
+     *   object
+     * @param {string} dispatcher Action dispatcher name
      */
     setBackground({ commit, getters }, { bgLayer, dispatcher }) {
         const layerIdOrObject = bgLayer
@@ -256,12 +197,14 @@ const actions = {
             commit('setBackground', { bgLayer: null, dispatcher })
         }
     },
+
     /**
      * Sets the configuration of all available layers for this application
      *
      * Will add layers back, if some were already added before the config was changed
      *
      * @param {AbstractLayer[]} config
+     * @param {string} dispatcher Action dispatcher name
      */
     setLayerConfig({ commit, state, getters }, { config, dispatcher }) {
         const activeLayerBeforeConfigChange = [...state.activeLayers]
@@ -285,8 +228,9 @@ const actions = {
         })
         commit('setLayers', { layers: layers, dispatcher })
     },
+
     /**
-     * Add a layer to the active layers.
+     * Add a layer on top of the active layers.
      *
      * It will do so by cloning the config that is given, or the one that matches the layer ID in
      * the layers' config. This is done so that we may add one "layer" multiple time to the active
@@ -296,6 +240,7 @@ const actions = {
      * @param {AbstractLayer} layer
      * @param {String} layerId
      * @param {ActiveLayerConfig} layerConfig
+     * @param {string} dispatcher Action dispatcher name
      */
     addLayer(
         { commit, getters },
@@ -319,12 +264,14 @@ const actions = {
             log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
         }
     },
+
     /**
      * Sets the list of active layers. This replace the existing list.
      *
      * NOTE: the layers array is automatically deep cloned
      *
      * @param {[AbstractLayer | ActiveLayerConfig | String]} layers List of active layers
+     * @param {string} dispatcher Action dispatcher name
      */
     setLayers({ commit, getters }, { layers, dispatcher }) {
         const clones = layers
@@ -343,150 +290,228 @@ const actions = {
             .filter((layer) => layer != null)
         commit('setLayers', { layers: clones, dispatcher })
     },
-    removeLayer({ commit }, { layer = null, layerId = null, dispatcher }) {
+
+    /**
+     * Remove a layer by ID or by index.
+     *
+     * @param {string} layerId Layer ID to removed. NOTE: this removes all layer with the matching
+     *   ID!
+     * @param {number} index Index of the layer to remove
+     * @param {string} dispatcher Action dispatcher name
+     */
+    removeLayer({ commit }, { index = null, layerId = null, dispatcher }) {
         if (layerId) {
-            commit('removeLayerWithId', { layerId, dispatcher })
-        } else if (layer) {
-            commit('removeLayerWithId', { layerId: layer.id, dispatcher })
+            commit('removeLayersById', { layerId, dispatcher })
+        } else if (index != null) {
+            commit('removeLayerByIndex', { index, dispatcher })
         } else {
-            log.error('Can not remove layer that is not yet added', layer, layerId, dispatcher)
+            log.error(
+                `Failed to remove layer: invalid parameter: ${index}, ${layerId}, ${dispatcher}`
+            )
         }
     },
+
     /**
-     * Full or partial update of a layer in the active layer list
+     * Full or partial update of a layer at index in the active layer list
      *
-     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
-     * @param {AbstractLayer | { id: String; any: any }} layer Full layer object (AbstractLayer) to
-     *   update or an object with the layer ID to update and any property to update (partial
-     *   update)
+     * @param {number} index Index of the layer to update
+     * @param {AbstractLayer | { any: any }} layer Full layer object (AbstractLayer) to update or an
+     *   object with the properties to update (partial update)
+     * @param {string} dispatcher Action dispatcher name
      */
-    updateLayer({ commit, getters }, { layer, dispatcher }) {
-        updateLayerAction({ commit, getters }, { layer, dispatcher })
+    updateLayer({ commit, getters }, { index, layer, dispatcher }) {
+        if (layer instanceof AbstractLayer) {
+            commit('updateLayer', { index, layer, dispatcher })
+        } else {
+            // Partial update of a layer
+            const layer2Update = getters.getActiveLayerByIndex(index)
+            if (!layer2Update) {
+                throw new Error(`Failed to updateLayer: invalid layer index ${index}`)
+            }
+            if (layer.id && layer.id !== layer2Update.id) {
+                throw new Error(
+                    `Failed to updateLayer "${layer2Update.id}" at index ${index}: not allowed to update layer ID to "${layer.id}"`
+                )
+            }
+
+            const updatedLayer = layer2Update.clone()
+            Object.entries(layer).forEach((entry) => (updatedLayer[entry[0]] = entry[1]))
+
+            commit('updateLayer', { index, layer: updatedLayer, dispatcher })
+        }
     },
+
     /**
-     * Full or partial update of layers in the active layer list
+     * Full or partial update of layers in the active layer list. The update is done by IDs and
+     * updates all layer matching the IDs
      *
-     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
      * @param {[AbstractLayer | { id: String; any: any }]} layers List of full layer object
      *   (AbstractLayer) to update or an object with the layer ID to update and any property to
      *   update (partial update)
+     * @param {string} dispatcher Action dispatcher name
      */
     updateLayers({ commit, getters }, { layers, dispatcher }) {
-        layers.forEach((layer) => updateLayerAction({ commit, getters }, { layer, dispatcher }))
+        const updatedLayers = layers
+            .map((layer) => {
+                if (layer instanceof AbstractLayer) {
+                    return layer
+                } else {
+                    const layers2Update = getters.getActiveLayersById(layer.id)
+                    if (!layers2Update) {
+                        throw new Error(
+                            `Failed to updateLayers: "${layer.id}" not found in active layers`
+                        )
+                    }
+                    return layers2Update.map((layer2Update) => {
+                        const updatedLayer = layer2Update.clone()
+                        Object.entries(layer).forEach(
+                            (entry) => (updatedLayer[entry[0]] = entry[1])
+                        )
+                        return updatedLayer
+                    })
+                }
+            })
+            .flat()
+        commit('updateLayers', { layers: updatedLayers, dispatcher })
     },
+
+    /**
+     * Clear all active layers
+     *
+     * @param {string} dispatcher Action dispatcher name
+     */
     clearLayers({ commit }, args) {
         commit('clearLayers', args)
     },
-    toggleLayerVisibility({ commit, state }, { layerId = null, layer = null, dispatcher }) {
-        let matchingActiveLayer
-        if (layerId) {
-            matchingActiveLayer = getActiveLayerById(state, layerId)
-        } else if (layer instanceof AbstractLayer) {
-            // here we are not 100% sure that the instance we have received matches the one stored
-            // in activate layers, as the addLayer action creates clones of the config when a layer
-            // is added. So we search for the matching instance in the currently active layers.
-            matchingActiveLayer = state.activeLayers.find(
-                (activeLayer) => activeLayer.id === layer.id
-            )
-        } else {
-            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
-        }
-        if (matchingActiveLayer) {
-            commit('toggleLayerVisibility', {
-                layer: matchingActiveLayer,
-                dispatcher,
-            })
-        } else {
-            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
-        }
+
+    /**
+     * Toggle the layer visibility
+     *
+     * @param {number} index Index of the layer to toggle
+     * @param {string} dispatcher Action dispatcher name
+     */
+    toggleLayerVisibility({ commit }, { index, dispatcher }) {
+        commit('toggleLayerVisibility', { index, dispatcher })
     },
+
+    /**
+     * Set layer visibility flag
+     *
+     * @param {number} index Index of the layer to set
+     * @param {Boolean} visible Visible flag value
+     * @param {string} dispatcher Action dispatcher name
+     */
     setLayerVisibility({ commit }, payload) {
-        if ('visible' in payload && 'layerId' in payload) {
-            commit('setLayerVisibility', payload)
-        } else {
-            log.error('Failed to set layer visibility, invalid payload', payload)
-        }
+        commit('setLayerVisibility', payload)
     },
+
+    /**
+     * Set layer opacity
+     *
+     * @param {number} index Index of the layer to set
+     * @param {number} opacity Opacity value to set
+     * @param {string} dispatcher Action dispatcher name
+     */
     setLayerOpacity({ commit }, payload) {
         commit('setLayerOpacity', payload)
     },
-    setTimedLayerCurrentYear({ commit, getters }, { layerId, year, dispatcher }) {
-        if (layerId && year) {
-            const layer = getters.getActiveLayerById(layerId)
-            if (layer && layer.timeConfig) {
-                // checking that the year exists in this timeConfig
-                const timeEntryForYear = layer.timeConfig.getTimeEntryForYear(year)
-                if (timeEntryForYear) {
-                    commit('setLayerYear', {
-                        layerId,
-                        year: year,
-                        dispatcher,
-                    })
-                } else {
-                    log.error('timestamp for year not found, ignoring change', layer, year)
-                }
-            } else {
-                log.error(
-                    'Failed to set layer year, layer not found or has no time config',
-                    layerId,
-                    layer
-                )
-            }
-        } else {
-            log.error('Failed to set layer year, invalid payload', layerId, year)
-        }
-    },
-    moveActiveLayerBack({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
-        const activeLayer = getters.getActiveLayerById(layerId)
-        if (activeLayer) {
-            // checking if the layer can be put one step back
-            const currentIndex = state.activeLayers.indexOf(activeLayer)
-            if (currentIndex > 0) {
-                commit('moveActiveLayerFromIndexToIndex', {
-                    layer: activeLayer,
-                    startingIndex: currentIndex,
-                    endingIndex: Math.max(0, currentIndex - amount),
-                    dispatcher,
-                })
-            }
-        }
-    },
-    moveActiveLayerFront({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
-        const activeLayer = getters.getActiveLayerById(layerId)
-        if (activeLayer) {
-            // checking if the layer can be put one step front
-            const currentIndex = state.activeLayers.indexOf(activeLayer)
-            if (currentIndex < state.activeLayers.length - 1) {
-                commit('moveActiveLayerFromIndexToIndex', {
-                    layer: activeLayer,
-                    startingIndex: currentIndex,
-                    endingIndex: Math.min(state.activeLayers.length - 1, currentIndex + amount),
-                    dispatcher,
-                })
-            }
-        }
-    },
+
     /**
-     * @param {AbstractLayer | String} layerIdOrObject
-     * @returns {Number}
+     * Set layer current year
+     *
+     * @param {number} index Index of the layer to set
+     * @param {number} year Year to set as current
+     * @param {string} dispatcher Action dispatcher name
+     */
+    setTimedLayerCurrentYear({ commit, getters }, { index, year, dispatcher }) {
+        const layer = getters.getActiveLayerByIndex(index)
+        if (!layer) {
+            throw new Error(`Failed to setTimedLayerCurrentYear: invalid index ${index}`)
+        }
+        // checking that the year exists in this timeConfig
+        if (!layer.timeConfig) {
+            throw new Error(
+                `Failed to setTimedLayerCurrentYear: layer at index ${index} is not a timed layer`
+            )
+        }
+        if (!layer.timeConfig.getTimeEntryForYear(year)) {
+            throw new Error(
+                `Failed to setTimedLayerCurrentYear: year ${year} is not valid for layer at index ${index}`
+            )
+        }
+        commit('setLayerYear', {
+            layer,
+            year: year,
+            dispatcher,
+        })
+    },
+
+    /**
+     * Move an active layer to the given index
+     *
+     * @param {number} index Index of the layer to move front
+     * @param {number} newIndex Index to move the layer to
+     * @param {string} dispatcher Action dispatcher name
+     */
+    moveActiveLayerToIndex({ commit, getters }, { index, newIndex, dispatcher }) {
+        const activeLayer = getters.getActiveLayerByIndex(index)
+        if (!activeLayer) {
+            throw new Error(`Failed to moveActiveLayerToIndex: invalid index ${index}`)
+        }
+        // checking if the layer can be put one step front
+        if (newIndex < state.activeLayers.length && newIndex >= 0) {
+            commit('moveActiveLayerToIndex', {
+                index,
+                newIndex,
+                dispatcher,
+            })
+        } else {
+            throw new Error(`Failed to moveActiveLayerToIndex: invalid new index ${newIndex}`)
+        }
+    },
+
+    /**
+     * Set the preview layer
+     *
+     * @param {AbstractLayer | String | null} layer Layer to set as preview or layer id to set as
+     *   preview or null to clear the preview layer
+     * @param {string} dispatcher Action dispatcher name
      */
     setPreviewLayer({ commit, getters }, { layer, dispatcher }) {
-        let clone = null
-        if (layer instanceof AbstractLayer) {
-            clone = layer.clone()
+        if (layer === null) {
+            commit('setPreviewLayer', { layer: null, dispatcher })
         } else {
-            clone = getters.getLayerConfigById(layer)?.clone()
-        }
-        if (clone) {
+            let clone = null
+            if (layer instanceof AbstractLayer) {
+                clone = layer.clone()
+            } else {
+                clone = getters.getLayerConfigById(layer)?.clone()
+                if (!clone) {
+                    throw new Error(
+                        `Failed to setPreviewLayer: layer ${layer.id} not found in config`
+                    )
+                }
+            }
             clone.visible = true
             commit('setPreviewLayer', { layer: clone, dispatcher })
-        } else {
-            log.error(`Layer "${layer}" not found in configs.`)
         }
     },
+
+    /**
+     * Clear the preview layer
+     *
+     * @param {string} dispatcher Action dispatcher name
+     */
     clearPreviewLayer({ commit }, { dispatcher }) {
         commit('setPreviewLayer', { layer: null, dispatcher })
     },
+
+    /**
+     * Set preview year to all visible layers with time config
+     *
+     * @param {number} year Year to set
+     * @param {string} dispatcher Action dispatcher name
+     */
     setPreviewYear({ commit, getters }, { year, dispatcher }) {
         const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
             (layer) => layer.timeConfig.years
@@ -497,64 +522,95 @@ const actions = {
             log.error('year not found in active layers, ignoring', year)
         }
     },
+
+    /**
+     * Clear preview year
+     *
+     * @param {string} dispatcher Action dispatcher name
+     */
     clearPreviewYear({ commit }, { dispatcher }) {
         commit('setPreviewYear', { year: null, dispatcher })
     },
+
+    /**
+     * Set a layer error translation key.
+     *
+     * NOTE: This set the error key to all layers matching the ID.
+     *
+     * @param {string} layerId Layer ID of the layer to set the error
+     * @param {string} dispatcher Action dispatcher name
+     */
     setLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const currentLayer = getters.getActiveLayerById(layerId)
-        if (!currentLayer) {
+        const layers = getters.getActiveLayersById(layerId)
+        if (layers.length === 0) {
             throw new Error(
                 `Failed to update layer error key "${layerId}", layer not found in active layers`
             )
         }
-        const updatedLayer = currentLayer.clone()
-        updatedLayer.errorKey = errorKey
-        updatedLayer.hasError = !!errorKey
-        if (updatedLayer.isLoading) {
-            updatedLayer.isLoading = false
-        }
-        commit('updateLayer', { layer: updatedLayer, dispatcher })
+        const updatedLayers = layers.map((layer) => {
+            const clone = layer.clone()
+            clone.errorKey = errorKey
+            clone.hasError = !!errorKey
+            if (clone.isLoading) {
+                clone.isLoading = false
+            }
+            return clone
+        })
+        commit('updateLayers', { layers: updatedLayers, dispatcher })
     },
-    updateKmlGpxLayer({ commit, getters, rootState }, { layerId, data, metadata, dispatcher }) {
-        const currentLayer = getters.getActiveLayerById(layerId)
-        if (!currentLayer) {
+
+    /**
+     * Set KML/GPX layer(s) with its data and metadata.
+     *
+     * NOTE: all matching layer id will be set.
+     *
+     * @param {string} layerId Layer ID of KML to update
+     * @param {string} data Data KML data to set
+     * @param {object | null} metadata KML metadata to set (only for geoadmin KMLs)
+     * @param {string} dispatcher Action dispatcher name
+     */
+    setKmlGpxLayerData({ commit, getters, rootState }, { layerId, data, metadata, dispatcher }) {
+        const layers = getters.getActiveLayersById(layerId)
+        if (!layers) {
             throw new Error(
                 `Failed to update GPX/KML layer data/metadata "${layerId}", ` +
                     `layer not found in active layers`
             )
         }
-        const updatedLayer = currentLayer.clone()
+        const updatedLayers = layers.map((layer) => {
+            const clone = layer.clone()
+            if (data) {
+                let extent
+                if (clone.type === LayerTypes.KML) {
+                    clone.name = parseKmlName(data) || 'KML'
+                    clone.kmlData = data
+                    extent = getKmlExtent(data)
+                } else if (clone.type === LayerTypes.GPX) {
+                    // The name of the GPX is derived from the metadata below
+                    clone.gpxData = data
+                    extent = getGpxExtent(data)
+                }
+                clone.isLoading = false
 
-        if (data) {
-            let extent
-            if (updatedLayer.type === LayerTypes.KML) {
-                updatedLayer.name = parseKmlName(data) || 'KML'
-                updatedLayer.kmlData = data
-                extent = getKmlExtent(data)
-            } else if (updatedLayer.type === LayerTypes.GPX) {
-                // The name of the GPX is derived from the metadata below
-                updatedLayer.gpxData = data
-                extent = getGpxExtent(data)
+                if (!extent) {
+                    clone.errorKey = 'kml_gpx_file_empty'
+                    clone.hasError = true
+                } else if (!getExtentForProjection(rootState.position.projection, extent)) {
+                    clone.errorKey = 'kml_gpx_file_out_of_bounds'
+                    clone.hasError = true
+                }
             }
-            updatedLayer.isLoading = false
-
-            if (!extent) {
-                updatedLayer.errorKey = 'kml_gpx_file_empty'
-                updatedLayer.hasError = true
-            } else if (!getExtentForProjection(rootState.position.projection, extent)) {
-                updatedLayer.errorKey = 'kml_gpx_file_out_of_bounds'
-                updatedLayer.hasError = true
+            if (metadata) {
+                if (clone.type === LayerTypes.KML) {
+                    clone.kmlMetadata = metadata
+                } else if (clone.type === LayerTypes.GPX) {
+                    clone.gpxMetadata = metadata
+                    clone.name = metadata.name ?? 'GPX'
+                }
             }
-        }
-        if (metadata) {
-            if (updatedLayer.type === LayerTypes.KML) {
-                updatedLayer.kmlMetadata = metadata
-            } else if (updatedLayer.type === LayerTypes.GPX) {
-                updatedLayer.gpxMetadata = metadata
-                updatedLayer.name = metadata.name ?? 'GPX'
-            }
-        }
-        commit('updateLayer', { layer: updatedLayer, dispatcher })
+            return clone
+        })
+        commit('updateLayers', { layers: updatedLayers, dispatcher })
     },
 }
 
@@ -570,51 +626,69 @@ const mutations = {
         state.config = config
     },
     addLayer(state, { layer }) {
-        // first, remove it if already present to avoid duplicate layers
-        state.activeLayers = removeActiveLayerById(state, layer.id)
         state.activeLayers.push(layer)
     },
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
-    updateLayer(state, { layer }) {
-        updateLayerCommit(state, layer)
+    updateLayer(state, { index, layer }) {
+        const layer2Update = getActiveLayerByIndex(state, index)
+        if (!layer2Update) {
+            throw new Error(`Failed to update layer at index ${index}: invalid index`)
+        }
+        if (layer.id && layer.id !== layer2Update.id) {
+            throw new Error(
+                `Failed to update layer at index ${index}: layer id "${layer2Update.id}" at index ${index} don't match given id "${layer.id}"`
+            )
+        }
+        Object.assign(layer2Update, layer)
     },
     updateLayers(state, { layers }) {
         layers.forEach((layer) => {
-            updateLayerCommit(state, layer)
+            getActiveLayersById(state, layer.id).forEach((layer2Update) => {
+                log.debug(`update layer`, layer2Update, layer)
+                Object.assign(layer2Update, layer)
+            })
         })
     },
-    removeLayerWithId(state, { layerId }) {
-        state.activeLayers = removeActiveLayerById(state, layerId)
+    removeLayersById(state, { layerId }) {
+        state.activeLayers = state.activeLayers.filter((layer) => layer.id !== layerId)
+    },
+    removeLayerByIndex(state, { index }) {
+        state.activeLayers.splice(index, 1)
     },
     clearLayers(state) {
         state.activeLayers = []
     },
-    toggleLayerVisibility(state, { layer }) {
+    toggleLayerVisibility(state, { index }) {
+        const layer = getActiveLayerByIndex(state, index)
+        if (!layer) {
+            throw new Error(`Failed to toggleLayerVisibility at index ${index}: invalid index`)
+        }
         layer.visible = !layer.visible
     },
-    setLayerVisibility(state, { layerId, visible }) {
-        const activeLayer = getActiveLayerById(state, layerId)
-        if (activeLayer) {
-            activeLayer.visible = visible
+    setLayerVisibility(state, { index, visible }) {
+        const layer = getActiveLayerByIndex(state, index)
+        if (!layer) {
+            throw new Error(`Failed to setLayerVisibility at index ${index}: invalid index`)
+        }
+        if (layer) {
+            layer.visible = visible
         }
     },
-    setLayerOpacity(state, { layerId, opacity }) {
-        const layerMatchingId = getActiveLayerById(state, layerId)
-        if (layerMatchingId) {
-            layerMatchingId.opacity = Number(opacity)
+    setLayerOpacity(state, { index, opacity }) {
+        const layer = getActiveLayerByIndex(state, index)
+        if (!layer) {
+            throw new Error(`Failed to setLayerOpacity at index ${index}: invalid index`)
         }
+        layer.opacity = Number(opacity)
     },
-    setLayerYear(state, { layerId, year }) {
-        const timedLayer = getActiveLayerById(state, layerId)
-        timedLayer.timeConfig.updateCurrentTimeEntry(
-            timedLayer.timeConfig.getTimeEntryForYear(year)
-        )
+    setLayerYear(state, { layer, year }) {
+        layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
     },
-    moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
-        state.activeLayers.splice(startingIndex, 1)
-        state.activeLayers.splice(endingIndex, 0, layer)
+    moveActiveLayerToIndex(state, { index, newIndex }) {
+        const removed = state.activeLayers.splice(index, 1)
+        state.activeLayers.splice(newIndex, 0, removed[0])
     },
     setPreviewLayer(state, { layer }) {
         state.previewLayer = layer

@@ -115,7 +115,7 @@ export default function useDrawingModeInteraction({
             manner. This means that if e.g. a property inside of the editableFeature changes, an
             update must be triggered manually.*/
             feature.setProperties({
-                editableFeature: EditableFeature.newFeature(args),
+                editableFeature: new EditableFeature(args),
                 // For backward compatibility with the legacy mf-geoadmin3 viewer we need to add the
                 // feature type as proprietary property
                 type: args.featureType.toLowerCase(),

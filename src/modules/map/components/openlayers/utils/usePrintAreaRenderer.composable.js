@@ -50,17 +50,9 @@ export default function usePrintAreaRenderer(map) {
     let worldPolygon = null
     let printRectangle = []
 
-    const isActive = computed(() => {
-        return store.state.print.printSectionShown
-    })
-
-    const selectedLayoutName = computed(() => {
-        return store.state.print.selectedLayout.name
-    })
-
-    const selectedScale = computed(() => {
-        return store.state.print.selectedScale
-    })
+    const isActive = computed(() => store.state.print.printSectionShown)
+    const selectedLayoutName = computed(() => store.state.print.selectedLayout.name)
+    const selectedScale = computed(() => store.state.print.selectedScale)
 
     watch(isActive, (newValue) => {
         if (newValue) {

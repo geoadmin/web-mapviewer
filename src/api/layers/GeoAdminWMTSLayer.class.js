@@ -1,6 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { WMTS_BASE_URL } from '@/config'
 
@@ -46,6 +45,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      *   is `[]`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
+     *   through the search bar. Default is `false`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -67,6 +68,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             hasTooltip = false,
             topics = [],
             hasLegend = false,
+            searchable = false,
         } = layerData
         super({
             name,
@@ -78,37 +80,15 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             attributions,
             isBackground,
             baseUrl,
+            // as we will be building URL based on / paths with WMTS, we want to make sure the base URL ends with a /
+            ensureTrailingSlashInBaseUrl: true,
             isHighlightable,
             hasTooltip,
             topics,
             hasLegend,
+            searchable,
             timeConfig,
         })
         this.format = format
-    }
-
-    /**
-     * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
-     *   EPSG:2056 will require an input of 2056)
-     * @param {String | null} timestamp A timestamp to be used, instead of the one define in the
-     *   time config of the layer. Is used to preview a specific timestamp without having to change
-     *   the layer's config (very useful for the time slider for instance)
-     * @returns {String} A XYZ type URL to request this WMTS layer's tiles
-     */
-    getURL(epsgNumber, timestamp = null) {
-        if (!epsgNumber) {
-            throw Error('epsgNumber is required')
-        }
-        let timestampToUse = timestamp
-        if (!timestampToUse || !this.timeConfig?.hasTimestamp(timestampToUse)) {
-            // if no timestamp was given as param, or if the given timestamp is not part of the possible timestamps
-            // we fall back to the timestamp in the time config
-            timestampToUse = this.timeConfig?.currentTimestamp
-        }
-        if (!timestampToUse) {
-            // if no timestamp was found (no time config or preview year) we fall back to 'current' as the default WMTS timestamp
-            timestampToUse = CURRENT_YEAR_WMTS_TIMESTAMP
-        }
-        return `${this.baseUrl}1.0.0/${this.technicalName}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 }

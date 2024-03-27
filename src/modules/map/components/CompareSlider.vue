@@ -4,6 +4,7 @@ import { unByKey } from 'ol/Observable'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
@@ -25,13 +26,14 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
+const visibleLayers = computed(() => store.getters.visibleLayers)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
     slice()
 })
 
-watch(visibleLayerOnTop, () => {
+watch(visibleLayers, () => {
     nextTick(slice)
 })
 
@@ -53,9 +55,11 @@ function slice() {
         preRenderKey.value = null
         postRenderKey.value = null
     }
-    const topVisibleLayer = olMap?.getAllLayers().find((layer) => {
-        return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.id
-    })
+    const topVisibleLayer = olMap
+        ?.getAllLayers()
+        .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
+        .find((layer) => layer.get('id') === visibleLayerOnTop.value?.id)
+    log.debug(`Compare slider slicing`, topVisibleLayer, visibleLayerOnTop.value)
     if (topVisibleLayer && isCompareSliderActive.value) {
         preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
         postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
@@ -135,10 +139,16 @@ function releaseSlider() {
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
     >
-        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'caret-left']" />
+        <FontAwesomeIcon
+            class="compare-slider-caret-left bg-primary text-white rounded-start"
+            :icon="['fas', 'caret-left']"
+        />
         <div class="compare-slider-line"></div>
 
-        <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
+        <FontAwesomeIcon
+            class="compare-slider-caret-right bg-primary text-white rounded-end"
+            :icon="['fas', 'caret-right']"
+        />
     </div>
 </template>
 
@@ -153,18 +163,14 @@ function releaseSlider() {
     &-caret-right {
         position: inherit;
         top: 50%;
-        width: 14px;
-        height: 14px;
-        color: $white;
-        background: $primary;
         z-index: inherit;
-    }
-
-    &-caret-left {
-        translate: 4px;
+        padding-left: 6px;
+        padding-right: 6px;
+        padding-top: 2px;
+        padding-bottom: 2px;
     }
     &-caret-right {
-        translate: 22px;
+        translate: 20px;
     }
     &-line {
         position: relative;

@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 
 import {
     CapabilitiesError,
+    EXTERNAL_SERVER_TIMEOUT,
     parseWmsCapabilities,
     parseWmtsCapabilities,
 } from '@/api/layers/layers-external.api'
@@ -62,7 +63,7 @@ export function useCapabilities(newUrl) {
     async function loadCapabilities() {
         const fullUrl = guessExternalLayerUrl(url.value, lang.value).toString()
         try {
-            const response = await axios.get(fullUrl, { timeout: 5000 })
+            const response = await axios.get(fullUrl, { timeout: EXTERNAL_SERVER_TIMEOUT })
             if (response.status !== 200) {
                 throw new CapabilitiesError(
                     `Failed to fetch ${fullUrl}; status_code=${response.status}`,

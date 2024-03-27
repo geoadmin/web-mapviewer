@@ -9,19 +9,22 @@ export const ClickType = {
 
 export class ClickInfo {
     /**
-     * @param {Number[]} coordinate Of the last click expressed in the current mapping projection
-     * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
-     *   (counted from top left corner)
-     * @param {Object[]} features List of potential features (geoJSON or KML) that where under the
-     *   click
-     * @param {ClickType} clickType Which button of the mouse has been used to make this click
+     * @param {[Number, Number]} clickInfo.coordinate Of the last click expressed in the current
+     *   mapping projection
+     * @param {[Number, Number]} [clickInfo.pixelCoordinate=[]] Position of the last click on the
+     *   screen [x, y] in pixels (counted from top left corner). Default is `[]`
+     * @param {SelectableFeature[]} [clickInfo.features=[]] List of potential features (geoJSON or
+     *   KML) that where under the click. Default is `[]`
+     * @param {ClickType} [clickInfo.clickType=ClickType.LEFT_SINGLECLICK] Which button of the mouse
+     *   has been used to make this click. Default is `ClickType.LEFT_SINGLECLICK`
      */
-    constructor(
-        coordinate = [],
-        pixelCoordinate = [],
-        features = [],
-        clickType = ClickType.LEFT_SINGLECLICK
-    ) {
+    constructor(clickInfo) {
+        const {
+            coordinate = [],
+            pixelCoordinate = [],
+            features = [],
+            clickType = ClickType.LEFT_SINGLECLICK,
+        } = clickInfo
         this.coordinate = [...coordinate]
         this.pixelCoordinate = [...pixelCoordinate]
         this.features = [...features]

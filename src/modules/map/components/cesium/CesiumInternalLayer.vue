@@ -3,8 +3,6 @@
         <CesiumVectorLayer
             v-if="layerConfig.type === LayerTypes.VECTOR"
             :layer-config="layerConfig"
-            :projection="projection"
-            :z-index="zIndex"
         />
         <CesiumWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"

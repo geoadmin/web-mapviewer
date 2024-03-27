@@ -1,41 +1,154 @@
+<script setup>
+/**
+ * Representation of an active layer in the menu, with the name of the layer and some controls (like
+ * visibility, opacity or position in the layer stack)
+ */
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, onMounted, ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import ErrorButton from '@/utils/components/ErrorButton.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
+import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
+
+const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
+
+const props = defineProps({
+    index: {
+        type: Number,
+        required: true,
+    },
+    layer: {
+        type: AbstractLayer,
+        required: true,
+    },
+    showLayerDetail: {
+        type: Boolean,
+        default: false,
+    },
+    focusMoveButton: {
+        type: [String, null],
+        default: null,
+    },
+    isTopLayer: {
+        type: Boolean,
+        default: false,
+    },
+    isBottomLayer: {
+        type: Boolean,
+        default: false,
+    },
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
+    toRefs(props)
+
+const emit = defineEmits(['showLayerLegendPopup', 'toggleLayerDetail', 'moveLayer'])
+
+const store = useStore()
+
+useTippyTooltip('.menu-layer-item [data-tippy-content]')
+
+const layerUpButton = ref(null)
+const layerDownButton = ref(null)
+
+const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
+const id = computed(() => layer.value.id)
+const attributionName = computed(() =>
+    layer.value.attributions.map((attribution) => attribution.name).join(', ')
+)
+const showLegendIcon = computed(() => layer.value.hasDescription)
+const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+// only show the spinner for external layer, for our layers the
+// backend should be quick enough and don't require any spinner
+const showSpinner = computed(
+    () => layer.value.isLoading && layer.value.isExternal && !layer.value.hasError
+)
+
+onMounted(() => {
+    if (showLayerDetail.value) {
+        if (focusMoveButton.value === 'up') {
+            layerUpButton.value.focus()
+        } else if (focusMoveButton.value === 'down') {
+            layerDownButton.value.focus()
+        }
+    }
+})
+
+function onRemoveLayer() {
+    store.dispatch('removeLayer', { index: index.value, ...dispatcher })
+}
+
+function onToggleLayerVisibility() {
+    store.dispatch('toggleLayerVisibility', { index: index.value, ...dispatcher })
+}
+
+function onOpacityChange(e) {
+    store.dispatch('setLayerOpacity', {
+        index: index.value,
+        opacity: e.target.value,
+        ...dispatcher,
+    })
+}
+
+function showLayerLegendPopup() {
+    emit('showLayerLegendPopup', id.value)
+}
+
+function duplicateLayer() {
+    store.dispatch('addLayer', { layer: layer.value.clone(), ...dispatcher })
+}
+</script>
+
 <template>
     <div
         ref="menuLayerItem"
         class="menu-layer-item"
         :class="{ compact: compact }"
-        :data-cy="`menu-active-layer-${id}`"
+        :data-cy="`menu-active-layer-${id}-${index}`"
     >
         <div class="menu-layer-item-title">
             <button
-                class="btn d-flex align-items-center"
+                class="btn border-0 d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-remove-layer-${id}`"
+                :data-cy="`button-remove-layer-${id}-${index}`"
                 @click="onRemoveLayer"
             >
                 <FontAwesomeIcon icon="times-circle" />
             </button>
             <button
-                class="btn d-flex align-items-center"
+                class="btn border-0 d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-toggle-visibility-layer-${id}`"
+                :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
             >
                 <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
             </button>
             <TextTruncate
-                class="menu-layer-item-name"
+                class="menu-layer-item-name p-1"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
-                :data-cy="`active-layer-name-${id}`"
+                :data-cy="`active-layer-name-${id}-${index}`"
+                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
             <button
                 v-if="showSpinner"
-                class="loading-button btn"
+                class="loading-button btn border-0"
                 :class="{
                     'btn-lg': !compact,
                 }"
-                :data-cy="`button-loading-metadata-spinner-${id}`"
+                data-tippy-content="loading_external_layer"
+                :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
             >
                 <FontAwesomeIcon icon="spinner" pulse />
             </button>
@@ -43,16 +156,17 @@
                 v-else-if="layer.hasError"
                 :compact="compact"
                 :error-message="layer.errorKey"
-                :data-cy="`button-error-${id}`"
+                :data-cy="`button-error-${id}-${index}`"
             />
             <MenuActiveLayersListItemTimeSelector
-                v-if="layer.timeConfig"
+                v-if="hasMultipleTimestamps"
+                :layer-index="index"
                 :layer-id="id"
                 :time-config="layer.timeConfig"
                 :compact="compact"
             />
             <ThirdPartDisclaimer
-                v-if="hasDataDisclaimer(layer.id)"
+                v-if="hasDataDisclaimer"
                 :complete-disclaimer-on-click="true"
                 :source-name="attributionName"
             >
@@ -64,21 +178,21 @@
                 />
             </ThirdPartDisclaimer>
             <button
-                class="btn"
+                class="btn border-0"
                 :class="{
                     'btn-lg': !compact,
-                    'flip text-primary': showDetails,
+                    'flip text-primary': showLayerDetail,
                 }"
-                :data-cy="`button-open-visible-layer-settings-${id}`"
-                @click="onToggleLayerDetails"
+                :data-cy="`button-open-visible-layer-settings-${id}-${index}`"
+                @click="emit('toggleLayerDetail', index)"
             >
                 <FontAwesomeIcon icon="cog" />
             </button>
         </div>
         <div
-            v-show="showDetails"
+            v-show="showLayerDetail"
             class="menu-layer-item-details"
-            :data-cy="`div-layer-settings-${id}`"
+            :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
                 {{ $t('transparency') }}
@@ -91,24 +205,36 @@
                 max="1.0"
                 step="0.01"
                 :value="layer.opacity"
-                :data-cy="`slider-opacity-layer-${id}`"
+                :data-cy="`slider-opacity-layer-${id}-${index}`"
                 @change="onOpacityChange"
             />
             <button
+                v-if="hasMultipleTimestamps"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :disabled="isFirstLayer"
-                :data-cy="`button-raise-order-layer-${id}`"
-                @click="onOrderChange(1)"
+                :data-cy="`button-duplicate-layer-${id}-${index}`"
+                data-tippy-content="duplicate_layer"
+                @click.prevent="duplicateLayer()"
+            >
+                <FontAwesomeIcon :icon="['far', 'copy']" />
+            </button>
+            <button
+                ref="layerUpButton"
+                class="btn-layer-up-down btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
+                :disabled="isTopLayer"
+                :data-cy="`button-raise-order-layer-${id}-${index}`"
+                @click.prevent="emit('moveLayer', index, index + 1)"
             >
                 <FontAwesomeIcon icon="arrow-up" />
             </button>
             <button
-                class="btn d-flex align-items-center"
+                ref="layerDownButton"
+                class="btn-layer-up-down btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :disabled="isLastLayer"
-                :data-cy="`button-lower-order-layer-${id}`"
-                @click="onOrderChange(-1)"
+                :disabled="isBottomLayer"
+                :data-cy="`button-lower-order-layer-${id}-${index}`"
+                @click.prevent="emit('moveLayer', index, index - 1)"
             >
                 <FontAwesomeIcon icon="arrow-down" />
             </button>
@@ -116,7 +242,7 @@
                 v-if="showLegendIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-show-legend-layer-${id}`"
+                :data-cy="`button-show-legend-layer-${id}-${index}`"
                 @click="showLayerLegendPopup"
             >
                 <FontAwesomeIcon icon="info-circle" />
@@ -124,137 +250,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
-import { mapGetters, mapState } from 'vuex'
-
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import ErrorButton from '@/utils/components/ErrorButton.vue'
-import TextTruncate from '@/utils/components/TextTruncate.vue'
-import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
-
-/**
- * Representation of an active layer in the menu, with the name of the layer and some controls (like
- * visibility, opacity or position in the layer stack)
- */
-export default {
-    components: {
-        FontAwesomeIcon,
-        MenuActiveLayersListItemTimeSelector,
-        ThirdPartDisclaimer,
-        ErrorButton,
-        TextTruncate,
-    },
-    props: {
-        layer: {
-            type: AbstractLayer,
-            required: true,
-        },
-        showDetails: {
-            type: Boolean,
-            default: false,
-        },
-        isFirstLayer: {
-            type: Boolean,
-            default: false,
-        },
-        isLastLayer: {
-            type: Boolean,
-            default: false,
-        },
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: [
-        'toggleLayerDetails',
-        'removeLayer',
-        'toggleLayerVisibility',
-        'opacityChange',
-        'orderChange',
-        'showLayerLegendPopup',
-    ],
-    data() {
-        return {
-            showDataDisclaimer: false,
-        }
-    },
-    computed: {
-        ...mapGetters(['hasDataDisclaimer']),
-        ...mapState({
-            lang: (state) => state.i18n.lang,
-        }),
-        id() {
-            return this.layer?.id
-        },
-        attributionName() {
-            return this.layer.attributions.map((attribution) => attribution.name).join(', ')
-        },
-        checkboxIcon() {
-            if (this.layer.visible) {
-                return 'check-square'
-            }
-            return 'square'
-        },
-        showLegendIcon() {
-            if (this.layer !== null) {
-                return this.layer.hasLegend
-            }
-            return false
-        },
-        tooltipContent() {
-            return this.$t('loading_external_layer')
-        },
-        showSpinner() {
-            // only show the spinner for external layer, for our layers the
-            // backend should be quick enough and don't require any spinner
-            return this.layer.isLoading && this.layer.isExternal && !this.layer.hasError
-        },
-    },
-    watch: {
-        currentLang() {
-            this.tippyInstance.setContent(this.tooltipContent)
-        },
-    },
-    mounted() {
-        this.tippyInstances = tippy('.loading-button', {
-            content: this.tooltipContent,
-            arrow: true,
-            placement: 'top',
-            touch: false,
-        })
-    },
-    beforeUnmount() {
-        this.tippyInstances?.forEach((instance) => {
-            instance.destroy()
-        })
-    },
-    methods: {
-        onToggleLayerDetails() {
-            this.$emit('toggleLayerDetails', this.id)
-        },
-        onRemoveLayer() {
-            this.$emit('removeLayer', this.id)
-        },
-        onToggleLayerVisibility() {
-            this.$emit('toggleLayerVisibility', this.id)
-        },
-        onOpacityChange(e) {
-            this.$emit('opacityChange', this.id, e.target.value)
-        },
-        onOrderChange(delta) {
-            this.$emit('orderChange', this.id, delta)
-        },
-        showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup', this.id)
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
@@ -286,6 +281,7 @@ export default {
     display: flex;
     flex-grow: 1;
     cursor: pointer;
+    width: 100%;
 }
 
 svg {
@@ -299,5 +295,9 @@ svg {
 
 .loading-button {
     cursor: default;
+}
+
+.btn-layer-up-down:disabled {
+    border: none;
 }
 </style>

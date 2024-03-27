@@ -2,6 +2,7 @@
 
 import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import { encodeLayerParam } from '@/router/storeSync/layersParamParser'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems.js'
 
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
@@ -184,43 +185,44 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({ layers })
 
                 cy.wait(['@externalWMSGetCap-1', '@externalWMSGetCap-2'])
-                cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 4)
+                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                    expect(layers).to.be.lengthOf(4)
+
                     layers.forEach((layer) => {
-                        cy.wrap(layer.isLoading).should('be.false')
-                        cy.wrap(layer.isExternal).should('be.true')
+                        expect(layer.isLoading).to.be.false
+                        expect(layer.isExternal).to.be.true
                     })
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmsLayerUrlId1)
-                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmsBaseUrl1)
-                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmsLayerId1)
-                    cy.wrap(layers[0].name).should('be.eq', fakeWmsLayerName1)
-                    cy.wrap(layers[0].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[0].visible).should('be.true')
-                    cy.wrap(layers[0].opacity).should('be.eq', 1.0)
+                    expect(layers[0].id).to.be.eq(fakeWmsLayerUrlId1)
+                    expect(layers[0].baseUrl).to.be.eq(fakeWmsBaseUrl1)
+                    expect(layers[0].externalLayerId).to.be.eq(fakeWmsLayerId1)
+                    expect(layers[0].name).to.be.eq(fakeWmsLayerName1)
+                    expect(layers[0].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[0].visible).to.be.true
+                    expect(layers[0].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmsLayerUrlId2)
-                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmsBaseUrl1)
-                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmsLayerId2)
-                    cy.wrap(layers[1].name).should('be.eq', fakeWmsLayerName2)
-                    cy.wrap(layers[1].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[1].visible).should('be.true')
-                    cy.wrap(layers[1].opacity).should('be.eq', 0.8)
+                    expect(layers[1].id).to.be.eq(fakeWmsLayerUrlId2)
+                    expect(layers[1].baseUrl).to.be.eq(fakeWmsBaseUrl1)
+                    expect(layers[1].externalLayerId).to.be.eq(fakeWmsLayerId2)
+                    expect(layers[1].name).to.be.eq(fakeWmsLayerName2)
+                    expect(layers[1].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[1].visible).to.be.true
+                    expect(layers[1].opacity).to.be.eq(0.8)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmsLayerUrlId3)
-                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmsBaseUrl2)
-                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmsLayerId3)
-                    cy.wrap(layers[2].name).should('be.eq', fakeWmsLayerName3)
-                    cy.wrap(layers[2].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[2].visible).should('be.false')
-                    cy.wrap(layers[2].opacity).should('be.eq', 1.0)
+                    expect(layers[2].id).to.be.eq(fakeWmsLayerUrlId3)
+                    expect(layers[2].baseUrl).to.be.eq(fakeWmsBaseUrl2)
+                    expect(layers[2].externalLayerId).to.be.eq(fakeWmsLayerId3)
+                    expect(layers[2].name).to.be.eq(fakeWmsLayerName3)
+                    expect(layers[2].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[2].visible).to.be.false
+                    expect(layers[2].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[3].id).should('be.eq', fakeWmsLayerUrlId4)
-                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmsBaseUrl2)
-                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmsLayerId4)
-                    cy.wrap(layers[3].name).should('be.eq', fakeWmsLayerName4)
-                    cy.wrap(layers[3].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[3].visible).should('be.false')
-                    cy.wrap(layers[3].opacity).should('be.eq', 0.4)
+                    expect(layers[3].id).to.be.eq(fakeWmsLayerUrlId4)
+                    expect(layers[3].baseUrl).to.be.eq(fakeWmsBaseUrl2)
+                    expect(layers[3].externalLayerId).to.be.eq(fakeWmsLayerId4)
+                    expect(layers[3].name).to.be.eq(fakeWmsLayerName4)
+                    expect(layers[3].layers).to.have.length.above(0)
+                    expect(layers[3].visible).to.be.false
+                    expect(layers[3].opacity).to.be.eq(0.4)
                 })
 
                 // shows a red icon to signify a layer is from an external source
@@ -242,6 +244,48 @@ describe('Test of layer handling', () => {
                     { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
                     { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
                 ])
+
+                cy.log('getFeatureInfo testing')
+                // layer 1 and 2 have the same "backend", so we deactivate layer 2 and activate layer 3
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId2}-"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId3}-"]`).click()
+                cy.checkOlLayer([
+                    bgLayer,
+                    { id: fakeWmsLayerId1, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId2, visible: false, opacity: 0.8 },
+                    { id: fakeWmsLayerId3, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
+                ])
+
+                // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
+                // So we start by defining intercepts for these two requests
+                cy.intercept(`${fakeWmsBaseUrl1}**`, { features: [] }).as('getFeatureInfoLayer1')
+                cy.intercept(`${fakeWmsBaseUrl2}**`, { features: [] }).as('getFeatureInfoLayer2')
+                cy.closeMenuIfMobile()
+                cy.get('[data-cy="ol-map"]').click()
+                cy.wait('@getFeatureInfoLayer1').then((intercept) => {
+                    // layer1 only support POST method, so this should have been sent with this HTTP method
+                    cy.wrap(intercept.request.method).should('eq', 'POST')
+                    // as this server support application/json, this must be the data type requested
+                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                    cy.wrap(intercept.request.query.INFO_FORMAT).should('eq', 'application/json')
+                })
+                cy.wait('@getFeatureInfoLayer2').then((intercept) => {
+                    // layer 2 support both POST and GET, so the app should default to GET
+                    cy.wrap(intercept.request.method).should('eq', 'GET')
+                    //this server doesn't support application/json but GML, GML must be the data type requested
+                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                    cy.wrap(intercept.request.query.INFO_FORMAT).should(
+                        'eq',
+                        'application/vnd.ogc.gml'
+                    )
+                    // this server doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
+                    cy.wrap(intercept.request.query).should('have.a.property', 'CRS')
+                    cy.wrap(intercept.request.query.CRS).should('be.oneOf', [
+                        WGS84.epsg,
+                        WEBMERCATOR.epsg,
+                    ])
+                })
             })
             it('reads and adds an external WMTS correctly', () => {
                 const layers = [
@@ -255,32 +299,32 @@ describe('Test of layer handling', () => {
                     layers: layers.join(';'),
                 })
                 cy.wait(['@externalWMTSGetCap-1', '@externalWMTSGetCap-2'])
-                cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 4)
+                cy.readStoreValue('getters.visibleLayers').should((layers) => {
+                    expect(layers).to.have.length(4)
                     layers.forEach((layer) => {
-                        cy.wrap(layer.isLoading).should('be.false')
-                        cy.wrap(layer.visible).should('be.true')
-                        cy.wrap(layer.opacity).should('be.eq', 1.0)
+                        expect(layer.isLoading).to.be.false
+                        expect(layer.visible).to.be.true
+                        expect(layer.opacity).to.be.eq(1.0)
                     })
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
-                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
-                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmtsLayerId1)
-                    cy.wrap(layers[0].name).should('be.eq', fakeWmtsLayerName1)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
+                    expect(layers[0].externalLayerId).to.be.eq(fakeWmtsLayerId1)
+                    expect(layers[0].name).to.be.eq(fakeWmtsLayerName1)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
-                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
-                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmtsLayerId2)
-                    cy.wrap(layers[1].name).should('be.eq', fakeWmtsLayerName2)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
+                    expect(layers[1].externalLayerId).to.be.eq(fakeWmtsLayerId2)
+                    expect(layers[1].name).to.be.eq(fakeWmtsLayerName2)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
-                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
-                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmtsLayerId3)
-                    cy.wrap(layers[2].name).should('be.eq', fakeWmtsLayerName3)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
+                    expect(layers[2].externalLayerId).to.be.eq(fakeWmtsLayerId3)
+                    expect(layers[2].name).to.be.eq(fakeWmtsLayerName3)
 
-                    cy.wrap(layers[3].id).should('be.eq', fakeWmtsLayerUrlId4)
-                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
-                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmtsLayerId4)
-                    cy.wrap(layers[3].name).should('be.eq', fakeWmtsLayerName4)
+                    expect(layers[3].id).to.be.eq(fakeWmtsLayerUrlId4)
+                    expect(layers[3].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
+                    expect(layers[3].externalLayerId).to.be.eq(fakeWmtsLayerId4)
+                    expect(layers[3].name).to.be.eq(fakeWmtsLayerName4)
                 })
                 cy.checkOlLayer([
                     bgLayer,
@@ -314,20 +358,20 @@ describe('Test of layer handling', () => {
                     layers: `${fakeWmtsLayerUrlId1},f,0.5;${encodeLayerParam(fakeWmtsLayerUrlId2)},f;${fakeWmtsLayerUrlId3},,0.8`,
                 })
                 cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
-                cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 3)
+                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                    expect(layers).to.have.length(3)
 
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
-                    cy.wrap(layers[0].visible).should('be.false')
-                    cy.wrap(layers[0].opacity).should('be.eq', 0.5)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].visible).to.be.false
+                    expect(layers[0].opacity).to.be.eq(0.5)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
-                    cy.wrap(layers[1].visible).should('be.false')
-                    cy.wrap(layers[1].opacity).should('be.eq', 1.0)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].visible).to.be.false
+                    expect(layers[1].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
-                    cy.wrap(layers[2].visible).should('be.true')
-                    cy.wrap(layers[2].opacity).should('be.eq', 0.8)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].visible).to.be.true
+                    expect(layers[2].opacity).to.be.eq(0.8)
                 })
 
                 // shows a red icon to signify a layer is from an external source
@@ -425,14 +469,14 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy="menu-active-layer-${wmtsUnreachableUrlId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmtsUnreachableUrlId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy="button-error-${wmtsUnreachableUrlId}"]`)
+                cy.get(`[data-cy^="button-error-${wmtsUnreachableUrlId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy="button-error-${wmtsUnreachableUrlId}"]`).click()
+                cy.get(`[data-cy^="button-error-${wmtsUnreachableUrlId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
@@ -447,14 +491,14 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy="menu-active-layer-${wmtsInvalidContentUrlId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmtsInvalidContentUrlId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy="button-error-${wmtsInvalidContentUrlId}"]`)
+                cy.get(`[data-cy^="button-error-${wmtsInvalidContentUrlId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy="button-error-${wmtsInvalidContentUrlId}"]`).click()
+                cy.get(`[data-cy^="button-error-${wmtsInvalidContentUrlId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
@@ -469,14 +513,14 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy="menu-active-layer-${wmsUnreachableUrlId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmsUnreachableUrlId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy="button-error-${wmsUnreachableUrlId}"]`)
+                cy.get(`[data-cy^="button-error-${wmsUnreachableUrlId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy="button-error-${wmsUnreachableUrlId}"]`).click()
+                cy.get(`[data-cy^="button-error-${wmsUnreachableUrlId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
@@ -491,14 +535,14 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy="menu-active-layer-${wmsInvalidContentUrlId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmsInvalidContentUrlId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy="button-error-${wmsInvalidContentUrlId}"]`)
+                cy.get(`[data-cy^="button-error-${wmsInvalidContentUrlId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy="button-error-${wmsInvalidContentUrlId}"]`).click()
+                cy.get(`[data-cy^="button-error-${wmsInvalidContentUrlId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
@@ -559,14 +603,24 @@ describe('Test of layer handling', () => {
             it('shows active layers in the menu', () => {
                 goToMenuWithLayers()
                 visibleLayerIds.forEach((layerId) => {
-                    cy.get(`[data-cy="active-layer-name-${layerId}"]`).should('be.visible')
+                    cy.get(`[data-cy^="active-layer-name-${layerId}-"]`).should('be.visible')
                 })
+                cy.log(`Check that long title are truncated and have a tippy`)
+                cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]')
+                    .should('be.visible')
+                    .contains('WMTS test layer')
+                cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]').trigger('mouseenter')
+                cy.get('[data-cy="tippy-active-layer-name-test.wmts.layer-1"]')
+                    .should('be.visible')
+                    .contains(
+                        'WMTS test layer, with very long title that should be truncated on the menu'
+                    )
             })
             it('removes a layer from the visible layers when the "remove" button is pressed', () => {
                 goToMenuWithLayers()
                 // using the first layer to test this out
                 const layerId = visibleLayerIds[0]
-                cy.get(`[data-cy="button-remove-layer-${layerId}"]`).should('be.visible').click()
+                cy.get(`[data-cy^="button-remove-layer-${layerId}-"]`).should('be.visible').click()
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array')
                     expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
@@ -649,7 +703,9 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.get('[data-cy="searchbar"]').paste('test')
                 cy.wait(['@search-locations', '@search-layers'])
-                cy.get('[data-cy="search-result-entry-layer"]').first().click()
+                cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]')
+                    .first()
+                    .click()
                 cy.get('[data-cy="menu-button"]').click()
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
@@ -702,7 +758,7 @@ describe('Test of layer handling', () => {
                 const step = 5
                 const repetitions = 6
                 const command = '{leftarrow}'.repeat(repetitions)
-                cy.get(`[data-cy="slider-opacity-layer-${layerId}"]`)
+                cy.get(`[data-cy^="slider-opacity-layer-${layerId}-"]`)
                     .should('be.visible')
                     .type(command)
                 // checking that the opacity has changed accordingly
@@ -715,7 +771,7 @@ describe('Test of layer handling', () => {
                 const [firstLayerId, secondLayerId] = visibleLayerIds
                 // lower the order of the first layer
                 cy.openLayerSettings(firstLayerId)
-                cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`)
+                cy.get(`[data-cy^="button-raise-order-layer-${firstLayerId}-"]`)
                     .should('be.visible')
                     .click()
                 // checking that the order has changed
@@ -724,7 +780,7 @@ describe('Test of layer handling', () => {
                     expect(visibleLayers[1].id).to.eq(firstLayerId)
                 })
                 // using the other button
-                cy.get(`[data-cy="button-lower-order-layer-${firstLayerId}"]`)
+                cy.get(`[data-cy^="button-lower-order-layer-${firstLayerId}-"]`)
                     .should('be.visible')
                     .click()
                 // re-checking the order that should be back to the starting values
@@ -745,7 +801,7 @@ describe('Test of layer handling', () => {
                 // opening layer settings
                 cy.openLayerSettings(layerId)
                 // clicking on the layer info button
-                cy.get(`[data-cy="button-show-legend-layer-${layerId}"]`)
+                cy.get(`[data-cy^="button-show-legend-layer-${layerId}-"]`)
                     .should('be.visible')
                     .click()
                 // checking that the backend has been requested for this layer's legend
@@ -755,42 +811,125 @@ describe('Test of layer handling', () => {
             })
         })
         context('Timestamp management', () => {
-            beforeEach(() => {
+            it('layer with timestmap can be configured', () => {
                 goToMenuWithLayers()
-            })
-            it('shows all possible timestamps in the timestamp popover', () => {
+                cy.log('shows all possible timestamps in the timestamp popover')
                 const timedLayerId = 'test.timeenabled.wmts.layer'
-                cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
+                cy.get(`[data-cy^="time-selector-${timedLayerId}-"]`).should('be.visible').click()
                 cy.get('[data-cy="time-selection-popup"]').should('be.visible')
                 cy.fixture('layers.fixture.json').then((layers) => {
                     const timedLayerMetadata = layers[timedLayerId]
                     const defaultTimestamp = timedLayerMetadata.timeBehaviour
                     timedLayerMetadata.timestamps.forEach((timestamp) => {
-                        cy.get(`[data-cy="time-select-${timestamp}"]`).then((timestampButton) => {
+                        cy.get(`[data-cy="time-select-${timestamp}"]`).should((timestampButton) => {
                             if (timestamp === defaultTimestamp) {
                                 expect(timestampButton).to.have.class('btn-primary')
                             }
                         })
                     })
                 })
-            })
-            it('changes the timestamp of a layer when a time button is clicked', () => {
-                const timedLayerId = 'test.timeenabled.wmts.layer'
-                cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
-                cy.fixture('layers.fixture.json').then((layersMetadata) => {
-                    const timedLayerMetadata = layersMetadata[timedLayerId]
-                    cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestamp) => {
-                        // "force" is needed, as else there is a false positive "button hidden"
-                        cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click({ force: true })
-                        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                            expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
-                            activeLayers.forEach((layer) => {
-                                if (layer.id === timedLayerId) {
-                                    expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
-                                }
-                            })
-                        })
-                    })
+
+                //---------------------------------------------------------------------------------
+                cy.log('changes the timestamp of a layer when a time button is clicked')
+                const timestamp = '20160101'
+                // "force" is needed, as else there is a false positive "button hidden"
+                // in cypress the button is effectively hidden but on real world not, somehow the
+                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // it is displayed on the top
+                cy.get(`[data-cy="time-select-${timestamp}"]`).click({ force: true })
+                cy.get(`[data-cy^="time-selector-${timedLayerId}-"]`)
+                    .should('be.visible')
+                    .contains(timestamp.slice(0, 4))
+                cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+                    expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
+                    const layer = activeLayers.find((l) => l.id == timedLayerId)
+                    expect(layer).not.to.be.undefined
+                    expect(layer.timeConfig.currentTimestamp).to.eq(timestamp)
+                })
+
+                //---------------------------------------------------------------------------------
+                cy.log(`duplicate time layer`)
+                cy.get(`[data-cy^="button-open-visible-layer-settings-${timedLayerId}-2"]`)
+                    .should('be.visible')
+                    .click()
+                // change the opacity to check later on that the new layer as the non default opacity
+                cy.get(`[data-cy="slider-opacity-layer-${timedLayerId}-2"]`)
+                    .should('be.visible')
+                    .realClick()
+                cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`)
+                    .should('be.visible')
+                    .realHover()
+                cy.get(`[data-cy="tippy-button-duplicate-layer-${timedLayerId}-2"]`)
+                    .should('be.visible')
+                    .contains(`Duplicate map`)
+                cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`).click()
+
+                //---------------------------------------------------------------------------------
+                cy.log(`Check duplicate layer`)
+                cy.get(`[data-cy="active-layer-name-${timedLayerId}-3"]`).should('be.visible')
+                cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-3"] svg`).should(
+                    'have.class',
+                    'fa-square-check'
+                )
+                cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`)
+                    .should('be.visible')
+                    .contains(timestamp.slice(0, 4))
+                cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+                    expect(activeLayers)
+                        .to.be.an('Array')
+                        .length(visibleLayerIds.length + 1)
+                    expect(activeLayers[3]).not.to.be.undefined
+                    expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(activeLayers[3].visible).to.be.true
+                    expect(activeLayers[3].opacity).to.eq(0.5)
+                })
+
+                //---------------------------------------------------------------------------------
+                cy.log(`Change duplicate layer should not change original layer`)
+                cy.get(`[data-cy="button-open-visible-layer-settings-${timedLayerId}-3"]`)
+                    .should('be.visible')
+                    .click()
+                const newTimestamp = '20200101'
+                cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`).should('be.visible').click()
+                // "force" is needed, as else there is a false positive "button hidden"
+                // in cypress the button is effectively hidden but on real world not, somehow the
+                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // it is displayed on the top
+                cy.get(`[data-cy="time-select-${newTimestamp}"]`).click({ force: true })
+                cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`)
+                    .should('be.visible')
+                    .contains(newTimestamp.slice(0, 4))
+                cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-3"] svg`)
+                    .should('be.visible')
+                    .click()
+                cy.get(`[data-cy="slider-opacity-layer-${timedLayerId}-3"]`)
+                    .should('be.visible')
+                    .realClick({ position: 'left' })
+                cy.get(`[data-cy="time-selector-${timedLayerId}-2"]`)
+                    .should('be.visible')
+                    .contains(timestamp.slice(0, 4))
+                cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-2"] svg`).should(
+                    'have.class',
+                    'fa-square-check'
+                )
+                cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-3"] svg`).should(
+                    'have.class',
+                    'fa-square'
+                )
+                cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+                    expect(activeLayers)
+                        .to.be.an('Array')
+                        .length(visibleLayerIds.length + 1)
+
+                    expect(activeLayers[3]).not.to.be.undefined
+                    expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers[3].visible).to.be.false
+                    expect(activeLayers[3].opacity).to.eq(0)
+
+                    expect(activeLayers[2]).not.to.be.undefined
+                    expect(activeLayers[2].timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(activeLayers[2].visible).to.be.true
+                    expect(activeLayers[2].opacity).to.eq(0.5)
                 })
             })
         })
@@ -811,10 +950,10 @@ describe('Test of layer handling', () => {
                     cy.log(
                         `Check that layer ${layerId} has correct move arrow depending on its index ${index}`
                     )
-                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                    cy.get(`[data-cy^="button-lower-order-layer-${layerId}-"]`)
                         .should('be.visible')
                         .should(`${downArrowEnable ? 'not.' : ''}be.disabled`)
-                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
+                    cy.get(`[data-cy^="button-raise-order-layer-${layerId}-"]`)
                         .should('be.visible')
                         .should(`${upArrowEnable ? 'not.' : ''}be.disabled`)
                 })
@@ -838,7 +977,7 @@ describe('Test of layer handling', () => {
 
                 cy.log(`Moving the layer ${middleLayerId} down`)
                 cy.openLayerSettings(middleLayerId)
-                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-lower-order-layer-${middleLayerId}-"]`).click()
                 checkOrderButtons(middleLayerId, 2)
                 cy.checkOlLayer([
                     'test.background.layer2',
@@ -848,28 +987,28 @@ describe('Test of layer handling', () => {
                 ])
 
                 cy.log(`Move ${middleLayerId} back to the middle`)
-                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-raise-order-layer-${middleLayerId}-"]`).click()
                 checkOrderButtons(middleLayerId, 1)
 
                 cy.log(`Move ${middleLayerId} it to the top`)
-                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-raise-order-layer-${middleLayerId}-"]`).click()
                 checkOrderButtons(middleLayerId, 0)
 
                 cy.log(`Move ${middleLayerId} back to the middle`)
-                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-lower-order-layer-${middleLayerId}-"]`).click()
                 checkOrderButtons(middleLayerId, 1)
 
                 cy.log('Moving the layers and toggling the visibility')
                 cy.log(`Moving ${middleLayerId} to the top and toggle it visibility`)
-                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
-                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-raise-order-layer-${middleLayerId}-"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${middleLayerId}-"]`).click()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
                     { id: topLayerId, opacity: 0.7 },
                     { id: middleLayerId, visible: false },
                 ])
-                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${middleLayerId}-"]`).click()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
@@ -879,20 +1018,67 @@ describe('Test of layer handling', () => {
 
                 cy.log('Moving the layers and change the opacity')
                 cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
-                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
-                cy.get(`[data-cy="slider-opacity-layer-${middleLayerId}"]`).realClick()
+                cy.get(`[data-cy^="button-lower-order-layer-${middleLayerId}-"]`).click()
+                cy.get(`[data-cy^="slider-opacity-layer-${middleLayerId}-"]`).realClick()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
                     { id: middleLayerId, visible: true, opacity: 0.5 },
                     { id: topLayerId, opacity: 0.7 },
                 ])
+
+                cy.log(`Duplicate the time layer and modify it`)
+                cy.get(`[data-cy="button-open-visible-layer-settings-${topLayerId}-2"]`)
+                    .should('be.visible')
+                    .click()
+                cy.get(`[data-cy="button-duplicate-layer-${topLayerId}-2"]`).click()
+                const newTimestamp = '20200101'
+                cy.get(`[data-cy="time-selector-${topLayerId}-2"]`).should('be.visible').click()
+                // "force" is needed, as else there is a false positive "button hidden"
+                // in cypress the button is effectively hidden but on real world not, somehow the
+                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // it is displayed on the top
+                cy.get(`[data-cy="time-select-${newTimestamp}"]`).click({ force: true })
+                cy.get(`[data-cy="time-selector-${topLayerId}-2"]`)
+                    .should('be.visible')
+                    .contains(newTimestamp.slice(0, 4))
+                cy.get(`[data-cy="slider-opacity-layer-${topLayerId}-2"]`).realClick({
+                    position: 'left',
+                })
+                cy.get(`[data-cy="menu-active-layer-${topLayerId}-3"]`).should('be.visible')
+                cy.get(`[data-cy="time-selector-${topLayerId}-3"]`)
+                    .should('be.visible')
+                    .contains('2018')
+
+                cy.log(`Move duplicate layer don't move the other`)
+                cy.get(`[data-cy="button-lower-order-layer-${topLayerId}-2"]`).click()
+                cy.get(`[data-cy="button-lower-order-layer-${topLayerId}-1"]`).click()
+                cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+                    expect(activeLayers).to.be.an('Array').length(4)
+
+                    expect(activeLayers[3]).not.to.be.undefined
+                    expect(activeLayers[3].timeConfig.currentTimestamp).to.eq('20180101')
+                    expect(activeLayers[3].visible).to.be.true
+                    expect(activeLayers[3].opacity).to.eq(0.7)
+
+                    expect(activeLayers[0]).not.to.be.undefined
+                    expect(activeLayers[0].timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers[0].visible).to.be.true
+                    expect(activeLayers[0].opacity).to.eq(0)
+                })
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: topLayerId, opacity: 0 },
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: middleLayerId, opacity: 0.5 },
+                    { id: topLayerId, opacity: 0.7 },
+                ])
             })
             it.skip('reorder layers when they are drag and dropped', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
-                cy.get(`[data-cy="menu-active-layer-${bottomLayerId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${bottomLayerId}-"]`)
                     .should('be.visible')
-                    .drag(`[data-cy="menu-active-layer-${topLayerId}"]`)
+                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
                 const checkLayerOrder = (
                     expectedBottomLayerId,
                     expectedMiddleLayerId,
@@ -913,9 +1099,9 @@ describe('Test of layer handling', () => {
                 // - topLayer
                 // - middleLayer
                 checkLayerOrder(middleLayerId, topLayerId, bottomLayerId)
-                cy.get(`[data-cy="menu-active-layer-${middleLayerId}"]`)
+                cy.get(`[data-cy^="menu-active-layer-${middleLayerId}-"]`)
                     .should('be.visible')
-                    .drag(`[data-cy="menu-active-layer-${topLayerId}"]`)
+                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
                 // new state is
                 // - bottomLayer
                 // - middleLayer
@@ -927,7 +1113,7 @@ describe('Test of layer handling', () => {
             it('does not show a red icon for internal layers', () => {
                 goToMenuWithLayers()
                 visibleLayerIds.forEach((id) => {
-                    cy.get(`[data-cy="menu-active-layer-${id}"]`)
+                    cy.get(`[data-cy^="menu-active-layer-${id}-"]`)
                         .get('[data-cy="menu-external-disclaimer-icon"]')
                         .should('not.exist')
                 })
@@ -1043,6 +1229,19 @@ describe('Test of layer handling', () => {
                 layers: 'test.wmts.layer',
             })
             cy.get('[data-cy="layers-copyrights"]').should('have.length', 1)
+        })
+    })
+    context('GeoJSON layer data auto reload', () => {
+        it('reloads periodically GeoJSON data when an update delay is set', () => {
+            cy.goToMapView({
+                layers: 'test.geojson.layer',
+            })
+            // waiting on initial load
+            cy.wait('@geojson-data')
+            // now it should reload every 2500ms (according to layers.fixture.json)
+            cy.wait('@geojson-data', { timeout: 5000 })
+            cy.wait('@geojson-data', { timeout: 5000 })
+            cy.wait('@geojson-data', { timeout: 5000 })
         })
     })
 })

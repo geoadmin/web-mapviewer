@@ -54,7 +54,7 @@ export default {
             return this.wmsLayerConfig.format || 'png'
         },
         url() {
-            return this.wmsLayerConfig.getURL()
+            return this.wmsLayerConfig.baseUrl
         },
         timestamp() {
             return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)

@@ -1,3 +1,6 @@
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+
 import LV03CoordinateSystem from '@/utils/coordinates/LV03CoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
 import WebMercatorCoordinateSystem from '@/utils/coordinates/WebMercatorCoordinateSystem.class'
@@ -12,4 +15,8 @@ export const WEBMERCATOR = new WebMercatorCoordinateSystem()
 /** Representation of many (available in this app) projection systems */
 const allCoordinateSystems = [LV95, LV03, WGS84, WEBMERCATOR]
 setupProj4(allCoordinateSystems)
+
+// register any custom projection in OpenLayers
+register(proj4)
+
 export default allCoordinateSystems

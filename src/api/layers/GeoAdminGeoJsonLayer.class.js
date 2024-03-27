@@ -69,8 +69,4 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
         this.geoJsonStyle = null
         this.updateDelay = updateDelay
     }
-
-    getURL() {
-        return this.geoJsonUrl
-    }
 }

@@ -32,7 +32,7 @@ export default function loadExternalLayerAttributes(store) {
         const wmsCapabilities = getWMSCababilitiesForLayers(externalLayers)
         const wmtsCapabilities = getWMTSCababilitiesForLayers(externalLayers)
         const updatedLayers = []
-        externalLayers.forEach(async (layer) => {
+        externalLayers.forEach((layer) => {
             updatedLayers.push(
                 updateExternalLayer(
                     store,

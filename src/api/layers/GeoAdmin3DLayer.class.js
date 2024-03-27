@@ -30,6 +30,7 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
             technicalName: layerId,
             geoAdminId: layerId,
             baseUrl: BASE_URL_3D_TILES,
+            ensureTrailingSlashInBaseUrl: true,
             opacity: 1.0,
             visible: true,
             attributions: [
@@ -39,17 +40,5 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
         })
         this.use3dTileSubFolder = use3dTileSubFolder
         this.urlTimestampToUse = urlTimestampToUse
-    }
-
-    getURL() {
-        let rootFolder = ''
-        if (this.use3dTileSubFolder) {
-            rootFolder = '3d-tiles/'
-        }
-        let timeFolder = ''
-        if (this.urlTimestampToUse) {
-            timeFolder = `/${this.urlTimestampToUse}`
-        }
-        return `${BASE_URL_3D_TILES}${rootFolder}${this.geoAdminId}${timeFolder}/tileset.json`
     }
 }

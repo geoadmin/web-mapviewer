@@ -108,14 +108,14 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
             .find('svg')
-            .should('have.class', 'fa-circle-plus')
+            .should('have.class', 'fa-caret-right')
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
             .click()
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
             .find('svg')
-            .should('have.class', 'fa-circle-minus')
+            .should('have.class', 'fa-caret-down')
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).contains(firstSubItemName)
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
@@ -123,7 +123,7 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
             .find('svg')
-            .should('have.class', 'fa-circle-plus')
+            .should('have.class', 'fa-caret-right')
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.be.visible')
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
             .should('be.visible')
@@ -336,6 +336,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="search-catalogue-input"]')
             .should('be.visible')
             .should('have.value', firstSubItemName)
+        cy.get(`[data-cy="search-catalogue-clear"]`).click()
+
+        //---------------------------------------------------------------------
+        cy.log(`Check that long title are truncated and have a tippy`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).trigger('mouseenter')
+        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerFullId}"]`)
+            .should('be.visible')
+            .contains(singleLayerName)
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
@@ -363,14 +372,16 @@ describe('The Import Maps Tool', () => {
         cy.wait('@wms-get-capabilities')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
-        cy.get(`[data-cy="active-layer-name-${singleLayerFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${singleLayerFullId}"]`).should(
+        cy.get(`[data-cy^="active-layer-name-${singleLayerFullId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${singleLayerFullId}-"]`).should(
             'not.exist'
         )
-        cy.get(`[data-cy="active-layer-name-${firstSubItemId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${firstSubItemId}"]`).should('not.exist')
-        cy.get(`[data-cy="active-layer-name-${itemFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="button-loading-metadata-spinner-${itemFullId}"]`).should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-${firstSubItemId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${firstSubItemId}-"]`).should(
+            'not.exist'
+        )
+        cy.get(`[data-cy^="active-layer-name-${itemFullId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${itemFullId}-"]`).should('not.exist')
     })
     it('Import external WMTS layers', () => {
         cy.intercept(

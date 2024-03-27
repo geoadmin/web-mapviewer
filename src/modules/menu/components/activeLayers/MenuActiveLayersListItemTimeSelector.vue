@@ -1,12 +1,110 @@
+<script setup>
+import tippy from 'tippy.js'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import {
+    CURRENT_YEAR_WMTS_TIMESTAMP,
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+} from '@/api/layers/LayerTimeConfigEntry.class'
+
+const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
+
+const props = defineProps({
+    layerIndex: {
+        type: Number,
+        required: true,
+    },
+    layerId: {
+        type: String,
+        required: true,
+    },
+    timeConfig: {
+        type: LayerTimeConfig,
+        required: true,
+    },
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { layerIndex, layerId, timeConfig, compact } = toRefs(props)
+
+const store = useStore()
+const i18n = useI18n()
+
+const timeSelectorButton = ref(null)
+const timeSelectorModal = ref(null)
+
+const previewYear = computed(() => store.state.layers.previewYear)
+const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
+
+const humanReadableCurrentTimestamp = computed(() =>
+    renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
+)
+
+let popover = null
+
+onMounted(() => {
+    if (hasMultipleTimestamps.value) {
+        popover = tippy(timeSelectorButton.value, {
+            theme: 'popover-button light-border',
+            content: timeSelectorModal.value,
+            allowHTML: true,
+            placement: 'right',
+            interactive: true,
+            arrow: true,
+            trigger: 'click',
+        })
+    }
+})
+
+onBeforeUnmount(() => {
+    popover?.destroy()
+})
+
+/**
+ * @param {LayerTimeConfigEntry} timeEntry
+ * @returns {string}
+ */
+function renderHumanReadableTimestamp(timeEntry) {
+    if (!timeEntry) {
+        return ''
+    }
+    if (timeEntry.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP) {
+        return i18n.t(`time_current`)
+    }
+    if (timeEntry.year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
+        return i18n.t('time_all')
+    }
+    return `${timeEntry.year}`
+}
+
+function handleClickOnTimestamp(year) {
+    // clearing preview year if one was selected, as a change on this time selector is incompatible with
+    // the time slider being shown and active
+    if (previewYear.value) {
+        store.dispatch('clearPreviewYear', { ...dispatcher })
+    }
+    store.dispatch('setTimedLayerCurrentYear', { index: layerIndex.value, year, ...dispatcher })
+}
+
+function hidePopover() {
+    popover?.hide()
+}
+</script>
+
 <template>
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary"
+        class="btn btn-secondary me-2"
         :class="{
             'btn-sm': compact,
         }"
-        :data-cy="`time-selector-${layerId}`"
+        :data-cy="`time-selector-${layerId}-${layerIndex}`"
     >
         {{ humanReadableCurrentTimestamp }}
     </button>
@@ -39,97 +137,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import tippy from 'tippy.js'
-import { mapActions, mapState } from 'vuex'
-
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import {
-    CURRENT_YEAR_WMTS_TIMESTAMP,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
-} from '@/api/layers/LayerTimeConfigEntry.class'
-
-const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
-
-export default {
-    props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        timeConfig: {
-            type: LayerTimeConfig,
-            required: true,
-        },
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    computed: {
-        ...mapState({
-            previewYear: (state) => state.layers.previewYear,
-        }),
-        hasMultipleTimestamps() {
-            return this.timeConfig.timeEntries.length > 1
-        },
-        humanReadableCurrentTimestamp() {
-            return this.renderHumanReadableTimestamp(this.timeConfig.currentTimeEntry)
-        },
-    },
-    mounted() {
-        if (this.hasMultipleTimestamps) {
-            this.popover = tippy(this.$refs.timeSelectorButton, {
-                theme: 'popover-button light-border',
-                content: this.$refs.timeSelectorModal,
-                allowHTML: true,
-                placement: 'right',
-                interactive: true,
-                arrow: true,
-                trigger: 'click',
-            })
-        }
-    },
-    beforeUnmount() {
-        this.popover?.destroy()
-    },
-    methods: {
-        ...mapActions(['setTimedLayerCurrentYear', 'clearPreviewYear']),
-        /**
-         * @param {LayerTimeConfigEntry} timeEntry
-         * @returns {string}
-         */
-        renderHumanReadableTimestamp(timeEntry) {
-            if (!timeEntry) {
-                return ''
-            }
-            if (timeEntry.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP) {
-                return this.$t(`time_current`)
-            }
-            if (timeEntry.year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
-                return this.$t('time_all')
-            }
-            return `${timeEntry.year}`
-        },
-        handleClickOnTimestamp(year) {
-            // clearing preview year if one was selected, as a change on this time selector is incompatible with
-            // the time slider being shown and active
-            if (this.previewYear) {
-                this.clearPreviewYear(dispatcher)
-            }
-            this.setTimedLayerCurrentYear({
-                layerId: this.layerId,
-                year,
-                ...dispatcher,
-            })
-        },
-        hidePopover() {
-            this.popover?.hide()
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 .timestamps-popover-content {

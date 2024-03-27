@@ -1,13 +1,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import {
-    identifyGeoJSONFeatureAt,
-    identifyGPXFeatureAt,
-    identifyKMLFeatureAt,
-} from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'mouse-click.composable' }
@@ -20,26 +14,6 @@ export function useMouseOnMap() {
     let contextMenuTimeout = null
 
     const store = useStore()
-    const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
-    const currentKmlDrawingLayer = computed(() => store.getters.activeKmlLayer)
-    const visibleGeoJsonLayers = computed(() =>
-        store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
-    )
-    const visibleKMLLayers = computed(() =>
-        store.getters.visibleLayers
-            .filter((layer) => layer.type === LayerTypes.KML)
-            .filter(
-                (kmlLayer) =>
-                    // No identification of feature on the active KML layer used in the drawing module
-                    // as this module already does identification of drawn feature itself.
-                    !isCurrentlyDrawing.value || kmlLayer.id !== currentKmlDrawingLayer.value?.id
-            )
-    )
-    const visibleGPXLayers = computed(() =>
-        store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.GPX)
-    )
-    const currentMapResolution = computed(() => store.getters.resolution)
-    const currentProjection = computed(() => store.state.position.projection)
     const isCurrentlyTrackingGeoLocation = computed(
         () => store.state.geolocation.active && store.state.geolocation.tracking
     )
@@ -62,51 +36,30 @@ export function useMouseOnMap() {
         }, msBeforeTriggeringLocationPopup)
     }
 
-    function onLeftClickUp(screenPosition, coordinate) {
+    /**
+     * Function to be called when a left on the map has occured.
+     *
+     * Vector features found by the mapping framework (not requiring backend interaction) can be
+     * given as param
+     *
+     * @param {[Number, Number]} screenPosition Position of the click on the screen [x, y] in pixels
+     *   (counted from top left corner)
+     * @param {[Number, Number]} coordinate Position of the click expressed in the current mapping
+     *   projection
+     * @param {SelectableFeature[]} features List of vector features found by the mapping framework
+     *   at the click position
+     */
+    function onLeftClickUp(screenPosition, coordinate, features = []) {
         clearTimeout(contextMenuTimeout)
         // if we've already "handled" this click event, we do nothing more
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
-            const features = []
-            // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-            visibleGeoJsonLayers.value.forEach((geoJSonLayer) => {
-                features.push(
-                    ...identifyGeoJSONFeatureAt(
-                        geoJSonLayer,
-                        coordinate,
-                        currentProjection.value,
-                        currentMapResolution.value
-                    )
-                )
-            })
-            // same for KML layers
-            visibleKMLLayers.value.forEach((kmlLayer) => {
-                features.push(
-                    ...identifyKMLFeatureAt(
-                        kmlLayer,
-                        coordinate,
-                        currentProjection.value,
-                        currentMapResolution.value
-                    )
-                )
-            })
-            // and lastly for GPX layers
-            visibleGPXLayers.value.forEach((gpxLayer) => {
-                features.push(
-                    ...identifyGPXFeatureAt(
-                        gpxLayer,
-                        coordinate,
-                        currentProjection.value,
-                        currentMapResolution.value
-                    )
-                )
-            })
             store.dispatch('click', {
-                clickInfo: new ClickInfo(
+                clickInfo: new ClickInfo({
                     coordinate,
-                    screenPosition,
+                    pixelCoordinate: screenPosition,
                     features,
-                    ClickType.LEFT_SINGLECLICK
-                ),
+                    clickType: ClickType.LEFT_SINGLECLICK,
+                }),
                 ...dispatcher,
             })
         }
@@ -131,7 +84,11 @@ export function useMouseOnMap() {
 
     function onRightClick(screenPosition, coordinate) {
         store.dispatch('click', {
-            clickInfo: new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU),
+            clickInfo: new ClickInfo({
+                coordinate,
+                pixelCoordinate: screenPosition,
+                clickType: ClickType.CONTEXTMENU,
+            }),
             ...dispatcher,
         })
     }

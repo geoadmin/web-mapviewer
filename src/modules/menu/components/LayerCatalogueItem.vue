@@ -67,7 +67,7 @@ const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
@@ -121,10 +121,10 @@ function startLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.id)
-    if (matchingActiveLayer) {
+    const layers = store.getters.getActiveLayersById(item.value.id)
+    if (layers.length > 0) {
         store.dispatch('removeLayer', {
-            layer: matchingActiveLayer,
+            layerId: item.value.id,
             ...dispatcher,
         })
     } else if (item.value.isExternal) {
@@ -228,7 +228,7 @@ function containsLayer(layers, searchText) {
         >
             <button
                 v-if="canBeAddedToTheMap"
-                class="btn"
+                class="btn border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -242,7 +242,7 @@ function containsLayer(layers, searchText) {
             </button>
             <button
                 v-if="hasChildren"
-                class="btn btn-rounded"
+                class="btn border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -250,15 +250,15 @@ function containsLayer(layers, searchText) {
                 :data-cy="`catalogue-collapse-layer-button-${item.id}`"
                 @click.stop="onCollapseClick"
             >
-                <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
-                <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
+                <FontAwesomeIcon :icon="['fas', showChildren ? 'caret-down' : 'caret-right']" />
             </button>
 
             <TextTruncate
                 :text="item.name"
-                class="menu-catalogue-item-name"
+                class="menu-catalogue-item-name px-1"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
                 :data-cy="`catalogue-tree-item-name-${item.id}`"
+                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
             >
                 <TextSearchMarker :text="item.name" :search="search" />
             </TextTruncate>
@@ -288,8 +288,8 @@ function containsLayer(layers, searchText) {
                 :class="`ps-${2 + depth}`"
             >
                 <LayerCatalogueItem
-                    v-for="child in item.layers"
-                    :key="`${child.id}`"
+                    v-for="(child, index) in item.layers"
+                    :key="`${index}-${child.id}`"
                     :item="child"
                     :search="search"
                     :depth="depth + 1"

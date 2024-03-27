@@ -186,17 +186,3 @@ async function closeDrawing() {
         <DrawingInteractions ref="drawingInteractions" />
     </div>
 </template>
-
-<style lang="scss" scoped>
-/* Global styles as what is described below will not be wrapped
-in this component but added straight the the OpenLayers map */
-:global(.cursor-grab) {
-    cursor: grab;
-}
-:global(.cursor-grabbing) {
-    cursor: grabbing;
-}
-:global(.cursor-pointer) {
-    cursor: pointer;
-}
-</style>

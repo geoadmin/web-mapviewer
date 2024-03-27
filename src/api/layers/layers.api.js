@@ -41,6 +41,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             attribution: attributionName,
             attributionUrl: potentialAttributionUrl,
             hasLegend,
+            searchable,
         } = layerConfig
         // checking if attributionUrl is a well-formed URL, otherwise we drop it
         let attributionUrl = null
@@ -84,6 +85,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     hasTooltip,
                     topics,
                     hasLegend: !!hasLegend,
+                    searchable: !!searchable,
                 })
                 break
             case 'wms':
@@ -104,6 +106,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     hasTooltip,
                     topics,
                     hasLegend: !!hasLegend,
+                    searchable: !!searchable,
                 })
                 break
             case 'geojson':
