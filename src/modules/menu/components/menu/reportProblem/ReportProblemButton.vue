@@ -1,12 +1,12 @@
 <script setup>
 import { computed, nextTick, ref } from 'vue'
 
+import { isValidEmail } from '@//modules/menu/components/menu/common/utils'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
-import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
-import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import EmailValidationField from '@/modules/menu/components/menu/components/EmailValidationField.vue'
+import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
+import ImportFileLocal from '@/modules/menu/components/menu/reportProblem/ImportFileLocal.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 
