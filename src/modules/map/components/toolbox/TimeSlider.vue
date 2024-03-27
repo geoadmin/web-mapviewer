@@ -123,12 +123,27 @@ const yearsWithData = computed(() => {
     // TODO PB-318 : alter this to also show years with partial data
     const timeConfigs = layersWithTimestamps.value.map((layer) => layer.timeConfig)
     let yearsInCommon = [...timeConfigs[0].years]
+    let yearsSeparate = []
+    timeConfigs.forEach((timeConfig) =>
+        timeConfig.years
+            .filter((year) => !yearsSeparate.includes(year))
+            .forEach((year) => yearsSeparate.push(year))
+    )
+    console.log('------------------------------------------------------------------')
+    console.log(yearsInCommon.length)
+    console.log(yearsSeparate.length)
+    console.log('------------------------------------------------------------------')
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
             yearsInCommon = yearsInCommon.filter((year) => timeConfig.years.includes(year))
         })
     }
-    return yearsInCommon
+    yearsSeparate = yearsSeparate.filter((year) => !yearsInCommon.includes(year))
+    console.log(yearsSeparate.length)
+    console.log(yearsSeparate)
+    console.log(yearsInCommon)
+    console.log('-------------------------------------------------------------------')
+    return { yearsInCommon: yearsInCommon, yearsSeparate: yearsSeparate }
 })
 
 watch(screenWidth, (newValue) => {
@@ -215,8 +230,12 @@ function positionNodeLabel(year) {
     }
 }
 
-function hasData(year) {
-    return yearsWithData.value.includes(year)
+function hasSeparateData(year) {
+    return yearsWithData.value.yearsSeparate.includes(year)
+}
+
+function hasJointData(year) {
+    return yearsWithData.value.yearsInCommon.includes(year)
 }
 
 function grabCursor(event) {
@@ -258,7 +277,7 @@ function listenToMouseMove(event) {
         }
         const futureYear = ALL_YEARS[futureYearIndex]
         // checking that this is a valid year in the context of currently displayed data
-        if (yearsWithData.value.includes(futureYear)) {
+        if (hasJointData(futureYear) || hasSeparateData(futureYear)) {
             // reset of the starting position for delta calculation
             cursorX = currentPosition
             currentYear.value = futureYear
@@ -276,20 +295,27 @@ function releaseCursor() {
 function togglePlayYearsWithData() {
     playYearsWithData = !playYearsWithData
     if (playYearsWithData) {
+        let yearsWithDataForPlayer = ALL_YEARS.filter(
+            (year) =>
+                yearsWithData.value.yearsInCommon.includes(year) ||
+                yearsWithData.value.yearsSeparate.includes(year)
+        )
+            .sort()
+            .reverse()
         // if current year is the last (most recent) one, we set the starting year for our
         // player to the oldest
-        if (currentYear.value === yearsWithData.value[0]) {
-            setCurrentYearAndDispatchToStore(yearsWithData.value.slice(-1)[0])
+        if (currentYear.value === yearsWithDataForPlayer[0]) {
+            setCurrentYearAndDispatchToStore(yearsWithDataForPlayer.slice(-1)[0])
         }
         playYearInterval = setInterval(() => {
-            const currentYearIndex = yearsWithData.value.indexOf(currentYear.value)
+            const currentYearIndex = yearsWithDataForPlayer.indexOf(currentYear.value)
             // if last (most recent) year, we stop the player
             if (currentYearIndex === 0) {
                 clearInterval(playYearInterval)
                 playYearInterval = null
                 playYearsWithData = false
             } else {
-                setCurrentYearAndDispatchToStore(yearsWithData.value[currentYearIndex - 1])
+                setCurrentYearAndDispatchToStore(yearsWithDataForPlayer[currentYearIndex - 1])
             }
         }, 1000)
     } else {
@@ -343,7 +369,8 @@ function togglePlayYearsWithData() {
                         :style="innerBarStepStyle"
                         class="time-slider-bar-inner-step"
                         :class="{
-                            'has-data': hasData(year),
+                            'has-separate-data': hasSeparateData(year),
+                            'has-joint-data': hasJointData(year),
                             'big-tick': year % 50 === 0,
                             'medium-tick': year % 25 === 0,
                             'small-tick': year % 5 === 0,
@@ -421,7 +448,10 @@ function togglePlayYearsWithData() {
             &-step {
                 cursor: pointer;
                 background: rgba(0, 0, 0, 0.1);
-                &.has-data {
+                &.has-separate-data {
+                    background: rgba(41, 4, 250, 0.3);
+                }
+                &.has-joint-data {
                     background: rgba(255, 0, 0, 0.3);
                 }
                 &:not(.small-tick):not(.big-tick):not(.medium-tick)::before {
