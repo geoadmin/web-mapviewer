@@ -183,7 +183,9 @@ describe('Test the search bar result handling', () => {
         cy.get('@layerSearchResults')
             .invoke('text')
             .should('contain', expectedLayerLabel.replaceAll(/<\/?b>/g, ''))
-        cy.get('@layerSearchResults').find('[data-cy^="button-show-legend-layer-"]').should('exist')
+        cy.get('@layerSearchResults')
+            .find('[data-cy^="button-show-description-layer-"]')
+            .should('exist')
 
         cy.log('Opening up a layer legend from the search results')
         // As we only test one of the buttons we can send the same content for all legends.
@@ -191,9 +193,12 @@ describe('Test the search bar result handling', () => {
             'legend'
         )
         // Click on the first info-button and check if the legend loads correctly.
-        cy.get('@layerSearchResults').find('[data-cy^="button-show-legend-layer-"]').first().click()
+        cy.get('@layerSearchResults')
+            .find('[data-cy^="button-show-description-layer-"]')
+            .first()
+            .click()
         cy.wait('@legend')
-        cy.get('[data-cy="layer-legend"]')
+        cy.get('[data-cy="layer-description"]')
             .should('be.visible')
             .then(([legend]) => {
                 expect(legend.innerHTML).to.contain(expectedLegendContent)

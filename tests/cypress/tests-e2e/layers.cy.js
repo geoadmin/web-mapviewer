@@ -801,13 +801,13 @@ describe('Test of layer handling', () => {
                 // opening layer settings
                 cy.openLayerSettings(layerId)
                 // clicking on the layer info button
-                cy.get(`[data-cy^="button-show-legend-layer-${layerId}-"]`)
+                cy.get(`[data-cy^="button-show-description-layer-${layerId}-"]`)
                     .should('be.visible')
                     .click()
                 // checking that the backend has been requested for this layer's legend
                 cy.wait('@legend')
                 // checking that the content of the popup is our mocked up content
-                cy.get('[data-cy="layer-legend"]').should('be.visible').contains('Test')
+                cy.get('[data-cy="layer-description"]').should('be.visible').contains('Test')
             })
         })
         context('Timestamp management', () => {

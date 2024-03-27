@@ -242,7 +242,7 @@ function duplicateLayer() {
                 v-if="showLayerDescriptionIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-show-legend-layer-${id}-${index}`"
+                :data-cy="`button-show-description-layer-${id}-${index}`"
                 @click="showLayerDescriptionPopup"
             >
                 <FontAwesomeIcon icon="info-circle" />
