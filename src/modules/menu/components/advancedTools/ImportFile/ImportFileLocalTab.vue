@@ -116,7 +116,7 @@ function validateForm() {
         aria-labelledby="nav-local-tab"
         data-cy="import-file-local-content"
     >
-        <form class="needs-validation">
+        <div class="needs-validation">
             <div class="input-group rounded needs-validation mb-2">
                 <button
                     class="btn btn-outline-secondary"
@@ -141,6 +141,7 @@ function validateForm() {
                     :value="filePathInfo"
                     readonly
                     required
+                    tabindex="-1"
                     data-cy="import-file-local-input-text"
                     @click="importFileLocalInput.click()"
                 />
@@ -152,7 +153,7 @@ function validateForm() {
                     {{ i18n.t(errorMessage) }}
                 </div>
             </div>
-        </form>
+        </div>
         <ImportFileButtons
             class="mt-2"
             :button-state="buttonState"
