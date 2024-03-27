@@ -10,6 +10,7 @@ import { useStore } from 'vuex'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import log from '@/utils/logging'
+import { readWmtsCapabilities } from '@/api/layers/layers-external.api'
 
 const props = defineProps({
     externalWmtsLayerConfig: {
@@ -59,39 +60,29 @@ onMounted(() => {
  * Will set this source to the layer, asynchronously (when it's received the getCap and has parsed
  * it)
  */
-function setSourceForProjection() {
-    // fetching getCapabilities information in order to generate a proper layer config
-    fetch(getCapabilitiesUrl.value)
-        // parsing as text (as OL helper function want a string as input)
-        .then((response) => response.text())
-        .then((textResponse) => {
-            const getCapabilities = wmtsGetCapParser.read(textResponse)
-            if (getCapabilities.version) {
-                // filtering the whole getCap XML with the given layer ID
-                const options = optionsFromCapabilities(getCapabilities, {
-                    layer: layerId.value,
-                    projection: projection.value.epsg,
-                })
-                if (options) {
-                    // finally setting the source with the options drawn from the getCapabilities helper function
-                    // the layer might be shown on the map a little later than all the others because of that
-                    layer.setSource(new WMTS(options))
-                } else {
-                    log.error(
-                        `Layer ${layerId.value} not found in WMTS Capabilities:`,
-                        getCapabilities
-                    )
-                }
-            } else {
-                log.error(`Invalid WMTS Capabilities:`, textResponse)
-            }
+async function setSourceForProjection() {
+    try {
+        // fetching getCapabilities information in order to generate a proper layer config
+        const getCapabilities = await readWmtsCapabilities(getCapabilitiesUrl.value)
+
+        // filtering the whole getCap XML with the given layer ID
+        const options = optionsFromCapabilities(getCapabilities, {
+            layer: layerId.value,
+            projection: projection.value.epsg,
         })
-        .catch((error) => {
-            log.error(
-                `Failed to fetch external WMTS layer from ${getCapabilitiesUrl.value}: ${error}`,
-                error
-            )
-        })
+        if (options) {
+            // finally setting the source with the options drawn from the getCapabilities helper function
+            // the layer might be shown on the map a little later than all the others because of that
+            layer.setSource(new WMTS(options))
+        } else {
+            log.error(`Layer ${layerId.value} not found in WMTS Capabilities:`, getCapabilities)
+        }
+    } catch (error) {
+        log.error(
+            `Failed to fetch external WMTS layer from ${getCapabilitiesUrl.value}: ${error}`,
+            error
+        )
+    }
 }
 </script>
 
