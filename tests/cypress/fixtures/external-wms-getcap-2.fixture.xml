@@ -321,8 +321,6 @@
                 <KeywordList>
                     <Keyword>ch.swisstopo-vd.spannungsarme-gebiete.wms_ows_keywordlist</Keyword>
                 </KeywordList>
-                <CRS>EPSG:2056</CRS>
-                <CRS>EPSG:21781</CRS>
                 <CRS>EPSG:4326</CRS>
                 <CRS>EPSG:3857</CRS>
                 <CRS>EPSG:3034</CRS>

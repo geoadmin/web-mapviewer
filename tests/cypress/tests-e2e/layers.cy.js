@@ -185,43 +185,44 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({ layers })
 
                 cy.wait(['@externalWMSGetCap-1', '@externalWMSGetCap-2'])
-                cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 4)
+                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                    expect(layers).to.be.lengthOf(4)
+
                     layers.forEach((layer) => {
-                        cy.wrap(layer.isLoading).should('be.false')
-                        cy.wrap(layer.isExternal).should('be.true')
+                        expect(layer.isLoading).to.be.false
+                        expect(layer.isExternal).to.be.true
                     })
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmsLayerUrlId1)
-                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmsBaseUrl1)
-                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmsLayerId1)
-                    cy.wrap(layers[0].name).should('be.eq', fakeWmsLayerName1)
-                    cy.wrap(layers[0].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[0].visible).should('be.true')
-                    cy.wrap(layers[0].opacity).should('be.eq', 1.0)
+                    expect(layers[0].id).to.be.eq(fakeWmsLayerUrlId1)
+                    expect(layers[0].baseUrl).to.be.eq(fakeWmsBaseUrl1)
+                    expect(layers[0].externalLayerId).to.be.eq(fakeWmsLayerId1)
+                    expect(layers[0].name).to.be.eq(fakeWmsLayerName1)
+                    expect(layers[0].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[0].visible).to.be.true
+                    expect(layers[0].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmsLayerUrlId2)
-                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmsBaseUrl1)
-                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmsLayerId2)
-                    cy.wrap(layers[1].name).should('be.eq', fakeWmsLayerName2)
-                    cy.wrap(layers[1].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[1].visible).should('be.true')
-                    cy.wrap(layers[1].opacity).should('be.eq', 0.8)
+                    expect(layers[1].id).to.be.eq(fakeWmsLayerUrlId2)
+                    expect(layers[1].baseUrl).to.be.eq(fakeWmsBaseUrl1)
+                    expect(layers[1].externalLayerId).to.be.eq(fakeWmsLayerId2)
+                    expect(layers[1].name).to.be.eq(fakeWmsLayerName2)
+                    expect(layers[1].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[1].visible).to.be.true
+                    expect(layers[1].opacity).to.be.eq(0.8)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmsLayerUrlId3)
-                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmsBaseUrl2)
-                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmsLayerId3)
-                    cy.wrap(layers[2].name).should('be.eq', fakeWmsLayerName3)
-                    cy.wrap(layers[2].wmsVersion).should('be.eq', '1.3.0')
-                    cy.wrap(layers[2].visible).should('be.false')
-                    cy.wrap(layers[2].opacity).should('be.eq', 1.0)
+                    expect(layers[2].id).to.be.eq(fakeWmsLayerUrlId3)
+                    expect(layers[2].baseUrl).to.be.eq(fakeWmsBaseUrl2)
+                    expect(layers[2].externalLayerId).to.be.eq(fakeWmsLayerId3)
+                    expect(layers[2].name).to.be.eq(fakeWmsLayerName3)
+                    expect(layers[2].wmsVersion).to.be.eq('1.3.0')
+                    expect(layers[2].visible).to.be.false
+                    expect(layers[2].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[3].id).should('be.eq', fakeWmsLayerUrlId4)
-                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmsBaseUrl2)
-                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmsLayerId4)
-                    cy.wrap(layers[3].name).should('be.eq', fakeWmsLayerName4)
-                    cy.wrap(layers[3].layers).should('have.length.above', 0)
-                    cy.wrap(layers[3].visible).should('be.false')
-                    cy.wrap(layers[3].opacity).should('be.eq', 0.4)
+                    expect(layers[3].id).to.be.eq(fakeWmsLayerUrlId4)
+                    expect(layers[3].baseUrl).to.be.eq(fakeWmsBaseUrl2)
+                    expect(layers[3].externalLayerId).to.be.eq(fakeWmsLayerId4)
+                    expect(layers[3].name).to.be.eq(fakeWmsLayerName4)
+                    expect(layers[3].layers).to.have.length.above(0)
+                    expect(layers[3].visible).to.be.false
+                    expect(layers[3].opacity).to.be.eq(0.4)
                 })
 
                 // shows a red icon to signify a layer is from an external source
@@ -278,7 +279,7 @@ describe('Test of layer handling', () => {
                         'eq',
                         'application/vnd.ogc.gml'
                     )
-                    // this serveur doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
+                    // this server doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
                     cy.wrap(intercept.request.query).should('have.a.property', 'CRS')
                     cy.wrap(intercept.request.query.CRS).should('be.oneOf', [
                         WGS84.epsg,
@@ -298,32 +299,32 @@ describe('Test of layer handling', () => {
                     layers: layers.join(';'),
                 })
                 cy.wait(['@externalWMTSGetCap-1', '@externalWMTSGetCap-2'])
-                cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 4)
+                cy.readStoreValue('getters.visibleLayers').should((layers) => {
+                    expect(layers).to.have.length(4)
                     layers.forEach((layer) => {
-                        cy.wrap(layer.isLoading).should('be.false')
-                        cy.wrap(layer.visible).should('be.true')
-                        cy.wrap(layer.opacity).should('be.eq', 1.0)
+                        expect(layer.isLoading).to.be.false
+                        expect(layer.visible).to.be.true
+                        expect(layer.opacity).to.be.eq(1.0)
                     })
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
-                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
-                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmtsLayerId1)
-                    cy.wrap(layers[0].name).should('be.eq', fakeWmtsLayerName1)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
+                    expect(layers[0].externalLayerId).to.be.eq(fakeWmtsLayerId1)
+                    expect(layers[0].name).to.be.eq(fakeWmtsLayerName1)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
-                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
-                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmtsLayerId2)
-                    cy.wrap(layers[1].name).should('be.eq', fakeWmtsLayerName2)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
+                    expect(layers[1].externalLayerId).to.be.eq(fakeWmtsLayerId2)
+                    expect(layers[1].name).to.be.eq(fakeWmtsLayerName2)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
-                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
-                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmtsLayerId3)
-                    cy.wrap(layers[2].name).should('be.eq', fakeWmtsLayerName3)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
+                    expect(layers[2].externalLayerId).to.be.eq(fakeWmtsLayerId3)
+                    expect(layers[2].name).to.be.eq(fakeWmtsLayerName3)
 
-                    cy.wrap(layers[3].id).should('be.eq', fakeWmtsLayerUrlId4)
-                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
-                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmtsLayerId4)
-                    cy.wrap(layers[3].name).should('be.eq', fakeWmtsLayerName4)
+                    expect(layers[3].id).to.be.eq(fakeWmtsLayerUrlId4)
+                    expect(layers[3].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
+                    expect(layers[3].externalLayerId).to.be.eq(fakeWmtsLayerId4)
+                    expect(layers[3].name).to.be.eq(fakeWmtsLayerName4)
                 })
                 cy.checkOlLayer([
                     bgLayer,
@@ -357,20 +358,20 @@ describe('Test of layer handling', () => {
                     layers: `${fakeWmtsLayerUrlId1},f,0.5;${encodeLayerParam(fakeWmtsLayerUrlId2)},f;${fakeWmtsLayerUrlId3},,0.8`,
                 })
                 cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
-                cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 3)
+                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                    expect(layers).to.have.length(3)
 
-                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
-                    cy.wrap(layers[0].visible).should('be.false')
-                    cy.wrap(layers[0].opacity).should('be.eq', 0.5)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].visible).to.be.false
+                    expect(layers[0].opacity).to.be.eq(0.5)
 
-                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
-                    cy.wrap(layers[1].visible).should('be.false')
-                    cy.wrap(layers[1].opacity).should('be.eq', 1.0)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].visible).to.be.false
+                    expect(layers[1].opacity).to.be.eq(1.0)
 
-                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
-                    cy.wrap(layers[2].visible).should('be.true')
-                    cy.wrap(layers[2].opacity).should('be.eq', 0.8)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].visible).to.be.true
+                    expect(layers[2].opacity).to.be.eq(0.8)
                 })
 
                 // shows a red icon to signify a layer is from an external source
