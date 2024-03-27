@@ -4,13 +4,10 @@ import { computed, nextTick, ref } from 'vue'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
+import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
-
-// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
-const EMAIL_REGEX =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 const props = defineProps({
     showAsLink: {
@@ -43,7 +40,7 @@ const feedbackCanBeSent = computed(() => {
 })
 const isMessageValid = computed(() => feedback.value.message?.length > 0)
 const isEmailValid = computed(() => {
-    return !feedback.value.email || EMAIL_REGEX.test(feedback.value.email)
+    return !feedback.value.email || isValidEmail(feedback.value.email)
 })
 
 // Methods
