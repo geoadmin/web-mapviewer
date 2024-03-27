@@ -259,6 +259,7 @@ function containsLayer(layers, searchText) {
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
                 :data-cy="`catalogue-tree-item-name-${item.id}`"
+                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
             >
                 <TextSearchMarker :text="item.name" :search="search" />
             </TextTruncate>

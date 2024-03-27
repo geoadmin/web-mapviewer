@@ -66,6 +66,7 @@ const attributionName = computed(() =>
 )
 const showLegendIcon = computed(() => layer.value.hasLegend)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -136,6 +137,7 @@ function duplicateLayer() {
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
+                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
@@ -218,7 +220,7 @@ function duplicateLayer() {
             </button>
             <button
                 ref="layerUpButton"
-                class="btn d-flex align-items-center"
+                class="btn-layer-up-down btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isTopLayer"
                 :data-cy="`button-raise-order-layer-${id}-${index}`"
@@ -228,7 +230,7 @@ function duplicateLayer() {
             </button>
             <button
                 ref="layerDownButton"
-                class="btn d-flex align-items-center"
+                class="btn-layer-up-down btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :disabled="isBottomLayer"
                 :data-cy="`button-lower-order-layer-${id}-${index}`"
@@ -293,5 +295,9 @@ svg {
 
 .loading-button {
     cursor: default;
+}
+
+.btn-layer-up-down:disabled {
+    border: none;
 }
 </style>
