@@ -1,4 +1,5 @@
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -102,6 +103,11 @@ export default class WMTSCapabilitiesParser {
             return null
         }
 
+        const options = optionsFromCapabilities(this, {
+            layer: attributes.layerId,
+            projection: projection.epsg,
+        })
+
         return new ExternalWMTSLayer({
             name: attributes.title,
             opacity,
@@ -113,6 +119,8 @@ export default class WMTSCapabilitiesParser {
             extent: attributes.extent,
             legends: attributes.legends,
             isLoading: false,
+            availableProjections: attributes.availableProjections,
+            options,
         })
     }
 
@@ -145,6 +153,7 @@ export default class WMTSCapabilitiesParser {
             attributions: this._getLayerAttribution(layerId),
             extent: this._getLayerExtent(layerId, layer, projection),
             legends: this._getLegends(layerId, layer),
+            availableProjections: this._getAvailableProjections(layerId, layer, ignoreError),
         }
     }
 
@@ -159,6 +168,37 @@ export default class WMTSCapabilitiesParser {
             }
         })
         return tileMatrixSet
+    }
+
+    _getAvailableProjections(layerId, layer, ignoreError) {
+        let availableProjections = []
+        if (layer.WGS84BoundingBox?.length) {
+            availableProjections.push(WGS84)
+        }
+
+        // Take the projections defined in BoundingBox
+        availableProjections.push(
+            ...(layer.BoundingBox?.map((bbox) => parseCrs(bbox.crs)).filter(
+                (projection) => !!projection
+            ) ?? [])
+        )
+
+        // Take the available projections from the tile matrix set
+        availableProjections.push(
+            parseCrs(this._findTileMatrixSetFromLinks(layer.TileMatrixSetLink)?.SupportedCRS)
+        )
+
+        // Remove duplicates
+        availableProjections = [...new Set(availableProjections)]
+
+        if (availableProjections.length === 0) {
+            const msg = `No projections found for layer ${layerId}`
+            if (!ignoreError) {
+                throw new CapabilitiesError(msg)
+            }
+            log.error(msg, layer)
+        }
+        return availableProjections
     }
 
     _getLayerExtent(layerId, layer, projection) {

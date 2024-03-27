@@ -1,8 +1,6 @@
 <script setup>
 import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
 import { computed, onMounted, provide, ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -23,9 +21,6 @@ import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSyste
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'OpenLayersMap.vue' }
-
-// register any custom projection in OpenLayers
-register(proj4)
 
 // setting the boundaries for projection, in the OpenLayers context, whenever bounds are defined
 // this will help OpenLayers know when tiles shouldn't be requested because coordinates are out of bounds
