@@ -2,6 +2,7 @@ import {
     BREAKPOINT_TABLET,
     GIVE_FEEDBACK_HOSTNAMES,
     NO_WARNING_BANNER_HOSTNAMES,
+    REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config'
 import log from '@/utils/logging'
@@ -244,21 +245,15 @@ export default {
          * Flag to display to display give feedback button/form. On localhost, it will always shown
          * for testing purpose
          */
-        hasGiveFeedbackButton(state, getters) {
-            if (getters.hasDevSiteWarning) {
-                return true
-            }
+        hasGiveFeedbackButton(state) {
             return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
         /**
          * Flag to display to display report problem button/form. On localhost, it will always shown
          * for testing purpose
          */
-        hasReportProblemButton(state, getters) {
-            if (getters.hasDevSiteWarning) {
-                return true
-            }
-            return !getters.hasGiveFeedbackButton
+        hasReportProblemButton(state) {
+            return REPORT_PROBLEM_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
     },
     actions: {
