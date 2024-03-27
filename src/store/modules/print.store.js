@@ -4,34 +4,20 @@ import log from '@/utils/logging.js'
 export default {
     state: {
         layouts: [],
-        selectedLayout: {},
+        selectedLayout: null,
         selectedScale: 0,
         printSectionShown: false,
-        printingStatus: false,
-        useGraticule: false,
-        useLegend: false,
-        currentPrintReference: null,
     },
     getters: {
         mapSize(state) {
-            const mapAttributes = state.selectedLayout.attributes.find((atr) => atr.name === 'map')
+            const mapAttributes = state.selectedLayout.attributes.find(
+                (attribute) => attribute.name === 'map'
+            )
 
             return {
                 width: mapAttributes?.clientParams?.width?.default,
                 height: mapAttributes?.clientParams?.height?.default,
             }
-        },
-        getSelectedScale(state) {
-            return state.selectedScale
-        },
-        useGraticule(state) {
-            return state.useGraticule
-        },
-        useLegend(state) {
-            return state.useLegend
-        },
-        currentPrintReference(state) {
-            return state.currentPrintReference
         },
     },
     actions: {
@@ -48,25 +34,10 @@ export default {
         },
         setSelectedLayout({ commit }, { layout, dispatcher }) {
             commit('setSelectedLayout', { layout, dispatcher })
+            commit('setSelectedScale', { scale: layout.scales[0], dispatcher })
         },
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })
-        },
-        setPrintingStatus({ commit }, { isPrinting, dispatcher }) {
-            commit('setPrintingStatus', { isPrinting, dispatcher })
-        },
-        setUseGraticule({ commit }, { useGraticule, dispatcher }) {
-            commit('setUseGraticule', { useGraticule, dispatcher })
-        },
-        setUseLegend({ commit }, { useLegend, dispatcher }) {
-            commit('setUseLegend', { useLegend, dispatcher })
-        },
-        setCurrentPrintReference({ commit }, { reference, dispatcher }) {
-            commit('setCurrentPrintReference', { reference, dispatcher })
-        },
-        setPrintStatusAndReference({ commit }, { isPrinting, reference, dispatcher }) {
-            commit('setPrintingStatus', { isPrinting, dispatcher })
-            commit('setCurrentPrintReference', { reference, dispatcher })
         },
     },
     mutations: {
@@ -74,10 +45,5 @@ export default {
         setSelectedLayout: (state, { layout }) => (state.selectedLayout = layout),
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
-        setPrintingStatus: (state, { isPrinting }) => (state.printingStatus = isPrinting),
-        setUseGraticule: (state, { useGraticule }) => (state.useGraticule = useGraticule),
-        setUseLegend: (state, { useLegend }) => (state.useLegend = useLegend),
-        setCurrentPrintReference: (state, { reference }) =>
-            (state.currentPrintReference = reference),
     },
 }

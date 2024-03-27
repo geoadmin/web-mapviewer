@@ -28,21 +28,16 @@ export default {
     getters: {},
     actions: {
         async generateShortLinks({ commit }, { withCrosshair = false, dispatcher }) {
-            const urlWithoutGeolocation =
-                // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
-                window.location.href.replace('&geolocation', '') +
-                // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
-                (withCrosshair ? '&crosshair=marker' : '')
             try {
-                const shortLink = await createShortLink(urlWithoutGeolocation)
+                const shortLink = await createShortLink(window.location.href, withCrosshair)
                 if (shortLink) {
                     commit('setShortLink', { shortLink, dispatcher })
                 }
             } catch (err) {
-                log.error('Error while creating short link for', urlWithoutGeolocation, err)
-                commit('setShortLink', { shortLink: urlWithoutGeolocation, dispatcher })
+                log.error('Error while creating short link for', window.location.href, err)
+                commit('setShortLink', { shortLink: window.location.href, dispatcher })
             }
-            const embedUrl = transformUrlMapToEmbed(urlWithoutGeolocation)
+            const embedUrl = transformUrlMapToEmbed(window.location.href)
             try {
                 const embeddedShortLink = await createShortLink(embedUrl)
                 if (embeddedShortLink) {
