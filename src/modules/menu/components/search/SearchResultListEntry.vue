@@ -5,7 +5,7 @@ import { computed, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
@@ -127,14 +127,14 @@ defineExpose({
             <button
                 class="btn btn-default"
                 :class="{ 'btn-xs': compact }"
-                :data-cy="`button-show-legend-layer-${entry.layerId}`"
+                :data-cy="`button-show-description-layer-${entry.layerId}`"
                 tabindex="-1"
-                @click="showLayerLegend = true"
+                @click="showLayerDescription = true"
             >
                 <FontAwesomeIcon size="lg" :icon="['fas', 'info-circle']" />
             </button>
         </div>
-        <LayerLegendPopup
+        <LayerDescriptionPopup
             v-if="showLayerLegend"
             :layer-id="entry.layerId"
             :layer-name="layerName"
