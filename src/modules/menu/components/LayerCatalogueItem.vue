@@ -67,7 +67,7 @@ const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**

@@ -138,7 +138,8 @@ export default class ExternalLayer extends AbstractLayer {
             hasTooltip,
             isExternal: true,
             isLoading,
-            hasLegend: abstract?.length > 0 || legends?.length > 0,
+            hasDescription: abstract?.length > 0 || legends?.length > 0,
+            hasLegend: legends?.length > 0,
         })
         this.externalLayerId = externalLayerId
         this.abstract = abstract

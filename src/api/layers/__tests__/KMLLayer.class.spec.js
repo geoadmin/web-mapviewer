@@ -15,6 +15,7 @@ describe('KMLLayer', () => {
         expect(layer.adminId).toBe(null)
         expect(layer.isExternal).toBe(false)
         expect(layer.name).toBe('KML')
+        expect(layer.hasDescription).toBe(false)
         expect(layer.hasLegend).toBe(false)
         expect(layer.hasTooltip).toBe(false)
 

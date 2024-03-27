@@ -61,6 +61,8 @@ export default class AbstractLayer {
      *   this layer. Default is `[]`
      * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
      *   on. Default is `false`
+     * @param {Boolean} [layerData.hasDescription=false] Define if this layer has a description that
+     *   can be shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.isExternal=false] Define if this layer comes from our backend, or
@@ -84,6 +86,7 @@ export default class AbstractLayer {
             visible = false,
             attributions = [],
             hasTooltip = false,
+            hasDescription = false,
             hasLegend = false,
             isExternal = false,
             isLoading = false,
@@ -113,6 +116,7 @@ export default class AbstractLayer {
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
         this.isLoading = isLoading
+        this.hasDescription = hasDescription
         this.hasLegend = hasLegend
         this.errorKey = null
         this.hasError = false

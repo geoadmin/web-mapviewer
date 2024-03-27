@@ -64,7 +64,7 @@ const id = computed(() => layer.value.id)
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )
-const showLegendIcon = computed(() => layer.value.hasLegend)
+const showLegendIcon = computed(() => layer.value.hasDescription)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 

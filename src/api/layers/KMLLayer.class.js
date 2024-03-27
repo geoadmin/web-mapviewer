@@ -61,6 +61,7 @@ export default class KMLLayer extends AbstractLayer {
             visible: visible ?? true,
             attributions: [new LayerAttribution(attributionName)],
             isExternal,
+            hasDescription: false,
             hasLegend: false,
         })
         this.kmlFileUrl = kmlFileUrl
