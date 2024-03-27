@@ -39,22 +39,10 @@ const shortLink = ref('')
 
 //  Computed properties
 const feedbackCanBeSent = computed(() => {
-    // log.info(
-    //     'Checking if feedback can be sent',
-    //     !request.value.pending,
-    //     isEmailValid,
-    //     isMessageValid
-    // )
     return !request.value.pending && isEmailValid.value && isMessageValid.value
 })
 const isMessageValid = computed(() => feedback.value.message?.length > 0)
 const isEmailValid = computed(() => {
-    // log.info(
-    //     'Checking email validity',
-    //     !feedback.value.email,
-    //     EMAIL_REGEX.test(feedback.value.email),
-    //     !feedback.value.email || EMAIL_REGEX.test(feedback.value.email)
-    // )
     return !feedback.value.email || EMAIL_REGEX.test(feedback.value.email)
 })
 
@@ -176,9 +164,7 @@ function openForm() {
                 <ImportFileLocal @file-selected="handleFile" />
             </div>
             <div class="my-4">
-                <!-- eslint-disable vue/no-v-html-->
-                <small v-html="$t('feedback_permalink')" />
-                <!-- eslint-enable vue/no-v-html-->
+                <small>{{ $t('feedback_permalink') }}</small>
                 <a target="_blank" :href="shortLink">{{ $t('permalink') }}</a>
             </div>
             <div class="my-4">
