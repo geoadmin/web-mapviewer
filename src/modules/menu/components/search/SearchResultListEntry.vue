@@ -26,7 +26,7 @@ const emits = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReach
 const { index, entry } = toRefs(props)
 
 const resultType = computed(() => entry.value.resultType)
-const showLayerLegend = ref(false)
+const showLayerDescription = ref(false)
 
 const item = ref(null)
 
@@ -135,10 +135,10 @@ defineExpose({
             </button>
         </div>
         <LayerDescriptionPopup
-            v-if="showLayerLegend"
+            v-if="showLayerDescription"
             :layer-id="entry.layerId"
             :layer-name="layerName"
-            @close="showLayerLegend = false"
+            @close="showLayerDescription = false"
         />
     </li>
 </template>
