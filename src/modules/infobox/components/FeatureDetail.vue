@@ -1,6 +1,6 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import { computed, ref, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -8,6 +8,8 @@ import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
+
+const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
 const props = defineProps({
     feature: {
@@ -20,13 +22,15 @@ const { feature } = toRefs(props)
 
 const i18n = useI18n()
 
-const disclaimerAgree = ref(false)
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+})
+const disclaimerIsShown = computed(() => {
+    return store.state.ui.showDisclaimer
 })
 const sanitizedFeatureDataEntries = computed(() => {
     if (hasFeatureStringData.value || !feature.value?.data) {
@@ -40,7 +44,10 @@ function sanitizeHtml(htmlText) {
     return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
 }
 function setDisclaimerAgree() {
-    disclaimerAgree.value = true
+    store.dispatch('setShowDisclaimer', {
+        showDisclaimer: false,
+        ...dispatcher,
+    })
 }
 </script>
 
@@ -54,11 +61,12 @@ function setDisclaimerAgree() {
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div
-                    v-if="!disclaimerAgree && value.includes('iframe')"
+                    v-if="disclaimerIsShown && value.includes('iframe')"
                     data-cy="feature-detail-media-disclaimer"
                     class="p-1 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
                 >
                     <div class="d-flex align-items-center">
+                        <FontAwesomeIcon icon="fa-circle-info" />
                         <div class="px-1 d-flex">{{ i18n.t('media_disclaimer') }}</div>
                         <button
                             class="d-flex small btn btn-sm btn-light"
