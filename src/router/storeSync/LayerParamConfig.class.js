@@ -8,7 +8,11 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
-import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import {
+    orderFeaturesByLayers,
+    parseLayersParam,
+    transformLayerIntoUrlString,
+} from '@/router/storeSync/layersParamParser'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -180,11 +184,13 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
 }
 
 function generateLayerUrlParamFromStoreValues(store) {
+    const featuresIds = orderFeaturesByLayers(store.state.features.selectedFeatures)
     return store.state.layers.activeLayers
         .map((layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config) => config.id === layer.id)
+                store.state.layers.config.find((config) => config.id === layer.id),
+                featuresIds[layer.id]
             )
         )
         .join(';')
@@ -204,6 +210,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setLayerOpacity',
                 'setLayerYear',
                 'setLayers',
+                'setSelectedFeatures',
             ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
