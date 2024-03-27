@@ -52,8 +52,8 @@ describe('Testing the report problem form', () => {
     }
 
     function openForm() {
-        cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
+        cy.get('[data-cy="report-problem-form"]').should('be.visible')
     }
 
     it('test the report problem form UI, validations, and it backend interaction', () => {
