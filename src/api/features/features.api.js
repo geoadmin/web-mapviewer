@@ -521,7 +521,7 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
                 if (featureMetadata.bbox) {
                     featureExtent.push(...featureMetadata.bbox)
                 }
-                const featureName = featureMetadata?.properties?.name
+                const featureName = featureMetadata?.properties?.name ?? featureID
 
                 if (outputProjection.epsg !== LV95.epsg) {
                     if (featureExtent.length === 4) {
