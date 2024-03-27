@@ -115,7 +115,7 @@ describe('Testing the report problem form', () => {
             ;[
                 { name: 'subject', contains: `Problem report` },
                 { name: 'feedback', contains: text },
-                // { name: 'version', contains: APP_VERSION },
+                { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'email', contains: validEmail },
             ].forEach((param) => {
