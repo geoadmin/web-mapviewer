@@ -1,4 +1,5 @@
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -102,6 +103,11 @@ export default class WMTSCapabilitiesParser {
             return null
         }
 
+        const options = optionsFromCapabilities(this, {
+            layer: attributes.layerId,
+            projection: projection.epsg,
+        })
+
         return new ExternalWMTSLayer({
             name: attributes.title,
             opacity,
@@ -114,6 +120,7 @@ export default class WMTSCapabilitiesParser {
             legends: attributes.legends,
             isLoading: false,
             availableProjections: attributes.availableProjections,
+            options,
         })
     }
 
