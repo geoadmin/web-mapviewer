@@ -6,6 +6,7 @@ import { createShortLink } from '@/api/shortlink.api'
 import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
 import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import EmailValidationField from '@/modules/menu/components/menu/components/EmailValidationField.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 
@@ -20,7 +21,7 @@ const requestResults = ref(null)
 
 const showReportProblemForm = ref(false)
 const userIsTypingFeedback = ref(false)
-const userIsTypingEmail = ref(false)
+// const userIsTypingEmail = ref(false)
 const feedback = ref({
     message: null,
     kml: null,
@@ -140,22 +141,15 @@ function openForm() {
                 </div>
             </div>
 
-            <div class="my-3">
-                <span>{{ $t('feedback_mail') }}</span>
-                <div class="input-group has-validation">
-                    <input
-                        v-model="feedback.email"
-                        :disabled="request.pending"
-                        :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
-                        type="email"
-                        class="form-control"
-                        data-cy="report-problem-email"
-                        @focusin="userIsTypingEmail = true"
-                        @focusout="userIsTypingEmail = false"
-                    />
-                    <div class="invalid-feedback">{{ $t('feedback_invalid_email') }}</div>
-                </div>
-            </div>
+            <EmailValidationField
+                class="my-3"
+                :is-request-pending="request.pending"
+                @email-updated="feedback.email = $event"
+            >
+                <template #header>
+                    {{ $t('feedback_mail') }}
+                </template>
+            </EmailValidationField>
             <div class="my-3">
                 <span>{{ $t('feedback_attachment') }}</span>
                 <ImportFileLocal @file-selected="handleFile" />

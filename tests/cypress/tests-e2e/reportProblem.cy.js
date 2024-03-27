@@ -81,21 +81,21 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-text"]').type(text)
 
         cy.log('It is possible to report a problem without specifying an email address')
-        cy.get('[data-cy="report-problem-email"').should('be.empty')
+        cy.get('[data-cy="feedback-email"').should('be.empty')
         cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
 
         cy.log('It is not possible to report a problem with a malformed email')
-        cy.get('[data-cy="report-problem-email"').clear()
-        cy.get('[data-cy="report-problem-email"').type('this.is.not.a.valid@email')
+        cy.get('[data-cy="feedback-email"').clear()
+        cy.get('[data-cy="feedback-email"').type('this.is.not.a.valid@email')
         cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
 
         cy.log('It validates email before enabling the user to report a problem')
-        cy.get('[data-cy="report-problem-email"').clear()
-        cy.get('[data-cy="report-problem-email"').type(validEmail)
+        cy.get('[data-cy="feedback-email"').clear()
+        cy.get('[data-cy="feedback-email"').type(validEmail)
         cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
 
         cy.log('It is not possible to report a problem without filling the message')
-        cy.get('[data-cy="report-problem-email"]').type(validEmail)
+        cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"').clear()
         cy.get('[data-cy="report-problem-text"').should('be.empty')
         cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
@@ -104,7 +104,7 @@ describe('Testing the report problem form', () => {
         cy.log('It generates a complete request to service-feedback')
         openForm()
         interceptFeedback(true)
-        cy.get('[data-cy="report-problem-email"]').type(validEmail)
+        cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"]').type(text)
 
         cy.get('[data-cy="submit-report-problem-button"]').click()
@@ -140,7 +140,7 @@ describe('Testing the report problem form', () => {
         openForm()
         interceptFeedback(false)
         cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="report-problem-email"]').type(validEmail)
+        cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="submit-report-problem-button"]').click()
 
         cy.wait('@feedback')
