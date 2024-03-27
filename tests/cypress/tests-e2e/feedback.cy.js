@@ -2,6 +2,8 @@
 
 import { APP_VERSION } from '@/config'
 
+import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+
 describe('Testing the feedback form', () => {
     beforeEach(() => {
         cy.goToMapView()
@@ -64,45 +66,8 @@ describe('Testing the feedback form', () => {
             cy.get('[data-cy="menu-settings-section"]').click()
             cy.get('[data-cy="feedback-button"]').should('be.visible').click()
         })
-        function interceptFeedback(success) {
-            cy.intercept('POST', '**/api/feedback', (req) => {
-                req.reply({
-                    body: {
-                        success,
-                    },
-                    delay: 1000,
-                })
-            }).as('feedback')
-        }
-        context('request params', () => {
-            function getFormDataBoundary(request) {
-                const contentType = request.headers['content-type']
-                const boundaryMatch = contentType.match(/boundary=([\w-]+)/)
-                return boundaryMatch && boundaryMatch[1]
-            }
-            function parseFormData(request) {
-                const boundary = getFormDataBoundary(request)
-                const formDataParts = request.body.split(boundary)
-                return (
-                    formDataParts
-                        .filter((part) => part.indexOf('Content-Disposition') !== -1)
-                        .map((rawPart) => {
-                            const split = rawPart
-                                .split(/\r?\n/)
-                                .filter((split) => split !== '--' && split.length > 0)
-                            const name = split[0].substring(
-                                split[0].indexOf('name="') + 6, // removing the 6 chars from name="
-                                split[0].length - 1 // removing trailing "
-                            )
-                            return {
-                                [name]: split[1],
-                            }
-                        })
-                        // flatten array of params into a single object (with param name as keys)
-                        .reduce((accumulator, param) => Object.assign(accumulator, param))
-                )
-            }
 
+        context('request params', () => {
             it('generates a complete request to service-feedback', () => {
                 const rating = 4
                 const text =
