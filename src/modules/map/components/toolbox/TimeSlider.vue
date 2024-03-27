@@ -1,4 +1,3 @@
-
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -57,10 +56,10 @@ function findMostRecentCommonYear(timeConfigs) {
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
 const currentYear = ref(YOUNGEST_YEAR)
-const cursorX = ref(0)
-const playYearsWithData = ref(false)
-const yearCursorIsGrabbed = ref(false)
-const playYearInterval = ref(null)
+let cursorX = 0
+let playYearsWithData = false
+let yearCursorIsGrabbed = false
+let playYearInterval = null
 
 // refs to dom elements
 const yearCursor = ref(undefined)
@@ -205,7 +204,7 @@ function setSliderWidth() {
 }
 
 function positionNodeLabel(year) {
-    const timestampIndex = ALL_YEARS.indexOf(year) || 1
+    const timestampIndex = ALL_YEARS.indexOf(year) ?? 1
     const leftPosition = Math.max(
         LABEL_WIDTH / 2.0,
         timestampIndex * distanceBetweenLabels.value -
@@ -221,13 +220,13 @@ function hasData(year) {
 }
 
 function grabCursor(event) {
-    yearCursorIsGrabbed.value = true
+    yearCursorIsGrabbed = true
     if (event.type === 'touchstart') {
         // for touch events we have to select which touch we want to get the screen position
         // (there can be multiple fingers gestures)
-        cursorX.value = event.touches[0].screenX
+        cursorX = event.touches[0].screenX
     } else {
-        cursorX.value = event.screenX
+        cursorX = event.screenX
     }
     window.addEventListener('mousemove', listenToMouseMove, { passive: true })
     window.addEventListener('touchmove', listenToMouseMove, { passive: true })
@@ -236,7 +235,7 @@ function grabCursor(event) {
 }
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
-    const deltaX = cursorX.value - currentPosition
+    const deltaX = cursorX - currentPosition
     if (Math.abs(deltaX) >= distanceBetweenLabels.value) {
         let futureYearIndex = ALL_YEARS.indexOf(currentYear.value)
 
@@ -261,13 +260,13 @@ function listenToMouseMove(event) {
         // checking that this is a valid year in the context of currently displayed data
         if (yearsWithData.value.includes(futureYear)) {
             // reset of the starting position for delta calculation
-            cursorX.value = currentPosition
+            cursorX = currentPosition
             currentYear.value = futureYear
         }
     }
 }
 function releaseCursor() {
-    yearCursorIsGrabbed.value = false
+    yearCursorIsGrabbed = false
     window.removeEventListener('mousemove', listenToMouseMove)
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseCursor)
@@ -275,27 +274,27 @@ function releaseCursor() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 function togglePlayYearsWithData() {
-    playYearsWithData.value = !playYearsWithData.value
-    if (playYearsWithData.value) {
+    playYearsWithData = !playYearsWithData
+    if (playYearsWithData) {
         // if current year is the last (most recent) one, we set the starting year for our
         // player to the oldest
         if (currentYear.value === yearsWithData.value[0]) {
             setCurrentYearAndDispatchToStore(yearsWithData.value.slice(-1)[0])
         }
-        playYearInterval.value = setInterval(() => {
+        playYearInterval = setInterval(() => {
             const currentYearIndex = yearsWithData.value.indexOf(currentYear.value)
             // if last (most recent) year, we stop the player
             if (currentYearIndex === 0) {
-                clearInterval(playYearInterval.value)
-                playYearInterval.value = null
-                playYearsWithData.value = false
+                clearInterval(playYearInterval)
+                playYearInterval = null
+                playYearsWithData = false
             } else {
                 setCurrentYearAndDispatchToStore(yearsWithData.value[currentYearIndex - 1])
             }
         }, 1000)
     } else {
-        clearInterval(playYearInterval.value)
-        playYearInterval.value = null
+        clearInterval(playYearInterval)
+        playYearInterval = null
     }
 }
 </script>
@@ -374,7 +373,6 @@ function togglePlayYearsWithData() {
         </div>
     </div>
 </template>
-
 
 <style lang="scss">
 @import 'src/scss/webmapviewer-bootstrap-theme';
