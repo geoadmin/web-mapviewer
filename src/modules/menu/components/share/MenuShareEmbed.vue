@@ -6,8 +6,12 @@
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
-            <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
-            <span class="ms-2">{{ $t('share_more') }}</span>
+            <FontAwesomeIcon
+                class="btn border-0 px-2"
+                :class="{ 'text-primary': showEmbedSharing }"
+                :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`"
+            />
+            <span class="px-1">{{ $t('share_more') }}</span>
         </a>
         <CollapseTransition :duration="200">
             <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">

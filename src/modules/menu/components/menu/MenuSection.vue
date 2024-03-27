@@ -16,8 +16,12 @@
             data-toggle="collapse"
             @click="toggleShowBody"
         >
-            <span class="menu-section-title">
-                <button class="btn menu-section-title-icon" type="button" :disabled="disabled">
+            <span class="menu-section-title d-flex align-items-center">
+                <button
+                    class="btn border-0 menu-section-title-icon"
+                    type="button"
+                    :disabled="disabled"
+                >
                     <font-awesome-icon :icon="['fas', titleCaretIcon]" />
                 </button>
                 <span class="ms-2 menu-section-title-text">{{ title }}</span>
@@ -132,7 +136,7 @@ $section-border: 1px;
     display: flex;
     flex: none;
     overflow: visible;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.6rem;
     line-height: 1.5;
     border-top: $section-border solid $gray-400;
     background-color: $light;
@@ -177,11 +181,6 @@ $section-border: 1px;
     }
 }
 
-.menu-section-title-icon {
-    &:disabled {
-        border-color: transparent;
-    }
-}
 .menu-section-body {
     background-color: $white;
     overflow: auto;

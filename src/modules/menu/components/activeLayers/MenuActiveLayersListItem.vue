@@ -118,7 +118,7 @@ function duplicateLayer() {
     >
         <div class="menu-layer-item-title">
             <button
-                class="btn d-flex align-items-center"
+                class="btn border-0 d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-remove-layer-${id}-${index}`"
                 @click="onRemoveLayer"
@@ -126,7 +126,7 @@ function duplicateLayer() {
                 <FontAwesomeIcon icon="times-circle" />
             </button>
             <button
-                class="btn d-flex align-items-center"
+                class="btn border-0 d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
@@ -134,7 +134,7 @@ function duplicateLayer() {
                 <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
             </button>
             <TextTruncate
-                class="menu-layer-item-name"
+                class="menu-layer-item-name p-1"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
                 :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
@@ -143,7 +143,7 @@ function duplicateLayer() {
             >
             <button
                 v-if="showSpinner"
-                class="loading-button btn"
+                class="loading-button btn border-0"
                 :class="{
                     'btn-lg': !compact,
                 }"
@@ -178,7 +178,7 @@ function duplicateLayer() {
                 />
             </ThirdPartDisclaimer>
             <button
-                class="btn"
+                class="btn border-0"
                 :class="{
                     'btn-lg': !compact,
                     'flip text-primary': showLayerDetail,

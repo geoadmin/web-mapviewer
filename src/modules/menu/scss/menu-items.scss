@@ -16,10 +16,8 @@
 .menu-title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-
-    padding: 0 0.8rem;
+    padding-left: 8px;
+    padding-right: 8px;
     height: 2.5rem;
 
     .compact & {
@@ -27,7 +25,8 @@
     }
 
     & > button {
-        padding: 0;
+        padding-left: 6px;
+        padding-right: 6px;
     }
 }
 
