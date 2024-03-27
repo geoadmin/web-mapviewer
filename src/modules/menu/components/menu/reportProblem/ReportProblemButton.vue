@@ -18,6 +18,7 @@ const props = defineProps({
 })
 const feedbackMessageTextArea = ref(null)
 const requestResults = ref(null)
+const reportProblemCloseSuccessful = ref(null)
 
 const showReportProblemForm = ref(false)
 const userIsTypingFeedback = ref(false)
@@ -75,6 +76,8 @@ async function sendReportProblem() {
     // scrolling down to make sure the message with request results is visible to the user
     if (request.value.failed) {
         requestResults.value.scrollIntoView()
+    } else if (request.value.completed) {
+        reportProblemCloseSuccessful.value.focus()
     }
 }
 function closeAndCleanForm() {
@@ -148,7 +151,7 @@ function openForm() {
                 @email-updated="feedback.email = $event"
             >
                 <template #header>
-                    {{ $t('feedback_mail') }}
+                    {{ $t('feedback_email') }}
                 </template>
             </EmailValidationField>
             <div class="my-3">
@@ -156,14 +159,17 @@ function openForm() {
                 <ImportFileLocal @file-selected="handleFile" />
             </div>
             <div class="my-4">
-                <small>{{ $t('feedback_permalink') }}</small>
-                <a target="_blank" :href="shortLink">{{ $t('permalink') }}</a>
+                <div>
+                    <small>{{ $t('feedback_permalink') }}</small>
+                    <a target="_blank" :href="shortLink">{{ $t('permalink') }}</a>
+                </div>
+                <div>
+                    <!-- eslint-disable vue/no-v-html-->
+                    <small v-html="$t('feedback_disclaimer')" />
+                    <!-- eslint-enable vue/no-v-html-->
+                </div>
             </div>
-            <div class="my-4">
-                <!-- eslint-disable vue/no-v-html-->
-                <small v-html="$t('feedback_disclaimer')" />
-                <!-- eslint-enable vue/no-v-html-->
-            </div>
+
             <div class="text-end">
                 <button class="btn btn-light mx-2" @click="closeAndCleanForm">
                     {{ $t('cancel') }}
@@ -197,6 +203,7 @@ function openForm() {
                 {{ $t('feedback_success_message') }}
             </h6>
             <button
+                ref="reportProblemCloseSuccessful"
                 class="my-2 btn btn-light float-end"
                 data-cy="report-problem-close-successful"
                 @click="closeAndCleanForm"

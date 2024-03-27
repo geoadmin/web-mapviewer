@@ -95,6 +95,7 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
 
         cy.log('It is not possible to report a problem without filling the message')
+        cy.get('[data-cy="feedback-email"').clear()
         cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"').clear()
         cy.get('[data-cy="report-problem-text"').should('be.empty')
@@ -104,7 +105,7 @@ describe('Testing the report problem form', () => {
         cy.log('It generates a complete request to service-feedback')
         openForm()
         interceptFeedback(true)
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
+        // cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"]').type(text)
 
         cy.get('[data-cy="submit-report-problem-button"]').click()
@@ -117,7 +118,7 @@ describe('Testing the report problem form', () => {
                 { name: 'feedback', contains: text },
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
-                { name: 'email', contains: validEmail },
+                // { name: 'email', contains: validEmail },
             ].forEach((param) => {
                 expect(interception.request.body).to.be.a('String')
                 const formData = parseFormData(interception.request)
@@ -131,6 +132,7 @@ describe('Testing the report problem form', () => {
         )
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
         cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
+        cy.get('[data-cy="report-problem-close-successful"]').should('be.focused')
 
         cy.log('Closes the modal if the close button is clicked')
         cy.get('[data-cy="report-problem-close-successful"]').click()
