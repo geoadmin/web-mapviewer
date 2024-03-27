@@ -104,14 +104,11 @@
 import { mapGetters } from 'vuex'
 
 import sendFeedback from '@/api/feedback.api'
+import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
-
-// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
-const EMAIL_REGEX =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 export default {
     components: { FeedbackRating, ModalWithBackdrop, HeaderLink },
@@ -144,7 +141,7 @@ export default {
             return this.feedback.rating !== 0 && !this.request.pending && this.isEmailValid
         },
         isEmailValid() {
-            return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
+            return !this.feedback.email || isValidEmail(this.feedback.email)
         },
     },
     methods: {
