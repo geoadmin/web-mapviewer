@@ -256,8 +256,10 @@ export default class WMSCapabilitiesParser {
         let availableProjections = [WGS84]
         if (layer.CRS) {
             availableProjections = layer.CRS.filter((crs) =>
-                allCoordinateSystems.some((projection) => projection.epsg === crs)
-            ).map((crs) => allCoordinateSystems.find((projection) => projection.epsg === crs))
+                allCoordinateSystems.some((projection) => projection.epsg === crs.toUpperCase())
+            ).map((crs) =>
+                allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
+            )
         }
         // filtering out double inputs
         availableProjections = availableProjections.filter(
