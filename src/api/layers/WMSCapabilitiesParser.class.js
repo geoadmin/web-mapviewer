@@ -262,9 +262,15 @@ export default class WMSCapabilitiesParser {
             )
         }
         // filtering out double inputs
-        availableProjections = availableProjections.filter(
-            (projection, index) => availableProjections.indexOf(projection) !== index
-        )
+        availableProjections = [...new Set(availableProjections)]
+        if (availableProjections.length === 0) {
+            const msg = `No projections found for layer ${layerId}`
+            if (!ignoreError) {
+                throw new CapabilitiesError(msg)
+            } else {
+                log.error(msg, layer)
+            }
+        }
 
         return {
             layerId,
