@@ -55,8 +55,8 @@ function validateForm() {
 </script>
 
 <template>
-    <div id="nav-local" aria-labelledby="nav-local" data-cy="import-file-local-content">
-        <form class="needs-validation">
+    <div data-cy="import-file-local-content">
+        <div class="needs-validation">
             <div class="input-group rounded needs-validation mb-2">
                 <button
                     class="btn btn-outline-secondary"
@@ -81,6 +81,7 @@ function validateForm() {
                     :value="filePathInfo"
                     readonly
                     required
+                    tabindex="-1"
                     data-cy="import-file-local-input-text"
                     @click="importFileLocalInput.click()"
                 />
@@ -92,7 +93,7 @@ function validateForm() {
                     {{ i18n.t(errorMessage) }}
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
