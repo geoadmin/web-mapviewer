@@ -36,22 +36,15 @@
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
-            <div class="my-3">
-                <span>{{ $t('feedback_email') }}</span>
-                <div class="input-group has-validation">
-                    <input
-                        v-model="feedback.email"
-                        :disabled="request.pending"
-                        :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
-                        type="email"
-                        class="form-control"
-                        data-cy="feedback-email"
-                        @focusin="userIsTypingEmail = true"
-                        @focusout="userIsTypingEmail = false"
-                    />
-                    <div class="invalid-feedback">{{ $t('feedback_invalid_email') }}</div>
-                </div>
-            </div>
+            <EmailValidationField
+                class="my-3"
+                :is-request-pending="request.pending"
+                @email-updated="feedback.email = $event"
+            >
+                <template #header>
+                    {{ $t('feedback_email') }}
+                </template>
+            </EmailValidationField>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_disclaimer')" />
@@ -106,12 +99,13 @@ import { mapGetters } from 'vuex'
 import sendFeedback from '@/api/feedback.api'
 import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import EmailValidationField from '@/modules/menu/components/menu/components/EmailValidationField.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 
 export default {
-    components: { FeedbackRating, ModalWithBackdrop, HeaderLink },
+    components: { FeedbackRating, ModalWithBackdrop, HeaderLink, EmailValidationField },
     props: {
         showAsLink: {
             type: Boolean,
