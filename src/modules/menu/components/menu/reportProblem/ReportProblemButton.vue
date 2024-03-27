@@ -202,9 +202,7 @@ function openForm() {
                         pulse
                         data-cy="report-problem-pending-icon"
                     />
-                    <span v-else data-cy="report-problem-send-text">{{
-                        $t('send') + ': ' + feedbackCanBeSent + ', email valid:' + isEmailValid
-                    }}</span>
+                    <span v-else data-cy="report-problem-send-text">{{ $t('send') }}</span>
                 </button>
             </div>
             <div
