@@ -52,7 +52,13 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
         toProjection instanceof CoordinateSystem
     ) {
         if (matchingProjection.epsg !== toProjection.epsg) {
-            reprojectedGeoJSON = reproject(geoJsonData, matchingProjection.epsg, toProjection.epsg)
+            reprojectedGeoJSON = reproject(
+                // (deep) cloning the geom before reprojecting it, because reproject function might alter something in the geom
+                // and the geom comes sometimes directly from the Vuex store (ending in an error when that happen)
+                JSON.parse(JSON.stringify(geoJsonData)),
+                matchingProjection.epsg,
+                toProjection.epsg
+            )
         } else {
             // it's already in the correct projection, we don't re-project
             reprojectedGeoJSON = geoJsonData

@@ -1,3 +1,4 @@
+import LayerFeature from '@/api/features/LayerFeature.class.js'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { isNumber } from '@/utils/numberUtils'
 
@@ -121,12 +122,14 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
 export function orderFeaturesByLayers(selectedFeatures) {
     const layersFeatures = {}
 
-    selectedFeatures.forEach((feature) => {
-        if (!layersFeatures[feature.layer.id]) {
-            layersFeatures[feature.layer.id] = []
-        }
+    selectedFeatures
+        .filter((feature) => feature instanceof LayerFeature)
+        .forEach((feature) => {
+            if (!layersFeatures[feature.layer.id]) {
+                layersFeatures[feature.layer.id] = []
+            }
 
-        layersFeatures[feature.layer.id].push(feature.id)
-    })
+            layersFeatures[feature.layer.id].push(feature.id)
+        })
     return layersFeatures
 }
