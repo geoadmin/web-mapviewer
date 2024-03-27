@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 
-import { isValidEmail } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import { isValidEmail } from './utils'
 
 const props = defineProps({
     isRequestPending: {
