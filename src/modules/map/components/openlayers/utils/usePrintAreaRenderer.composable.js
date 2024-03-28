@@ -7,6 +7,8 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { PRINT_AREA_LAYER_ID } from './printConstants'
+
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
 function createWorldPolygon() {
@@ -36,6 +38,7 @@ function createWorldPolygon() {
             features: [worldPolygon],
         }),
         style: transparentStyle,
+        id: PRINT_AREA_LAYER_ID,
     })
     return vectorLayer
 }
