@@ -91,7 +91,7 @@ onMounted(() => {
         // Left clicking while in drawing mode has its own logic not covered in click-on-map-management.plugin.js
         // We force the featureInfo to be visible in drawing mode
         store.dispatch('setFeatureInfoPosition', {
-            featureInfo: FeatureInfoPositions.DEFAULT,
+            position: FeatureInfoPositions.DEFAULT,
             ...dispatcher,
         })
     }

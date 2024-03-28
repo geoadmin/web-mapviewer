@@ -61,21 +61,18 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('First external layer should be group of layers')
         const itemId = 'ch.swisstopo-vd.official-survey'
-        const itemFullId = `WMS|https://wms.geo.admin.ch/?|${itemId}`
         const itemName = 'Beta OpenData-AV'
-        cy.get(`[data-cy="catalogue-tree-item-${itemFullId}"]`)
-            .should('be.visible')
-            .contains(itemName)
-        cy.get(`[data-cy="catalogue-add-layer-button-${itemFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-zoom-extent-button-${itemFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-info-${itemFullId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible').contains(itemName)
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-info-${itemId}"]`).should('not.exist')
 
         //---------------------------------------------------------------------------------
         cy.log('Add group of layer')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
-        cy.get(`[data-cy="catalogue-tree-item-name-${itemFullId}"]`).should('be.visible').click()
-        cy.get(`[data-cy="catalogue-add-layer-button-${itemFullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
@@ -83,14 +80,14 @@ describe('The Import Maps Tool', () => {
             .should('have.length', 1)
             .then((layers) => {
                 cy.wrap(layers[0].name).should('be.equal', itemName)
-                cy.wrap(layers[0].externalLayerId).should('be.equal', itemId)
+                cy.wrap(layers[0].id).should('be.equal', itemId)
                 cy.wrap(layers[0].visible).should('be.true')
                 cy.wrap(layers[0].opacity).should('be.equal', 1)
                 cy.wrap(layers[0].isExternal).should('be.true')
             })
-        cy.get(`[data-cy="catalogue-tree-item-name-${itemFullId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
-        cy.get(`[data-cy="catalogue-add-layer-button-${itemFullId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`).should('be.visible').click()
         cy.readStoreValue('state.layers.activeLayers')
             .should('have.length', 1)
             .then((layers) => {
@@ -103,31 +100,25 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Toggle the sub layers')
-        const firstSubItemId = 'WMS|https://wms.geo.admin.ch/?|ch.swisstopo-vd.official-survey-1'
+        const firstSubItemId = 'ch.swisstopo-vd.official-survey-1'
         const firstSubItemName = 'OpenData-AV 1'
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-right')
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
-            .should('be.visible')
-            .click()
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-down')
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).contains(firstSubItemName)
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
-            .should('be.visible')
-            .click()
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-right')
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.be.visible')
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemFullId}"]`)
-            .should('be.visible')
-            .click()
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
 
         //---------------------------------------------------------------------------------
         cy.log('Add the sub layers')
@@ -148,9 +139,8 @@ describe('The Import Maps Tool', () => {
         cy.log('Check sub layer zoom to extent')
         cy.get(`[data-cy="catalogue-zoom-extent-button-${firstSubItemId}"]`).should('be.visible')
         const layerExtentGraubunden = 'ch.vbs.bundestankstellen-bebeco'
-        const itemExtentGraubunden = `WMS|https://wms.geo.admin.ch/?|${layerExtentGraubunden}`
-        cy.get(`[data-cy="catalogue-tree-item-${itemExtentGraubunden}"]`).scrollIntoView()
-        cy.get(`[data-cy="catalogue-zoom-extent-button-${itemExtentGraubunden}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).scrollIntoView()
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layerExtentGraubunden}"]`)
             .should('be.visible')
             .click()
         cy.readStoreValue('state.position.center')
@@ -185,7 +175,7 @@ describe('The Import Maps Tool', () => {
                 fixture: 'import-tool/legend.png',
             }
         ).as('getLegendOfficialSurvey3')
-        const lastSubItemId = 'WMS|https://wms.geo.admin.ch/?|ch.swisstopo-vd.official-survey-3'
+        const lastSubItemId = 'ch.swisstopo-vd.official-survey-3'
         const lastSubItemTitle = 'OpenData-AV 3'
         cy.get(`[data-cy="catalogue-tree-item-info-${lastSubItemId}"]`).should('be.visible').click()
         cy.wait('@getLegendOfficialSurvey3')
@@ -202,8 +192,7 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend with only abstract')
-        const legendAbstractOnlyItemId =
-            'WMS|https://wms.geo.admin.ch/?|ch.bafu.naqua-grundwasser_nitrat'
+        const legendAbstractOnlyItemId = 'ch.bafu.naqua-grundwasser_nitrat'
         const legendAbstractOnlyItemTitle = 'Groundwater: Nitrate'
         cy.get(`[data-cy="catalogue-tree-item-info-${legendAbstractOnlyItemId}"]`)
             .should('be.visible')
@@ -223,7 +212,6 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend without abstract')
         const legendWithoutAbstractLayerId = 'ch.swisstopo-vd.official-survey-2'
-        const legendWithoutAbstractItemId = `WMS|https://wms.geo.admin.ch/?|${legendWithoutAbstractLayerId}`
         const legendWithoutAbstractItemTitle = 'OpenData-AV 2'
         cy.intercept(
             {
@@ -240,7 +228,7 @@ describe('The Import Maps Tool', () => {
                 fixture: 'import-tool/legend.png',
             }
         ).as('getLegendOfficialSurvey2')
-        cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractItemId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`)
             .should('be.visible')
             .click()
         cy.wait('@getLegendOfficialSurvey2')
@@ -256,9 +244,8 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Second external layer should be a single layer')
         const singleLayerId = 'ch.vbs.armeelogistikcenter'
-        const singleLayerFullId = `WMS|https://wms.geo.admin.ch/?|${singleLayerId}`
         const singleLayerName = 'Centres logistiques de l`armée CLA'
-        cy.get(`[data-cy="catalogue-tree-item-${singleLayerFullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-${singleLayerId}"]`)
             .should('be.visible')
             .within(() => {
                 cy.contains(singleLayerName)
@@ -270,8 +257,8 @@ describe('The Import Maps Tool', () => {
 
         //-----------------------------------------------------------------------------------------
         cy.log('Add a single layer')
-        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).click()
-        cy.get(`[data-cy="catalogue-add-layer-button-${singleLayerFullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${singleLayerId}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
@@ -279,7 +266,7 @@ describe('The Import Maps Tool', () => {
             .should('have.length', 3)
             .then((layers) => {
                 cy.wrap(layers[2].name).should('be.equal', singleLayerName)
-                cy.wrap(layers[2].externalLayerId).should('be.equal', singleLayerId)
+                cy.wrap(layers[2].id).should('be.equal', singleLayerId)
                 cy.wrap(layers[2].visible).should('be.true')
                 cy.wrap(layers[2].opacity).should('be.equal', 1)
                 cy.wrap(layers[2].isExternal).should('be.true')
@@ -313,23 +300,21 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="import-catalogue-input"]')
             .should('be.visible')
             .should('have.value', 'https://wms.geo.admin.ch/')
-        cy.get(`[data-cy="catalogue-tree-item-${itemFullId}"]`)
-            .should('be.visible')
-            .contains(itemName)
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible').contains(itemName)
 
         //------------------------------------------------------------------------------------------
         cy.log('Search in external layers')
-        cy.get(`[data-cy="catalogue-tree-item-${itemExtentGraubunden}"]`).should('not.be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('not.be.visible')
         cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type('bebe')
         cy.get('[data-cy="search-catalogue-clear"]').should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-${itemExtentGraubunden}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('be.visible')
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 1)
         cy.get('[data-cy="search-catalogue-clear"]').click()
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 6)
         cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type(firstSubItemName)
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-${itemFullId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible')
         cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('be.visible').click()
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
@@ -340,9 +325,9 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------
         cy.log(`Check that long title are truncated and have a tippy`)
-        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerFullId}"]`).trigger('mouseenter')
-        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerFullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).trigger('mouseenter')
+        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerId}"]`)
             .should('be.visible')
             .contains(singleLayerName)
 
@@ -372,16 +357,14 @@ describe('The Import Maps Tool', () => {
         cy.wait('@wms-get-capabilities')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
-        cy.get(`[data-cy^="active-layer-name-${singleLayerFullId}-"]`).should('be.visible')
-        cy.get(`[data-cy^="button-loading-metadata-spinner-${singleLayerFullId}-"]`).should(
-            'not.exist'
-        )
+        cy.get(`[data-cy^="active-layer-name-${singleLayerId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${singleLayerId}-"]`).should('not.exist')
         cy.get(`[data-cy^="active-layer-name-${firstSubItemId}-"]`).should('be.visible')
         cy.get(`[data-cy^="button-loading-metadata-spinner-${firstSubItemId}-"]`).should(
             'not.exist'
         )
-        cy.get(`[data-cy^="active-layer-name-${itemFullId}-"]`).should('be.visible')
-        cy.get(`[data-cy^="button-loading-metadata-spinner-${itemFullId}-"]`).should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-${itemId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${itemId}-"]`).should('not.exist')
     })
     it('Import external WMTS layers', () => {
         cy.intercept(
@@ -408,23 +391,20 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Add a WMTS layer')
         const layer1Id = 'layer1'
-        const layer1FullId = `WMTS|https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml|${layer1Id}`
         const layer1Name = 'Layer 1'
 
-        cy.get(`[data-cy="catalogue-tree-item-${layer1FullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-${layer1Id}"]`)
             .should('be.visible')
             .contains(layer1Name)
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer1FullId}"]`).should('not.exist')
-        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer1FullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-info-${layer1FullId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-add-layer-button-${layer1FullId}"]`)
-            .should('be.visible')
-            .click()
-        cy.get(`[data-cy="catalogue-tree-item-name-${layer1FullId}"]`).should(
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer1Id}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer1Id}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer1Id}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer1Id}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer1Id}"]`).should(
             'have.class',
             'text-primary'
         )
-        cy.get(`[data-cy="catalogue-add-layer-button-${layer1FullId}"]`)
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer1Id}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
@@ -432,7 +412,7 @@ describe('The Import Maps Tool', () => {
             .should('have.length', 1)
             .then((layers) => {
                 cy.wrap(layers[0].name).should('be.equal', layer1Name)
-                cy.wrap(layers[0].externalLayerId).should('be.equal', layer1Id)
+                cy.wrap(layers[0].id).should('be.equal', layer1Id)
                 cy.wrap(layers[0].visible).should('be.true')
                 cy.wrap(layers[0].opacity).should('be.equal', 1)
                 cy.wrap(layers[0].isExternal).should('be.true')
@@ -442,23 +422,20 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Add a layer without title')
         const layer2Id = 'layer2'
-        const layer2FullId = `WMTS|https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml|${layer2Id}`
         const layer2Name = 'layer2'
 
-        cy.get(`[data-cy="catalogue-tree-item-${layer2FullId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-${layer2Id}"]`)
             .should('be.visible')
             .contains(layer2Name)
-        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer2FullId}"]`).should('not.exist')
-        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer2FullId}"]`).should('not.exist')
-        cy.get(`[data-cy="catalogue-tree-item-info-${layer2FullId}"]`).should('not.exist')
-        cy.get(`[data-cy="catalogue-add-layer-button-${layer2FullId}"]`)
-            .should('be.visible')
-            .click()
-        cy.get(`[data-cy="catalogue-tree-item-name-${layer2FullId}"]`).should(
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer2Id}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer2Id}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer2Id}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer2Id}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer2Id}"]`).should(
             'have.class',
             'text-primary'
         )
-        cy.get(`[data-cy="catalogue-add-layer-button-${layer2FullId}"]`)
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer2Id}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
@@ -466,7 +443,7 @@ describe('The Import Maps Tool', () => {
             .should('have.length', 2)
             .then((layers) => {
                 cy.wrap(layers[1].name).should('be.equal', layer2Name)
-                cy.wrap(layers[1].externalLayerId).should('be.equal', layer2Id)
+                cy.wrap(layers[1].id).should('be.equal', layer2Id)
                 cy.wrap(layers[1].visible).should('be.true')
                 cy.wrap(layers[1].opacity).should('be.equal', 1)
                 cy.wrap(layers[1].isExternal).should('be.true')
@@ -478,7 +455,7 @@ describe('The Import Maps Tool', () => {
         cy.intercept('https://wmts.geo.admin.ch/legends/layer1.png', {
             fixture: 'import-tool/legend.png',
         }).as('wmts-legend')
-        cy.get(`[data-cy="catalogue-tree-item-info-${layer1FullId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer1Id}"]`).should('be.visible').click()
         cy.wait('@wmts-legend')
         cy.get(`[data-cy="modal-with-backdrop-title"]`).should('be.visible').contains(layer1Name)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')

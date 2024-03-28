@@ -99,7 +99,7 @@ function createFeaturesForEachLayerExtent() {
                             layer.extent[1],
                         ],
                     ]),
-                    name: layer.externalLayerId,
+                    name: layer.id,
                 })
             )
         })

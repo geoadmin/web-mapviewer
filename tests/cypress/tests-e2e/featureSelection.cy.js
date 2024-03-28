@@ -6,7 +6,7 @@ describe('Testing the feature selection in the URL', () => {
         cy.get('@featuresIds').then((featuresIds) => {
             cy.log(`Ensuring there are 10 selected features, and they're all different`)
 
-            cy.readStoreValue('state.features.selectedFeatures').should((features) => {
+            cy.readStoreValue('getters.selectedFeatures').should((features) => {
                 expect(features.length).to.eq(featuresIds.length)
 
                 features.forEach((feature) => {
@@ -71,8 +71,8 @@ describe('Testing the feature selection in the URL', () => {
             }).as(`${timeLayer}_8835`)
         })
     })
-    context('Feature Selection Tests', () => {
-        describe('Checks that when given a parameter, we select the features and vice versa', function () {
+    describe('Feature Selection Tests', () => {
+        context('Checks that when given a parameter, we select the features and vice versa', () => {
             it('Select a few features and check if the tooltip appears (or not) where we expect it', () => {
                 cy.log('When featureInfo is not specified, we should have no tooltip')
                 goToMapViewWithFeatureSelection()

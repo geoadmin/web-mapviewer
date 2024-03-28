@@ -14,7 +14,7 @@ export function useLayerZIndexCalculation() {
         }
         return [store.state.layers.currentBackgroundLayer]
     })
-    const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+    const selectedFeatures = computed(() => store.getters.selectedFeatures)
     const pinnedLocation = computed(() => store.state.map.pinnedLocation)
     const previewLocation = computed(() => store.state.map.previewedPinnedLocation)
     const crossHair = computed(() => store.state.position.crossHair)

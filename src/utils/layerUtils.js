@@ -53,7 +53,7 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear) {
     if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
         const timestamp = getTimestampFromConfig(wmtsLayerConfig, previewYear) ?? 'current'
         const layerId = wmtsLayerConfig.isExternal
-            ? wmtsLayerConfig.externalLayerId
+            ? wmtsLayerConfig.id
             : wmtsLayerConfig.technicalName
         return `${wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
     }

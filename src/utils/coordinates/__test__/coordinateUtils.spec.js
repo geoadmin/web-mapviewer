@@ -6,8 +6,10 @@ import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSy
 import {
     flattenExtent,
     normalizeExtent,
+    removeZValues,
     reprojectUnknownSrsCoordsToWGS84,
     toLv95,
+    unwrapGeometryCoordinates,
 } from '@/utils/coordinates/coordinateUtils'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 
@@ -171,6 +173,65 @@ describe('Unit test functions from coordinateUtils.js', () => {
                 [300, 300],
                 [360, 360],
             ])
+        })
+    })
+
+    describe('unwrapGeometryCoordinates(coordinates)', () => {
+        it('returns the input if nothing is required', () => {
+            expect(unwrapGeometryCoordinates(null)).to.be.null
+            expect(unwrapGeometryCoordinates(undefined)).to.be.undefined
+            expect(unwrapGeometryCoordinates([])).to.be.an('Array').lengthOf(0)
+            const alreadyUnwrappedCoordinates = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            expect(unwrapGeometryCoordinates(alreadyUnwrappedCoordinates)).to.eql(
+                alreadyUnwrappedCoordinates
+            )
+        })
+        it('unwraps when required', () => {
+            const expectedOutcome = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            const wrappedCoordinates = [expectedOutcome]
+            expect(unwrapGeometryCoordinates(wrappedCoordinates)).to.eql(expectedOutcome)
+        })
+    })
+
+    describe('removeZValues', () => {
+        it('returns the input if invalid (no error raised)', () => {
+            expect(removeZValues(null)).to.be.null
+            expect(removeZValues(undefined)).to.be.undefined
+            expect(removeZValues([])).to.eql([])
+        })
+        it('returns coordinate untouched if they have no Z values', () => {
+            const coordinates = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            expect(removeZValues(coordinates)).to.eql(coordinates)
+        })
+        it('removes Z values when needed', () => {
+            const coordinateWithoutZValues = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            expect(
+                removeZValues(
+                    coordinateWithoutZValues.map((coordinate) => [
+                        coordinate[0],
+                        coordinate[1],
+                        Math.floor(1 + 10 * Math.random()),
+                    ])
+                )
+            ).to.eql(coordinateWithoutZValues)
+            // testing with only one coordinate
+            expect(removeZValues([[1, 2, 3]])).to.eql([[1, 2]])
         })
     })
 })

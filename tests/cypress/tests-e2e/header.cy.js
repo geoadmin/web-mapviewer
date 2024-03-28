@@ -30,7 +30,7 @@ describe('Test functions for the header / search bar', () => {
 
             cy.get(menuButtonSelector).click()
             checkMenuValue(true)
-            cy.get(backdropSelector).click()
+            cy.get(backdropSelector).click({ force: true })
             checkMenuValue(false)
         })
     }

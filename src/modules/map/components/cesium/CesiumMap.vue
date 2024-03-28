@@ -169,17 +169,17 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
-            selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
+            'selectedFeatures',
             'centerEpsg4326',
             'resolution',
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
-            'tooltipFeatureInfo',
+            'showFeatureInfoInTooltip',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -193,7 +193,7 @@ export default {
             )
         },
         isFeatureInfoInTooltip() {
-            return this.tooltipFeatureInfo
+            return this.showFeatureInfoInTooltip
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -609,7 +609,7 @@ export default {
         },
         setBottomPanelFeatureInfoPosition() {
             this.setFeatureInfoPosition({
-                featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                position: FeatureInfoPositions.BOTTOMPANEL,
                 ...dispatcher,
             })
         },

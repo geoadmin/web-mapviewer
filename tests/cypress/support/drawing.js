@@ -29,15 +29,12 @@ export const addLegacyIconFixtureAndIntercept = () => {
 }
 
 const addProfileFixtureAndIntercept = () => {
-    cy.intercept(
-        {
-            method: 'POST',
-            url: `**/rest/services/profile.json**`,
-        },
-        {
-            body: [],
-        }
-    ).as('profile')
+    cy.intercept('**/rest/services/profile.json**', {
+        fixture: 'service-alti/profile.fixture.json',
+    }).as('profile')
+    cy.intercept('**/rest/services/profile.csv**', {
+        fixture: 'service-alti/profile.fixture.csv',
+    }).as('profileAsCsv')
 }
 
 const addFileAPIFixtureAndIntercept = () => {

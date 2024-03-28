@@ -3,11 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
-import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
@@ -17,29 +15,39 @@ const showContent = ref(true)
 const content = ref(null)
 const store = useStore()
 
-const selectedFeatures = computed(() => store.state.features.selectedFeatures)
-const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
-const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
+const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
+const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
-const projection = computed(() => store.state.position.projection)
+
+// Getting how much "category" of features there is, one per layer with features, and one for all editable features
+const amountOfFeatureCategories = computed(() => {
+    const isThereEditableFeatures = store.state.features.selectedEditableFeatures.length > 0
+    return (
+        Object.keys(store.state.features.selectedFeaturesByLayerId).length +
+        (isThereEditableFeatures ? 1 : 0)
+    )
+})
+// Selecting the smallest amount of column for the features in the infobox, limiting the horizontal
+// growth so that categories can have at least 357px of space (size of the floating tooltip)
+const columns = computed(() =>
+    Math.min(amountOfFeatureCategories.value, Math.floor(store.state.ui.width / 357))
+)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
-const isEdit = computed(() => selectedFeature.value?.isEditable)
+const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
 
-const showElevationProfile = computed(() =>
-    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
-        selectedFeature.value?.featureType
-    )
-)
+const showElevationProfile = computed(() => store.state.features.profileFeature !== null)
 
 const showContainer = computed(() => {
     return (
         selectedFeatures.value.length > 0 &&
-        (bottomPanelFeatureInfo.value || (showElevationProfile.value && tooltipFeatureInfo.value))
+        (showFeatureInfoInBottomPanel.value ||
+            (showElevationProfile.value && showFeatureInfoInTooltip.value))
     )
 })
-const showTooltipToggle = computed(() => bottomPanelFeatureInfo.value)
+const showTooltipToggle = computed(() => showFeatureInfoInBottomPanel.value)
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -56,7 +64,7 @@ function onToggleContent() {
 }
 function setTooltipInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
-        featureInfo: FeatureInfoPositions.TOOLTIP,
+        position: FeatureInfoPositions.TOOLTIP,
         ...dispatcher,
     })
 }
@@ -100,29 +108,16 @@ function onClose() {
         </div>
 
         <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
-            <FeatureElevationProfile
-                v-if="showElevationProfile && tooltipFeatureInfo"
-                class="card-body"
-                :feature="selectedFeature"
-                :read-only="!showDrawingOverlay"
-                :projection="projection"
-            />
-
-            <FeatureCombo
-                v-else-if="showElevationProfile"
-                class="card-body"
-                :feature="selectedFeature"
-                :read-only="!showDrawingOverlay"
-            />
-
+            <FeatureElevationProfile v-if="showElevationProfile" />
             <FeatureEdit
-                v-else-if="isEdit"
-                class="card-body"
+                v-if="isSelectedFeatureEditable && showFeatureInfoInBottomPanel"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
             />
-
-            <FeatureList v-else />
+            <FeatureList
+                v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel"
+                :columns="columns"
+            />
         </div>
     </div>
 </template>

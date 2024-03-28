@@ -109,11 +109,11 @@ export default class WMTSCapabilitiesParser {
         })
 
         return new ExternalWMTSLayer({
+            id: attributes.layerId,
             name: attributes.title,
             opacity,
             visible,
             baseUrl: attributes.url,
-            externalLayerId: attributes.layerId,
             attributions: attributes.attributions,
             abstract: attributes.abstract,
             extent: attributes.extent,

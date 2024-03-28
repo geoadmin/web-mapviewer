@@ -30,14 +30,14 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Parse layer attributes', () => {
         // General layer
         let layer = capabilities.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
-        expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(layer.id).toBe('BlueMarbleSecondGenerationAG')
         expect(layer.name).toBe('Blue Marble Second Generation - AG')
         expect(layer.abstract).toBe('Blue Marble Second Generation Canton Aargau Product')
         expect(layer.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
 
         // Layer without .Identifier
         layer = capabilities.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
-        expect(layer.externalLayerId).toBe('BlueMarbleThirdGenerationZH')
+        expect(layer.id).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.name).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.abstract).toBe('Blue Marble Third Generation Canton Zürich Product')
         expect(layer.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
@@ -45,7 +45,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Parse layer attribution', () => {
         // General layer
         let layer = capabilities.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
-        expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(layer.id).toBe('BlueMarbleSecondGenerationAG')
         expectTypeOf(layer.attributions).toBeArray()
         expect(layer.attributions.length).toBe(1)
         expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
@@ -55,7 +55,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Get Layer Extent in LV95', () => {
         const externalLayers = capabilities.getAllExternalLayerObjects(LV95)
         // Extent from WGS84BoundingBox
-        expect(externalLayers[0].externalLayerId).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
         let expected = [
             [2485071.58, 1075346.31],
             [2828515.82, 1299941.79],
@@ -69,7 +69,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[0].extent[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers[1].externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
         expected = [
             [2627438.37, 1215506.64],
             [2677504.99, 1277102.76],
@@ -83,7 +83,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers[2].externalLayerId).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
         expected = [
             [2665255.25, 1229142.44],
             [2720879.67, 1287842.18],
@@ -97,7 +97,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[2].extent[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from the TileMatrixSet
-        expect(externalLayers[3].externalLayerId).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
         expected = [
             [2552296.05, 1218970.79],
             [2609136.96, 1266593.74],
@@ -111,7 +111,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[3].extent[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from matching BoundingBox
-        expect(externalLayers[4].externalLayerId).toBe('BlueMarbleFifthGenerationGE')
+        expect(externalLayers[4].id).toBe('BlueMarbleFifthGenerationGE')
         expect(externalLayers[4].extent).toEqual([
             [2484928.06, 1108705.32],
             [2514614.27, 1130449.26],
@@ -121,7 +121,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Get Layer Extent in Web Mercator', () => {
         const externalLayers = capabilities.getAllExternalLayerObjects(WEBMERCATOR)
         // Extent from WGS84BoundingBox
-        expect(externalLayers[0].externalLayerId).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
         let expected = [
             [663464.16, 5751550.86],
             [1167741.46, 6075303.61],
@@ -135,7 +135,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[0].extent[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers[1].externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
         expected = [
             [868292.03, 5956776.76],
             [942876.09, 6047171.27],
@@ -149,7 +149,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers[2].externalLayerId).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
         expected = [
             [923951.77, 5976419.03],
             [1007441.39, 6062053.42],
@@ -163,7 +163,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(externalLayers[2].extent[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from the TileMatrixSet
-        expect(externalLayers[3].externalLayerId).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
         expected = [
             [758085.73, 5961683.17],
             [841575.35, 6032314.73],
@@ -180,28 +180,28 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Get Layer Extent in WGS84', () => {
         const externalLayers = capabilities.getAllExternalLayerObjects(WGS84)
         // Extent from WGS84BoundingBox
-        expect(externalLayers[0].externalLayerId).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
         expect(externalLayers[0].extent).toEqual([
             [5.96, 45.82],
             [10.49, 47.81],
         ])
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers[1].externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
         expect(externalLayers[1].extent).toEqual([
             [7.8, 47.09],
             [8.47, 47.64],
         ])
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers[2].externalLayerId).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
         expect(externalLayers[2].extent).toEqual([
             [8.3, 47.21],
             [9.05, 47.73],
         ])
 
         // Extent from the TileMatrixSet
-        expect(externalLayers[3].externalLayerId).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
         expect(externalLayers[3].extent).toEqual([
             [6.81, 47.12],
             [7.56, 47.55],
@@ -210,7 +210,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Parse layer legend', () => {
         // General layer
         let layer = capabilities.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
-        expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expect(layer.id).toBe('BlueMarbleSecondGenerationAG')
         expectTypeOf(layer.legends).toBeArray()
         expect(layer.legends.length).toBe(1)
         expect(layer.legends[0]).toBeInstanceOf(LayerLegend)

@@ -9,6 +9,7 @@ import SelectInteraction from 'ol/interaction/Select'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
@@ -33,7 +34,7 @@ useModifyInteraction(selectInteraction.getFeatures())
 
 /** OpenLayers feature currently selected */
 const currentlySelectedFeature = ref(null)
-const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
 
 watch(selectedFeatures, (newSelectedFeatures) => {
     /* If the store doesn't contain any more feature, we clear our local variable on that topic
@@ -55,6 +56,13 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         // as the store feature is edited
         editableFeature.on('change:style', onFeatureChange)
         store.dispatch('setSelectedFeatures', { features: [editableFeature], ...dispatcher })
+        if (
+            [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
+                editableFeature.featureType
+            )
+        ) {
+            store.dispatch('setProfileFeature', { feature: editableFeature, ...dispatcher })
+        }
     } else {
         store.dispatch('clearAllSelectedFeatures', dispatcher)
     }
