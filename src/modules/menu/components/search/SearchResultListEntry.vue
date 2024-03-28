@@ -43,6 +43,7 @@ const layerName = computed(() => {
 function selectItem() {
     emits('entrySelected')
     store.dispatch('selectResultEntry', { entry: entry.value, ...dispatcher })
+    store.dispatch('clearPreviewLayer', dispatcher)
 }
 
 function goToFirst() {
