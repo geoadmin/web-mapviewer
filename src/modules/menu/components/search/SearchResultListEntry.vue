@@ -21,7 +21,13 @@ const props = defineProps({
     },
 })
 
-const emits = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReached'])
+const emits = defineEmits([
+    'entrySelected',
+    'firstEntryReached',
+    'lastEntryReached',
+    'setPreview',
+    'clearPreview',
+])
 
 const { index, entry } = toRefs(props)
 
@@ -42,8 +48,8 @@ const layerName = computed(() => {
 
 function selectItem() {
     emits('entrySelected')
+    emits('clearPreview', entry)
     store.dispatch('selectResultEntry', { entry: entry.value, ...dispatcher })
-    store.dispatch('clearPreviewLayer', dispatcher)
 }
 
 function goToFirst() {
@@ -70,28 +76,6 @@ function goToLast() {
     item.value.parentElement.lastElementChild?.focus()
 }
 
-function startResultPreview() {
-    if (resultType.value === SearchResultTypes.LAYER) {
-        store.dispatch('setPreviewLayer', {
-            layer: entry.value.layerId,
-            ...dispatcher,
-        })
-    } else if (entry.value.coordinate) {
-        store.dispatch('setPreviewedPinnedLocation', {
-            coordinates: entry.value.coordinate,
-            ...dispatcher,
-        })
-    }
-}
-
-function stopResultPreview() {
-    if (resultType.value === SearchResultTypes.LAYER) {
-        store.dispatch('clearPreviewLayer', dispatcher)
-    } else {
-        store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
-    }
-}
-
 defineExpose({
     goToFirst,
     goToLast,
@@ -109,8 +93,10 @@ defineExpose({
         @keydown.home.prevent="goToFirst"
         @keydown.end.prevent="goToLast"
         @keyup.enter="selectItem"
-        @mouseenter="startResultPreview"
-        @mouseleave="stopResultPreview"
+        @mouseenter="emits('setPreview', entry)"
+        @mouseleave="emits('clearPreview', entry)"
+        @focusin="emits('setPreview', entry)"
+        @focusout="emits('clearPreview', entry)"
     >
         <TextSearchMarker
             class="search-category-entry-main px-2 flex-grow-1"

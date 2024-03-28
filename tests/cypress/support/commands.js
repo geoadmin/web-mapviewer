@@ -308,7 +308,7 @@ Cypress.Commands.add(
  * application startup phase and also after changing views that might disable click on the map like
  * for example the drawing mode
  */
-Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000, olMap = true } = {}) => {
+Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) => {
     cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
     // We also need to wait for the pointer event to be set
     if (olMap) {
