@@ -1,6 +1,18 @@
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class.js'
+import getProfile from '@/api/profile/profile.api.js'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging.js'
+
+/** @param {SelectableFeature} feature */
+export function canFeatureShowProfile(feature) {
+    return (
+        (feature?.geometry?.type && ['LineString', 'Polygon'].includes(feature.geometry.type)) ||
+        // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
+        (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
+            feature.geometry.coordinates.length === 1)
+    )
+}
 
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
@@ -16,6 +28,15 @@ export default {
         /** @type Array<EditableFeature> */
         selectedEditableFeatures: [],
         highlightedFeatureId: null,
+        /**
+         * @type {SelectableFeature | null} a Feature for which we will show a height profile, must
+         *   have a LineString or Polygon feature
+         */
+        profileFeature: null,
+        /** @type {ElevationProfile | null} Profile Data for the profile geometry */
+        profileData: null,
+        /** @type {ProfileError | null} */
+        profileRequestError: null,
     },
     getters: {
         /** @type Array<SelectableFeature> */
@@ -39,11 +60,18 @@ export default {
          * @param {SelectableFeature[]} features A list of feature we want to highlight/select on
          *   the map
          */
-        setSelectedFeatures({ commit }, { features, dispatcher }) {
-            commit('setHighlightedFeatureId', {
-                highlightedFeatureId: null,
-                dispatcher,
-            })
+        setSelectedFeatures({ commit, state }, { features, dispatcher }) {
+            // clearing up any relevant selected features stuff
+            if (state.highlightedFeatureId) {
+                commit('setHighlightedFeatureId', {
+                    highlightedFeatureId: null,
+                    dispatcher,
+                })
+            }
+            if (state.profileFeature) {
+                commit('setProfileFeature', { feature: null, dispatcher })
+                commit('setProfileData', { data: null, dispatcher })
+            }
             const layerFeaturesByLayerId = {}
             let drawingFeatures = []
             if (Array.isArray(features)) {
@@ -63,16 +91,22 @@ export default {
             })
         },
         /** Removes all selected features from the map */
-        clearAllSelectedFeatures({ commit }, { dispatcher }) {
+        clearAllSelectedFeatures({ commit, state }, { dispatcher }) {
             commit('setSelectedFeatures', {
                 layerFeaturesByLayerId: {},
                 drawingFeatures: [],
                 dispatcher,
             })
-            commit('setHighlightedFeatureId', {
-                highlightedFeatureId: null,
-                dispatcher,
-            })
+            if (state.highlightedFeatureId) {
+                commit('setHighlightedFeatureId', {
+                    highlightedFeatureId: null,
+                    dispatcher,
+                })
+            }
+            if (state.profileFeature) {
+                commit('setProfileFeature', { feature: null, dispatcher })
+                commit('setProfileData', { data: null, dispatcher })
+            }
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
             commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
@@ -276,6 +310,45 @@ export default {
                 })
             }
         },
+        /**
+         * Sets the GeoJSON geometry for which we want a profile and request this profile from the
+         * backend (if the geometry is a valid one)
+         *
+         * Only GeoJSON LineString and Polygon types are supported to request a profile.
+         *
+         * @param {Vuex.Store} store
+         * @param {SelectableFeature | null} feature A feature which has a LineString or Polygon
+         *   geometry, and for which we want to show a height profile (or `null` if the profile
+         *   should be cleared/hidden)
+         * @param dispatcher
+         */
+        setProfileFeature(store, { feature = null, dispatcher }) {
+            const { state, commit, rootState } = store
+            if (canFeatureShowProfile(feature)) {
+                if (state.profileRequestError) {
+                    commit('setProfileRequestError', { error: null, dispatcher })
+                }
+                commit('setProfileFeature', { feature: feature, dispatcher })
+                commit('setProfileData', { data: null, dispatcher })
+                if (feature?.geometry) {
+                    let coordinates = [...feature.geometry.coordinates]
+                    // unwrapping the first set of coordinates if they come from a multi-feature type geometry
+                    if (coordinates[0].some((coordinage) => Array.isArray(coordinage))) {
+                        coordinates = coordinates[0]
+                    }
+                    getProfile(coordinates, rootState.position.projection)
+                        .then((profileData) => {
+                            commit('setProfileData', { data: profileData, dispatcher })
+                        })
+                        .catch((error) => {
+                            log.error('Error while request profile data for', feature, error)
+                            commit('setProfileRequestError', { error: error, dispatcher })
+                        })
+                }
+            } else {
+                log.warn('Geometry type not supported to show a profile, ignoring', feature)
+            }
+        },
     },
     mutations: {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
@@ -315,6 +388,15 @@ export default {
         },
         changeFeatureIsDragged(state, { feature, isDragged }) {
             feature.isDragged = isDragged
+        },
+        setProfileFeature(state, { feature }) {
+            state.profileFeature = feature
+        },
+        setProfileData(state, { data }) {
+            state.profileData = data
+        },
+        setProfileRequestError(state, { error }) {
+            state.profileRequestError = error
         },
     },
 }
