@@ -8,6 +8,7 @@ import { useStore } from 'vuex'
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
@@ -75,7 +76,7 @@ function sanitizeHtml(key, htmlText) {
 }
 function setDisclaimerAgree() {
     store.dispatch('setShowDisclaimer', {
-        showDisclaimer: true,
+        showDisclaimer: false,
         ...dispatcher,
     })
 }
@@ -92,25 +93,42 @@ function setDisclaimerAgree() {
                 <div
                     v-if="disclaimerIsShown && value.includes('iframe')"
                     data-cy="feature-detail-media-disclaimer"
-                    class="p-1 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
+                    class="p-0 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
                 >
-                    <div class="d-flex align-items-center">
-                        <FontAwesomeIcon icon="fa-circle-info" />
-                        <span class="text-tippy-wrap">
-                            <div
-                                ref="shareTabButton"
-                                :title="iframeLinks(value)"
-                                class="px-1 d-flex"
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <ThirdPartDisclaimer
+                                :complete-disclaimer-on-click="true"
+                                :source-name="iframeLinks(value)"
                             >
-                                {{ i18n.t('media_disclaimer') }}
-                            </div>
-                        </span>
+                                <button
+                                    class="d-flex btn btn-default btn-xs"
+                                    data-cy="feature-detail-media-disclaimer-button"
+                                >
+                                    <FontAwesomeIcon
+                                        style="color: white"
+                                        icon="info-circle"
+                                        size="lg"
+                                        data-cy="menu-external-disclaimer-icon"
+                                    />
+                                </button>
+                            </ThirdPartDisclaimer>
+                            <span class="url-tooltip">
+                                <div
+                                    ref="shareTabButton"
+                                    :title="iframeLinks(value)"
+                                    class="px-1 d-flex"
+                                >
+                                    {{ i18n.t('media_disclaimer') }}
+                                </div>
+                            </span>
+                        </div>
                         <button
-                            class="d-flex small btn btn-sm btn-light"
+                            class="d-flex btn btn-default btn-xs"
                             data-cy="feature-detail-media-disclaimer-button"
                             @click="setDisclaimerAgree"
                         >
-                            <FontAwesomeIcon class="small" icon="times" />
+                            <FontAwesomeIcon style="color: white" size="lg" icon="times" />
                         </button>
                     </div>
                 </div>
@@ -155,7 +173,7 @@ function setDisclaimerAgree() {
 :global(.htmlpopup-content) {
     padding: 7px;
 }
-.text-tippy-wrap {
+.url-tooltip {
     @extend .clear-no-ios-long-press;
 }
 </style>
