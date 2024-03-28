@@ -89,6 +89,15 @@ async function loadDataAndStyle(geoJsonLayer) {
     }
 }
 
+async function loadAndUpdatePreviewLayer(store, layer) {
+    log.debug(`Loading geojson data for preview layer ${layer.id}`)
+    store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
+    const updatedLayer = await loadDataAndStyle(layer)
+    log.debug(`Updating geojson data for preview layer ${layer.id}`)
+    store.dispatch('setPreviewLayer', { layer: updatedLayer, ...dispatcher })
+    store.dispatch('setShowLoadingBar', { loading: false, ...dispatcher })
+}
+
 /**
  * Load GeoJSON data and style whenever a GeoJSON layer is added (or does nothing if the layer was
  * already processed/loaded)
@@ -129,17 +138,24 @@ export default function loadGeojsonStyleAndData(store) {
                     autoReloadData(store, layer)
                 })
         }
+
         if (mutation.type === 'addLayer') {
             addLayersSubscriber([mutation.payload.layer])
-        }
-        if (mutation.type === 'setLayers') {
+        } else if (mutation.type === 'setLayers') {
             addLayersSubscriber(mutation.payload.layers)
-        }
-        if (mutation.type === 'removeLayerWithId' && intervalsByLayerId[mutation.payload.layerId]) {
+        } else if (
+            mutation.type === 'setPreviewLayer' &&
+            mutation.payload.layer instanceof GeoAdminGeoJsonLayer &&
+            mutation.payload.layer.isLoading
+        ) {
+            loadAndUpdatePreviewLayer(store, mutation.payload.layer)
+        } else if (
+            mutation.type === 'removeLayerWithId' &&
+            intervalsByLayerId[mutation.payload.layerId]
+        ) {
             // when a layer is removed, if a matching interval is found, we clear it
             clearAutoReload(mutation.payload.layerId)
-        }
-        if (mutation.type === 'removeLayerByIndex') {
+        } else if (mutation.type === 'removeLayerByIndex') {
             // As we come after the work has been done,
             // we cannot get the layer ID removed from the store from the mutation's payload.
             // So we instead go through all intervals, and clear any that has no matching layer in the active layers
