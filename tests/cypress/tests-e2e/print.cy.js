@@ -67,7 +67,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 5)
             cy.get('[data-cy="print-layout-selector"]')
                 .find('option:selected')
-                .should('have.text', '1. A4 landscape')
+                .should('have.value', '1. A4 landscape')
             cy.get('[data-cy="print-scale-selector"]').find('option').should('have.length', 15)
             cy.get('[data-cy="print-scale-selector"]')
                 .find('option:selected')

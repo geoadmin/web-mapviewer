@@ -308,7 +308,7 @@ async function transformOlMapToPrintParams(olMap, config) {
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of IDs of OpenLayers layer to exclude from
- *  s the print. Default is `[]`
+ *   the print. Default is `[]`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
