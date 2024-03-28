@@ -294,13 +294,13 @@ async function identifyOnExternalWmsLayer(config) {
         SERVICE: 'WMS',
         VERSION: layer.wmsVersion ?? '1.3.0',
         REQUEST: 'GetFeatureInfo',
-        LAYERS: layer.externalLayerId,
+        LAYERS: layer.id,
         STYLES: null,
         CRS: projection.epsg,
         BBOX: requestExtent.join(','),
         WIDTH: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
         HEIGHT: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
-        QUERY_LAYERS: layer.externalLayerId,
+        QUERY_LAYERS: layer.id,
         INFO_FORMAT: outputFormat,
         FEATURE_COUNT: featureCount,
         LANG: lang,
@@ -369,6 +369,7 @@ async function identifyOnExternalWmsLayer(config) {
             return new LayerFeature({
                 layer,
                 id: feature.id,
+                name: feature.id,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,

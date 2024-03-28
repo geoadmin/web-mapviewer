@@ -99,7 +99,7 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             resolvedCapabilities
         )
         const updated = resolvedCapabilities.getExternalLayerObject(
-            layer.externalLayerId,
+            layer.id,
             projection,
             layer.opacity,
             layer.visible,
