@@ -145,6 +145,7 @@ function setBottomPanelFeatureInfoPosition() {
             :read-only="!isCurrentlyDrawing"
             :feature="feature"
         />
-        <FeatureList columns="1" />
+        <!-- When showing a floating popup, only one column is available for content -->
+        <FeatureList :columns="1" />
     </OpenLayersPopover>
 </template>
