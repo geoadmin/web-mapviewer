@@ -6,6 +6,7 @@ import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
+import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
 import ImportFileLocal from '@/modules/menu/components/menu/reportProblem/ImportFileLocal.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
@@ -169,26 +170,13 @@ function openForm() {
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
-
-            <div class="text-end">
-                <button class="btn btn-light mx-2" @click="closeAndCleanForm">
-                    {{ $t('cancel') }}
-                </button>
-                <button
-                    :disabled="!feedbackCanBeSent"
-                    class="btn btn-primary"
-                    data-cy="submit-report-problem-button"
-                    @click="sendReportProblem"
-                >
-                    <FontAwesomeIcon
-                        v-if="request.pending"
-                        icon="spinner"
-                        pulse
-                        data-cy="report-problem-pending-icon"
-                    />
-                    <span v-else data-cy="report-problem-send-text">{{ $t('send') }}</span>
-                </button>
-            </div>
+            <FeedbackActionButtons
+                class="text-end"
+                :is-disabled="!feedbackCanBeSent"
+                :is-pending="request.pending"
+                @send="sendReportProblem"
+                @cancel="closeAndCleanForm"
+            />
             <div
                 v-if="request.failed"
                 ref="requestResults"
