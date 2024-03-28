@@ -71,8 +71,8 @@ describe('Testing the feature selection in the URL', () => {
             }).as(`${timeLayer}_8835`)
         })
     })
-    context('Feature Selection Tests', () => {
-        describe('Checks that when given a parameter, we select the features and vice versa', function () {
+    describe('Feature Selection Tests', () => {
+        context('Checks that when given a parameter, we select the features and vice versa', () => {
             it('Select a few features and check if the tooltip appears (or not) where we expect it', () => {
                 cy.log('When featureInfo is not specified, we should have no tooltip')
                 goToMapViewWithFeatureSelection()

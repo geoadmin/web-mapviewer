@@ -179,7 +179,7 @@ export default {
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
-            'tooltipFeatureInfo',
+            'showFeatureInfoInTooltip',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -193,7 +193,7 @@ export default {
             )
         },
         isFeatureInfoInTooltip() {
-            return this.tooltipFeatureInfo
+            return this.showFeatureInfoInTooltip
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -609,7 +609,7 @@ export default {
         },
         setBottomPanelFeatureInfoPosition() {
             this.setFeatureInfoPosition({
-                featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                position: FeatureInfoPositions.BOTTOMPANEL,
                 ...dispatcher,
             })
         },

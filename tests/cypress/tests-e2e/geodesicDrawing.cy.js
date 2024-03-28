@@ -196,7 +196,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                     (floatingFeatureInfo) =>
                         floatingFeatureInfo &&
                         cy.writeStoreValue('setFeatureInfoPosition', {
-                            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                            position: FeatureInfoPositions.BOTTOMPANEL,
                             dispatcher: 'e2e-test',
                         })
                 )
@@ -268,7 +268,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                     (floatingFeatureInfo) =>
                         floatingFeatureInfo &&
                         cy.writeStoreValue('setFeatureInfoPosition', {
-                            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                            position: FeatureInfoPositions.BOTTOMPANEL,
                             dispatcher: 'e2e-test',
                         })
                 )

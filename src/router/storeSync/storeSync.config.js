@@ -3,12 +3,12 @@ import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParam
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
+import FeatureInfoPositionParamConfig from '@/router/storeSync/FeatureInfoPositionParamConfig.class.js'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 import CompareSliderParamConfig from './CompareSliderParamConfig.class'
 
@@ -108,15 +108,7 @@ const storeSyncConfig = [
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
-    new SimpleUrlParamConfig(
-        'featureInfo',
-        'setFeatureInfoPosition',
-        'setFeatureInfoPosition',
-        (store) => store.state.ui.featureInfoPosition,
-        false,
-        String,
-        FeatureInfoPositions.NONE
-    ),
+    new FeatureInfoPositionParamConfig(),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',
         'catalogNodes',
