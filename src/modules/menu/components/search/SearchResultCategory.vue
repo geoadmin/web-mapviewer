@@ -16,7 +16,13 @@ const props = defineProps({
 
 const { title, results } = toRefs(props)
 const entries = ref(null)
-const emit = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReached'])
+const emit = defineEmits([
+    'entrySelected',
+    'firstEntryReached',
+    'lastEntryReached',
+    'setPreview',
+    'clearPreview',
+])
 
 function onEntrySelected(entry) {
     emit('entrySelected', entry)
@@ -49,6 +55,8 @@ defineExpose({ focusFirstEntry, focusLastEntry })
                 @entry-selected="onEntrySelected(entry)"
                 @first-entry-reached="emit('firstEntryReached')"
                 @last-entry-reached="emit('lastEntryReached')"
+                @set-preview="emit('setPreview', $event)"
+                @clear-preview="emit('clearPreview', $event)"
             />
         </ul>
     </div>

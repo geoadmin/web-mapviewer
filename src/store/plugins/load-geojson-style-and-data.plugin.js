@@ -12,9 +12,10 @@ const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
 const intervalsByLayerId = {}
 
-async function load(url) {
+function load(url) {
+    const controller = new AbortController()
     try {
-        return await axios.get(url)
+        return { response: axios.get(url, { signal: controller.signal }), controller }
     } catch (error) {
         log.error(`Error while loading URL ${url}`, error)
         throw error
@@ -37,7 +38,7 @@ async function autoReloadData(store, geoJsonLayer) {
     intervalsByLayerId[geoJsonLayer.id] = setInterval(async () => {
         try {
             store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
-            const { data } = await load(geoJsonLayer.geoJsonUrl)
+            const { data } = await load(geoJsonLayer.geoJsonUrl).response
             const layerCopy = geoJsonLayer.clone()
             layerCopy.geoJsonData = data
             // we update through the action updateLayers, so that if multiple copies of the same GeoJSON layer are present,
@@ -63,39 +64,63 @@ function clearAutoReload(layerId) {
 
 /**
  * @param {GeoAdminGeoJsonLayer} geoJsonLayer
- * @returns {Promise<GeoAdminGeoJsonLayer>}
+ * @returns {{ controllers: [AbortController]; clone: Promise<GeoAdminGeoJsonLayer> }}
  */
-async function loadDataAndStyle(geoJsonLayer) {
+function loadDataAndStyle(geoJsonLayer) {
     log.debug(`Loading data/style for added GeoJSON layer`, geoJsonLayer)
-    const clone = geoJsonLayer.clone()
-    try {
-        const [{ data: style }, { data }] = await Promise.all([
-            load(geoJsonLayer.styleUrl),
-            load(geoJsonLayer.geoJsonUrl),
-        ])
 
-        // as the layer comes from the store (99.9% chances), we copy it before altering it
-        // (otherwise, Vuex raises an error)
-        clone.geoJsonData = data
-        clone.geoJsonStyle = style
-        clone.isLoading = false
-        return clone
-    } catch (error) {
-        log.error(`Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`, error)
-        clone.isLoading = false
-        clone.errorKey = 'loading_error_network_failure'
-        clone.hasError = true
-        return clone
+    const style = load(geoJsonLayer.styleUrl)
+    const data = load(geoJsonLayer.geoJsonUrl)
+
+    return {
+        controllers: [style.controller, data.controller],
+        clone: Promise.all([style.response, data.response])
+            .then(([{ data: style }, { data }]) => {
+                const clone = geoJsonLayer.clone()
+                // as the layer comes from the store (99.9% chances), we copy it before altering it
+                // (otherwise, Vuex raises an error)
+                clone.geoJsonData = data
+                clone.geoJsonStyle = style
+                clone.isLoading = false
+                return clone
+            })
+            .catch((error) => {
+                log.error(
+                    `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`,
+                    error
+                )
+                const clone = geoJsonLayer.clone()
+                clone.isLoading = false
+                clone.errorKey = 'loading_error_network_failure'
+                clone.hasError = true
+                return clone
+            }),
     }
 }
 
+let pendingPreviewLayer = null
+
 async function loadAndUpdatePreviewLayer(store, layer) {
+    cancelLoadPreviewLayer()
     log.debug(`Loading geojson data for preview layer ${layer.id}`)
     store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
-    const updatedLayer = await loadDataAndStyle(layer)
-    log.debug(`Updating geojson data for preview layer ${layer.id}`)
-    store.dispatch('setPreviewLayer', { layer: updatedLayer, ...dispatcher })
+    const { clone, controllers } = loadDataAndStyle(layer)
+    pendingPreviewLayer = { controllers, layerId: layer.id }
+    const updatedLayer = await clone
+    // Before updating the preview layer we need to be sure that it as not been cleared meanwhile
     store.dispatch('setShowLoadingBar', { loading: false, ...dispatcher })
+    if (store.state.layers.previewLayer) {
+        log.debug(`Updating geojson data for preview layer ${layer.id}`)
+        store.dispatch('setPreviewLayer', { layer: updatedLayer, ...dispatcher })
+    }
+}
+
+function cancelLoadPreviewLayer() {
+    if (pendingPreviewLayer) {
+        log.debug(`Abort pending loading of preview geojson layer ${pendingPreviewLayer.layerId}`)
+        pendingPreviewLayer.controllers.map((controller) => controller.abort())
+        pendingPreviewLayer = null
+    }
 }
 
 /**
@@ -122,7 +147,7 @@ export default function loadGeojsonStyleAndData(store) {
             const updatedLayers = await Promise.all(
                 geoJsonLayers
                     .filter((layer) => layer.isLoading)
-                    .map((layer) => loadDataAndStyle(layer))
+                    .map((layer) => loadDataAndStyle(layer).clone)
             )
             if (updatedLayers.length > 0) {
                 store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
@@ -149,6 +174,8 @@ export default function loadGeojsonStyleAndData(store) {
             mutation.payload.layer.isLoading
         ) {
             loadAndUpdatePreviewLayer(store, mutation.payload.layer)
+        } else if (mutation.type === 'setPreviewLayer' && mutation.payload.layer === null) {
+            cancelLoadPreviewLayer()
         } else if (
             mutation.type === 'removeLayerWithId' &&
             intervalsByLayerId[mutation.payload.layerId]
