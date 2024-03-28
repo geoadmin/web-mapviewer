@@ -190,24 +190,22 @@ export async function getKmlFromRequest(req) {
     }
 }
 
-Cypress.Commands.add('checkKMLRequest', async (interception, data, updated_kml_id = null) => {
+export async function checkKMLRequest(request, data, updated_kml_id = null) {
     // Check request
     if (updated_kml_id) {
-        const urlArray = interception.request.url.split('/')
+        const urlArray = request.url.split('/')
         const id = urlArray[urlArray.length - 1]
         expect(id).to.be.eq(updated_kml_id)
     }
-    expect(interception.request.headers['content-type']).to.contain(
-        'multipart/form-data; boundary='
-    )
+    expect(request.headers['content-type']).to.contain('multipart/form-data; boundary=')
 
-    const kml = await getKmlFromRequest(interception.request)
+    const kml = await getKmlFromRequest(request)
     expect(kml).to.contain('</kml>')
     data.forEach((test) => {
         const condition = test instanceof RegExp ? 'match' : 'contain'
         expect(kml).to[condition](test)
     })
-})
+}
 
 export function kmlMetadataTemplate(data) {
     let metadata = {
