@@ -3,20 +3,23 @@ import { computed, ref, watch } from 'vue'
 
 import { isValidEmail } from './utils'
 
+const emits = defineEmits(['email-updated'])
 const props = defineProps({
     isRequestPending: {
         type: Boolean,
         default: false,
     },
 })
-const emits = defineEmits(['email-updated'])
 
+// Reactive data
 const email = ref('')
 const userIsTypingEmail = ref(false)
+
+// Computed properties
 const isEmailValid = computed(() => {
     return !email.value || isValidEmail(email.value)
 })
-
+// Watches
 watch(email, () => {
     emits('email-updated', email.value)
 })

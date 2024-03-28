@@ -26,7 +26,6 @@ describe('Testing the report problem form', () => {
         cy.log('The button should be in the header as a link on mobile')
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
-        cy.log('close form')
         closeForm()
 
         cy.log('The button should be in the header as a link on desktop')
@@ -37,30 +36,34 @@ describe('Testing the report problem form', () => {
 
         // Reset back to mobile view
         cy.viewport(320, 568)
-        cy.log('It validates the report problem form properly')
-        openForm()
 
-        cy.get('[data-cy="report-problem-text"]').type(text)
+        cy.log('It validates the report problem form properly')
 
         cy.log('It is possible to report a problem without specifying an email address')
+        openForm()
+        cy.get('[data-cy="report-problem-text"]').type(text)
         cy.get('[data-cy="feedback-email"').should('be.empty')
         cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
+        closeForm()
 
         cy.log('It is not possible to report a problem with a malformed email')
-        cy.get('[data-cy="feedback-email"').clear()
+        openForm()
+        cy.get('[data-cy="report-problem-text"]').type(text)
         cy.get('[data-cy="feedback-email"').type('this.is.not.a.valid@email')
         cy.get('[data-cy="submit-feedback-button"]').should('be.disabled')
+        closeForm()
 
         cy.log('It validates email before enabling the user to report a problem')
-        cy.get('[data-cy="feedback-email"').clear()
+        openForm()
+        cy.get('[data-cy="report-problem-text"]').type(text)
         cy.get('[data-cy="feedback-email"').type(validEmail)
         cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
+        closeForm()
 
         cy.log('It is not possible to report a problem without filling the message')
-        cy.get('[data-cy="feedback-email"').clear()
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
-        cy.get('[data-cy="report-problem-text"').clear()
+        openForm()
         cy.get('[data-cy="report-problem-text"').should('be.empty')
+        cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="submit-feedback-button"]').should('be.disabled')
         closeForm()
 
@@ -69,8 +72,11 @@ describe('Testing the report problem form', () => {
         interceptFeedback(true)
         cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"]').type(text)
-
         cy.get('[data-cy="submit-feedback-button"]').click()
+
+        cy.log(
+            'it shows the user the feedback was well received with a checkmark in the submit button'
+        )
         cy.get('[data-cy="submit-feedback-button"] [data-cy="feedback-pending-icon"]').should(
             'be.visible'
         )
@@ -89,9 +95,6 @@ describe('Testing the report problem form', () => {
             })
         })
 
-        cy.log(
-            'It shows the user the feedback was well received with a checkmark in the submit button'
-        )
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
         cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
         cy.get('[data-cy="report-problem-close-successful"]').should('be.focused')
@@ -99,6 +102,7 @@ describe('Testing the report problem form', () => {
         cy.log('Closes the modal if the close button is clicked')
         cy.get('[data-cy="report-problem-close-successful"]').click()
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
+        // Form is already closed at this point
 
         cy.log('It shows a text to the user to tell him something went wrong')
         openForm()

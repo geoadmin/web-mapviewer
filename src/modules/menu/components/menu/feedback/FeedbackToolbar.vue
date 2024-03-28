@@ -15,6 +15,7 @@ const props = defineProps({
 
 const store = useStore()
 
+// Computed properties
 const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
 const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
 </script>
