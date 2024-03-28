@@ -8,7 +8,7 @@ import { useStore } from 'vuex'
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
@@ -98,7 +98,7 @@ function setDisclaimerAgree() {
                 >
                     <div class="d-flex justify-content-between">
                         <div class="d-flex align-items-center">
-                            <ThirdPartDisclaimer
+                            <ThirdPartyDisclaimer
                                 :complete-disclaimer-on-click="true"
                                 :source-name="iframeLinks(value)"
                             >
@@ -113,7 +113,7 @@ function setDisclaimerAgree() {
                                         data-cy="menu-external-disclaimer-icon"
                                     />
                                 </button>
-                            </ThirdPartDisclaimer>
+                            </ThirdPartyDisclaimer>
                             <span class="url-tooltip">
                                 <div
                                     ref="shareTabButton"
