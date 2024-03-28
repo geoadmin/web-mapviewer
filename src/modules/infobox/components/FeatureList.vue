@@ -43,9 +43,9 @@ onBeforeUnmount(() => {
     masonry?.destroy()
 })
 
-watch(columns, reloadMasonryLayout)
-watch(selectedEditableFeatures, reloadMasonryLayout)
-watch(selectedFeaturesByLayerId, reloadMasonryLayout)
+// watching column changes after they were applied (hence flush post)
+// so that masonry.layout() is called when all features have already been rendered in the DOM
+watch(columns, reloadMasonryLayout, { flush: 'post' })
 
 function reloadMasonryLayout() {
     if (columns.value > 1) {
@@ -55,9 +55,10 @@ function reloadMasonryLayout() {
                 percentPosition: true,
             })
         }
-        masonry?.layout()
+        masonry.layout()
     } else {
         masonry?.destroy()
+        masonry = null
     }
 }
 </script>

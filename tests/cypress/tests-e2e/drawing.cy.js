@@ -732,14 +732,6 @@ describe('Drawing module tests', () => {
 
             cy.goToDrawing()
 
-            // preparing profile intercept
-            cy.intercept('**/rest/services/profile.json**', {
-                fixture: 'service-alti/profile.fixture.json',
-            }).as('profile')
-            cy.intercept('**/rest/services/profile.csv**', {
-                fixture: 'service-alti/profile.fixture.csv',
-            }).as('profileAsCsv')
-
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(100, 200)
             cy.get('[data-cy="ol-map"]').click(150, 200)
@@ -901,7 +893,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-popup-info-container"]').should('not.exist')
 
             // deleting feature
-            cy.get('[data-cy="profile-popup-delete-button"]').click()
+            cy.get('[data-cy="drawing-style-delete-button"]').click()
             cy.get('[data-cy="profile-popup-content"]').should('not.exist')
             cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
 
