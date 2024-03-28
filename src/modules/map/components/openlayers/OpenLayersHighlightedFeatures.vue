@@ -34,7 +34,7 @@ const selectedLayerFeatures = computed(() => store.getters.selectedLayerFeatures
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
 const tooltipIsInDefaultPosition = computed(
     () => store.state.ui.featureInfoPosition === FeatureInfoPositions.DEFAULT
 )
@@ -96,7 +96,7 @@ watch(selectedLayerFeatures, () => {
     if (tooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
         // check if we're in default
         store.dispatch('setFeatureInfoPosition', {
-            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+            position: FeatureInfoPositions.BOTTOMPANEL,
             dispatcher: dispatcher,
         })
     }
@@ -116,7 +116,7 @@ function clearAllSelectedFeatures() {
 }
 function setBottomPanelFeatureInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
-        featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+        position: FeatureInfoPositions.BOTTOMPANEL,
         ...dispatcher,
     })
 }

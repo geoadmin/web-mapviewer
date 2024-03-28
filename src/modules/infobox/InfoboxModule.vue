@@ -18,8 +18,8 @@ const content = ref(null)
 const store = useStore()
 
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
-const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
+const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 
@@ -70,7 +70,7 @@ function onToggleContent() {
 }
 function setTooltipInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
-        featureInfo: FeatureInfoPositions.TOOLTIP,
+        position: FeatureInfoPositions.TOOLTIP,
         ...dispatcher,
     })
 }
