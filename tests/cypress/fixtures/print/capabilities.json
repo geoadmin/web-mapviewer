@@ -1,0 +1,1544 @@
+{
+    "app": "default",
+    "layouts": [
+        {
+            "name": "1. A4 landscape",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "default": "this is a name"
+                },
+                {
+                    "name": "url",
+                    "type": "String"
+                },
+                {
+                    "name": "copyright",
+                    "type": "String"
+                },
+                {
+                    "name": "qrimage",
+                    "type": "String"
+                },
+                {
+                    "name": "legend",
+                    "type": "LegendAttributeValue",
+                    "clientParams": {
+                        "classes": {
+                            "type": "LegendAttributeValue[]",
+                            "embeddedType": {
+                                "classes": {
+                                    "type": "recursiveDefinition",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "dpi": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "icons": {
+                                    "type": "URL",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "default": null
+                                }
+                            },
+                            "default": null,
+                            "isArray": true
+                        },
+                        "dpi": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "icons": {
+                            "type": "URL",
+                            "default": null,
+                            "isArray": true
+                        },
+                        "name": {
+                            "type": "String",
+                            "default": null
+                        }
+                    }
+                },
+                {
+                    "name": "map",
+                    "type": "MapAttributeValues",
+                    "clientParams": {
+                        "zoomToFeatures": {
+                            "type": "ZoomToFeatures",
+                            "embeddedType": {
+                                "minScale": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "zoomType": {
+                                    "type": "ZoomType",
+                                    "embeddedType": {},
+                                    "default": "EXTENT"
+                                },
+                                "layer": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "minMargin": {
+                                    "type": "int",
+                                    "default": 10
+                                }
+                            }
+                        },
+                        "dpi": {
+                            "type": "double"
+                        },
+                        "bbox": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "center": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "width": {
+                            "type": "int",
+                            "default": 802
+                        },
+                        "longitudeFirst": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "layers": {
+                            "type": "array",
+                            "default": []
+                        },
+                        "projection": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "useNearestScale": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "dpiSensitiveStyle": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "pdfA": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "scale": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "useAdjustBounds": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "height": {
+                            "type": "int",
+                            "default": 514
+                        },
+                        "areaOfInterest": {
+                            "type": "AreaOfInterest",
+                            "embeddedType": {
+                                "area": {
+                                    "type": "String"
+                                },
+                                "display": {
+                                    "type": "AoiDisplay",
+                                    "embeddedType": {},
+                                    "default": "RENDER"
+                                },
+                                "style": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "renderAsSvg": {
+                                    "type": "boolean",
+                                    "default": null
+                                }
+                            },
+                            "default": null
+                        },
+                        "rotation": {
+                            "type": "double",
+                            "default": null
+                        }
+                    },
+                    "clientInfo": {
+                        "dpiSuggestions": [
+                            72,
+                            91,
+                            128,
+                            254,
+                            300,
+                            400
+                        ],
+                        "scales": [
+                            2500000,
+                            1500000,
+                            1000000,
+                            500000,
+                            300000,
+                            200000,
+                            100000,
+                            50000,
+                            25000,
+                            20000,
+                            10000,
+                            5000,
+                            2500,
+                            1000,
+                            500
+                        ],
+                        "maxDPI": 400,
+                        "width": 802,
+                        "height": 514
+                    }
+                },
+                {
+                    "name": "scalebar",
+                    "type": "ScalebarAttributeValues",
+                    "clientParams": {
+                        "barSize": {
+                            "type": "int",
+                            "default": 4
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        },
+                        "orientation": {
+                            "type": "String",
+                            "default": "horizontalLabelsBelow"
+                        },
+                        "padding": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "verticalAlign": {
+                            "type": "String",
+                            "default": "bottom"
+                        },
+                        "lockUnits": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "color": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "renderAsSvg": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "lineWidth": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "labelDistance": {
+                            "type": "int",
+                            "default": 1
+                        },
+                        "type": {
+                            "type": "String",
+                            "default": "line"
+                        },
+                        "align": {
+                            "type": "String",
+                            "default": "center"
+                        },
+                        "unit": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "intervals": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "subIntervals": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "geodetic": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "fontSize": {
+                            "type": "int",
+                            "default": 8
+                        },
+                        "fontColor": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "font": {
+                            "type": "String",
+                            "default": "Helvetica"
+                        },
+                        "barBgColor": {
+                            "type": "String",
+                            "default": "white"
+                        },
+                        "labelRotation": {
+                            "type": "float",
+                            "default": 0
+                        }
+                    }
+                },
+                {
+                    "name": "northArrow",
+                    "type": "NorthArrowAttributeValues",
+                    "clientParams": {
+                        "graphic": {
+                            "type": "String",
+                            "default": "file://ressources/north_arrow.png"
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. A4 portrait",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "default": "this is a name"
+                },
+                {
+                    "name": "url",
+                    "type": "String"
+                },
+                {
+                    "name": "copyright",
+                    "type": "String"
+                },
+                {
+                    "name": "qrimage",
+                    "type": "String"
+                },
+                {
+                    "name": "legend",
+                    "type": "LegendAttributeValue",
+                    "clientParams": {
+                        "classes": {
+                            "type": "LegendAttributeValue[]",
+                            "embeddedType": {
+                                "classes": {
+                                    "type": "recursiveDefinition",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "dpi": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "icons": {
+                                    "type": "URL",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "default": null
+                                }
+                            },
+                            "default": null,
+                            "isArray": true
+                        },
+                        "dpi": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "icons": {
+                            "type": "URL",
+                            "default": null,
+                            "isArray": true
+                        },
+                        "name": {
+                            "type": "String",
+                            "default": null
+                        }
+                    }
+                },
+                {
+                    "name": "map",
+                    "type": "MapAttributeValues",
+                    "clientParams": {
+                        "zoomToFeatures": {
+                            "type": "ZoomToFeatures",
+                            "embeddedType": {
+                                "minScale": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "zoomType": {
+                                    "type": "ZoomType",
+                                    "embeddedType": {},
+                                    "default": "EXTENT"
+                                },
+                                "layer": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "minMargin": {
+                                    "type": "int",
+                                    "default": 10
+                                }
+                            }
+                        },
+                        "dpi": {
+                            "type": "double"
+                        },
+                        "bbox": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "center": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "width": {
+                            "type": "int",
+                            "default": 555
+                        },
+                        "longitudeFirst": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "layers": {
+                            "type": "array",
+                            "default": []
+                        },
+                        "projection": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "useNearestScale": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "dpiSensitiveStyle": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "pdfA": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "scale": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "useAdjustBounds": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "height": {
+                            "type": "int",
+                            "default": 752
+                        },
+                        "areaOfInterest": {
+                            "type": "AreaOfInterest",
+                            "embeddedType": {
+                                "area": {
+                                    "type": "String"
+                                },
+                                "display": {
+                                    "type": "AoiDisplay",
+                                    "embeddedType": {},
+                                    "default": "RENDER"
+                                },
+                                "style": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "renderAsSvg": {
+                                    "type": "boolean",
+                                    "default": null
+                                }
+                            },
+                            "default": null
+                        },
+                        "rotation": {
+                            "type": "double",
+                            "default": null
+                        }
+                    },
+                    "clientInfo": {
+                        "dpiSuggestions": [
+                            72,
+                            91,
+                            128,
+                            254,
+                            300,
+                            400
+                        ],
+                        "scales": [
+                            2500000,
+                            1500000,
+                            1000000,
+                            500000,
+                            300000,
+                            200000,
+                            100000,
+                            50000,
+                            25000,
+                            20000,
+                            10000,
+                            5000,
+                            2500,
+                            1000,
+                            500
+                        ],
+                        "maxDPI": 400,
+                        "width": 555,
+                        "height": 752
+                    }
+                },
+                {
+                    "name": "scalebar",
+                    "type": "ScalebarAttributeValues",
+                    "clientParams": {
+                        "barSize": {
+                            "type": "int",
+                            "default": 4
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        },
+                        "orientation": {
+                            "type": "String",
+                            "default": "horizontalLabelsBelow"
+                        },
+                        "padding": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "verticalAlign": {
+                            "type": "String",
+                            "default": "bottom"
+                        },
+                        "lockUnits": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "color": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "renderAsSvg": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "lineWidth": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "labelDistance": {
+                            "type": "int",
+                            "default": 1
+                        },
+                        "type": {
+                            "type": "String",
+                            "default": "line"
+                        },
+                        "align": {
+                            "type": "String",
+                            "default": "center"
+                        },
+                        "unit": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "intervals": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "subIntervals": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "geodetic": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "fontSize": {
+                            "type": "int",
+                            "default": 8
+                        },
+                        "fontColor": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "font": {
+                            "type": "String",
+                            "default": "Helvetica"
+                        },
+                        "barBgColor": {
+                            "type": "String",
+                            "default": "white"
+                        },
+                        "labelRotation": {
+                            "type": "float",
+                            "default": 0
+                        }
+                    }
+                },
+                {
+                    "name": "northArrow",
+                    "type": "NorthArrowAttributeValues",
+                    "clientParams": {
+                        "graphic": {
+                            "type": "String",
+                            "default": "file://ressources/north_arrow.png"
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. A3 landscape",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "default": "this is a name"
+                },
+                {
+                    "name": "url",
+                    "type": "String"
+                },
+                {
+                    "name": "copyright",
+                    "type": "String"
+                },
+                {
+                    "name": "qrimage",
+                    "type": "String"
+                },
+                {
+                    "name": "legend",
+                    "type": "LegendAttributeValue",
+                    "clientParams": {
+                        "classes": {
+                            "type": "LegendAttributeValue[]",
+                            "embeddedType": {
+                                "classes": {
+                                    "type": "recursiveDefinition",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "dpi": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "icons": {
+                                    "type": "URL",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "default": null
+                                }
+                            },
+                            "default": null,
+                            "isArray": true
+                        },
+                        "dpi": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "icons": {
+                            "type": "URL",
+                            "default": null,
+                            "isArray": true
+                        },
+                        "name": {
+                            "type": "String",
+                            "default": null
+                        }
+                    }
+                },
+                {
+                    "name": "map",
+                    "type": "MapAttributeValues",
+                    "clientParams": {
+                        "zoomToFeatures": {
+                            "type": "ZoomToFeatures",
+                            "embeddedType": {
+                                "minScale": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "zoomType": {
+                                    "type": "ZoomType",
+                                    "embeddedType": {},
+                                    "default": "EXTENT"
+                                },
+                                "layer": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "minMargin": {
+                                    "type": "int",
+                                    "default": 10
+                                }
+                            }
+                        },
+                        "dpi": {
+                            "type": "double"
+                        },
+                        "bbox": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "center": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "width": {
+                            "type": "int",
+                            "default": 1151
+                        },
+                        "longitudeFirst": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "layers": {
+                            "type": "array",
+                            "default": []
+                        },
+                        "projection": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "useNearestScale": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "dpiSensitiveStyle": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "pdfA": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "scale": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "useAdjustBounds": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "height": {
+                            "type": "int",
+                            "default": 751
+                        },
+                        "areaOfInterest": {
+                            "type": "AreaOfInterest",
+                            "embeddedType": {
+                                "area": {
+                                    "type": "String"
+                                },
+                                "display": {
+                                    "type": "AoiDisplay",
+                                    "embeddedType": {},
+                                    "default": "RENDER"
+                                },
+                                "style": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "renderAsSvg": {
+                                    "type": "boolean",
+                                    "default": null
+                                }
+                            },
+                            "default": null
+                        },
+                        "rotation": {
+                            "type": "double",
+                            "default": null
+                        }
+                    },
+                    "clientInfo": {
+                        "dpiSuggestions": [
+                            72,
+                            91,
+                            128,
+                            254,
+                            300,
+                            400
+                        ],
+                        "scales": [
+                            2500000,
+                            1500000,
+                            1000000,
+                            500000,
+                            300000,
+                            200000,
+                            100000,
+                            50000,
+                            25000,
+                            20000,
+                            10000,
+                            5000,
+                            2500,
+                            1000,
+                            500
+                        ],
+                        "maxDPI": 400,
+                        "width": 1151,
+                        "height": 751
+                    }
+                },
+                {
+                    "name": "scalebar",
+                    "type": "ScalebarAttributeValues",
+                    "clientParams": {
+                        "barSize": {
+                            "type": "int",
+                            "default": 4
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        },
+                        "orientation": {
+                            "type": "String",
+                            "default": "horizontalLabelsBelow"
+                        },
+                        "padding": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "verticalAlign": {
+                            "type": "String",
+                            "default": "bottom"
+                        },
+                        "lockUnits": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "color": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "renderAsSvg": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "lineWidth": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "labelDistance": {
+                            "type": "int",
+                            "default": 1
+                        },
+                        "type": {
+                            "type": "String",
+                            "default": "line"
+                        },
+                        "align": {
+                            "type": "String",
+                            "default": "center"
+                        },
+                        "unit": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "intervals": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "subIntervals": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "geodetic": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "fontSize": {
+                            "type": "int",
+                            "default": 8
+                        },
+                        "fontColor": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "font": {
+                            "type": "String",
+                            "default": "Helvetica"
+                        },
+                        "barBgColor": {
+                            "type": "String",
+                            "default": "white"
+                        },
+                        "labelRotation": {
+                            "type": "float",
+                            "default": 0
+                        }
+                    }
+                },
+                {
+                    "name": "northArrow",
+                    "type": "NorthArrowAttributeValues",
+                    "clientParams": {
+                        "graphic": {
+                            "type": "String",
+                            "default": "file://ressources/north_arrow.png"
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. A3 portrait",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "default": "this is a name"
+                },
+                {
+                    "name": "url",
+                    "type": "String"
+                },
+                {
+                    "name": "copyright",
+                    "type": "String"
+                },
+                {
+                    "name": "qrimage",
+                    "type": "String"
+                },
+                {
+                    "name": "legend",
+                    "type": "LegendAttributeValue",
+                    "clientParams": {
+                        "classes": {
+                            "type": "LegendAttributeValue[]",
+                            "embeddedType": {
+                                "classes": {
+                                    "type": "recursiveDefinition",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "dpi": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "icons": {
+                                    "type": "URL",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "default": null
+                                }
+                            },
+                            "default": null,
+                            "isArray": true
+                        },
+                        "dpi": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "icons": {
+                            "type": "URL",
+                            "default": null,
+                            "isArray": true
+                        },
+                        "name": {
+                            "type": "String",
+                            "default": null
+                        }
+                    }
+                },
+                {
+                    "name": "map",
+                    "type": "MapAttributeValues",
+                    "clientParams": {
+                        "zoomToFeatures": {
+                            "type": "ZoomToFeatures",
+                            "embeddedType": {
+                                "minScale": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "zoomType": {
+                                    "type": "ZoomType",
+                                    "embeddedType": {},
+                                    "default": "EXTENT"
+                                },
+                                "layer": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "minMargin": {
+                                    "type": "int",
+                                    "default": 10
+                                }
+                            }
+                        },
+                        "dpi": {
+                            "type": "double"
+                        },
+                        "bbox": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "center": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "width": {
+                            "type": "int",
+                            "default": 802
+                        },
+                        "longitudeFirst": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "layers": {
+                            "type": "array",
+                            "default": []
+                        },
+                        "projection": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "useNearestScale": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "dpiSensitiveStyle": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "pdfA": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "scale": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "useAdjustBounds": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "height": {
+                            "type": "int",
+                            "default": 1100
+                        },
+                        "areaOfInterest": {
+                            "type": "AreaOfInterest",
+                            "embeddedType": {
+                                "area": {
+                                    "type": "String"
+                                },
+                                "display": {
+                                    "type": "AoiDisplay",
+                                    "embeddedType": {},
+                                    "default": "RENDER"
+                                },
+                                "style": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "renderAsSvg": {
+                                    "type": "boolean",
+                                    "default": null
+                                }
+                            },
+                            "default": null
+                        },
+                        "rotation": {
+                            "type": "double",
+                            "default": null
+                        }
+                    },
+                    "clientInfo": {
+                        "dpiSuggestions": [
+                            72,
+                            91,
+                            128,
+                            254,
+                            300,
+                            400
+                        ],
+                        "scales": [
+                            2500000,
+                            1500000,
+                            1000000,
+                            500000,
+                            300000,
+                            200000,
+                            100000,
+                            50000,
+                            25000,
+                            20000,
+                            10000,
+                            5000,
+                            2500,
+                            1000,
+                            500
+                        ],
+                        "maxDPI": 400,
+                        "width": 802,
+                        "height": 1100
+                    }
+                },
+                {
+                    "name": "scalebar",
+                    "type": "ScalebarAttributeValues",
+                    "clientParams": {
+                        "barSize": {
+                            "type": "int",
+                            "default": 4
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        },
+                        "orientation": {
+                            "type": "String",
+                            "default": "horizontalLabelsBelow"
+                        },
+                        "padding": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "verticalAlign": {
+                            "type": "String",
+                            "default": "bottom"
+                        },
+                        "lockUnits": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "color": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "renderAsSvg": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "lineWidth": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "labelDistance": {
+                            "type": "int",
+                            "default": 1
+                        },
+                        "type": {
+                            "type": "String",
+                            "default": "line"
+                        },
+                        "align": {
+                            "type": "String",
+                            "default": "center"
+                        },
+                        "unit": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "intervals": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "subIntervals": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "geodetic": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "fontSize": {
+                            "type": "int",
+                            "default": 8
+                        },
+                        "fontColor": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "font": {
+                            "type": "String",
+                            "default": "Helvetica"
+                        },
+                        "barBgColor": {
+                            "type": "String",
+                            "default": "white"
+                        },
+                        "labelRotation": {
+                            "type": "float",
+                            "default": 0
+                        }
+                    }
+                },
+                {
+                    "name": "northArrow",
+                    "type": "NorthArrowAttributeValues",
+                    "clientParams": {
+                        "graphic": {
+                            "type": "String",
+                            "default": "file://ressources/north_arrow.png"
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5. A6 landscape",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "default": "this is a name"
+                },
+                {
+                    "name": "url",
+                    "type": "String"
+                },
+                {
+                    "name": "copyright",
+                    "type": "String"
+                },
+                {
+                    "name": "qrimage",
+                    "type": "String"
+                },
+                {
+                    "name": "legend",
+                    "type": "LegendAttributeValue",
+                    "clientParams": {
+                        "classes": {
+                            "type": "LegendAttributeValue[]",
+                            "embeddedType": {
+                                "classes": {
+                                    "type": "recursiveDefinition",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "dpi": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "icons": {
+                                    "type": "URL",
+                                    "default": null,
+                                    "isArray": true
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "default": null
+                                }
+                            },
+                            "default": null,
+                            "isArray": true
+                        },
+                        "dpi": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "icons": {
+                            "type": "URL",
+                            "default": null,
+                            "isArray": true
+                        },
+                        "name": {
+                            "type": "String",
+                            "default": null
+                        }
+                    }
+                },
+                {
+                    "name": "map",
+                    "type": "MapAttributeValues",
+                    "clientParams": {
+                        "zoomToFeatures": {
+                            "type": "ZoomToFeatures",
+                            "embeddedType": {
+                                "minScale": {
+                                    "type": "double",
+                                    "default": null
+                                },
+                                "zoomType": {
+                                    "type": "ZoomType",
+                                    "embeddedType": {},
+                                    "default": "EXTENT"
+                                },
+                                "layer": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "minMargin": {
+                                    "type": "int",
+                                    "default": 10
+                                }
+                            }
+                        },
+                        "dpi": {
+                            "type": "double"
+                        },
+                        "bbox": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "center": {
+                            "type": "double",
+                            "isArray": true
+                        },
+                        "width": {
+                            "type": "int",
+                            "default": 380
+                        },
+                        "longitudeFirst": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "layers": {
+                            "type": "array",
+                            "default": []
+                        },
+                        "projection": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "useNearestScale": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "dpiSensitiveStyle": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "pdfA": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "scale": {
+                            "type": "double",
+                            "default": null
+                        },
+                        "useAdjustBounds": {
+                            "type": "boolean",
+                            "default": null
+                        },
+                        "height": {
+                            "type": "int",
+                            "default": 240
+                        },
+                        "areaOfInterest": {
+                            "type": "AreaOfInterest",
+                            "embeddedType": {
+                                "area": {
+                                    "type": "String"
+                                },
+                                "display": {
+                                    "type": "AoiDisplay",
+                                    "embeddedType": {},
+                                    "default": "RENDER"
+                                },
+                                "style": {
+                                    "type": "String",
+                                    "default": null
+                                },
+                                "renderAsSvg": {
+                                    "type": "boolean",
+                                    "default": null
+                                }
+                            },
+                            "default": null
+                        },
+                        "rotation": {
+                            "type": "double",
+                            "default": null
+                        }
+                    },
+                    "clientInfo": {
+                        "dpiSuggestions": [
+                            72,
+                            91,
+                            128,
+                            254,
+                            300,
+                            400
+                        ],
+                        "scales": [
+                            2500000,
+                            1500000,
+                            1000000,
+                            500000,
+                            300000,
+                            200000,
+                            100000,
+                            50000,
+                            25000,
+                            20000,
+                            10000,
+                            5000,
+                            2500,
+                            1000,
+                            500
+                        ],
+                        "maxDPI": 400,
+                        "width": 380,
+                        "height": 240
+                    }
+                },
+                {
+                    "name": "scalebar",
+                    "type": "ScalebarAttributeValues",
+                    "clientParams": {
+                        "barSize": {
+                            "type": "int",
+                            "default": 2
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        },
+                        "orientation": {
+                            "type": "String",
+                            "default": "horizontalLabelsBelow"
+                        },
+                        "padding": {
+                            "type": "int",
+                            "default": null
+                        },
+                        "verticalAlign": {
+                            "type": "String",
+                            "default": "bottom"
+                        },
+                        "lockUnits": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "color": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "renderAsSvg": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "lineWidth": {
+                            "type": "int",
+                            "default": 1
+                        },
+                        "labelDistance": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "type": {
+                            "type": "String",
+                            "default": "bar_sub"
+                        },
+                        "align": {
+                            "type": "String",
+                            "default": "center"
+                        },
+                        "unit": {
+                            "type": "String",
+                            "default": null
+                        },
+                        "intervals": {
+                            "type": "int",
+                            "default": 3
+                        },
+                        "subIntervals": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "geodetic": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "fontSize": {
+                            "type": "int",
+                            "default": 5
+                        },
+                        "fontColor": {
+                            "type": "String",
+                            "default": "black"
+                        },
+                        "font": {
+                            "type": "String",
+                            "default": "Helvetica"
+                        },
+                        "barBgColor": {
+                            "type": "String",
+                            "default": "white"
+                        },
+                        "labelRotation": {
+                            "type": "float",
+                            "default": 0
+                        }
+                    }
+                },
+                {
+                    "name": "northArrow",
+                    "type": "NorthArrowAttributeValues",
+                    "clientParams": {
+                        "graphic": {
+                            "type": "String",
+                            "default": "file://ressources/north_arrow.png"
+                        },
+                        "backgroundColor": {
+                            "type": "String",
+                            "default": "rgba(255, 255, 255, 0)"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "smtp": {
+        "enabled": false
+    },
+    "formats": [
+        "bmp",
+        "gif",
+        "jpeg",
+        "jpg",
+        "pdf",
+        "png",
+        "svg",
+        "tif",
+        "tiff"
+    ]
+}
