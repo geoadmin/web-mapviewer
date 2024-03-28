@@ -6,6 +6,8 @@ import { getGenerateQRCodeUrl } from '@/api/qrcode.api.js'
 import { createShortLink } from '@/api/shortlink.api.js'
 import log from '@/utils/logging'
 
+import { PRINT_AREA_LAYER_NAME } from './printConstants'
+
 // const dispatcher = { dispatcher: 'usePrint.composable' }
 
 /** @enum */
@@ -60,7 +62,7 @@ export function usePrint(map) {
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
                 projection: store.state.position.projection,
-                excludedLayers: ['printAreaLayer'],
+                excludedLayers: [PRINT_AREA_LAYER_NAME],
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)

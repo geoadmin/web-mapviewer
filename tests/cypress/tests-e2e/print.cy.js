@@ -113,10 +113,8 @@ describe('Testing print', () => {
                 expect(layers).to.have.length(1)
                 expect(layers[0]['matrixSet']).to.equals('EPSG:2056')
             })
-            // cy.wait('@downloadReport')
         })
 
-        // TODO: Fix error when using grid
         it('should send a print request to mapfishprint (all parameters updated)', () => {
             // Set parameters
             cy.get('[data-cy="print-layout-selector"]').select('2. A4 portrait')
