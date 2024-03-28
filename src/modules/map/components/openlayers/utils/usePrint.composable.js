@@ -60,6 +60,7 @@ export function usePrint(map) {
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
                 projection: store.state.map.projection,
+                excludedLayers: ['printAreaLayer'],
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)
