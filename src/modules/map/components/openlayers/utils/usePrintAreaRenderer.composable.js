@@ -7,8 +7,9 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { PRINT_AREA_LAYER_NAME } from './printConstants'
+
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
-const printAreaLayerName = 'printAreaLayer'
 
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
@@ -37,7 +38,7 @@ function createWorldPolygon() {
             features: [worldPolygon],
         }),
         style: transparentStyle,
-        name: printAreaLayerName,
+        name: PRINT_AREA_LAYER_NAME,
     })
     return vectorLayer
 }
