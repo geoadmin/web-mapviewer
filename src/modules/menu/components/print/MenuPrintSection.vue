@@ -84,6 +84,7 @@ async function printMap() {
     try {
         const documentUrl = await print(printGrid.value, printLegend.value)
         if (documentUrl) {
+            console.log('documentUrl: ', documentUrl)
             if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
                 window.open(documentUrl)
             } else {
@@ -150,6 +151,7 @@ defineExpose({
                 <input
                     id="checkboxLegend"
                     v-model="printLegend"
+                    data-cy="checkboxLegend"
                     class="form-check-input"
                     type="checkbox"
                 />
@@ -159,6 +161,7 @@ defineExpose({
                 <input
                     id="checkboxGrid"
                     v-model="printGrid"
+                    data-cy="checkboxGrid"
                     class="form-check-input"
                     type="checkbox"
                 />
@@ -169,7 +172,7 @@ defineExpose({
                     v-if="printStatus === PrintStatus.PRINTING"
                     type="button"
                     class="btn btn-danger w-100 text-white"
-                    data-cy="print-map-button"
+                    data-cy="abort-print-button"
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
