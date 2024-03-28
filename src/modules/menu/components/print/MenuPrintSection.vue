@@ -169,11 +169,18 @@ defineExpose({
                     v-if="printStatus === PrintStatus.PRINTING"
                     type="button"
                     class="btn btn-danger w-100 text-white"
+                    data-cy="print-map-button"
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
                 </button>
-                <button v-else type="button" class="btn btn-light w-100" @click="printMap">
+                <button
+                    v-else
+                    type="button"
+                    class="btn btn-light w-100"
+                    data-cy="print-map-button"
+                    @click="printMap"
+                >
                     {{ i18n.t('print_action') }}
                 </button>
                 <!-- TODO: manage failing print job-->

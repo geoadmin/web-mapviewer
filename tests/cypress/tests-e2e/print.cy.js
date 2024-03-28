@@ -611,6 +611,7 @@ describe('Testing print', () => {
             })
         }).as('printRequest')
     }
+
     function interceptPrintStatus() {
         cy.intercept('GET', '**/status/**', (req) => {
             req.reply({
@@ -625,6 +626,7 @@ describe('Testing print', () => {
             })
         }).as('printStatus')
     }
+
     function interceptDownloadReport() {
         cy.intercept('GET', '**/report/print**', (req) => {
             req.reply({
@@ -639,6 +641,7 @@ describe('Testing print', () => {
             })
         }).as('downloadReport')
     }
+
     function interceptShortLink() {
         let shortUrl = 'https://s.geo.admin.ch/0000000'
         cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {

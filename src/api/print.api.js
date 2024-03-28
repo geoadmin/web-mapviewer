@@ -16,6 +16,23 @@ const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of 
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
 const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+
+class GeoAdminCustomizer extends BaseCustomizer {
+    constructor(layerNamesToExclude) {
+        super()
+        this.layerNamesToExclude = layerNamesToExclude
+        this.layerFilter = this.layerFilter.bind(this)
+    }
+
+    layerFilter(layerState) {
+        if (this.layerNamesToExclude.includes(layerState.layer.get('name'))) {
+            return false
+        }
+        // Call parent layerFilter method for other layers
+        return super.layerFilter(layerState)
+    }
+}
+
 /**
  * Tool to transform an OpenLayers map into a "spec" for MapFishPrint3 (meaning a big JSON) that can
  * then be used as request body for printing.
@@ -169,6 +186,8 @@ export class PrintError extends Error {
  *   Default is `false`
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
+ * @param {String[]} [config.excludedLayers=[]] List of layer names to exclude from the print.
+ *   Default is `[]`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -181,6 +200,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         lang = null,
         printGrid = false,
         projection = null,
+        excludedLayers = [],
     } = config
 
     if (!qrCodeUrl) {
@@ -202,6 +222,8 @@ async function transformOlMapToPrintParams(olMap, config) {
         throw new PrintError('Missing projection to print the grid')
     }
 
+    const customizer = new GeoAdminCustomizer(excludedLayers)
+
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
     try {
@@ -210,7 +232,7 @@ async function transformOlMapToPrintParams(olMap, config) {
             scale,
             printResolution: PRINTING_RESOLUTION,
             dpi: PRINTING_RESOLUTION,
-            customizer: new BaseCustomizer([0, 0, 10000, 10000]),
+            customizer: customizer,
         })
         if (printGrid) {
             encodedMap.layers.unshift({
@@ -291,6 +313,7 @@ export async function createPrintJob(map, config) {
         lang = null,
         printGrid = false,
         projection = null,
+        excludedLayers = [],
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -303,6 +326,7 @@ export async function createPrintJob(map, config) {
             lang,
             printGrid,
             projection,
+            excludedLayers,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
