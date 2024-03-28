@@ -454,7 +454,7 @@ describe('Test on legacy param import', () => {
     context('Feature Pre Selection Import', () => {
         function checkFeatures() {
             cy.get('@featuresIds').then((featuresIds) => {
-                cy.readStoreValue('state.features.selectedFeatures').should((features) => {
+                cy.readStoreValue('getters.selectedFeatures').should((features) => {
                     expect(features.length).to.eq(featuresIds.length)
 
                     features.forEach((feature) => {

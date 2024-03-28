@@ -38,7 +38,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
 
                 // re-projecting selected features with the new projection
                 const reprojectedSelectedFeatures = []
-                state.features.selectedFeatures.forEach((selectedFeature) => {
+                store.getters.selectedFeatures.forEach((selectedFeature) => {
                     if (selectedFeature instanceof LayerFeature) {
                         reprojectedSelectedFeatures.push(
                             new LayerFeature({

@@ -1,19 +1,32 @@
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import LayerFeature from '@/api/features/LayerFeature.class.js'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 
-const getSelectedFeatureWithId = (state, featureId) => {
-    return state.selectedFeatures.find((selectedFeature) => selectedFeature.id === featureId)
+const getEditableFeatureWithId = (state, featureId) => {
+    return state.selectedEditableFeatures.find(
+        (selectedFeature) => selectedFeature.id === featureId
+    )
 }
 
 export default {
     state: {
-        /** @type Array<SelectableFeature> */
-        selectedFeatures: [],
+        selectedFeaturesByLayerId: {
+            // "layerId": [ feature1, feature2, ... ],
+        },
+        /** @type Array<EditableFeature> */
+        selectedEditableFeatures: [],
         highlightedFeatureId: null,
     },
     getters: {
-        editFeature(state) {
-            return state.selectedFeatures.find((feature) => feature.isEditable)
+        /** @type Array<SelectableFeature> */
+        selectedFeatures(state, getters) {
+            return [...state.selectedEditableFeatures, ...getters.selectedLayerFeatures]
+        },
+        selectedLayerFeatures(state) {
+            if (state.selectedFeaturesByLayerId.length === 0) {
+                return []
+            }
+            return [...Object.values(state.selectedFeaturesByLayerId).flat()]
         },
     },
     actions: {
@@ -31,13 +44,31 @@ export default {
                 highlightedFeatureId: null,
                 dispatcher,
             })
+            const layerFeaturesByLayerId = {}
+            let drawingFeatures = []
             if (Array.isArray(features)) {
-                commit('setSelectedFeatures', { features, dispatcher })
+                const layerFeatures = features.filter((feature) => feature instanceof LayerFeature)
+                drawingFeatures = features.filter((feature) => feature instanceof EditableFeature)
+                layerFeatures.forEach((feature) => {
+                    if (!layerFeaturesByLayerId[feature.layer.id]) {
+                        layerFeaturesByLayerId[feature.layer.id] = []
+                    }
+                    layerFeaturesByLayerId[feature.layer.id].push(feature)
+                })
             }
+            commit('setSelectedFeatures', {
+                drawingFeatures,
+                layerFeaturesByLayerId,
+                dispatcher,
+            })
         },
         /** Removes all selected features from the map */
         clearAllSelectedFeatures({ commit }, { dispatcher }) {
-            commit('setSelectedFeatures', { features: [], dispatcher })
+            commit('setSelectedFeatures', {
+                layerFeaturesByLayerId: {},
+                drawingFeatures: [],
+                dispatcher,
+            })
             commit('setHighlightedFeatureId', {
                 highlightedFeatureId: null,
                 dispatcher,
@@ -45,19 +76,6 @@ export default {
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
             commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
-        },
-        /** Removes a specific feature from the selected features list. Is not used in drawing mode. */
-        removeSelectedFeature({ commit, state }, { feature, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
-            if (selectedFeature) {
-                commit('setSelectedFeatures', {
-                    features: state.selectedFeatures.splice(
-                        state.selectedFeatures.indexOf(selectedFeature),
-                        1
-                    ),
-                    dispatcher,
-                })
-            }
         },
         /**
          * In drawing mode, informs the store about the new coordinates of the feature. (It does not
@@ -74,7 +92,7 @@ export default {
          * @param {Number[][]} coordinates
          */
         changeFeatureCoordinates({ commit, state }, { feature, coordinates, geodesicCoordinates }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable && Array.isArray(coordinates)) {
                 commit('changeFeatureCoordinates', {
                     feature: selectedFeature,
@@ -85,7 +103,7 @@ export default {
         },
 
         changeFeatureGeometry({ commit, state }, { feature, geometry }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable && geometry) {
                 commit('changeFeatureGeometry', {
                     feature: selectedFeature,
@@ -103,7 +121,7 @@ export default {
          * @param {String} title
          */
         changeFeatureTitle({ commit, state }, { feature, title, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
             }
@@ -118,7 +136,7 @@ export default {
          * @param {String} description
          */
         changeFeatureDescription({ commit, state }, { feature, description, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureDescription', {
                     feature: selectedFeature,
@@ -138,7 +156,7 @@ export default {
          * @param {FeatureStyleColor} color
          */
         changeFeatureColor({ commit, state }, { feature, color, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             const wantedColor = allStylingColors.find(
                 (styleColor) => styleColor.name === color.name
             )
@@ -161,7 +179,7 @@ export default {
          * @param {FeatureStyleSize} textSize
          */
         changeFeatureTextSize({ commit, state }, { feature, textSize, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             const wantedSize = allStylingSizes.find((size) => size.textScale === textSize.textScale)
             if (wantedSize && selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureTextSize', {
@@ -182,7 +200,7 @@ export default {
          * @param {FeatureStyleColor} textColor
          */
         changeFeatureTextColor({ commit, state }, { feature, textColor, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             const wantedColor = allStylingColors.find(
                 (styleColor) => styleColor.name === textColor.name
             )
@@ -205,7 +223,7 @@ export default {
          * @param {Icon} icon
          */
         changeFeatureIcon({ commit, state }, { feature, icon, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (
                 icon &&
                 selectedFeature &&
@@ -226,7 +244,7 @@ export default {
          * @param {FeatureStyleSize} iconSize
          */
         changeFeatureIconSize({ commit, state }, { feature, iconSize, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             const wantedSize = allStylingSizes.find((size) => size.textScale === iconSize.textScale)
             if (
                 wantedSize &&
@@ -249,7 +267,7 @@ export default {
          * @param {Boolean} isDragged
          */
         changeFeatureIsDragged({ commit, state }, { feature, isDragged, dispatcher }) {
-            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureIsDragged', {
                     feature: selectedFeature,
@@ -260,8 +278,9 @@ export default {
         },
     },
     mutations: {
-        setSelectedFeatures(state, { features }) {
-            state.selectedFeatures = [...features]
+        setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
+            state.selectedFeaturesByLayerId = layerFeaturesByLayerId
+            state.selectedEditableFeatures = [...drawingFeatures]
         },
         setHighlightedFeatureId(state, { highlightedFeatureId }) {
             state.highlightedFeatureId = highlightedFeatureId

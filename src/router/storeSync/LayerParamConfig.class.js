@@ -184,7 +184,7 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
 }
 
 function generateLayerUrlParamFromStoreValues(store) {
-    const featuresIds = orderFeaturesByLayers(store.state.features.selectedFeatures)
+    const featuresIds = orderFeaturesByLayers(store.getters.selectedFeatures)
     return store.state.layers.activeLayers
         .map((layer) =>
             transformLayerIntoUrlString(

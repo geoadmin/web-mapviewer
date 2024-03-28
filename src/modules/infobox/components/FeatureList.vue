@@ -16,9 +16,9 @@ const props = defineProps({
 const { direction } = toRefs(props)
 
 const store = useStore()
-const features = computed(() =>
-    store.state.features.selectedFeatures.filter((feature) => !feature.isEditable)
-)
+const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {

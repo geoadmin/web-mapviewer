@@ -6,7 +6,7 @@ describe('Testing the feature selection in the URL', () => {
         cy.get('@featuresIds').then((featuresIds) => {
             cy.log(`Ensuring there are 10 selected features, and they're all different`)
 
-            cy.readStoreValue('state.features.selectedFeatures').should((features) => {
+            cy.readStoreValue('getters.selectedFeatures').should((features) => {
                 expect(features.length).to.eq(featuresIds.length)
 
                 features.forEach((feature) => {

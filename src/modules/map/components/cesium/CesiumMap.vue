@@ -169,11 +169,11 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
-            selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
+            'selectedFeatures',
             'centerEpsg4326',
             'resolution',
             'hasDevSiteWarning',

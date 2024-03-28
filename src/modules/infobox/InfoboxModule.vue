@@ -17,7 +17,7 @@ const showContent = ref(true)
 const content = ref(null)
 const store = useStore()
 
-const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
 const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
