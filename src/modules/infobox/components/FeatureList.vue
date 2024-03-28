@@ -1,100 +1,93 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import Masonry from 'masonry-layout'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
-
-const dispatcher = { dispatcher: 'FeatureList.vue' }
+import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
 const props = defineProps({
-    direction: {
-        type: String,
-        default: 'row',
-        validator: (value) => ['row', 'column'].includes(value),
+    columns: {
+        type: Number,
+        default: 1,
+        validator: (value) => value > 0,
     },
 })
-const { direction } = toRefs(props)
+const { columns } = toRefs(props)
 
+const featureListContainer = ref(null)
+const editableFeatureCategory = ref(null)
+const layerFeatureCategories = ref([])
+
+const widthDependingOnColumns = computed(() => {
+    return {
+        width: `${100 / columns.value}%`,
+    }
+})
+
+const i18n = useI18n()
 const store = useStore()
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 
-function highlightFeature(feature) {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: feature?.id,
-        ...dispatcher,
-    })
+function getLayerName(layerId) {
+    return store.getters.visibleLayers.find((layer) => layer.id === layerId)?.name
 }
-function clearHighlightedFeature() {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: null,
-        ...dispatcher,
-    })
+
+let masonry
+onMounted(() => {
+    reloadMasonryLayout()
+})
+onBeforeUnmount(() => {
+    masonry?.destroy()
+})
+
+watch(columns, reloadMasonryLayout)
+watch(selectedEditableFeatures, reloadMasonryLayout)
+watch(selectedFeaturesByLayerId, reloadMasonryLayout)
+
+function reloadMasonryLayout() {
+    if (columns.value > 1) {
+        if (!masonry) {
+            masonry = new Masonry(featureListContainer.value, {
+                itemSelector: '.feature-list-item',
+                percentPosition: true,
+            })
+        }
+        masonry?.layout()
+    } else {
+        masonry?.destroy()
+    }
 }
 </script>
 
 <template>
-    <div
-        class="feature-list"
-        :class="{ 'feature-list-row': direction === 'row' }"
-        data-cy="highlighted-features"
-    >
-        <FeatureDetail
-            v-for="(feature, index) in features"
-            :key="feature.id ?? index"
-            :feature="feature"
+    <div ref="featureListContainer" class="feature-list" data-cy="highlighted-features">
+        <!-- Only showing drawing features when outside the drawing module/mode -->
+        <FeatureListCategory
+            v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
+            ref="editableFeatureCategory"
             class="feature-list-item"
-            @mouseenter.passive="highlightFeature(feature)"
-            @mouseleave.passive="clearHighlightedFeature"
+            :name="i18n.t('draw_layer_label')"
+            :children="selectedEditableFeatures"
+            :style="widthDependingOnColumns"
+        />
+        <FeatureListCategory
+            v-for="(layerFeatures, layerId) in selectedFeaturesByLayerId"
+            :key="layerId"
+            ref="layerFeatureCategories"
+            class="feature-list-item"
+            :name="getLayerName(layerId)"
+            :children="layerFeatures"
+            :style="widthDependingOnColumns"
         />
     </div>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables-admin.module';
-
 .feature-list {
-    margin: 0;
-    list-style: none;
-
-    &-item {
-        $item-border: $border-width solid $border-color;
-        border-right: $item-border;
-        border-bottom: $item-border;
-        &:hover {
-            background-color: rgba($mocassin-to-red-1, 0.8);
-        }
-    }
-    &-row {
-        display: grid;
-        // on mobile (default size) only one column
-        // see media query under for other screen sizes
-        grid-template-columns: 1fr;
-        max-height: 50vh;
-        overflow-y: auto;
-    }
-}
-
-@include respond-above(md) {
-    .feature-list-row {
-        // with screen larger than 768px we can afford to have two tooltip side by side
-        grid-template-columns: 1fr 1fr;
-        max-height: 33vh;
-    }
-}
-@include respond-above(lg) {
-    .feature-list-row {
-        // with screen larger than 992px we can place 3 tooltips
-        grid-template-columns: 1fr 1fr 1fr;
-        max-height: 25vh;
-    }
-}
-@include respond-above(xl) {
-    .feature-list-row {
-        // anything above 1200px will have 4 tooltips in a row
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-    }
+    overflow-y: auto;
+    max-height: 33vh;
 }
 </style>

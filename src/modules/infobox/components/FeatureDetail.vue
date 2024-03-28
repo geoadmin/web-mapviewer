@@ -46,7 +46,6 @@ function sanitizeHtml(htmlText) {
     <!-- eslint-disable-next-line vue/no-v-html-->
     <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <div v-else class="htmlpopup-container">
-        <div class="htmlpopup-header">{{ feature.title }}</div>
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
@@ -84,10 +83,7 @@ function sanitizeHtml(htmlText) {
     text-align: start;
 }
 :global(.htmlpopup-header) {
-    background-color: $gainsboro;
-    padding: 7px;
-    margin-bottom: 7px;
-    font-weight: 700;
+    display: none;
 }
 :global(.htmlpopup-content) {
     padding: 7px;
