@@ -44,24 +44,30 @@ const categories = computed(() => {
 })
 
 function focusFirstEntry() {
-    const firstCategoryWithResults = categories.value.find(
-        (category) => category.results.length > 0
-    )
-    resultCategories.value[categories.value.indexOf(firstCategoryWithResults)]?.focusFirstEntry()
+    const firstCategory = categories.value.findIndex((category) => category.results.length > 0)
+    if (firstCategory >= 0) {
+        resultCategories.value[firstCategory]?.focusFirstEntry()
+    }
 }
 
 function onFirstEntryReached(index) {
-    if (index === 0) {
+    const previousCategoryIndex = categories.value.findLastIndex(
+        (category, i) => i < index && category.results.length > 0
+    )
+    if (previousCategoryIndex < 0) {
         emit('firstResultEntryReached')
-    } else if (index > 0) {
+    } else {
         // jumping up to the previous category's last result
-        resultCategories.value[index - 1]?.focusLastEntry()
+        resultCategories.value[previousCategoryIndex]?.focusLastEntry()
     }
 }
 
 function onLastEntryReached(index) {
-    if (index < resultCategories.value.length - 1) {
-        resultCategories.value[index + 1]?.focusFirstEntry()
+    const nextCategoryIndex = categories.value.findIndex(
+        (category, i) => i > index && category.results.length > 0
+    )
+    if (nextCategoryIndex > 0) {
+        resultCategories.value[nextCategoryIndex]?.focusFirstEntry()
     }
 }
 
