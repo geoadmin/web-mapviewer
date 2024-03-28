@@ -698,7 +698,7 @@ describe('Testing print', () => {
         })
 
         // TODO: Fix error when using grid
-        it.skip('should send a print request to mapfishprint (all parameters updated)', () => {
+        it('should send a print request to mapfishprint (all parameters updated)', () => {
             // Set parameters
             cy.get('[data-cy="print-layout-selector"]').select('2. A4 portrait')
             cy.get('[data-cy="print-scale-selector"]').select(`1:${formatThousand(500000)}`)

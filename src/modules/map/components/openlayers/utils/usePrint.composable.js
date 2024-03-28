@@ -59,7 +59,7 @@ export function usePrint(map) {
                     : [],
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
-                projection: store.state.map.projection,
+                projection: store.state.position.projection,
                 excludedLayers: ['printAreaLayer'],
             })
             currentJobReference.value = printJob.ref
