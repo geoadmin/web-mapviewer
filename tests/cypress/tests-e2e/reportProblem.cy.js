@@ -44,24 +44,24 @@ describe('Testing the report problem form', () => {
 
         cy.log('It is possible to report a problem without specifying an email address')
         cy.get('[data-cy="feedback-email"').should('be.empty')
-        cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+        cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
 
         cy.log('It is not possible to report a problem with a malformed email')
         cy.get('[data-cy="feedback-email"').clear()
         cy.get('[data-cy="feedback-email"').type('this.is.not.a.valid@email')
-        cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+        cy.get('[data-cy="submit-feedback-button"]').should('be.disabled')
 
         cy.log('It validates email before enabling the user to report a problem')
         cy.get('[data-cy="feedback-email"').clear()
         cy.get('[data-cy="feedback-email"').type(validEmail)
-        cy.get('[data-cy="submit-report-problem-button"]').should('be.enabled')
+        cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
 
         cy.log('It is not possible to report a problem without filling the message')
         cy.get('[data-cy="feedback-email"').clear()
         cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"').clear()
         cy.get('[data-cy="report-problem-text"').should('be.empty')
-        cy.get('[data-cy="submit-report-problem-button"]').should('be.disabled')
+        cy.get('[data-cy="submit-feedback-button"]').should('be.disabled')
         closeForm()
 
         cy.log('It generates a complete request to service-feedback')
@@ -70,10 +70,10 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="feedback-email"]').type(validEmail)
         cy.get('[data-cy="report-problem-text"]').type(text)
 
-        cy.get('[data-cy="submit-report-problem-button"]').click()
-        cy.get(
-            '[data-cy="submit-report-problem-button"] [data-cy="report-problem-pending-icon"]'
-        ).should('be.visible')
+        cy.get('[data-cy="submit-feedback-button"]').click()
+        cy.get('[data-cy="submit-feedback-button"] [data-cy="feedback-pending-icon"]').should(
+            'be.visible'
+        )
         cy.wait('@feedback').then((interception) => {
             ;[
                 { name: 'subject', contains: `Problem report` },
@@ -105,12 +105,12 @@ describe('Testing the report problem form', () => {
         interceptFeedback(false)
         cy.get('[data-cy="report-problem-text"]').type(text)
         cy.get('[data-cy="feedback-email"]').type(validEmail)
-        cy.get('[data-cy="submit-report-problem-button"]').click()
+        cy.get('[data-cy="submit-feedback-button"]').click()
 
         cy.wait('@feedback')
-        cy.get(
-            '[data-cy="submit-report-problem-button"] [data-cy="report-problem-success-icon"]'
-        ).should('not.exist')
+        cy.get('[data-cy="submit-feedback-button"] [data-cy="report-problem-success-icon"]').should(
+            'not.exist'
+        )
         cy.get('[data-cy="report-problem-failed-text"]').should('be.visible')
     })
 })

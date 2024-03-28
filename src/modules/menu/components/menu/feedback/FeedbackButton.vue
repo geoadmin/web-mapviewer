@@ -50,25 +50,13 @@
                 <small v-html="$t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <div class="text-end">
-                <button class="btn btn-light mx-2" @click="closeAndCleanForm">
-                    {{ $t('cancel') }}
-                </button>
-                <button
-                    :disabled="!feedbackCanBeSent"
-                    class="btn btn-primary"
-                    data-cy="submit-feedback-button"
-                    @click="sendFeedback"
-                >
-                    <FontAwesomeIcon
-                        v-if="request.pending"
-                        icon="spinner"
-                        pulse
-                        data-cy="feedback-pending-icon"
-                    />
-                    <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
-                </button>
-            </div>
+            <FeedbackActionButtons
+                class="text-end"
+                :is-disabled="!feedbackCanBeSent"
+                :is-pending="request.pending"
+                @send="sendFeedback"
+                @cancel="closeAndCleanForm"
+            />
             <div
                 v-if="request.failed"
                 ref="requestResults"
@@ -100,12 +88,19 @@ import { isValidEmail } from '@//modules/menu/components/menu/common/utils'
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
+import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 
 export default {
-    components: { FeedbackRating, ModalWithBackdrop, HeaderLink, EmailValidationField },
+    components: {
+        FeedbackRating,
+        ModalWithBackdrop,
+        HeaderLink,
+        EmailValidationField,
+        FeedbackActionButtons,
+    },
     props: {
         showAsLink: {
             type: Boolean,
