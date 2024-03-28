@@ -1,7 +1,7 @@
 <script setup>
 import DOMPurify from 'dompurify'
 import tippy from 'tippy.js'
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -41,22 +41,41 @@ const sanitizedFeatureDataEntries = computed(() => {
     }
     return Object.entries(feature.value.data)
         .filter(([_, value]) => value) // filtering out null values
-        .map(([key, value]) => [key, sanitizeHtml(value)])
+        .map(([key, value]) => [key, sanitizeHtml(key, value)])
 })
+function iframeLinks(value) {
+    let data = value
+    let parser = new DOMParser()
+    let parsedIframe = parser.parseFromString(data, 'text/html')
+    let iFrame = parsedIframe.getElementsByTagName('iframe')
+
+    let arr = Array.from(iFrame)
+    arr.forEach((frame, index) => (arr[index] = frame.src))
+    console.log('debug: ', arr)
+    return arr.toString().split(',').join(' ')
+}
 onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
-        content: i18n.t('copy_success'),
+        content: (reference) => reference.getAttribute('title'),
         arrow: true,
-        placement: 'right',
+        interactive: true,
+        placement: 'top',
     })
 })
-
-function sanitizeHtml(htmlText) {
-    return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
+onBeforeUnmount(() => {
+    console.warn('destroy tooltip: ', copyTooltipInstance)
+    copyTooltipInstance?.forEach((cti) => cti.destroy())
+})
+function sanitizeHtml(key, htmlText) {
+    if (key == 'description') {
+        return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
+    } else {
+        return DOMPurify.sanitize(htmlText)
+    }
 }
 function setDisclaimerAgree() {
     store.dispatch('setShowDisclaimer', {
-        showDisclaimer: false,
+        showDisclaimer: true,
         ...dispatcher,
     })
 }
@@ -78,9 +97,16 @@ function setDisclaimerAgree() {
                 >
                     <div class="d-flex align-items-center">
                         <FontAwesomeIcon icon="fa-circle-info" />
-                        <div class="px-1 d-flex">{{ i18n.t('media_disclaimer') }}</div>
+                        <span class="text-tippy-wrap">
+                            <div
+                                ref="shareTabButton"
+                                :title="iframeLinks(value)"
+                                class="px-1 d-flex"
+                            >
+                                {{ i18n.t('media_disclaimer') }}
+                            </div>
+                        </span>
                         <button
-                            ref="shareTabButton"
                             class="d-flex small btn btn-sm btn-light"
                             data-cy="feature-detail-media-disclaimer-button"
                             @click="setDisclaimerAgree"
@@ -115,6 +141,7 @@ function setDisclaimerAgree() {
 </template>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/scss/variables-admin.module';
 
 // Styling for external HTML content
@@ -131,5 +158,8 @@ function setDisclaimerAgree() {
 }
 :global(.htmlpopup-content) {
     padding: 7px;
+}
+.text-tippy-wrap {
+    @extend .clear-no-ios-long-press;
 }
 </style>
