@@ -14,7 +14,7 @@ import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
@@ -46,7 +46,7 @@ const { item, compact, depth, search } = toRefs(props)
 // Declaring own properties (ex-data)
 
 const showChildren = ref(false)
-const showLayerLegend = ref(false)
+const showLayerDescription = ref(false)
 
 // Mapping the store to the component
 const store = useStore()
@@ -67,7 +67,7 @@ const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
+const hasDescription = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
@@ -272,11 +272,11 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
             <button
-                v-if="hasLegend"
+                v-if="hasDescription"
                 class="btn"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`catalogue-tree-item-info-${item.id}`"
-                @click.stop="showLayerLegend = true"
+                @click.stop="showLayerDescription = true"
             >
                 <FontAwesomeIcon icon="info-circle" />
             </button>
@@ -297,7 +297,11 @@ function containsLayer(layers, searchText) {
                 />
             </ul>
         </CollapseTransition>
-        <LayerLegendPopup v-if="showLayerLegend" :layer="item" @close="showLayerLegend = false" />
+        <LayerDescriptionPopup
+            v-if="showLayerDescription"
+            :layer="item"
+            @close="showLayerDescription = false"
+        />
     </div>
 </template>
 

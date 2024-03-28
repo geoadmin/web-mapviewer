@@ -8,7 +8,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersList.vue' }
 
@@ -23,7 +23,7 @@ const { compact } = toRefs(props)
 const activeLayersList = ref(null)
 // used to deactivate the hover change of color on layer whenever one of them is dragged
 const aLayerIsDragged = ref(false)
-const showLayerLegendForLayer = ref(null)
+const showLayerDescriptionForLayer = ref(null)
 const showLayerDetailIndex = ref(null)
 const layerDetailFocusMoveButton = ref(null)
 
@@ -96,14 +96,14 @@ function onToggleLayerDetail(index) {
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
                 :show-layer-detail="showLayerDetailIndex === reverseIndex(index)"
                 :focus-move-button="layerDetailFocusMoveButton"
-                @show-layer-legend-popup="showLayerLegendForLayer = layer"
+                @show-layer-description-popup="showLayerDescriptionForLayer = layer"
                 @toggle-layer-detail="onToggleLayerDetail"
                 @move-layer="onMoveLayer"
             />
-            <LayerLegendPopup
-                v-if="showLayerLegendForLayer"
-                :layer="showLayerLegendForLayer"
-                @close="showLayerLegendForLayer = null"
+            <LayerDescriptionPopup
+                v-if="showLayerDescriptionForLayer"
+                :layer="showLayerDescriptionForLayer"
+                @close="showLayerDescriptionForLayer = null"
             />
         </div>
         <div v-show="activeLayers.length === 0" class="p-1 ps-3" data-cy="menu-section-no-layers">

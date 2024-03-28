@@ -50,7 +50,7 @@ const props = defineProps({
 const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
     toRefs(props)
 
-const emit = defineEmits(['showLayerLegendPopup', 'toggleLayerDetail', 'moveLayer'])
+const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
 
 const store = useStore()
 
@@ -64,7 +64,7 @@ const id = computed(() => layer.value.id)
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )
-const showLegendIcon = computed(() => layer.value.hasDescription)
+const showLayerDescriptionIcon = computed(() => layer.value.hasDescription)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
@@ -100,8 +100,8 @@ function onOpacityChange(e) {
     })
 }
 
-function showLayerLegendPopup() {
-    emit('showLayerLegendPopup', id.value)
+function showLayerDescriptionPopup() {
+    emit('showLayerDescriptionPopup', id.value)
 }
 
 function duplicateLayer() {
@@ -239,11 +239,11 @@ function duplicateLayer() {
                 <FontAwesomeIcon icon="arrow-down" />
             </button>
             <button
-                v-if="showLegendIcon"
+                v-if="showLayerDescriptionIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-show-legend-layer-${id}-${index}`"
-                @click="showLayerLegendPopup"
+                :data-cy="`button-show-description-layer-${id}-${index}`"
+                @click="showLayerDescriptionPopup"
             >
                 <FontAwesomeIcon icon="info-circle" />
             </button>

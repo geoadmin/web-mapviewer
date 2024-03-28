@@ -192,7 +192,7 @@ describe('Topics', () => {
         ).as('legend')
 
         cy.get('[data-cy^="catalogue-tree-item-info-"]').first().click()
-        cy.get('[data-cy="layer-legend-popup"]').should('be.visible').contains(expectedContent)
+        cy.get('[data-cy="layer-description-popup"]').should('be.visible').contains(expectedContent)
     })
 
     if (!isMobileViewport) {
