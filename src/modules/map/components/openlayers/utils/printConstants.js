@@ -3,4 +3,4 @@
  *
  * @type {String}
  */
-export const PRINT_AREA_LAYER_NAME = 'printAreaLayer'
+export const PRINT_AREA_LAYER_ID = 'printAreaLayer'

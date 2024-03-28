@@ -84,7 +84,6 @@ async function printMap() {
     try {
         const documentUrl = await print(printGrid.value, printLegend.value)
         if (documentUrl) {
-            console.log('documentUrl: ', documentUrl)
             if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
                 window.open(documentUrl)
             } else {

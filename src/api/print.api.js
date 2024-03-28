@@ -18,14 +18,22 @@ const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
 
 class GeoAdminCustomizer extends BaseCustomizer {
-    constructor(layerNamesToExclude) {
+    /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
+    constructor(layerIDsToExclude) {
         super()
-        this.layerNamesToExclude = layerNamesToExclude
+        this.layerIDsToExclude = layerIDsToExclude
         this.layerFilter = this.layerFilter.bind(this)
     }
 
+    /**
+     * Filter out layers that should not be printed. This function is automatically called when the
+     * encodeMap is called using this customizer.
+     *
+     * @param {State} layerState
+     * @returns {boolean} True to convert this layer, false to skip it
+     */
     layerFilter(layerState) {
-        if (this.layerNamesToExclude.includes(layerState.layer.get('name'))) {
+        if (this.layerIDsToExclude.includes(layerState.layer.get('id'))) {
             return false
         }
         // Call parent layerFilter method for other layers
@@ -186,8 +194,8 @@ export class PrintError extends Error {
  *   Default is `false`
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
- * @param {String[]} [config.excludedLayers=[]] List of layer names to exclude from the print.
- *   Default is `[]`
+ * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
+ *   from the print. Default is `[]`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -200,7 +208,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         lang = null,
         printGrid = false,
         projection = null,
-        excludedLayers = [],
+        excludedLayerIDs = [],
     } = config
 
     if (!qrCodeUrl) {
@@ -222,7 +230,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         throw new PrintError('Missing projection to print the grid')
     }
 
-    const customizer = new GeoAdminCustomizer(excludedLayers)
+    const customizer = new GeoAdminCustomizer(excludedLayerIDs)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
@@ -299,6 +307,8 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   Default is `false`
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
+ * @param {String[]} [config.excludedLayerIDs=[]] List of IDs of OpenLayers layer to exclude from
+ *  s the print. Default is `[]`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -313,7 +323,7 @@ export async function createPrintJob(map, config) {
         lang = null,
         printGrid = false,
         projection = null,
-        excludedLayers = [],
+        excludedLayerIDs = [],
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -326,7 +336,7 @@ export async function createPrintJob(map, config) {
             lang,
             printGrid,
             projection,
-            excludedLayers,
+            excludedLayerIDs,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
