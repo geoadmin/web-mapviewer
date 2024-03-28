@@ -6,20 +6,16 @@ import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
 import log from '@/utils/logging'
 
 /**
+ * @param {String} subject Mandatory
  * @param {String} text Mandatory
- * @param {Number} rating Optional
- * @param {Number} maxRating Optional
- * @param {String} kmlFileUrl Optional
- * @param {String} email Optional
+ * @param {String | null} [options.kmlFileUrl=null] Default is `null`
+ * @param {String | null} [options.email=null] Default is `null`
+ * @param {File | null} [options.attachment=null] Default is `null`
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
-export default async function sendFeedback(
-    text,
-    rating = null,
-    maxRating = null,
-    kmlFileUrl = null,
-    email = null
-) {
+export default async function sendFeedback(subject, text, options) {
+    const { kmlFileUrl = null, email = null, attachment = null } = options
+
     try {
         let shortLink = null
         try {
@@ -47,12 +43,6 @@ export default async function sendFeedback(
             }
         }
 
-        let subject = '[web-mapviewer]'
-        if (rating && maxRating) {
-            subject += ` [rating: ${rating}/${maxRating}]`
-        }
-        subject += ' User feedback'
-
         const data = {
             subject,
             feedback: text,
@@ -61,6 +51,7 @@ export default async function sendFeedback(
             permalink: shortLink,
             kml,
             email,
+            attachment,
         }
         log.debug('sending feedback with', data)
         const response = await axios.post(`${API_SERVICES_BASE_URL}feedback`, data, {
