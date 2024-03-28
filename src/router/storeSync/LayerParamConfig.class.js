@@ -71,11 +71,11 @@ export function createLayerObject(parsedLayer, currentLayer) {
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (layerType === 'WMTS') {
         layer = new ExternalWMTSLayer({
+            id,
             name: id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: url,
-            externalLayerId: id,
         })
     }
     // format is : WMS|BASE_URL|LAYER_ID
@@ -83,11 +83,11 @@ export function createLayerObject(parsedLayer, currentLayer) {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer({
+            id,
             name: id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: url,
-            externalLayerId: id,
         })
     }
     return layer

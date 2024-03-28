@@ -92,7 +92,7 @@ export function parseLayersParam(queryValue) {
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
-    let layerUrlString = encodeLayerParam(layer.id)
+    let layerUrlString = encodeLayerParam(layer.urlId)
     if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }

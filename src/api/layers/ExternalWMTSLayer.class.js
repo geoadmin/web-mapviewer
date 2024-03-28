@@ -17,6 +17,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class ExternalWMTSLayer extends ExternalLayer {
     /**
+     * @param {String} externalWmtsData.id Layer ID to use when requesting the tiles on the server
      * @param {String} externalWmtsData.name Name of this layer to be shown to the user
      * @param {number} [externalWmtsData.opacity=1.0] The opacity of this layer, between 0.0
      *   (transparent) and 1.0 (opaque). Default is `1.0`
@@ -24,8 +25,6 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   be hidden. Default is `true`
      * @param {String} externalWmtsData.baseUrl To the getCapabilities.xml endpoint of the server
      *   for this layer
-     * @param {String} externalWmtsData.externalLayerId Layer ID to use when requesting the tiles on
-     *   the server
      * @param {LayerAttribution[]} [externalWmtsData.attributions=null] Description of the data
      *   owner(s) for this layer. When `null` is given it uses the default attribution which is
      *   based on the hostname of the GetCapabilities server. Default is `null`
@@ -46,11 +45,11 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             throw new InvalidLayerDataError('Missing external WMTS layer data', externalWmtsData)
         }
         const {
+            id = null,
             name = null,
             opacity = 1.0,
             visible = true,
             baseUrl = null,
-            externalLayerId = null,
             attributions = null,
             abstract = '',
             extent = null,
@@ -61,11 +60,11 @@ export default class ExternalWMTSLayer extends ExternalLayer {
         } = externalWmtsData
         super({
             name,
+            id,
             // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
             // NOTE the pipe character needs to be encoded in order to not break the parsing
-            id: `WMTS|${encodeExternalLayerParam(baseUrl)}|${encodeExternalLayerParam(externalLayerId)}`,
+            urlId: `WMTS|${encodeExternalLayerParam(baseUrl)}|${encodeExternalLayerParam(id)}`,
             type: LayerTypes.WMTS,
-            externalLayerId,
             baseUrl,
             ensureTrailingSlashInBaseUrl: true,
             opacity,

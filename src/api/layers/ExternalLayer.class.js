@@ -69,13 +69,12 @@ export class LayerLegend {
 export default class ExternalLayer extends AbstractLayer {
     /**
      * @param {String} externalLayerData.name Name of this layer to be shown to the user
-     * @param {String} externalLayerData.id The unique ID of this layer that will be used in the URL
-     *   to identify it. It should typically contain the type of external layer we are dealing with,
-     *   with the URL to get the capabilites or data of this layer.
+     * @param {String} externalLayerData.id Layer ID to use when requesting the tiles on the server
+     * @param {String} externalLayerData.urlId The unique ID in the context of the layers URL param,
+     *   it might be different from the layer ID itself (i.e. external layers have a layer type
+     *   identifier, KML/GPX too)
      * @param {LayerTypes} externalLayerData.type The type of layer in GeoAdmin sense (WMTS, WMS,
      *   GeoJson, etc...)
-     * @param {String} externalLayerData.externalLayerId Layer ID to use when requesting the tiles
-     *   on the server
      * @param {String} externalLayerData.baseUrl Base URL to build the request to the data
      * @param {number} [externalLayerData.opacity=1.0] The opacity of this layer, between 0.0
      *   (transparent) and 1.0 (opaque). Default is `1.0`
@@ -107,8 +106,8 @@ export default class ExternalLayer extends AbstractLayer {
         const {
             name = null,
             id = null,
+            urlId = null,
             type = null,
-            externalLayerId = null,
             baseUrl = null,
             opacity = 1.0,
             visible = true,
@@ -130,6 +129,7 @@ export default class ExternalLayer extends AbstractLayer {
         super({
             name,
             id,
+            urlId,
             type,
             baseUrl,
             opacity,
@@ -141,7 +141,6 @@ export default class ExternalLayer extends AbstractLayer {
             hasDescription: abstract?.length > 0 || legends?.length > 0,
             hasLegend: legends?.length > 0,
         })
-        this.externalLayerId = externalLayerId
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
