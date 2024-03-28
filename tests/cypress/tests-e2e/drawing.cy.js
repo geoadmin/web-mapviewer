@@ -51,7 +51,7 @@ describe('Drawing module tests', () => {
                 .should((request) =>
                     checkKMLRequest(request, [new RegExp(`<name>${title}</name>`)])
                 )
-            cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
+            cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
         function readCoordinateClipboard(name, coordinate) {
             cy.log(name)
@@ -206,10 +206,7 @@ describe('Drawing module tests', () => {
                         new RegExp(`<description>${description}</description>`),
                     ])
                 )
-            cy.readStoreValue('state.features.selectedFeatures[0].description').should(
-                'eq',
-                description
-            )
+            cy.readStoreValue('getters.selectedFeatures[0].description').should('eq', description)
 
             //  moving the marker by drag&drop on the map
             const moveInPixel = {
@@ -604,13 +601,13 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
 
             // checking that the KML was correctly loaded
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
             // clicking on the single feature of the fixture
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
@@ -680,7 +677,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
 
             // checking that the KML was correctly loaded
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
@@ -688,7 +685,7 @@ describe('Drawing module tests', () => {
             // clicking on the single feature of the fixture
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)

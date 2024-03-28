@@ -69,7 +69,7 @@ function checkCoordsEqual(coords1, coords2) {
 }
 
 function checkFeatureSelected(featureCoords) {
-    cy.waitUntilState((state) => state.features.selectedFeatures.length === 1)
+    cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 1)
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
     cy.readWindowValue('drawingLayer').should((layer) => {
@@ -78,14 +78,14 @@ function checkFeatureSelected(featureCoords) {
         const coords = extractOlFeatureCoordinates(features[0])
         checkCoordsEqual(coords, featureCoords)
     })
-    cy.readStoreValue('state.features.selectedFeatures').then((features) => {
+    cy.readStoreValue('getters.selectedFeatures').then((features) => {
         expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
         checkCoordsEqual(features[0].coordinates, featureCoords)
     })
 }
 
 function checkFeatureUnselected() {
-    cy.waitUntilState((state) => state.features.selectedFeatures.length === 0)
+    cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 0)
 }
 
 const generateTest = (drawOffset, selectOffset, x, locDesc, test) => {

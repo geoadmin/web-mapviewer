@@ -28,19 +28,15 @@ const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 
 // mapping relevant store values
 const store = useStore()
-const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedLayerFeatures = computed(() => store.getters.selectedLayerFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const tooltipIsInDefaultPosition = computed(
     () => store.state.ui.featureInfoPosition === FeatureInfoPositions.DEFAULT
-)
-const editableFeatures = computed(() =>
-    selectedFeatures.value.filter((feature) => feature.isEditable)
-)
-const nonEditableFeature = computed(() =>
-    selectedFeatures.value.filter((feature) => !feature.isEditable)
 )
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
@@ -49,7 +45,7 @@ const featureTransformedAsOlFeatures = computed(() => {
     if (isCurrentlyDrawing.value) {
         return []
     }
-    return nonEditableFeature.value.map((feature) => {
+    return selectedLayerFeatures.value.map((feature) => {
         return new Feature({
             id: `geom-${randomIntBetween(0, 100000)}`,
             geometry: new GeoJSON().readGeometry(feature.geometry),
@@ -61,8 +57,8 @@ const featureTransformedAsOlFeatures = computed(() => {
 const southPole = point([0.0, -90.0])
 const popoverCoordinate = computed(() => {
     // if we are dealing with any editable feature while drawing, we return its last coordinate
-    if (isCurrentlyDrawing.value && editableFeatures.value.length > 0) {
-        const [topEditableFeature] = editableFeatures.value
+    if (isCurrentlyDrawing.value && selectedEditableFeatures.value.length > 0) {
+        const [topEditableFeature] = selectedEditableFeatures.value
         return topEditableFeature.lastCoordinate
     }
     // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
@@ -92,11 +88,11 @@ const popoverCoordinate = computed(() => {
 // When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
 // the "infobox" (non-floating) tooltip by default.
 // This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
-watch(nonEditableFeature, () => {
+watch(selectedLayerFeatures, () => {
     const containsOnlyPoints =
-        nonEditableFeature.value.filter((feature) =>
+        selectedLayerFeatures.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
-        ).length === nonEditableFeature.value.length
+        ).length === selectedLayerFeatures.value.length
     if (tooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
         // check if we're in default
         store.dispatch('setFeatureInfoPosition', {
@@ -131,7 +127,7 @@ function setBottomPanelFeatureInfoPosition() {
         v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         authorize-print
-        :use-content-padding="editableFeatures.length > 0"
+        :use-content-padding="selectedEditableFeatures.length > 0"
         @close="clearAllSelectedFeatures"
     >
         <template #extra-buttons>
@@ -144,11 +140,11 @@ function setBottomPanelFeatureInfoPosition() {
             </button>
         </template>
         <FeatureEdit
-            v-for="feature in editableFeatures"
+            v-for="feature in selectedEditableFeatures"
             :key="feature.id"
             :read-only="!isCurrentlyDrawing"
             :feature="feature"
         />
-        <FeatureList :features="nonEditableFeature" direction="column" />
+        <FeatureList columns="1" />
     </OpenLayersPopover>
 </template>
