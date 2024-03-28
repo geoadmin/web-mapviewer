@@ -38,11 +38,15 @@ const isExternal = computed(() => layer.value?.isExternal ?? false)
 const legends = computed(() => layer.value?.legends ?? [])
 
 watch(layer, async (newLayer) => {
-    htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
+    if (!isExternal.value && layer.value) {
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
+    }
 })
 
 watch(layerId, async (newLayerId) => {
-    htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
+    if (!isExternal.value && layerId.value) {
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
+    }
 })
 
 onMounted(async () => {
