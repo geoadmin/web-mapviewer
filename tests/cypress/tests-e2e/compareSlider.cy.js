@@ -133,8 +133,8 @@ describe('Testing of the compare slider', () => {
             function checkIfFeaturesAreAt(x, y, expectFeatures) {
                 cy.get['ol-map'].click(x, y)
                 cy.expect(
-                    cy.waitUntilState((state) => {
-                        const numberOfFeatures = state.features.selectedFeatures.length
+                    cy.waitUntilState((_, getters) => {
+                        const numberOfFeatures = getters.selectedFeatures.length
                         return expectFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
                     })
                 ).to.be(true)
