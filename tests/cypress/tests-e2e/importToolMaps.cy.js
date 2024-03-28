@@ -22,7 +22,7 @@ describe('The Import Maps Tool', () => {
         cy.log('Select an external provider')
         cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
-        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wms.geo.admin')
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('Wms.geo.AdmiN')
         cy.get('[data-cy="import-provider-list"]')
             .children()
             .contains('https://wms.geo.admin.ch')
