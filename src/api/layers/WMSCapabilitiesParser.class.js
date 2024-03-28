@@ -187,11 +187,11 @@ export default class WMSCapabilitiesParser {
                 )
             ).filter((layer) => !!layer)
             return new ExternalGroupOfLayers({
+                id: layerId,
                 name: title,
                 opacity,
                 visible,
                 baseUrl: url,
-                externalLayerId: layerId,
                 layers,
                 attributions,
                 abstract,
@@ -203,11 +203,11 @@ export default class WMSCapabilitiesParser {
             })
         }
         return new ExternalWMSLayer({
+            id: layerId,
             name: title,
             opacity,
             visible,
             baseUrl: url,
-            externalLayerId: layerId,
             attributions,
             wmsVersion: version,
             format: 'png',

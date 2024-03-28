@@ -156,12 +156,12 @@ describe('Testing layersParamParser', () => {
 
     describe('External layer management', () => {
         it('parse correctly an external KML layer', () => {
-            const externalLayerId = 'KML|https://somerandomurl.ch/file.kml|Some custom label'
-            const result = parseLayersParam(`${externalLayerId},f,0.6`)
+            const externalLayerUrlId = 'KML|https://somerandomurl.ch/file.kml|Some custom label'
+            const result = parseLayersParam(`${externalLayerUrlId},f,0.6`)
             expect(result).to.be.an('Array').with.lengthOf(1)
             const [layer] = result
             expect(layer).to.be.an('Object')
-            expect(layer.id).to.eq(externalLayerId)
+            expect(layer.id).to.eq(externalLayerUrlId)
             expect(layer.visible).to.be.false
             expect(layer.opacity).to.eq(0.6)
         })

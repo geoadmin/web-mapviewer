@@ -42,7 +42,7 @@ describe('External layer parsing with createLayerObject', () => {
         expect(result).to.be.an.instanceof(ExternalWMSLayer)
         expect(result.baseUrl).to.eq(wmsBaseUrl)
         expect(result.wmsVersion).to.eq(wmsVersion)
-        expect(result.externalLayerId).to.eq(wmsLayerId)
+        expect(result.id).to.eq(wmsLayerId)
     })
     it('parses an external WMTS layer correctly', () => {
         const wmtsGetCapUrl = 'https://base.wmts.url/getCapabilitiesEndpoint.xml'
@@ -51,6 +51,6 @@ describe('External layer parsing with createLayerObject', () => {
         const result = createLayerObject(parsedLayer)
         expect(result).to.be.an.instanceof(ExternalWMTSLayer)
         expect(result.baseUrl).to.eq(wmtsGetCapUrl)
-        expect(result.externalLayerId).to.eq(wmtsLayerId)
+        expect(result.id).to.eq(wmtsLayerId)
     })
 })

@@ -31,7 +31,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => externalWmtsLayerConfig.value.externalLayerId)
+const layerId = computed(() => externalWmtsLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value || externalWmtsLayerConfig.value.opacity)
 const options = computed(() => externalWmtsLayerConfig.value.options)
 
