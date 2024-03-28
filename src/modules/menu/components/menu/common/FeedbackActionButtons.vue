@@ -12,6 +12,7 @@ const props = defineProps({
     },
 })
 
+// Methods
 function cancel() {
     emits('cancel')
 }

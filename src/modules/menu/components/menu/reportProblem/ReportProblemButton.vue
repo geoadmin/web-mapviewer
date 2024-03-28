@@ -17,13 +17,14 @@ const props = defineProps({
         default: false,
     },
 })
+
+// Reactive data
 const feedbackMessageTextArea = ref(null)
 const requestResults = ref(null)
 const reportProblemCloseSuccessful = ref(null)
 
 const showReportProblemForm = ref(false)
 const userIsTypingFeedback = ref(false)
-// const userIsTypingEmail = ref(false)
 const feedback = ref({
     message: null,
     kml: null,
