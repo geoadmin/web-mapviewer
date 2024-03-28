@@ -123,7 +123,9 @@ defineExpose({
                     :value="layout.name"
                     @click="selectLayout(layout)"
                 >
-                    {{ layout.name }}
+                    <!-- on the backend the layout are enumerated to keep the ordering, but here we don't want the
+                 enumeration therefore we remove it -->
+                    {{ layout.name.replace(/^\d+\.\s*/, '') }}
                 </option>
             </select>
             <label for="print-scale-selector " class="col-form-label fw-bold me-2">{{
