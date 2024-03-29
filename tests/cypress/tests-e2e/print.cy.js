@@ -176,6 +176,9 @@ describe('Testing print', () => {
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
+            cy.get('[data-cy="checkboxLegend"]').check()
+            cy.get('[data-cy="checkboxLegend"]').should('be.checked')
+
             cy.get('[data-cy="print-map-button"]').should('be.visible').click()
             cy.get('[data-cy="abort-print-button"]').should('be.visible')
 
@@ -186,8 +189,29 @@ describe('Testing print', () => {
                 expect(interception.request.body['format']).to.equal('pdf')
 
                 const attributes = interception.request.body.attributes
-                expect(attributes).to.haveOwnProperty('printLegend')
-                expect(attributes['printLegend']).to.equals(0)
+                expect(attributes).to.not.haveOwnProperty('printLegend')
+
+                // Check legends
+                expect(attributes).to.haveOwnProperty('legend')
+
+                const legendAttributes = attributes.legend
+                expect(legendAttributes).to.haveOwnProperty('name')
+                expect(legendAttributes['name']).to.equals('Legend')
+                expect(legendAttributes).to.haveOwnProperty('classes')
+                const legends = legendAttributes.classes
+                expect(legends).to.be.an('array')
+                expect(legends).to.have.length(3)
+
+                const legend1 = legends[0]
+                expect(legend1).to.haveOwnProperty('name')
+                expect(legend1['name']).to.equals('WMS test layer 1')
+                expect(legend1).to.haveOwnProperty('icons')
+                expect(legend1['icons']).to.be.an('array')
+                expect(legend1['icons']).to.have.length(1)
+                expect(legend1['icons'][0]).to.contains(
+                    'static/images/legends/test-1.wms.layer_en.png'
+                )
+
                 expect(attributes).to.haveOwnProperty('qrimage')
                 expect(attributes['qrimage']).to.contains(
                     encodeURIComponent('https://s.geo.admin.ch/0000000')
