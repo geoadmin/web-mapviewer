@@ -269,7 +269,7 @@ async function transformOlMapToPrintParams(olMap, config) {
             layout: layout.name,
         }
         if (layersWithLegends.length > 0) {
-            spec.attributes.legends = {
+            spec.attributes.legend = {
                 name: i18n.global.t('legend'),
                 classes: layersWithLegends.map((layer) => {
                     return {
