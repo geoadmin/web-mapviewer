@@ -234,6 +234,9 @@ describe('Testing print', () => {
                 expect(layers[1]['type']).to.equals('wms')
                 expect(layers[2]['type']).to.equals('wms')
                 expect(layers[3]['type']).to.equals('wmts')
+
+                // Check for matrix size, should start with 1x1
+                expect(layers[0]['matrices'][0]['matrixSize']).to.deep.eq([1, 1])
             })
         })
     })
