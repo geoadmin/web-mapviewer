@@ -40,8 +40,12 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    isTopic: {
+        type: Boolean,
+        default: false,
+    },
 })
-const { item, compact, depth, search } = toRefs(props)
+const { item, compact, depth, search, isTopic } = toRefs(props)
 
 // Declaring own properties (ex-data)
 
@@ -64,7 +68,6 @@ const showItem = computed(() => {
     return true
 })
 const activeLayers = computed(() => store.state.layers.activeLayers)
-const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
@@ -96,19 +99,33 @@ const isPresentInActiveLayers = computed(() =>
     activeLayers.value.find((layer) => layer.id === item.value.id)
 )
 
-// reacting to topic changes (some categories might need some auto-opening)
-watch(openThemesIds, (newValue) => {
-    showChildren.value = showChildren.value || newValue.indexOf(item.value.id) !== -1
-})
 // When search text is entered, update the children collapsing if needed.
 watch(hasChildrenMatchSearch, (newValue) => {
     showChildren.value = newValue
 })
+if (isTopic.value) {
+    const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
-// reading the current topic at startup and opening any required category
-onMounted(() => {
-    showChildren.value = openThemesIds.value.indexOf(item.value.id) !== -1
-})
+    // reacting to topic changes (some categories might need some auto-opening)
+    watch(openThemesIds, (newValue) => {
+        showChildren.value = showChildren.value || newValue.indexOf(item.value.id) !== -1
+    })
+    watch(showChildren, (newValue) => {
+        if (newValue) {
+            store.dispatch('addTopicTreeOpenedThemeId', { themeId: item.value.id, ...dispatcher })
+        } else {
+            store.dispatch('removeTopicTreeOpenedThemeId', {
+                themeId: item.value.id,
+                ...dispatcher,
+            })
+        }
+    })
+
+    // reading the current topic at startup and opening any required category
+    onMounted(() => {
+        showChildren.value = openThemesIds.value.indexOf(item.value.id) !== -1
+    })
+}
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
@@ -294,6 +311,7 @@ function containsLayer(layers, searchText) {
                     :search="search"
                     :depth="depth + 1"
                     :compact="compact"
+                    :is-topic="isTopic"
                 />
             </ul>
         </CollapseTransition>

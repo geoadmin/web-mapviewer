@@ -5,7 +5,6 @@ import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
-import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
@@ -117,12 +116,18 @@ const storeSyncConfig = [
         String,
         FeatureInfoPositions.NONE
     ),
-    new QueryToStoreOnlyParamConfig(
+    new SimpleUrlParamConfig(
         'catalogNodes',
-        'catalogNodes',
+        [
+            'setTopicTreeOpenedThemesIds',
+            'addTopicTreeOpenedThemeId',
+            'removeTopicTreeOpenedThemeId',
+        ],
         'setTopicTreeOpenedThemesIds',
+        (store) => store.state.topics.openedTreeThemesIds,
         false,
-        String
+        String,
+        ''
     ),
 ]
 

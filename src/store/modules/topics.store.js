@@ -70,12 +70,39 @@ const actions = {
             commit('setTopicTreeOpenedThemesIds', { themes: catalogNodes.slice(), dispatcher })
         }
     },
+    addTopicTreeOpenedThemeId: ({ commit }, { themeId, dispatcher }) => {
+        commit('addTopicTreeOpenedThemeId', {
+            themeId,
+            dispatcher,
+        })
+    },
+    removeTopicTreeOpenedThemeId: ({ commit }, { themeId, dispatcher }) => {
+        commit('removeTopicTreeOpenedThemeId', {
+            themeId,
+            dispatcher,
+        })
+    },
 }
+
 const mutations = {
     setTopics: (state, { topics }) => (state.config = topics),
     setTopicTree: (state, { layers }) => (state.tree = layers),
     setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
     changeTopic: (state, { topicId }) => (state.current = topicId),
+    addTopicTreeOpenedThemeId: (state, { themeId }) => {
+        if (!state.openedTreeThemesIds.includes(themeId)) {
+            const newOpenThemesIds = [...state.openedTreeThemesIds]
+            newOpenThemesIds.push(themeId)
+            state.openedTreeThemesIds = newOpenThemesIds
+        }
+    },
+    removeTopicTreeOpenedThemeId: (state, { themeId }) => {
+        if (state.openedTreeThemesIds.includes(themeId)) {
+            const newOpenThemesIds = [...state.openedTreeThemesIds]
+            newOpenThemesIds.splice(newOpenThemesIds.indexOf(themeId), 1)
+            state.openedTreeThemesIds = newOpenThemesIds
+        }
+    },
 }
 
 export default {

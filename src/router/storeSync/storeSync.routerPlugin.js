@@ -9,9 +9,7 @@ import log from '@/utils/logging'
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 
 const watchedMutations = [
-    ...new Set(
-        storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch.split(',')).flat()
-    ),
+    ...new Set(storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch).flat()),
 ]
 
 const mutationNotTriggeredByModule = (mutation) =>

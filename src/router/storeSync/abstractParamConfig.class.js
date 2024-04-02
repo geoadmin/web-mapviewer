@@ -37,7 +37,11 @@ export default class AbstractParamConfig {
         defaultValue = null
     ) {
         this.urlParamName = urlParamName
-        this.mutationsToWatch = mutationsToWatch
+        if (mutationsToWatch instanceof Array) {
+            this.mutationsToWatch = mutationsToWatch
+        } else {
+            this.mutationsToWatch = mutationsToWatch.split(',')
+        }
         this.setValuesInStore = setValuesInStore
         this.extractValueFromStore = extractValueFromStore
         this.keepInUrlWhenDefault = keepInUrlWhenDefault
