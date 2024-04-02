@@ -15,7 +15,7 @@ const props = defineProps({
 })
 const { embed } = toRefs(props)
 
-const showLoadingBar = computed(() => store.state.ui.showLoadingBar)
+const showLoadingBar = computed(() => store.getters.showLoadingBar)
 </script>
 
 <template>

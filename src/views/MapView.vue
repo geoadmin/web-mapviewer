@@ -16,6 +16,7 @@ import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import { UIModes } from '@/store/modules/ui.store'
+import LoadingBar from '@/utils/components/LoadingBar.vue'
 import log from '@/utils/logging'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
@@ -26,6 +27,7 @@ const is3DActive = computed(() => store.state.cesium.active)
 const isDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
+const showLoadingBar = computed(() => store.getters.showLoadingBar)
 
 const loadDrawingModule = computed(() => {
     return (
@@ -42,6 +44,7 @@ onMounted(() => {
 
 <template>
     <div id="map-view">
+        <LoadingBar v-show="showLoadingBar" />
         <MapModule>
             <MenuModule />
             <MapToolbox

@@ -1,6 +1,5 @@
 <template>
     <div ref="header" class="header" data-cy="app-header">
-        <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <div
@@ -48,7 +47,6 @@ import HeaderSwissConfederationText from '@/modules/menu/components/header/Heade
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
@@ -58,13 +56,11 @@ export default {
         HeaderMenuButton,
         HeaderSwissConfederationText,
         SwissFlag,
-        LoadingBar,
         LangSwitchToolbar,
         FeedbackToolbar,
     },
     computed: {
         ...mapState({
-            showLoadingBar: (state) => state.ui.showLoadingBar,
             currentLang: (state) => state.i18n.lang,
             currentTopicId: (state) => state.topics.current,
         }),

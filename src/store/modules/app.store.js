@@ -19,8 +19,9 @@ export default {
         setAppIsReady: ({ commit }, { dispatcher }) => {
             commit('setAppIsReady', { dispatcher })
         },
-        mapModuleReady: ({ commit }, { dispatcher }) => {
+        mapModuleReady: ({ commit, dispatch }, { dispatcher }) => {
             commit('mapModuleReady', { dispatcher })
+            dispatch('clearLoadingBar4MapLoading', { dispatcher })
         },
     },
     mutations: {
