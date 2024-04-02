@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 
-import { isValidEmail } from './utils'
+import { isValidEmail } from '@/utils/utils'
 
 const emits = defineEmits(['email-updated'])
 const props = defineProps({

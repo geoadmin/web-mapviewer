@@ -1,7 +1,6 @@
 <script setup>
 import { computed, nextTick, ref } from 'vue'
 
-import { isValidEmail } from '@//modules/menu/components/menu/common/utils'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
@@ -10,6 +9,7 @@ import FeedbackActionButtons from '@/modules/menu/components/menu/common/Feedbac
 import ImportFileLocal from '@/modules/menu/components/menu/reportProblem/ImportFileLocal.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
+import { isValidEmail } from '@/utils/utils'
 
 const props = defineProps({
     showAsLink: {

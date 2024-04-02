@@ -84,7 +84,6 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import { isValidEmail } from '@//modules/menu/components/menu/common/utils'
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
@@ -92,6 +91,7 @@ import FeedbackActionButtons from '@/modules/menu/components/menu/common/Feedbac
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
+import { isValidEmail } from '@/utils/utils'
 
 export default {
     components: {
