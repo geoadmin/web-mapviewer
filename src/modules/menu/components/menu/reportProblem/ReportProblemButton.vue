@@ -4,9 +4,9 @@ import { computed, nextTick, ref } from 'vue'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
 import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
 import ImportFileLocal from '@/modules/menu/components/menu/reportProblem/ImportFileLocal.vue'
+import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 import { isValidEmail } from '@/utils/utils'
@@ -149,13 +149,11 @@ function openForm() {
 
             <EmailValidationField
                 class="my-3"
-                :is-request-pending="request.pending"
+                :disabled="request.pending"
+                :label="'feedback_email'"
                 @email-updated="feedback.email = $event"
-            >
-                <template #header>
-                    {{ $t('feedback_email') }}
-                </template>
-            </EmailValidationField>
+            />
+
             <div class="my-3">
                 <span>{{ $t('feedback_attachment') }}</span>
                 <ImportFileLocal @file-selected="handleFile" />

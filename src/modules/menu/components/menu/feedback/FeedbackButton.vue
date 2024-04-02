@@ -36,15 +36,14 @@
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
+
             <EmailValidationField
                 class="my-3"
-                :is-request-pending="request.pending"
+                :disabled="request.pending"
+                :label="'feedback_email'"
                 @email-updated="feedback.email = $event"
-            >
-                <template #header>
-                    {{ $t('feedback_email') }}
-                </template>
-            </EmailValidationField>
+            />
+
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_disclaimer')" />
@@ -86,9 +85,9 @@ import { mapGetters } from 'vuex'
 
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import EmailValidationField from '@/modules/menu/components/menu/common/EmailValidationField.vue'
 import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
+import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 import { isValidEmail } from '@/utils/utils'
