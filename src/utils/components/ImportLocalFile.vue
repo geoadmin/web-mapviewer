@@ -10,7 +10,7 @@ const i18n = useI18n()
 const emits = defineEmits(['file-selected'])
 
 // Reactive data
-const importFileLocalInput = ref(null)
+const InputLocalFile = ref(null)
 const selectedFile = ref(null)
 const errorMessage = ref(null)
 const isFormValid = ref(false)
@@ -37,7 +37,7 @@ function onFileSelected(evt) {
     }
 
     // Validate
-    importFileLocalInput.value = null
+    InputLocalFile.value = null
     selectedFile.value = file
     if (file.size > LOCAL_UPLOAD_MAX_SIZE) {
         errorMessage.value = 'file_too_large'
@@ -55,18 +55,18 @@ function validateForm() {
 </script>
 
 <template>
-    <div data-cy="import-file-local-content">
+    <div data-cy="import-file-content-local">
         <div class="needs-validation">
             <div class="input-group rounded needs-validation mb-2">
                 <button
                     class="btn btn-outline-secondary"
                     type="button"
-                    @click="importFileLocalInput.click()"
+                    @click="InputLocalFile.click()"
                 >
                     {{ i18n.t('browse') }}
                 </button>
                 <input
-                    ref="importFileLocalInput"
+                    ref="InputLocalFile"
                     type="file"
                     :accept="LOCAL_UPLOAD_ACCEPT"
                     hidden
@@ -83,7 +83,7 @@ function validateForm() {
                     required
                     tabindex="-1"
                     data-cy="import-file-local-input-text"
-                    @click="importFileLocalInput.click()"
+                    @click="InputLocalFile.click()"
                 />
                 <div
                     v-if="errorMessage"

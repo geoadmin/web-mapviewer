@@ -5,8 +5,8 @@ import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
-import ImportFileLocal from '@/modules/menu/components/menu/reportProblem/ImportFileLocal.vue'
 import EmailValidationField from '@/utils/components/EmailValidationField.vue'
+import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 import { isValidEmail } from '@/utils/utils'
@@ -156,7 +156,7 @@ function openForm() {
 
             <div class="my-3">
                 <span>{{ $t('feedback_attachment') }}</span>
-                <ImportFileLocal @file-selected="handleFile" />
+                <ImportLocalFile @file-selected="handleFile" />
             </div>
             <div class="my-4">
                 <div>
