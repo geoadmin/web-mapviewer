@@ -104,13 +104,12 @@ function setDisclaimerAgree() {
                             >
                                 <button
                                     class="d-flex btn btn-default btn-xs"
-                                    data-cy="feature-detail-media-disclaimer-button"
+                                    data-cy="feature-detail-media-disclaimer-button-info"
                                 >
                                     <FontAwesomeIcon
                                         style="color: white"
                                         icon="info-circle"
                                         size="lg"
-                                        data-cy="menu-external-disclaimer-icon"
                                     />
                                 </button>
                             </ThirdPartyDisclaimer>
@@ -119,6 +118,7 @@ function setDisclaimerAgree() {
                                     ref="shareTabButton"
                                     :title="iframeLinks(value)"
                                     class="px-1 d-flex"
+                                    data-cy="feature-detail-media-disclaimer-text"
                                 >
                                     {{ i18n.t('media_disclaimer') }}
                                 </div>
@@ -126,7 +126,7 @@ function setDisclaimerAgree() {
                         </div>
                         <button
                             class="d-flex btn btn-default btn-xs"
-                            data-cy="feature-detail-media-disclaimer-button"
+                            data-cy="feature-detail-media-disclaimer-button-close"
                             @click="setDisclaimerAgree"
                         >
                             <FontAwesomeIcon style="color: white" size="lg" icon="times" />

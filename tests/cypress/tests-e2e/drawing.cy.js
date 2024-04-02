@@ -343,6 +343,13 @@ describe('Drawing module tests', () => {
                 `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
             )
 
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(160, 160)
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+
             cy.closeDrawingMode()
             cy.closeMenuIfMobile()
 
@@ -365,15 +372,26 @@ describe('Drawing module tests', () => {
             cy.log('Video link has disclaimer')
             cy.get('[data-cy="ol-map"]').click(120, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
-            cy.get('[data-cy="feature-detail-description-content"]').should('not.exist')
-            cy.get('[data-cy="feature-detail-media-disclaimer-button"]').click()
-            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+
+            cy.log('Disclaimer provides more information on click')
+            cy.get('[data-cy="feature-detail-media-disclaimer-button-info"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('exist')
+            cy.get('[data-cy="modal-close-button"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
 
             cy.log('Video link exists after sanitize')
             cy.get('[data-cy="feature-detail-description-content"]')
                 .find('iframe')
                 .invoke('attr', 'src')
                 .should('eq', `${valid_url}`)
+
+            cy.log('Closing disclaimer')
+            cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click()
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+
+            cy.log('Closing disclaimer persists when selecting different marker')
+            cy.get('[data-cy="ol-map"]').click(160, 160)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
         })
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
