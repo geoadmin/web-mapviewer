@@ -1,17 +1,14 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
+import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
-
-const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
 const props = defineProps({
     feature: {
@@ -25,16 +22,11 @@ const { feature } = toRefs(props)
 const i18n = useI18n()
 
 const store = useStore()
-let copyTooltipInstance = null
-let shareTabButton = ref(null)
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
-})
-const disclaimerIsShown = computed(() => {
-    return store.state.ui.showDisclaimer
 })
 const sanitizedFeatureDataEntries = computed(() => {
     if (hasFeatureStringData.value || !feature.value?.data) {
@@ -44,6 +36,13 @@ const sanitizedFeatureDataEntries = computed(() => {
         .filter(([_, value]) => value) // filtering out null values
         .map(([key, value]) => [key, sanitizeHtml(key, value)])
 })
+function sanitizeHtml(key, htmlText) {
+    if (key == 'description') {
+        return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
+    } else {
+        return DOMPurify.sanitize(htmlText)
+    }
+}
 function iframeLinks(value) {
     let data = value
     let parser = new DOMParser()
@@ -52,33 +51,8 @@ function iframeLinks(value) {
 
     let arr = Array.from(iFrame)
     arr.forEach((frame, index) => (arr[index] = frame.src))
-    console.log('debug: ', arr)
+    console.log('debug: ', arr.toString().split(',').join(' '))
     return arr.toString().split(',').join(' ')
-}
-onMounted(() => {
-    copyTooltipInstance = tippy(shareTabButton.value, {
-        content: (reference) => reference.getAttribute('title'),
-        arrow: true,
-        interactive: true,
-        placement: 'top',
-    })
-})
-onBeforeUnmount(() => {
-    console.warn('destroy tooltip: ', copyTooltipInstance)
-    copyTooltipInstance?.forEach((cti) => cti.destroy())
-})
-function sanitizeHtml(key, htmlText) {
-    if (key == 'description') {
-        return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
-    } else {
-        return DOMPurify.sanitize(htmlText)
-    }
-}
-function setDisclaimerAgree() {
-    store.dispatch('setShowDisclaimer', {
-        showDisclaimer: false,
-        ...dispatcher,
-    })
 }
 </script>
 
@@ -90,48 +64,10 @@ function setDisclaimerAgree() {
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
-                <div
-                    v-if="disclaimerIsShown && value.includes('iframe')"
-                    data-cy="feature-detail-media-disclaimer"
-                    class="p-0 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
-                >
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <ThirdPartyDisclaimer
-                                :complete-disclaimer-on-click="true"
-                                :source-name="iframeLinks(value)"
-                            >
-                                <button
-                                    class="d-flex btn btn-default btn-xs"
-                                    data-cy="feature-detail-media-disclaimer-button-info"
-                                >
-                                    <FontAwesomeIcon
-                                        style="color: white"
-                                        icon="info-circle"
-                                        size="lg"
-                                    />
-                                </button>
-                            </ThirdPartyDisclaimer>
-                            <span class="url-tooltip">
-                                <div
-                                    ref="shareTabButton"
-                                    :title="iframeLinks(value)"
-                                    class="px-1 d-flex"
-                                    data-cy="feature-detail-media-disclaimer-text"
-                                >
-                                    {{ i18n.t('media_disclaimer') }}
-                                </div>
-                            </span>
-                        </div>
-                        <button
-                            class="d-flex btn btn-default btn-xs"
-                            data-cy="feature-detail-media-disclaimer-button-close"
-                            @click="setDisclaimerAgree"
-                        >
-                            <FontAwesomeIcon style="color: white" size="lg" icon="times" />
-                        </button>
-                    </div>
-                </div>
+                <FeatureDetailDisclaimer
+                    v-if="iframeLinks(value)"
+                    :iframe-links="iframeLinks(value)"
+                ></FeatureDetailDisclaimer>
                 <div class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div data-cy="feature-detail-description-content" v-html="value"></div>
@@ -172,8 +108,5 @@ function setDisclaimerAgree() {
 }
 :global(.htmlpopup-content) {
     padding: 7px;
-}
-.url-tooltip {
-    @extend .clear-no-ios-long-press;
 }
 </style>
