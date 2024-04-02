@@ -41,9 +41,12 @@ const timeSelectorModal = ref(null)
 const previewYear = computed(() => store.state.layers.previewYear)
 const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
 
-const humanReadableCurrentTimestamp = computed(() =>
-    renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
-)
+const humanReadableCurrentTimestamp = computed(() => {
+    if (previewYear.value) {
+        return timeConfig.value.years.includes(previewYear.value) ? previewYear.value : '-'
+    }
+    return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
+})
 
 let popover = null
 
@@ -71,7 +74,7 @@ onBeforeUnmount(() => {
  */
 function renderHumanReadableTimestamp(timeEntry) {
     if (!timeEntry) {
-        return ''
+        return '-'
     }
     if (timeEntry.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP) {
         return i18n.t(`time_current`)
@@ -100,7 +103,7 @@ function hidePopover() {
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary me-2"
+        class="btn btn-secondary me-2 w-13"
         :class="{
             'btn-sm': compact,
         }"
@@ -149,5 +152,9 @@ function hidePopover() {
     .btn-timestamp {
         white-space: nowrap;
     }
+}
+
+.w-13 {
+    width: 13%;
 }
 </style>

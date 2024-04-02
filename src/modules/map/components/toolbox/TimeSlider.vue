@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
@@ -34,23 +33,6 @@ const ALL_YEARS = (() => {
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
-
-/**
- * Finds the most recent common year between all given time configs
- *
- * @param {LayerTimeConfig[]} timeConfigs
- * @returns {Number} Most recent common year between all given time configs
- */
-function findMostRecentCommonYear(timeConfigs) {
-    if (timeConfigs.length < 2) {
-        return null
-    }
-    let yearsInCommon = [...timeConfigs[0].years]
-    timeConfigs.slice(1).forEach((timeConfig) => {
-        yearsInCommon = yearsInCommon.filter((year) => timeConfig.years.includes(year))
-    })
-    return yearsInCommon[0]
-}
 
 // dynamic internal data
 const sliderWidth = ref(0)
@@ -120,56 +102,25 @@ const innerBarStepStyle = computed(() => {
     }
 })
 const yearsWithData = computed(() => {
-    // TODO PB-318 : alter this to also show years with partial data
     const timeConfigs = layersWithTimestamps.value.map((layer) => layer.timeConfig)
-    let yearsInCommon = [...timeConfigs[0].years]
+    let yearsJoint = [...timeConfigs[0].years]
     let yearsSeparate = []
     timeConfigs.forEach((timeConfig) =>
         timeConfig.years
             .filter((year) => !yearsSeparate.includes(year))
             .forEach((year) => yearsSeparate.push(year))
     )
-    console.log('------------------------------------------------------------------')
-    console.log(yearsInCommon.length)
-    console.log(yearsSeparate.length)
-    console.log('------------------------------------------------------------------')
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
-            yearsInCommon = yearsInCommon.filter((year) => timeConfig.years.includes(year))
+            yearsJoint = yearsJoint.filter((year) => timeConfig.years.includes(year))
         })
     }
-    yearsSeparate = yearsSeparate.filter((year) => !yearsInCommon.includes(year))
-    console.log(yearsSeparate.length)
-    console.log(yearsSeparate)
-    console.log(yearsInCommon)
-    console.log('-------------------------------------------------------------------')
-    return { yearsInCommon: yearsInCommon, yearsSeparate: yearsSeparate }
+    yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
+    return { yearsJoint: yearsJoint, yearsSeparate: yearsSeparate }
 })
 
 watch(screenWidth, (newValue) => {
     setSliderWidth(newValue)
-})
-
-watch(layersWithTimestamps, (newLayers) => {
-    if (newLayers.length > 1) {
-        // checking if all layers can be set to the current year
-        if (
-            !newLayers
-                .map((layer) => layer.timeConfig.years.includes(currentYear.value))
-                .reduce((a, b) => a && b, true)
-        ) {
-            setCurrentYearAndDispatchToStore(
-                findMostRecentCommonYear(newLayers.map((layer) => layer.timeConfig))
-            )
-        }
-    } else {
-        // only one layer left, checking that it can comply with the current year, otherwise
-        // we take the most recent instead
-        const [onlyLayerLeft] = newLayers
-        if (!onlyLayerLeft.timeConfig.years.includes(currentYear.value)) {
-            setCurrentYearAndDispatchToStore(onlyLayerLeft.timeConfig.years[0])
-        }
-    }
 })
 
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
@@ -177,30 +128,17 @@ watch(layersWithTimestamps, (newLayers) => {
 // touchend to commit the change)
 
 onMounted(() => {
-    let initialYear
     setSliderWidth()
-    // let's define the current year to apply to all (future) layer added to this time slider
-    const [firstLayer] = layersWithTimestamps.value
-    if (layersWithTimestamps.value.length === 1) {
-        // if there is only one layer, and its current timestamp is a valid year, we take it
-        if (firstLayer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
-            initialYear = firstLayer.timeConfig.currentYear
-        } else {
-            // otherwise take the first year that is not ALL_YEARS
-            initialYear = firstLayer.timeConfig.years.find(
-                (year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
-            )
-        }
+    // TODO : preview year storage and, most importantly, time slider activation separate from preview year presence
+
+    // when mounting the time Slider, if there is no year already defined, we set
+    // it to the most recent year with data from all layers, or the most recent
+    // year with data if there is no joint data.
+    if (yearsWithData.value.yearsJoint.length > 0) {
+        setCurrentYearAndDispatchToStore(yearsWithData.value.yearsJoint[0])
     } else {
-        // if multiple layers are visible, we need to find the closest year (from now) that is
-        // a common year between all layers
-        initialYear =
-            findMostRecentCommonYear(layersWithTimestamps.value.map((layer) => layer.timeConfig)) ||
-            YOUNGEST_YEAR
+        setCurrentYearAndDispatchToStore(yearsWithData.value.yearsSeparate[0])
     }
-    // We always need to propagate the changes to the store in order to have a proper time
-    // slider toggling
-    setCurrentYearAndDispatchToStore(initialYear)
 })
 
 onUnmounted(() => {
@@ -228,14 +166,6 @@ function positionNodeLabel(year) {
     return {
         left: `${Math.min(leftPosition, sliderWidth.value - LABEL_WIDTH)}px`,
     }
-}
-
-function hasSeparateData(year) {
-    return yearsWithData.value.yearsSeparate.includes(year)
-}
-
-function hasJointData(year) {
-    return yearsWithData.value.yearsInCommon.includes(year)
 }
 
 function grabCursor(event) {
@@ -276,12 +206,9 @@ function listenToMouseMove(event) {
             }
         }
         const futureYear = ALL_YEARS[futureYearIndex]
-        // checking that this is a valid year in the context of currently displayed data
-        if (hasJointData(futureYear) || hasSeparateData(futureYear)) {
-            // reset of the starting position for delta calculation
-            cursorX = currentPosition
-            currentYear.value = futureYear
-        }
+        // reset of the starting position for delta calculation
+        cursorX = currentPosition
+        currentYear.value = futureYear
     }
 }
 function releaseCursor() {
@@ -292,12 +219,14 @@ function releaseCursor() {
     window.removeEventListener('touchend', releaseCursor)
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
+
+// TODO : question : play over all year or only on years with data ?
 function togglePlayYearsWithData() {
     playYearsWithData = !playYearsWithData
     if (playYearsWithData) {
         let yearsWithDataForPlayer = ALL_YEARS.filter(
             (year) =>
-                yearsWithData.value.yearsInCommon.includes(year) ||
+                yearsWithData.value.yearsJoint.includes(year) ||
                 yearsWithData.value.yearsSeparate.includes(year)
         )
             .sort()
@@ -322,6 +251,17 @@ function togglePlayYearsWithData() {
         clearInterval(playYearInterval)
         playYearInterval = null
     }
+}
+
+function timeSliderBarInnerStepClassObject(year, index) {
+    const classObject = {
+        'has-joint-data': yearsWithData.value.yearsJoint.includes(year),
+        'big-tick': year % 50 === 0,
+        'medium-tick': year % 25 === 0,
+        'small-tick': year % 5 === 0,
+    }
+    classObject[`has-separate-data-${index % 2}`] = yearsWithData.value.yearsSeparate.includes(year)
+    return classObject
 }
 </script>
 
@@ -364,17 +304,11 @@ function togglePlayYearsWithData() {
                     :style="innerBarStyle"
                 >
                     <span
-                        v-for="year in allYears"
+                        v-for="(year, index) in allYears"
                         :key="year"
                         :style="innerBarStepStyle"
                         class="time-slider-bar-inner-step"
-                        :class="{
-                            'has-separate-data': hasSeparateData(year),
-                            'has-joint-data': hasJointData(year),
-                            'big-tick': year % 50 === 0,
-                            'medium-tick': year % 25 === 0,
-                            'small-tick': year % 5 === 0,
-                        }"
+                        :class="timeSliderBarInnerStepClassObject(year, index)"
                         @click="setCurrentYearAndDispatchToStore(year)"
                     />
                 </div>
@@ -449,7 +383,12 @@ function togglePlayYearsWithData() {
                 cursor: pointer;
                 background: rgba(0, 0, 0, 0.1);
                 &.has-separate-data {
-                    background: rgba(41, 4, 250, 0.3);
+                    &-1 {
+                        background: rgba(255, 0, 0, 0.3);
+                    }
+                    &-0 {
+                        background: rgba(0, 0, 0, 0.3);
+                    }
                 }
                 &.has-joint-data {
                     background: rgba(255, 0, 0, 0.3);
