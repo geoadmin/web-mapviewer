@@ -39,7 +39,7 @@ export function usePrint(map) {
     async function print(printGrid = false, printLegend = false) {
         const requester = 'print-map'
         try {
-            store.dispatch('setShowLoadingBar', { requester, loading: true, ...dispatcher })
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             if (currentJobReference.value) {
                 await abortCurrentJob()
             }
@@ -74,7 +74,7 @@ export function usePrint(map) {
             printStatus.value = PrintStatus.FINISHED_FAILED
             return null
         } finally {
-            store.dispatch('setShowLoadingBar', { requester, loading: false, ...dispatcher })
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             currentJobReference.value = null
         }
     }

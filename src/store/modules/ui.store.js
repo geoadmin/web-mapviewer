@@ -253,8 +253,11 @@ export default {
         setEmbed({ commit }, { embed, dispatcher }) {
             commit('setEmbed', { embed: !!embed, dispatcher })
         },
-        setShowLoadingBar({ commit }, { requester, loading, dispatcher }) {
-            commit('setShowLoadingBar', { requester, loading, dispatcher })
+        setLoadingBarRequester({ commit }, { requester, dispatcher }) {
+            commit('setShowLoadingBar', { requester, loading: true, dispatcher })
+        },
+        clearLoadingBarRequester({ commit }, { requester, dispatcher }) {
+            commit('setShowLoadingBar', { requester, loading: false, dispatcher })
         },
         clearLoadingBar4MapLoading({ commit }, { dispatcher }) {
             commit('setShowLoadingBar', {

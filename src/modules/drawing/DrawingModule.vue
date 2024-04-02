@@ -157,7 +157,7 @@ function removeLastPointOnDeleteKeyUp(event) {
 
 async function closeDrawing() {
     const requester = 'closing-drawing'
-    store.dispatch('setShowLoadingBar', { requester, loading: true, ...dispatcher })
+    store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
 
     log.debug(
         `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
@@ -176,7 +176,7 @@ async function closeDrawing() {
     }
 
     await store.dispatch('toggleDrawingOverlay', dispatcher)
-    store.dispatch('setShowLoadingBar', { requester, loading: false, ...dispatcher })
+    store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
 }
 </script>
 

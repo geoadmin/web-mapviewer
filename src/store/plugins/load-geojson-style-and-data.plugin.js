@@ -38,7 +38,7 @@ async function autoReloadData(store, geoJsonLayer) {
     intervalsByLayerId[geoJsonLayer.id] = setInterval(async () => {
         try {
             const requester = 'auto-load-geojson-style'
-            store.dispatch('setShowLoadingBar', { requester, loading: true, ...dispatcher })
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             const { data } = await load(geoJsonLayer.geoJsonUrl).response
             const layerCopy = geoJsonLayer.clone()
             layerCopy.geoJsonData = data
@@ -48,7 +48,7 @@ async function autoReloadData(store, geoJsonLayer) {
                 layers: [layerCopy],
                 ...dispatcher,
             })
-            store.dispatch('setShowLoadingBar', { requester, loading: false, ...dispatcher })
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             log.debug(`Data reloaded according to updateDelay for layer ${geoJsonLayer.id}`)
         } catch (error) {
             log.error(`Error while reloading GeoJSON data for layer ${geoJsonLayer.id}`, error)
@@ -105,12 +105,12 @@ async function loadAndUpdatePreviewLayer(store, layer) {
     cancelLoadPreviewLayer()
     log.debug(`Loading geojson data for preview layer ${layer.id}`)
     const requester = 'load-preview-geojson-style-and-data'
-    store.dispatch('setShowLoadingBar', { requester, loading: true, ...dispatcher })
+    store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
     const { clone, controllers } = loadDataAndStyle(layer)
     pendingPreviewLayer = { controllers, layerId: layer.id }
     const updatedLayer = await clone
     // Before updating the preview layer we need to be sure that it as not been cleared meanwhile
-    store.dispatch('setShowLoadingBar', { requester, loading: false, ...dispatcher })
+    store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
     if (store.state.layers.previewLayer) {
         log.debug(`Updating geojson data for preview layer ${layer.id}`)
         store.dispatch('setPreviewLayer', { layer: updatedLayer, ...dispatcher })
@@ -145,7 +145,7 @@ export default function loadGeojsonStyleAndData(store) {
                         self.indexOf(self.find((layer) => layer.id === geoJsonLayer.id)) === index
                 )
             const requester = 'load-geojson-style-and-data'
-            store.dispatch('setShowLoadingBar', { requester, loading: true, ...dispatcher })
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             const updatedLayers = await Promise.all(
                 geoJsonLayers
                     .filter((layer) => layer.isLoading)
@@ -154,7 +154,7 @@ export default function loadGeojsonStyleAndData(store) {
             if (updatedLayers.length > 0) {
                 store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
             }
-            store.dispatch('setShowLoadingBar', { requester, loading: false, ...dispatcher })
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
 
             // after the initial load is done,
             // going through all layers that have an update delay and launching the routine to reload their data
