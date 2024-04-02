@@ -52,6 +52,7 @@ const screenWidth = computed(() => store.state.ui.width)
 const layersWithTimestamps = computed(() =>
     store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
 )
+const previewYear = computed(() => store.state.layers.previewYear)
 
 /**
  * Filtering of all years to only give ones that will need to be shown in the label section of the
@@ -129,19 +130,32 @@ watch(screenWidth, (newValue) => {
 
 onMounted(() => {
     setSliderWidth()
-    // TODO : preview year storage and, most importantly, time slider activation separate from preview year presence
 
-    // when mounting the time Slider, if there is no year already defined, we set
-    // it to the most recent year with data from all layers, or the most recent
-    // year with data if there is no joint data.
-    if (yearsWithData.value.yearsJoint.length > 0) {
-        setCurrentYearAndDispatchToStore(yearsWithData.value.yearsJoint[0])
+    /*
+    When mounting the time slider, the preview year should be set to one of the following, checked in the given order :
+        - if it is already set, we don't do anything
+        - if there is only one layer, with a valid year, we set it to its current year
+        - if there is joint data (when there is only one layer, all data is joint data), we go to the most recent joint data
+        - else, we set it to the most recent year with data
+    */
+    if (!previewYear.value) {
+        if (
+            layersWithTimestamps.value.length === 1 &&
+            ALL_YEARS.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
+        ) {
+            setCurrentYearAndDispatchToStore(layersWithTimestamps.value[0].timeConfig.currentYear)
+        } else if (yearsWithData.value.yearsJoint.length > 0) {
+            setCurrentYearAndDispatchToStore(yearsWithData.value.yearsJoint[0])
+        } else {
+            setCurrentYearAndDispatchToStore(yearsWithData.value.yearsSeparate[0])
+        }
     } else {
-        setCurrentYearAndDispatchToStore(yearsWithData.value.yearsSeparate[0])
+        currentYear.value = previewYear.value
     }
 })
 
 onUnmounted(() => {
+    // TODO : when we have an 'activeTimeSlider' in store, we'll get rid of this.
     store.dispatch('clearPreviewYear', dispatcher)
 })
 
@@ -220,7 +234,6 @@ function releaseCursor() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 
-// TODO : question : play over all year or only on years with data ?
 function togglePlayYearsWithData() {
     playYearsWithData = !playYearsWithData
     if (playYearsWithData) {
@@ -231,9 +244,12 @@ function togglePlayYearsWithData() {
         )
             .sort()
             .reverse()
-        // if current year is the last (most recent) one, we set the starting year for our
-        // player to the oldest
-        if (currentYear.value === yearsWithDataForPlayer[0]) {
+        // if current year is the last (most recent) one, or we're not on a year with data, we set the starting year for our
+        // player to the oldest year with data
+        if (
+            !yearsWithDataForPlayer.includes(currentYear.value) ||
+            currentYear.value === yearsWithDataForPlayer[0]
+        ) {
             setCurrentYearAndDispatchToStore(yearsWithDataForPlayer.slice(-1)[0])
         }
         playYearInterval = setInterval(() => {
@@ -251,17 +267,6 @@ function togglePlayYearsWithData() {
         clearInterval(playYearInterval)
         playYearInterval = null
     }
-}
-
-function timeSliderBarInnerStepClassObject(year, index) {
-    const classObject = {
-        'has-joint-data': yearsWithData.value.yearsJoint.includes(year),
-        'big-tick': year % 50 === 0,
-        'medium-tick': year % 25 === 0,
-        'small-tick': year % 5 === 0,
-    }
-    classObject[`has-separate-data-${index % 2}`] = yearsWithData.value.yearsSeparate.includes(year)
-    return classObject
 }
 </script>
 
@@ -300,15 +305,24 @@ function timeSliderBarInnerStepClassObject(year, index) {
                 />
                 <div
                     v-if="yearsShownAsLabel.length > 0"
-                    class="time-slider-bar-inner d-flex pt-5 px-1"
+                    class="time-slider-bar-inner d-flex mt-5 mx-1"
                     :style="innerBarStyle"
                 >
                     <span
-                        v-for="(year, index) in allYears"
+                        v-for="year in allYears"
                         :key="year"
                         :style="innerBarStepStyle"
                         class="time-slider-bar-inner-step"
-                        :class="timeSliderBarInnerStepClassObject(year, index)"
+                        :class="{
+                            'has-no-data': !(
+                                yearsWithData.yearsJoint.includes(year) ||
+                                yearsWithData.yearsSeparate.includes(year)
+                            ),
+                            'has-joint-data': yearsWithData.yearsJoint.includes(year),
+                            'big-tick': year % 50 === 0,
+                            'medium-tick': year % 25 === 0,
+                            'small-tick': year % 5 === 0,
+                        }"
                         @click="setCurrentYearAndDispatchToStore(year)"
                     />
                 </div>
@@ -377,21 +391,23 @@ function timeSliderBarInnerStepClassObject(year, index) {
             }
         }
         &-inner {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 4px,
+                #efb9b3 2px,
+                #efb9b3 8px
+            );
             width: 100%;
-            height: calc(10px + 3 * $spacer);
+            height: 10px;
             &-step {
                 cursor: pointer;
                 background: rgba(0, 0, 0, 0.1);
-                &.has-separate-data {
-                    &-1 {
-                        background: rgba(255, 0, 0, 0.3);
-                    }
-                    &-0 {
-                        background: rgba(0, 0, 0, 0.3);
-                    }
+                &.has-no-data {
+                    background: #e4e5e5;
                 }
                 &.has-joint-data {
-                    background: rgba(255, 0, 0, 0.3);
+                    background: #efb9b3;
                 }
                 &:not(.small-tick):not(.big-tick):not(.medium-tick)::before {
                     content: '';

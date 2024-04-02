@@ -153,8 +153,4 @@ function hidePopover() {
         white-space: nowrap;
     }
 }
-
-.w-13 {
-    width: 13%;
-}
 </style>
