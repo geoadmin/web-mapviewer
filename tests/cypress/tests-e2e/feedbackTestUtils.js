@@ -14,10 +14,19 @@ export function parseFormData(request) {
                 const split = rawPart
                     .split(/\r?\n/)
                     .filter((split) => split !== '--' && split.length > 0)
-                const name = split[0].substring(
+                let name = split[0].substring(
                     split[0].indexOf('name="') + 6, // removing the 6 chars from name="
                     split[0].length - 1 // removing trailing "
                 )
+                // Special handling for attachment, only the filename will be checked
+                if (name.includes('attachment') && name.includes('filename')) {
+                    const fileName = name.substring(name.indexOf('filename="') + 10) // removing the 10 chars from filename="
+                    // no need to remove trailing, since it's the end of the string
+                    name = 'attachment'
+                    return {
+                        [name]: fileName,
+                    }
+                }
                 return {
                     [name]: split[1],
                 }

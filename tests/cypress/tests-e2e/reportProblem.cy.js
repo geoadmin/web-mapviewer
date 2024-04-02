@@ -104,6 +104,43 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
         // Form is already closed at this point
 
+        cy.log('It send the correct version when the email is empty and attach a file')
+        openForm()
+        cy.get('[data-cy="report-problem-text"]').type(text)
+        const localKmlFile = 'import-tool/external-kml-file.kml'
+        cy.fixture(localKmlFile, null).as('kmlFixture')
+        cy.get('[data-cy="import-file-local-input"]').selectFile('@kmlFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-local-input-text"]').should('have.class', 'is-valid')
+        cy.get('[data-cy="submit-feedback-button"]').click()
+
+        cy.wait('@feedback').then((interception) => {
+            const formData = parseFormData(interception.request)
+            ;[
+                { name: 'subject', contains: `Problem report` },
+                { name: 'feedback', contains: text },
+                { name: 'version', contains: APP_VERSION },
+                { name: 'ua', contains: navigator.userAgent },
+            ].forEach((param) => {
+                expect(interception.request.body).to.be.a('String')
+                expect(formData).to.haveOwnProperty(param.name)
+                expect(formData[param.name]).to.contain(param.contains)
+            })
+            console.log(interception.request.body)
+            expect(formData).to.haveOwnProperty('attachment')
+            expect(formData['attachment']).to.contain('external-kml-file.kml')
+        })
+
+        cy.get('[data-cy="report-problem-form"]').should('not.exist')
+        cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
+        cy.get('[data-cy="report-problem-close-successful"]').should('be.focused')
+
+        cy.log('Closes the modal if the close button is clicked')
+        cy.get('[data-cy="report-problem-close-successful"]').click()
+        cy.get('[data-cy="report-problem-form"]').should('not.exist')
+        // Form is already closed at this point
+
         cy.log('It shows a text to the user to tell him something went wrong')
         openForm()
         interceptFeedback(false)
@@ -116,5 +153,6 @@ describe('Testing the report problem form', () => {
             'not.exist'
         )
         cy.get('[data-cy="report-problem-failed-text"]').should('be.visible')
+        closeForm()
     })
 })
