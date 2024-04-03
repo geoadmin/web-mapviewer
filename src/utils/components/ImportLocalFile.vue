@@ -18,7 +18,7 @@ const props = defineProps({
         type: String,
         default: '',
     },
-    // Whether the component should check if the file is valid after selecting a file
+    // Whether the component should check if the file is valid after selecting a file, otherwise the parent component handle the check
     checkOnSelect: {
         type: Boolean,
         default: true,
@@ -65,7 +65,6 @@ watch(
     () => props.additionalErrorMessage,
     (newValue) => {
         errorMessage.value = newValue
-        console.log('errorMessage', errorMessage.value)
     }
 )
 
@@ -106,25 +105,25 @@ function onFileSelected(evt) {
                     type="file"
                     :accept="props.acceptedFileTypes"
                     hidden
-                    data-cy="import-file-local-input"
+                    data-cy="import-local-file-input"
                     @change="onFileSelected"
                 />
                 <input
                     type="text"
-                    class="form-control import-input rounded-end import-file-local-input"
+                    class="form-control import-input rounded-end import-local-file-input"
                     :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }"
                     :placeholder="i18n.t(props.placeholderText)"
                     :value="filePathInfo"
                     readonly
                     required
                     tabindex="-1"
-                    data-cy="import-file-local-input-text"
+                    data-cy="import-local-file-input-text"
                     @click="InputLocalFile.click()"
                 />
                 <div
                     v-if="errorMessage"
                     class="invalid-feedback"
-                    data-cy="import-file-local-invalid-feedback"
+                    data-cy="import-local-file-invalid-feedback"
                 >
                     {{ i18n.t(errorMessage) }}
                 </div>
@@ -136,10 +135,10 @@ function onFileSelected(evt) {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-.import-file-local-input {
+.import-local-file-input {
     cursor: pointer;
 }
-.import-file-local-button-connect {
+.import-local-file-button-connect {
     cursor: pointer;
 }
 </style>

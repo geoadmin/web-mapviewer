@@ -109,10 +109,10 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-text"]').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
         cy.fixture(localKmlFile, null).as('kmlFixture')
-        cy.get('[data-cy="import-file-local-input"]').selectFile('@kmlFixture', {
+        cy.get('[data-cy="import-local-file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
-        cy.get('[data-cy="import-file-local-input-text"]').should('have.class', 'is-valid')
+        cy.get('[data-cy="import-local-file-input-text"]').should('have.class', 'is-valid')
         cy.get('[data-cy="submit-feedback-button"]').click()
 
         cy.wait('@feedback').then((interception) => {

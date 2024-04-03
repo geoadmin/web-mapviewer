@@ -26,13 +26,13 @@ const { active } = toRefs(props)
 // Reactive data
 const buttonState = ref('default')
 const selectedFile = ref(null)
-const errorLoadingMessage = ref(null)
+const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const layerAdded = ref(false)
 
 useImportButton(buttonState)
 
-watch(errorLoadingMessage, validateForm)
+watch(errorFileLoadingMessage, validateForm)
 watch(selectedFile, resetInput)
 
 // Methods
@@ -44,7 +44,7 @@ async function loadFile() {
     buttonState.value = 'loading'
 
     if (!selectedFile.value) {
-        errorLoadingMessage.value = 'no_file'
+        errorFileLoadingMessage.value = 'no_file'
     } else {
         try {
             const content = await selectedFile.value.text()
@@ -52,17 +52,17 @@ async function loadFile() {
             layerAdded.value = true
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
-                errorLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
+                errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                errorLoadingMessage.value = 'kml_gpx_file_empty'
+                errorFileLoadingMessage.value = 'kml_gpx_file_empty'
             } else {
-                errorLoadingMessage.value = 'invalid_kml_gpx_file_error'
+                errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
         }
     }
 
-    if (!errorLoadingMessage.value) {
+    if (!errorFileLoadingMessage.value) {
         buttonState.value = 'succeeded'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } else {
@@ -71,7 +71,7 @@ async function loadFile() {
 }
 
 function validateForm() {
-    if (errorLoadingMessage.value) {
+    if (errorFileLoadingMessage.value) {
         isFormValid.value = false
     } else {
         isFormValid.value = true
@@ -98,7 +98,7 @@ function resetInput() {
     >
         <ImportLocalFile
             :accepted-file-types="acceptedFileTypes"
-            :additional-error-message="errorLoadingMessage"
+            :additional-error-message="errorFileLoadingMessage"
             :additional-check="layerAdded"
             :check-on-select="false"
             :placeholder-text="'no_file'"
@@ -115,11 +115,4 @@ function resetInput() {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-
-.import-file-local-input {
-    cursor: pointer;
-}
-.import-file-local-button-connect {
-    cursor: pointer;
-}
 </style>
