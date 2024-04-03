@@ -65,11 +65,13 @@ function iframeLinks(value) {
         <div class="htmlpopup-header">{{ feature.title }}</div>
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
-                <FeatureDetailDisclaimer
-                    v-if="iframeLinks(value)"
-                    :iframe-links="iframeLinks(value)"
-                ></FeatureDetailDisclaimer>
-                <div class="fw-bold">{{ i18n.t(key) }}</div>
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="d-flex flex-wrap fw-bold">{{ i18n.t(key) }}</div>
+                    <FeatureDetailDisclaimer
+                        v-if="iframeLinks(value)"
+                        :iframe-links="iframeLinks(value)"
+                    ></FeatureDetailDisclaimer>
+                </div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div data-cy="feature-detail-description-content" v-html="value"></div>
             </div>
