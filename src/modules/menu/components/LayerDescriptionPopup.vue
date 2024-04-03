@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import { getLayerLegend } from '@/api/layers/layers.api'
+import { getLayerDescription } from '@/api/layers/layers.api'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const props = defineProps({
@@ -38,39 +38,43 @@ const isExternal = computed(() => layer.value?.isExternal ?? false)
 const legends = computed(() => layer.value?.legends ?? [])
 
 watch(layer, async (newLayer) => {
-    htmlContent.value = await getLayerLegend(currentLang.value, newLayer.id)
+    if (!isExternal.value && layer.value) {
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
+    }
 })
 
 watch(layerId, async (newLayerId) => {
-    htmlContent.value = await getLayerLegend(currentLang.value, newLayerId)
+    if (!isExternal.value && layerId.value) {
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
+    }
 })
 
 onMounted(async () => {
     if (!isExternal.value && layer.value) {
-        htmlContent.value = await getLayerLegend(currentLang.value, layer.value.id)
+        htmlContent.value = await getLayerDescription(currentLang.value, layer.value.id)
     } else if (!isExternal.value && layerId.value) {
-        htmlContent.value = await getLayerLegend(currentLang.value, layerId.value)
+        htmlContent.value = await getLayerDescription(currentLang.value, layerId.value)
     }
 })
 </script>
 
 <template>
     <ModalWithBackdrop :title="title" :allow-print="true" @close="emit('close', layerId)">
-        <div class="layer-legend" data-cy="layer-legend-popup">
+        <div class="layer-description" data-cy="layer-description-popup">
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
             <div v-else-if="isExternal">
-                <h6 v-if="body" data-cy="layer-legend-popup-description-title">
+                <h6 v-if="body" data-cy="layer-description-popup-description-title">
                     {{ i18n.t('description') }}
                 </h6>
-                <div v-if="body" data-cy="layer-legend-popup-description-body">{{ body }}</div>
+                <div v-if="body" data-cy="layer-description-popup-description-body">{{ body }}</div>
                 <div v-if="legends.length" class="mt-4">
-                    <h6 data-cy="layer-legend-popup-legends-title">{{ i18n.t('legend') }}</h6>
+                    <h6 data-cy="layer-description-popup-legends-title">{{ i18n.t('legend') }}</h6>
                     <div
                         v-for="legend in legends"
                         :key="legend.url"
-                        :data-cy="`layer-legend-popup-legends-body-${legend.url}`"
+                        :data-cy="`layer-description-popup-legends-body-${legend.url}`"
                     >
                         <img v-if="legend.format.startsWith('image/')" :src="legend.url" />
                         <iframe v-else-if="legend.format === 'text/html'" :src="legend.url" />
@@ -78,7 +82,10 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="mt-2 text-primary text-end" data-cy="layer-legend-popup-attributions">
+                <div
+                    class="mt-2 text-primary text-end"
+                    data-cy="layer-description-popup-attributions"
+                >
                     <span class="me-1">{{ i18n.t('copyright_data') }}</span>
                     <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{
                         attributionName
@@ -87,7 +94,7 @@ onMounted(async () => {
                 </div>
             </div>
             <!-- eslint-disable vue/no-v-html-->
-            <div v-else data-cy="layer-legend" v-html="htmlContent"></div>
+            <div v-else data-cy="layer-description" v-html="htmlContent"></div>
             <!-- eslint-enable vue/no-v-html-->
         </div>
     </ModalWithBackdrop>
@@ -100,7 +107,7 @@ onMounted(async () => {
 
 $spacing: 8px;
 
-.layer-legend {
+.layer-description {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-style: normal;
     font-weight: 400;

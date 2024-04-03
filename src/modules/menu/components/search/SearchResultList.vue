@@ -1,10 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
+import debounce from '@/utils/debounce'
+import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'SearchResultList.vue' }
 
 const emit = defineEmits(['close', 'firstResultEntryReached'])
 const store = useStore()
@@ -12,9 +16,14 @@ const i18n = useI18n()
 
 const resultCategories = ref([])
 
+const preview = ref(null)
+
 const results = computed(() => store.state.search.results)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+const previewLayer = computed(() => store.state.layers.previewLayer)
+const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
 
 const locationResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
@@ -43,27 +52,76 @@ const categories = computed(() => {
     ]
 })
 
+watch(preview, (newPreview) => setPreviewDebounced(newPreview))
+
 function focusFirstEntry() {
-    const firstCategoryWithResults = categories.value.find(
-        (category) => category.results.length > 0
-    )
-    resultCategories.value[categories.value.indexOf(firstCategoryWithResults)]?.focusFirstEntry()
+    const firstCategory = categories.value.findIndex((category) => category.results.length > 0)
+    if (firstCategory >= 0) {
+        resultCategories.value[firstCategory]?.focusFirstEntry()
+    }
 }
 
 function onFirstEntryReached(index) {
-    if (index === 0) {
+    const previousCategoryIndex = categories.value.findLastIndex(
+        (category, i) => i < index && category.results.length > 0
+    )
+    if (previousCategoryIndex < 0) {
         emit('firstResultEntryReached')
-    } else if (index > 0) {
+    } else {
         // jumping up to the previous category's last result
-        resultCategories.value[index - 1]?.focusLastEntry()
+        resultCategories.value[previousCategoryIndex]?.focusLastEntry()
     }
 }
 
 function onLastEntryReached(index) {
-    if (index < resultCategories.value.length - 1) {
-        resultCategories.value[index + 1]?.focusFirstEntry()
+    const nextCategoryIndex = categories.value.findIndex(
+        (category, i) => i > index && category.results.length > 0
+    )
+    if (nextCategoryIndex > 0) {
+        resultCategories.value[nextCategoryIndex]?.focusFirstEntry()
     }
 }
+
+function setPreview(entry) {
+    preview.value = entry
+}
+
+function clearPreview(entry) {
+    // only clear the preview if not another entry has been set
+    if (preview.value?.id === entry.id) {
+        preview.value = null
+    }
+}
+
+// We debounce the preview to avoid too many store dispatch
+const PREVIEW_DEBOUNCING_DELAY = 50
+const setPreviewDebounced = debounce((entry) => {
+    log.debug(`Set preview`, entry, previewLayer.value, previewedPinnedLocation.value)
+    if (!entry) {
+        if (previewLayer.value) {
+            store.dispatch('clearPreviewLayer', dispatcher)
+        }
+        if (previewedPinnedLocation.value) {
+            store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
+        }
+    } else if (entry.resultType === SearchResultTypes.LAYER) {
+        store.dispatch('setPreviewLayer', {
+            layer: entry.layerId,
+            ...dispatcher,
+        })
+        if (previewedPinnedLocation.value) {
+            store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
+        }
+    } else if (entry.coordinate) {
+        store.dispatch('setPreviewedPinnedLocation', {
+            coordinates: entry.coordinate,
+            ...dispatcher,
+        })
+        if (previewLayer.value) {
+            store.dispatch('clearPreviewLayer', dispatcher)
+        }
+    }
+}, PREVIEW_DEBOUNCING_DELAY)
 
 defineExpose({ focusFirstEntry })
 </script>
@@ -93,6 +151,8 @@ defineExpose({ focusFirstEntry })
                     :data-cy="`search-results-${category.id}`"
                     @first-entry-reached="onFirstEntryReached(index)"
                     @last-entry-reached="onLastEntryReached(index)"
+                    @set-preview="setPreview"
+                    @clear-preview="clearPreview"
                 />
             </div>
         </div>

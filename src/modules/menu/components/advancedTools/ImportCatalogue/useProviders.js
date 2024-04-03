@@ -18,7 +18,9 @@ class Providers {
     filter(text) {
         let providers = this.providers
         if (text.length) {
-            providers = this.providers.filter((p) => p.url.includes(text))
+            providers = this.providers.filter((p) =>
+                p.url.toLowerCase().includes(text.toLowerCase())
+            )
         }
         return providers.map((p) => new Provider(p.url, text))
     }

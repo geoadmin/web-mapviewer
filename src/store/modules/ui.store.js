@@ -1,6 +1,8 @@
 import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
 import log from '@/utils/logging'
 
+const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
+
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
  * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable
@@ -65,11 +67,13 @@ export default {
          */
         embed: false,
         /**
-         * Flag telling if a loading bar should be shown to tell the user something is on going
+         * Mapping of loading bar requesters. The loading bar on top of the screen is shown as soon
+         * as this mapping (object) is not empty. A requester can request several times the loading
+         * bar, but then it needs to clear it as many times it has set it.
          *
-         * @type Boolean
+         * @type {[String]: Number}
          */
-        showLoadingBar: true,
+        loadingBarRequesters: { [MAP_LOADING_BAR_REQUESTER]: 1 },
         /**
          * Flag telling if the drawing toolkit / overlay should be visible
          *
@@ -142,6 +146,9 @@ export default {
         isCompareSliderActive: false,
     },
     getters: {
+        showLoadingBar(state) {
+            return Object.keys(state.loadingBarRequesters).length > 0
+        },
         screenDensity(state) {
             if (state.height === 0) {
                 return 0
@@ -246,11 +253,18 @@ export default {
         setEmbed({ commit }, { embed, dispatcher }) {
             commit('setEmbed', { embed: !!embed, dispatcher })
         },
-        setShowLoadingBar({ commit }, { loading, dispatcher }) {
-            commit('setShowLoadingBar', { loading, dispatcher })
+        setLoadingBarRequester({ commit }, { requester, dispatcher }) {
+            commit('setShowLoadingBar', { requester, loading: true, dispatcher })
         },
-        toggleLoadingBar({ commit, state }, { dispatcher }) {
-            commit('setShowLoadingBar', { loading: !state.showLoadingBar, dispatcher })
+        clearLoadingBarRequester({ commit }, { requester, dispatcher }) {
+            commit('setShowLoadingBar', { requester, loading: false, dispatcher })
+        },
+        clearLoadingBar4MapLoading({ commit }, { dispatcher }) {
+            commit('setShowLoadingBar', {
+                requester: MAP_LOADING_BAR_REQUESTER,
+                loading: false,
+                dispatcher,
+            })
         },
         toggleDrawingOverlay({ commit, state }, { dispatcher }) {
             commit('setShowDrawingOverlay', {
@@ -333,8 +347,24 @@ export default {
         setEmbed(state, { embed }) {
             state.embed = embed
         },
-        setShowLoadingBar(state, { loading }) {
-            state.showLoadingBar = loading
+        setShowLoadingBar(state, { requester, loading }) {
+            if (loading) {
+                if (state.loadingBarRequesters[requester] == null) {
+                    state.loadingBarRequesters[requester] = 0
+                }
+                state.loadingBarRequesters[requester] += 1
+            } else {
+                if (state.loadingBarRequesters[requester] > 0) {
+                    state.loadingBarRequesters[requester] -= 1
+                }
+                if (state.loadingBarRequesters[requester] <= 0) {
+                    delete state.loadingBarRequesters[requester]
+                }
+            }
+            log.debug(
+                `Loading bar has been set; requester=${requester}, loading=${loading}, loadingBarRequesters=`,
+                state.loadingBarRequesters
+            )
         },
         setShowDrawingOverlay(state, { showDrawingOverlay }) {
             state.showDrawingOverlay = showDrawingOverlay

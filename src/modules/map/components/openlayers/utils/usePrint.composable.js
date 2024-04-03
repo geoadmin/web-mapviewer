@@ -6,7 +6,9 @@ import { getGenerateQRCodeUrl } from '@/api/qrcode.api.js'
 import { createShortLink } from '@/api/shortlink.api.js'
 import log from '@/utils/logging'
 
-// const dispatcher = { dispatcher: 'usePrint.composable' }
+import { PRINT_AREA_LAYER_ID } from './printConstants'
+
+const dispatcher = { dispatcher: 'usePrint.composable' }
 
 /** @enum */
 export const PrintStatus = {
@@ -35,8 +37,9 @@ export function usePrint(map) {
      * @returns {Promise<String | null>}
      */
     async function print(printGrid = false, printLegend = false) {
+        const requester = 'print-map'
         try {
-            // TODO PB-362 : show laoding bar
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             if (currentJobReference.value) {
                 await abortCurrentJob()
             }
@@ -59,7 +62,8 @@ export function usePrint(map) {
                     : [],
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
-                projection: store.state.map.projection,
+                projection: store.state.position.projection,
+                excludedLayerIDs: [PRINT_AREA_LAYER_ID],
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)
@@ -70,7 +74,7 @@ export function usePrint(map) {
             printStatus.value = PrintStatus.FINISHED_FAILED
             return null
         } finally {
-            // TODO PB-362 : hide laoding bar
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             currentJobReference.value = null
         }
     }

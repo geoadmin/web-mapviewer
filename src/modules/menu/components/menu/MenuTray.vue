@@ -14,7 +14,7 @@
         </MenuSection>
         <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
         <MenuPrintSection
-            v-if="!is3dMode && hasDevSiteWarning"
+            v-if="!is3dMode"
             ref="printSection"
             @open-menu-section="onOpenMenuSection"
         />

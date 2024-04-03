@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
-import { API_BASE_URL } from '@/config'
+import { API_BASE_URL, ENVIRONMENT } from '@/config'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
@@ -51,7 +51,13 @@ const readTopicTreeRecursive = (node, availableLayers) => {
             try {
                 children.push(readTopicTreeRecursive(topicChild, availableLayers))
             } catch (err) {
-                log.error(`Child ${topicChild.id} can't be loaded`, err)
+                if (ENVIRONMENT === 'development') {
+                    log.warn(
+                        `Child ${topicChild.id} can't be loaded, probably due to data integration work ongoing: ${err.message}`
+                    )
+                } else {
+                    log.error(`Child ${topicChild.id} can't be loaded`, err)
+                }
             }
         })
         return new GeoAdminGroupOfLayers({ id: `${node.id}`, name: node.label, layers: children })

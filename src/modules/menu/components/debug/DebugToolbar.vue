@@ -47,6 +47,7 @@ function toggleShowLayerExtents() {
         <div class="position-relative d-flex">
             <div
                 class="debug-tools-header p-2 bg-danger-subtle border-end border-danger rounded-start-1"
+                data-cy="debug-tools-header"
                 @click="showDebugTool = !showDebugTool"
             >
                 <FontAwesomeIcon icon="gear" title="Debug tools" />
@@ -55,13 +56,14 @@ function toggleShowLayerExtents() {
                 <div class="card-body">
                     <h5 class="text-decoration-underline">Map projection</h5>
                     <div class="my-1 d-flex align-content-center">
-                        <strong class="me-2 align-self-center">
+                        <strong class="me-2 align-self-center" data-cy="current-projection">
                             {{ currentProjection.epsg }}
                         </strong>
                         <button
                             class="toolbox-button align-self-center"
                             type="button"
                             :class="{ active: isMercatorTheCurrentProjection }"
+                            data-cy="toggle-projection-button"
                             @click="toggleProjection"
                         >
                             <FontAwesomeIcon :icon="['fas', 'earth-europe']" />

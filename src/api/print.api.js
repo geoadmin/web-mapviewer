@@ -16,6 +16,31 @@ const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of 
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
 const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+
+class GeoAdminCustomizer extends BaseCustomizer {
+    /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
+    constructor(layerIDsToExclude) {
+        super()
+        this.layerIDsToExclude = layerIDsToExclude
+        this.layerFilter = this.layerFilter.bind(this)
+    }
+
+    /**
+     * Filter out layers that should not be printed. This function is automatically called when the
+     * encodeMap is called using this customizer.
+     *
+     * @param {State} layerState
+     * @returns {boolean} True to convert this layer, false to skip it
+     */
+    layerFilter(layerState) {
+        if (this.layerIDsToExclude.includes(layerState.layer.get('id'))) {
+            return false
+        }
+        // Call parent layerFilter method for other layers
+        return super.layerFilter(layerState)
+    }
+}
+
 /**
  * Tool to transform an OpenLayers map into a "spec" for MapFishPrint3 (meaning a big JSON) that can
  * then be used as request body for printing.
@@ -169,6 +194,8 @@ export class PrintError extends Error {
  *   Default is `false`
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
+ * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
+ *   from the print. Default is `[]`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -181,6 +208,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         lang = null,
         printGrid = false,
         projection = null,
+        excludedLayerIDs = [],
     } = config
 
     if (!qrCodeUrl) {
@@ -202,6 +230,8 @@ async function transformOlMapToPrintParams(olMap, config) {
         throw new PrintError('Missing projection to print the grid')
     }
 
+    const customizer = new GeoAdminCustomizer(excludedLayerIDs)
+
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
     try {
@@ -210,7 +240,7 @@ async function transformOlMapToPrintParams(olMap, config) {
             scale,
             printResolution: PRINTING_RESOLUTION,
             dpi: PRINTING_RESOLUTION,
-            customizer: new BaseCustomizer([0, 0, 10000, 10000]),
+            customizer: customizer,
         })
         if (printGrid) {
             encodedMap.layers.unshift({
@@ -239,7 +269,7 @@ async function transformOlMapToPrintParams(olMap, config) {
             layout: layout.name,
         }
         if (layersWithLegends.length > 0) {
-            spec.attributes.legends = {
+            spec.attributes.legend = {
                 name: i18n.global.t('legend'),
                 classes: layersWithLegends.map((layer) => {
                     return {
@@ -277,6 +307,8 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   Default is `false`
  * @param {CoordinateSystem} [config.projection=null] The projection used by the map, necessary when
  *   the grid is to be printed (it can otherwise be null). Default is `null`
+ * @param {String[]} [config.excludedLayerIDs=[]] List of IDs of OpenLayers layer to exclude from
+ *   the print. Default is `[]`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -291,6 +323,7 @@ export async function createPrintJob(map, config) {
         lang = null,
         printGrid = false,
         projection = null,
+        excludedLayerIDs = [],
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -303,6 +336,7 @@ export async function createPrintJob(map, config) {
             lang,
             printGrid,
             projection,
+            excludedLayerIDs,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)

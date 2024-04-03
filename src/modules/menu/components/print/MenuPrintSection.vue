@@ -112,32 +112,45 @@ defineExpose({
         @click:header="togglePrintMenu"
         @open-menu-section="(id) => emits('openMenuSection', id)"
     >
-        <div class="p-2 d-grid gap-2 menu-print-settings mx-4">
-            <label for="print-layout-selector " class="col-form-label fw-bold me-2">{{
+        <div class="p-2 d-grid gap-2 menu-print-settings mx-4" data-cy="menu-print-form">
+            <label for="print-layout-selector" class="col-form-label fw-bold me-2">{{
                 i18n.t('print_layout')
             }}</label>
-            <select id="print-layout-selector " v-model="selectedLayoutName" class="form-select">
+            <select
+                id="print-layout-selector"
+                v-model="selectedLayoutName"
+                class="form-select"
+                data-cy="print-layout-selector"
+            >
                 <option
                     v-for="layout in availablePrintLayouts"
                     :key="layout.name"
                     :value="layout.name"
                     @click="selectLayout(layout)"
                 >
-                    {{ layout.name }}
+                    <!-- on the backend the layout are enumerated to keep the ordering, but here we don't want the
+                 enumeration therefore we remove it -->
+                    {{ layout.name.replace(/^\d+\.\s*/, '') }}
                 </option>
             </select>
-            <label for="print-scale-selector " class="col-form-label fw-bold me-2">{{
+            <label for="print-scale-selector" class="col-form-label fw-bold me-2">{{
                 i18n.t('print_scale')
             }}</label>
-            <select id="print-scale-selector " v-model="selectedScale" class="form-select">
+            <select
+                id="print-scale-selector"
+                v-model="selectedScale"
+                class="form-select"
+                data-cy="print-scale-selector"
+            >
                 <option v-for="scale in scales" :key="scale" :value="scale">
-                    1:{{ formatThousand(scale) }}
+                    {{ '1:' + formatThousand(scale) }}
                 </option>
             </select>
             <div class="form-check">
                 <input
                     id="checkboxLegend"
                     v-model="printLegend"
+                    data-cy="checkboxLegend"
                     class="form-check-input"
                     type="checkbox"
                 />
@@ -147,6 +160,7 @@ defineExpose({
                 <input
                     id="checkboxGrid"
                     v-model="printGrid"
+                    data-cy="checkboxGrid"
                     class="form-check-input"
                     type="checkbox"
                 />
@@ -157,11 +171,18 @@ defineExpose({
                     v-if="printStatus === PrintStatus.PRINTING"
                     type="button"
                     class="btn btn-danger w-100 text-white"
+                    data-cy="abort-print-button"
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
                 </button>
-                <button v-else type="button" class="btn btn-light w-100" @click="printMap">
+                <button
+                    v-else
+                    type="button"
+                    class="btn btn-light w-100"
+                    data-cy="print-map-button"
+                    @click="printMap"
+                >
                     {{ i18n.t('print_action') }}
                 </button>
                 <!-- TODO: manage failing print job-->

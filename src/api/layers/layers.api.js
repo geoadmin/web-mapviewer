@@ -195,7 +195,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
  * @param {String} layerId The unique layer ID used in our backends
  * @returns {Promise<String>} HTML content of the layer's legend
  */
-export const getLayerLegend = (lang, layerId) => {
+export const getLayerDescription = (lang, layerId) => {
     return new Promise((resolve, reject) => {
         axios
             .get(`${API_BASE_URL}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)

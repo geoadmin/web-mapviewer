@@ -5,7 +5,7 @@ import { computed, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
@@ -21,12 +21,18 @@ const props = defineProps({
     },
 })
 
-const emits = defineEmits(['entrySelected', 'firstEntryReached', 'lastEntryReached'])
+const emits = defineEmits([
+    'entrySelected',
+    'firstEntryReached',
+    'lastEntryReached',
+    'setPreview',
+    'clearPreview',
+])
 
 const { index, entry } = toRefs(props)
 
 const resultType = computed(() => entry.value.resultType)
-const showLayerLegend = ref(false)
+const showLayerDescription = ref(false)
 
 const item = ref(null)
 
@@ -42,6 +48,7 @@ const layerName = computed(() => {
 
 function selectItem() {
     emits('entrySelected')
+    emits('clearPreview', entry)
     store.dispatch('selectResultEntry', { entry: entry.value, ...dispatcher })
 }
 
@@ -69,28 +76,6 @@ function goToLast() {
     item.value.parentElement.lastElementChild?.focus()
 }
 
-function startResultPreview() {
-    if (resultType.value === SearchResultTypes.LAYER) {
-        store.dispatch('setPreviewLayer', {
-            layer: entry.value.layerId,
-            ...dispatcher,
-        })
-    } else if (entry.value.coordinate) {
-        store.dispatch('setPreviewedPinnedLocation', {
-            coordinates: entry.value.coordinate,
-            ...dispatcher,
-        })
-    }
-}
-
-function stopResultPreview() {
-    if (resultType.value === SearchResultTypes.LAYER) {
-        store.dispatch('clearPreviewLayer', dispatcher)
-    } else {
-        store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
-    }
-}
-
 defineExpose({
     goToFirst,
     goToLast,
@@ -108,8 +93,10 @@ defineExpose({
         @keydown.home.prevent="goToFirst"
         @keydown.end.prevent="goToLast"
         @keyup.enter="selectItem"
-        @mouseenter="startResultPreview"
-        @mouseleave="stopResultPreview"
+        @mouseenter="emits('setPreview', entry)"
+        @mouseleave="emits('clearPreview', entry)"
+        @focusin="emits('setPreview', entry)"
+        @focusout="emits('clearPreview', entry)"
     >
         <TextSearchMarker
             class="search-category-entry-main px-2 flex-grow-1"
@@ -127,18 +114,18 @@ defineExpose({
             <button
                 class="btn btn-default"
                 :class="{ 'btn-xs': compact }"
-                :data-cy="`button-show-legend-layer-${entry.layerId}`"
+                :data-cy="`button-show-description-layer-${entry.layerId}`"
                 tabindex="-1"
-                @click="showLayerLegend = true"
+                @click="showLayerDescription = true"
             >
                 <FontAwesomeIcon size="lg" :icon="['fas', 'info-circle']" />
             </button>
         </div>
-        <LayerLegendPopup
-            v-if="showLayerLegend"
+        <LayerDescriptionPopup
+            v-if="showLayerDescription"
             :layer-id="entry.layerId"
             :layer-name="layerName"
-            @close="showLayerLegend = false"
+            @close="showLayerDescription = false"
         />
     </li>
 </template>

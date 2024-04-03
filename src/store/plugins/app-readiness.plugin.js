@@ -33,12 +33,16 @@ const appReadinessPlugin = (store) => {
                 state.topics.config.length > 0
             ) {
                 store.dispatch('setAppIsReady', dispatcher)
+            }
+        }
 
-                // In production build we are not interested anymore in the mutation logs
-                // therefore unsubscribe here
-                if (ENVIRONMENT === 'production') {
-                    unsubscribe()
-                }
+        if (mutation.type === 'mapModuleReady') {
+            store.dispatch('clearLoadingBar4MapLoading', { dispatcher })
+
+            // In production build we are not interested anymore in the mutation logs
+            // therefore unsubscribe here
+            if (ENVIRONMENT === 'production') {
+                unsubscribe()
             }
         }
         // otherwise we ignore all mutations, our job is already done

@@ -5,6 +5,7 @@ import proj4 from 'proj4'
 import {
     addIconFixtureAndIntercept,
     addLegacyIconFixtureAndIntercept,
+    checkKMLRequest,
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
 } from 'tests/cypress/support/drawing'
@@ -45,9 +46,11 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-feature-title"]').clear()
             cy.get('[data-cy="drawing-style-feature-title"]').type(title)
             cy.get('[data-cy="drawing-style-feature-title"]').should('have.value', title)
-            cy.wait('@update-kml').then((interception) =>
-                cy.checkKMLRequest(interception, [new RegExp(`<name>${title}</name>`)])
-            )
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) =>
+                    checkKMLRequest(request, [new RegExp(`<name>${title}</name>`)])
+                )
             cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
         }
         function readCoordinateClipboard(name, coordinate) {
@@ -116,13 +119,15 @@ describe('Drawing module tests', () => {
             cy.waitOnAllIconsDefaultGreen()
 
             // the color of the marker already placed on the map must switch to green
-            cy.wait('@update-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(
-                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                    ),
-                ])
-            })
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                        ),
+                    ])
+                })
 
             // opening up the icon size selector
             cy.get(
@@ -139,18 +144,20 @@ describe('Drawing module tests', () => {
                 `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
             ).click()
             // the existing icon on the map must be updated to large and green
-            cy.wait('@update-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(
-                        `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
-                    ),
-                    new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
-                    new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
-                    new RegExp(
-                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                    ),
-                ])
-            })
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
+                        ),
+                        new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
+                        new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
+                        new RegExp(
+                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                        ),
+                    ])
+                })
 
             // opening up all icons of the current sets so that we may choose a new one
             cy.get(
@@ -163,13 +170,15 @@ describe('Drawing module tests', () => {
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
                 ).click()
                 // the KML must be updated with the newly selected icon
-                cy.wait('@update-kml').then((interception) =>
-                    cy.checkKMLRequest(interception, [
-                        new RegExp(
-                            `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                        ),
-                    ])
-                )
+                cy.wait('@update-kml')
+                    .its('request')
+                    .should((request) =>
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                            ),
+                        ])
+                    )
             })
             // closing the icons
             cy.get(
@@ -190,11 +199,13 @@ describe('Drawing module tests', () => {
                 'have.value',
                 description
             )
-            cy.wait('@update-kml').then((interception) =>
-                cy.checkKMLRequest(interception, [
-                    new RegExp(`<description>${description}</description>`),
-                ])
-            )
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) =>
+                    checkKMLRequest(request, [
+                        new RegExp(`<description>${description}</description>`),
+                    ])
+                )
             cy.readStoreValue('state.features.selectedFeatures[0].description').should(
                 'eq',
                 description
@@ -221,7 +232,7 @@ describe('Drawing module tests', () => {
                     cy.simulateEvent(map, 'pointerup')
 
                     cy.wait('@update-kml')
-                    cy.readWindowValue('drawingLayer').then((drawingLayer) => {
+                    cy.readWindowValue('drawingLayer').should((drawingLayer) => {
                         const features = drawingLayer.getSource().getFeatures()
                         expect(features).to.have.lengthOf(1)
                         const foundType = features[0].getGeometry().getType()
@@ -259,15 +270,17 @@ describe('Drawing module tests', () => {
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait('@post-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(
-                        `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
-                    ),
-                    // there should be a default title
-                    new RegExp('<name>New text</name>'),
-                ])
-            })
+            cy.wait('@post-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
+                        ),
+                        // there should be a default title
+                        new RegExp('<name>New text</name>'),
+                    ])
+                })
 
             testTitleEdit()
 
@@ -283,13 +296,15 @@ describe('Drawing module tests', () => {
             cy.get(`[data-cy="drawing-style-text-color-${BLACK.name}"]`)
                 .should('be.visible')
                 .click()
-            cy.wait('@update-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(
-                        `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
-                    ),
-                ])
-            })
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
+                        ),
+                    ])
+                })
 
             cy.get(
                 '[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
@@ -304,11 +319,13 @@ describe('Drawing module tests', () => {
             cy.get(
                 `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${SMALL.label}"]`
             ).click({ force: true })
-            cy.wait('@update-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
-                ])
-            })
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
+                    ])
+                })
 
             cy.log('Coordinates for annotation can be copied while in drawing mode')
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
@@ -345,22 +362,26 @@ describe('Drawing module tests', () => {
 
             let kmlId = null
             cy.wait('@post-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(
-                        `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
-                    ),
-                    new RegExp(
-                        `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
-                            2
-                        )}</color></PolyStyle></Style>`
-                    ),
-                ])
+                cy.wrap(interception)
+                    .its('request')
+                    .should((request) =>
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
+                            ),
+                            new RegExp(
+                                `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
+                                    2
+                                )}</color></PolyStyle></Style>`
+                            ),
+                        ])
+                    )
                 kmlId = interception.response.body.id
             })
             cy.get('[data-cy="feature-style-edit-coordinate-copy-button"]').should('not.exist')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
-                .then((features) => {
+                .should((features) => {
                     expect(features).to.have.length(1)
                     const [polygon] = features
                     expect(polygon.getGeometry().getCoordinates().length).to.eq(1)
@@ -380,19 +401,21 @@ describe('Drawing module tests', () => {
                 // clicking in this popup is flaky (Cypress considers there's something else on top), so we force the click
                 force: true,
             })
-            cy.wait('@update-kml').then((interception) =>
-                cy.checkKMLRequest(
-                    interception,
-                    [
-                        new RegExp(
-                            `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
-                                2
-                            )}</color></PolyStyle></Style>`
-                        ),
-                    ],
-                    kmlId
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) =>
+                    checkKMLRequest(
+                        request,
+                        [
+                            new RegExp(
+                                `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
+                                    2
+                                )}</color></PolyStyle></Style>`
+                            ),
+                        ],
+                        kmlId
+                    )
                 )
-            )
 
             // Now creating a line, and finishing it by double-clicking the same spot
             cy.get('[data-cy="close-popover-button"]').click()
@@ -403,7 +426,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
-                .then((features) => {
+                .should((features) => {
                     expect(features).to.have.length(2)
                     const line = features[1]
                     expect(line.getGeometry().getCoordinates().length).to.eq(2)
@@ -421,7 +444,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="modal-confirm-button"]').click()
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
-                .then((features) => {
+                .should((features) => {
                     expect(features).to.have.length(0)
                 })
             cy.get('[data-cy="drawing-toolbox-delete-button"]').should('have.attr', 'disabled')
@@ -445,7 +468,7 @@ describe('Drawing module tests', () => {
             cy.url().should('not.contain', 'adminId')
 
             cy.closeDrawingMode()
-            cy.readStoreValue('state.layers.activeLayers').then((layers) => {
+            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
                 expect(drawingLayer.id).to.include('KML|')
@@ -453,7 +476,7 @@ describe('Drawing module tests', () => {
             })
             // checks that it clears the drawing when the drawing layer is removed
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
-            cy.readStoreValue('state.layers.activeLayers').then((layers) => {
+            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(0)
             })
             cy.readWindowValue('drawingLayer').should('not.exist')
@@ -511,7 +534,7 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.readStoreValue('getters.activeKmlLayer').then((activeKmlLayer) => {
+                cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
                     expect(activeKmlLayer).to.haveOwnProperty('fileId')
                     expect(activeKmlLayer.fileId).to.eq(kmlId)
                 })
@@ -540,9 +563,7 @@ describe('Drawing module tests', () => {
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
                     cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
                     cy.get('[data-cy="ol-map"]').click('center')
-                    cy.wait('@update-kml').then((interception) => {
-                        expect(interception.response.body.id).to.eq(newKmlId)
-                    })
+                    cy.wait('@update-kml').its('response.body.id').should('eq', newKmlId)
 
                     cy.log('Check the active layer list making sure that there is only the new')
                     cy.closeDrawingMode()
@@ -599,9 +620,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
             // checking that it updates the existing KML, and not creating a new copy of it
-            cy.wait('@update-kml').then((interception) => {
-                expect(interception.response.body.id).to.eq(kmlFileId)
-            })
+            cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
         it('manages the KML layer correctly if it comes attached with an adminId at startup from a legacy URL', () => {
             // Position of the marker defined in service-kml/legacy-mf-geoadmin3.kml
@@ -688,9 +707,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
             // checking that it updates the existing KML, and not creating a new copy of it
-            cy.wait('@update-kml').then((interception) => {
-                expect(interception.response.body.id).to.eq(kmlFileId)
-            })
+            cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
     })
     context('others', () => {
@@ -828,7 +845,7 @@ describe('Drawing module tests', () => {
             // Check that the copied URL is the shortened one
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
-            cy.readClipboardValue().then((clipboardText) => {
+            cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.be.equal(
                     publicShortlink,
                     `Share link is not a public shortlink`
@@ -838,7 +855,7 @@ describe('Drawing module tests', () => {
             // Same check, but with the other input (that should contain the adminId)
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
-            cy.readClipboardValue().then((clipboardText) => {
+            cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.be.equal(
                     adminshortlink,
                     `Share link is not an admin shortlink`
@@ -857,14 +874,14 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             // checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)
-            cy.readClipboardValue().then((clipboardText) => {
+            cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(`/${kmlId}`)
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
             // checking that the "Edit later" link contains the adminId
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
-            cy.readClipboardValue().then((clipboardText) => {
+            cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(`/${kmlId}`)
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)
             })
