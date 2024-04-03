@@ -47,6 +47,8 @@ function setDisclaimerAgree() {
 </script>
 
 <template>
+    <!-- used to keep elements in place when hiding disclaimer -->
+    <div class="pt-4"></div>
     <div v-if="disclaimerIsShown" class="break"></div>
     <div
         v-if="disclaimerIsShown"
@@ -81,15 +83,14 @@ function setDisclaimerAgree() {
             </button>
         </div>
     </div>
-    <div v-else class="d-flex">
+    <div v-else class="d-flex px-1">
         <button
             ref="disclaimerText"
-            :link="iframeLinks"
             class="d-flex btn btn-default btn-xs"
             data-cy="feature-detail-media-disclaimer-button-close"
             @click="setDisclaimerAgree"
         >
-            <FontAwesomeIcon class="" style="color: red" size="lg" icon="info-circle" />
+            <FontAwesomeIcon class="d-flex" style="color: red" size="lg" icon="info-circle" />
         </button>
     </div>
 </template>
