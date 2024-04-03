@@ -51,7 +51,6 @@ function iframeLinks(value) {
 
     let arr = Array.from(iFrame)
     arr.forEach((frame, index) => (arr[index] = frame.src))
-    console.log('debug: ', arr.toString().split(',').join(' '))
     return arr.toString().split(',').join(' ')
 }
 </script>
