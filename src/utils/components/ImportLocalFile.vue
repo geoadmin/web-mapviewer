@@ -2,10 +2,22 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const LOCAL_UPLOAD_ACCEPT = '.kml,.gpx,.pdf,.zip,.jpg,.jpeg,.kmz'
-const LOCAL_UPLOAD_MAX_SIZE = 250 * 1024 * 1024 // 250mb
-
 const i18n = useI18n()
+
+const props = defineProps({
+    acceptedFileTypes: {
+        type: String,
+        required: true,
+    },
+    maxFileSize: {
+        type: Number,
+        default: 250 * 1024 * 1024, // 250 MB,
+    },
+    placeholderText: {
+        type: String,
+        default: '',
+    },
+})
 
 const emits = defineEmits(['file-selected'])
 
@@ -39,7 +51,7 @@ function onFileSelected(evt) {
     // Validate
     InputLocalFile.value = null
     selectedFile.value = file
-    if (file.size > LOCAL_UPLOAD_MAX_SIZE) {
+    if (file.size > props.maxFileSize) {
         errorMessage.value = 'file_too_large'
     }
     emits('file-selected', file)
@@ -68,7 +80,7 @@ function validateForm() {
                 <input
                     ref="InputLocalFile"
                     type="file"
-                    :accept="LOCAL_UPLOAD_ACCEPT"
+                    :accept="props.acceptedFileTypes"
                     hidden
                     data-cy="import-file-local-input"
                     @change="onFileSelected"
@@ -77,7 +89,7 @@ function validateForm() {
                     type="text"
                     class="form-control import-input rounded-end import-file-local-input"
                     :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }"
-                    :placeholder="i18n.t('feedback_placeholder')"
+                    :placeholder="i18n.t(props.placeholderText)"
                     :value="filePathInfo"
                     readonly
                     required

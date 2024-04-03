@@ -11,6 +11,8 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 import { isValidEmail } from '@/utils/utils'
 
+const acceptedFileTypes = '.kml,.gpx,.pdf,.zip,.jpg,.jpeg,.kmz'
+
 const props = defineProps({
     showAsLink: {
         type: Boolean,
@@ -156,7 +158,11 @@ function openForm() {
 
             <div class="my-3">
                 <span>{{ $t('feedback_attachment') }}</span>
-                <ImportLocalFile @file-selected="handleFile" />
+                <ImportLocalFile
+                    :accepted-file-types="acceptedFileTypes"
+                    :placeholder-text="'feedback_placeholder'"
+                    @file-selected="handleFile"
+                />
             </div>
             <div class="my-4">
                 <div>
