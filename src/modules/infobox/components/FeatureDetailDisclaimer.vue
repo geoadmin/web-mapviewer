@@ -40,19 +40,20 @@ onBeforeUnmount(() => {
 })
 function setDisclaimerAgree() {
     store.dispatch('setShowDisclaimer', {
-        showDisclaimer: false,
+        showDisclaimer: !disclaimerIsShown.value,
         ...dispatcher,
     })
 }
 </script>
 
 <template>
+    <div v-if="disclaimerIsShown" class="break"></div>
     <div
         v-if="disclaimerIsShown"
         data-cy="feature-detail-media-disclaimer"
-        class="p-0 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
+        class="d-flex flex-fill p-0 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
     >
-        <div class="d-flex justify-content-between">
+        <div class="d-flex flex-fill justify-content-between">
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
@@ -80,6 +81,17 @@ function setDisclaimerAgree() {
             </button>
         </div>
     </div>
+    <div v-else class="d-flex">
+        <button
+            ref="disclaimerText"
+            :link="iframeLinks"
+            class="d-flex btn btn-default btn-xs"
+            data-cy="feature-detail-media-disclaimer-button-close"
+            @click="setDisclaimerAgree"
+        >
+            <FontAwesomeIcon class="" style="color: red" size="lg" icon="info-circle" />
+        </button>
+    </div>
 </template>
 
 <style lang="scss" scoped>
@@ -87,5 +99,9 @@ function setDisclaimerAgree() {
 
 .url-tooltip {
     @extend .clear-no-ios-long-press;
+}
+.break {
+    flex-basis: 100%;
+    height: 0;
 }
 </style>
