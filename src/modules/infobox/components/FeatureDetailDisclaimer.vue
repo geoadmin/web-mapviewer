@@ -1,6 +1,6 @@
 <script setup>
 import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -25,23 +25,30 @@ let disclaimerText = ref(null)
 const disclaimerIsShown = computed(() => {
     return store.state.ui.showDisclaimer
 })
-onMounted(() => {
-    tippyInstance = tippy(disclaimerText.value, {
-        content: (reference) => reference.getAttribute('link'),
-        arrow: true,
-        interactive: true,
-        placement: 'top',
+watch(disclaimerIsShown, () => {
+    nextTick(() => {
+        updateTippy()
     })
 })
+onMounted(() => {
+    updateTippy()
+})
 onBeforeUnmount(() => {
-    if (tippyInstance && tippyInstance.length) {
-        tippyInstance.destroy()
-    }
+    tippyInstance?.destroy()
 })
 function setDisclaimerAgree() {
     store.dispatch('setShowDisclaimer', {
         showDisclaimer: !disclaimerIsShown.value,
         ...dispatcher,
+    })
+}
+function updateTippy() {
+    tippyInstance = tippy(disclaimerText.value, {
+        content: (reference) => reference.getAttribute('link'),
+        arrow: true,
+        interactive: true,
+        placement: 'top',
+        appendTo: document.body,
     })
 }
 </script>
@@ -86,6 +93,7 @@ function setDisclaimerAgree() {
     <div v-else class="d-flex">
         <button
             ref="disclaimerText"
+            :link="iframeLinks"
             class="d-flex btn btn-default btn-xs"
             data-cy="feature-detail-media-disclaimer-button-close"
             @click="setDisclaimerAgree"
