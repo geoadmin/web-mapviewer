@@ -31,6 +31,8 @@ const vectorLayer = new VectorLayer({
         features: [],
     }),
     style: selectionBoxStyle,
+    // always on top, like an overlay
+    zIndex: 9999,
 })
 
 watch(selectionPolygon, () => updateLayer())

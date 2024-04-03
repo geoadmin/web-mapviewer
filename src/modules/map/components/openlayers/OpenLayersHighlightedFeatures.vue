@@ -113,6 +113,7 @@ useVectorLayer(
 
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
+    store.dispatch('clearClick', dispatcher)
 }
 function setBottomPanelFeatureInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
