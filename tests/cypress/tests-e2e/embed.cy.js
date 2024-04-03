@@ -127,7 +127,7 @@ describe('Testing the embed view', () => {
             .should(
                 'have.attr',
                 'href',
-                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech`
+                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
             )
             .should('have.attr', 'target', '_blank')
 
