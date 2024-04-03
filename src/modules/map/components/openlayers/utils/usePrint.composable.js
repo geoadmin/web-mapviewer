@@ -8,7 +8,7 @@ import log from '@/utils/logging'
 
 import { PRINT_AREA_LAYER_ID } from './printConstants'
 
-// const dispatcher = { dispatcher: 'usePrint.composable' }
+const dispatcher = { dispatcher: 'usePrint.composable' }
 
 /** @enum */
 export const PrintStatus = {
@@ -37,8 +37,9 @@ export function usePrint(map) {
      * @returns {Promise<String | null>}
      */
     async function print(printGrid = false, printLegend = false) {
+        const requester = 'print-map'
         try {
-            // TODO PB-362 : show laoding bar
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             if (currentJobReference.value) {
                 await abortCurrentJob()
             }
@@ -73,7 +74,7 @@ export function usePrint(map) {
             printStatus.value = PrintStatus.FINISHED_FAILED
             return null
         } finally {
-            // TODO PB-362 : hide laoding bar
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             currentJobReference.value = null
         }
     }
