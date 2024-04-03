@@ -83,7 +83,7 @@ function setDisclaimerAgree() {
             </button>
         </div>
     </div>
-    <div v-else class="d-flex px-1">
+    <div v-else class="d-flex">
         <button
             ref="disclaimerText"
             class="d-flex btn btn-default btn-xs"

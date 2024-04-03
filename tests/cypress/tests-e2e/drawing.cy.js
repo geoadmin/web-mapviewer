@@ -274,7 +274,7 @@ describe('Drawing module tests', () => {
             const media_description = 'description'
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(40, 160)
+            cy.get('[data-cy="ol-map"]').click(20, 160)
 
             cy.log('Open hyperlink popup')
             cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -312,6 +312,7 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<a target="_blank" href="${valid_url}">${media_description}</a>`
             )
+            cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open image embed popup')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
@@ -327,10 +328,11 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<image src="${valid_url}" style="max-height:200px;"/>`
             )
+            cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open video embed popup')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(120, 160)
+            cy.get('[data-cy="ol-map"]').click(140, 160)
             cy.get('[data-cy="drawing-style-video-button"]').click()
             cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -342,19 +344,21 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
             )
+            cy.get('[data-cy="infobox-close"]').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(160, 160)
+            cy.get('[data-cy="ol-map"]').click(200, 160)
             cy.get('[data-cy="drawing-style-video-button"]').click()
             cy.get('[data-cy="drawing-style-media-url-input"]').clear()
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="infobox-close"]').click()
 
             cy.closeDrawingMode()
             cy.closeMenuIfMobile()
 
             cy.log('Hyperlink exists after sanitize')
-            cy.get('[data-cy="ol-map"]').click(40, 160)
+            cy.get('[data-cy="ol-map"]').click(20, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             cy.get('[data-cy="feature-detail-description-content"]')
                 .find('a')
@@ -370,7 +374,7 @@ describe('Drawing module tests', () => {
                 .should('eq', `${valid_url}`)
 
             cy.log('Video link has disclaimer')
-            cy.get('[data-cy="ol-map"]').click(120, 160)
+            cy.get('[data-cy="ol-map"]').click(140, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
 
             cy.log('Disclaimer provides more information on click')
@@ -390,7 +394,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
             cy.log('Closing disclaimer persists when selecting different marker')
-            cy.get('[data-cy="ol-map"]').click(160, 160)
+            cy.get('[data-cy="ol-map"]').click(200, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
         })
         it('can create annotation/text and edit them', () => {
