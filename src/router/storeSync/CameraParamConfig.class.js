@@ -65,13 +65,13 @@ function generateCameraUrlParamFromStoreValues(store) {
  */
 export default class CameraParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'camera',
-            'setCameraPosition',
-            dispatchCameraFromUrlIntoStore,
-            generateCameraUrlParamFromStoreValues,
-            false,
-            String
-        )
+        super({
+            urlParamName: 'camera',
+            mutationsToWatch: ['setCameraPosition'],
+            setValuesInStore: dispatchCameraFromUrlIntoStore,
+            extractValueFromStore: generateCameraUrlParamFromStoreValues,
+            keepInUrlWhenDefault: false,
+            valueType: String,
+        })
     }
 }

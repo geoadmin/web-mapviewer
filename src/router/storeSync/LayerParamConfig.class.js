@@ -198,9 +198,9 @@ function generateLayerUrlParamFromStoreValues(store) {
 
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'layers',
-            [
+        super({
+            urlParamName: 'layers',
+            mutationsToWatch: [
                 'toggleLayerVisibility',
                 'addLayer',
                 'removeLayersById',
@@ -211,11 +211,11 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setLayerYear',
                 'setLayers',
                 'setSelectedFeatures',
-            ].join(','),
-            dispatchLayersFromUrlIntoStore,
-            generateLayerUrlParamFromStoreValues,
-            true,
-            String
-        )
+            ],
+            setValuesInStore: dispatchLayersFromUrlIntoStore,
+            extractValueFromStore: generateLayerUrlParamFromStoreValues,
+            keepInUrlWhenDefault: true,
+            valueType: String,
+        })
     }
 }

@@ -38,13 +38,13 @@ function generateCenterUrlParamFromStoreValues(store) {
  */
 export default class PositionParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'center',
-            'setCenter',
-            dispatchCenterFromUrlIntoStore,
-            generateCenterUrlParamFromStoreValues,
-            true,
-            String
-        )
+        super({
+            urlParamName: 'center',
+            mutationsToWatch: ['setCenter'],
+            setValuesInStore: dispatchCenterFromUrlIntoStore,
+            extractValueFromStore: generateCenterUrlParamFromStoreValues,
+            keepInUrlWhenDefault: true,
+            valueType: String,
+        })
     }
 }

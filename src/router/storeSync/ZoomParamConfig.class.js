@@ -30,13 +30,13 @@ function generateZoomUrlParamFromStoreValues(store) {
 /** Describe the zoom level of the map in the URL. */
 export default class ZoomParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'z',
-            'setZoom',
-            dispatchZoomFromUrlIntoStore,
-            generateZoomUrlParamFromStoreValues,
-            true,
-            Number
-        )
+        super({
+            urlParamName: 'z',
+            mutationsToWatch: ['setZoom'],
+            setValuesInStore: dispatchZoomFromUrlIntoStore,
+            extractValueFromStore: generateZoomUrlParamFromStoreValues,
+            keepInUrlWhenDefault: true,
+            valueType: Number,
+        })
     }
 }

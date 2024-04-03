@@ -15,8 +15,8 @@ export default class AbstractParamConfig {
     /**
      * @param {String} urlParamName The name of the param found in the URL (e.g. 'lat' will then be
      *   https://.../?lat=value in the URL
-     * @param {String} mutationsToWatch The names of the Vuex's store mutations to watch for value
-     *   synchronization (separated by a coma)
+     * @param {[String]} mutationsToWatch The names of the Vuex's store mutations to watch for value
+     *   synchronization
      * @param {Function} setValuesInStore A function taking the store and the current URL value as
      *   params. It needs to dispatch the value of this param to the store. It must return a promise
      *   that will be resolved when the store has finished processing the dispatch.
@@ -27,28 +27,25 @@ export default class AbstractParamConfig {
      * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      * @param {Boolean | Number | String | null} defaultValue
      */
-    constructor(
+    constructor({
         urlParamName,
         mutationsToWatch,
         setValuesInStore,
         extractValueFromStore,
         keepInUrlWhenDefault = true,
         valueType = String,
-        defaultValue = null
-    ) {
+        defaultValue = null,
+    } = {}) {
         this.urlParamName = urlParamName
-        if (mutationsToWatch instanceof Array) {
-            this.mutationsToWatch = mutationsToWatch
-        } else {
-            this.mutationsToWatch = mutationsToWatch.split(',')
-        }
+        this.mutationsToWatch = mutationsToWatch
         this.setValuesInStore = setValuesInStore
         this.extractValueFromStore = extractValueFromStore
         this.keepInUrlWhenDefault = keepInUrlWhenDefault
         this.valueType = valueType
         this.defaultValue = defaultValue
         if (this.valueType === Boolean && this.defaultValue === null) {
-            // forcing a proper boolean value in case we are dealing with boolean and the default value is falsy
+            // forcing a proper boolean value in case we are dealing with boolean and the default
+            // value is falsy
             this.defaultValue = false
         }
     }
@@ -91,6 +88,8 @@ export default class AbstractParamConfig {
 
     /**
      * Reads the value from the given Vue store, and cast it in the type given in the constructor
+     *
+     * NOTE: When the store value is null, it is cast to undefined
      *
      * @param store A {@link Vuex.Store}
      * @returns {undefined | number | string | boolean} The value casted in the type given in the

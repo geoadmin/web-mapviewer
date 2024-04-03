@@ -1,8 +1,6 @@
 import { DEFAULT_PROJECTION } from '@/config'
-import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
-import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
@@ -18,57 +16,57 @@ import CompareSliderParamConfig from './CompareSliderParamConfig.class'
  * @type Array<AbstractParamConfig>
  */
 const storeSyncConfig = [
-    new SimpleUrlParamConfig(
-        'lang',
-        'setLang',
-        'setLang',
-        (store) => store.state.i18n.lang,
-        true,
-        String
-    ),
-    new SimpleUrlParamConfig(
-        'sr',
-        'setProjection',
-        'setProjection',
-        (store) => store.state.position.projection.epsgNumber,
-        false,
-        Number,
-        // Unit tests somehow come to this line without having set DEFAULT_PROJECTION correcty.
+    new SimpleUrlParamConfig({
+        urlParamName: 'lang',
+        mutationsToWatch: ['setLang'],
+        dispatchName: 'setLang',
+        extractValueFromStore: (store) => store.state.i18n.lang,
+        keepInUrlWhenDefault: true,
+        valueType: String,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'sr',
+        mutationsToWatch: ['setProjection'],
+        dispatchName: 'setProjection',
+        dispatchValueName: 'projection',
+        extractValueFromStore: (store) => store.state.position.projection.epsgNumber,
+        keepInUrlWhenDefault: false,
+        valueType: Number,
+        // Unit tests somehow come to this line without having set DEFAULT_PROJECTION correctly.
         // So as defensive measure for this, we set a "just in case" default hard-coded value.
-        DEFAULT_PROJECTION?.epsgNumber ?? 2056,
-        'projection'
-    ),
+        defaultValue: DEFAULT_PROJECTION?.epsgNumber ?? 2056,
+    }),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
     // to the default projection EPSG number
     new PositionParamConfig(),
     new CameraParamConfig(),
     new ZoomParamConfig(),
-    new SimpleUrlParamConfig(
-        '3d',
-        'set3dActive',
-        'set3dActive',
-        (store) => store.state.cesium.active,
-        false,
-        Boolean,
-        false,
-        'active'
-    ),
-    new SimpleUrlParamConfig(
-        'geolocation',
-        'setGeolocationActive',
-        'setGeolocation',
-        (store) => store.state.geolocation.active,
-        false,
-        Boolean,
-        false,
-        'active'
-    ),
-    new SimpleUrlParamConfig(
-        'bgLayer',
-        'setBackground',
-        'setBackground',
-        (store) => {
+    new SimpleUrlParamConfig({
+        urlParamName: '3d',
+        mutationsToWatch: ['set3dActive'],
+        dispatchName: 'set3dActive',
+        dispatchValueName: 'active',
+        extractValueFromStore: (store) => store.state.cesium.active,
+        keepInUrlWhenDefault: false,
+        valueType: Boolean,
+        defaultValue: false,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'geolocation',
+        mutationsToWatch: ['setGeolocationActive'],
+        dispatchName: 'setGeolocation',
+        dispatchValueName: 'active',
+        extractValueFromStore: (store) => store.state.geolocation.active,
+        keepInUrlWhenDefault: false,
+        valueType: Boolean,
+        defaultValue: false,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'bgLayer',
+        mutationsToWatch: ['setBackground'],
+        dispatchName: 'setBackground',
+        extractValueFromStore: (store) => {
             const backgroundLayer = store.state.layers.currentBackgroundLayer
             // if background layer is null (no background) we write 'void' in the URL
             if (backgroundLayer === null) {
@@ -76,59 +74,54 @@ const storeSyncConfig = [
             }
             return backgroundLayer.id
         },
-        true,
-        String
-    ),
-    new SimpleUrlParamConfig(
-        'topic',
-        'changeTopic',
-        'changeTopic',
-        (store) => store.state.topics.current,
-        true,
-        String,
-        null,
-        'topicId'
-    ),
-    // as the setSearchQuery action requires an object as payload, we need
-    // to customize a bit the dispatch to this action (in order to build a correct payload)
-    new CustomDispatchUrlParamConfig(
-        'swisssearch',
-        'setSearchQuery',
-        (to, store, urlValue) =>
-            store.dispatch('setSearchQuery', {
-                query: urlValue,
-                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-            }),
-        (store) => store.state.search.query,
-        false,
-        String,
-        ''
-    ),
+        keepInUrlWhenDefault: true,
+        valueType: String,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'topic',
+        mutationsToWatch: ['changeTopic'],
+        dispatchName: 'changeTopic',
+        dispatchValueName: 'topicId',
+        extractValueFromStore: (store) => store.state.topics.current,
+        keepInUrlWhenDefault: true,
+        valueType: String,
+        defaultValue: null,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'swisssearch',
+        mutationsToWatch: ['setSearchQuery'],
+        dispatchName: 'setSearchQuery',
+        dispatchValueName: 'query',
+        extractValueFromStore: (store) => store.state.search.query,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: '',
+    }),
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
-    new SimpleUrlParamConfig(
-        'featureInfo',
-        'setFeatureInfoPosition',
-        'setFeatureInfoPosition',
-        (store) => store.state.ui.featureInfoPosition,
-        false,
-        String,
-        FeatureInfoPositions.NONE
-    ),
-    new SimpleUrlParamConfig(
-        'catalogNodes',
-        [
+    new SimpleUrlParamConfig({
+        urlParamName: 'featureInfo',
+        mutationsToWatch: ['setFeatureInfoPosition'],
+        dispatchName: 'setFeatureInfoPosition',
+        extractValueFromStore: (store) => store.state.ui.featureInfoPosition,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: FeatureInfoPositions.NONE,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'catalogNodes',
+        mutationsToWatch: [
             'setTopicTreeOpenedThemesIds',
             'addTopicTreeOpenedThemeId',
             'removeTopicTreeOpenedThemeId',
         ],
-        'setTopicTreeOpenedThemesIds',
-        (store) => store.state.topics.openedTreeThemesIds,
-        false,
-        String,
-        ''
-    ),
+        dispatchName: 'setTopicTreeOpenedThemesIds',
+        extractValueFromStore: (store) => store.state.topics.openedTreeThemesIds,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: '',
+    }),
 ]
 
 export default storeSyncConfig
