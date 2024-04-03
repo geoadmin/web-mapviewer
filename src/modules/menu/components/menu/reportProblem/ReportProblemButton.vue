@@ -160,6 +160,7 @@ function openForm() {
                 <span>{{ $t('feedback_attachment') }}</span>
                 <ImportLocalFile
                     :accepted-file-types="acceptedFileTypes"
+                    :check-on-select="true"
                     :placeholder-text="'feedback_placeholder'"
                     @file-selected="handleFile"
                 />

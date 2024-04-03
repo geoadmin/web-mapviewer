@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 const i18n = useI18n()
 
+// Props
 const props = defineProps({
     acceptedFileTypes: {
         type: String,
@@ -17,6 +18,21 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    // Whether the component should check if the file is valid after selecting a file
+    checkOnSelect: {
+        type: Boolean,
+        default: true,
+    },
+    // Additional check done from outside the component
+    additionalCheck: {
+        type: Boolean,
+        default: true,
+    },
+    // Additional error message from outside the component
+    additionalErrorMessage: {
+        type: String,
+        default: '',
+    },
 })
 
 const emits = defineEmits(['file-selected'])
@@ -25,17 +41,33 @@ const emits = defineEmits(['file-selected'])
 const InputLocalFile = ref(null)
 const selectedFile = ref(null)
 const errorMessage = ref(null)
-const isFormValid = ref(false)
 
 // Computed properties
-const isValid = computed(() => !errorMessage.value && selectedFile.value)
+const isValid = computed(() => {
+    if (props.checkOnSelect) {
+        return !errorMessage.value && selectedFile.value
+    } else {
+        return (
+            !errorMessage.value &&
+            selectedFile.value &&
+            !props.additionalErrorMessage &&
+            props.additionalCheck
+        )
+    }
+})
 const isInvalid = computed(() => errorMessage.value)
 const filePathInfo = computed(() =>
     selectedFile.value ? `${selectedFile.value.name}, ${selectedFile.value.size / 1000} kb` : ''
 )
 
-watch(errorMessage, validateForm)
-watch(selectedFile, validateForm)
+// Watches
+watch(
+    () => props.additionalErrorMessage,
+    (newValue) => {
+        errorMessage.value = newValue
+        console.log('errorMessage', errorMessage.value)
+    }
+)
 
 // Methods
 function onFileSelected(evt) {
@@ -55,14 +87,6 @@ function onFileSelected(evt) {
         errorMessage.value = 'file_too_large'
     }
     emits('file-selected', file)
-}
-
-function validateForm() {
-    if (errorMessage.value) {
-        isFormValid.value = false
-    } else {
-        isFormValid.value = true
-    }
 }
 </script>
 

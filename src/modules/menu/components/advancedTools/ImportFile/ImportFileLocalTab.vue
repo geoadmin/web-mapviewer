@@ -26,14 +26,14 @@ const { active } = toRefs(props)
 // Reactive data
 const buttonState = ref('default')
 const selectedFile = ref(null)
-const errorMessage = ref(null)
+const errorLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const layerAdded = ref(false)
 
 useImportButton(buttonState)
 
-watch(errorMessage, validateForm)
-watch(selectedFile, validateForm)
+watch(errorLoadingMessage, validateForm)
+watch(selectedFile, resetInput)
 
 // Methods
 function handleFile(file) {
@@ -44,7 +44,7 @@ async function loadFile() {
     buttonState.value = 'loading'
 
     if (!selectedFile.value) {
-        errorMessage.value = 'no_file'
+        errorLoadingMessage.value = 'no_file'
     } else {
         try {
             const content = await selectedFile.value.text()
@@ -52,17 +52,17 @@ async function loadFile() {
             layerAdded.value = true
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
-                errorMessage.value = 'kml_gpx_file_out_of_bounds'
+                errorLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                errorMessage.value = 'kml_gpx_file_empty'
+                errorLoadingMessage.value = 'kml_gpx_file_empty'
             } else {
-                errorMessage.value = 'invalid_kml_gpx_file_error'
+                errorLoadingMessage.value = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
         }
     }
 
-    if (!errorMessage.value) {
+    if (!errorLoadingMessage.value) {
         buttonState.value = 'succeeded'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } else {
@@ -71,12 +71,16 @@ async function loadFile() {
 }
 
 function validateForm() {
-    layerAdded.value = false
-    if (errorMessage.value) {
+    if (errorLoadingMessage.value) {
         isFormValid.value = false
     } else {
         isFormValid.value = true
     }
+}
+
+function resetInput() {
+    layerAdded.value = false
+    isFormValid.value = true
 }
 </script>
 
@@ -94,6 +98,9 @@ function validateForm() {
     >
         <ImportLocalFile
             :accepted-file-types="acceptedFileTypes"
+            :additional-error-message="errorLoadingMessage"
+            :additional-check="layerAdded"
+            :check-on-select="false"
             :placeholder-text="'no_file'"
             @file-selected="handleFile"
         ></ImportLocalFile>
@@ -101,8 +108,6 @@ function validateForm() {
             class="mt-2"
             :button-state="buttonState"
             :disabled="!isFormValid"
-            :extra-is-valid="layerAdded"
-            :error-message="errorMessage"
             @load-file="loadFile"
         />
     </div>
