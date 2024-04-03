@@ -289,7 +289,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
