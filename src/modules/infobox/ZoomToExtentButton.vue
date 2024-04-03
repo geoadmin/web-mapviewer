@@ -34,6 +34,7 @@ function zoomToFeatureExtent() {
     <button
         class="zoom-to-extent-button btn btn-xs text-secondary"
         data-tippy-content="offline_zoom_extent"
+        data-cy="zoom-to-feature-extent"
         @click="zoomToFeatureExtent"
     >
         <FontAwesomeIcon icon="fa-search-plus" />
