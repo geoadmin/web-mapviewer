@@ -7,10 +7,10 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
-import ZoomToExtentButton from '@/modules/infobox/ZoomToExtentButton.vue'
 import { canFeatureShowProfile } from '@/store/modules/features.store.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 import { normalizeExtent } from '@/utils/coordinates/coordinateUtils.js'
+import ZoomToExtentButton from '@/utils/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
 

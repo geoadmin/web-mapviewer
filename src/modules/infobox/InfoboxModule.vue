@@ -73,6 +73,7 @@ function onPrint() {
 }
 function onClose() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
+    store.dispatch('clearClick', dispatcher)
 }
 </script>
 

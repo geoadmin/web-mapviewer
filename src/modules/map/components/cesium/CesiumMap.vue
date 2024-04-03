@@ -295,6 +295,7 @@ export default {
             'setCameraPosition',
             'clearAllSelectedFeatures',
             'click',
+            'clearClick',
             'setFeatureInfoPosition',
             'setCenter',
             'mapModuleReady',
@@ -575,6 +576,7 @@ export default {
         onPopupClose() {
             unhighlightGroup(this.viewer)
             this.clearAllSelectedFeatures(dispatcher)
+            this.clearClick(dispatcher)
         },
         onTouchStart(event) {
             this.clearLongPressTimer()

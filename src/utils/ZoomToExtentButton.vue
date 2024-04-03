@@ -4,7 +4,7 @@ import { toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
-import { useTippyTooltip } from '@/utils/useTippyTooltip.js'
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'ZoomToExtentButton.vue' }
 

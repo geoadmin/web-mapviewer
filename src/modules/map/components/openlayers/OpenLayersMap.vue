@@ -94,8 +94,13 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
     z-index: $zindex-map;
 }
 
+$dragbox-width: 3px;
+// Show selected area when shift click + drag on map
+:global(.ol-dragzoom) {
+    border: $dragbox-width solid $malibu;
+}
+// Show selected area when ctrl click + drag on map
 :global(.ol-dragbox) {
-    border: 3px solid $info;
-    border-radius: 2px;
+    border: $dragbox-width solid $red;
 }
 </style>

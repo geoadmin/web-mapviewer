@@ -78,7 +78,7 @@ export const geolocationPointStyle = new Style({
 })
 
 export const selectionBoxStyle = new Style({
-    stroke: malibuStroke,
+    stroke: redStroke,
 })
 
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
