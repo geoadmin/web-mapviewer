@@ -126,12 +126,6 @@ function onZoomToExtent(event) {
             class="float-end"
             @click="onZoomToExtent"
         />
-        <ShowGeometryProfileButton
-            v-if="canDisplayProfile"
-            :feature="item"
-            class="float-end"
-            @click="onShowProfile"
-        />
     </div>
     <div
         v-if="showContent"
@@ -142,6 +136,9 @@ function onZoomToExtent(event) {
         @mouseleave.passive="clearHighlightedFeature"
     >
         <FeatureDetail :feature="item" />
+        <div v-if="canDisplayProfile" class="d-grid p-1">
+            <ShowGeometryProfileButton :feature="item" @click="onShowProfile" />
+        </div>
     </div>
 </template>
 
