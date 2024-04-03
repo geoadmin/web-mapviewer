@@ -10,7 +10,7 @@ const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
 const props = defineProps({
     iframeLinks: {
-        type: String,
+        type: Object,
         required: true,
     },
 })
@@ -26,6 +26,7 @@ const disclaimerIsShown = computed(() => {
     return store.state.ui.showDisclaimer
 })
 watch(disclaimerIsShown, () => {
+    console.log('debug: ', iframeLinks.value)
     nextTick(() => {
         updateTippy()
     })
@@ -56,17 +57,33 @@ function updateTippy() {
 <template>
     <!-- used to keep elements in place when hiding disclaimer -->
     <div class="pt-4"></div>
-    <div v-if="disclaimerIsShown" class="break"></div>
+    <div v-if="!iframeLinks.whitelisted && disclaimerIsShown" class="break"></div>
+    <div v-if="iframeLinks.whitelisted || !disclaimerIsShown" class="d-flex">
+        <div ref="disclaimerText" :link="iframeLinks.urls">
+            <button
+                :disabled="iframeLinks.whitelisted"
+                class="d-flex btn btn-default btn-xs border-0"
+                data-cy="feature-detail-media-disclaimer-button-close"
+                @click="setDisclaimerAgree"
+            >
+                <FontAwesomeIcon
+                    :color="iframeLinks.whitelisted ? 'black' : 'red'"
+                    size="lg"
+                    icon="info-circle"
+                />
+            </button>
+        </div>
+    </div>
     <div
-        v-if="disclaimerIsShown"
+        v-else
         data-cy="feature-detail-media-disclaimer"
-        class="d-flex flex-fill p-0 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
+        class="d-flex flex-fill p-0 rounded-2 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
     >
         <div class="d-flex flex-fill justify-content-between">
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :source-name="iframeLinks"
+                    :source-name="iframeLinks.urls"
                 >
                     <button
                         class="d-flex btn btn-default btn-xs"
@@ -76,7 +93,7 @@ function updateTippy() {
                     </button>
                 </ThirdPartyDisclaimer>
                 <span class="url-tooltip">
-                    <div ref="disclaimerText" :link="iframeLinks" class="px-1 d-flex">
+                    <div ref="disclaimerText" :link="iframeLinks.urls" class="px-1 d-flex">
                         {{ i18n.t('media_disclaimer') }}
                     </div>
                 </span>
@@ -89,17 +106,6 @@ function updateTippy() {
                 <FontAwesomeIcon style="color: white" size="lg" icon="times" />
             </button>
         </div>
-    </div>
-    <div v-else class="d-flex">
-        <button
-            ref="disclaimerText"
-            :link="iframeLinks"
-            class="d-flex btn btn-default btn-xs"
-            data-cy="feature-detail-media-disclaimer-button-close"
-            @click="setDisclaimerAgree"
-        >
-            <FontAwesomeIcon class="d-flex" style="color: red" size="lg" icon="info-circle" />
-        </button>
     </div>
 </template>
 

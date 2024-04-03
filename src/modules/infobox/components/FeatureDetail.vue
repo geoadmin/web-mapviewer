@@ -43,15 +43,30 @@ function sanitizeHtml(key, htmlText) {
         return DOMPurify.sanitize(htmlText)
     }
 }
+function checkWhitelist(url) {
+    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
+
+    let whitelisted = false
+    whitelisted_hosts.forEach((host) => {
+        if (host === new URL(url).hostname) {
+            whitelisted = true
+        }
+    })
+    return whitelisted
+}
 function iframeLinks(value) {
     let data = value
     let parser = new DOMParser()
     let parsedIframe = parser.parseFromString(data, 'text/html')
     let iFrame = parsedIframe.getElementsByTagName('iframe')
 
+    let whitelisted = true
     let arr = Array.from(iFrame)
-    arr.forEach((frame, index) => (arr[index] = frame.src))
-    return arr.toString().split(',').join(' ')
+    arr.forEach((frame, index) => {
+        whitelisted = whitelisted && checkWhitelist(frame.src)
+        arr[index] = frame.src
+    })
+    return { urls: arr, whitelisted: whitelisted }
 }
 </script>
 
@@ -67,7 +82,7 @@ function iframeLinks(value) {
                 <div class="d-flex flex-wrap align-items-center">
                     <div class="d-flex flex-wrap fw-bold">{{ i18n.t(key) }}</div>
                     <FeatureDetailDisclaimer
-                        v-if="iframeLinks(value)"
+                        v-if="iframeLinks(value).urls && iframeLinks(value).urls.length"
                         :iframe-links="iframeLinks(value)"
                     ></FeatureDetailDisclaimer>
                 </div>
