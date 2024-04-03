@@ -1,7 +1,7 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
 const labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
-const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
+const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', 'v1', false)
 const buildingsLayer = new GeoAdmin3DLayer(
     'ch.swisstopo.swissbuildings3d.3d',
     'v1',
