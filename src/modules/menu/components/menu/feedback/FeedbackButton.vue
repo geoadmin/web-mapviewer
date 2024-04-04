@@ -1,7 +1,7 @@
 <template>
     <HeaderLink
         v-if="showAsLink"
-        :primary="true"
+        primary
         data-cy="feedback-link-button"
         @click="showFeedbackForm = true"
     >
@@ -36,46 +36,26 @@
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
-            <div class="my-3">
-                <span>{{ $t('feedback_email') }}</span>
-                <div class="input-group has-validation">
-                    <input
-                        v-model="feedback.email"
-                        :disabled="request.pending"
-                        :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
-                        type="email"
-                        class="form-control"
-                        data-cy="feedback-email"
-                        @focusin="userIsTypingEmail = true"
-                        @focusout="userIsTypingEmail = false"
-                    />
-                    <div class="invalid-feedback">{{ $t('feedback_invalid_email') }}</div>
-                </div>
-            </div>
+
+            <EmailValidationField
+                class="my-3"
+                :disabled="request.pending"
+                :label="'feedback_email'"
+                @email-updated="feedback.email = $event"
+            />
+
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <div class="text-end">
-                <button class="btn btn-light mx-2" @click="closeAndCleanForm">
-                    {{ $t('cancel') }}
-                </button>
-                <button
-                    :disabled="!feedbackCanBeSent"
-                    class="btn btn-primary"
-                    data-cy="submit-feedback-button"
-                    @click="sendFeedback"
-                >
-                    <FontAwesomeIcon
-                        v-if="request.pending"
-                        icon="spinner"
-                        pulse
-                        data-cy="feedback-pending-icon"
-                    />
-                    <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
-                </button>
-            </div>
+            <FeedbackActionButtons
+                class="text-end"
+                :is-disabled="!feedbackCanBeSent"
+                :is-pending="request.pending"
+                @send="sendFeedback"
+                @cancel="closeAndCleanForm"
+            />
             <div
                 v-if="request.failed"
                 ref="requestResults"
@@ -105,16 +85,21 @@ import { mapGetters } from 'vuex'
 
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
+import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
-
-// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
-const EMAIL_REGEX =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+import { isValidEmail } from '@/utils/utils'
 
 export default {
-    components: { FeedbackRating, ModalWithBackdrop, HeaderLink },
+    components: {
+        FeedbackRating,
+        ModalWithBackdrop,
+        HeaderLink,
+        EmailValidationField,
+        FeedbackActionButtons,
+    },
     props: {
         showAsLink: {
             type: Boolean,
@@ -144,7 +129,7 @@ export default {
             return this.feedback.rating !== 0 && !this.request.pending && this.isEmailValid
         },
         isEmailValid() {
-            return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
+            return !this.feedback.email || isValidEmail(this.feedback.email)
         },
     },
     methods: {
@@ -160,12 +145,18 @@ export default {
             }
             this.request.pending = true
             try {
+                let subject = '[web-mapviewer]'
+                if (this.feedback.rating && this.maxRating) {
+                    subject += ` [rating: ${this.feedback.rating}/${this.maxRating}]`
+                }
+                subject += ' User feedback'
                 const feedbackSentSuccessfully = await sendFeedback(
+                    subject,
                     this.feedback.message,
-                    this.feedback.rating,
-                    this.maxRating,
-                    this.activeKmlLayer?.kmlFileUrl,
-                    this.feedback.email
+                    {
+                        kmlFileUrl: this.activeKmlLayer?.kmlFileUrl,
+                        email: this.feedback.email,
+                    }
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully
@@ -176,8 +167,10 @@ export default {
                 this.request.pending = false
             }
             await this.$nextTick()
-            // scrolling down to make sure the message with request results is visible to the user
-            this.$refs.requestResults.scrollIntoView()
+            if (this.request.failed) {
+                // scrolling down to make sure the message with request results is visible to the user
+                this.$refs.requestResults.scrollIntoView()
+            }
         },
         closeAndCleanForm() {
             this.showFeedbackForm = false

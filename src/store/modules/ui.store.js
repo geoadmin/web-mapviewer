@@ -1,4 +1,10 @@
-import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
+import {
+    BREAKPOINT_TABLET,
+    GIVE_FEEDBACK_HOSTNAMES,
+    NO_WARNING_BANNER_HOSTNAMES,
+    REPORT_PROBLEM_HOSTNAMES,
+    WARNING_RIBBON_HOSTNAMES,
+} from '@/config'
 import log from '@/utils/logging'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
@@ -234,6 +240,20 @@ export default {
         },
         noFeatureInfo(state) {
             return state.featureInfoPosition === FeatureInfoPositions.NONE
+        },
+        /**
+         * Flag to display to display give feedback button/form. On localhost, it will always shown
+         * for testing purpose
+         */
+        hasGiveFeedbackButton(state) {
+            return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
+        },
+        /**
+         * Flag to display to display report problem button/form. On localhost, it will always shown
+         * for testing purpose
+         */
+        hasReportProblemButton(state) {
+            return REPORT_PROBLEM_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
     },
     actions: {

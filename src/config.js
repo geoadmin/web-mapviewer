@@ -258,3 +258,23 @@ export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
  * @type {String[]}
  */
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
+
+/**
+ * Display Give Feedback on all these hosts
+ *
+ * @type {String[]}
+ */
+export const GIVE_FEEDBACK_HOSTNAMES = ['localhost', 'sys-map.dev.bgdi.ch', 'test.map.geo.admin.ch']
+
+/**
+ * Display Report Problem on all these hosts
+ *
+ * @type {String[]}
+ */
+export const REPORT_PROBLEM_HOSTNAMES = [
+    'localhost',
+    'sys-map.dev.bgdi.ch',
+    'sys-map.int.bgdi.ch',
+    'sys-map.prod.bgdi.ch',
+    'map.geo.admin.ch',
+]

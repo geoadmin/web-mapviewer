@@ -190,6 +190,7 @@
     "feedback_description": "1. Report in this field changes in the map, improvements to the data or questions about this website (required) :",
     "feedback_disclaimer": "By submitting your message, you agree to the <a href='https://www.geo.admin.ch/en/about-swiss-geoportal/responsabilities-and-contacts.html#feedback' target='_blank'>terms of use</a>.",
     "feedback_drawing": "2. Indicate the appropriate location on the map :",
+    "feedback_empty_warning": "Report message can not be empty",
     "feedback_error_message": "Problem: Your message could not be sent",
     "feedback_kml_attached": "The current drawing will be transferred. ",
     "feedback_mail": "3. Your Email :",

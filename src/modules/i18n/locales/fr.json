@@ -190,6 +190,7 @@
     "feedback_description": "1. Faites-nous part de modifications de la carte, d’amélioration des données ou posez des questions sur ce site dans ce champ (obligatoire) :",
     "feedback_disclaimer": "En envoyant votre message, vous acceptez les <a href='https://www.geo.admin.ch/fr/geo-admin-ch/impressum.html#feedback' target='_blank'>conditions d'utilisation</a>.",
     "feedback_drawing": "2. Situez le lieu concerné dans la carte :",
+    "feedback_empty_warning": "Le message de rapport ne peut pas être vide",
     "feedback_error_message": "Problème lors de l'envoi",
     "feedback_kml_attached": "Le dessin actuel va être envoyé. ",
     "feedback_mail": "3. Votre email :",
