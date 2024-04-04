@@ -57,17 +57,17 @@ function updateTippy() {
 <template>
     <!-- used to keep elements in place when hiding disclaimer -->
     <div class="pt-4"></div>
-    <div v-if="!iframeLinks.whitelisted && disclaimerIsShown" class="break"></div>
-    <div v-if="iframeLinks.whitelisted || !disclaimerIsShown" class="d-flex">
+    <div v-if="iframeLinks.externalUrls.length && disclaimerIsShown" class="break"></div>
+    <div v-if="!iframeLinks.externalUrls.length || !disclaimerIsShown" class="d-flex">
         <div ref="disclaimerText" :link="iframeLinks.urls">
             <button
-                :disabled="iframeLinks.whitelisted"
+                :disabled="!iframeLinks.externalUrls.length"
                 class="d-flex btn btn-default btn-xs border-0"
                 data-cy="feature-detail-media-disclaimer-button-close"
                 @click="setDisclaimerAgree"
             >
                 <FontAwesomeIcon
-                    :color="iframeLinks.whitelisted ? 'black' : 'red'"
+                    :color="!iframeLinks.externalUrls.length ? 'black' : 'red'"
                     size="lg"
                     icon="info-circle"
                 />
@@ -83,7 +83,7 @@ function updateTippy() {
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :source-name="iframeLinks.urls"
+                    :source-name="iframeLinks.externalUrls.toString()"
                 >
                     <button
                         class="d-flex btn btn-default btn-xs"
