@@ -43,12 +43,12 @@ function sanitizeHtml(key, htmlText) {
         return DOMPurify.sanitize(htmlText)
     }
 }
-function checkWhitelist(url) {
+function checkWhitelist(host) {
     const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
 
     let whitelisted = false
-    whitelisted_hosts.forEach((host) => {
-        if (host === new URL(url).hostname) {
+    whitelisted_hosts.forEach((whitelistedHost) => {
+        if (whitelistedHost === host) {
             whitelisted = true
         }
     })
@@ -60,13 +60,17 @@ function iframeLinks(value) {
     let parsedIframe = parser.parseFromString(data, 'text/html')
     let iFrame = parsedIframe.getElementsByTagName('iframe')
 
-    let whitelisted = true
-    let arr = Array.from(iFrame)
-    arr.forEach((frame, index) => {
-        whitelisted = whitelisted && checkWhitelist(frame.src)
-        arr[index] = frame.src
+    let urls = Array.from(iFrame)
+    let externalUrls = []
+    let host = null
+    urls.forEach((frame, index) => {
+        host = new URL(frame.src).hostname
+        urls[index] = host
+        if (!checkWhitelist(host)) {
+            externalUrls.push(host)
+        }
     })
-    return { urls: arr, whitelisted: whitelisted }
+    return { urls: urls, externalUrls: externalUrls }
 }
 </script>
 
