@@ -46,7 +46,7 @@ export default class GPXLayer extends AbstractLayer {
             hasDescription: false,
             hasLegend: false,
             isExternal: true,
-            isLoading: !!gpxData && !!gpxMetadata,
+            isLoading: !gpxData,
         })
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
