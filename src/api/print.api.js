@@ -9,6 +9,7 @@ import axios from 'axios'
 
 import { API_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
+import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
 const PRINTING_RESOLUTION = 96 // dpi
@@ -348,12 +349,28 @@ export async function createPrintJob(map, config) {
             excludedLayerIDs,
             outputFilename,
         })
-        log.debug('Starting print for spec', printingSpec)
-        return await requestReport(SERVICE_PRINT_URL, printingSpec)
+        const safePrintingSpec = JSON.parse(JSON.stringify(printingSpec, replacer))
+        log.debug('Starting print for spec', safePrintingSpec)
+        return await requestReport(SERVICE_PRINT_URL, safePrintingSpec)
     } catch (error) {
         log.error('Error while creating print job', error)
         return null
     }
+}
+
+/**
+ * Utility function to remove circular references and unused properties in JSON.stringify for print
+ * spec
+ */
+function replacer(key, value) {
+    // Remove circular references
+    if (value instanceof GeodesicGeometries) {
+        return undefined
+        // Removing unused properties for printing that makes mapfishprint not able to print the map
+    } else if (key === 'editableFeature') {
+        return undefined
+    }
+    return value
 }
 
 /**
