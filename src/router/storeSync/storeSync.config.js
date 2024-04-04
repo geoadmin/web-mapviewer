@@ -117,6 +117,7 @@ const storeSyncConfig = [
             'removeTopicTreeOpenedThemeId',
         ],
         dispatchName: 'setTopicTreeOpenedThemesIds',
+        dispatchValueName: 'themes',
         extractValueFromStore: (store) => store.state.topics.openedTreeThemesIds,
         keepInUrlWhenDefault: false,
         valueType: String,

@@ -60,14 +60,14 @@ const actions = {
             log.error(`Invalid topic ID ${topicId}`)
         }
     },
-    setTopicTreeOpenedThemesIds: ({ commit }, { catalogNodes, dispatcher }) => {
-        if (typeof catalogNodes === 'string') {
+    setTopicTreeOpenedThemesIds: ({ commit }, { themes, dispatcher }) => {
+        if (typeof themes === 'string') {
             commit('setTopicTreeOpenedThemesIds', {
-                themes: catalogNodes.split(','),
+                themes: themes.split(','),
                 dispatcher,
             })
-        } else if (Array.isArray(catalogNodes)) {
-            commit('setTopicTreeOpenedThemesIds', { themes: catalogNodes.slice(), dispatcher })
+        } else if (Array.isArray(themes)) {
+            commit('setTopicTreeOpenedThemesIds', { themes: themes.slice(), dispatcher })
         }
     },
     addTopicTreeOpenedThemeId: ({ commit }, { themeId, dispatcher }) => {

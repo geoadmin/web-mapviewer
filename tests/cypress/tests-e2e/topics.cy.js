@@ -1,7 +1,5 @@
 /// <reference types="cypress" />
 
-import { isMobile } from 'tests/cypress/support/utils'
-
 describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
     const selectTopicWithId = (topicId) => {
@@ -32,9 +30,12 @@ describe('Topics', () => {
         })
     }
 
-    it('handle topic correctly', () => {
+    it('handle topic changes correctly', () => {
         cy.log('loads topic correctly at app startup')
-        cy.goToMapView()
+        cy.goToMapView({
+            layers: 'test.wmts.layer',
+            bgLayer: 'void',
+        })
         // checking that all topics have been loaded
         cy.fixture('topics.fixture').then((mockupTopics) => {
             cy.readStoreValue('state.topics.config').should((topicConfig) => {
@@ -55,10 +56,6 @@ describe('Topics', () => {
 
         //---------------------------------------------------------------------
         cy.log('can switch topics')
-        cy.goToMapView({
-            layers: 'test.wmts.layer',
-            bgLayer: 'void',
-        })
         cy.readStoreValue('getters.visibleLayers').should((layers) => {
             expect(layers).to.be.an('Array')
             expect(layers.length).to.eq(1)
@@ -140,111 +137,113 @@ describe('Topics', () => {
             cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null') // void layer
         })
 
-        //----------------------------------------------------------------------
-        if (isMobile()) {
-            cy.log('keeps the menu open/visible after a topic is selected')
-            cy.goToMapView()
-            cy.fixture('topics.fixture').then((mockupTopics) => {
-                // clicking on topic standard
-                const topicStandard = mockupTopics.topics[1]
-                selectTopicWithId(topicStandard.id)
-                cy.readStoreValue('getters.isMenuShown').should('eq', true)
-                cy.get('[data-cy="menu-tray"]').should('be.visible')
-            })
-        }
-
         //---------------------------------------------------------------------
         cy.log('can select layers in the topic tree (catalogue)')
-        cy.goToMapView()
-        cy.openMenuIfMobile()
-        cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
 
         // it must not open the first elements of the tree by default
         cy.get('[data-cy="catalogue-tree-item-2"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-3"]').should('not.be.visible')
+        cy.get('[data-cy="catalogue-tree-item-5"]').should('not.be.visible')
 
         // shows a topic tree item's children when we click on it
-        cy.get('[data-cy="catalogue-tree-item-title-2"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-2"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-tree-item-3"]').should('be.visible')
+        cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
 
         // it adds a layer to the map when we click on its name in the topic tree
-        cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-        cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-3"]').should('be.visible').click()
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+        cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
+        cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
+            'have.class',
+            'fa-square-check'
+        )
+        cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
+        cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
+            'have.class',
+            'fa-square'
+        )
         cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
             expect(activeLayers).to.be.an('Array').lengthOf(1)
             const [firstLayer] = activeLayers
-            expect(firstLayer.id).to.eq('test.wmts.layer')
+            expect(firstLayer.id).to.eq('test.wms.layer')
+        })
+        cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
+        cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
+            'have.class',
+            'fa-square-check'
+        )
+        cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+            expect(activeLayers).to.be.an('Array').lengthOf(2)
+            const [firstLayer, secondLayer] = activeLayers
+            expect(firstLayer.id).to.eq('test.wms.layer')
+            expect(secondLayer.id).to.eq('test.wmts.layer')
         })
 
-        // it opens the layer legend popup when clicking the info button
+        //---------------------------------------------------------------------
+        cy.log('it opens the layer legend popup when clicking the info button')
         const expectedContent = 'Test'
         cy.intercept(
             `**/rest/services/all/MapServer/*/legend**`,
             `<div>${expectedContent}</div>`
         ).as('legend')
-
-        cy.get('[data-cy^="catalogue-tree-item-info-"]').first().should('be.visible').click()
+        cy.get('[data-cy="catalogue-tree-item-info-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="layer-description-popup"]').should('be.visible').contains(expectedContent)
+        cy.get('[data-cy="modal-close-button"]:visible').click()
 
         //---------------------------------------------------------------------
-        if (!isMobile()) {
-            cy.log('previews the layer on hover')
-            const expectedLayerId = 'test.wmts.layer'
-            const layerSelector = `[data-cy="catalogue-tree-item-${expectedLayerId}"]`
+        cy.log('previews the layer on hover')
 
-            cy.goToMapView()
-            cy.get('[data-cy="menu-topic-section"]:visible').click()
-            cy.get('[data-cy="catalogue-tree-item-title-2"]:visible').click()
-            cy.get('[data-cy="catalogue-tree-item-title-3"]:visible').click()
-
-            cy.get(layerSelector).trigger('mouseenter')
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
-                const visibleIds = visibleLayers.map((layer) => layer.id)
-                expect(visibleIds).to.contain(expectedLayerId)
-            })
-
-            cy.get(layerSelector).trigger('mouseleave')
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
-                const visibleIds = visibleLayers.map((layer) => layer.id)
-                expect(visibleIds).not.to.contain(expectedLayerId)
-            })
-        }
-
-        //---------------------------------------------------------------------
-        cy.log('loads the topic set in the URL')
-        cy.fixture('topics.fixture').then((mockupTopics) => {
-            const topicWithActiveLayers = mockupTopics.topics[2]
-            cy.goToMapView({
-                topic: topicWithActiveLayers.id,
-            })
-            cy.readStoreValue('state.topics.current').should((currentTopic) => {
-                expect(currentTopic).to.eq(topicWithActiveLayers.id)
-            })
-            cy.url().should('contain', `topic=${topicWithActiveLayers.id}`)
+        cy.get('[data-cy="catalogue-tree-item-5"]').scrollIntoView()
+        cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible').click()
+        cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').scrollIntoView()
+        cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').should('be.visible')
+        cy.readStoreValue('state.layers.previewLayer').should('be.null')
+        cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').trigger('mouseenter')
+        cy.readStoreValue('state.layers.previewLayer').should((layer) => {
+            expect(layer.id).to.equal('test.wms.layer')
         })
 
+        //----------------------------------------------------------------------
+        cy.log('Sets the url parameter catalogNodes when opening/closing catalog themes')
+        cy.hash().should('match', /catalogNodes=test-complex-topic,2,3,5(&.*)?$/)
+        cy.get('[data-cy="catalogue-tree-item-name-3"]').scrollIntoView()
+        cy.get('[data-cy="catalogue-tree-item-name-3"]').should('be.visible').click()
+        cy.hash().should('match', /catalogNodes=test-complex-topic,2,5(&.*)?$/)
+        cy.get('[data-cy="menu-topic-section"] [data-cy="menu-section-header"]:visible').click()
+        cy.hash().should('match', /catalogNodes=2,5(&.*)?$/)
+        cy.get('[data-cy="menu-topic-section"] [data-cy="menu-section-header"]:visible').click()
+        cy.get('[data-cy="catalogue-tree-item-name-5"]').scrollIntoView()
+        cy.get('[data-cy="catalogue-tree-item-name-5"]:visible').click()
+        cy.get('[data-cy="catalogue-tree-item-name-2"]:visible').click()
+        cy.get('[data-cy="menu-topic-section"] [data-cy="menu-section-header"]:visible').click()
+        cy.hash().should('not.contain', 'catalogNodes')
+    })
+    it('Handle topic and catalogNodes at startup correctly', () => {
         //---------------------------------------------------------------------
-        cy.log('Opens nodes in the topic tree if set by default (or in the URL)')
+        cy.log(
+            'Opens nodes in the topic tree if set in the URL and are different from the default in topic'
+        )
         cy.goToMapView({
-            catalogNodes: '2',
+            topic: 'test-topic-with-active-layers',
+            catalogNodes: 'test-topic-with-active-layers,2,5',
         })
         cy.openMenuIfMobile()
 
         // it should open the menu section by default if some catalog nodes are set in the URL (even if the default topic is shown)
-        cy.get('[data-cy="catalogue-tree-item-2"]').should('be.visible')
+        cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-3"]').should('be.visible')
+        cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
+        cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('not.be.visible')
+        cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').should('be.visible')
         cy.readStoreValue('state.topics.openedTreeThemesIds').should((currentlyOpenedThemesId) => {
             expect(currentlyOpenedThemesId).to.be.an('Array')
-            expect(currentlyOpenedThemesId).to.deep.equal(['2'])
+            expect(currentlyOpenedThemesId).to.deep.equal([
+                'test-topic-with-active-layers',
+                '2',
+                '5',
+            ])
         })
-        // TODO PB-295 implement save behavior as old viewer, which means treat catalogNodes as a
-        // normal url parameter
-        // it must not change the URL when we close on a tree item (it's not meant to be synced with the UI after loading)
-        // cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
-        // cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.visible')
-        // cy.url().should('contain', 'catalogNodes=2')
-        // cy.url().should('not.contain', 'catalogNodes=2,')
     })
 })
