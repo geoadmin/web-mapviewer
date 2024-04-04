@@ -144,17 +144,19 @@ export default function loadGeojsonStyleAndData(store) {
                         // we are currently looping through, filtering it out otherwise (it's a duplicate)
                         self.indexOf(self.find((layer) => layer.id === geoJsonLayer.id)) === index
                 )
-            const requester = 'load-geojson-style-and-data'
-            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
-            const updatedLayers = await Promise.all(
-                geoJsonLayers
-                    .filter((layer) => layer.isLoading)
-                    .map((layer) => loadDataAndStyle(layer).clone)
-            )
-            if (updatedLayers.length > 0) {
-                store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
+
+            const geoJsonLayersLoading = geoJsonLayers.filter((layer) => layer.isLoading)
+            if (geoJsonLayersLoading.length > 0) {
+                const requester = 'load-geojson-style-and-data'
+                store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
+                const updatedLayers = await Promise.all(
+                    geoJsonLayersLoading.map((layer) => loadDataAndStyle(layer).clone)
+                )
+                if (updatedLayers.length > 0) {
+                    store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
+                }
+                store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             }
-            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
 
             // after the initial load is done,
             // going through all layers that have an update delay and launching the routine to reload their data
