@@ -258,6 +258,7 @@ describe('Drawing module tests', () => {
             cy.log('Coordinates for marker can be copied while not in drawing mode')
             cy.closeDrawingMode()
             cy.closeMenuIfMobile()
+
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
             cy.log('Coordinates for marker are updated when selecting new marker')
@@ -309,6 +310,7 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<a target="_blank" href="${valid_url}">${media_description}</a>`
             )
+            cy.wait(1000) // eslint-disable-line cypress/no-unnecessary-waiting
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open image embed popup')
@@ -325,6 +327,7 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<image src="${valid_url}" style="max-height:200px;"/>`
             )
+            cy.wait(1000) // eslint-disable-line cypress/no-unnecessary-waiting
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open video embed popup')
@@ -341,6 +344,7 @@ describe('Drawing module tests', () => {
                 'have.value',
                 `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
             )
+            cy.wait(1000) // eslint-disable-line cypress/no-unnecessary-waiting
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
@@ -349,10 +353,12 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-media-url-input"]').clear()
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.wait(1000) // eslint-disable-line cypress/no-unnecessary-waiting
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.closeDrawingMode()
             cy.closeMenuIfMobile()
+            //cy.pause()
 
             cy.log('Hyperlink exists after sanitize')
             cy.get('[data-cy="ol-map"]').click(20, 160)
