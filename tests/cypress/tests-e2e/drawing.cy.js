@@ -37,6 +37,8 @@ const isNonEmptyArray = (value) => {
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
 
+const bgLayer = 'test.background.layer'
+
 const DEFAULT_ICON_URL_SCALE = `${DEFAULT_ICON_URL_PARAMS.scale}x`
 
 describe('Drawing module tests', () => {
@@ -73,199 +75,209 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]:visible').click()
 
-            cy.wait('@post-kml')
+            cy.wait('@post-kml').then((interception) => {
+                const kmlId = interception.response.body.id
 
-            // it should show the default icon set by default with the red color in the icon style popup
-            cy.wait('@icon-default')
-                .its('request.url')
-                .should('include', '/api/icons/sets/default/icons/')
-                .should('include', `${RED.rgbString}.png`)
+                // it should show the default icon set by default with the red color in the icon style popup
+                cy.wait('@icon-default')
+                    .its('request.url')
+                    .should('include', '/api/icons/sets/default/icons/')
+                    .should('include', `${RED.rgbString}.png`)
 
-            // clicking on the "Edit icon" button
-            cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
-            // opening up the icon set selector
-            cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
-            ).click()
-            // the list of icon sets should contain all backend's possibilities
-            cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
-            cy.get(`[data-cy="dropdown-item-babs"]`).should('be.visible')
-
-            // selecting babs icon set
-            cy.get('[data-cy="dropdown-item-babs"]').click()
-            // all icons in the selector must swap to the newly selected icon set
-            cy.wait('@icon-set-babs')
-            cy.wait('@icon-babs')
-            // as babs icon set is not colorable, the color box should have disappeared
-            cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
-            ).should('not.exist')
-            // going back to the default icon set
-            cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
-            ).click()
-            cy.get('[data-cy="dropdown-item-default"]:visible').click()
-            cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
-            // color selector should be back
-            cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
-            ).should('be.visible')
-
-            // changing icon list's color to green
-            cy.get(
-                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
-            ).click()
-            // it should load all icons with the green color
-            cy.waitOnAllIconsDefaultGreen()
-
-            // the color of the marker already placed on the map must switch to green
-            cy.wait('@update-kml')
-                .its('request')
-                .should((request) => {
-                    checkKMLRequest(request, [
-                        new RegExp(
-                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                        ),
-                    ])
-                })
-
-            // opening up the icon size selector
-            cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
-            ).click()
-            // all sizes should be represented
-            allStylingSizes.forEach((size) => {
+                // clicking on the "Edit icon" button
+                cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
+                // opening up the icon set selector
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
-                ).should('be.visible')
-            })
-            // selecting large size
-            cy.get(
-                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
-            ).click()
-            // the existing icon on the map must be updated to large and green
-            cy.wait('@update-kml')
-                .its('request')
-                .should((request) => {
-                    checkKMLRequest(request, [
-                        new RegExp(
-                            `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
-                        ),
-                        new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
-                        new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
-                        new RegExp(
-                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                        ),
-                    ])
-                })
-
-            // opening up all icons of the current sets so that we may choose a new one
-            cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
-            ).click()
-            // picking up the 4th icon of the set
-            cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
-                const fourthIcon = defaultIconSet.items[3]
-                cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
+                    '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
                 ).click()
-                // the KML must be updated with the newly selected icon
+                // the list of icon sets should contain all backend's possibilities
+                cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
+                cy.get(`[data-cy="dropdown-item-babs"]`).should('be.visible')
+
+                // selecting babs icon set
+                cy.get('[data-cy="dropdown-item-babs"]').click()
+                // all icons in the selector must swap to the newly selected icon set
+                cy.wait('@icon-set-babs')
+                cy.wait('@icon-babs')
+                // as babs icon set is not colorable, the color box should have disappeared
+                cy.get(
+                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
+                ).should('not.exist')
+                // going back to the default icon set
+                cy.get(
+                    '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
+                ).click()
+                cy.get('[data-cy="dropdown-item-default"]:visible').click()
+                cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
+                // color selector should be back
+                cy.get(
+                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
+                ).should('be.visible')
+
+                // changing icon list's color to green
+                cy.get(
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
+                ).click()
+                // it should load all icons with the green color
+                cy.waitOnAllIconsDefaultGreen()
+
+                // the color of the marker already placed on the map must switch to green
+                cy.wait('@update-kml')
+                    .its('request')
+                    .should((request) => {
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                            ),
+                        ])
+                    })
+
+                // opening up the icon size selector
+                cy.get(
+                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
+                ).click()
+                // all sizes should be represented
+                allStylingSizes.forEach((size) => {
+                    cy.get(
+                        `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
+                    ).should('be.visible')
+                })
+                // selecting large size
+                cy.get(
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
+                ).click()
+                // the existing icon on the map must be updated to large and green
+                cy.wait('@update-kml')
+                    .its('request')
+                    .should((request) => {
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
+                            ),
+                            new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
+                            new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
+                            new RegExp(
+                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                            ),
+                        ])
+                    })
+
+                // opening up all icons of the current sets so that we may choose a new one
+                cy.get(
+                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
+                ).click()
+                // picking up the 4th icon of the set
+                cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
+                    const fourthIcon = defaultIconSet.items[3]
+                    cy.get(
+                        `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
+                    ).click()
+                    // the KML must be updated with the newly selected icon
+                    cy.wait('@update-kml')
+                        .its('request')
+                        .should((request) =>
+                            checkKMLRequest(request, [
+                                new RegExp(
+                                    `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                                ),
+                            ])
+                        )
+                })
+                // closing the icons
+                cy.get(
+                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
+                ).click()
+                // closing the icon style popup
+                cy.get(
+                    '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
+                ).click()
+
+                // changing/editing the title of this marker
+                testTitleEdit()
+
+                // changing/editing the description of this marker
+                const description = 'A description for this marker'
+                cy.get('[data-cy="drawing-style-feature-description"]').type(description)
+                cy.get('[data-cy="drawing-style-feature-description"]').should(
+                    'have.value',
+                    description
+                )
                 cy.wait('@update-kml')
                     .its('request')
                     .should((request) =>
                         checkKMLRequest(request, [
-                            new RegExp(
-                                `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                            ),
+                            new RegExp(`<description>${description}</description>`),
                         ])
                     )
-            })
-            // closing the icons
-            cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
-            ).click()
-            // closing the icon style popup
-            cy.get(
-                '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
-            ).click()
-
-            // changing/editing the title of this marker
-            testTitleEdit()
-
-            // changing/editing the description of this marker
-            const description = 'A description for this marker'
-            cy.get('[data-cy="drawing-style-feature-description"]').type(description)
-            cy.get('[data-cy="drawing-style-feature-description"]').should(
-                'have.value',
-                description
-            )
-            cy.wait('@update-kml')
-                .its('request')
-                .should((request) =>
-                    checkKMLRequest(request, [
-                        new RegExp(`<description>${description}</description>`),
-                    ])
+                cy.readStoreValue('state.features.selectedFeatures[0].description').should(
+                    'eq',
+                    description
                 )
-            cy.readStoreValue('state.features.selectedFeatures[0].description').should(
-                'eq',
-                description
-            )
 
-            //  moving the marker by drag&drop on the map
-            const moveInPixel = {
-                x: 40,
-                y: -50,
-            }
-            cy.window().then((window) => {
-                const endingPixel = [
-                    window.innerWidth / 2.0 + moveInPixel.x,
-                    window.innerHeight / 2.0 + moveInPixel.y,
-                ]
+                //  moving the marker by drag&drop on the map
+                const moveInPixel = {
+                    x: 40,
+                    y: -50,
+                }
+                cy.window().then((window) => {
+                    const endingPixel = [
+                        window.innerWidth / 2.0 + moveInPixel.x,
+                        window.innerHeight / 2.0 + moveInPixel.y,
+                    ]
 
-                // Move it, the geojson geometry should move
-                cy.readWindowValue('map').then((map) => {
-                    cy.log('ending pixel is', endingPixel)
-                    const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
+                    // Move it, the geojson geometry should move
+                    cy.readWindowValue('map').then((map) => {
+                        cy.log('ending pixel is', endingPixel)
+                        const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
 
-                    cy.simulateEvent(map, 'pointerdown', 0, 0)
-                    cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
-                    cy.simulateEvent(map, 'pointerup')
+                        cy.simulateEvent(map, 'pointerdown', 0, 0)
+                        cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
+                        cy.simulateEvent(map, 'pointerup')
 
-                    cy.wait('@update-kml')
-                    cy.readWindowValue('drawingLayer').should((drawingLayer) => {
-                        const features = drawingLayer.getSource().getFeatures()
-                        expect(features).to.have.lengthOf(1)
-                        const foundType = features[0].getGeometry().getType()
-                        expect(foundType).to.equal('Point')
-                        expect(features).to.be.an('Array').lengthOf(1)
-                        expect(features[0].getGeometry().getCoordinates()).to.be.eql(
-                            expectedCoordinates,
-                            `wrong coordinates after drag&drop, expected ${JSON.stringify(
-                                expectedCoordinates
-                            )}, received: ${JSON.stringify(
-                                features[0].getGeometry().getCoordinates()
-                            )}`
-                        )
+                        cy.wait('@update-kml')
+                        cy.readWindowValue('drawingLayer').should((drawingLayer) => {
+                            const features = drawingLayer.getSource().getFeatures()
+                            expect(features).to.have.lengthOf(1)
+                            const foundType = features[0].getGeometry().getType()
+                            expect(foundType).to.equal('Point')
+                            expect(features).to.be.an('Array').lengthOf(1)
+                            expect(features[0].getGeometry().getCoordinates()).to.be.eql(
+                                expectedCoordinates,
+                                `wrong coordinates after drag&drop, expected ${JSON.stringify(
+                                    expectedCoordinates
+                                )}, received: ${JSON.stringify(
+                                    features[0].getGeometry().getCoordinates()
+                                )}`
+                            )
+                        })
                     })
                 })
-            })
 
-            cy.log('Coordinates for marker can be copied in drawing mode')
-            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(160, 200)
-            cy.wait('@update-kml')
-            readCoordinateClipboard(
-                'feature-style-edit-coordinate-copy',
-                "2'660'013.50, 1'227'172.00"
-            )
-            cy.log('Coordinates for marker can be copied while not in drawing mode')
-            cy.closeDrawingMode()
-            cy.closeMenuIfMobile()
-            cy.get('[data-cy="ol-map"]').click(160, 200)
-            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
-            cy.log('Coordinates for marker are updated when selecting new marker')
-            cy.get('[data-cy="ol-map"]').click(200, 234)
-            readCoordinateClipboard('feature-detail-coordinate-copy', "2'680'013.50, 1'210'172.00")
+                cy.log('Coordinates for marker can be copied in drawing mode')
+                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+                cy.get('[data-cy="ol-map"]').click(160, 200)
+                cy.wait('@update-kml')
+                readCoordinateClipboard(
+                    'feature-style-edit-coordinate-copy',
+                    "2'660'013.50, 1'227'172.00"
+                )
+                cy.log('Coordinates for marker can be copied while not in drawing mode')
+                cy.closeDrawingMode()
+                cy.closeMenuIfMobile()
+                cy.checkOlLayer([bgLayer, kmlId])
+
+                cy.get('[data-cy="ol-map"]').click(160, 200)
+                readCoordinateClipboard(
+                    'feature-detail-coordinate-copy',
+                    "2'660'013.50, 1'227'172.00"
+                )
+                cy.log('Coordinates for marker are updated when selecting new marker')
+                cy.get('[data-cy="ol-map"]').click(200, 234)
+                readCoordinateClipboard(
+                    'feature-detail-coordinate-copy',
+                    "2'680'013.50, 1'210'172.00"
+                )
+            })
         })
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
