@@ -25,7 +25,7 @@
             <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
         </div>
         <div class="header-settings-section" data-cy="header-settings-section">
-            <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
+            <LinksToolbar id="menu-links" :show-as-links="true" />
             <LangSwitchToolbar id="menu-lang-selector" />
         </div>
         <!-- eslint-disable vue/no-v-html-->
@@ -45,8 +45,8 @@ import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
-import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import LinksToolbar from '@/modules/menu/components/settings/LinksToolbar.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
@@ -57,7 +57,7 @@ export default {
         HeaderSwissConfederationText,
         SwissFlag,
         LangSwitchToolbar,
-        FeedbackToolbar,
+        LinksToolbar,
     },
     computed: {
         ...mapState({

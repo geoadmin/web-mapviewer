@@ -49,7 +49,7 @@
                 <small v-html="$t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <FeedbackActionButtons
+            <SendActionButtons
                 class="text-end"
                 :is-disabled="!feedbackCanBeSent"
                 :is-pending="request.pending"
@@ -85,8 +85,8 @@ import { mapGetters } from 'vuex'
 
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
-import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
+import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
+import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
 import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
@@ -98,7 +98,7 @@ export default {
         ModalWithBackdrop,
         HeaderLink,
         EmailValidationField,
-        FeedbackActionButtons,
+        SendActionButtons,
     },
     props: {
         showAsLink: {
