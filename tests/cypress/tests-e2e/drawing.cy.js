@@ -269,6 +269,7 @@ describe('Drawing module tests', () => {
             cy.log('Can generate and display media links')
             cy.openDrawingMode()
             const valid_url = 'http:dummy'
+            const valid_whitelisted_url = 'https://map.geo.admin.ch'
             const invalid_url = 'invalidurl'
             const media_description = 'description'
 
@@ -317,7 +318,7 @@ describe('Drawing module tests', () => {
 
             cy.log('Open image embed popup')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(80, 160)
+            cy.get('[data-cy="ol-map"]').click(60, 160)
             cy.wait('@update-kml')
             cy.get('[data-cy="drawing-style-image-button"]').click()
             cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
@@ -335,7 +336,7 @@ describe('Drawing module tests', () => {
 
             cy.log('Open video embed popup')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(140, 160)
+            cy.get('[data-cy="ol-map"]').click(100, 160)
             cy.wait('@update-kml')
             cy.get('[data-cy="drawing-style-video-button"]').click()
             cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
@@ -352,11 +353,21 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(200, 160)
+            cy.get('[data-cy="ol-map"]').click(140, 160)
             cy.wait('@update-kml')
             cy.get('[data-cy="drawing-style-video-button"]').click()
             cy.get('[data-cy="drawing-style-media-url-input"]').clear()
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.wait('@update-kml')
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(180, 160)
+            cy.wait('@update-kml')
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"]').clear()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
             cy.wait('@update-kml')
             cy.get('[data-cy="infobox-close"]').click()
@@ -374,7 +385,7 @@ describe('Drawing module tests', () => {
                 .should('eq', `${valid_url}`)
 
             cy.log('Image link exists after sanitize')
-            cy.get('[data-cy="ol-map"]').click(80, 160)
+            cy.get('[data-cy="ol-map"]').click(60, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             cy.get('[data-cy="feature-detail-description-content"]')
                 .find('img')
@@ -382,7 +393,7 @@ describe('Drawing module tests', () => {
                 .should('eq', `${valid_url}`)
 
             cy.log('Video link has disclaimer')
-            cy.get('[data-cy="ol-map"]').click(140, 160)
+            cy.get('[data-cy="ol-map"]').click(100, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
 
             cy.log('Disclaimer provides more information on click')
@@ -402,7 +413,16 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
             cy.log('Closing disclaimer persists when selecting different marker')
-            cy.get('[data-cy="ol-map"]').click(200, 160)
+            cy.get('[data-cy="ol-map"]').click(140, 160)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+
+            cy.log('Clicking button again reopens disclaimer')
+            cy.get('[data-cy="feature-detail-media-disclaimer-button-open"]').click()
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('exist')
+
+            cy.log('Disclaimer should not appear when host is whitelisted')
+            cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
+            cy.get('[data-cy="ol-map"]').click(180, 160)
             cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
         })
         it('can create annotation/text and edit them', () => {

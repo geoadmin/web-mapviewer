@@ -64,13 +64,13 @@ function updateTippy() {
             <button
                 :disabled="!iframeLinks.externalUrls.length"
                 class="d-flex btn btn-default btn-xs border-0"
-                data-cy="feature-detail-media-disclaimer-button-close"
+                data-cy="feature-detail-media-disclaimer-button-open"
                 @click="setDisclaimerAgree"
             >
                 <FontAwesomeIcon
                     :color="!iframeLinks.externalUrls.length ? 'black' : 'red'"
                     size="lg"
-                    icon="info-circle"
+                    :icon="!iframeLinks.externalUrls.length ? 'info-circle' : 'fa-user'"
                 />
             </button>
         </div>
