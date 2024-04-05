@@ -324,7 +324,10 @@ export default {
          */
         setProfileFeature(store, { feature = null, dispatcher }) {
             const { state, commit, rootState } = store
-            if (canFeatureShowProfile(feature)) {
+            if (feature === null) {
+                commit('setProfileFeature', { feature: null, dispatcher })
+                commit('setProfileData', { data: null, dispatcher })
+            } else if (canFeatureShowProfile(feature)) {
                 if (state.profileRequestError) {
                     commit('setProfileRequestError', { error: null, dispatcher })
                 }
