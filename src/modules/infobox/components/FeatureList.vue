@@ -89,6 +89,6 @@ function reloadMasonryLayout() {
 <style lang="scss" scoped>
 .feature-list {
     overflow-y: auto;
-    max-height: 33vh;
+    max-height: 25vh;
 }
 </style>

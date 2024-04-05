@@ -23,12 +23,8 @@ const props = defineProps({
         type: EditableFeature,
         required: true,
     },
-    readOnly: {
-        type: Boolean,
-        default: false,
-    },
 })
-const { feature, readOnly } = toRefs(props)
+const { feature } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
@@ -129,12 +125,8 @@ function onDelete() {
             <textarea
                 id="drawing-style-feature-title"
                 v-model="title"
-                :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="feature-title form-control"
-                :class="{
-                    'form-control-plaintext': readOnly,
-                }"
             ></textarea>
         </div>
 
@@ -145,12 +137,8 @@ function onDelete() {
             <textarea
                 id="drawing-style-feature-description"
                 v-model="description"
-                :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="feature-description form-control"
-                :class="{
-                    'form-control-plaintext': readOnly,
-                }"
             ></textarea>
         </div>
         <div class="d-flex small gap-1 justify-content-start align-items-center">
@@ -168,7 +156,7 @@ function onDelete() {
             />
         </div>
         <div class="d-flex justify-content-end align-items-center">
-            <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
+            <div class="d-flex gap-1 feature-style-edit-control">
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
