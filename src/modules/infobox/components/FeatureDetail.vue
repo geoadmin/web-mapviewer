@@ -44,7 +44,7 @@ function sanitizeHtml(key, htmlText) {
     }
 }
 function checkWhitelist(host) {
-    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
+    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch', 'http:whitelisted']
 
     let whitelisted = false
     whitelisted_hosts.forEach((whitelistedHost) => {
