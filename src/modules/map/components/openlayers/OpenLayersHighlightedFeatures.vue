@@ -13,8 +13,8 @@ import proj4 from 'proj4'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
@@ -30,6 +30,7 @@ const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 const store = useStore()
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const firstEditableFeature = computed(() => selectedEditableFeatures.value[0] ?? null)
 const selectedLayerFeatures = computed(() => store.getters.selectedLayerFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
@@ -140,11 +141,9 @@ function setBottomPanelFeatureInfoPosition() {
                 <FontAwesomeIcon icon="caret-down" />
             </button>
         </template>
-        <FeatureEdit
-            v-for="feature in selectedEditableFeatures"
-            :key="feature.id"
-            :read-only="!isCurrentlyDrawing"
-            :feature="feature"
+        <FeatureStyleEdit
+            v-if="isCurrentlyDrawing && firstEditableFeature"
+            :feature="firstEditableFeature"
         />
         <FeatureList fluid />
     </OpenLayersPopover>

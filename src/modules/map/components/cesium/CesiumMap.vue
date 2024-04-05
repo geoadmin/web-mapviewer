@@ -112,7 +112,6 @@ import {
     WMS_BASE_URL,
     WMTS_BASE_URL,
 } from '@/config'
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -147,7 +146,6 @@ export default {
         CesiumToolbox,
         FontAwesomeIcon,
         CesiumPopover,
-        FeatureEdit,
         FeatureList,
         CesiumInternalLayer,
     },

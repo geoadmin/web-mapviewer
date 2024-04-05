@@ -73,11 +73,7 @@ function onCSVDownload() {
 </script>
 
 <template>
-    <div
-        data-cy="profile-popup-content"
-        data-infobox="height-reference"
-        class="profile-popup-content p-1 position-relative"
-    >
+    <div data-cy="profile-popup-content" class="profile-content p-1 position-relative">
         <div v-if="!hasData">
             <LoadingBar v-if="!profileRequestError" />
             <span v-else class="text-muted">
@@ -110,8 +106,8 @@ function onCSVDownload() {
 </template>
 
 <style lang="scss" scoped>
-.profile-popup-content {
-    // size of the profile information container, so that no scroll bar shows up when drawing a profile outside of CH
-    min-height: 2rem;
+.profile-content {
+    // size of the profile when loaded/shown, so that it doesn't shrink while loading (same size throughout)
+    min-height: 192px;
 }
 </style>
