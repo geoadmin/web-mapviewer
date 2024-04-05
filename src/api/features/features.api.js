@@ -369,7 +369,7 @@ async function identifyOnExternalWmsLayer(config) {
             return new LayerFeature({
                 layer,
                 id: feature.id,
-                name: feature.id,
+                name: feature.title ?? feature.name ?? feature.id,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,
@@ -522,7 +522,18 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
                 if (featureMetadata.bbox) {
                     featureExtent.push(...featureMetadata.bbox)
                 }
-                const featureName = featureMetadata?.properties?.name ?? featureID
+                let featureName = featureID
+                if (featureMetadata.properties) {
+                    const { name = null, title = null } = featureMetadata.properties
+                    const titleInCurrentLang = featureMetadata.properties[`title_${lang}`]
+                    if (name) {
+                        featureName = name
+                    } else if (title) {
+                        featureName = title
+                    } else if (titleInCurrentLang) {
+                        featureName = titleInCurrentLang
+                    }
+                }
 
                 if (outputProjection.epsg !== LV95.epsg) {
                     if (featureExtent.length === 4) {
