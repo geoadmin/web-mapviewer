@@ -50,6 +50,7 @@ function updateTippy() {
         interactive: true,
         placement: 'top',
         appendTo: document.body,
+        theme: 'selectable',
     })
 }
 </script>
@@ -112,9 +113,6 @@ function updateTippy() {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-.url-tooltip {
-    @extend .clear-no-ios-long-press;
-}
 .break {
     flex-basis: 100%;
     height: 0;
