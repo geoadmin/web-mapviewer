@@ -54,6 +54,21 @@ class GeoAdminCustomizer extends BaseCustomizer {
         // unnecessary properties for printing and cause mapfishprint to throw an error
         delete feature.properties.editableFeature
     }
+
+    /**
+     * Manipulate the symbolizer of a line feature before printing it. In this case replace the
+     * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
+     * @param {Stroke} stroke Stroke style of the line feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    line(layerState, symbolizer, stroke) {
+        if (symbolizer.strokeDashstyle === '8') {
+            symbolizer.strokeDashstyle = 'dash'
+        }
+    }
 }
 
 /**
