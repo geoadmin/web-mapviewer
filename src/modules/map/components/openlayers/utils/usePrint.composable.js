@@ -17,6 +17,7 @@ export const PrintStatus = {
     FINISHED_ABORTED: 'FINISHED_ABORTED',
     FINISHED_SUCCESSFULLY: 'FINISHED_SUCCESSFULLY',
     FINISHED_FAILED: 'FINISHED_FAILED',
+    FINISHED_CANCELLED: 'FINISHED_CANCELLED',
 }
 
 /**
@@ -101,6 +102,7 @@ export function usePrint(map) {
             }
         } catch (error) {
             log.error('Could not abort job', currentJobReference.value, error)
+            alert(`Could not abort job ${currentJobReference.value}: ${error}`)
         }
     }
 

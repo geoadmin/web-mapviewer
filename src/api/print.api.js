@@ -319,7 +319,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         return spec
     } catch (error) {
         log.error("Couldn't encode map to print request", error)
-        throw new PrintError('Failed to print the map')
+        throw new PrintError(`Couldn't encode map to print request: ${error}`)
     }
 }
 
@@ -381,7 +381,7 @@ export async function createPrintJob(map, config) {
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
     } catch (error) {
         log.error('Error while creating print job', error)
-        return null
+        throw new PrintError(`Error while creating print job: ${error}`)
     }
 }
 

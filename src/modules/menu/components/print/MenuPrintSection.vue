@@ -96,7 +96,11 @@ async function printMap() {
                 window.location = documentUrl
             }
         } else {
-            log.error('Print failed, received null')
+            if (printStatus.value === PrintStatus.FINISHED_CANCELLED) {
+                log.debug('Print is cancelled by the user')
+            } else if (printStatus.value === PrintStatus.FINISHED_ERROR) {
+                log.error('Print failed, received null')
+            }
         }
     } catch (error) {
         log.error('Print failed', error)
