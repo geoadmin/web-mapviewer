@@ -263,13 +263,13 @@ describe('Testing print', () => {
             // Attach a local KML file
             cy.log('Test add a local KML file')
             cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="import-file-local-input"]').selectFile('@kmlFixture', {
+            cy.get('[data-cy="import-local-file-input"]').selectFile('@kmlFixture', {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
             // Assertions for successful import
-            cy.get('[data-cy="import-file-local-input-text"]')
+            cy.get('[data-cy="import-local-file-input-text"]')
                 .should('have.class', 'is-valid')
                 .should('not.have.class', 'is-invalid')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')

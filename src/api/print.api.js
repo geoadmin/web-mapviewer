@@ -50,9 +50,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     feature(layerState, feature) {
         // cause circular reference issues
-        delete feature.properties.geodesic
+        delete feature.properties?.geodesic
         // unnecessary properties for printing and cause mapfishprint to throw an error
-        delete feature.properties.editableFeature
+        delete feature.properties?.editableFeature
     }
 
     /**
@@ -65,7 +65,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     // eslint-disable-next-line no-unused-vars
     line(layerState, symbolizer, stroke) {
-        if (symbolizer.strokeDashstyle === '8') {
+        if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
         }
     }
