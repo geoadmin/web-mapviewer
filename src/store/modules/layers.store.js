@@ -512,14 +512,11 @@ const actions = {
      * @param {number} year Year to set
      * @param {string} dispatcher Action dispatcher name
      */
-    setPreviewYear({ commit, getters }, { year, dispatcher }) {
-        const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
-            (layer) => layer.timeConfig.years
-        )
-        if (possibleYears.includes(year)) {
-            commit('setPreviewYear', { year, dispatcher })
+    setPreviewYear({ commit }, { year, dispatcher }) {
+        if (isNaN(year)) {
+            log.error('Invalid year value given in setPreviewYear, ignoring', year)
         } else {
-            log.error('year not found in active layers, ignoring', year)
+            commit('setPreviewYear', { year, dispatcher })
         }
     },
 
