@@ -190,7 +190,6 @@
     "feedback_description": "1. Melden Sie uns in diesem Feld Änderungen in der Karte, Verbesserungen der Daten oder Fragen zu dieser Website (erforderlich) :",
     "feedback_disclaimer": "Mit dem Absenden Ihrer Meldung erklären Sie sich mit den <a href='https://www.geo.admin.ch/de/ueber-geo-admin/impressum.html#feedback' target='_blank'>Nutzungsbedingungen</a> einverstanden.",
     "feedback_drawing": "2. Markieren Sie den betroffenen Ort in der Karte :",
-    "feedback_empty_warning": "Die Berichtsnachricht darf nicht leer sein",
     "feedback_error_message": "Problem: Meldung konnte nicht übermittelt werden",
     "feedback_kml_attached": "Die aktuelle Zeichung wird übermittelt. ",
     "feedback_mail": "3. Ihre E-Mail Adresse :",
@@ -465,7 +464,8 @@
     "swisstopo": "swisstopo",
     "swisstopo_service_link_href": "https://www.swisstopo.admin.ch/de/home.html",
     "swisstopo_service_link_label": "Bundesamt für Landestopografie swisstopo",
-    "test_host_warning": "TESTSEITE – NICHT TEILEN -  NICHT FÜR PRODUKTIVEN GEBRAUCH<br/>Diese Seite dient ausschliesslich Testzwecken und sollte nicht operativ eingesetzt werden. Es gibt seitens Betreiber dieser Seite keine Garantie für fehlerfreien Inhalt und störungsfreien Betrieb.",
+    "test_host_warning": "TESTSEITE – NICHT TEILEN -  NICHT FÜR PRODUKTIVEN GEBRAUCH",
+    "test_host_full_disclaimer": "Diese Seite dient ausschliesslich Testzwecken und sollte nicht operativ eingesetzt werden. Es gibt seitens Betreiber dieser Seite keine Garantie für fehlerfreien Inhalt und störungsfreien Betrieb.",
     "text_to_display": "Link Beschreibung",
     "third_party_data_warning": "Warnung: diese Daten kommen von einem Drittanbieter. Dieser Permalink zeigt möglicherweise auf Daten eines Drittanbieters. Wollen Sie diese Daten dennoch laden?",
     "tile": "Kartenblatt",
@@ -653,5 +653,9 @@
     "kml_gpx_file_empty": "Die KML/GPX-Datei ist leer",
     "large_size": "Gross",
     "extra_large_size": "Extra Gross",
-    "duplicate_layer": "Karte duplizieren"
+    "duplicate_layer": "Karte duplizieren",
+    "feedback_empty_warning": "Die Berichtsnachricht darf nicht leer sein",
+    "operation_successful": "Erfolg!",
+    "operation_failed": "Hoppla! Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.",
+    "operation_aborted": "Operation abgebrochen"
 }

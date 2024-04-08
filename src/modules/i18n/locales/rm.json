@@ -188,7 +188,6 @@
     "feedback_description": "1. Rapport charta actual (necessari) :",
     "feedback_disclaimer": " <a href='https://www.geo.admin.ch/en/about-swiss-geoportal/responsabilities-and-contacts.html#feedback' target='_blank'>Cundiziuns d'utilisaziun</a>",
     "feedback_drawing": "2. Voss dissegn :",
-    "feedback_empty_warning": "La messadi dal raport po betg esser vegnida lasciada basa",
     "feedback_error_message": "Problem: rapport na tramess cun success",
     "feedback_kml_attached": "Trametter dissegn actual",
     "feedback_mail": "3. Voss e-mail:",
@@ -463,7 +462,8 @@
     "swisstopo": "swisstopo",
     "swisstopo_service_link_href": "https://www.swisstopo.admin.ch/de/home.html",
     "swisstopo_service_link_label": "Uffizi federal da topografia swisstopo",
-    "test_host_warning": "PAGINA DA TEST ? BETG PARTER – BETG PER IL DIEVER PRODUCTIV<br/>Questa pagina è fatga mo per intents da test e na duess betg vegnir duvrada en conturns productivs. I na dat absolutamain nagina garanzia per il diever.",
+    "test_host_warning": "PAGINA DA TEST ? BETG PARTER – BETG PER IL DIEVER PRODUCTIV",
+    "test_host_full_disclaimer": "Questa pagina è fatga mo per intents da test e na duess betg vegnir duvrada en conturns productivs. I na dat absolutamain nagina garanzia per il diever.",
     "text_to_display": "Descripziun link",
     "third_party_data_warning": "Attenziun: questas datas e/u stil derivan d'in terz purschider. Quest permalink va eventualmain sin datas d'in terz purschider. Vulais Vus tuttina chargiar questas datas?",
     "tile": "Fegl da la charta",
@@ -651,5 +651,9 @@
     "kml_gpx_file_empty": "La datoteca KML/GPX è vegnida empruva",
     "large_size": "Grond",
     "extra_large_size": "Extra Grond",
-    "duplicate_layer": "Mapa duplicada"
+    "duplicate_layer": "Mapa duplicada",
+    "feedback_empty_warning": "La messadi dal raport po betg esser vegnida lasciada basa",
+    "operation_successful": "Success! ",
+    "operation_failed": "Oops! Qualche cosa è andada schabetg. Per favur, retentas.",
+    "operation_aborted": "Operaziun avorta"
 }

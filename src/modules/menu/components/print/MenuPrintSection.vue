@@ -49,6 +49,12 @@ const selectedScale = computed({
     },
 })
 
+const printErrorMessage = computed(() =>
+    printStatus.value === PrintStatus.FINISHED_ABORTED
+        ? i18n.t('operation_aborted')
+        : i18n.t('operation_failed')
+)
+
 watch(isSectionShown, () => {
     store.dispatch('setPrintSectionShown', { show: isSectionShown.value, ...dispatcher })
 })
@@ -97,6 +103,13 @@ async function printMap() {
     }
 }
 
+function onOpenMenuSection(id) {
+    if (printStatus.value !== PrintStatus.PRINTING) {
+        printStatus.value = PrintStatus.IDLE
+    }
+    emits('openMenuSection', id)
+}
+
 defineExpose({
     close,
 })
@@ -110,7 +123,7 @@ defineExpose({
         data-cy="menu-print-section"
         secondary
         @click:header="togglePrintMenu"
-        @open-menu-section="(id) => emits('openMenuSection', id)"
+        @open-menu-section="onOpenMenuSection"
     >
         <div class="p-2 d-grid gap-2 menu-print-settings mx-4" data-cy="menu-print-form">
             <label for="print-layout-selector" class="col-form-label fw-bold me-2">{{
@@ -166,6 +179,20 @@ defineExpose({
                 />
                 <label class="form-check-label" for="checkboxGrid">{{ i18n.t('graticule') }}</label>
             </div>
+            <div class="full-width">
+                <input
+                    hidden
+                    :class="{
+                        'is-invalid': [
+                            PrintStatus.FINISHED_FAILED,
+                            PrintStatus.FINISHED_ABORTED,
+                        ].includes(printStatus),
+                        'is-valid': printStatus === PrintStatus.FINISHED_SUCCESSFULLY,
+                    }"
+                />
+                <div class="invalid-feedback">{{ printErrorMessage }}</div>
+                <div class="valid-feedback">{{ i18n.t('operation_successful') }}</div>
+            </div>
             <div class="full-width justify-content-center">
                 <button
                     v-if="printStatus === PrintStatus.PRINTING"
@@ -175,6 +202,7 @@ defineExpose({
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
+                    <font-awesome-icon spin :icon="['fa', 'spinner']" class="ms-2" />
                 </button>
                 <button
                     v-else
@@ -185,8 +213,6 @@ defineExpose({
                 >
                     {{ i18n.t('print_action') }}
                 </button>
-                <!-- TODO: manage failing print job-->
-                <!-- TODO: give a UI feedback for a print success-->
             </div>
         </div>
     </MenuSection>

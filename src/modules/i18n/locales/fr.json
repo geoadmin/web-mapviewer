@@ -190,7 +190,6 @@
     "feedback_description": "1. Faites-nous part de modifications de la carte, d’amélioration des données ou posez des questions sur ce site dans ce champ (obligatoire) :",
     "feedback_disclaimer": "En envoyant votre message, vous acceptez les <a href='https://www.geo.admin.ch/fr/geo-admin-ch/impressum.html#feedback' target='_blank'>conditions d'utilisation</a>.",
     "feedback_drawing": "2. Situez le lieu concerné dans la carte :",
-    "feedback_empty_warning": "Le message de rapport ne peut pas être vide",
     "feedback_error_message": "Problème lors de l'envoi",
     "feedback_kml_attached": "Le dessin actuel va être envoyé. ",
     "feedback_mail": "3. Votre email :",
@@ -465,7 +464,8 @@
     "swisstopo": "swisstopo",
     "swisstopo_service_link_href": "https://www.swisstopo.admin.ch/fr/home.html",
     "swisstopo_service_link_label": "Office fédéral de topographie swisstopo",
-    "test_host_warning": "TESTSITE – DO NOT-SHARE -  NOT FOR OPERATIONAL USE<br/>This site is for testing purposes only. It's not meant for operational use and there's no guarantee whatsoever.",
+    "test_host_warning": "SITE DE TEST - NE PAS PARTAGER - NE PAS UTILISER À DES FINS OPÉRATIONNELLES",
+    "test_host_full_disclaimer": "Ce site est destiné à être testé uniquement. Il n'est pas destiné à une utilisation opérationnelle et il n'y a aucune garantie.",
     "text_to_display": "Description du lien",
     "third_party_data_warning": "Mise en garde données tierces. Le permalien que vous utilisez contient peut-être des références à des données tierces ne provenant pas de map.geo.admin.ch. Voulez-vous également visualiser ces données sachant que map.geo.admin.ch ne prend aucune responsabilité quant à ces données?",
     "tile": "Feuille",
@@ -653,5 +653,9 @@
     "kml_gpx_file_empty": "Le fichier KML/GPX est vide",
     "large_size": "Grande",
     "extra_large_size": "Très Grande",
-    "duplicate_layer": "Duplication de carte"
+    "duplicate_layer": "Duplication de carte",
+    "feedback_empty_warning": "Le message ne peut pas être vide",
+    "operation_successful": "Succès !",
+    "operation_failed": "Oups ! Quelque chose s'est mal passé. Veuillez réessayer.",
+    "operation_aborted": "Opération annulée"
 }
