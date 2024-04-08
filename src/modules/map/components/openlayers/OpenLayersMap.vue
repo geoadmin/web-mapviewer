@@ -5,6 +5,7 @@ import { computed, onMounted, provide, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import useOnMapResize from '@/modules/map/components/common/useOnMapResize.composable'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
 import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
@@ -63,6 +64,7 @@ onMounted(() => {
 })
 
 const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
+useOnMapResize(mapElement)
 </script>
 
 <template>

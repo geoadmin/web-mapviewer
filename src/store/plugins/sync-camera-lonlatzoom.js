@@ -59,7 +59,7 @@ export default function syncCameraLonLatZoom(store) {
             })
         }
         if (mutation.type === 'setZoom' && mutation.payload.dispatcher !== self) {
-            const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
+            const newHeight = calculateHeight(store.getters.resolution, state.map.size.width)
             store.dispatch('setCameraPosition', {
                 position: {
                     x: state.position.camera.x,

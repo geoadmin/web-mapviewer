@@ -62,6 +62,8 @@ export default {
          * @type Boolean
          */
         displayLocationPopup: false,
+        /** @type {MapSize} */
+        size: { width: 0, height: 0 },
     },
     actions: {
         /**
@@ -118,6 +120,12 @@ export default {
         hideLocationPopup({ commit }, { dispatcher }) {
             commit('setDisplayLocationPopup', { display: false, dispatcher })
         },
+        setMapSize({ commit }, { size, dispatcher }) {
+            const { width = 0, height = 0 } = size
+            if (width > 0 && height > 0) {
+                commit('setMapSize', { size, dispatcher })
+            }
+        },
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -125,5 +133,6 @@ export default {
         setPreviewedPinnedLocation: (state, { coordinates }) =>
             (state.previewedPinnedLocation = coordinates),
         setDisplayLocationPopup: (state, { display }) => (state.displayLocationPopup = display),
+        setMapSize: (state, { size }) => (state.size = size),
     },
 }

@@ -144,18 +144,18 @@ const getters = {
      * @returns {[[number, number], [number, number]]}
      */
     extent: (state, getters, rootState) => {
-        const halfScreenInMeter = {
-            width: (rootState.ui.width / 2) * getters.resolution,
-            height: (rootState.ui.height / 2) * getters.resolution,
+        const halfMapInMeter = {
+            width: (rootState.map.size.width / 2) * getters.resolution,
+            height: (rootState.map.size.height / 2) * getters.resolution,
         }
         // calculating extent with resolution
         const bottomLeft = [
-            state.projection.roundCoordinateValue(state.center[0] - halfScreenInMeter.width),
-            state.projection.roundCoordinateValue(state.center[1] - halfScreenInMeter.height),
+            state.projection.roundCoordinateValue(state.center[0] - halfMapInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] - halfMapInMeter.height),
         ]
         const topRight = [
-            state.projection.roundCoordinateValue(state.center[0] + halfScreenInMeter.width),
-            state.projection.roundCoordinateValue(state.center[1] + halfScreenInMeter.height),
+            state.projection.roundCoordinateValue(state.center[0] + halfMapInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] + halfMapInMeter.height),
         ]
         return [bottomLeft, topRight]
     },
@@ -257,9 +257,9 @@ const actions = {
             // if the extent's height is greater than width, we base our resolution calculation on that
             if (extentSize.height > extentSize.width) {
                 targetResolution =
-                    extentSize.height / (rootState.ui.height - 96) /* header height */
+                    extentSize.height / (rootState.map.size.height - 96) /* header height */
             } else {
-                targetResolution = extentSize.width / rootState.ui.width
+                targetResolution = extentSize.width / rootState.map.size.width
             }
 
             const zoomForResolution = state.projection.getZoomForResolutionAndCenter(

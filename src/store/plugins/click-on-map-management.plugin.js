@@ -48,8 +48,8 @@ const runIdentify = (store, clickInfo, visibleLayers, lang, projection) => {
                                     coordinate: clickInfo.coordinate,
                                     resolution: store.getters.resolution,
                                     mapExtent: store.getters.extent.flat(),
-                                    screenWidth: store.state.ui.width,
-                                    screenHeight: store.state.ui.height,
+                                    viewportWidth: store.state.map.size.width,
+                                    viewportHeight: store.state.map.size.height,
                                     lang,
                                     projection,
                                 })
@@ -62,8 +62,8 @@ const runIdentify = (store, clickInfo, visibleLayers, lang, projection) => {
                                 coordinate: clickInfo.coordinate,
                                 resolution: store.getters.resolution,
                                 mapExtent: store.getters.extent.flat(),
-                                screenWidth: store.state.ui.width,
-                                screenHeight: store.state.ui.height,
+                                viewportWidth: store.state.map.size.width,
+                                viewportHeight: store.state.map.size.height,
                                 lang,
                                 projection,
                             })
