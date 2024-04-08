@@ -28,15 +28,18 @@ export class ActiveLayerConfig {
 export function getTimestampFromConfig(config, previewYear) {
     if (config.timeConfig) {
         // if there is a preview year set, we search for the matching timestamp
-        if (previewYear && config.timeConfig.years.includes(previewYear)) {
-            const matchingTimeEntry = config.timeConfig.getTimeEntryForYear(previewYear)
-            if (matchingTimeEntry) {
-                return matchingTimeEntry.timestamp
+        if (previewYear) {
+            if (config.timeConfig.years.includes(previewYear)) {
+                const matchingTimeEntry = config.timeConfig.getTimeEntryForYear(previewYear)
+                if (matchingTimeEntry) {
+                    return matchingTimeEntry.timestamp
+                }
             }
         }
+        // when the time slider is not active,
         // if a time entry is defined, and is different from 'all'
         // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-        if (config.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
+        else if (config.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
             return config.timeConfig.currentTimestamp
         }
     }
@@ -52,6 +55,7 @@ export function getTimestampFromConfig(config, previewYear) {
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear) {
     if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
         const timestamp = getTimestampFromConfig(wmtsLayerConfig, previewYear) ?? 'current'
+
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.externalLayerId
             : wmtsLayerConfig.technicalName
