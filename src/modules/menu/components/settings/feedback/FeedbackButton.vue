@@ -1,3 +1,87 @@
+<script setup>
+import { computed, nextTick, ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import sendFeedbackApi from '@/api/feedback.api'
+import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
+import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
+import EmailValidationField from '@/utils/components/EmailValidationField.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import log from '@/utils/logging'
+import { isValidEmail } from '@/utils/utils'
+
+const props = defineProps({
+    showAsLink: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const { showAsLink } = toRefs(props)
+
+const store = useStore()
+
+const requestResults = ref(null)
+const showFeedbackForm = ref(false)
+const maxRating = ref(5)
+const feedback = ref({ rating: 0, message: null, email: null })
+const request = ref({ pending: false, failed: false, completed: false })
+
+const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const feedbackCanBeSent = computed(
+    () => feedback.value.rating !== 0 && !request.value.pending && isEmailValid.value
+)
+const isEmailValid = computed(() => !feedback.value.email || isValidEmail(feedback.value.email))
+
+function ratingChange(newRating) {
+    feedback.value.rating = newRating
+}
+
+async function sendFeedback() {
+    // if the request was already sent, we don't allow the user to double send
+    if (request.value.completed) {
+        // we instead close the modal if he/she clicks on the check mark
+        closeAndCleanForm()
+        return
+    }
+    request.value.pending = true
+    try {
+        let subject = '[web-mapviewer]'
+        if (feedback.value.rating && maxRating.value) {
+            subject += ` [rating: ${feedback.value.rating}/${maxRating.value}]`
+        }
+        subject += ' User feedback'
+        const feedbackSentSuccessfully = await sendFeedbackApi(subject, feedback.value.message, {
+            kmlFileUrl: activeKmlLayer.value?.kmlFileUrl,
+            email: feedback.value.email,
+        })
+        request.value.completed = feedbackSentSuccessfully
+        request.value.failed = !feedbackSentSuccessfully
+    } catch (err) {
+        log.error('Error while sending feedback', err)
+        request.value.failed = true
+    } finally {
+        request.value.pending = false
+    }
+    await nextTick()
+    if (request.value.failed) {
+        // scrolling down to make sure the message with request results is visible to the user
+        requestResults.value.scrollIntoView()
+    }
+}
+
+function closeAndCleanForm() {
+    showFeedbackForm.value = false
+    feedback.value.rating = 0
+    feedback.value.message = null
+    feedback.value.email = null
+    // reset also the completed/failed state, so that the user can send another feedback later on
+    request.value.failed = false
+    request.value.completed = false
+}
+</script>
+
 <template>
     <HeaderLink
         v-if="showAsLink"
@@ -79,111 +163,6 @@
         </div>
     </ModalWithBackdrop>
 </template>
-
-<script>
-import { mapGetters } from 'vuex'
-
-import sendFeedback from '@/api/feedback.api'
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
-import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
-import EmailValidationField from '@/utils/components/EmailValidationField.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import log from '@/utils/logging'
-import { isValidEmail } from '@/utils/utils'
-
-export default {
-    components: {
-        FeedbackRating,
-        ModalWithBackdrop,
-        HeaderLink,
-        EmailValidationField,
-        SendActionButtons,
-    },
-    props: {
-        showAsLink: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    data() {
-        return {
-            showFeedbackForm: false,
-            maxRating: 5,
-            userIsTypingEmail: false,
-            feedback: {
-                rating: 0,
-                message: null,
-                email: null,
-            },
-            request: {
-                pending: false,
-                failed: false,
-                completed: false,
-            },
-        }
-    },
-    computed: {
-        ...mapGetters(['activeKmlLayer']),
-        feedbackCanBeSent() {
-            return this.feedback.rating !== 0 && !this.request.pending && this.isEmailValid
-        },
-        isEmailValid() {
-            return !this.feedback.email || isValidEmail(this.feedback.email)
-        },
-    },
-    methods: {
-        ratingChange(newRating) {
-            this.feedback.rating = newRating
-        },
-        async sendFeedback() {
-            // if the request was already sent, we don't allow the user to double send
-            if (this.request.completed) {
-                // we instead close the modal if he/she clicks on the check mark
-                this.closeAndCleanForm()
-                return
-            }
-            this.request.pending = true
-            try {
-                let subject = '[web-mapviewer]'
-                if (this.feedback.rating && this.maxRating) {
-                    subject += ` [rating: ${this.feedback.rating}/${this.maxRating}]`
-                }
-                subject += ' User feedback'
-                const feedbackSentSuccessfully = await sendFeedback(
-                    subject,
-                    this.feedback.message,
-                    {
-                        kmlFileUrl: this.activeKmlLayer?.kmlFileUrl,
-                        email: this.feedback.email,
-                    }
-                )
-                this.request.completed = feedbackSentSuccessfully
-                this.request.failed = !feedbackSentSuccessfully
-            } catch (err) {
-                log.error('Error while sending feedback', err)
-                this.request.failed = true
-            } finally {
-                this.request.pending = false
-            }
-            await this.$nextTick()
-            if (this.request.failed) {
-                // scrolling down to make sure the message with request results is visible to the user
-                this.$refs.requestResults.scrollIntoView()
-            }
-        },
-        closeAndCleanForm() {
-            this.showFeedbackForm = false
-            this.feedback.rating = 0
-            this.feedback.message = null
-            this.feedback.email = null
-            // reset also the completed/failed state, so that the user can send another feedback later on
-            this.request.failed = false
-            this.request.completed = false
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 .feedback-text {

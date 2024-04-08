@@ -1,3 +1,51 @@
+<script setup>
+import { ref, toRefs, watch } from 'vue'
+
+const props = defineProps({
+    maxRating: {
+        type: Number,
+        default: 5,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { maxRating, disabled } = toRefs(props)
+
+const emit = defineEmits(['ratingChange'])
+
+const rating = ref(0)
+const previewRating = ref(0)
+const pristine = ref(true)
+
+watch(disabled, (isNowDisabled) => {
+    if (isNowDisabled) {
+        // removing any previewed rating if the rating switches to its disabled mode
+        previewRating.value = 0
+    }
+})
+
+function setPreviewRating(newRating) {
+    if (!disabled.value) {
+        previewRating.value = newRating
+    }
+}
+function setRating(newRating) {
+    if (!disabled.value) {
+        pristine.value = false
+        rating.value = newRating
+        emit('ratingChange', rating.value)
+    }
+}
+function shouldStarBeChecked(starRating) {
+    if (previewRating.value > 0) {
+        return previewRating.value >= starRating
+    }
+    return rating.value >= starRating
+}
+</script>
+
 <template>
     <div class="container-fluid ratings" :class="{ disabled }" @mouseleave="setPreviewRating(0)">
         <FontAwesomeIcon
@@ -15,57 +63,6 @@
         />
     </div>
 </template>
-
-<script>
-export default {
-    props: {
-        maxRating: {
-            type: Number,
-            default: 5,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['ratingChange'],
-    data() {
-        return {
-            rating: 0,
-            previewRating: 0,
-            pristine: true,
-        }
-    },
-    watch: {
-        disabled(isNowDisabled) {
-            if (isNowDisabled) {
-                // removing any previewed rating if the rating switches to its disabled mode
-                this.previewRating = 0
-            }
-        },
-    },
-    methods: {
-        setPreviewRating(rating) {
-            if (!this.disabled) {
-                this.previewRating = rating
-            }
-        },
-        setRating(rating) {
-            if (!this.disabled) {
-                this.pristine = false
-                this.rating = rating
-                this.$emit('ratingChange', this.rating)
-            }
-        },
-        shouldStarBeChecked(starRating) {
-            if (this.previewRating > 0) {
-                return this.previewRating >= starRating
-            }
-            return this.rating >= starRating
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
