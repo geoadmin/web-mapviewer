@@ -246,11 +246,12 @@ describe('Drawing module tests', () => {
                     })
                 })
             })
-
             cy.log('Coordinates for marker can be copied in drawing mode')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(160, 200)
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){4}`)]))
             readCoordinateClipboard(
                 'feature-style-edit-coordinate-copy',
                 "2'660'013.50, 1'227'172.00"
@@ -314,6 +315,8 @@ describe('Drawing module tests', () => {
                 `<a target="_blank" href="${valid_url}">${media_description}</a>`
             )
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){6}`)]))
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open image embed popup')
@@ -332,6 +335,8 @@ describe('Drawing module tests', () => {
                 `<image src="${valid_url}" style="max-height:200px;"/>`
             )
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){8}`)]))
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.log('Open video embed popup')
@@ -350,6 +355,8 @@ describe('Drawing module tests', () => {
                 `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
             )
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){10}`)]))
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
@@ -360,6 +367,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){12}`)]))
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
@@ -370,6 +379,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
             cy.get('[data-cy="drawing-style-media-generate-button"]').click()
             cy.wait('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`(ExtendedData.*){14}`)]))
             cy.get('[data-cy="infobox-close"]').click()
 
             cy.closeDrawingMode()
