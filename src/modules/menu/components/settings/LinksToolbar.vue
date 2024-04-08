@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import FeedbackButton from '@/modules/menu/components/menu/feedback/FeedbackButton.vue'
-import MoreInfo from '@/modules/menu/components/menu/MoreInfo.vue'
-import ReportProblemButton from '@/modules/menu/components/menu/reportProblem/ReportProblemButton.vue'
+import FeedbackButton from '@/modules/menu/components/settings/feedback/FeedbackButton.vue'
+import MoreInfo from '@/modules/menu/components/settings/MoreInfo.vue'
+import ReportProblemButton from '@/modules/menu/components/settings/ReportProblemButton.vue'
 
 const props = defineProps({
     showAsLinks: {
@@ -23,7 +23,7 @@ const hasReportProblemButton = computed(() => store.getters.hasReportProblemButt
 <template>
     <div
         :class="{
-            'feedback-menu p-1': !props.showAsLinks,
+            container: !props.showAsLinks,
             'me-2': props.showAsLinks,
         }"
     >

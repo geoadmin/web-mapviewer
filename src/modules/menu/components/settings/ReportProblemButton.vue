@@ -4,7 +4,7 @@ import { computed, nextTick, ref } from 'vue'
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import FeedbackActionButtons from '@/modules/menu/components/menu/common/FeedbackActionButtons.vue'
+import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -119,7 +119,7 @@ function openForm() {
     </HeaderLink>
     <button
         v-else
-        class="btn btn-primary btn-sm mx-1"
+        class="btn btn-primary btn-sm m-1"
         data-cy="report-problem-button"
         @click="openForm"
     >
@@ -176,7 +176,7 @@ function openForm() {
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
-            <FeedbackActionButtons
+            <SendActionButtons
                 class="text-end"
                 :is-disabled="!feedbackCanBeSent"
                 :is-pending="request.pending"
