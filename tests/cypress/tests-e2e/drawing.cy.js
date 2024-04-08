@@ -62,6 +62,11 @@ describe('Drawing module tests', () => {
                 expect(clipboardText).to.be.equal(coordinate)
             })
         }
+        function waitForKmlUpdate(regexExpression) {
+            cy.get('@update-kml')
+                .its('request')
+                .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
+        }
         beforeEach(() => {
             cy.goToDrawing()
         })
@@ -258,23 +263,16 @@ describe('Drawing module tests', () => {
                 cy.log('Coordinates for marker can be copied in drawing mode')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(160, 200)
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`(ExtendedData.*){4}`)])
-                    )
+                waitForKmlUpdate(`(ExtendedData.*){4}`)
                 readCoordinateClipboard(
                     'feature-style-edit-coordinate-copy',
                     "2'660'013.50, 1'227'172.00"
                 )
+
                 cy.log('Coordinates for marker can be copied while not in drawing mode')
                 cy.closeDrawingMode()
                 cy.closeMenuIfMobile()
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`(ExtendedData.*){4}`)])
-                    )
+                waitForKmlUpdate(`(ExtendedData.*){4}`)
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.get('[data-cy="ol-map"]').click(160, 200)
@@ -298,7 +296,6 @@ describe('Drawing module tests', () => {
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(20, 160)
-                cy.wait('@update-kml')
 
                 cy.log('Open hyperlink popup')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -344,17 +341,12 @@ describe('Drawing module tests', () => {
                     'have.value',
                     `<a target="_blank" href="${valid_url}">${media_description}</a>`
                 )
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`href="${valid_url}".*`)])
-                    )
+                waitForKmlUpdate(`href="${valid_url}".*`)
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Open image embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(60, 160)
-                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-image-button"]').click()
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -366,17 +358,12 @@ describe('Drawing module tests', () => {
                     'have.value',
                     `<image src="${valid_url}" style="max-height:200px;"/>`
                 )
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`image src="${valid_url}".*`)])
-                    )
+                waitForKmlUpdate(`image src="${valid_url}".*`)
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Open video embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(100, 160)
-                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -388,50 +375,30 @@ describe('Drawing module tests', () => {
                     'have.value',
                     `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
                 )
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`iframe src="${valid_url}".*`)])
-                    )
+                waitForKmlUpdate(`iframe src="${valid_url}".*`)
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(140, 160)
-                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`(iframe src="${valid_url}".*){2}`)])
-                    )
+                waitForKmlUpdate(`(iframe src="${valid_url}".*){2}`)
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(180, 160)
-                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [
-                            new RegExp(`iframe src="${valid_whitelisted_url}"`),
-                        ])
-                    )
+                waitForKmlUpdate(`iframe src="${valid_whitelisted_url}"`)
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.closeDrawingMode()
                 cy.closeMenuIfMobile()
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [new RegExp(`(ExtendedData.*){14}`)])
-                    )
+                waitForKmlUpdate(`(ExtendedData.*){14}`)
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.log('Hyperlink exists after sanitize')
