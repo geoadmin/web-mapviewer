@@ -23,7 +23,7 @@ const hasReportProblemButton = computed(() => store.getters.hasReportProblemButt
 <template>
     <div
         :class="{
-            'p-1': !props.showAsLinks,
+            container: !props.showAsLinks,
             'me-2': props.showAsLinks,
         }"
     >

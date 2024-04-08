@@ -9,7 +9,7 @@
     </HeaderLink>
     <button
         v-else
-        class="btn btn-primary btn-sm mx-1"
+        class="btn btn-primary btn-sm m-1"
         data-cy="feedback-button"
         @click="showFeedbackForm = true"
     >

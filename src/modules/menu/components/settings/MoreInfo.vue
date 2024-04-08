@@ -22,7 +22,7 @@ function openCmsLink() {
     </HeaderLink>
     <button
         v-else
-        class="btn btn-sm btn-light mx-1"
+        class="btn btn-sm btn-light m-1"
         :title="i18n.t('cms_link_button_title')"
         @click="openCmsLink"
     >
