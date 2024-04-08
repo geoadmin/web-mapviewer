@@ -196,6 +196,8 @@ export class PrintError extends Error {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
  *   from the print. Default is `[]`
+ * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
+ *   null, let the server decide. Default is `null`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -209,6 +211,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        outputFilename = null,
     } = config
 
     if (!qrCodeUrl) {
@@ -267,6 +270,8 @@ async function transformOlMapToPrintParams(olMap, config) {
             },
             format: 'pdf',
             layout: layout.name,
+            lang,
+            outputFilename,
         }
         if (layersWithLegends.length > 0) {
             spec.attributes.legend = {
@@ -309,6 +314,8 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of IDs of OpenLayers layer to exclude from
  *   the print. Default is `[]`
+ * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
+ *   null, let the server decide. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -324,6 +331,7 @@ export async function createPrintJob(map, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        outputFilename = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -337,6 +345,7 @@ export async function createPrintJob(map, config) {
             printGrid,
             projection,
             excludedLayerIDs,
+            outputFilename,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
