@@ -32,7 +32,7 @@ import {
 } from 'vue'
 import { useStore } from 'vuex'
 
-import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
+import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -66,6 +66,7 @@ import {
     highlightGroup,
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
+import useOnMapResize from '@/modules/map/components/common/useOnMapResize.composable'
 import { ClickType } from '@/store/modules/map.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -168,6 +169,8 @@ onUnmounted(() => {
     store.dispatch('setCameraPosition', { position: null, ...dispatcher })
     viewer.destroy()
 })
+
+useOnMapResize(cesiumContainer)
 
 // we need to deep watch this as otherwise we aren't triggered when
 // coordinates are changed (but only when one feature is added/removed)
@@ -377,6 +380,7 @@ function highlightSelectedFeatures() {
         ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
         : firstFeature.coordinates
 }
+
 function onClick(event) {
     unhighlightGroup(viewer)
     const features = []
@@ -447,6 +451,7 @@ function onClick(event) {
 function clearLongPressTimer() {
     clearTimeout(contextMenuTimeoutId)
 }
+
 function onTouchStart(event) {
     clearLongPressTimer()
     if (event.touches.length === 1) {
