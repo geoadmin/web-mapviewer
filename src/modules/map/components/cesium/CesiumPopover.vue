@@ -35,7 +35,7 @@ const tempCartographic = new Cartographic()
  */
 export default {
     components: { MapPopover },
-    inject: ['getViewer'],
+    inject: ['getCesiumViewer'],
     props: {
         coordinates: {
             type: Array,
@@ -79,7 +79,7 @@ export default {
         },
     },
     mounted() {
-        const viewer = this.getViewer()
+        const viewer = this.getCesiumViewer()
         if (viewer) {
             // By default, the `camera.changed` event will trigger when the camera has changed by 50%
             // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
@@ -101,7 +101,7 @@ export default {
         }
     },
     unmounted() {
-        const viewer = this.getViewer()
+        const viewer = this.getCesiumViewer()
         if (viewer) {
             viewer.camera.changed.removeEventListener(this.updatePosition)
             viewer.scene.globe.tileLoadProgressEvent.removeEventListener(this.onTileLoadProgress)
@@ -115,7 +115,7 @@ export default {
          * stores it in this.coordinatesHeight
          */
         updateCoordinateHeight() {
-            this.coordinatesHeight = this.getViewer()?.scene.globe.getHeight(
+            this.coordinatesHeight = this.getCesiumViewer()?.scene.globe.getHeight(
                 Cartographic.fromDegrees(
                     this.wgs84Coordinates[0],
                     this.wgs84Coordinates[1],
@@ -130,7 +130,7 @@ export default {
                 return
             }
             const cartesianCoords = SceneTransforms.wgs84ToWindowCoordinates(
-                this.getViewer().scene,
+                this.getCesiumViewer().scene,
                 Cartesian3.fromDegrees(
                     this.wgs84Coordinates[0],
                     this.wgs84Coordinates[1],
@@ -148,7 +148,7 @@ export default {
             }
         },
         onTileLoadProgress() {
-            const viewer = this.getViewer()
+            const viewer = this.getCesiumViewer()
             // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
             if (viewer.scene.globe.tilesLoaded) {
                 this.updateCoordinateHeight()

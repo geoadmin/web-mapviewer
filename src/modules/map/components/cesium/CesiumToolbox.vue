@@ -15,9 +15,9 @@ const store = useStore()
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const resolution = computed(() => store.getters.resolution)
 
-const getViewer = inject('getViewer')
+const getCesiumViewer = inject('getCesiumViewer')
 
-const viewer = getViewer()
+const viewer = getCesiumViewer()
 
 onMounted(() => {
     if (viewer) {

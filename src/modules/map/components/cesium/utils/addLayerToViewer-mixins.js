@@ -7,7 +7,7 @@
  * - `removeLayer` that gets `layer` as property
  */
 const addLayerToViewer = {
-    inject: ['getViewer'],
+    inject: ['getCesiumViewer'],
     data() {
         return {
             isPresentOnMap: false,

@@ -9,6 +9,10 @@ import {
     Rectangle,
     Transforms,
 } from 'cesium'
+import proj4 from 'proj4'
+
+import { WGS84 } from '@/utils/coordinates/coordinateSystems.js'
+import log from '@/utils/logging.js'
 
 /**
  * Limits the camera pitch and roll.
@@ -114,4 +118,29 @@ export function calculateHeight(resolution, width) {
  */
 export function calculateResolution(height, width) {
     return (2 * Math.tan(Math.PI / 6) * height) / width
+}
+
+/**
+ * Return the [X,Y] (no Z) coordinate of a screen pixel using a ray picker and the intersection with
+ * the terrain.
+ *
+ * @param {Viewer} viewer
+ * @param {Number} x Pixel coordinate X on the screen
+ * @param {Number} y Pixel coordinate Y on the screen
+ * @param {CoordinateSystem} outputProjection
+ * @returns {[Number, Number]}
+ */
+export function getCoordinateAtScreenCoordinate(viewer, x, y, outputProjection) {
+    const cartesian = viewer.scene.pickPosition(new Cartesian2(x, y))
+    let coordinates = []
+    if (cartesian) {
+        const cartCoords = Cartographic.fromCartesian(cartesian)
+        coordinates = proj4(WGS84.epsg, outputProjection.epsg, [
+            (cartCoords.longitude * 180) / Math.PI,
+            (cartCoords.latitude * 180) / Math.PI,
+        ])
+    } else {
+        log.error('no coordinate found at this screen coordinates', [x, y])
+    }
+    return coordinates
 }

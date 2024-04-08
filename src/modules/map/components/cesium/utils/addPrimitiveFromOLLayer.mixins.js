@@ -15,8 +15,8 @@ const STYLE_RESOLUTION = 20
  * by an OpenLayers Vector layer. This is a centralized way of describing this logic.
  *
  * This mixin will create a Cesium layer that will be added to the viewer (through dependency
- * injection with `getViewer`). The mixin will manage this layer and will remove it from the viewer
- * as soon as the component that has incorporated this mixin will be removed from the DOM.
+ * injection with `getCesiumViewer`). The mixin will manage this layer and will remove it from the
+ * viewer as soon as the component that has incorporated this mixin will be removed from the DOM.
  *
  * Any component that wants to use this mixin must give/implement :
  *
@@ -32,7 +32,7 @@ const addPrimitiveFromOLLayerMixins = {
     watch: {
         opacity(newOpacity) {
             updateCollectionProperties(this.layer, { opacity: newOpacity })
-            this.getViewer().scene.requestRender()
+            this.getCesiumViewer().scene.requestRender()
         },
         url() {
             this.olLayer.getSource().clear()
@@ -60,18 +60,18 @@ const addPrimitiveFromOLLayerMixins = {
     },
     methods: {
         addLayer(layer) {
-            this.getViewer().scene.primitives.add(layer)
+            this.getCesiumViewer().scene.primitives.add(layer)
             this.isPresentOnMap = true
         },
         removeLayer(layer) {
-            const viewer = this.getViewer()
+            const viewer = this.getCesiumViewer()
             layer.removeAll()
             viewer.scene.primitives.remove(layer)
             viewer.scene.requestRender()
             this.isPresentOnMap = false
         },
         addPrimitive() {
-            const scene = this.getViewer().scene
+            const scene = this.getCesiumViewer().scene
             const featureConverter = new FeatureConverter(scene)
             const counterpart = featureConverter.olVectorLayerToCesium(
                 this.olLayer,
@@ -90,14 +90,14 @@ const addPrimitiveFromOLLayerMixins = {
                 if (scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
                     this.layer.add(counterpart.getRootPrimitive())
                     updateCollectionProperties(this.layer, collectionProperties)
-                    this.getViewer().scene.requestRender()
+                    this.getCesiumViewer().scene.requestRender()
                 } else {
                     const unlisten = scene.globe.tileLoadProgressEvent.addEventListener(
                         (queueLength) => {
                             if (scene.globe.tilesLoaded && queueLength === 0) {
                                 this.layer.add(counterpart.getRootPrimitive())
                                 updateCollectionProperties(this.layer, collectionProperties)
-                                this.getViewer().scene.requestRender()
+                                this.getCesiumViewer().scene.requestRender()
                                 unlisten()
                             }
                         }

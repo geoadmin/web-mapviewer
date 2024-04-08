@@ -10,7 +10,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 
 export default {
-    inject: ['getViewer'],
+    inject: ['getCesiumViewer'],
     props: {
         coordinates: {
             type: Array,
@@ -38,7 +38,7 @@ export default {
         trackingPointColor(newColor) {
             this.pointFill = Color.fromCssColorString(newColor.fill)
             this.pointBorder = Color.fromCssColorString(newColor.border)
-            this.getViewer()?.scene.requestRender()
+            this.getCesiumViewer()?.scene.requestRender()
         },
     },
     mounted() {
@@ -70,11 +70,11 @@ export default {
     methods: {
         addTrackingPoint() {
             this.pointAdded = true
-            this.getViewer()?.entities.add(this.trackingPoint)
+            this.getCesiumViewer()?.entities.add(this.trackingPoint)
         },
         removeTrackingPoint() {
             this.pointAdded = false
-            this.getViewer()?.entities.remove(this.trackingPoint)
+            this.getCesiumViewer()?.entities.remove(this.trackingPoint)
         },
         updatePosition() {
             const wgs84Position = proj4(this.projection.epsg, WGS84.epsg, this.coordinates)
@@ -85,7 +85,7 @@ export default {
                 Ellipsoid.WGS84,
                 this.trackingPointPosition
             )
-            this.getViewer()?.scene.requestRender()
+            this.getCesiumViewer()?.scene.requestRender()
         },
     },
 }

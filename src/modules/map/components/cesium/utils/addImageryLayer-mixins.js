@@ -6,8 +6,8 @@ import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToVi
  *
  * Each component that uses this mixin must create a layer (`this.layer`) in their `created(){}`
  * method. This layer will then be added to the viewer (through dependency injection with
- * `getViewer`). The mixin will manage this layer and will remove it from the viewer as soon as the
- * component that has incorporated this mixin will be removed from the DOM.
+ * `getCesiumViewer`). The mixin will manage this layer and will remove it from the viewer as soon
+ * as the component that has incorporated this mixin will be removed from the DOM.
  *
  * `url` should be defined in the component and contains layer URL
  *
@@ -21,22 +21,22 @@ const addImageryLayerMixins = {
     mixins: [addLayerToViewer],
     methods: {
         addLayer(layer, zIndex) {
-            const viewer = this.getViewer()
+            const viewer = this.getCesiumViewer()
             viewer.scene.imageryLayers.add(layer, zIndex)
             this.isPresentOnMap = true
         },
         removeLayer(layer) {
-            this.getViewer().scene.imageryLayers.remove(layer)
+            this.getCesiumViewer().scene.imageryLayers.remove(layer)
             this.isPresentOnMap = false
         },
     },
     watch: {
         opacity(newOpacity) {
             this.layer.alpha = newOpacity
-            this.getViewer().scene.requestRender()
+            this.getCesiumViewer().scene.requestRender()
         },
         url(newUrl) {
-            const viewer = this.getViewer()
+            const viewer = this.getCesiumViewer()
             const index = viewer.scene.imageryLayers.indexOf(this.layer)
             viewer.scene.imageryLayers.remove(this.layer)
             this.layer = this.createImagery(newUrl)
@@ -44,7 +44,7 @@ const addImageryLayerMixins = {
         },
         zIndex(zIndex) {
             if (this.layer) {
-                const imageryLayers = this.getViewer().scene.imageryLayers
+                const imageryLayers = this.getCesiumViewer().scene.imageryLayers
                 const index = imageryLayers.indexOf(this.layer)
                 const indexDiff = Math.abs(zIndex - index)
                 for (let i = indexDiff; i !== 0; i--) {
