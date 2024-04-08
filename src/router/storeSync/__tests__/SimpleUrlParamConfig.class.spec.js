@@ -26,15 +26,15 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             valueType,
             defaultValue,
         } = Object.assign(defaultOptions, options)
-        return new SimpleUrlParamConfig(
+        return new SimpleUrlParamConfig({
             urlParamName,
             mutationToWatch,
             dispatchChangeTo,
             extractValueFromStore,
             keepInUrlWhenDefault,
             valueType,
-            defaultValue
-        )
+            defaultValue,
+        })
     }
 
     describe('outputs the correct type with the readFromStore function', () => {

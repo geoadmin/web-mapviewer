@@ -9,9 +9,7 @@ import log from '@/utils/logging'
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 
 const watchedMutations = [
-    ...new Set(
-        storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch.split(',')).flat()
-    ),
+    ...new Set(storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch).flat()),
 ]
 
 const mutationNotTriggeredByModule = (mutation) =>
@@ -171,10 +169,10 @@ function urlQueryWatcher(store, to) {
         })
     }
     if (requireQueryUpdate) {
-        log.debug('[URL query watcher] Update URL query to', newQuery)
+        log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
-        // stays on `/#/`. When manually chaning any query param it works though.
+        // stays on `/#/`. When manually changing any query param it works though.
         return { name: to.name, query: newQuery }
     }
     return undefined

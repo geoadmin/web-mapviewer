@@ -38,14 +38,14 @@ function generateCompareSliderUrlParamFromStore(store) {
  */
 export default class CompareSliderParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'compareRatio',
-            'setCompareRatio, setCompareSliderActive',
-            dispatchCompareSliderFromUrlParam,
-            generateCompareSliderUrlParamFromStore,
-            false,
-            Number,
-            null
-        )
+        super({
+            urlParamName: 'compareRatio',
+            mutationsToWatch: ['setCompareRatio', 'setCompareSliderActive'],
+            setValuesInStore: dispatchCompareSliderFromUrlParam,
+            extractValueFromStore: generateCompareSliderUrlParamFromStore,
+            keepInUrlWhenDefault: false,
+            valueType: Number,
+            defaultValue: null,
+        })
     }
 }

@@ -17,7 +17,7 @@ const props = defineProps({
 })
 const { compact } = toRefs(props)
 
-const emit = defineEmits(['openMenuSection'])
+const emit = defineEmits(['openMenuSection', 'closeMenuSection'])
 const store = useStore()
 const i18n = useI18n()
 
@@ -27,13 +27,12 @@ const showTopicSelectionPopup = ref(false)
 const currentTopic = computed(() => store.state.topics.current)
 const currentTopicTree = computed(() => store.state.topics.tree)
 const allTopics = computed(() => store.state.topics.config)
-const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
-const isDefaultTopic = computed(() => store.getters.isDefaultTopic)
 const showTopicTree = computed(() => {
-    // We only want the topic tree open whenever the user has chosen a different topic
-    // than the default one (it can be opened by the user by a click on it, but by default it's closed)
-    // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
-    return !isDefaultTopic.value || openThemesIds.value.length > 0
+    // // We only want the topic tree open whenever the user has chosen a different topic
+    // // than the default one (it can be opened by the user by a click on it, but by default it's closed)
+    // // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
+    // return !isDefaultTopic.value
+    return store.state.topics.openedTreeThemesIds.includes(currentTopic.value)
 })
 const mapModuleReady = computed(() => store.state.app.isMapReady)
 
@@ -50,6 +49,16 @@ function close() {
     menuTopicSection.value.close()
 }
 
+function onOpenMenuTopics(id) {
+    emit('openMenuSection', id)
+    store.dispatch('addTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
+}
+
+function onCloseMenuTopics(id) {
+    emit('closeMenuSection', id)
+    store.dispatch('removeTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
+}
+
 defineExpose({ close })
 </script>
 
@@ -61,7 +70,8 @@ defineExpose({ close })
         :show-content="showTopicTree"
         light
         data-cy="menu-topic-section"
-        @open-menu-section="(id) => emit('openMenuSection', id)"
+        @open-menu-section="onOpenMenuTopics"
+        @close-menu-section="onCloseMenuTopics"
     >
         <template #extra-button>
             <button
@@ -86,6 +96,7 @@ defineExpose({ close })
             data-cy="menu-topic-tree"
             :layer-catalogue="currentTopicTree"
             :compact="compact"
+            :is-topic="true"
         />
     </MenuSection>
 </template>

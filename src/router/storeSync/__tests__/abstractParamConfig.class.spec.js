@@ -4,21 +4,21 @@ import { describe, it } from 'vitest'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 
 class DummyUrlParamConfig extends AbstractParamConfig {
-    constructor(
+    constructor({
         keepInUrlWhenDefault = true,
         valueType = String,
         extractValueFromStore = undefined,
-        defaultValue = null
-    ) {
-        super(
-            'test',
-            'test',
-            undefined,
+        defaultValue = null,
+    } = {}) {
+        super({
+            urlParamName: 'test',
+            mutationsToWatch: ['test'],
+            setValuesInStore: undefined,
             extractValueFromStore,
             keepInUrlWhenDefault,
             valueType,
-            defaultValue
-        )
+            defaultValue,
+        })
     }
 }
 
@@ -32,7 +32,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
         describe('keepInUrlWhenDefault=true', () => {
             it('returns a string correctly', () => {
                 const defaultValue = 'default value'
-                const testInstance = new DummyUrlParamConfig(true, String, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: String,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(
                     testInstance.readValueFromQuery({
                         test: 'this-is-a-test',
@@ -52,7 +57,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             it('returns a number correctly', () => {
                 const defaultValue = 789
-                const testInstance = new DummyUrlParamConfig(true, Number, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: Number,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(testInstance.readValueFromQuery({ test: '1234' })).to.eq(1234)
                 expect(testInstance.readValueFromQuery({ test: '' })).to.eq(0)
                 expect(testInstance.readValueFromQuery({ test: `${defaultValue}` })).to.eq(
@@ -62,7 +72,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             it('returns a boolean correctly', () => {
                 const defaultValue = true
-                const testInstance = new DummyUrlParamConfig(true, Boolean, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: Boolean,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(testInstance.readValueFromQuery({ test: 'true' })).to.be.true
                 expect(testInstance.readValueFromQuery({ test: 'false' })).to.be.false
                 expect(testInstance.readValueFromQuery({ test: '' })).to.be.false
@@ -74,7 +89,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
         describe('keepInUrlWhenDefault=false', () => {
             it('returns a string correctly', () => {
                 const defaultValue = 'default value'
-                const testInstance = new DummyUrlParamConfig(false, String, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: String,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(
                     testInstance.readValueFromQuery({
                         test: 'this-is-a-test',
@@ -92,7 +112,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             it('returns a number correctly', () => {
                 const defaultValue = 789
-                const testInstance = new DummyUrlParamConfig(false, Number, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: Number,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(testInstance.readValueFromQuery({ test: '1234' })).to.eq(1234)
                 expect(testInstance.readValueFromQuery({ test: '' })).to.eq(0)
                 expect(testInstance.readValueFromQuery({})).to.eq(
@@ -102,7 +127,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             it('returns a boolean correctly', () => {
                 const defaultValue = true
-                const testInstance = new DummyUrlParamConfig(false, Boolean, null, defaultValue)
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: Boolean,
+                    extractValueFromStore: null,
+                    defaultValue,
+                })
                 expect(testInstance.readValueFromQuery({ test: 'true' })).to.be.true
                 expect(testInstance.readValueFromQuery({ test: 'false' })).to.be.false
                 expect(testInstance.readValueFromQuery({ test: '' })).to.be.false
@@ -143,12 +173,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             }
             describe('String', () => {
                 const defaultValue = 'defaultValue'
-                const testInstance = new DummyUrlParamConfig(
-                    true,
-                    String,
-                    (store) => store['test'],
-                    defaultValue
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: String,
+                    extractValueFromStore: (store) => store['test'],
+                    defaultValue,
+                })
                 it('populates strings correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: 'dummy-value' })
@@ -171,12 +201,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             describe('Number', () => {
                 const defaultValue = 789
-                const testInstance = new DummyUrlParamConfig(
-                    true,
-                    Number,
-                    (store) => store['test'],
-                    defaultValue
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: Number,
+                    extractValueFromStore: (store) => store['test'],
+                    defaultValue,
+                })
                 it('populates numbers correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: 123.45 })
@@ -198,11 +228,11 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                 checkNullAndUndefinedHandling(testInstance)
             })
             describe('Boolean', () => {
-                const testInstance = new DummyUrlParamConfig(
-                    true,
-                    Boolean,
-                    (store) => store['test']
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: true,
+                    valueType: Boolean,
+                    extractValueFromStore: (store) => store['test'],
+                })
                 it('populates true boolean correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: true })
@@ -246,12 +276,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             }
             describe('String', () => {
                 const defaultValue = 'default value'
-                const testInstance = new DummyUrlParamConfig(
-                    false,
-                    String,
-                    (store) => store['test'],
-                    defaultValue
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: String,
+                    extractValueFromStore: (store) => store['test'],
+                    defaultValue,
+                })
                 it('populates strings correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: 'dummy-value' })
@@ -273,12 +303,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             describe('Number', () => {
                 const defaultValue = 789
-                const testInstance = new DummyUrlParamConfig(
-                    false,
-                    Number,
-                    (store) => store['test'],
-                    defaultValue
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: Number,
+                    extractValueFromStore: (store) => store['test'],
+                    defaultValue,
+                })
                 it('populates numbers correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: 123.45 })
@@ -300,12 +330,12 @@ describe('Test all AbstractParamConfig class functionalities', () => {
             })
             describe('Boolean', () => {
                 const defaultValue = false
-                const testInstance = new DummyUrlParamConfig(
-                    false,
-                    Boolean,
-                    (store) => store['test'],
-                    defaultValue
-                )
+                const testInstance = new DummyUrlParamConfig({
+                    keepInUrlWhenDefault: false,
+                    valueType: Boolean,
+                    extractValueFromStore: (store) => store['test'],
+                    defaultValue,
+                })
                 it('populates true boolean correctly', () => {
                     const query = {}
                     testInstance.populateQueryWithStoreValue(query, { test: true })
