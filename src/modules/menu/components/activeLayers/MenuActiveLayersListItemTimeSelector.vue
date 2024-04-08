@@ -129,8 +129,16 @@ function hidePopover() {
                 :key="timeEntry.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': timeEntry.timestamp === timeConfig.currentTimestamp,
-                    'btn-light': timeEntry.timestamp !== timeConfig.currentTimestamp,
+                    'btn-primary':
+                        previewYear === timeEntry.year ||
+                        (!previewYear && timeConfig.currentTimestamp === timeEntry.timestamp),
+                    'btn-outline-primary':
+                        previewYear &&
+                        timeConfig.currentTimestamp === timeEntry.timestamp &&
+                        timeEntry.year !== previewYear,
+                    'btn-light':
+                        timeEntry.timestamp !== timeConfig.currentTimestamp &&
+                        previewYear !== timeEntry.year,
                 }"
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"
