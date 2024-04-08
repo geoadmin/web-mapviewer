@@ -67,7 +67,6 @@ const addFileAPIFixtureAndIntercept = () => {
         async (req) => {
             const adminId = await getKmlAdminIdFromRequest(req)
             kmlBody = await getKmlFromRequest(req)
-            console.error(kmlBody)
             req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
         }
     ).as('update-kml')
