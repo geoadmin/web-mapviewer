@@ -1,5 +1,4 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 
 export class ActiveLayerConfig {
@@ -39,7 +38,7 @@ export function getTimestampFromConfig(config, previewYear) {
         // when the time slider is not active,
         // if a time entry is defined, and is different from 'all'
         // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-        else if (config.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
+        else {
             return config.timeConfig.currentTimestamp
         }
     }

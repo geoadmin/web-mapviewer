@@ -350,10 +350,13 @@ function togglePlayYearsWithData() {
 </template>
 
 <style lang="scss">
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@use 'sass:color';
 
+@import 'src/scss/webmapviewer-bootstrap-theme';
+$time-slider-color-background: color.adjust($white, $alpha: -0.1);
+$time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
 .time-slider {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: $time-slider-color-background !important;
     &:not(.grabbed) &-bar-cursor {
         cursor: grab;
     }
@@ -393,21 +396,20 @@ function togglePlayYearsWithData() {
         &-inner {
             background: repeating-linear-gradient(
                 45deg,
-                transparent,
-                transparent 4px,
-                #efb9b3 2px,
-                #efb9b3 8px
+                $silver,
+                $silver 4px,
+                $time-slider-color-has-data 2px,
+                $time-slider-color-has-data 8px
             );
             width: 100%;
             height: 10px;
             &-step {
                 cursor: pointer;
-                background: rgba(0, 0, 0, 0.1);
                 &.has-no-data {
-                    background: #e4e5e5;
+                    background: $silver;
                 }
                 &.has-joint-data {
-                    background: #efb9b3;
+                    background: $time-slider-color-has-data;
                 }
                 &:not(.small-tick):not(.big-tick):not(.medium-tick)::before {
                     content: '';
