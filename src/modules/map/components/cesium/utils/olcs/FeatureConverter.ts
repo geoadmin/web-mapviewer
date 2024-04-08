@@ -74,6 +74,7 @@ import type ImageStyle from 'ol/style/Image'
 import type { default as Style, StyleFunction } from 'ol/style/Style'
 import type { VectorSourceEvent } from 'ol/source/Vector'
 import VectorSource from 'ol/source/Vector'
+import type { Size } from 'ol/size'
 
 type ModelFromGltfOptions = Parameters<typeof Model.fromGltfAsync>[0]
 
@@ -200,17 +201,17 @@ export default class FeatureConverter {
         feature: Feature,
         olGeometry: OLGeometry,
         geometry: CSGeometry | CircleGeometry,
-        color: CesiumColor | ImageMaterialProperty,
+        color?: CesiumColor,
         opt_lineWidth?: number
     ): Primitive | GroundPrimitive | null {
         const createInstance = function (
             geometry: CSGeometry | CircleGeometry,
-            color: CesiumColor | ImageMaterialProperty
+            color?: CesiumColor
         ) {
             const instance = new GeometryInstance({
                 geometry,
             })
-            if (color && !(color instanceof ImageMaterialProperty)) {
+            if (color) {
                 instance.attributes = {
                     color: ColorGeometryInstanceAttribute.fromColor(color),
                 }
@@ -251,29 +252,7 @@ export default class FeatureConverter {
             })
         }
 
-        if (color instanceof ImageMaterialProperty) {
-            // FIXME: we created stylings which are not time related
-            // What should we pass here?
-            // @ts-ignore
-            const dataUri = color.image.getValue().toDataURL()
-
-            primitive.appearance = new MaterialAppearance({
-                flat: true,
-                renderState: {
-                    depthTest: {
-                        enabled: true,
-                    },
-                },
-                material: new Material({
-                    fabric: {
-                        type: 'Image',
-                        uniforms: {
-                            image: dataUri,
-                        },
-                    },
-                }),
-            })
-        } else {
+        if (color) {
             primitive.appearance = new MaterialAppearance({
                 ...options,
                 material: new Material({
@@ -302,9 +281,9 @@ export default class FeatureConverter {
      *
      * @param style
      * @param outline
-     * @returns {!CesiumColor}
+     * @returns {CesiumColor | undefined}
      */
-    protected extractColorFromOlStyle(style: Style | Text, outline: boolean) {
+    protected extractColorFromOlStyle(style: Style | Text, outline: boolean) : CesiumColor | undefined {
         const fillColor: OLColorLike | OLColor | PatternDescriptor | null | undefined = style
             .getFill()
             ?.getColor()
@@ -317,7 +296,15 @@ export default class FeatureConverter {
             olColor = fillColor
         }
 
-        return convertColorToCesium(olColor)
+        const cesiumColor: CesiumColor | ImageMaterialProperty =  convertColorToCesium(olColor)
+        if (cesiumColor instanceof ImageMaterialProperty) {
+            if (cesiumColor.color instanceof CesiumColor) {
+                return cesiumColor.color
+            } else {
+                return undefined
+            }
+        }
+        return cesiumColor
     }
 
     /**
@@ -343,8 +330,8 @@ export default class FeatureConverter {
         olStyle: Style,
         outlineGeometry?: CSGeometry | CircleOutlineGeometry
     ): PrimitiveCollection {
-        const fillColor = this.extractColorFromOlStyle(olStyle, false)
-        const outlineColor = this.extractColorFromOlStyle(olStyle, true)
+        const fillColor : CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, false)
+        const outlineColor : CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, true)
 
         const primitives = new PrimitiveCollection()
         if (olStyle.getFill()) {
@@ -427,13 +414,13 @@ export default class FeatureConverter {
      */
     csAddBillboard(
         billboards: BillboardCollection,
-        bbOptions: Parameters<BillboardCollection['add']>[0],
+        bbOptions: Parameters<BillboardCollection['add']>[0] | undefined,
         layer: PrimitiveLayer,
         feature: Feature,
         geometry: OLGeometry,
         style: Style
     ): Billboard {
-        if (!bbOptions.eyeOffset) {
+        if (bbOptions && !bbOptions.eyeOffset) {
             bbOptions.eyeOffset = this.defaultBillboardEyeOffset_
         }
         const bb = billboards.add(bbOptions)
@@ -787,7 +774,7 @@ export default class FeatureConverter {
             imageStyle.load()
         }
 
-        const image = imageStyle.getImage(1) // get normal density
+        const image : HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap | null = imageStyle.getImage(1) // get normal density
         const isImageLoaded = function (image: HTMLImageElement) {
             return (
                 image.src != '' &&
@@ -803,9 +790,8 @@ export default class FeatureConverter {
             }
             if (
                 !(
-                    image instanceof HTMLCanvasElement ||
-                    image instanceof Image ||
-                    image instanceof HTMLImageElement
+                    typeof image === 'string' ||
+                    image instanceof HTMLCanvasElement
                 )
             ) {
                 return
@@ -818,7 +804,10 @@ export default class FeatureConverter {
                 color = new CesiumColor(1.0, 1.0, 1.0, opacity)
             }
 
-            const scale = imageStyle.getScale()
+            const scale : number | Size = imageStyle.getScale()
+            if (Array.isArray(scale)) {
+                return
+            }
             const heightReference = self.getHeightReference(layer, feature, olGeometry)
 
             const bbOptions: Parameters<BillboardCollection['add']>[0] = {
@@ -1079,8 +1068,8 @@ export default class FeatureConverter {
         geometry: OLGeometry,
         style: Text
     ): LabelCollection | null {
-        const text = style.getText()
-        if (!text) {
+        const text : string | string[] | undefined = style.getText()
+        if (!text || Array.isArray(text)) {
             return null
         }
 
@@ -1092,19 +1081,16 @@ export default class FeatureConverter {
             const first = geometry.getFirstCoordinate()
             extentCenter[2] = first.length == 3 ? first[2] : 0.0
         }
-        const options: Parameters<LabelCollection['add']>[0] = {}
-
-        options.position = ol4326CoordinateToCesiumCartesian(extentCenter)
-
-        options.text = text
-
-        options.heightReference = this.getHeightReference(layer, feature, geometry)
+        const options: Parameters<LabelCollection['add']>[0] = {
+            position: ol4326CoordinateToCesiumCartesian(extentCenter),
+            text,
+            heightReference: this.getHeightReference(layer, feature, geometry)
+        }
 
         const offsetX = style.getOffsetX()
         const offsetY = style.getOffsetY()
         if (offsetX != 0 || offsetY != 0) {
-            const offset = new Cartesian2(offsetX, offsetY)
-            options.pixelOffset = offset
+            options.pixelOffset = new Cartesian2(offsetX, offsetY)
         }
 
         options.font = style.getFont() || '10px sans-serif' // OpenLayers default
