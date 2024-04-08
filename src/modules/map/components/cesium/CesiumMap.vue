@@ -132,7 +132,7 @@ import {
     highlightGroup,
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { ClickType } from '@/store/modules/map.store'
 import { FeatureInfoPositions, UIModes } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -554,23 +554,23 @@ export default {
                 coordinates = proj4(this.projection.epsg, WEBMERCATOR.epsg, featureCoords)
             }
             this.click({
-                clickInfo: new ClickInfo({
+                clickInfo: {
                     coordinate: coordinates,
-                    pixelCoordinate: [event.position.x, event.position.y],
+                    screenPixel: [event.position.x, event.position.y],
                     features,
                     clickType: ClickType.LEFT_SINGLECLICK,
-                }),
+                },
                 ...dispatcher,
             })
         },
         onContextMenu(event) {
             const coordinates = this.getCoordinateAtScreenCoordinate(event.clientX, event.clientY)
             this.click({
-                clickInfo: new ClickInfo({
+                clickInfo: {
                     coordinate: coordinates,
-                    pixelCoordinate: [event.clientX, event.clientY],
+                    screenPixel: [event.clientX, event.clientY],
                     clickType: ClickType.CONTEXTMENU,
-                }),
+                },
                 ...dispatcher,
             })
         },

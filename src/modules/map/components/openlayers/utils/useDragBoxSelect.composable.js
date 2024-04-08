@@ -2,8 +2,6 @@ import { platformModifierKeyOnly } from 'ol/events/condition'
 import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
-import { ClickInfo } from '@/store/modules/map.store'
-
 const dispatcher = {
     dispatcher: 'useDragBoxSelect.composable',
 }
@@ -23,7 +21,7 @@ export function useDragBoxSelect() {
 
         if (selectExtent?.length === 4) {
             store.dispatch('click', {
-                clickInfo: new ClickInfo({ coordinate: selectExtent }),
+                clickInfo: { coordinate: selectExtent },
                 ...dispatcher,
             })
         }

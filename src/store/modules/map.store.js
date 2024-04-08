@@ -7,30 +7,25 @@ export const ClickType = {
     LEFT_SINGLECLICK: 'LEFT_SINGLECLICK',
 }
 
-export class ClickInfo {
-    /**
-     * @param {[Number, Number]} clickInfo.coordinate Of the last click expressed in the current
-     *   mapping projection
-     * @param {[Number, Number]} [clickInfo.pixelCoordinate=[]] Position of the last click on the
-     *   screen [x, y] in pixels (counted from top left corner). Default is `[]`
-     * @param {SelectableFeature[]} [clickInfo.features=[]] List of potential features (geoJSON or
-     *   KML) that where under the click. Default is `[]`
-     * @param {ClickType} [clickInfo.clickType=ClickType.LEFT_SINGLECLICK] Which button of the mouse
-     *   has been used to make this click. Default is `ClickType.LEFT_SINGLECLICK`
-     */
-    constructor(clickInfo) {
-        const {
-            coordinate = [],
-            pixelCoordinate = [],
-            features = [],
-            clickType = ClickType.LEFT_SINGLECLICK,
-        } = clickInfo
-        this.coordinate = [...coordinate]
-        this.pixelCoordinate = [...pixelCoordinate]
-        this.features = [...features]
-        this.clickType = clickType
-    }
-}
+/**
+ * @typedef ClickInfo
+ * @property {[Number, Number]} coordinate Of the last click expressed in the current mapping
+ *   projection
+ * @property {[Number, Number]} screenPixel Position of the last click on the screen [x, y] in
+ *   pixels (counted from top left corner OF THE SCREEN). Default is `[]`
+ * @property {[Number, Number]} mapPixel Position of the last click on the map [x, y] in pixels
+ *   (counted from top left corner OF THE MAP). Default is `[]`
+ * @property {SelectableFeature[]} features List of potential features (geoJSON or KML) that where
+ *   under the click. Default is `[]`
+ * @property {ClickType} clickType Which button of the mouse has been used to make this click.
+ *   Default is `ClickType.LEFT_SINGLECLICK`
+ */
+
+/**
+ * @typedef MapSize
+ * @property {Number} width Width of the map HTML element in pixels
+ * @property {Number} height Height of the map HTML element in pixels
+ */
 
 /**
  * Module that describe specific interaction with the map (dragging, clicking) and also serves as a
@@ -42,7 +37,7 @@ export default {
         /**
          * Information about the last click that has occurred on the map
          *
-         * @type ClickInfo
+         * @type {ClickInfo | null}
          */
         clickInfo: null,
         /**
@@ -75,8 +70,19 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) =>
-            commit('setClickInfo', { clickInfo, dispatcher }),
+        click: ({ commit }, { clickInfo, dispatcher }) => {
+            const {
+                coordinate = [],
+                screenPixel = [],
+                mapPixel = [],
+                features = [],
+                clickType = ClickType.LEFT_SINGLECLICK,
+            } = clickInfo
+            commit('setClickInfo', {
+                clickInfo: { coordinate, screenPixel, mapPixel, features, clickType },
+                dispatcher,
+            })
+        },
         clearClick: ({ commit }, { dispatcher }) =>
             commit('setClickInfo', { clickInfo: null, dispatcher }),
         /**

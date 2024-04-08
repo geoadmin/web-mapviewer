@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'mouse-click.composable' }
@@ -42,24 +42,27 @@ export function useMouseOnMap() {
      * Vector features found by the mapping framework (not requiring backend interaction) can be
      * given as param
      *
-     * @param {[Number, Number]} screenPosition Position of the click on the screen [x, y] in pixels
-     *   (counted from top left corner)
+     * @param {[Number, Number]} [screenPixel=[]] Position of the last click on the screen [x, y] in
+     *   pixels (counted from top left corner OF THE SCREEN). Default is `[]`
+     * @param {[Number, Number]} [mapPixel=[]] Position of the last click on the map [x, y] in
+     *   pixels (counted from top left corner OF THE MAP). Default is `[]`
      * @param {[Number, Number]} coordinate Position of the click expressed in the current mapping
      *   projection
      * @param {SelectableFeature[]} features List of vector features found by the mapping framework
      *   at the click position
      */
-    function onLeftClickUp(screenPosition, coordinate, features = []) {
+    function onLeftClickUp(screenPixel, mapPixel, coordinate, features = []) {
         clearTimeout(contextMenuTimeout)
         // if we've already "handled" this click event, we do nothing more
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
             store.dispatch('click', {
-                clickInfo: new ClickInfo({
+                clickInfo: {
                     coordinate,
-                    pixelCoordinate: screenPosition,
+                    screenPixel,
+                    mapPixel,
                     features,
                     clickType: ClickType.LEFT_SINGLECLICK,
-                }),
+                },
                 ...dispatcher,
             })
         }
@@ -82,13 +85,14 @@ export function useMouseOnMap() {
         }
     }
 
-    function onRightClick(screenPosition, coordinate) {
+    function onRightClick(screenPixel, mapPixel, coordinate) {
         store.dispatch('click', {
-            clickInfo: new ClickInfo({
+            clickInfo: {
                 coordinate,
-                pixelCoordinate: screenPosition,
+                screenPixel,
+                mapPixel,
                 clickType: ClickType.CONTEXTMENU,
-            }),
+            },
             ...dispatcher,
         })
     }

@@ -100,21 +100,23 @@ export default function useMapInteractions(map) {
         // will trigger an identification of feature at the position of the button.
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
             const pixel = [event.x, event.y]
-            onLeftClickDown(event.pixel, map.getCoordinateFromPixel(pixel))
+            onLeftClickDown(pixel, map.getCoordinateFromPixel(pixel))
         }
     }
     function onPointerUp(event) {
         log.debug(`map pointer up event ${event.target?.nodeName}`)
         // see comment in onPointDown why we check that we deal with the canvas only
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
-            const pixel = [event.x, event.y]
-            const coordinate = map.getCoordinateFromPixel(pixel)
+            const screenPixel = [event.x, event.y]
+            const mapBoundingRect = map.getTargetElement().getBoundingClientRect()
+            const mapPixel = [event.x - mapBoundingRect.left, event.y - mapBoundingRect.top]
+            const coordinate = map.getCoordinateFromPixel(mapPixel)
             const features = []
             activeVectorLayers.value.forEach((vectorLayer) => {
                 map.getLayers().forEach((olLayer) => {
                     if (olLayer.get('id') === vectorLayer.id) {
                         const layerFeatures = map
-                            .getFeaturesAtPixel(pixel, {
+                            .getFeaturesAtPixel(mapPixel, {
                                 layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
                                 hitTolerance: DRAWING_HIT_TOLERANCE,
                             })
@@ -154,10 +156,10 @@ export default function useMapInteractions(map) {
             })
             switch (event.button) {
                 case 0:
-                    onLeftClickUp(pixel, coordinate, features)
+                    onLeftClickUp(screenPixel, mapPixel, coordinate, features)
                     break
                 case 2:
-                    onRightClick(pixel, coordinate)
+                    onRightClick(screenPixel, mapPixel, coordinate)
                     break
             }
         }

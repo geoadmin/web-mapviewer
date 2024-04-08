@@ -89,8 +89,8 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
  * @param {GeoAdminLayer} layer
  * @param {CoordinateSystem} projection
  * @param {[Number, Number]} coordinate
- * @param {Number} screenWidth
- * @param {Number} screenHeight
+ * @param {Number} viewportWidth
+ * @param {Number} viewportHeight
  * @param {[Number, Number, Number, Number]} mapExtent
  * @param {String} lang
  * @param {Number} featureCount
@@ -100,8 +100,8 @@ async function identifyOnGeomAdminLayer({
     layer,
     projection,
     coordinate,
-    screenWidth,
-    screenHeight,
+    viewportWidth,
+    viewportHeight,
     mapExtent,
     lang,
     featureCount,
@@ -115,7 +115,7 @@ async function identifyOnGeomAdminLayer({
                 sr: projection.epsgNumber,
                 geometry: coordinate.join(','),
                 mapExtent: mapExtent.join(','),
-                imageDisplay: `${screenWidth},${screenHeight},96`,
+                imageDisplay: `${viewportWidth},${viewportHeight},96`,
                 geometryFormat: 'geojson',
                 geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
                 limit: featureCount,
@@ -396,8 +396,8 @@ async function identifyOnExternalWmsLayer(config) {
  * @param {Number[]} config.coordinate Coordinate where to identify feature in EPSG:3857
  * @param {Number} config.resolution Current map resolution, in meters/pixel
  * @param {Number[]} config.mapExtent
- * @param {Number} config.screenWidth
- * @param {Number} config.screenHeight
+ * @param {Number} config.viewportWidth
+ * @param {Number} config.viewportHeight
  * @param {String} config.lang
  * @param {CoordinateSystem} config.projection Projection in which the coordinates of the features
  *   should be expressed
@@ -409,8 +409,8 @@ export const identify = (config) => {
         coordinate = null,
         resolution = null,
         mapExtent = null,
-        screenWidth = null,
-        screenHeight = null,
+        viewportWidth = null,
+        viewportHeight = null,
         lang = null,
         projection = null,
         featureCount = DEFAULT_FEATURE_COUNT,
@@ -432,17 +432,17 @@ export const identify = (config) => {
             log.error('Invalid extent', mapExtent)
             reject(new Error('Needs a valid map extent to run identification'))
         }
-        if (screenWidth <= 0 || screenHeight <= 0) {
-            log.error('Invalid screen size', screenWidth, screenHeight)
-            reject(new Error('Needs valid screen width and height to run identification'))
+        if (viewportWidth <= 0 || viewportHeight <= 0) {
+            log.error('Invalid viewport size', viewportWidth, viewportHeight)
+            reject(new Error('Needs valid viewport width and height to run identification'))
         }
         if (layer instanceof GeoAdminLayer) {
             identifyOnGeomAdminLayer({
                 layer,
                 projection,
                 coordinate,
-                screenWidth,
-                screenHeight,
+                viewportWidth,
+                viewportHeight,
                 mapExtent,
                 lang,
                 featureCount,
