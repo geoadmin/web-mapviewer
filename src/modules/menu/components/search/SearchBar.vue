@@ -68,7 +68,6 @@ const clearSearchQuery = () => {
 
 const closeSearchResults = () => {
     showResults.value = false
-    searchInput.value.focus()
 }
 
 const goToFirstResult = () => {
