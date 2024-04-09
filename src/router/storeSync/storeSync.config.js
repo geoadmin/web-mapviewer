@@ -8,6 +8,8 @@ import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 
+import TimeSliderParamConfig from './TimeSliderParamConfig.class'
+
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
  * vice-versa)
@@ -123,6 +125,7 @@ const storeSyncConfig = [
         valueType: String,
         defaultValue: '',
     }),
+    new TimeSliderParamConfig(),
 ]
 
 export default storeSyncConfig
