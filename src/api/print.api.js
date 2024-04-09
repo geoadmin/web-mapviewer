@@ -7,7 +7,7 @@ import {
 } from '@geoblocks/mapfishprint'
 import axios from 'axios'
 
-import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import { API_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
 
@@ -15,7 +15,8 @@ const PRINTING_RESOLUTION = 96 // dpi
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
-const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+// const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+const SERVICE_PRINT_URL = `https://sys-map.int.bgdi.ch/api/print3/print/default`
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
