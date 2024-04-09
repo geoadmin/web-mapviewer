@@ -29,13 +29,18 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 const store = useStore()
 const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
-
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
 const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
 const timestamp = computed(
-    () => getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value) ?? 'current'
+    () =>
+        getTimestampFromConfig(
+            wmtsLayerConfig.value,
+            previewYear.value,
+            isTimeSliderActive.value
+        ) ?? 'current'
 )
 const wmtsSourceConfig = computed(() => {
     return {
@@ -73,7 +78,12 @@ watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
 watch(wmtsSourceConfig, () => layer.setSource(createWMTSSourceForProjection()), { deep: true })
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, previewYear.value)
+    return getWmtsXyzUrl(
+        wmtsLayerConfig.value,
+        projection.value,
+        previewYear.value,
+        isTimeSliderActive.value
+    )
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')

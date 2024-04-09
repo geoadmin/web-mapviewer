@@ -40,9 +40,9 @@ const timeSelectorModal = ref(null)
 
 const previewYear = computed(() => store.state.layers.previewYear)
 const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
-
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 const humanReadableCurrentTimestamp = computed(() => {
-    if (previewYear.value) {
+    if (isTimeSliderActive.value) {
         return timeConfig.value.years.includes(previewYear.value) ? previewYear.value : '-'
     }
     return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
@@ -86,10 +86,10 @@ function renderHumanReadableTimestamp(timeEntry) {
 }
 
 function handleClickOnTimestamp(year) {
-    // clearing preview year if one was selected, as a change on this time selector is incompatible with
+    // deactivating the time slider, as a change on this time selector is incompatible with
     // the time slider being shown and active
-    if (previewYear.value) {
-        store.dispatch('clearPreviewYear', { ...dispatcher })
+    if (isTimeSliderActive.value) {
+        store.dispatch('setTimeSliderActive', { timeSliderActive: false, ...dispatcher })
     }
     store.dispatch('setTimedLayerCurrentYear', { index: layerIndex.value, year, ...dispatcher })
 }
@@ -129,8 +129,16 @@ function hidePopover() {
                 :key="timeEntry.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': timeEntry.timestamp === timeConfig.currentTimestamp,
-                    'btn-light': timeEntry.timestamp !== timeConfig.currentTimestamp,
+                    'btn-primary': isTimeSliderActive
+                        ? previewYear === timeEntry.year
+                        : timeConfig.currentTimestamp === timeEntry.timestamp,
+                    'btn-outline-primary':
+                        isTimeSliderActive &&
+                        timeConfig.currentTimestamp === timeEntry.timestamp &&
+                        timeEntry.year !== previewYear,
+                    'btn-light':
+                        timeEntry.timestamp !== timeConfig.currentTimestamp &&
+                        (!isTimeSliderActive || previewYear !== timeEntry.year),
                 }"
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"
