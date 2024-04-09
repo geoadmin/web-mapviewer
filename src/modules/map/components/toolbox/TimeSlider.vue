@@ -1,29 +1,15 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import tippy from 'tippy.js'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const i18n = useI18n()
-
-/**
- * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
- * which has data from the year 1844
- *
- * @type {Number}
- */
-const OLDEST_YEAR = 1844
-
-/**
- * The youngest (closest to now) year in our system, it will always be the previous year as of now
- *
- * @type {Number}
- */
-const YOUNGEST_YEAR = new Date().getFullYear() - 1
 
 const ALL_YEARS = (() => {
     const years = []
@@ -187,11 +173,6 @@ onMounted(() => {
     })
 })
 
-onUnmounted(() => {
-    // TODO : when we have an 'activeTimeSlider' in store, we'll get rid of this.
-    store.dispatch('clearPreviewYear', dispatcher)
-    tippyInstance.destroy()
-})
 
 function tooltipContent() {
     return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`

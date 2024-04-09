@@ -36,6 +36,10 @@ export default {
             type: Number,
             default: -1,
         },
+        isTimeSliderActive: {
+            type: Boolean,
+            default: false,
+        },
     },
     computed: {
         layerId() {
@@ -45,7 +49,12 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         url() {
-            return getWmtsXyzUrl(this.wmtsLayerConfig, this.projection, this.previewYear)
+            return getWmtsXyzUrl(
+                this.wmtsLayerConfig,
+                this.projection,
+                this.previewYear,
+                this.isTimeSliderActive
+            )
         },
     },
     methods: {

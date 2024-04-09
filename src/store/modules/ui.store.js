@@ -150,6 +150,12 @@ export default {
          * @type Boolean
          */
         isCompareSliderActive: false,
+        /**
+         * Flag telling if the time slider is currently active or not
+         *
+         * @type Boolean
+         */
+        isTimeSliderActive: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -352,6 +358,9 @@ export default {
                 dispatcher: dispatcher,
             })
         },
+        setTimeSliderActive({ commit }, args) {
+            commit('setTimeSliderActive', args)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -409,6 +418,9 @@ export default {
         },
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
+        },
+        setTimeSliderActive(state, { timeSliderActive }) {
+            state.isTimeSliderActive = timeSliderActive
         },
         setFeatureInfoPosition(state, { position }) {
             state.featureInfoPosition = position

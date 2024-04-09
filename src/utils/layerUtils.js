@@ -23,17 +23,15 @@ import LayerTypes from '@/api/layers/LayerTypes.enum.js'
  *
  * @param {GeoAdminWMSLayer | GeoAdminWMTSLayer} config
  * @param {Number} previewYear
+ * @param {Boolean} isTimeSliderActive
  * @returns {String | string | LayerTimeConfig.currentTimeEntry.timestamp}
  */
-export function getTimestampFromConfig(config, previewYear) {
+export function getTimestampFromConfig(config, previewYear, isTimeSliderActive) {
     if (config.timeConfig) {
         // if there is a preview year set, we search for the matching timestamp
-        if (previewYear) {
-            if (config.timeConfig.years.includes(previewYear)) {
-                const matchingTimeEntry = config.timeConfig.getTimeEntryForYear(previewYear)
-                if (matchingTimeEntry) {
-                    return matchingTimeEntry.timestamp
-                }
+        if (isTimeSliderActive) {
+            if (config.timeConfig.getTimeEntryForYear(previewYear)) {
+                return config.timeConfig.getTimeEntryForYear(previewYear).timestamp
             }
         }
         // when the time slider is not active,
@@ -50,11 +48,13 @@ export function getTimestampFromConfig(config, previewYear) {
  * @param {GeoAdminWMTSLayer | ExternalWMTSLayer} wmtsLayerConfig
  * @param {CoordinateSystem} projection
  * @param {Number} previewYear
+ * @param {Boolean} isTimeSliderActive
  * @returns {String | null}
  */
-export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear) {
+export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear, isTimeSliderActive) {
     if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
-        const timestamp = getTimestampFromConfig(wmtsLayerConfig, previewYear) ?? 'current'
+        const timestamp =
+            getTimestampFromConfig(wmtsLayerConfig, previewYear, isTimeSliderActive) ?? 'current'
 
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.id
