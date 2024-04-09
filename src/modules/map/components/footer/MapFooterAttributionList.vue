@@ -1,5 +1,5 @@
 <template>
-    <div class="map-footer-attribution" data-cy="layers-copyrights">
+    <div class="map-footer-attribution rounded-top-2 rounded-end-0" data-cy="layers-copyrights">
         <span v-if="sources.length > 0">{{ $t('copyright_data') }}</span>
         <div v-for="(source, index) in sources" :key="source.name" class="d-inline-flex">
             <ThirdPartyDisclaimer

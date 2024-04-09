@@ -4,12 +4,9 @@ import { useStore } from 'vuex'
 
 import HeaderModule from '@/modules/header/HeaderModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
-import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
-import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterAppCopyright.vue'
 import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVersion.vue'
-import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
@@ -30,7 +27,7 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 
-const loadDrawingModule = computed(() => {
+const showDrawingModule = computed(() => {
     return (
         (!activeKmlLayer.value || activeKmlLayer.value?.kmlData) &&
         isDrawingMode.value &&
@@ -48,42 +45,33 @@ onMounted(() => {
         <LoadingBar v-show="showLoadingBar" />
         <HeaderModule v-if="!showDrawingModule" class="header" />
         <MapModule>
-            <MenuModule />
-            <MapToolbox
-                :geoloc-button="!isDrawingMode"
-                :full-screen-button="!isDrawingMode"
-                :toggle3d-button="!isDrawingMode"
-                compass-button
-            >
-                <TimeSliderButton v-if="!isDrawingMode" />
-            </MapToolbox>
-            <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
-            <DrawingModule v-if="loadDrawingModule" />
-            <template #footer>
+            <template #header>
+                <DrawingModule v-if="showDrawingModule" />
+            </template>
+            <template #menu>
+                <MenuModule
+                    v-if="!showDrawingModule"
+                    :compact="!isPhoneMode"
+                    :show-backdrop-when-open="isPhoneMode"
+                />
+            </template>
+            <template #toolbox>
+                <MapToolbox
+                    :geoloc-button="!isDrawingMode"
+                    :full-screen-button="!isDrawingMode"
+                    :toggle3d-button="!isDrawingMode"
+                    compass-button
+                >
+                    <TimeSliderButton v-if="!isDrawingMode" />
+                </MapToolbox>
+            </template>
+            <template v-if="!isPhoneMode" #footer>
                 <MapFooter>
-                    <template v-if="isPhoneMode" #top-left>
-                        <div class="d-flex flex-column align-items-start">
-                            <BackgroundSelector class="p-2 background-selector" />
-                            <OpenLayersScale v-if="!is3DActive" class="p-1" />
-                        </div>
-                    </template>
-                    <template #top-right>
-                        <div class="d-flex flex-column align-items-end">
-                            <BackgroundSelector
-                                v-if="!isPhoneMode"
-                                class="p-2 background-selector"
-                            />
-                            <MapFooterAttributionList class="rounded-top-2 rounded-end-0" />
-                        </div>
-                    </template>
-                    <template #middle>
-                        <InfoboxModule />
-                    </template>
-                    <template v-if="!is3DActive && !isPhoneMode" #bottom-left>
+                    <template v-if="!is3DActive" #bottom-left>
                         <OpenLayersScale />
                         <OpenLayersMouseTracker />
                     </template>
-                    <template v-if="!isPhoneMode" #bottom-right>
+                    <template #bottom-right>
                         <MapFooterAppVersion />
                         <MapFooterAppCopyright />
                     </template>
@@ -95,9 +83,17 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/variables';
+
 #map-view {
+    display: flex;
+    flex-direction: column;
     .background-selector {
         pointer-events: all;
+    }
+    .header {
+        position: relative;
+        z-index: $zindex-menu-header;
     }
 }
 </style>

@@ -22,7 +22,6 @@ const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
@@ -76,20 +75,21 @@ function onHideProfile() {
 
 <template>
     <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
-        <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
+        <div
+            class="infobox-header card-header d-flex justify-content-end m-0"
+            data-cy="infobox-header"
+        >
             <div
                 v-if="!showDrawingOverlay && showElevationProfile"
-                class="d-flex justify-content-center flex-grow-1"
+                class="d-flex justify-content-center align-items-center flex-grow-1"
             >
-                <button class="btn btn-light btn-xs" @click.stop="onHideProfile">
-                    <FontAwesomeIcon icon="chevron-left" class="me-1" />{{ i18n.t('hide_profile') }}
+                <button class="btn btn-light btn-xs align-middle" @click.stop="onHideProfile">
+                    <FontAwesomeIcon icon="chevron-left" class="me-1" />
+                    {{ i18n.t('hide_profile') }}
                 </button>
-                <strong
-                    class="flex-grow-1 text-center d-flex align-items-center justify-content-center lh-1"
-                >
-                    {{ i18n.t('profile_title') }} :&nbsp;
-                    <span v-if="profileFeature.layer">{{ profileFeature.layer.name }}&nbsp;</span>
-                    {{ profileFeature.title }}
+                <strong class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
+                    {{ i18n.t('profile_title') }}
+                    <span class="d-none d-md-inline">&nbsp;:&nbsp;{{ profileFeature.title }}</span>
                 </strong>
             </div>
             <button
@@ -120,34 +120,45 @@ function onHideProfile() {
             </button>
         </div>
 
-        <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
+        <div
+            v-show="showContent"
+            ref="content"
+            class="infobox-content d-flex flex-column"
+            data-cy="infobox-content"
+        >
             <div
                 v-if="isEditingDrawingFeature"
+                class="drawing-feature d-flex flex-column"
                 :class="{
-                    'feature-profile-split-view': !isPhoneMode && showElevationProfile,
+                    'split-view': showElevationProfile && showFeatureInfoInBottomPanel,
                 }"
             >
                 <FeatureStyleEdit
                     v-if="showFeatureInfoInBottomPanel"
                     :feature="selectedFeature"
-                    class="feature-edit p-2"
+                    class="drawing-feature-edit p-2"
                 />
-                <FeatureElevationProfile v-if="showElevationProfile" class="feature-profile" />
+                <FeatureElevationProfile
+                    v-if="showElevationProfile"
+                    class="drawing-feature-profile flex-grow-1"
+                />
             </div>
-            <div v-else>
+            <div v-else class="d-flex flex-column h-100">
                 <Transition name="slide-fade">
-                    <div v-if="showElevationProfile" key="profile-detail">
-                        <div class="d-flex">
-                            <FeatureDetail
-                                v-if="profileFeature"
-                                :feature="profileFeature"
-                                class="w-25 p-2"
-                            />
-                            <FeatureElevationProfile
-                                v-if="showElevationProfile"
-                                class="feature-profile flex-grow-1"
-                            />
-                        </div>
+                    <div
+                        v-if="showElevationProfile"
+                        key="profile-detail"
+                        class="h-100 d-flex flex-column flex-md-row align-content-stretch"
+                    >
+                        <FeatureDetail
+                            v-if="profileFeature"
+                            :feature="profileFeature"
+                            class="p-2 d-none d-lg-block"
+                        />
+                        <FeatureElevationProfile
+                            v-if="showElevationProfile"
+                            class="feature-profile"
+                        />
                     </div>
                 </Transition>
                 <Transition name="invert-slide-fade">
@@ -162,26 +173,34 @@ function onHideProfile() {
 </template>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
 
 $infoboxHeaderHeight: 2rem;
+$infoboxContentDesktopHeight: 25vh;
+$infoboxContentMobileHeight: 40vh;
 
 .infobox {
-    width: 100%;
+    max-width: 100vw;
     &-header {
-        height: $infoboxHeaderHeight;
+        max-height: $infoboxHeaderHeight;
     }
     &-content {
-        width: 100%;
-        .feature-profile-split-view {
-            display: flex;
-            .feature-edit {
-                min-width: min($overlay-width, 33%);
-            }
-            .feature-profile {
-                flex-grow: 1;
-                max-width: max(66%, calc(100vw - $overlay-width));
-            }
+        overflow-y: auto;
+        height: $infoboxContentMobileHeight;
+    }
+    .feature-profile {
+        height: 100%;
+    }
+}
+
+@include respond-above(md) {
+    .infobox {
+        &-content {
+            height: $infoboxContentDesktopHeight;
+        }
+        .feature-profile {
+            height: auto;
         }
     }
 }

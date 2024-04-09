@@ -27,7 +27,6 @@ onUpdated(() => {
         data-cy="app-footer"
     >
         <div v-if="hasTopLeftFooter || hasTopRightFooter" class="map-footer-top">
-            <slot name="top-left" />
             <span v-if="hasTopRightFooter" class="map-footer-top-spacer" />
             <slot name="top-right" />
         </div>
@@ -52,18 +51,8 @@ $flex-gap: 1em;
 // Full screen and media query adjustments are at the end.
 
 .map-footer {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    right: 0;
     transition: transform $transition-duration;
     pointer-events: none;
-
-    &-top > *,
-    &-middle,
-    &-bottom {
-        pointer-events: all;
-    }
 
     &-top {
         position: relative;

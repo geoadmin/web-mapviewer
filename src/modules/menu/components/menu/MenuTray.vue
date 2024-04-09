@@ -1,5 +1,9 @@
 <template>
-    <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
+    <div
+        data-cy="menu-tray-inner"
+        class="menu-tray-inner"
+        :class="{ 'menu-tray-compact': compact }"
+    >
         <MenuSection
             id="settingsSection"
             ref="settingsSection"

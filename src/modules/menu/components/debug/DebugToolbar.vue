@@ -40,64 +40,59 @@ function toggleShowLayerExtents() {
 </script>
 
 <template>
-    <div
-        class="debug-tools card border-danger rounded-end-0 me-n1"
-        :class="{ collapsed: !showDebugTool }"
-    >
-        <div class="position-relative d-flex">
+    <div class="debug-tools pe-none" :class="{ collapsed: !showDebugTool }">
+        <div class="d-flex">
             <div
-                class="debug-tools-header p-2 bg-danger-subtle border-end border-danger rounded-start-1"
+                class="toggle-button bg-danger-subtle rounded-start-1 rounded-end-0 p-2 border border-end-0 border-danger pe-auto"
                 data-cy="debug-tools-header"
                 @click="showDebugTool = !showDebugTool"
             >
                 <FontAwesomeIcon icon="gear" title="Debug tools" />
             </div>
-            <div v-if="showDebugTool" class="debug-tools-body">
-                <div class="card-body">
-                    <h5 class="text-decoration-underline">Map projection</h5>
-                    <div class="my-1 d-flex align-content-center">
-                        <strong class="me-2 align-self-center" data-cy="current-projection">
-                            {{ currentProjection.epsg }}
-                        </strong>
-                        <button
-                            class="toolbox-button align-self-center"
-                            type="button"
-                            :class="{ active: isMercatorTheCurrentProjection }"
-                            data-cy="toggle-projection-button"
-                            @click="toggleProjection"
-                        >
-                            <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
-                        </button>
-                    </div>
-                    <div v-if="is3dActive" class="mb-1">
-                        <h5 class="text-decoration-underline">3D</h5>
-                        <Toggle3DLayerButton class="align-self-center" />
-                    </div>
-                    <div v-else class="mb-1">
-                        <h5 class="text-decoration-underline">Layer debug</h5>
-                        <div class="d-flex gap-1 justify-content-around">
-                            <div>
-                                <button
-                                    class="toolbox-button m-auto"
-                                    type="button"
-                                    :class="{ active: showTileDebugInfo }"
-                                    @click="toggleShowTileDebugInfo"
-                                >
-                                    <FontAwesomeIcon icon="border-none" />
-                                </button>
-                                <label class="text-center w-100">Tile info</label>
-                            </div>
-                            <div>
-                                <button
-                                    class="toolbox-button m-auto"
-                                    type="button"
-                                    :class="{ active: showLayerExtents }"
-                                    @click="toggleShowLayerExtents"
-                                >
-                                    <FontAwesomeIcon icon="expand" />
-                                </button>
-                                <label class="text-center">Extents</label>
-                            </div>
+            <div class="debug-tools-body bg-white border-danger border p-3">
+                <h5 class="text-decoration-underline">Map projection</h5>
+                <div class="my-1 d-flex align-content-center">
+                    <strong class="me-2 align-self-center" data-cy="current-projection">
+                        {{ currentProjection.epsg }}
+                    </strong>
+                    <button
+                        class="toolbox-button align-self-center"
+                        type="button"
+                        :class="{ active: isMercatorTheCurrentProjection }"
+                        data-cy="toggle-projection-button"
+                        @click="toggleProjection"
+                    >
+                        <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
+                    </button>
+                </div>
+                <div v-if="is3dActive" class="mb-1">
+                    <h5 class="text-decoration-underline">3D</h5>
+                    <Toggle3DLayerButton class="align-self-center" />
+                </div>
+                <div v-else class="mb-1">
+                    <h5 class="text-decoration-underline">Layer debug</h5>
+                    <div class="d-flex gap-1 justify-content-around">
+                        <div>
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showTileDebugInfo }"
+                                @click="toggleShowTileDebugInfo"
+                            >
+                                <FontAwesomeIcon icon="border-none" />
+                            </button>
+                            <label class="text-center w-100">Tile info</label>
+                        </div>
+                        <div>
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showLayerExtents }"
+                                @click="toggleShowLayerExtents"
+                            >
+                                <FontAwesomeIcon icon="expand" />
+                            </button>
+                            <label class="text-center">Extents</label>
                         </div>
                     </div>
                 </div>
@@ -108,14 +103,17 @@ function toggleShowLayerExtents() {
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
+$debugToolBodyRealWidth: 125px;
 .debug-tools {
-    $debugToolWidth: 12.5rem;
-    $debugToolHeaderWidth: 2rem;
-    width: $debugToolWidth;
-
+    width: $map-button-diameter;
+    .toggle-button {
+        min-width: $map-button-diameter;
+        height: $map-button-diameter;
+        text-align: center;
+    }
     transition: all 0.4s;
-    &.collapsed {
-        transform: translateX($debugToolWidth - $debugToolHeaderWidth);
+    &:not(.collapsed) {
+        transform: translateX(-$map-button-diameter - $debugToolBodyRealWidth);
     }
 
     &-header {

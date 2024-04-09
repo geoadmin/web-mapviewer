@@ -1,27 +1,33 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref } from 'vue'
-import { onMounted } from 'vue'
-import { onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const dispatcher = { dispatcher: 'MenuModule.vue' }
+
+const props = defineProps({
+    showBackdropWhenOpen: {
+        type: Boolean,
+        default: false,
+    },
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const { showBackdropWhenOpen, compact } = toRefs(props)
 
 const i18n = useI18n()
 const store = useStore()
 
 const showMenu = computed(() => store.state.ui.showMenu)
 
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isMenuShown = computed(() => store.getters.isMenuShown)
 const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
 const menuTray = ref(null)
 
@@ -51,44 +57,30 @@ function toggleMenu() {
 </script>
 
 <template>
-    <div class="menu position-absolute w-100 h-100 start-0 top-0 pe-none">
+    <div class="menu pe-none h-100 w-100">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu position-absolute w-100"></div>
         <transition name="fade-in-out">
-            <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
+            <BlackBackdrop v-if="showBackdropWhenOpen && showMenu" @click="toggleMenu" />
         </transition>
         <div class="menu-tray-container position-absolute w-100 h-100">
-        <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
-        <div
-            class="menu-tray-container position-absolute w-100 h-100"
-            :class="{
-                'desktop-mode': isDesktopMode,
-                'dev-disclaimer-present': hasDevSiteWarning,
-            }"
-        >
             <transition name="slide-up">
                 <div
                     v-show="isMenuTrayShown"
                     ref="menuTray"
                     class="menu-tray"
                     :class="{
-                        'desktop-mode': isDesktopMode,
-                        'desktop-menu-closed': isDesktopMode && !isMenuShown,
+                        'desktop-menu-closed': !showMenu,
                     }"
                     data-cy="menu-tray"
                 >
                     <MenuTray
-                        class="menu-tray-content"
-                        :class="{
-                            'shadow-lg': isDesktopMode,
-                            'rounded-bottom': isDesktopMode,
-                            'rounded-start-0': isDesktopMode,
-                        }"
-                        :compact="isDesktopMode"
+                        class="menu-tray-content shadow rounded-bottom rounded-start-0"
+                        :compact="compact"
                     />
                     <button
-                        v-if="isDesktopMode"
+                        v-if="compact"
                         class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         @click="toggleMenu"
@@ -112,35 +104,19 @@ $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
 
 .menu {
-    z-index: $zindex-menu;
+    position: relative;
     // so that the user can click through this element (and we don't block interaction with the map)
     pointer-events: none;
     & > * {
         // re-activate interaction with all children of the menu
         pointer-events: all;
     }
-    .dev-disclaimer-present {
-        top: $dev-disclaimer-height;
-    }
     .drawing-toolbox-in-menu {
         z-index: $zindex-drawing-toolbox;
-    }
-    .debug-toolbar {
-        top: 66%;
     }
     .menu-tray-container {
         pointer-events: none;
         max-height: calc(100% - $header-height);
-        top: $header-height;
-        z-index: $zindex-menu;
-        &.dev-disclaimer-present {
-            $menu-tray-offset: $header-height + $dev-disclaimer-height;
-            top: $menu-tray-offset;
-            max-height: calc(100% - $menu-tray-offset);
-        }
-        &.desktop-mode {
-            bottom: 70px;
-        }
     }
     .menu-tray {
         /* Don't activate pointer events right here, as this box is still a bit larger than the
@@ -160,17 +136,8 @@ $openCloseButtonHeight: 2.5rem;
         .menu-tray-content {
             pointer-events: all;
         }
-        &.desktop-mode {
-            .menu-tray-content {
-                transition: opacity $animation-time;
-            }
-            max-width: $menu-tray-width;
-        }
         &.desktop-menu-closed {
-            .menu-tray-content {
-                opacity: 0;
-            }
-            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
+            transform: translateY(calc(-100% + $openCloseButtonHeight));
         }
         .button-open-close-desktop-menu {
             pointer-events: all;
@@ -181,20 +148,6 @@ $openCloseButtonHeight: 2.5rem;
     }
 }
 
-@include respond-above(lg) {
-    .menu {
-        .menu-tray-container {
-            top: 2 * $header-height;
-            max-height: calc(100% - 2 * $header-height - $openCloseButtonHeight);
-            &.dev-disclaimer-present {
-                max-height: calc(
-                    100vh - 2 * $header-height - $dev-disclaimer-height - $openCloseButtonHeight
-                );
-                top: 2 * $header-height + $dev-disclaimer-height;
-            }
-        }
-    }
-}
 // transition definitions
 .fade-in-out-enter-active,
 .fade-in-out-leave-active {
