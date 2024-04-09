@@ -428,6 +428,7 @@ describe('Test on legacy param import', () => {
 
     context('Extra Parameter Imports', () => {
         it('shows the compare slider at the correct position', () => {
+            /*  */
             cy.goToMapView(
                 {
                     layers: 'test-1.wms.layer',
@@ -447,7 +448,16 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
-
+    it.skip('should show the time slider on startup when setting it in the URL', () => {
+        cy.goToMapView(
+            {
+                layers: `test.timeenabled.wmts.layer`,
+                time: 2019,
+            },
+            false
+        ),
+            cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
+    })
     context('Feature Pre Selection Import', () => {
         function checkFeatures() {
             cy.get('@featuresIds').then((featuresIds) => {
