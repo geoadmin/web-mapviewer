@@ -107,6 +107,10 @@ const handleLegacyParam = (
             newValue = legacyValue
             key = 'compareRatio'
             break
+        case 'time':
+            key = 'timeSlider'
+            newValue = legacyValue
+            break
         case 'layers_opacity':
         case 'layers_visibility':
         case 'layers_timestamp':
