@@ -3,7 +3,7 @@ import { computed, nextTick, ref } from 'vue'
 
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import HeaderLink from '@/modules/header/components/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import EmailValidationField from '@/utils/components/EmailValidationField.vue'
 import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'

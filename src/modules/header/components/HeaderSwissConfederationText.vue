@@ -1,8 +1,19 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+const emits = defineEmits(['click'])
+
+const store = useStore()
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const currentLang = computed(() => store.state.i18n.lang)
+</script>
+
 <template>
     <div
         class="swiss-confederation-text"
         :class="{ 'dev-site': hasDevSiteWarning }"
-        @click="$emit('click', $event)"
+        @click="(e) => emits('click', e)"
     >
         <div class="multi-lang-title"></div>
         <div
@@ -12,31 +23,14 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-    props: {
-        currentLang: {
-            type: String,
-            default: 'en',
-        },
-    },
-    emits: ['click'],
-    computed: {
-        ...mapGetters(['hasDevSiteWarning']),
-    },
-}
-</script>
-
 <style lang="scss" scoped>
 .multi-lang-title,
 .i18n-partnership-text {
-    background: url('../../assets/text.png') no-repeat top left;
+    background: url('@/modules/header/assets/text.png') no-repeat top left;
     background-size: 187px 135px;
 
     .dev-site & {
-        background-image: url('../../assets/text-dev.png');
+        background-image: url('@/modules/header/assets/text-dev.png');
     }
 }
 .multi-lang-title {

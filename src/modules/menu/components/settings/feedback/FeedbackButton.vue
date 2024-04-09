@@ -3,7 +3,7 @@ import { computed, nextTick, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import sendFeedbackApi from '@/api/feedback.api'
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import HeaderLink from '@/modules/header/components/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
 import EmailValidationField from '@/utils/components/EmailValidationField.vue'

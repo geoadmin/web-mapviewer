@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
+import SwissFlag from '@/modules/header/components/SwissFlag.vue'
 import { MAP_VIEW } from '@/router/viewNames'
 
 const i18n = useI18n()

@@ -20,7 +20,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import HeaderLink from '@/modules/header/components/HeaderLink.vue'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'LangButton.vue' }

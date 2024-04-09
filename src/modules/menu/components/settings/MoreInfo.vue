@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import HeaderLink from '@/modules/header/components/HeaderLink.vue'
 
 const store = useStore()
 const i18n = useI18n()

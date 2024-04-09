@@ -1,39 +1,36 @@
+<script setup>
+import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
+
+const props = defineProps({
+    sm: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const { sm } = toRefs(props)
+
+const emits = defineEmits(['click'])
+
+const store = useStore()
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+</script>
+
 <template>
     <img
         class="swiss-flag"
         :class="{ 'dev-site': hasDevSiteWarning, sm }"
         :src="swissFlagIcon"
         alt="swiss-flag"
-        @click="$emit('click', $event)"
+        @click="(e) => emits('click', e)"
     />
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-
-import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
-
-export default {
-    props: {
-        sm: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['click'],
-    data() {
-        return {
-            swissFlagIcon,
-        }
-    },
-    computed: {
-        ...mapGetters(['hasDevSiteWarning']),
-    },
-}
-</script>
-
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 // WARNING: We cannot use bootstrap img-fluid to automatically set the height of the swiss-flag
 // as it totally breaks the header and menu on Iphone !

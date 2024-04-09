@@ -2,7 +2,7 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import HeaderModule from '@/modules/header/HeaderModule.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 const store = useStore()
@@ -20,7 +20,7 @@ const showLoadingBar = computed(() => store.getters.showLoadingBar)
 
 <template>
     <div id="splashscreen">
-        <HeaderWithSearch v-if="!embed" />
+        <HeaderModule v-if="!embed" />
         <LoadingBar v-if="showLoadingBar" />
     </div>
 </template>

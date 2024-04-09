@@ -171,7 +171,7 @@ export default {
 
 @include respond-above(lg) {
     .settings-section {
-        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+        // See HeaderModule.vue css where the settings-section is enable below lg
         display: none;
     }
 }

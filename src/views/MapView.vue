@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
+import HeaderModule from '@/modules/header/HeaderModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -45,6 +46,7 @@ onMounted(() => {
 <template>
     <div id="map-view">
         <LoadingBar v-show="showLoadingBar" />
+        <HeaderModule v-if="!showDrawingModule" class="header" />
         <MapModule>
             <MenuModule />
             <MapToolbox

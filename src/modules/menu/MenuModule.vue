@@ -7,7 +7,6 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
@@ -18,7 +17,6 @@ const store = useStore()
 
 const showMenu = computed(() => store.state.ui.showMenu)
 
-const isHeaderShown = computed(() => store.getters.isHeaderShown)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isMenuShown = computed(() => store.getters.isMenuShown)
@@ -60,7 +58,7 @@ function toggleMenu() {
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-if="isHeaderShown" class="header" />
+        <div class="menu-tray-container position-absolute w-100 h-100">
         <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
@@ -126,9 +124,6 @@ $openCloseButtonHeight: 2.5rem;
     }
     .drawing-toolbox-in-menu {
         z-index: $zindex-drawing-toolbox;
-    }
-    .header {
-        position: relative;
     }
     .debug-toolbar {
         top: 66%;
