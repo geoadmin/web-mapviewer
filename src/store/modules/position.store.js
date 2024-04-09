@@ -253,14 +253,11 @@ const actions = {
                 width: extent[1][0] - extent[0][0],
                 height: extent[1][1] - extent[0][1],
             }
-            let targetResolution
-            // if the extent's height is greater than width, we base our resolution calculation on that
-            if (extentSize.height > extentSize.width) {
-                targetResolution =
-                    extentSize.height / (rootState.map.size.height - 96) /* header height */
-            } else {
-                targetResolution = extentSize.width / rootState.map.size.width
-            }
+            // making sure the whole extent is displayed by taking the biggest matching resolution (width or height)
+            const targetResolution = Math.max(
+                extentSize.height / rootState.map.size.height,
+                extentSize.width / rootState.map.size.width
+            )
 
             const zoomForResolution = state.projection.getZoomForResolutionAndCenter(
                 targetResolution,
