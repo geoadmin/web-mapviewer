@@ -33,16 +33,18 @@ describe('Testing the time slider', () => {
             return parseInt(string.match(/[\d.]+/g)[0])
         }
         const preSelectedYear = 2019
-        beforeEach(() => {
+        it('should have the preselected year correctly set', () => {
             cy.goToMapView({
                 layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
             })
             cy.get('[data-cy="time-slider-button"]').click()
-        })
-        it('should have the preselected year correctly set', () => {
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', preSelectedYear)
+
+            cy.get('[data-cy="time-slider-current-year"]').should('contain', preSelectedYear)
         })
         it('should move the timeslider with mouse drag and text input', () => {
+            cy.goToMapView({
+                layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
+            })
             cy.log('the year changes if the user drags the tooltip on the left with the mouse')
             moveSlider(0)
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
@@ -93,6 +95,17 @@ describe('Testing the time slider', () => {
                         .then(extractDecimal)
                         .should('gt', extractDecimal($barCursorPosition))
                 })
+            it('should show the slider on startup when setting it in the URL, and change the year if the user drags the tooltip on the right with the mouse', () => {
+                cy.goToMapView({
+                    layers: `test.timeenabled.wmts.layer`,
+                    timeSlider: preSelectedYear,
+                })
+                moveSlider(200)
+                cy.get('[data-cy="time-slider-current-year"]').should(
+                    'not.contain',
+                    preSelectedYear
+                )
+            })
         })
     })
 })
