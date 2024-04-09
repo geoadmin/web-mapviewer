@@ -42,14 +42,14 @@ function generateTimeSliderUrlParamFromStore(store) {
  */
 export default class TimeSliderParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'timeSlider',
-            'setPreviewYear, setTimeSliderActive',
-            dispatchTimeSliderFromUrlParam,
-            generateTimeSliderUrlParamFromStore,
-            false,
-            Number,
-            null
-        )
+        super({
+            urlParamName: 'timeSlider',
+            mutationsToWatch: ['setPreviewYear', 'setTimeSliderActive'],
+            setValuesInStore: dispatchTimeSliderFromUrlParam,
+            extractValueFromStore: generateTimeSliderUrlParamFromStore,
+            keepInUrlWhenDefault: false,
+            valueType: Number,
+            defaultValue: null,
+        })
     }
 }

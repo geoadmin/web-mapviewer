@@ -135,6 +135,10 @@ watch(invalidYear, () => {
 })
 watch(lang, setTooltipContent)
 
+watch(previewYear, (newValue) => {
+    currentYear.value = newValue
+})
+
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
 // dispatch too many times when the user is moving the time slider (we wait for mouseup our
 // touchend to commit the change)
