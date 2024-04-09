@@ -138,7 +138,6 @@ defineExpose({ focusFirstEntry })
                 'border rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
-            @keydown.esc.prevent="emit('close')"
         >
             <div class="search-results-inner">
                 <SearchResultCategory
