@@ -34,7 +34,7 @@ const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const tooltipIsInDefaultPosition = computed(
-    () => store.state.ui.FeatureInfoPosition === FeatureInfoPositions.DEFAULT
+    () => store.state.ui.featureInfoPosition === FeatureInfoPositions.DEFAULT
 )
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
