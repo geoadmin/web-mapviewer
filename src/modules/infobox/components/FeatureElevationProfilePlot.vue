@@ -1,10 +1,11 @@
 <template>
     <div
         ref="profileChartContainer"
+        class="profile-plot d-flex flex-column align-items-stretch"
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
-        <LineChart
+        <ChartPlot
             ref="chart"
             :data="chartJsData"
             :options="chartJsOptions"
@@ -63,12 +64,12 @@
 
 <script>
 import { resetZoom } from 'chartjs-plugin-zoom'
-import { Line as LineChart } from 'vue-chartjs'
 import { mapState } from 'vuex'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import FeatureElevationProfilePlotCesiumBridge from '@/modules/infobox/FeatureElevationProfilePlotCesiumBridge.vue'
 import FeatureElevationProfilePlotOpenLayersBridge from '@/modules/infobox/FeatureElevationProfilePlotOpenLayersBridge.vue'
+import ChartPlot from '@/utils/components/ChartPlot.vue'
 import { FeatureStyleColor } from '@/utils/featureStyleUtils'
 import { round } from '@/utils/numberUtils'
 
@@ -93,7 +94,7 @@ export default {
     components: {
         FeatureElevationProfilePlotOpenLayersBridge,
         FeatureElevationProfilePlotCesiumBridge,
-        LineChart,
+        ChartPlot,
     },
     props: {
         elevationProfile: {
@@ -344,6 +345,7 @@ export default {
             return {
                 animation: true,
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     zoom: this.chartJsZoomOptions,
                     legend: {
@@ -399,8 +401,6 @@ $tooltip-width: 170px;
 .profile-graph {
     overflow: hidden;
     width: 100%;
-    min-height: 145px;
-    max-height: 145px;
     pointer-events: auto;
 }
 .profile-tooltip {

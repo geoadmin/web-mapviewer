@@ -77,7 +77,8 @@ function resetApp() {
                     <LinksToolbar :show-as-links="true" />
                     <LangSwitchToolbar />
                 </div>
-                <SearchBar class="search-bar m-0 p-1 px-lg-5" />
+                <!-- we make sure the search result won't cover the menu tray by pushing it a bit on the right, hence the ms-5 -->
+                <SearchBar class="search-bar m-0 p-1 ms-lg-5 px-lg-5" />
             </div>
             <HeaderMenuButton class="d-sm-none mx-1" />
         </div>
@@ -96,7 +97,6 @@ function resetApp() {
 
 @include respond-above(lg) {
     .search-bar {
-        // we make sure the search result won't cover the menu tray by pushing it a bit on the right
         max-width: 66vw;
     }
 }

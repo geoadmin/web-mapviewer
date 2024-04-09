@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 
 import HeaderModule from '@/modules/header/HeaderModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
+import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterAppCopyright.vue'
 import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVersion.vue'
@@ -64,6 +65,12 @@ onMounted(() => {
                 >
                     <TimeSliderButton v-if="!isDrawingMode" />
                 </MapToolbox>
+            </template>
+            <template v-if="isPhoneMode" #bottom-left>
+                <BackgroundSelector />
+            </template>
+            <template v-else #bottom-right>
+                <BackgroundSelector />
             </template>
             <template v-if="!isPhoneMode" #footer>
                 <MapFooter>

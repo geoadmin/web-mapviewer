@@ -73,7 +73,7 @@ function onCSVDownload() {
 </script>
 
 <template>
-    <div data-cy="profile-popup-content" class="profile-content p-1 position-relative">
+    <div data-cy="profile-popup-content" class="profile-content p-1 d-flex flex-column w-100">
         <div v-if="!hasData">
             <LoadingBar v-if="!profileRequestError" />
             <span v-else class="text-muted">
@@ -84,6 +84,7 @@ function onCSVDownload() {
             v-if="hasData"
             :elevation-profile="profileData"
             :tracking-point-color="RED"
+            class="profile-plot flex-grow-1 w-100"
         />
         <FeatureElevationProfileInformation v-if="hasData" :profile="profileData">
             <button
@@ -106,8 +107,24 @@ function onCSVDownload() {
 </template>
 
 <style lang="scss" scoped>
-.profile-content {
-    // size of the profile when loaded/shown, so that it doesn't shrink while loading (same size throughout)
-    min-height: 192px;
+@import '@/scss/media-query.mixin';
+@import '@/modules/infobox/scss/infobox';
+
+$profileInformationHeight: 42px;
+
+.profile-plot {
+    max-height: calc($infoboxContentMobileHeight - $profileInformationHeight);
+}
+
+@include respond-above(sm) {
+    .profile-plot {
+        max-height: calc($infoboxContentTabletHeight - $profileInformationHeight);
+    }
+}
+
+@include respond-above(lg) {
+    .profile-plot {
+        max-height: calc($infoboxContentDesktopHeight - $profileInformationHeight);
+    }
 }
 </style>

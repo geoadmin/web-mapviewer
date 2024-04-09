@@ -7,7 +7,6 @@ import { useStore } from 'vuex'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useOnMapResize from '@/modules/map/components/common/useOnMapResize.composable'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
 import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
@@ -108,14 +107,18 @@ useOnMapResize(mapElement)
             <!-- Debug tooling -->
             <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />
             <OpenLayersLayerExtents v-if="showLayerExtents" :z-index="zIndexLayerExtents" />
-            <div class="bottom-left-tools position-absolute bottom-0 start-0 ms-1 mb-1">
-                <BackgroundSelector v-if="isPhoneMode" :class="{ 'mb-2': showScaleLine }" />
+            <div
+                class="toolbox position-absolute bottom-0 start-0 ms-1 mb-1 d-flex flex-column gap-1"
+            >
+                <slot name="bottom-left" />
                 <OpenLayersScale v-if="showScaleLine" />
             </div>
             <div
-                class="bottom-right-tools position-absolute bottom-0 end-0 d-flex flex-column align-items-end"
+                class="toolbox position-absolute bottom-0 end-0 d-flex flex-column align-items-end gap-1"
             >
-                <BackgroundSelector v-if="!isPhoneMode" class="mb-1 me-1" />
+                <div class="me-1">
+                    <slot name="bottom-right" />
+                </div>
                 <MapFooterAttributionList />
             </div>
             <div class="toolbox position-absolute top-0 end-0 p-1 pe-none">
@@ -135,9 +138,7 @@ useOnMapResize(mapElement)
     z-index: $zindex-map;
 
     .header,
-    .toolbox,
-    .bottom-left-tools,
-    .bottom-right-tools {
+    .toolbox {
         z-index: $zindex-map-toolbox;
     }
     .menu {

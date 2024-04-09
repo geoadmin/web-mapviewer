@@ -48,7 +48,12 @@ const isCompareSliderActive = computed(() => {
             <template #toolbox>
                 <slot name="toolbox" />
             </template>
-            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+            <template #bottom-left>
+                <slot name="bottom-left" />
+            </template>
+            <template #bottom-right>
+                <slot name="bottom-right" />
+            </template>
             <slot name="default" />
             <LocationPopup v-if="displayLocationPopup" />
             <CompareSlider v-if="isCompareSliderActive" />

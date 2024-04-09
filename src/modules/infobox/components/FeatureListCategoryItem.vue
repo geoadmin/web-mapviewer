@@ -54,19 +54,17 @@ function clearHighlightedFeature() {
     })
 }
 
-function toggleShowContent() {
-    if (!showContent.value) {
-        showContentAndScrollIntoView()
-    } else {
-        showContent.value = false
-    }
+function toggleShowContent(event) {
+    setShowContent(!showContent.value, event, !showContent.value)
 }
 
-function showContentAndScrollIntoView(event) {
-    showContent.value = true
-    nextTick(() => {
-        content.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    })
+function setShowContent(value, event = null, shouldScrollIntoView = false) {
+    showContent.value = value
+    if (shouldScrollIntoView) {
+        nextTick(() => {
+            content.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        })
+    }
     // if coming from the profile or zoom-to-extent button, we want to stop the event
     // so that it doesn't bubble up to the parent div (which will trigger a toggleShowContent
     // and toggle back off the container below)
@@ -92,7 +90,7 @@ function onShowProfile(event) {
 }
 
 function onZoomToExtent(event) {
-    showContentAndScrollIntoView(event)
+    setShowContent(true, event, true)
     // if more than one feature are currently selected, we can't be sure the new extent of the map will
     // contain all of them, so we switch the feature list to be at the bottom of the screen
     if (selectedFeaturesCount.value > 0) {

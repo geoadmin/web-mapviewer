@@ -125,6 +125,9 @@ export default {
     max-width: 100%;
 }
 .profile-popup-info-buttons {
+    // setting the height as minimum height, so that it is taken into account when drawing the first
+    // profile chart plot
+    min-height: 39px;
     button {
         margin-left: $button-spacer;
     }

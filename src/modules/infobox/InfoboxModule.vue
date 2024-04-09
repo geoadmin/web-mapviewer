@@ -136,12 +136,9 @@ function onHideProfile() {
                 <FeatureStyleEdit
                     v-if="showFeatureInfoInBottomPanel"
                     :feature="selectedFeature"
-                    class="drawing-feature-edit p-2"
+                    class="p-2"
                 />
-                <FeatureElevationProfile
-                    v-if="showElevationProfile"
-                    class="drawing-feature-profile flex-grow-1"
-                />
+                <FeatureElevationProfile v-if="showElevationProfile" class="flex-grow-1" />
             </div>
             <div v-else class="d-flex flex-column h-100 overflow-y-auto">
                 <Transition name="slide-fade">
@@ -153,11 +150,11 @@ function onHideProfile() {
                         <FeatureDetail
                             v-if="profileFeature"
                             :feature="profileFeature"
-                            class="p-2 d-none d-lg-block"
+                            class="feature-with-profile p-2 d-none d-lg-block"
                         />
                         <FeatureElevationProfile
                             v-if="showElevationProfile"
-                            class="feature-profile"
+                            class="flex-grow-1 profile-with-feature"
                         />
                     </div>
                 </Transition>
@@ -173,12 +170,11 @@ function onHideProfile() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables';
+@import '@/modules/infobox/scss/infobox';
 
 $infoboxHeaderHeight: 2rem;
-$infoboxContentDesktopHeight: 25vh;
-$infoboxContentMobileHeight: 40vh;
 
 .infobox {
     max-width: 100vw;
@@ -189,18 +185,29 @@ $infoboxContentMobileHeight: 40vh;
         overflow-y: auto;
         height: $infoboxContentMobileHeight;
     }
-    .feature-profile {
-        height: 100%;
+}
+
+@include respond-above(sm) {
+    .infobox {
+        &-content {
+            height: $infoboxContentTabletHeight;
+        }
     }
 }
 
-@include respond-above(md) {
+@include respond-above(lg) {
     .infobox {
+        // splitting space between the feature and the profile in a 1/3 - 2/3 fashion
+        .feature-with-profile {
+            min-width: 33%;
+            max-width: 33%;
+        }
+        .profile-with-feature {
+            min-width: 67%;
+            max-width: 67%;
+        }
         &-content {
             height: $infoboxContentDesktopHeight;
-        }
-        .feature-profile {
-            height: auto;
         }
     }
 }
@@ -213,18 +220,11 @@ $infoboxContentMobileHeight: 40vh;
 }
 
 .slide-fade-enter-to,
-.slide-fade-leave-from,
+.slide-fade-leave-to,
 .invert-slide-fade-enter-to,
 .invert-slide-fade-leave-from {
     position: absolute;
     width: 100%;
-}
-
-.slide-fade-enter-to,
-.slide-fade-leave-from,
-.invert-slide-fade-enter-to,
-.invert-slide-fade-enter-from {
-    top: $infoboxHeaderHeight;
 }
 
 .slide-fade-enter-from,
