@@ -18,7 +18,7 @@ const ENC_AT = '%40'
  * @returns {String}
  * @see https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
  */
-export function encoreLayerId(layer) {
+export function encodeLayerId(layer) {
     // special case for internal KMLs, we still want the type identifier before the fileUrl
     // (they won't be available in the layers config, so we treat them as "external" too)
     if (layer.isExternal || layer.type === LayerTypes.KML) {
@@ -154,7 +154,7 @@ export function parseLayersParam(queryValue) {
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
-    let layerUrlString = encodeLayerParam(encoreLayerId(layer))
+    let layerUrlString = encodeLayerParam(encodeLayerId(layer))
     if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }

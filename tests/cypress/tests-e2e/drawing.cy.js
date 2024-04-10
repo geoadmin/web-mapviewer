@@ -460,7 +460,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
 
             // checks that it adds the kml file ID in the URL while in drawing mode
-            cy.url().should('match', /layers=[^;&]*KML|[^|Drawing,f1]+/)
+            cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)
             // checks that it doesn't add adminId to the url
             cy.url().should('not.contain', 'adminId')
 
@@ -468,7 +468,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.id).to.include('KML|')
+                expect(drawingLayer.type).to.eq(LayerTypes.KML)
                 expect(drawingLayer.visible).to.be.true
             })
             // checks that it clears the drawing when the drawing layer is removed
@@ -492,7 +492,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -510,7 +510,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -527,7 +527,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -569,10 +569,10 @@ describe('Drawing module tests', () => {
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
                     )
                     cy.get(
-                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                     ).should('not.exist')
                     cy.get(
-                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
+                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
                     )
                         .should('be.visible')
                         .contains('Drawing')

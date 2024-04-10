@@ -82,7 +82,7 @@ export default {
         },
         adminUrl() {
             if (this.kmlLayerId && this.kmlAdminId) {
-                const query = { layers: `${this.kmlLayerId}@adminId=${this.kmlAdminId}` }
+                const query = { layers: `KML|${this.kmlLayerId}@adminId=${this.kmlAdminId}` }
                 return `${this.baseUrl}?${stringifyQuery(query)}`
             }
             // if no adminID is available don't show the edit share link.
