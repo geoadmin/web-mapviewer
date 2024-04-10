@@ -1,6 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -72,10 +71,6 @@ export default class ExternalWMSLayer extends ExternalLayer {
         super({
             name,
             id,
-            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-            // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
-            // NOTE the pipe character needs to be encoded in order to not break the parsing
-            urlId: `WMS|${encodeExternalLayerParam(baseUrl)}|${encodeExternalLayerParam(id)}`,
             type: LayerTypes.WMS,
             baseUrl,
             opacity,

@@ -3,13 +3,13 @@
  * @enum {String}
  */
 const LayerTypes = {
-    WMTS: 'wmts',
-    WMS: 'wms',
-    GEOJSON: 'geojson',
-    AGGREGATE: 'aggregate',
-    KML: 'kml',
-    GPX: 'gpx',
-    VECTOR: 'vector',
-    GROUP: 'group',
+    WMTS: 'WMTS',
+    WMS: 'WMS',
+    GEOJSON: 'GEOJSON',
+    AGGREGATE: 'AGGREGATE',
+    KML: 'KML',
+    GPX: 'GPX',
+    VECTOR: 'VECTOR',
+    GROUP: 'GROUP',
 }
 export default LayerTypes

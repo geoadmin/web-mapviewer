@@ -70,9 +70,6 @@ export default class ExternalLayer extends AbstractLayer {
     /**
      * @param {String} externalLayerData.name Name of this layer to be shown to the user
      * @param {String} externalLayerData.id Layer ID to use when requesting the tiles on the server
-     * @param {String} externalLayerData.urlId The unique ID in the context of the layers URL param,
-     *   it might be different from the layer ID itself (i.e. external layers have a layer type
-     *   identifier, KML/GPX too)
      * @param {LayerTypes} externalLayerData.type The type of layer in GeoAdmin sense (WMTS, WMS,
      *   GeoJson, etc...)
      * @param {String} externalLayerData.baseUrl Base URL to build the request to the data
@@ -106,7 +103,6 @@ export default class ExternalLayer extends AbstractLayer {
         const {
             name = null,
             id = null,
-            urlId = null,
             type = null,
             baseUrl = null,
             opacity = 1.0,
@@ -129,7 +125,6 @@ export default class ExternalLayer extends AbstractLayer {
         super({
             name,
             id,
-            urlId,
             type,
             baseUrl,
             opacity,
