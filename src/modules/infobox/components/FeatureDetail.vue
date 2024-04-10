@@ -84,9 +84,8 @@ function iframeLinks(value) {
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
                 <div class="d-flex flex-wrap align-items-center">
-                    <div class="d-flex flex-wrap fw-bold">{{ i18n.t(key) }}</div>
+                    <div class="fw-bold">{{ i18n.t(key) }}</div>
                     <FeatureDetailDisclaimer
-                        v-if="iframeLinks(value).urls && iframeLinks(value).urls.length"
                         :iframe-links="iframeLinks(value)"
                     ></FeatureDetailDisclaimer>
                 </div>
