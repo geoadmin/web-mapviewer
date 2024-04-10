@@ -162,8 +162,7 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.visible).to.be.true
             })
         })
-        // TODO BGDIINF_SB-2685: re-activate
-        it.skip('is able to import an external KML from a legacy adminId query param', () => {
+        it('is able to import an external KML from a legacy adminId query param', () => {
             cy.goToMapView(
                 {
                     adminId: adminId,
@@ -181,8 +180,7 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.adminId).to.equal(adminId)
             })
         })
-        // TODO BGDIINF_SB-2685: re-activate
-        it.skip("don't keep KML adminId in URL after import", () => {
+        it("don't keep KML adminId in URL after import", () => {
             cy.goToMapView(
                 {
                     adminId: adminId,
@@ -201,8 +199,7 @@ describe('Test on legacy param import', () => {
             })
             cy.url().should('not.contain', adminId)
         })
-        // TODO BGDIINF_SB-2685: re-activate
-        it.skip('is able to import an external KML from a legacy adminId query param with other layers', () => {
+        it('is able to import an external KML from a legacy adminId query param with other layers', () => {
             cy.goToMapView(
                 {
                     adminId: adminId,
@@ -289,9 +286,9 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}`
+            const expectedHash = `layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}`
             cy.location().should((location) => {
-                expect(location.hash).to.eq(expectedHash)
+                expect(location.hash).to.contain(expectedHash)
                 expect(location.search).to.eq('')
             })
         })

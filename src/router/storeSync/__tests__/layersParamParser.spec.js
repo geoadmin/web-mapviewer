@@ -14,11 +14,7 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config.js'
-import {
-    encodeLayerParam,
-    parseLayersParam,
-    transformLayerIntoUrlString,
-} from '@/router/storeSync/layersParamParser'
+import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
@@ -291,8 +287,7 @@ describe('Testing layersParamParser', () => {
                     // using an service-kml base URL to make it "internal"
                     kmlFileUrl: `${API_SERVICE_KML_BASE_URL}fakeKmlId`,
                 }),
-                // should encode ':' as it is reserved as separator for pre-selected feature IDs
-                expectedLayerUrlId: `KML|${encodeLayerParam(API_SERVICE_KML_BASE_URL)}fakeKmlId`,
+                expectedLayerUrlId: `KML|${API_SERVICE_KML_BASE_URL}fakeKmlId`,
                 testTime: false,
                 testFeaturePreSelection: false,
             },
@@ -301,8 +296,7 @@ describe('Testing layersParamParser', () => {
                     // using any other URL as service-kml base URL to make it "external"
                     kmlFileUrl: 'https://some.random.domain.ch/file.kml',
                 }),
-                // should encode ':' as it is reserved as separator for pre-selected feature IDs
-                expectedLayerUrlId: `KML|https%3A//some.random.domain.ch/file.kml`,
+                expectedLayerUrlId: 'KML|https://some.random.domain.ch/file.kml',
                 testTime: false,
                 testFeaturePreSelection: false,
             },
@@ -313,7 +307,7 @@ describe('Testing layersParamParser', () => {
                     baseUrl: 'https://fake.wms.url?',
                     attributions,
                 }),
-                expectedLayerUrlId: 'WMS|https%3A//fake.wms.url?|fake.external.wms',
+                expectedLayerUrlId: 'WMS|https://fake.wms.url?|fake.external.wms',
                 testTime: false,
                 testFeaturePreSelection: true,
             },
@@ -324,7 +318,7 @@ describe('Testing layersParamParser', () => {
                     baseUrl: 'https://fake.wtms.url/getCap.xml',
                     attributions,
                 }),
-                expectedLayerUrlId: 'WMTS|https%3A//fake.wtms.url/getCap.xml|fake.external.wmts',
+                expectedLayerUrlId: 'WMTS|https://fake.wtms.url/getCap.xml|fake.external.wmts',
                 testTime: false,
                 testFeaturePreSelection: true,
             },
@@ -343,7 +337,7 @@ describe('Testing layersParamParser', () => {
                     ],
                     attributions,
                 }),
-                expectedLayerUrlId: 'WMS|https%3A//fake.wms.url?|fake.external.group',
+                expectedLayerUrlId: 'WMS|https://fake.wms.url?|fake.external.group',
                 testTime: false,
                 testFeaturePreSelection: true,
             },
