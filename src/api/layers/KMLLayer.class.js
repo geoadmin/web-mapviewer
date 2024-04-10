@@ -1,6 +1,5 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { parseKmlName } from '@/utils/kmlUtils'
@@ -52,9 +51,7 @@ export default class KMLLayer extends AbstractLayer {
         const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
         super({
             name: 'KML',
-            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-            // NOTE the pipe character needs to be encoded in order to not break the parsing
-            id: `KML|${encodeExternalLayerParam(kmlFileUrl)}`,
+            id: kmlFileUrl,
             type: LayerTypes.KML,
             baseUrl: kmlFileUrl,
             opacity: opacity ?? 1.0,

@@ -104,7 +104,6 @@ export default class GeoAdminLayer extends AbstractLayer {
         super({
             name,
             id: geoAdminId,
-            urlId: geoAdminId,
             type,
             baseUrl,
             ensureTrailingSlashInBaseUrl,

@@ -1,15 +1,71 @@
-import LayerFeature from '@/api/features/LayerFeature.class.js'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import {
+    decodeExternalLayerParam,
+    encodeExternalLayerParam,
+} from '@/api/layers/layers-external.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { isNumber } from '@/utils/numberUtils'
 
 const ENC_COMMA = '%2C'
+const ENC_COLON = '%3A'
 const ENC_SEMI_COLON = '%3B'
 const ENC_AT = '%40'
 
 /**
- * Encode an layer parameter.
+ * Transform a layer ID in its URL value equivalent
  *
- * This percent encode the special character , ; and @ used to separate layer parameters.
+ * @param {AbstractLayer} layer
+ * @returns {String}
+ * @see https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+ */
+export function encoreLayerId(layer) {
+    // special case for internal KMLs, we still want the type identifier before the fileUrl
+    // (they won't be available in the layers config, so we treat them as "external" too)
+    if (layer.isExternal || layer.type === LayerTypes.KML) {
+        let externalLayerUrlId = ''
+        // Group of layers uses type WMS
+        if (layer.type === LayerTypes.GROUP) {
+            externalLayerUrlId += LayerTypes.WMS
+        } else {
+            externalLayerUrlId += `${layer.type}`
+        }
+        externalLayerUrlId += `|${encodeExternalLayerParam(layer.baseUrl)}`
+        // WMS and WMTS (GROUP are essentially WMS too) need to specify the ID of the layer in the getCap
+        if ([LayerTypes.GROUP, LayerTypes.WMS, LayerTypes.WMTS].includes(layer.type)) {
+            externalLayerUrlId += `|${encodeExternalLayerParam(layer.id)}`
+        }
+        return externalLayerUrlId
+    }
+    return layer.id
+}
+
+/**
+ * @param {String} urlLayerId
+ * @returns {ActiveLayerConfig} Partial active layer config, derived from what is in the URL layer
+ *   ID (needs further parsing to get the opacity, visibility and extra params)
+ */
+export function decodeUrlLayerId(urlLayerId) {
+    // if some pipe are present, we need to parse stuff
+    if (urlLayerId.indexOf('|') !== -1) {
+        const [layerType, layerBaseUrl, layerId] = urlLayerId.split('|')
+        const decodedBaseUrl = decodeExternalLayerParam(layerBaseUrl)
+        // KML/GPX do not have layer IDs, so we use their baseUrl as "ID"
+        const decodedLayerId = layerId ? decodeExternalLayerParam(layerId) : decodedBaseUrl
+        return {
+            id: decodedLayerId,
+            type: layerType,
+            baseUrl: decodedBaseUrl,
+        }
+    }
+    return {
+        id: urlLayerId,
+    }
+}
+
+/**
+ * Encode a layer parameter.
+ *
+ * This percent encode the special character , : ; and @ used to separate layer parameters.
  *
  * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
  * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
@@ -19,13 +75,17 @@ const ENC_AT = '%40'
  * @returns {string} Percent encoded parameter
  */
 export function encodeLayerParam(param) {
-    return param.replace(',', ENC_COMMA).replace(';', ENC_SEMI_COLON).replace('@', ENC_AT)
+    return param
+        .replace(',', ENC_COMMA)
+        .replace(':', ENC_COLON)
+        .replace(';', ENC_SEMI_COLON)
+        .replace('@', ENC_AT)
 }
 
 /**
  * Decode an layer parameter.
  *
- * This percent decode the special character , ; and @ used to separate layer parameters.
+ * This percent decode the special character , : ; and @ used to separate layer parameters.
  *
  * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
  * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
@@ -35,7 +95,11 @@ export function encodeLayerParam(param) {
  * @returns {string} Percent encoded parameter
  */
 export function decodeLayerParam(param) {
-    return param.replace(ENC_COMMA, ',').replace(ENC_SEMI_COLON, ';').replace(ENC_AT, '@')
+    return param
+        .replace(ENC_COMMA, ',')
+        .replace(ENC_COLON, ':')
+        .replace(ENC_SEMI_COLON, ';')
+        .replace(ENC_AT, '@')
 }
 
 /**
@@ -68,14 +132,12 @@ export function parseLayersParam(queryValue) {
                     customAttributes[key] = parsedValue
                 })
             }
-            parsedLayer.push(
-                new ActiveLayerConfig(
-                    layerId,
-                    !visible || visible === 't',
-                    isNumber(opacity) ? Number(opacity) : undefined,
-                    customAttributes
-                )
-            )
+            parsedLayer.push({
+                ...decodeUrlLayerId(layerId),
+                visible: !visible || visible === 't',
+                opacity: isNumber(opacity) ? Number(opacity) : undefined,
+                customAttributes,
+            })
         })
     }
     return parsedLayer
@@ -88,16 +150,24 @@ export function parseLayersParam(queryValue) {
  * @param {AbstractLayer} layer
  * @param {GeoAdminLayer} [defaultLayerConfig]
  * @param {String[] | null} featuresIds
- * @returns {string}
+ * @returns {String}
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
-    let layerUrlString = encodeLayerParam(layer.urlId)
+    let layerUrlString = encodeLayerParam(encoreLayerId(layer))
     if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }
     if (featuresIds) {
         layerUrlString += `@features=${featuresIds.join(':')}`
+    }
+    // Storing the update delay if different from the default config (or if no default config is present and there's an update delay)
+    // this currently only applies to GeoJSON layer
+    if (
+        layer.updateDelay > 0 &&
+        (!defaultLayerConfig || defaultLayerConfig.updateDelay !== layer.updateDelay)
+    ) {
+        layerUrlString += `@updateDelay=${layer.updateDelay}`
     }
     if (!layer.visible) {
         layerUrlString += `,f`

@@ -3,7 +3,6 @@ import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const state = {
@@ -115,7 +114,7 @@ const actions = {
             case SearchResultTypes.LAYER:
                 if (getters.getActiveLayersById(entry.layerId).length === 0) {
                     dispatch('addLayer', {
-                        layerConfig: new ActiveLayerConfig(entry.layerId, true),
+                        layerConfig: { id: entry.layerId, visible: true },
                         dispatcher: dipsatcherSelectResultEntry,
                     })
                 } else {

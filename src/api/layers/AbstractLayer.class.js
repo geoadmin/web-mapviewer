@@ -45,9 +45,6 @@ export default class AbstractLayer {
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
      *   identify it (and also in subsequent backend services for GeoAdmin layers)
-     * @param {String} layerData.urlId The unique ID in the context of the layers URL param, it
-     *   might be different from the layer ID itself (i.e. external layers have a layer type
-     *   identifier, KML/GPX too)
      * @param {LayerTypes} layerData.type See {@link LayerTypes}
      * @param {String} layerData.baseUrl What's the backend base URL to use when requesting
      *   tiles/image for this layer, will be used to construct the URL of this layer later on (if
@@ -82,7 +79,6 @@ export default class AbstractLayer {
         const {
             name = null,
             id = null,
-            urlId = null,
             type = null,
             baseUrl = null,
             ensureTrailingSlashInBaseUrl = false,
@@ -109,7 +105,6 @@ export default class AbstractLayer {
         }
         this.name = name
         this.id = id
-        this.urlId = urlId ?? id
         this.type = type
         this.baseUrl = baseUrl
         if (ensureTrailingSlashInBaseUrl && this.baseUrl && !this.baseUrl.endsWith('/')) {

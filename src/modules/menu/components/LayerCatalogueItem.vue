@@ -18,7 +18,6 @@ import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPop
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
@@ -151,7 +150,7 @@ function addRemoveLayer() {
         })
     } else {
         store.dispatch('addLayer', {
-            layerConfig: new ActiveLayerConfig(item.value.id, true),
+            layerConfig: { id: item.value.id, visible: true },
             ...dispatcher,
         })
     }
