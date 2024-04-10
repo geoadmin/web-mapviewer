@@ -7,7 +7,6 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { isNumber } from '@/utils/numberUtils'
 
 const ENC_COMMA = '%2C'
-const ENC_COLON = '%3A'
 const ENC_SEMI_COLON = '%3B'
 const ENC_AT = '%40'
 
@@ -65,7 +64,7 @@ export function decodeUrlLayerId(urlLayerId) {
 /**
  * Encode a layer parameter.
  *
- * This percent encode the special character , : ; and @ used to separate layer parameters.
+ * This percent encode the special character , ; and @ used to separate layer parameters.
  *
  * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
  * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
@@ -75,17 +74,13 @@ export function decodeUrlLayerId(urlLayerId) {
  * @returns {string} Percent encoded parameter
  */
 export function encodeLayerParam(param) {
-    return param
-        .replace(',', ENC_COMMA)
-        .replace(':', ENC_COLON)
-        .replace(';', ENC_SEMI_COLON)
-        .replace('@', ENC_AT)
+    return param.replace(',', ENC_COMMA).replace(';', ENC_SEMI_COLON).replace('@', ENC_AT)
 }
 
 /**
  * Decode an layer parameter.
  *
- * This percent decode the special character , : ; and @ used to separate layer parameters.
+ * This percent decode the special character , ; and @ used to separate layer parameters.
  *
  * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
  * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
@@ -95,11 +90,7 @@ export function encodeLayerParam(param) {
  * @returns {string} Percent encoded parameter
  */
 export function decodeLayerParam(param) {
-    return param
-        .replace(ENC_COMMA, ',')
-        .replace(ENC_COLON, ':')
-        .replace(ENC_SEMI_COLON, ';')
-        .replace(ENC_AT, '@')
+    return param.replace(ENC_COMMA, ',').replace(ENC_SEMI_COLON, ';').replace(ENC_AT, '@')
 }
 
 /**
