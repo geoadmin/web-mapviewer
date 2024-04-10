@@ -49,34 +49,17 @@ function updateTippy() {
         arrow: true,
         interactive: true,
         placement: 'top',
-        appendTo: document.body,
         theme: 'selectable',
     })
 }
 </script>
 
-<template>
+<template v-if="iframeLinks(value).urls && iframeLinks(value).urls.length">
     <!-- used to keep elements in place when hiding disclaimer -->
     <div class="pt-4"></div>
     <div v-if="iframeLinks.externalUrls.length && disclaimerIsShown" class="break"></div>
-    <div v-if="!iframeLinks.externalUrls.length || !disclaimerIsShown" class="d-flex">
-        <div ref="disclaimerText" :link="iframeLinks.urls">
-            <button
-                :disabled="!iframeLinks.externalUrls.length"
-                class="d-flex btn btn-default btn-xs border-0"
-                data-cy="feature-detail-media-disclaimer-button-open"
-                @click="setDisclaimerAgree"
-            >
-                <FontAwesomeIcon
-                    :color="!iframeLinks.externalUrls.length ? 'black' : 'red'"
-                    size="lg"
-                    :icon="!iframeLinks.externalUrls.length ? 'info-circle' : 'fa-user'"
-                />
-            </button>
-        </div>
-    </div>
     <div
-        v-else
+        v-if="iframeLinks.externalUrls.length && disclaimerIsShown"
         data-cy="feature-detail-media-disclaimer"
         class="d-flex flex-fill p-0 rounded-2 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
     >
@@ -105,6 +88,22 @@ function updateTippy() {
                 @click="setDisclaimerAgree"
             >
                 <FontAwesomeIcon style="color: white" size="lg" icon="times" />
+            </button>
+        </div>
+    </div>
+    <div v-else class="d-flex">
+        <div ref="disclaimerText" :link="iframeLinks.urls">
+            <button
+                :disabled="!iframeLinks.externalUrls.length"
+                class="d-flex btn btn-default btn-xs border-0"
+                data-cy="feature-detail-media-disclaimer-button-open"
+                @click="setDisclaimerAgree"
+            >
+                <FontAwesomeIcon
+                    :color="!iframeLinks.externalUrls.length ? 'black' : 'red'"
+                    size="lg"
+                    :icon="!iframeLinks.externalUrls.length ? 'info-circle' : 'fa-user'"
+                />
             </button>
         </div>
     </div>
