@@ -131,10 +131,6 @@
         "write-yaml-file": "^5.0.0",
         "yargs": "^17.7.2"
     },
-    "engines": {
-        "node": ">=18",
-        "npm": "9.*.*"
-    },
     "type": "module",
     "engineStrict": true
 }
