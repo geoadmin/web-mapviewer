@@ -180,23 +180,6 @@ export class PrintError extends Error {
 }
 
 /**
- * @typedef {Object} PrintSpecAttributes
- * @param {MFPMap} map
- * @param {String} copyright
- * @param {String} url
- * @param {String} qrimage URL of the qrcode image to use
- */
-
-/**
- * @typedef {Object} PrintSpec
- * @param {PrintSpecAttributes} attributes
- * @param {String} format
- * @param {String} layout
- * @param {String} lang
- * @param {String} outputFilename
- */
-
-/**
  * @param {Map} olMap OL map
  * @param {String[]} [config.attributions=[]] List of all attributions of layers currently visible
  *   on the map. Default is `[]`
@@ -216,7 +199,6 @@ export class PrintError extends Error {
  *   from the print. Default is `[]`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
- * @returns {PrintSpec} Print spec to pass to the /report print endpoint
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -305,11 +287,6 @@ async function transformOlMapToPrintParams(olMap, config) {
         } else {
             spec.attributes.printLegend = 0
         }
-
-        // Add the failOnError flag to all layers
-        spec.attributes.map.layers.map((layer) => {
-            layer.failOnError = true
-        })
         return spec
     } catch (error) {
         log.error("Couldn't encode map to print request", error)
