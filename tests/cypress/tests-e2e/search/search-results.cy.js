@@ -307,6 +307,9 @@ describe('Test the search bar result handling', () => {
             checkLocation(expectedCenterDefaultProjection, center)
         )
 
+        cy.log('Search bar dropdown should be hidden after centering on the feature')
+        cy.get('@locationSearchResults').should('not.be.visible')
+
         // checking that the zoom level corresponds to the extent of the feature
         // TODO: this somehow fail on the desktop viewport, see https://jira.swisstopo.ch/browse/BGDIINF_SB-2156
         const width = Cypress.config('viewportWidth')
@@ -324,6 +327,7 @@ describe('Test the search bar result handling', () => {
         )
 
         cy.log('It hides the results when the user clicks on the map')
+        cy.get(searchbarSelector).focus()
         cy.get('@locationSearchResults').should('be.visible')
         cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
         cy.get('@locationSearchResults').should('not.be.visible')
