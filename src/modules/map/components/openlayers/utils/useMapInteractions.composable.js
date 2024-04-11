@@ -128,7 +128,7 @@ export default function useMapInteractions(map) {
                                             title: olFeature.get('name'),
                                             description: olFeature.get('description'),
                                         },
-                                        coordinates: olFeature.getGeometry().coordinates,
+                                        coordinates: olFeature.getGeometry().getCoordinates(),
                                         geometry: new GeoJSON().writeGeometryObject(
                                             olFeature.getGeometry()
                                         ),
