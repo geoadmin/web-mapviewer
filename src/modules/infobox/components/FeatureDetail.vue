@@ -43,30 +43,19 @@ function sanitizeHtml(key, htmlText) {
         return DOMPurify.sanitize(htmlText)
     }
 }
-function checkWhitelist(host) {
-    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch', 'http:whitelisted']
 
-    let whitelisted = false
-    whitelisted_hosts.forEach((whitelistedHost) => {
-        if (whitelistedHost === host) {
-            whitelisted = true
-        }
-    })
-    return whitelisted
-}
 function iframeLinks(value) {
-    let data = value
+    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
     let parser = new DOMParser()
-    let parsedIframe = parser.parseFromString(data, 'text/html')
-    let iFrame = parsedIframe.getElementsByTagName('iframe')
+    let parsedIframe = parser.parseFromString(value, 'text/html')
 
-    let urls = Array.from(iFrame)
+    let urls = Array.from(parsedIframe.getElementsByTagName('iframe'))
     let externalUrls = []
-    let host = null
+    //create an additional list containing only the external urls for third party warning
     urls.forEach((frame, index) => {
-        host = new URL(frame.src).hostname
+        let host = new URL(frame.src).hostname
         urls[index] = host
-        if (!checkWhitelist(host)) {
+        if (!whitelisted_hosts.includes(host)) {
             externalUrls.push(host)
         }
     })
@@ -82,8 +71,8 @@ function iframeLinks(value) {
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
-                <div class="d-flex flex-wrap align-items-center">
-                    <div class="fw-bold">{{ i18n.t(key) }}</div>
+                <div class="d-flex flex-wrap align-items-center fw-bold">
+                    <div>{{ i18n.t(key) }}</div>
                     <FeatureDetailDisclaimer
                         :iframe-links="iframeLinks(value)"
                     ></FeatureDetailDisclaimer>
@@ -113,7 +102,6 @@ function iframeLinks(value) {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/scss/variables-admin.module';
 
 // Styling for external HTML content
