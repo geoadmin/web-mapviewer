@@ -19,14 +19,14 @@ const { iframeLinks } = toRefs(props)
 const i18n = useI18n()
 const store = useStore()
 
-let tippyInstance = []
-let disclaimerText = ref(null)
+let tippyInstance = null
+let tippyAnchor = ref(null)
 
 const disclaimerIsShown = computed(() => {
     return store.state.ui.showDisclaimer
 })
 watch(disclaimerIsShown, () => {
-    console.log('debug: ', iframeLinks.value)
+    // wait one tick to ensure the tippy is created at the right element
     nextTick(() => {
         updateTippy()
     })
@@ -44,8 +44,8 @@ function setDisclaimerAgree() {
     })
 }
 function updateTippy() {
-    tippyInstance = tippy(disclaimerText.value, {
-        content: (reference) => reference.getAttribute('link'),
+    tippyInstance = tippy(tippyAnchor.value, {
+        content: iframeLinks.value.urls,
         arrow: true,
         interactive: true,
         placement: 'top',
@@ -61,7 +61,7 @@ function updateTippy() {
     <div
         v-if="iframeLinks.externalUrls.length && disclaimerIsShown"
         data-cy="feature-detail-media-disclaimer"
-        class="d-flex flex-fill p-0 rounded-2 header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold"
+        class="disclaimer d-flex flex-fill p-0 rounded-2"
     >
         <div class="d-flex flex-fill justify-content-between">
             <div class="d-flex align-items-center">
@@ -76,11 +76,9 @@ function updateTippy() {
                         <FontAwesomeIcon style="color: white" size="lg" icon="info-circle" />
                     </button>
                 </ThirdPartyDisclaimer>
-                <span class="url-tooltip">
-                    <div ref="disclaimerText" :link="iframeLinks.urls" class="px-1 d-flex">
-                        {{ i18n.t('media_disclaimer') }}
-                    </div>
-                </span>
+                <div ref="tippyAnchor" class="px-1 d-flex">
+                    {{ i18n.t('media_disclaimer') }}
+                </div>
             </div>
             <button
                 class="d-flex btn btn-default btn-xs"
@@ -92,7 +90,7 @@ function updateTippy() {
         </div>
     </div>
     <div v-else class="d-flex">
-        <div ref="disclaimerText" :link="iframeLinks.urls">
+        <div ref="tippyAnchor">
             <button
                 :disabled="!iframeLinks.externalUrls.length"
                 class="d-flex btn btn-default btn-xs border-0"
@@ -112,6 +110,10 @@ function updateTippy() {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
+.disclaimer {
+    color: $white;
+    background-color: $danger;
+}
 .break {
     flex-basis: 100%;
     height: 0;
