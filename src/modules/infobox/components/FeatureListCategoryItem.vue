@@ -9,7 +9,6 @@ import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import { canFeatureShowProfile } from '@/store/modules/features.store.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils.js'
 import ZoomToExtentButton from '@/utils/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
@@ -87,16 +86,9 @@ function forceFeatureInfoAtBottom() {
 
 function onShowProfile(event) {
     showContentAndScrollIntoView(event)
-    // if the feature has an extent, we center the view on it to better contextualize the profile
-    if (item.value.extent) {
-        store.dispatch('zoomToExtent', {
-            extent: normalizeExtent(item.value.extent),
-            ...dispatcher,
-        })
-        // as the profile will be stored at the bottom of the screen, we do not want to have
-        // a floating tooltip while some information are at the bottom, so we force the tooltip down
-        forceFeatureInfoAtBottom()
-    }
+    // as the profile will be stored at the bottom of the screen, we do not want to have
+    // a floating tooltip while some information are at the bottom, so we force the tooltip down
+    forceFeatureInfoAtBottom()
 }
 
 function onZoomToExtent(event) {
@@ -117,7 +109,7 @@ function onZoomToExtent(event) {
         @mouseenter.passive="highlightFeature(item)"
         @mouseleave.passive="clearHighlightedFeature"
     >
-        <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-1" />
+        <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2" />
         <strong>{{ name }}</strong>
 
         <ZoomToExtentButton

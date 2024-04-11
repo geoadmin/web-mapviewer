@@ -20,20 +20,6 @@ const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInf
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 
-// Getting how much "category" of features there is, one per layer with features, and one for all editable features
-const amountOfFeatureCategories = computed(() => {
-    const isThereEditableFeatures = store.state.features.selectedEditableFeatures.length > 0
-    return (
-        Object.keys(store.state.features.selectedFeaturesByLayerId).length +
-        (isThereEditableFeatures ? 1 : 0)
-    )
-})
-// Selecting the smallest amount of column for the features in the infobox, limiting the horizontal
-// growth so that categories can have at least 357px of space (size of the floating tooltip)
-const columns = computed(() =>
-    Math.min(amountOfFeatureCategories.value, Math.floor(store.state.ui.width / 357))
-)
-
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
 const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
@@ -115,10 +101,7 @@ function onClose() {
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
             />
-            <FeatureList
-                v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel"
-                :columns="columns"
-            />
+            <FeatureList v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel" />
         </div>
     </div>
 </template>

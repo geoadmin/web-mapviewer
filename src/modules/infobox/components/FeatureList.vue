@@ -1,29 +1,28 @@
 <script setup>
-import Masonry from 'masonry-layout'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
 const props = defineProps({
-    columns: {
-        type: Number,
-        default: 1,
-        validator: (value) => value > 0,
+    /**
+     * Tells if the height should be fixed (non-fluid) or if it should take 100% of available space
+     * (if fluid). Default is false, which is the way it will be displayed in the InfoboxModule.
+     * MapPopup might want to set fluid to true, it might otherwise display two scroll bars in some
+     * cases (one for the modal, one for the feature list)
+     */
+    fluid: {
+        type: Boolean,
+        default: false,
     },
 })
-const { columns } = toRefs(props)
+
+const { fluid } = toRefs(props)
 
 const featureListContainer = ref(null)
 const editableFeatureCategory = ref(null)
 const layerFeatureCategories = ref([])
-
-const widthDependingOnColumns = computed(() => {
-    return {
-        width: `${100 / columns.value}%`,
-    }
-})
 
 const i18n = useI18n()
 const store = useStore()
@@ -32,39 +31,29 @@ const selectedEditableFeatures = computed(() => store.state.features.selectedEdi
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 
 function getLayerName(layerId) {
-    return store.getters.visibleLayers.find((layer) => layer.id === layerId)?.name
-}
-
-let masonry
-onMounted(() => {
-    reloadMasonryLayout()
-})
-onBeforeUnmount(() => {
-    masonry?.destroy()
-})
-
-// watching column changes after they were applied (hence flush post)
-// so that masonry.layout() is called when all features have already been rendered in the DOM
-watch(columns, reloadMasonryLayout, { flush: 'post' })
-
-function reloadMasonryLayout() {
-    if (columns.value > 1) {
-        if (!masonry) {
-            masonry = new Masonry(featureListContainer.value, {
-                itemSelector: '.feature-list-item',
-                percentPosition: true,
-            })
-        }
-        masonry.layout()
-    } else {
-        masonry?.destroy()
-        masonry = null
-    }
+    return store.state.layers.activeLayers
+        .filter(
+            (layer) =>
+                layer.id === layerId ||
+                // when we add a group of (external) layers for the first time, features will be categorized with the sub layer ID,
+                // once we reload the app, only the group ID will remain. So we need to check if a sub-layer also match this ID,
+                // or feature selection just after adding a group of layer will output nothing
+                (layer.layers && layer.layers.find((subLayer) => subLayer.id === layerId))
+        )
+        .map(
+            (layer) => layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
+        )
+        .reduce((previousValue, currentValue) => previousValue ?? currentValue)
 }
 </script>
 
 <template>
-    <div ref="featureListContainer" class="feature-list" data-cy="highlighted-features">
+    <div
+        ref="featureListContainer"
+        class="feature-list"
+        :class="{ fluid }"
+        data-cy="highlighted-features"
+    >
         <!-- Only showing drawing features when outside the drawing module/mode -->
         <FeatureListCategory
             v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
@@ -72,7 +61,6 @@ function reloadMasonryLayout() {
             class="feature-list-item"
             :name="i18n.t('draw_layer_label')"
             :children="selectedEditableFeatures"
-            :style="widthDependingOnColumns"
         />
         <FeatureListCategory
             v-for="(layerFeatures, layerId) in selectedFeaturesByLayerId"
@@ -81,14 +69,24 @@ function reloadMasonryLayout() {
             class="feature-list-item"
             :name="getLayerName(layerId)"
             :children="layerFeatures"
-            :style="widthDependingOnColumns"
         />
     </div>
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/variables';
 .feature-list {
-    overflow-y: auto;
-    max-height: 33vh;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax($overlay-width, 1fr));
+    justify-content: stretch;
+    align-content: stretch;
+    &.fluid {
+        max-height: 100%;
+        overflow: hidden;
+    }
+    &:not(.fluid) {
+        max-height: 33vh;
+        overflow-y: auto;
+    }
 }
 </style>

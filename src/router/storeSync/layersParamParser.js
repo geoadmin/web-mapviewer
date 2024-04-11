@@ -44,9 +44,8 @@ export function encodeLayerId(layer) {
  *   ID (needs further parsing to get the opacity, visibility and extra params)
  */
 export function decodeUrlLayerId(urlLayerId) {
-    // if some pipe are present, we need to parse stuff
-    if (urlLayerId.indexOf('|') !== -1) {
-        const [layerType, layerBaseUrl, layerId] = urlLayerId.split('|')
+    const [layerType, layerBaseUrl, layerId] = urlLayerId.split('|')
+    if (Object.values(LayerTypes).includes(layerType)) {
         const decodedBaseUrl = decodeExternalLayerParam(layerBaseUrl)
         // KML/GPX do not have layer IDs, so we use their baseUrl as "ID"
         const decodedLayerId = layerId ? decodeExternalLayerParam(layerId) : decodedBaseUrl

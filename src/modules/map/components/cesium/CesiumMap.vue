@@ -64,7 +64,7 @@
                 </button>
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
-            <FeatureList direction="column" />
+            <FeatureList />
         </CesiumPopover>
         <CesiumToolbox
             v-if="viewerCreated && isDesktopMode && !isFullScreenMode"

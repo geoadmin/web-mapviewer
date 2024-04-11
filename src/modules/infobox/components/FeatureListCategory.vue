@@ -28,10 +28,10 @@ const showContent = ref(true)
 <template>
     <div class="feature-list-category border-start">
         <div
-            class="feature-list-category-title p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex"
+            class="feature-list-category-title p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle"
             @click="showContent = !showContent"
         >
-            <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-1" />
+            <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />
             <strong>{{ name }}</strong>
         </div>
         <div v-if="showContent" class="feature-list-category-children">
@@ -47,7 +47,7 @@ const showContent = ref(true)
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables-admin.module';
+@import 'src/scss/variables';
 
 .feature-list-category {
     font-size: 0.8rem;
