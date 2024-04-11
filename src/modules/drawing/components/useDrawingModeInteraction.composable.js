@@ -110,6 +110,7 @@ export default function useDrawingModeInteraction({
             const args = { ...editableFeatureArgs }
             args.id = uid
 
+            log.error(`onAddFeature constructor arguments: `, args)
             /* applying extra properties that should be stored with that feature. Openlayers will
             automatically redraw the feature if these properties change, but not in a recursive
             manner. This means that if e.g. a property inside of the editableFeature changes, an
@@ -162,6 +163,7 @@ export default function useDrawingModeInteraction({
         geometry.setCoordinates(normalizedCoords)
 
         const editableFeature = feature.get('editableFeature')
+        log.error(`onDrawEnd feature: `, feature)
         editableFeature.setCoordinatesFromFeature(feature)
         // setting the geometry too so that the floating popup can be placed correctly on the map
         editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)

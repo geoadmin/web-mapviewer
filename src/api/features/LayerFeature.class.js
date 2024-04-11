@@ -28,6 +28,7 @@ export default class LayerFeature extends SelectableFeature {
             geometry,
             isEditable: false,
         })
+        console.error(`LayerFeature constructor: `, featureData, coordinates)
         this.layer = layer
         this.data = data
         // We can't trust the content of the popup data for external layers, and for KML layers.

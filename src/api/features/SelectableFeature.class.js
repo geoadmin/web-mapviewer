@@ -79,6 +79,7 @@ export default class SelectableFeature extends EventEmitter {
         return this._coordinates
     }
     set coordinates(newCoordinates) {
+        log.error(`coordinates: `, newCoordinates)
         if (Array.isArray(newCoordinates)) {
             // checking if we have received a unique coordinate
             if (
