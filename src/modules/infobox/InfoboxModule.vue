@@ -10,6 +10,7 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import ZoomToExtentButton from '@/utils/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'InfoboxModule.vue' }
 const showContent = ref(true)
@@ -92,6 +93,10 @@ function onHideProfile() {
                     <span class="d-none d-md-inline">&nbsp;:&nbsp;{{ profileFeature.title }}</span>
                 </strong>
             </div>
+            <ZoomToExtentButton
+                v-if="showElevationProfile && profileFeature.extent"
+                :extent="profileFeature.extent"
+            />
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
