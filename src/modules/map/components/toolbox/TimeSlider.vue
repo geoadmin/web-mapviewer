@@ -38,6 +38,7 @@ const PLAY_BUTTON_SIZE = 54
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
 const currentYear = ref(YOUNGEST_YEAR)
+const displayedYear = ref(YOUNGEST_YEAR)
 let cursorX = 0
 let playYearsWithData = false
 let yearCursorIsGrabbed = false
@@ -123,6 +124,9 @@ const yearsWithData = computed(() => {
 watch(screenWidth, (newValue) => {
     setSliderWidth(newValue)
 })
+watch(currentYear, () => {
+    displayedYear.value = currentYear.value
+})
 
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
 // dispatch too many times when the user is moving the time slider (we wait for mouseup our
@@ -160,7 +164,7 @@ onUnmounted(() => {
 })
 
 function setCurrentYearAndDispatchToStore(year) {
-    currentYear.value = year
+    currentYear.value = parseInt(year)
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 
@@ -268,6 +272,15 @@ function togglePlayYearsWithData() {
         playYearInterval = null
     }
 }
+function setYearToInputIfValid() {
+    if (
+        currentYear.value != displayedYear.value &&
+        allYears.value.includes(parseInt(displayedYear.value))
+    ) {
+        currentYear.value = displayedYear.value
+        setCurrentYearAndDispatchToStore(displayedYear.value)
+    }
+}
 </script>
 
 <template>
@@ -292,7 +305,8 @@ function togglePlayYearsWithData() {
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                     <div data-cy="time-slider-current-year" class="p-0 time-slider-bar-cursor-year">
-                        <textarea class="time-slider-year-input" maxlength="4"></textarea>
+                        <input v-model="displayedYear" maxlength="4" class="time-slider-year-input" type="text" @input="setYearToInputIfValid">
+                        </input>
                     </div>
                     <div class="px-2 border-start d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
