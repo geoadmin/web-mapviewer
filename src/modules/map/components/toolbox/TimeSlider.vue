@@ -291,8 +291,8 @@ function togglePlayYearsWithData() {
                     <div class="px-2 border-end d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
-                    <div data-cy="time-slider-current-year" class="time-slider-bar-cursor-year">
-                        {{ currentYear }}
+                    <div data-cy="time-slider-current-year" class="p-0 time-slider-bar-cursor-year">
+                        <textarea class="time-slider-year-input" maxlength="4"></textarea>
                     </div>
                     <div class="px-2 border-start d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
@@ -451,5 +451,13 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
         width: 32px;
         text-align: center;
     }
+}
+.time-slider-year-input {
+    width: 100%;
+    height: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    border: none;
+    resize: none;
 }
 </style>
