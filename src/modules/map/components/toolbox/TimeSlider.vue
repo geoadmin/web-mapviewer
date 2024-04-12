@@ -164,7 +164,7 @@ onUnmounted(() => {
 })
 
 function setCurrentYearAndDispatchToStore(year) {
-    currentYear.value = parseInt(year)
+    currentYear.value = year
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 
@@ -277,8 +277,8 @@ function setYearToInputIfValid() {
         currentYear.value != displayedYear.value &&
         allYears.value.includes(parseInt(displayedYear.value))
     ) {
-        currentYear.value = displayedYear.value
-        setCurrentYearAndDispatchToStore(displayedYear.value)
+        currentYear.value = parseInt(displayedYear.value)
+        setCurrentYearAndDispatchToStore(currentYear.value)
     }
 }
 </script>
@@ -306,7 +306,7 @@ function setYearToInputIfValid() {
                     </div>
                     <input
                         v-model="displayedYear"
-                        data-cy="time-slider-current-year"
+                        data-cy="time-slider-bar-cursor-year"
                         maxlength="4"
                         class="time-slider-bar-cursor-year"
                         type="text"
@@ -318,6 +318,7 @@ function setYearToInputIfValid() {
                 </div>
                 <div
                     ref="yearCursorArrow"
+                    data-cy="time-slider-bar-cursor-arrow"
                     class="time-slider-bar-cursor-arrow"
                     :style="cursorArrowPosition"
                 />
