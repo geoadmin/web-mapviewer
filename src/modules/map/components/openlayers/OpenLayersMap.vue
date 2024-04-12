@@ -13,6 +13,7 @@ import OpenLayersCrossHair from '@/modules/map/components/openlayers/OpenLayersC
 import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/OpenLayersGeolocationFeedback.vue'
 import OpenLayersHighlightedFeature from '@/modules/map/components/openlayers/OpenLayersHighlightedFeatures.vue'
 import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLayersPinnedLocation.vue'
+import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openlayers/OpenLayersRectangleSelectionFeedback.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
@@ -72,6 +73,7 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
         <OpenLayersGeolocationFeedback />
+        <OpenLayersRectangleSelectionFeedback />
         <!-- Debug tooling -->
         <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />
         <OpenLayersLayerExtents v-if="showLayerExtents" :z-index="zIndexLayerExtents" />
@@ -92,8 +94,13 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
     z-index: $zindex-map;
 }
 
+$dragbox-width: 3px;
+// Show selected area when shift click + drag on map
+:global(.ol-dragzoom) {
+    border: $dragbox-width solid $malibu;
+}
+// Show selected area when ctrl click + drag on map
 :global(.ol-dragbox) {
-    border: 3px solid $info;
-    border-radius: 2px;
+    border: $dragbox-width solid $red;
 }
 </style>

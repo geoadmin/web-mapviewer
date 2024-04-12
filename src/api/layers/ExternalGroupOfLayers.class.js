@@ -20,14 +20,13 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class ExternalGroupOfLayers extends ExternalLayer {
     /**
+     * @param {String} externalLayerData.id Layer ID of the group to be found in GetCapabilities
      * @param {String} externalLayerData.name Name of this layer to be shown to the user
      * @param {number} [externalLayerData.opacity=1.0] The opacity of this layer, between 0.0
      *   (transparent) and 1.0 (opaque). Default is `1.0`
      * @param {boolean} [externalLayerData.visible=true] If the layer should be shown on the map.
      *   Default is `true`
      * @param {String} externalLayerData.baseUrl GetCapabilities base URL
-     * @param {String} externalLayerData.externalLayerId Layer ID of the group to be found in
-     *   GetCapabilities
      * @param {ExternalLayer[]} externalLayerData.layers Description of the layers being part of
      *   this group (they will all be displayed at the same time, in contrast to an aggregate
      *   layer)
@@ -53,11 +52,11 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             throw new InvalidLayerDataError('Missing external layer data', externalLayerData)
         }
         const {
+            id = null,
             name = null,
             opacity = 1.0,
             visible = true,
             baseUrl = null,
-            externalLayerId = null,
             layers = [],
             attributions = null,
             abstract = '',
@@ -74,13 +73,9 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             )
         }
         super({
+            id,
             name,
-            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-            // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
-            // done the legacy parameter and is not required.
-            id: `WMS|${baseUrl}|${externalLayerId}`,
             type: LayerTypes.GROUP,
-            externalLayerId,
             baseUrl,
             opacity,
             visible,

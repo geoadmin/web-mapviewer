@@ -6,7 +6,15 @@ import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
+
+export class ProfileError {
+    constructor(technicalError, messageKey) {
+        this.technicalError = technicalError
+        this.messageKey = messageKey
+    }
+}
 
 function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []
@@ -28,6 +36,7 @@ function parseProfileFromBackendResponse(backendResponse, startingDist, outputPr
  * @param {Number} startingDist
  * @param {CoordinateSystem} outputProjection
  * @returns {ElevationProfile}
+ * @throws ProfileError
  */
 async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
     if (chunk.isWithinBounds) {
@@ -57,11 +66,17 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
                 )
             } else {
                 log.error('Incorrect/empty response while getting profile', dataForChunk)
-                return null
+                throw new ProfileError(
+                    'Incorrect/empty response while getting profile',
+                    'network_error'
+                )
             }
         } catch (err) {
             log.error('Error while trying to fetch profile data', err)
-            return null
+            if (err instanceof ProfileError) {
+                throw err
+            }
+            throw new ProfileError('Error while trying to fetch profile data', 'network_error')
         }
     }
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
@@ -69,7 +84,7 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
     let lastCoordinate = startingPoint
     if (!chunk?.coordinates) {
         log.error('Malformed chunk', chunk)
-        return null
+        throw new ProfileError('Malformed chunk', 'network_error')
     }
     return new ElevationProfileSegment([
         ...chunk.coordinates.map((coordinate) => {
@@ -98,15 +113,17 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
  * @param {CoordinateSystem} projection The projection used to describe the coordinates
  * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
  *   profile
+ * @throws ProfileError
  */
 export default async (coordinates, projection) => {
     if (!coordinates || coordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
         log.error(errorMessage)
-        throw errorMessage
+        throw new ProfileError(errorMessage, 'could_not_generate_profile')
     }
     // the service only works with LV95 coordinate, we have to transform them if they are not in this projection
-    let coordinatesInLV95 = [...coordinates]
+    // removing any 3d dimension that could come from OL
+    let coordinatesInLV95 = removeZValues(unwrapGeometryCoordinates(coordinates))
     if (projection.epsg !== LV95.epsg) {
         coordinatesInLV95 = coordinates.map((coordinate) =>
             proj4(projection.epsg, LV95.epsg, coordinate)
@@ -115,8 +132,11 @@ export default async (coordinates, projection) => {
     const segments = []
     let coordinateChunks = LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
     if (!coordinateChunks) {
-        log.error('No chunks found, no profile data could be fetched')
-        return null
+        log.error('No chunks found, no profile data could be fetched', coordinatesInLV95)
+        throw new ProfileError(
+            'No chunks found, no profile data could be fetched',
+            'could_not_generate_profile'
+        )
     }
     let lastCoordinate = null
     let lastDist = 0

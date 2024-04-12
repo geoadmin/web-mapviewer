@@ -1,13 +1,12 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
+import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
-import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
-
-import CompareSliderParamConfig from './CompareSliderParamConfig.class'
+import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
+import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -104,6 +103,7 @@ const storeSyncConfig = [
         urlParamName: 'featureInfo',
         mutationsToWatch: ['setFeatureInfoPosition'],
         dispatchName: 'setFeatureInfoPosition',
+        dispatchValueName: 'position',
         extractValueFromStore: (store) => store.state.ui.featureInfoPosition,
         keepInUrlWhenDefault: false,
         valueType: String,

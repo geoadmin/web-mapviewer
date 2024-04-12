@@ -9,8 +9,8 @@ describe('The infobox', () => {
 
             cy.get(mapSelector).click()
             cy.waitUntilState(
-                (state) => {
-                    return state.features.selectedFeatures.length > 0
+                (_, getters) => {
+                    return getters.selectedFeatures.length > 0
                 },
                 { timeout: 10000 }
             )
@@ -19,8 +19,8 @@ describe('The infobox', () => {
         })
         it('can float or stick to the bottom', () => {
             cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
+            cy.waitUntilState((_, getters) => {
+                return getters.selectedFeatures.length > 0
             })
             cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
                 if (isPhoneMode) {
@@ -119,8 +119,8 @@ describe('The infobox', () => {
             cy.goToMapView({ layers: layer })
 
             cy.get('[data-cy="ol-map"]').click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
+            cy.waitUntilState((_, getters) => {
+                return getters.selectedFeatures.length > 0
             })
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })

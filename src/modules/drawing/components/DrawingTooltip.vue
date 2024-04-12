@@ -20,7 +20,7 @@ const store = useStore()
 const tooltipText = ref('')
 const drawingTooltip = ref(null)
 
-const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const drawingMode = computed(() => store.state.drawing.mode)
 
 const tooltipOverlay = new Overlay({

@@ -1,21 +1,22 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 
-export class ActiveLayerConfig {
-    /**
-     * @param {String} id The layer id
-     * @param {Boolean} visible Flag telling if the layer should be visible on the map
-     * @param {Number | undefined} opacity The opacity that the layers should have, when `undefined`
-     *   uses the default opacity for the layer.
-     * @param {Object} customAttributes Other attributes relevant for this layer, such as time
-     */
-    constructor(id, visible, opacity = undefined, customAttributes = {}) {
-        this.id = id
-        this.visible = visible
-        this.opacity = opacity
-        this.customAttributes = customAttributes
-    }
-}
+/**
+ * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
+ * not have searched them in the "real" layers config yet.
+ *
+ * Data contained by one of these is sufficient to find the matching layer (or build it from scratch
+ * for external layers)
+ *
+ * @typedef ActiveLayerConfig
+ * @property {String} id The layer ID
+ * @property {LayerTypes} [type] The layer type (for external layers)
+ * @property {Boolean} [visible] Flag telling if the layer should be visible on the map
+ * @property {Number} [opacity] The opacity that the layers should have, when `undefined` uses the
+ *   default opacity for the layer.
+ * @property {String} [baseUrl] The base URL of this layer, if applicable (only for external layers)
+ * @property {Object} [customAttributes] Other attributes relevant for this layer, such as time
+ */
 
 /**
  * Returns timestamp for WMS or WMTS layer from config data
@@ -56,7 +57,7 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear) {
         const timestamp = getTimestampFromConfig(wmtsLayerConfig, previewYear) ?? 'current'
 
         const layerId = wmtsLayerConfig.isExternal
-            ? wmtsLayerConfig.externalLayerId
+            ? wmtsLayerConfig.id
             : wmtsLayerConfig.technicalName
         return `${wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
     }

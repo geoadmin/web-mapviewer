@@ -38,9 +38,7 @@ const projection = computed(() => store.state.position.projection)
 const currentLang = computed(() => store.state.i18n.lang)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(
-    () => wmsLayerConfig.value.technicalName || wmsLayerConfig.value.externalLayerId
-)
+const layerId = computed(() => wmsLayerConfig.value.technicalName || wmsLayerConfig.value.id)
 const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)

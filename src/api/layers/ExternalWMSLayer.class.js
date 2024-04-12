@@ -1,6 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -16,6 +15,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class ExternalWMSLayer extends ExternalLayer {
     /**
+     * @param {String} externalWmsData.id Layer ID to use when requesting the tiles on the server
      * @param {String} externalWmsData.name Name of this layer to be shown to the user
      * @param {Number} [externalWmsData.opacity=1.0] The opacity of this layer, between 0.0
      *   (transparent) and 1.0 (opaque). Default is `1.0`
@@ -23,8 +23,6 @@ export default class ExternalWMSLayer extends ExternalLayer {
      *   Default is `true`
      * @param {String} externalWmsData.baseUrl Base URL to build WMS requests (no endpoint / URL
      *   param defined)
-     * @param {String} externalWmsData.externalLayerId Layer ID to use when requesting the tiles on
-     *   the server
      * @param {String} [externalWmsData.wmsVersion='1.3.0'] WMS protocol version to be used when
      *   querying this server. Default is `'1.3.0'`
      * @param {LayerAttribution[]} [externalWmsData.attributions=null] Description of the data
@@ -54,11 +52,11 @@ export default class ExternalWMSLayer extends ExternalLayer {
             throw new InvalidLayerDataError('Missing external WMS layer data', externalWmsData)
         }
         const {
+            id = null,
             name = null,
             opacity = 1.0,
             visible = true,
             baseUrl = null,
-            externalLayerId = null,
             attributions = null,
             wmsVersion = '1.3.0',
             format = 'png',
@@ -72,12 +70,8 @@ export default class ExternalWMSLayer extends ExternalLayer {
         } = externalWmsData
         super({
             name,
-            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-            // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
-            // NOTE the pipe character needs to be encoded in order to not break the parsing
-            id: `WMS|${encodeExternalLayerParam(baseUrl)}|${encodeExternalLayerParam(externalLayerId)}`,
+            id,
             type: LayerTypes.WMS,
-            externalLayerId,
             baseUrl,
             opacity,
             visible,
