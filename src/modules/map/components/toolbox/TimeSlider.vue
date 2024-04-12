@@ -304,10 +304,14 @@ function setYearToInputIfValid() {
                     <div class="px-2 border-end d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
-                    <div data-cy="time-slider-current-year" class="p-0 time-slider-bar-cursor-year">
-                        <input v-model="displayedYear" maxlength="4" class="time-slider-year-input" type="text" @input="setYearToInputIfValid">
-                        </input>
-                    </div>
+                    <input
+                        v-model="displayedYear"
+                        data-cy="time-slider-current-year"
+                        maxlength="4"
+                        class="time-slider-bar-cursor-year"
+                        type="text"
+                        @input="setYearToInputIfValid"
+                    />
                     <div class="px-2 border-start d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
@@ -466,7 +470,7 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
         text-align: center;
     }
 }
-.time-slider-year-input {
+.time-slider-bar-cursor-year {
     width: 100%;
     height: 100%;
     padding-left: 0;

@@ -37,11 +37,15 @@ describe('Testing the time slider', () => {
             cy.get('[data-cy="time-slider-button"]').click()
         })
         it('should have the preselected year correctly set', () => {
-            cy.get('[data-cy="time-slider-current-year"]').should('contain', preSelectedYear)
+            cy.get('[data-cy="time-slider-current-year"]').should('have.value', preSelectedYear)
         })
         it('should change the year if the user drags the tooltip on the right with the mouse', () => {
-            moveSlider(200)
-            cy.get('[data-cy="time-slider-current-year"]').should('not.contain', preSelectedYear)
+            moveSlider(0)
+            cy.get('[data-cy="time-slider-current-year"]').should('not.have.value', preSelectedYear)
+
+            cy.log('type slider should be able to be moved by typing in valid year')
+            cy.get('[data-cy="time-slider-current-year"]').clear()
+            cy.get('[data-cy="time-slider-current-year"]').type('2021')
         })
     })
 })
