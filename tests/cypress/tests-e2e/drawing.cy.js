@@ -79,7 +79,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = `KML|https://sys-public.dev.bgdi.ch/api/kml/files/${interception.response.body.id}`
+                const kmlId = `https://sys-public.dev.bgdi.ch/api/kml/files/${interception.response.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 // it should show the default icon set by default with the red color in the icon style popup
@@ -213,10 +213,6 @@ describe('Drawing module tests', () => {
                             new RegExp(`<description>${description}</description>`),
                         ])
                     )
-                cy.readStoreValue('state.features.selectedFeatures[0].description').should(
-                    'eq',
-                    description
-                )
                 cy.readStoreValue('getters.selectedFeatures[0].description').should(
                     'eq',
                     description
@@ -260,6 +256,7 @@ describe('Drawing module tests', () => {
                         })
                     })
                 })
+
                 cy.log('Coordinates for marker can be copied in drawing mode')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(160, 200)
@@ -434,7 +431,9 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Closing disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click()
+                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({
+                    force: true,
+                })
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
                 cy.log('Closing disclaimer persists when selecting different marker')
