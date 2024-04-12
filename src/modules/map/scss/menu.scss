@@ -1,4 +1,5 @@
 @import 'src/scss/variables';
+@import 'src/scss/media-query.mixin';
 
 .header,
 .toolbox {
@@ -7,7 +8,6 @@
 .menu {
   z-index: $zindex-menu;
   width: 100%;
-  max-width: $menu-tray-width;
   &.phone-mode {
     max-width: 100%;
   }
@@ -17,5 +17,11 @@
   pointer-events: none;
   & > * {
     pointer-events: all;
+  }
+}
+
+@include respond-above(sm) {
+  .menu {
+    max-width: $menu-tray-width;
   }
 }

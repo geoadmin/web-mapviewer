@@ -1,6 +1,4 @@
 <script setup>
-import 'cesium/Build/Cesium/Widgets/widgets.css'
-
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import * as cesium from 'cesium'
 import {
@@ -32,10 +30,8 @@ import {
 } from 'vue'
 import { useStore } from 'vuex'
 
-import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import {
@@ -46,7 +42,8 @@ import {
     WMTS_BASE_URL,
 } from '@/config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
+import CesiumAllVisibleLayers from '@/modules/map/components/cesium/CesiumAllVisibleLayers.vue'
+import CesiumBackgroundLayers from '@/modules/map/components/cesium/CesiumBackgroundLayers.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
 import {
@@ -58,7 +55,7 @@ import {
 } from '@/modules/map/components/cesium/constants'
 import {
     calculateHeight,
-    getCoordinateAtScreenCoordinate,
+    getCoordinateAtViewportCoordinate,
     limitCameraCenter,
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
@@ -67,11 +64,16 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useOnMapResize from '@/modules/map/components/common/useOnMapResize.composable'
+import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import { ClickType } from '@/store/modules/map.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import {
+    identifyGeoJSONFeatureAt,
+    identifyGPXFeatureAt,
+    identifyKMLFeatureAt,
+} from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
@@ -93,7 +95,6 @@ provide('getCesiumViewer', () => viewer)
 const store = useStore()
 const rotation = computed(() => store.state.position.rotation)
 const cameraPosition = computed(() => store.state.position.camera)
-const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
 const isFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
@@ -101,16 +102,10 @@ const centerEpsg4326 = computed(() => store.getters.centerEpsg4326)
 const resolution = computed(() => store.getters.resolution)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const visibleLayers = computed(() => store.getters.visibleLayers)
-const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D)
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 
 const isProjectionWebMercator = computed(() => projection.value.epsg === WEBMERCATOR.epsg)
-const visibleImageryLayers = computed(() =>
-    visibleLayers.value.filter(
-        (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
-    )
-)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter((l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer)
 )
@@ -118,9 +113,6 @@ const showFeaturesPopover = computed(
     () => showFeatureInfoInTooltip.value && selectedFeatures.value.length > 0
 )
 const editFeature = computed(() => selectedFeatures.value.find((feature) => feature.isEditable))
-const startingZIndexForImageryLayers = computed(() =>
-    backgroundLayersFor3D.value.some((layer) => layer.type === LayerTypes.WMTS) ? 1 : 0
-)
 
 onBeforeMount(() => {
     // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
@@ -213,12 +205,8 @@ watch(
 )
 
 async function createViewer() {
+    // see https://cesium.com/learn/ion-sdk/ref-doc/Viewer.html#.ConstructorOptions
     viewer = new Viewer(cesiumContainer.value, {
-        contextOptions: {
-            webgl: {
-                powerPreference: 'high-performance',
-            },
-        },
         showRenderLoopErrors: hasDevSiteWarning.value,
         // de-activating default Cesium UI elements
         animation: false,
@@ -233,7 +221,7 @@ async function createViewer() {
         timeline: false,
         navigationHelpButton: false,
         navigationInstructionsInitiallyVisible: false,
-        // each geometry instance will only be rendered in 3D to save GPU memory.
+        // optimizes memory use and performance for 3D mode but disables the ability to use 2D or Columbus View
         scene3DOnly: true,
         // activating shadows so that buildings cast shadows on the ground/roof elements
         shadows: true,
@@ -255,12 +243,14 @@ async function createViewer() {
         baseLayer: false,
         useBrowserRecommendedResolution: true,
         terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
+        // only render new frames when data changes (without this flag Cesium behave like a game engine, rendering
+        // as many frames as the hardware let it render)
         requestRenderMode: true,
     })
 
     const clock = viewer.clock
     // good time/date for lighting conditions
-    clock.currentTime = JulianDate.fromIso8601('2024-06-20T07:00')
+    clock.currentTime = JulianDate.fromIso8601('2024-06-20T08:00')
 
     const shadowMap = viewer.shadowMap
     // lighter shadow than default (closer to 0.1 the darker)
@@ -270,20 +260,26 @@ async function createViewer() {
 
     const scene = viewer.scene
     scene.useDepthPicking = true
-    scene.pickTranslucentDepth = true
+    // so that ray picker ignores translucent primitives (such as buildings) meaning we can go through them when
+    // doing a viewer.scene.pickPosition(). If set to true, the ray is stopped by the building/tree and no position
+    // can be computed from a viewport X,Y position, rendering feature identification useless when clicking over any
+    // 3D features.
+    scene.pickTranslucentDepth = false
     scene.backgroundColor = Color.TRANSPARENT
+    scene.screenSpaceCameraController.maximumZoomDistance = 500000
+    scene.fog.enabled = true
+    scene.fog.density = 0.0001
+    scene.fog.screenSpaceErrorFactor = 25
 
     viewer.camera.moveEnd.addEventListener(onCameraMoveEnd)
     viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
+    viewer.screenSpaceEventHandler.setInputAction(onContextMenu, ScreenSpaceEventType.RIGHT_CLICK)
 
     const globe = scene.globe
     globe.baseColor = Color.WHITE
     globe.depthTestAgainstTerrain = true
     globe.showGroundAtmosphere = false
     globe.showWaterEffect = false
-            // increases the LOD (Cesium will load one tile further down the zoom pyramid) => higher rez WMTS
-            // currently we do not set it, as the loading of the higher rez slows down the 3D user experience
-            //globe.maximumScreenSpaceError = 0.5
 
     const sscController = scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
@@ -381,71 +377,61 @@ function highlightSelectedFeatures() {
         : firstFeature.coordinates
 }
 
+function getVectorFeatureAt(coordinate) {
+    return visiblePrimitiveLayers.value
+        .filter(
+            (layer) =>
+                layer instanceof GeoAdminGeoJsonLayer ||
+                layer instanceof KMLLayer ||
+                layer instanceof GPXLayer
+        )
+        .map((vectorLayer) => {
+            switch (vectorLayer.type) {
+                case LayerTypes.GEOJSON:
+                    return identifyGeoJSONFeatureAt(
+                        vectorLayer,
+                        coordinate,
+                        projection.value,
+                        resolution.value
+                    )
+                case LayerTypes.KML:
+                    return identifyKMLFeatureAt(
+                        vectorLayer,
+                        coordinate,
+                        projection.value,
+                        resolution.value
+                    )
+                case LayerTypes.GPX:
+                    return identifyGPXFeatureAt(
+                        vectorLayer,
+                        coordinate,
+                        projection.value,
+                        resolution.value
+                    )
+            }
+        })
+        .flat()
+}
+
 function onClick(event) {
     unhighlightGroup(viewer)
-    const features = []
-    let coordinates = getCoordinateAtScreenCoordinate(
+    const coordinate = getCoordinateAtViewportCoordinate(
         viewer,
         event.position.x,
         event.position.y,
         projection.value
     )
-
-    let objects = viewer.scene.drillPick(event.position)
-    const kmlFeatures = {}
-    // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-    visiblePrimitiveLayers.value
-        .filter((l) => l instanceof GeoAdminGeoJsonLayer)
-        .forEach((geoJSonLayer) => {
-            features.push(
-                ...identifyGeoJSONFeatureAt(
-                    geoJSonLayer,
-                    event.position,
-                    projection.value,
-                    resolution.value
-                )
-            )
+    if (coordinate) {
+        store.dispatch('click', {
+            clickInfo: {
+                coordinate,
+                mapPixel: [event.position.x, event.position.y],
+                features: getVectorFeatureAt(coordinate),
+                clickType: ClickType.LEFT_SINGLECLICK,
+            },
+            ...dispatcher,
         })
-    visiblePrimitiveLayers.value
-        .filter((l) => l instanceof KMLLayer)
-        .forEach((KMLLayer) => {
-            objects
-                .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.id)
-                .forEach((obj) => {
-                    const feature = obj.primitive.olFeature
-                    if (!kmlFeatures[feature.getId()]) {
-                        const editableFeature = feature.get('editableFeature')
-                        if (editableFeature) {
-                            editableFeature.geodesicCoordinates =
-                                extractOlFeatureGeodesicCoordinates(feature)
-                            editableFeature.geometry = feature.getGeometry()
-                            kmlFeatures[feature.getId()] = editableFeature
-                        } else {
-                            // TODO
-                            log.debug(
-                                'KMLs which are not editable Features are not supported for selection'
-                            )
-                        }
-                    }
-                })
-            features.push(...Object.values(kmlFeatures))
-        })
-    // Cesium can't pick position when click on primitive
-    if (!coordinates.length && features.length) {
-        const featureCoords = Array.isArray(features[0].coordinates[0])
-            ? features[0].coordinates[0]
-            : features[0].coordinates
-        coordinates = proj4(projection.value.epsg, WEBMERCATOR.epsg, featureCoords)
     }
-    store.dispatch('click', {
-        clickInfo: {
-            coordinate: coordinates,
-            screenPixel: [event.position.x, event.position.y],
-            features,
-            clickType: ClickType.LEFT_SINGLECLICK,
-        },
-        ...dispatcher,
-    })
 }
 
 function clearLongPressTimer() {
@@ -463,20 +449,22 @@ function onTouchStart(event) {
 }
 
 function onContextMenu(event) {
-    const coordinates = getCoordinateAtScreenCoordinate(
+    const coordinates = getCoordinateAtViewportCoordinate(
         viewer,
-        event.clientX,
-        event.clientY,
+        event.position.x,
+        event.position.y,
         projection.value
     )
-    store.dispatch('click', {
-        clickInfo: {
-            coordinate: coordinates,
-            screenPixel: [event.clientX, event.clientY],
-            clickType: ClickType.CONTEXTMENU,
-        },
-        ...dispatcher,
-    })
+    if (coordinates) {
+        store.dispatch('click', {
+            clickInfo: {
+                coordinate: coordinates,
+                mapPixel: [event.position.x, event.position.y],
+                clickType: ClickType.CONTEXTMENU,
+            },
+            ...dispatcher,
+        })
+    }
 }
 
 function setCenterToCameraTarget() {
@@ -529,92 +517,95 @@ function onPopupClose() {
 </script>
 
 <template>
-    <div
-        v-if="isProjectionWebMercator"
-        id="cesium"
-        ref="cesiumContainer"
-        class="cesium-widget"
-        data-cy="cesium-map"
-        @touchstart.passive="onTouchStart"
-        @touchmove.passive="clearLongPressTimer"
-        @touchend.passive="clearLongPressTimer"
-        @touchcancel="clearLongPressTimer"
-        @contextmenu="onContextMenu"
-    >
-        <div v-if="viewerCreated">
-            <!--
-               Adding background layer, z-index can be set to zero for all, as only the WMTS
-               background layer is an imagery layer (and requires one), all other BG layer are
-               primitive layer and will ignore this prop
-            -->
-            <CesiumInternalLayer
-                v-for="bgLayer in backgroundLayersFor3D"
-                :key="bgLayer.id"
-                :layer-config="bgLayer"
+    <div class="cesium-map position-relative d-flex flex-column w-100 h-100">
+        <div class="header position-relative pe-auto">
+            <slot name="header" />
+        </div>
+        <div class="menu position-absolute top-0 start-0 w-100 h-100">
+            <slot name="menu" />
+        </div>
+        <div
+            ref="cesiumContainer"
+            class="cesium-map-container flex-grow-1"
+            data-cy="cesium-map"
+            @touchstart.passive="onTouchStart"
+            @touchmove.passive="clearLongPressTimer"
+            @touchend.passive="clearLongPressTimer"
+            @touchcancel="clearLongPressTimer"
+            @contextmenu.prevent
+        >
+            <CesiumBackgroundLayers v-if="viewerCreated" />
+            <CesiumAllVisibleLayers v-if="viewerCreated" />
+
+            <CesiumPopover
+                v-if="viewerCreated && showFeaturesPopover"
+                :coordinates="popoverCoordinates"
                 :projection="projection"
-                :z-index="0"
-            />
-            <!--
-               Adding all other layers
-               Layers split between imagery and primitive type for correct zIndex ordering.
-               Only imagery layers require a z-index, we start to count them at 1 because of the
-               background WMTS layer
-            -->
-            <CesiumInternalLayer
-                v-for="(layer, index) in visibleImageryLayers"
-                :key="layer.id"
-                :layer-config="layer"
-                :preview-year="previewYear"
-                :projection="projection"
-                :z-index="index + startingZIndexForImageryLayers"
-            />
-            <CesiumInternalLayer
-                v-for="layer in visiblePrimitiveLayers"
-                :key="layer.id"
-                :layer-config="layer"
-                :preview-year="previewYear"
-                :projection="projection"
+                authorize-print
+                :use-content-padding="!!editFeature"
+                @close="onPopupClose"
+            >
+                <template #extra-buttons>
+                    <button
+                        class="btn btn-sm btn-light d-flex align-items-center"
+                        data-cy="toggle-floating-off"
+                        @click="moveTooltipAtBottom"
+                    >
+                        <FontAwesomeIcon icon="caret-down" />
+                    </button>
+                </template>
+                <FeatureList />
+            </CesiumPopover>
+            <div class="toolbox position-absolute bottom-0 start-0 m-2 d-flex flex-column gap-1">
+                <slot name="bottom-left" />
+            </div>
+            <div
+                class="toolbox position-absolute bottom-0 end-0 d-flex flex-column align-items-end gap-1"
+            >
+                <div class="me-1">
+                    <slot name="bottom-right" />
+                </div>
+                <MapFooterAttributionList />
+            </div>
+            <div class="toolbox position-absolute top-0 end-0 pe-none">
+                <slot name="toolbox" />
+            </div>
+            <CesiumToolbox
+                v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
+                class="cesium-toolbox position-absolute start-50 translate-middle-x"
             />
         </div>
-        <CesiumPopover
-            v-if="viewerCreated && showFeaturesPopover"
-            :coordinates="popoverCoordinates"
-            :projection="projection"
-            authorize-print
-            :use-content-padding="!!editFeature"
-            @close="onPopupClose"
-        >
-            <template #extra-buttons>
-                <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    data-cy="toggle-floating-off"
-                    @click="moveTooltipAtBottom"
-                >
-                    <FontAwesomeIcon icon="caret-down" />
-                </button>
-            </template>
-            <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
-            <FeatureList />
-        </CesiumPopover>
-        <CesiumToolbox
-            v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
-            class="cesium-toolbox position-absolute start-50 translate-middle-x"
-        />
+
         <slot />
+        <slot name="footer" />
     </div>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/modules/map/scss/toolbox-buttons';
+@import '@/modules/map/scss/menu';
+
+.cesium-map {
+    z-index: $zindex-map;
+}
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
     display: none !important;
 }
 
+:global(.cesium-viewer),
+:global(.cesium-viewer-cesiumWidgetContainer),
+:global(.cesium-widget),
+:global(.cesium-widget canvas) {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+}
+
 .cesium-toolbox {
     bottom: $footer-height + $screen-padding-for-ui-elements;
-    z-index: $zindex-map + 1;
+    z-index: $zindex-map-toolbox;
 }
 </style>

@@ -121,26 +121,32 @@ export function calculateResolution(height, width) {
 }
 
 /**
- * Return the [X,Y] (no Z) coordinate of a screen pixel using a ray picker and the intersection with
- * the terrain.
+ * Return the [X,Y] (no Z) coordinate of a viewport pixel using a ray picker and the intersection
+ * with the terrain.
  *
  * @param {Viewer} viewer
- * @param {Number} x Pixel coordinate X on the screen
- * @param {Number} y Pixel coordinate Y on the screen
+ * @param {Number} x Pixel coordinate X on the viewport (from the top-left of the Cesium HTML
+ *   element)
+ * @param {Number} y Pixel coordinate Y on the viewport (from the top-left of the Cesium HTML
+ *   element)
  * @param {CoordinateSystem} outputProjection
- * @returns {[Number, Number]}
+ * @returns {[Number, Number] | null}
  */
-export function getCoordinateAtScreenCoordinate(viewer, x, y, outputProjection) {
-    const cartesian = viewer.scene.pickPosition(new Cartesian2(x, y))
-    let coordinates = []
-    if (cartesian) {
-        const cartCoords = Cartographic.fromCartesian(cartesian)
-        coordinates = proj4(WGS84.epsg, outputProjection.epsg, [
-            (cartCoords.longitude * 180) / Math.PI,
-            (cartCoords.latitude * 180) / Math.PI,
-        ])
-    } else {
-        log.error('no coordinate found at this screen coordinates', [x, y])
+export function getCoordinateAtViewportCoordinate(viewer, x, y, outputProjection) {
+    const clickPosition = new Cartesian2(x, y)
+    let cartesian = viewer.scene.pickPosition(clickPosition)
+    if (!cartesian) {
+        // If we're here, it means that the ray picker couldn't hit the terrain (some primitive was in the way).
+        // So we can decipher what is the position of the click by getting the position of the primitive blocking the pick ray
+        cartesian = viewer.scene.pick(clickPosition)?.primitive?.position
     }
-    return coordinates
+    if (cartesian) {
+        const cartographicOfCartesian = Cartographic.fromCartesian(cartesian)
+        return proj4(WGS84.epsg, outputProjection.epsg, [
+            (cartographicOfCartesian.longitude * 180) / Math.PI,
+            (cartographicOfCartesian.latitude * 180) / Math.PI,
+        ])
+    }
+    log.error('no coordinate found at this screen coordinates', [x, y])
+    return null
 }

@@ -24,6 +24,8 @@ const displayLocationPopup = computed(
 const isCompareSliderActive = computed(() => {
     return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
 })
+
+const mapComponent = computed(() => (is3DActive.value ? CesiumMap : OpenLayersMap))
 </script>
 
 <template>
@@ -31,14 +33,11 @@ const isCompareSliderActive = computed(() => {
         class="full-screen-map position-relative w-100 h-100 overflow-hidden d-flex flex-column"
         data-cy="map"
     >
-        <CesiumMap v-if="is3DActive" class="flex-grow-1">
-            <slot name="menu" />
-            <!-- So that external modules can have access to the viewer instance through the provided 'cesiumViewer' -->
-            <slot name="default" />
-            <LocationPopup v-if="displayLocationPopup" />
-            <slot name="footer" />
-        </CesiumMap>
-        <OpenLayersMap v-else :show-scale-line="isPhoneMode" class="flex-grow-1">
+        <component
+            :is="mapComponent"
+            :show-scale-line="!is3DActive && isPhoneMode"
+            class="flex-grow-1"
+        >
             <template #header>
                 <slot name="header" />
             </template>
@@ -56,13 +55,12 @@ const isCompareSliderActive = computed(() => {
             </template>
             <slot name="default" />
             <LocationPopup v-if="displayLocationPopup" />
-            <CompareSlider v-if="isCompareSliderActive" />
+            <CompareSlider v-if="!is3DActive && isCompareSliderActive" />
             <InfoboxModule class="infobox" />
             <template #footer>
                 <slot name="footer" />
             </template>
-        </OpenLayersMap>
-
+        </component>
         <WarningRibbon />
     </div>
 </template>
