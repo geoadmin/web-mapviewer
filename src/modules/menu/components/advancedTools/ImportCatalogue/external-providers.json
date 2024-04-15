@@ -1,7 +1,6 @@
 [
     "https://bio.discomap.eea.europa.eu/arcgis/services/Ecosystem/Ecosystems/MapServer/WMSServer",
     "https://copernicus.discomap.eea.europa.eu/arcgis/services/Corine/CLC2012_WM/MapServer/WMSServer",
-    "https://ge.ch/sitgags2/services/RASTER/ORTHOPHOTOS_2016/MapServer/WMSServer",
     "https://geo.so.ch/api/wms",
     "https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml",
     "https://geodienste.ch/db/av_situationsplan/deu",
