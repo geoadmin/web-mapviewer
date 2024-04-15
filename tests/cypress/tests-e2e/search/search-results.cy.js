@@ -88,8 +88,8 @@ describe('Test the search bar result handling', () => {
                     layer: expectedLayerId,
                 },
             },
-            { attrs: { label: 'Test layer #2' } },
-            { attrs: { label: 'Test layer #3' } },
+            { id: 4322, weight: 1, attrs: { layer: 'test-2.wms.layer', label: 'Test layer #2' } },
+            { id: 4323, weight: 1, attrs: { layer: 'test-3.wms.layer', label: 'Test layer #3' } },
         ],
     }
     const layerFeatureResponse = {
