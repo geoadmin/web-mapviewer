@@ -52,8 +52,12 @@ const updateSearchQuery = (event) => {
     }, 100)
 }
 
-const onSearchInputFocus = () => {
-    if (hasResults.value) {
+const onSearchInputFocus = (event) => {
+    // When the focus event is due to a programatic focus event, the relatedTarget is not null
+    // and in this case we don't want to show the result. For example when selecting a result value
+    // we want to close the result and focus on the input, so that the user can directly change
+    // the search.
+    if (!event.relatedTarget && hasResults.value) {
         showResults.value = true
     }
 }
@@ -68,6 +72,7 @@ const clearSearchQuery = () => {
 
 const closeSearchResults = () => {
     showResults.value = false
+    searchInput.value.focus()
 }
 
 const goToFirstResult = () => {
@@ -100,6 +105,12 @@ const onClickOutside = (event) => {
 const focusSearchInput = () => {
     searchInput.value.focus()
 }
+
+const toggleResults = () => {
+    if (hasResults.value) {
+        showResults.value = !showResults.value
+    }
+}
 </script>
 
 <template>
@@ -130,7 +141,8 @@ const focusSearchInput = () => {
             @input="updateSearchQuery"
             @focus="onSearchInputFocus"
             @keydown.down.prevent="goToFirstResult"
-            @keydown.esc.prevent="closeSearchResults"
+            @keydown.esc.prevent="toggleResults"
+            @keyup.enter.stop.prevent="goToFirstResult"
         />
         <button
             v-show="searchValue"
