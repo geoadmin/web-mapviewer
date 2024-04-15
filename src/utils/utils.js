@@ -23,6 +23,16 @@ export function isValidUrl(urlToCheck) {
 }
 
 /**
+ * Escape all RegExp special character from string
+ *
+ * @param {String} string
+ * @returns {String} New string with all special RegExp character escaped
+ */
+export function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
  * Segmentation of text based on a search string
  *
  * @param {String} text Text to segmentize
@@ -38,7 +48,7 @@ export function segmentizeMatch(text, search) {
     if (search instanceof RegExp) {
         regex = new RegExp(`(${search.source})`, search.flags)
     } else {
-        regex = new RegExp(`(${search})`, 'gi')
+        regex = new RegExp(`(${escapeRegExp(search)})`, 'gi')
     }
 
     return text.split(regex).map((segment) => {
