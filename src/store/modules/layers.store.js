@@ -490,9 +490,7 @@ const actions = {
             } else {
                 clone = getters.getLayerConfigById(layer)?.clone()
                 if (!clone) {
-                    throw new Error(
-                        `Failed to setPreviewLayer: layer ${layer.id} not found in config`
-                    )
+                    throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
             }
             clone.visible = true

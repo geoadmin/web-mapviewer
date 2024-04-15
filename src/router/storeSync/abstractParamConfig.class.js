@@ -82,6 +82,8 @@ export default class AbstractParamConfig {
                 (typeof queryValue === 'string' && queryValue === 'true') ||
                 (typeof queryValue === 'boolean' && !!queryValue)
             )
+        } else if (queryValue === null) {
+            return this.defaultValue
         }
         return this.valueType(queryValue)
     }
