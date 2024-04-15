@@ -190,7 +190,6 @@
     "feedback_description": "1. Report in this field changes in the map, improvements to the data or questions about this website (required) :",
     "feedback_disclaimer": "By submitting your message, you agree to the <a href='https://www.geo.admin.ch/en/about-swiss-geoportal/responsabilities-and-contacts.html#feedback' target='_blank'>terms of use</a>.",
     "feedback_drawing": "2. Indicate the appropriate location on the map :",
-    "feedback_empty_warning": "Report message can not be empty",
     "feedback_error_message": "Problem: Your message could not be sent",
     "feedback_kml_attached": "The current drawing will be transferred. ",
     "feedback_mail": "3. Your Email :",
@@ -465,7 +464,8 @@
     "swisstopo": "swisstopo",
     "swisstopo_service_link_href": "https://www.swisstopo.admin.ch/en/home.html",
     "swisstopo_service_link_label": "Federal Office of Topography swisstopo",
-    "test_host_warning": "TESTSITE – DO NOT-SHARE -  NOT FOR OPERATIONAL USE<br/>This site is for testing purposes only. It's not for operational use and there's no guarantee by the provider of this site.",
+    "test_host_warning": "TESTSITE – DO NOT-SHARE -  NOT FOR OPERATIONAL USE",
+    "test_host_full_disclaimer": "This site is for testing purposes only. It's not for operational use and there's no guarantee by the provider of this site.",
     "text_to_display": "Link description",
     "third_party_data_warning": "Warning: Third party data and/or style shown. The permalink you use contains possibly reference to third party data. Would your really load these data?",
     "tile": "Sheet",
@@ -653,5 +653,9 @@
     "kml_gpx_file_empty": "KML/GPX file is empty",
     "large_size": "Large",
     "extra_large_size": "Extra Large",
-    "duplicate_layer": "Duplicate map"
+    "duplicate_layer": "Duplicate map",
+    "feedback_empty_warning": "Report message can not be empty",
+    "operation_successful": "Operation successful!",
+    "operation_failed": "Oops! Something went wrong. Please try again.",
+    "operation_aborted": "Operation aborted"
 }

@@ -14,6 +14,7 @@ const dispatcher = { dispatcher: 'usePrint.composable' }
 export const PrintStatus = {
     IDLE: 'IDLE',
     PRINTING: 'PRINTING',
+    FINISHED_ABORTED: 'FINISHED_ABORTED',
     FINISHED_SUCCESSFULLY: 'FINISHED_SUCCESSFULLY',
     FINISHED_FAILED: 'FINISHED_FAILED',
 }
@@ -24,6 +25,8 @@ export const PrintStatus = {
  * @param {Map} map
  */
 export function usePrint(map) {
+    const requester = 'print-map'
+
     const currentJobReference = ref(null)
     /** @type {PrintStatus} */
     const printStatus = ref(PrintStatus.IDLE)
@@ -39,7 +42,6 @@ export function usePrint(map) {
      * @returns {Promise<String | null>}
      */
     async function print(printGrid = false, printLegend = false) {
-        const requester = 'print-map'
         try {
             store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             if (currentJobReference.value) {
@@ -78,7 +80,9 @@ export function usePrint(map) {
             return result
         } catch (error) {
             log.error('Error while printing', error)
-            printStatus.value = PrintStatus.FINISHED_FAILED
+            if (printStatus.value === PrintStatus.PRINTING) {
+                printStatus.value = PrintStatus.FINISHED_FAILED
+            }
             return null
         } finally {
             store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
@@ -92,6 +96,8 @@ export function usePrint(map) {
                 await abortPrintJob(currentJobReference.value)
                 log.debug('Job', currentJobReference.value, 'successfully aborted')
                 currentJobReference.value = null
+                printStatus.value = PrintStatus.FINISHED_ABORTED
+                store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
             }
         } catch (error) {
             log.error('Could not abort job', currentJobReference.value, error)
