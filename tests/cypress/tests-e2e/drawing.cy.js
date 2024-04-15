@@ -431,9 +431,7 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Closing disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({
-                    force: true,
-                })
+                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({})
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
                 cy.log('Closing disclaimer persists when selecting different marker')
