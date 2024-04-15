@@ -6,6 +6,7 @@ import { useStore } from 'vuex'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { getLayerDescription } from '@/api/layers/layers.api'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import { segmentizeMatch } from '@/utils/utils'
 
 const props = defineProps({
     layer: {
@@ -31,6 +32,7 @@ const htmlContent = ref('')
 const currentLang = computed(() => store.state.i18n.lang)
 const title = computed(() => layer.value?.name ?? layerName.value)
 const body = computed(() => layer.value?.abstract ?? '')
+const bodyLinkSegments = computed(() => segmentizeMatch(body.value, /https?:\/\/\S+/))
 
 const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
 const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
@@ -68,7 +70,22 @@ onMounted(async () => {
                 <h6 v-if="body" data-cy="layer-description-popup-description-title">
                     {{ i18n.t('description') }}
                 </h6>
-                <div v-if="body" data-cy="layer-description-popup-description-body">{{ body }}</div>
+                <div v-if="body" data-cy="layer-description-popup-description-body">
+                    <template
+                        v-for="(segment, index) in bodyLinkSegments"
+                        :key="`${segment.text}-${index}`"
+                    >
+                        <a
+                            v-if="segment.match"
+                            class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-75-hover"
+                            :href="segment.text"
+                            target="_blank"
+                            :data-cy="`layer-description-popup-description-body-link-${segment.text}-${index}`"
+                            >{{ segment.text }}</a
+                        >
+                        <span v-else>{{ segment.text }}</span>
+                    </template>
+                </div>
                 <div v-if="legends.length" class="mt-4">
                     <h6 data-cy="layer-description-popup-legends-title">{{ i18n.t('legend') }}</h6>
                     <div

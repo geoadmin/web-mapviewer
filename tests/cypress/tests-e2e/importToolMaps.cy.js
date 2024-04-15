@@ -185,7 +185,13 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
         cy.get(`[data-cy="layer-description-popup-description-body"]`)
             .should('be.visible')
-            .contains('OpenData-AV 3 abstract')
+            .contains('OpenData-AV 3 abstract https://www.example.com')
+        cy.get(
+            '[data-cy="layer-description-popup-description-body-link-https://www.example.com-1"]'
+        )
+            .should('be.visible')
+            .should('have.attr', 'href', 'https://www.example.com')
+            .should('have.attr', 'target', '_blank')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
         cy.get('[data-cy="modal-close-button"]').click()
