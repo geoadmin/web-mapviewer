@@ -152,7 +152,7 @@ function urlQueryWatcher(store, to) {
                     setValueInStore(
                         paramConfig,
                         store,
-                        paramConfig.valueType === Boolean ? false : null
+                        paramConfig.valueType === Boolean ? false : paramConfig.defaultValue
                     )
                 )
                 delete newQuery[paramConfig.urlParamName]
