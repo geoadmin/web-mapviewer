@@ -1,3 +1,141 @@
+<script setup>
+/**
+ * Component building iFrame code so that the user can share/incorporate a specific map to his/her
+ * website.
+ *
+ * This iFrame generator comes with a modal that helps the user select the size he prefers.
+ */
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
+import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+import { computed, nextTick, ref, toRefs } from 'vue'
+
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import log from '@/utils/logging'
+import { useTippyTooltip } from '@/utils/useTippyTooltip'
+
+/**
+ * Different pre-defined sizes that an iFrame can take
+ *
+ * @enum
+ */
+const EmbedSizes = {
+    SMALL: {
+        i18nKey: 'small_size',
+        width: 400,
+        height: 300,
+    },
+    MEDIUM: {
+        i18nKey: 'medium_size',
+        width: 600,
+        height: 450,
+    },
+    LARGE: {
+        i18nKey: 'big_size',
+        width: 800,
+        height: 600,
+    },
+    CUSTOM: {
+        i18nKey: 'custom_size',
+        // no width height here, as it will be user specified
+    },
+}
+
+useTippyTooltip('.menu-share-embed [data-tippy-content]')
+
+const props = defineProps({
+    shortLink: {
+        type: String,
+        default: null,
+    },
+})
+const { shortLink } = toRefs(props)
+
+const embedInput = ref(null)
+const showEmbedSharing = ref(false)
+const showPreviewModal = ref(false)
+const currentPreviewSize = ref(EmbedSizes.SMALL)
+const customSize = ref({
+    width: EmbedSizes.SMALL.width,
+    height: EmbedSizes.SMALL.height,
+    fullWidth: false,
+})
+const copied = ref(false)
+
+const embedPreviewModalWidth = computed(() => {
+    // Uses the iframe's width as maximal width for the entire modal window
+    let style = { 'max-width': iFrameWidth.value }
+    if (isPreviewSizeCustom.value) {
+        style['min-width'] = '630px'
+    }
+    return style
+})
+const isPreviewSizeCustom = computed(
+    () => currentPreviewSize.value.i18nKey === EmbedSizes.CUSTOM.i18nKey
+)
+const iFrameWidth = computed(() => {
+    if (isPreviewSizeCustom.value) {
+        if (customSize.value.fullWidth) {
+            return '100%'
+        }
+        return `${customSize.value.width}px`
+    }
+    return `${currentPreviewSize.value.width}px`
+})
+const iFrameHeight = computed(() => {
+    if (isPreviewSizeCustom.value) {
+        return `${customSize.value.height}px`
+    }
+    return `${currentPreviewSize.value.height}px`
+})
+const iFrameStyle = computed(
+    () =>
+        `border: 0;width: ${iFrameWidth.value};height: ${iFrameHeight.value};max-width: 100%;max-height: 100%;`
+)
+const iFrameLink = computed(
+    () =>
+        `<iframe src="${shortLink.value}" style="${iFrameStyle.value}" allow="geolocation"></iframe>`
+)
+const buttonIcon = computed(() => {
+    if (copied.value) {
+        return 'check'
+    }
+    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
+    return ['far', 'copy']
+})
+
+function toggleEmbedSharing() {
+    showEmbedSharing.value = !showEmbedSharing.value
+    // because of the dropdown animation, we have to wait for the next render
+    // to select the embed HTML code
+    nextTick(() => {
+        if (showEmbedSharing.value) {
+            embedInput.value.focus()
+            embedInput.value.select()
+        }
+    })
+}
+
+function togglePreviewModal() {
+    showPreviewModal.value = !showPreviewModal.value
+}
+
+async function copyValue() {
+    try {
+        await navigator.clipboard.writeText(iFrameLink.value)
+        copied.value = true
+        // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
+        setTimeout(() => {
+            copied.value = false
+        }, 3000)
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
+    }
+}
+</script>
+
 <template>
     <div class="menu-share-embed">
         <a
@@ -24,7 +162,21 @@
                         data-cy="menu-share-embed-simple-iframe-snippet"
                         readonly="readonly"
                         @focus="$event.target.select()"
+                        @click="$event.target.select()"
                     />
+                    <button
+                        data-cy="menu-share-embed-copy-button"
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        data-tippy-content="copy_cta"
+                        @click="copyValue"
+                    >
+                        <FontAwesomeIcon
+                            class="icon"
+                            :icon="buttonIcon"
+                            data-cy="menu-share-embed-copy-button-icon"
+                        />
+                    </button>
                     <button
                         class="btn btn-outline-secondary"
                         data-cy="menu-share-embed-preview-button"
@@ -130,131 +282,6 @@
         </ModalWithBackdrop>
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-
-import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-
-/**
- * Different pre-defined sizes that an iFrame can take
- *
- * @enum
- */
-const EmbedSizes = {
-    SMALL: {
-        i18nKey: 'small_size',
-        width: 400,
-        height: 300,
-    },
-    MEDIUM: {
-        i18nKey: 'medium_size',
-        width: 600,
-        height: 450,
-    },
-    LARGE: {
-        i18nKey: 'big_size',
-        width: 800,
-        height: 600,
-    },
-    CUSTOM: {
-        i18nKey: 'custom_size',
-        // no width height here, as it will be user specified
-    },
-}
-
-/**
- * Component building iFrame code so that the user can share/incorporate a specific map to his/her
- * website.
- *
- * This iFrame generator comes with a modal that helps the user select the size he prefers.
- */
-export default {
-    components: {
-        FontAwesomeIcon,
-        MenuShareInputCopyButton,
-        ModalWithBackdrop,
-        CollapseTransition,
-    },
-    props: {
-        shortLink: {
-            type: String,
-            default: null,
-        },
-    },
-    data() {
-        return {
-            showEmbedSharing: false,
-            showPreviewModal: false,
-            EmbedSizes,
-            currentPreviewSize: EmbedSizes.SMALL,
-            customSize: {
-                width: EmbedSizes.SMALL.width,
-                height: EmbedSizes.SMALL.height,
-                fullWidth: false,
-            },
-        }
-    },
-    computed: {
-        embedPreviewModalWidth() {
-            // Uses the iframe's width as maximal width for the entire modal window
-            let style = { 'max-width': this.iFrameWidth }
-            if (this.isPreviewSizeCustom) {
-                style['min-width'] = '630px'
-            }
-            return style
-        },
-        isPreviewSizeCustom() {
-            return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
-        },
-        iFrameWidth() {
-            if (this.isPreviewSizeCustom) {
-                if (this.customSize.fullWidth) {
-                    return '100%'
-                }
-                return `${this.customSize.width}px`
-            }
-            return `${this.currentPreviewSize.width}px`
-        },
-        iFrameHeight() {
-            if (this.isPreviewSizeCustom) {
-                return `${this.customSize.height}px`
-            }
-            return `${this.currentPreviewSize.height}px`
-        },
-        iFrameStyle() {
-            return `border: 0;width: ${this.iFrameWidth};height: ${this.iFrameHeight};max-width: 100%;max-height: 100%;`
-        },
-        /**
-         * Iframe HTML code snippet pointing to the short link
-         *
-         * @returns {String} HTML iframe code snippet
-         */
-        iFrameLink() {
-            return `<iframe src="${this.shortLink}" style="${this.iFrameStyle}" allow="geolocation"></iframe>`
-        },
-    },
-    methods: {
-        toggleEmbedSharing() {
-            this.showEmbedSharing = !this.showEmbedSharing
-            // because of the dropdown animation, we have to wait for the next render
-            // to select the embed HTML code
-            this.$nextTick(() => {
-                if (this.showEmbedSharing) {
-                    this.$refs.embedInput.focus()
-                    this.$refs.embedInput.select()
-                }
-            })
-        },
-        togglePreviewModal() {
-            this.showPreviewModal = !this.showPreviewModal
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
