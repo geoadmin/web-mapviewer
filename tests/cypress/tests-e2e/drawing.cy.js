@@ -399,6 +399,7 @@ describe('Drawing module tests', () => {
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.log('Hyperlink exists after sanitize')
+                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(20, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
@@ -407,6 +408,7 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Image link exists after sanitize')
+                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(60, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
@@ -415,6 +417,7 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Video link has disclaimer')
+                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(100, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
 
@@ -431,10 +434,13 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Closing disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({})
+                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({
+                    scrollBehavior: 'center',
+                })
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
                 cy.log('Closing disclaimer persists when selecting different marker')
+                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(140, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
