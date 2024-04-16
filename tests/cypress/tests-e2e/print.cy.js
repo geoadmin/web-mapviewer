@@ -303,7 +303,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(1000)
+                expect(mapAttributes['scale']).to.equals(10000)
                 expect(mapAttributes['dpi']).to.equals(96)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 

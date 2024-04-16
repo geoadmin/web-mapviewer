@@ -96,9 +96,9 @@ async function printMap() {
                 window.location = documentUrl
             }
         } else {
-            if (printStatus.value === PrintStatus.FINISHED_CANCELLED) {
-                log.debug('Print is cancelled by the user')
-            } else if (printStatus.value === PrintStatus.FINISHED_ERROR) {
+            if (printStatus.value === PrintStatus.FINISHED_ABORTED) {
+                log.debug('Print is aborted by the user')
+            } else if (printStatus.value === PrintStatus.FINISHED_FAILED) {
                 log.error('Print failed, received null')
             }
         }
