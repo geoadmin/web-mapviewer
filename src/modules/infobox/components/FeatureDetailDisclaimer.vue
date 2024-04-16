@@ -9,13 +9,17 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
 const props = defineProps({
-    iframeLinks: {
+    hosts: {
         type: Object,
+        required: true,
+    },
+    title: {
+        type: String,
         required: true,
     },
 })
 
-const { iframeLinks } = toRefs(props)
+const { hosts, title } = toRefs(props)
 const i18n = useI18n()
 const store = useStore()
 
@@ -45,7 +49,7 @@ function setDisclaimerAgree() {
 }
 function updateTippy() {
     tippyInstance = tippy(tippyAnchor.value, {
-        content: iframeLinks.value.urls,
+        content: hosts.value.all,
         arrow: true,
         interactive: true,
         placement: 'top',
@@ -54,20 +58,17 @@ function updateTippy() {
 }
 </script>
 
-<template v-if="iframeLinks(value).urls && iframeLinks(value).urls.length">
-    <!-- used to keep elements in place when hiding disclaimer -->
-    <div class="pt-4"></div>
-    <div v-if="iframeLinks.externalUrls.length && disclaimerIsShown" class="break"></div>
-    <div
-        v-if="iframeLinks.externalUrls.length && disclaimerIsShown"
-        data-cy="feature-detail-media-disclaimer"
-        class="disclaimer d-flex flex-fill p-0 rounded-2"
-    >
-        <div class="d-flex flex-fill justify-content-between">
+<template>
+    <div v-if="hosts.external.length && disclaimerIsShown">
+        <div class="py-1">{{ i18n.t(title) }}</div>
+        <div
+            data-cy="feature-detail-media-disclaimer"
+            class="disclaimer d-flex justify-content-between rounded-2"
+        >
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :source-name="iframeLinks.externalUrls.toString()"
+                    :source-name="hosts.external.toString()"
                 >
                     <button
                         class="d-flex btn btn-default btn-xs"
@@ -89,18 +90,19 @@ function updateTippy() {
             </button>
         </div>
     </div>
-    <div v-else class="d-flex">
+    <div v-else class="d-flex align-items-center">
+        <div class="d-flex py-1 align-items-center">{{ i18n.t(title) }}</div>
         <div ref="tippyAnchor">
             <button
-                :disabled="!iframeLinks.externalUrls.length"
+                :disabled="!hosts.external.length"
                 class="d-flex btn btn-default btn-xs border-0"
                 data-cy="feature-detail-media-disclaimer-button-open"
                 @click="setDisclaimerAgree"
             >
                 <FontAwesomeIcon
-                    :color="!iframeLinks.externalUrls.length ? 'black' : 'red'"
                     size="lg"
-                    :icon="!iframeLinks.externalUrls.length ? 'info-circle' : 'fa-user'"
+                    :color="!hosts.external.length ? 'black' : 'red'"
+                    :icon="!hosts.external.length ? 'info-circle' : 'fa-user'"
                 />
             </button>
         </div>
@@ -113,9 +115,5 @@ function updateTippy() {
 .disclaimer {
     color: $white;
     background-color: $danger;
-}
-.break {
-    flex-basis: 100%;
-    height: 0;
 }
 </style>

@@ -34,7 +34,7 @@ const sanitizedFeatureDataEntries = computed(() => {
     }
     return Object.entries(feature.value.data)
         .filter(([_, value]) => value) // filtering out null values
-        .map(([key, value]) => [key, sanitizeHtml(key, value)])
+        .map(([key, value]) => [key, sanitizeHtml(key, value), getHosts(value)])
 })
 function sanitizeHtml(key, htmlText) {
     if (key == 'description') {
@@ -44,22 +44,23 @@ function sanitizeHtml(key, htmlText) {
     }
 }
 
-function iframeLinks(value) {
+function getHosts(value) {
     const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
     let parser = new DOMParser()
-    let parsedIframe = parser.parseFromString(value, 'text/html')
+    let parsedHost = parser.parseFromString(value, 'text/html')
 
-    let urls = Array.from(parsedIframe.getElementsByTagName('iframe'))
-    let externalUrls = []
-    //create an additional list containing only the external urls for third party warning
-    urls.forEach((frame, index) => {
+    let hosts = Array.from(parsedHost.getElementsByTagName('iframe'))
+    let externalHosts = []
+
+    //create an additional list containing only the external hosts for third party warning
+    hosts.forEach((frame, index) => {
         let host = new URL(frame.src).hostname
-        urls[index] = host
+        hosts[index] = host
         if (!whitelisted_hosts.includes(host)) {
-            externalUrls.push(host)
+            externalHosts.push(host)
         }
     })
-    return { urls: urls, externalUrls: externalUrls }
+    return { all: hosts, external: externalHosts }
 }
 </script>
 
@@ -70,13 +71,14 @@ function iframeLinks(value) {
     <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
-            <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
-                <div class="d-flex flex-wrap align-items-center fw-bold">
-                    <div>{{ i18n.t(key) }}</div>
-                    <FeatureDetailDisclaimer
-                        :iframe-links="iframeLinks(value)"
-                    ></FeatureDetailDisclaimer>
-                </div>
+            <div v-for="[key, value, hosts] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
+                <FeatureDetailDisclaimer
+                    v-if="hosts.all.length"
+                    class="fw-bold"
+                    :hosts="hosts"
+                    :title="key"
+                ></FeatureDetailDisclaimer>
+                <div v-else class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
                 <div data-cy="feature-detail-description-content" v-html="value"></div>
             </div>
