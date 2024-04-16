@@ -117,7 +117,10 @@ const yearsWithData = computed(() => {
         })
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
-    return { yearsJoint: yearsJoint, yearsSeparate: yearsSeparate }
+    return {
+        yearsJoint: yearsJoint.sort((a, b) => b - a),
+        yearsSeparate: yearsSeparate.sort((a, b) => b - a),
+    }
 })
 
 watch(screenWidth, (newValue) => {
