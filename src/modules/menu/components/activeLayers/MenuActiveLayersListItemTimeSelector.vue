@@ -100,6 +100,23 @@ function handleClickOnTimestamp(year) {
 function hidePopover() {
     popover?.hide()
 }
+
+// for CSS : isSelected refers to either the current year, or the preview year if the time slider is active and the layer is visible
+function isSelected(timeEntry) {
+    return isTimeSliderActive.value && isLayerVisible.value
+        ? previewYear.value === timeEntry?.year
+        : timeConfig.value.currentTimestamp === timeEntry?.timestamp
+}
+// for CSS : baseYear refer to the year to which the timestamp will return to when the time slider is unmounted.
+function baseYear(timeEntry) {
+    return (
+        isTimeSliderActive.value &&
+        isLayerVisible.value &&
+        timeConfig.value.currentTimestamp === timeEntry?.timestamp &&
+        timeEntry?.year !== previewYear.value
+    )
+}
+
 </script>
 
 <template>
