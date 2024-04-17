@@ -5,7 +5,7 @@ import GPX from 'ol/format/GPX'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { gpxStyle } from '@/utils/styleUtils'
+import { gpxStyle, gpxStyles } from '@/utils/styleUtils'
 
 /**
  * Parse the GPX extent from the GPX tracks or features
@@ -41,7 +41,7 @@ export function parseGpx(gpxData, projection) {
         featureProjection: projection.epsg,
     })
     features.forEach((feature) => {
-        feature.setStyle(gpxStyle)
+        feature.setStyle(gpxStyles[feature.getGeometry().getType()] || gpxStyle)
     })
     return features
 }
