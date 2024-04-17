@@ -9,6 +9,7 @@ import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
+import log from '@/utils/logging'
 
 const props = defineProps({
     feature: {
@@ -34,32 +35,44 @@ const sanitizedFeatureDataEntries = computed(() => {
     }
     return Object.entries(feature.value.data)
         .filter(([_, value]) => value) // filtering out null values
-        .map(([key, value]) => [key, sanitizeHtml(key, value), getHosts(value)])
+        .map(([key, value]) => [
+            key,
+            sanitizeHtml(value, key === 'description'),
+            getIframeHosts(value),
+        ])
 })
-function sanitizeHtml(key, htmlText) {
-    if (key == 'description') {
-        return DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
-    } else {
-        return DOMPurify.sanitize(htmlText)
-    }
-}
-
-function getHosts(value) {
-    const whitelisted_hosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
-    let parser = new DOMParser()
-    let parsedHost = parser.parseFromString(value, 'text/html')
-
-    let hosts = Array.from(parsedHost.getElementsByTagName('iframe'))
-    let externalHosts = []
-
-    //create an additional list containing only the external hosts for third party warning
-    hosts.forEach((frame, index) => {
-        let host = new URL(frame.src).hostname
-        hosts[index] = host
-        if (!whitelisted_hosts.includes(host)) {
-            externalHosts.push(host)
+function sanitizeHtml(htmlText, withIframe = false) {
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if ('target' in node) {
+            node.setAttribute('target', '_blank')
+            node.setAttribute('rel', 'noopener')
         }
     })
+    let response = null
+    if (withIframe) {
+        response = DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
+    } else {
+        response = DOMPurify.sanitize(htmlText)
+    }
+    DOMPurify.removeHook('afterSanitizeAttributes')
+    return response
+}
+
+function getIframeHosts(value) {
+    const whitelistedHosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
+    let parser = new DOMParser()
+    let dom = parser.parseFromString(value, 'text/html')
+
+    const hosts = Array.from(dom.getElementsByTagName('iframe')).map((iframe) => {
+        try {
+            return new URL(iframe.src).hostname
+        } catch (error) {
+            log.error(`Invalid iframe source "${iframe.src}" cannot get hostname`)
+            return iframe.src
+        }
+    })
+    const externalHosts = hosts.filter((host) => !whitelistedHosts.includes(host))
     return { all: hosts, external: externalHosts }
 }
 </script>
@@ -71,11 +84,15 @@ function getHosts(value) {
     <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
-            <div v-for="[key, value, hosts] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
+            <div
+                v-for="[key, value, iframeHosts] in sanitizedFeatureDataEntries"
+                :key="key"
+                class="mb-1"
+            >
                 <FeatureDetailDisclaimer
-                    v-if="hosts.all.length"
+                    v-if="iframeHosts.all.length"
                     class="fw-bold"
-                    :hosts="hosts"
+                    :iframe-hosts="iframeHosts"
                     :title="key"
                 ></FeatureDetailDisclaimer>
                 <div v-else class="fw-bold">{{ i18n.t(key) }}</div>
