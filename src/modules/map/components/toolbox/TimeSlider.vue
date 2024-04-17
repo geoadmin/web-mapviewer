@@ -54,6 +54,12 @@ const layersWithTimestamps = computed(() =>
     store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
 )
 const previewYear = computed(() => store.state.layers.previewYear)
+const invalidYear = computed(
+    () =>
+        displayedYear.value != previewYear.value &&
+        displayedYear.value.toString().length == 4 &&
+        !allYears.value.includes(parseInt(displayedYear.value))
+)
 
 /**
  * Filtering of all years to only give ones that will need to be shown in the label section of the
@@ -306,10 +312,12 @@ function setYearToInputIfValid() {
                     </div>
                     <input
                         v-model="displayedYear"
+                        class="form-control time-slider-bar-cursor-year"
+                        :class="{ 'is-invalid': invalidYear }"
                         data-cy="time-slider-bar-cursor-year"
                         maxlength="4"
-                        class="time-slider-bar-cursor-year"
                         type="text"
+                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                         @input="setYearToInputIfValid"
                     />
                     <div class="px-2 border-start d-flex align-items-center">
@@ -478,5 +486,15 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
     padding-right: 0;
     border: none;
     resize: none;
+}
+.form-control.time-slider-bar-cursor-year {
+    padding: 0 !important;
+}
+.form-control.is-invalid.time-slider-bar-cursor-year {
+    background-size: 0 !important;
+}
+.form-control:focus.time-slider-bar-cursor-year {
+    outline: none !important;
+    box-shadow: none !important;
 }
 </style>
