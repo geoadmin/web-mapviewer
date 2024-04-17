@@ -40,6 +40,35 @@ class GeoAdminCustomizer extends BaseCustomizer {
         // Call parent layerFilter method for other layers
         return super.layerFilter(layerState)
     }
+
+    /**
+     * Remove the "editableFeature" adn "geodesic" property from the feature as it is not needed and
+     * can cause issues with mapfishprint
+     *
+     * @param {State} layerState
+     * @param {GeoJSONFeature} feature Manipulated feature
+     */
+    feature(layerState, feature) {
+        // cause circular reference issues
+        delete feature.properties?.geodesic
+        // unnecessary properties for printing and cause mapfishprint to throw an error
+        delete feature.properties?.editableFeature
+    }
+
+    /**
+     * Manipulate the symbolizer of a line feature before printing it. In this case replace the
+     * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
+     * @param {Stroke} stroke Stroke style of the line feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    line(layerState, symbolizer, stroke) {
+        if (symbolizer?.strokeDashstyle === '8') {
+            symbolizer.strokeDashstyle = 'dash'
+        }
+    }
 }
 
 /**
@@ -290,7 +319,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         return spec
     } catch (error) {
         log.error("Couldn't encode map to print request", error)
-        throw new PrintError('Failed to print the map')
+        throw new PrintError(`Couldn't encode map to print request: ${error}`)
     }
 }
 
@@ -352,7 +381,7 @@ export async function createPrintJob(map, config) {
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
     } catch (error) {
         log.error('Error while creating print job', error)
-        return null
+        throw new PrintError(`Error while creating print job: ${error}`)
     }
 }
 
