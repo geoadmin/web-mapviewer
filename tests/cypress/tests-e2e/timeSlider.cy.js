@@ -22,8 +22,8 @@ describe('Testing the time slider', () => {
     })
     context('Time slider interactions', () => {
         function moveSlider(x) {
-            cy.get('[data-cy="times-slider-cursor"]').trigger('mousedown', { which: 1 })
-            cy.get('[data-cy="times-slider-cursor"]').trigger('mousemove', {
+            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { which: 1 })
+            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
                 screenX: Math.abs(x),
                 screenY: 0,
             })
@@ -56,15 +56,13 @@ describe('Testing the time slider', () => {
                 .then(($barCursorPosition) => {
                     cy.log($barCursorPosition)
 
-                    cy.log('Time slider does not move with non number string')
+                    cy.log('Time slider does not accept non number characters')
                     cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('asdfghjkl')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('asdf')
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
                         .invoke('attr', 'style')
                         .should('eq', $barCursorPosition)
-
-                    cy.log('Time slider allows only four characters')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', 'asdf')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '')
 
                     cy.log('Time slider does not move with out of bound year')
                     cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
@@ -72,10 +70,13 @@ describe('Testing the time slider', () => {
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
                         .invoke('attr', 'style')
                         .should('eq', $barCursorPosition)
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2525')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('654321')
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
                         .invoke('attr', 'style')
                         .should('eq', $barCursorPosition)
+                    cy.log('Time slider is limited to four characters')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '6543')
 
                     cy.log('Time slider does not move with incomplete year')
                     cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()

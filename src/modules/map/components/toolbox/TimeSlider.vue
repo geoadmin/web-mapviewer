@@ -283,8 +283,7 @@ function setYearToInputIfValid() {
         currentYear.value != displayedYear.value &&
         allYears.value.includes(parseInt(displayedYear.value))
     ) {
-        currentYear.value = parseInt(displayedYear.value)
-        setCurrentYearAndDispatchToStore(currentYear.value)
+        setCurrentYearAndDispatchToStore(parseInt(displayedYear.value))
     }
 }
 </script>
@@ -307,6 +306,7 @@ function setYearToInputIfValid() {
                 >
                     <div
                         class="px-2 border-end d-flex align-items-center"
+                        data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -486,21 +486,17 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
     }
 }
 .time-slider-bar-cursor-year {
-    width: 100%;
-    height: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    border: none;
-    resize: none;
-}
-.form-control.time-slider-bar-cursor-year {
-    padding: 3px !important;
-}
-.form-control.is-invalid.time-slider-bar-cursor-year {
-    background-size: 0;
-}
-.form-control:focus.time-slider-bar-cursor-year {
-    outline: none;
-    box-shadow: none;
+    &.form-control {
+        padding: 3px;
+        border-color: $white;
+        &.is-invalid {
+            padding: 3px;
+            background-size: 0;
+        }
+        &:focus {
+            outline: none;
+            box-shadow: none;
+        }
+    }
 }
 </style>
