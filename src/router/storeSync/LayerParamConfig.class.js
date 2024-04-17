@@ -1,9 +1,8 @@
 import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class.js'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { decodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -22,75 +21,82 @@ import log from '@/utils/logging'
  *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
- * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
- *   corresponding layer if the given layer is an external one, otherwise returns `null`
+ * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig} Will return
+ *   an instance of the corresponding layer if the given layer is an external one, returns null if
+ *   this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local file) or
+ *   will return the untouched ActiveLayerConfig for other layer types
  */
 export function createLayerObject(parsedLayer, currentLayer) {
     const defaultOpacity = 1.0
-    let layer = parsedLayer
-    const [layerType, url, id] = parsedLayer.id.split('|').map(decodeExternalLayerParam)
-    if (['KML', 'GPX', 'WMTS', 'WMS'].includes(layerType) && currentLayer) {
+    if (
+        [LayerTypes.KML, LayerTypes.GPX, LayerTypes.WMTS, LayerTypes.WMS].includes(
+            parsedLayer.type
+        ) &&
+        currentLayer
+    ) {
         // the layer is already present in the active layers, so simply update it instead of
-        // replacing it. This allow to avoid reloading the data of the layer (e.g. KML name, external
+        // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        layer = currentLayer.clone()
+        const layer = currentLayer.clone()
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? defaultOpacity
         if (parsedLayer.customAttributes?.adminId) {
             layer.adminId = parsedLayer.customAttributes.adminId
         }
-    } else if (layerType === 'KML') {
+        return layer
+    } else if (parsedLayer.type === LayerTypes.KML) {
         // format is KML|FILE_URL
-        if (url.startsWith('http')) {
-            layer = new KMLLayer({
-                kmlFileUrl: url,
+        if (parsedLayer.baseUrl.startsWith('http')) {
+            return new KMLLayer({
+                kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
-                adminId: parsedLayer.customAttributes.adminId,
+                adminId: parsedLayer.customAttributes?.adminId,
             })
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.
-            layer = null
+            return null
         }
     }
     // format is GPX|FILE_URL
-    else if (layerType === 'GPX') {
-        if (url.startsWith('http')) {
-            layer = new GPXLayer({
-                gpxFileUrl: url,
+    else if (parsedLayer.type === LayerTypes.GPX) {
+        if (parsedLayer.baseUrl.startsWith('http')) {
+            return new GPXLayer({
+                gpxFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
-            layer = null
+            return null
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (layerType === 'WMTS') {
-        layer = new ExternalWMTSLayer({
-            name: id,
+    else if (parsedLayer.type === LayerTypes.WMTS) {
+        return new ExternalWMTSLayer({
+            id: parsedLayer.id,
+            name: parsedLayer.id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
-            baseUrl: url,
-            externalLayerId: id,
+            baseUrl: parsedLayer.baseUrl,
         })
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (layerType === 'WMS') {
+    else if (parsedLayer.type === LayerTypes.WMS) {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
-        layer = new ExternalWMSLayer({
-            name: id,
+        return new ExternalWMSLayer({
+            id: parsedLayer.id,
+            name: parsedLayer.id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
-            baseUrl: url,
-            externalLayerId: id,
+            baseUrl: parsedLayer.baseUrl,
         })
     }
-    return layer
+    // this is no external layer that needs further parsing, we let it go through to be looked up in the layers config
+    return parsedLayer
 }
 
 function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
@@ -184,7 +190,7 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
 }
 
 function generateLayerUrlParamFromStoreValues(store) {
-    const featuresIds = orderFeaturesByLayers(store.state.features.selectedFeatures)
+    const featuresIds = orderFeaturesByLayers(store.getters.selectedFeatures)
     return store.state.layers.activeLayers
         .map((layer) =>
             transformLayerIntoUrlString(
@@ -198,9 +204,9 @@ function generateLayerUrlParamFromStoreValues(store) {
 
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'layers',
-            [
+        super({
+            urlParamName: 'layers',
+            mutationsToWatch: [
                 'toggleLayerVisibility',
                 'addLayer',
                 'removeLayersById',
@@ -211,11 +217,11 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setLayerYear',
                 'setLayers',
                 'setSelectedFeatures',
-            ].join(','),
-            dispatchLayersFromUrlIntoStore,
-            generateLayerUrlParamFromStoreValues,
-            true,
-            String
-        )
+            ],
+            setValuesInStore: dispatchLayersFromUrlIntoStore,
+            extractValueFromStore: generateLayerUrlParamFromStoreValues,
+            keepInUrlWhenDefault: true,
+            valueType: String,
+        })
     }
 }

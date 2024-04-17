@@ -1,20 +1,18 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { useImportButton } from '@/modules/menu/components/advancedTools/useImportButton'
+import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const LOCAL_UPLOAD_ACCEPT = '.kml,.KML,.gpx,.GPX'
-const LOCAL_UPLOAD_MAX_SIZE = 250 * 1024 * 1024 // 250mb
+const acceptedFileTypes = '.kml,.KML,.gpx,.GPX'
 
-const i18n = useI18n()
 const store = useStore()
 
 const props = defineProps({
@@ -27,48 +25,26 @@ const { active } = toRefs(props)
 
 // Reactive data
 const buttonState = ref('default')
-const importFileLocalInput = ref(null)
 const selectedFile = ref(null)
-const errorMessage = ref(null)
+const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const layerAdded = ref(false)
 
 useImportButton(buttonState)
 
-// Computed properties
-const isValid = computed(() => !errorMessage.value && selectedFile.value && layerAdded.value)
-const isInvalid = computed(() => errorMessage.value)
-const filePathInfo = computed(() =>
-    selectedFile.value ? `${selectedFile.value.name}, ${selectedFile.value.size / 1000} ko` : ''
-)
-
-watch(errorMessage, validateForm)
-watch(selectedFile, validateForm)
+watch(errorFileLoadingMessage, validateForm)
+watch(selectedFile, resetInput)
 
 // Methods
-function onFileSelected(evt) {
-    errorMessage.value = null
-
-    const file = evt.target?.files[0]
-    if (!file) {
-        selectedFile.value = null
-        errorMessage.value = 'no_file'
-        return
-    }
-
-    // Validate
-    importFileLocalInput.value = null
+function handleFile(file) {
     selectedFile.value = file
-    if (file.size > LOCAL_UPLOAD_MAX_SIZE) {
-        errorMessage.value = 'file_too_large'
-    }
 }
 
 async function loadFile() {
     buttonState.value = 'loading'
 
     if (!selectedFile.value) {
-        errorMessage.value = 'no_file'
+        errorFileLoadingMessage.value = 'no_file'
     } else {
         try {
             const content = await selectedFile.value.text()
@@ -76,17 +52,17 @@ async function loadFile() {
             layerAdded.value = true
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
-                errorMessage.value = 'kml_gpx_file_out_of_bounds'
+                errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                errorMessage.value = 'kml_gpx_file_empty'
+                errorFileLoadingMessage.value = 'kml_gpx_file_empty'
             } else {
-                errorMessage.value = 'invalid_kml_gpx_file_error'
+                errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
         }
     }
 
-    if (!errorMessage.value) {
+    if (!errorFileLoadingMessage.value) {
         buttonState.value = 'succeeded'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } else {
@@ -95,12 +71,16 @@ async function loadFile() {
 }
 
 function validateForm() {
-    layerAdded.value = false
-    if (errorMessage.value) {
+    if (errorFileLoadingMessage.value) {
         isFormValid.value = false
     } else {
         isFormValid.value = true
     }
+}
+
+function resetInput() {
+    layerAdded.value = false
+    isFormValid.value = true
 }
 </script>
 
@@ -116,44 +96,14 @@ function validateForm() {
         aria-labelledby="nav-local-tab"
         data-cy="import-file-local-content"
     >
-        <div class="needs-validation">
-            <div class="input-group rounded needs-validation mb-2">
-                <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    @click="importFileLocalInput.click()"
-                >
-                    {{ i18n.t('browse') }}
-                </button>
-                <input
-                    ref="importFileLocalInput"
-                    type="file"
-                    :accept="LOCAL_UPLOAD_ACCEPT"
-                    hidden
-                    data-cy="import-file-local-input"
-                    @change="onFileSelected"
-                />
-                <input
-                    type="text"
-                    class="form-control import-input rounded-end import-file-local-input"
-                    :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }"
-                    :placeholder="i18n.t('no_file')"
-                    :value="filePathInfo"
-                    readonly
-                    required
-                    tabindex="-1"
-                    data-cy="import-file-local-input-text"
-                    @click="importFileLocalInput.click()"
-                />
-                <div
-                    v-if="errorMessage"
-                    class="invalid-feedback"
-                    data-cy="import-file-local-invalid-feedback"
-                >
-                    {{ i18n.t(errorMessage) }}
-                </div>
-            </div>
-        </div>
+        <ImportLocalFile
+            :accepted-file-types="acceptedFileTypes"
+            :additional-error-message="errorFileLoadingMessage"
+            :additional-check="layerAdded"
+            :check-on-select="false"
+            :placeholder-text="'no_file'"
+            @file-selected="handleFile"
+        ></ImportLocalFile>
         <ImportFileButtons
             class="mt-2"
             :button-state="buttonState"
@@ -165,11 +115,4 @@ function validateForm() {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-
-.import-file-local-input {
-    cursor: pointer;
-}
-.import-file-local-button-connect {
-    cursor: pointer;
-}
 </style>

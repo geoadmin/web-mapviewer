@@ -42,7 +42,9 @@ export default class SelectableFeature extends EventEmitter {
         } = featureData
         this.id = id
         // using the setter for coordinate (see below)
-        this.coordinates = coordinates
+
+        // if coordinates are not defined, we set them to null
+        this.coordinates = coordinates ? coordinates : null
         this.title = title
         this.description = description
         this.geometry = geometry

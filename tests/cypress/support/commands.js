@@ -217,7 +217,7 @@ Cypress.Commands.add(
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
         flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
 
-        cy.visit(`/${withHash ? '#/' : ''}${flattenedQueryParams}`, {
+        cy.visit(`/${withHash ? '#/map' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
 

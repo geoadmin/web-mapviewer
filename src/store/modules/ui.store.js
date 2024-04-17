@@ -1,4 +1,10 @@
-import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
+import {
+    BREAKPOINT_TABLET,
+    GIVE_FEEDBACK_HOSTNAMES,
+    NO_WARNING_BANNER_HOSTNAMES,
+    REPORT_PROBLEM_HOSTNAMES,
+    WARNING_RIBBON_HOSTNAMES,
+} from '@/config'
 import log from '@/utils/logging'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
@@ -220,13 +226,13 @@ export default {
         isProductionSite(state) {
             return state.hostname === 'map.geo.admin.ch'
         },
-        tooltipFeatureInfo(state, getters) {
+        showFeatureInfoInTooltip(state, getters) {
             return (
                 state.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
                 (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && !getters.isPhoneMode)
             )
         },
-        bottomPanelFeatureInfo(state, getters) {
+        showFeatureInfoInBottomPanel(state, getters) {
             return (
                 state.featureInfoPosition === FeatureInfoPositions.BOTTOMPANEL ||
                 (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && getters.isPhoneMode)
@@ -234,6 +240,20 @@ export default {
         },
         noFeatureInfo(state) {
             return state.featureInfoPosition === FeatureInfoPositions.NONE
+        },
+        /**
+         * Flag to display to display give feedback button/form. On localhost, it will always shown
+         * for testing purpose
+         */
+        hasGiveFeedbackButton(state) {
+            return GIVE_FEEDBACK_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
+        },
+        /**
+         * Flag to display to display report problem button/form. On localhost, it will always shown
+         * for testing purpose
+         */
+        hasReportProblemButton(state) {
+            return REPORT_PROBLEM_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
     },
     actions: {
@@ -315,8 +335,8 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
-        setFeatureInfoPosition({ commit, state }, { featureInfo, dispatcher }) {
-            const upCasePos = featureInfo.toUpperCase()
+        setFeatureInfoPosition({ commit, state }, { position, dispatcher }) {
+            const upCasePos = position?.toUpperCase()
             if (!FeatureInfoPositions[upCasePos]) {
                 log.error(
                     `invalid feature Info Position given as parameter. ${upCasePos} is not a valid key`

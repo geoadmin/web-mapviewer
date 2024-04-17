@@ -4,7 +4,7 @@
 
 > Date: 16.03.2021
 
-> Updated: 17.11.2023
+> Updated: 10.04.2024
 
 ## Context
 
@@ -95,17 +95,19 @@ The layer ID of the external Layers are in the following format (note that only 
 
 - an external WMS: `WMS|GET_CAP_BASE_URL|LAYER_ID`
   - The WMS version is taken from the Get Capabilities
+- an external group of WMS layer : `WMS|GET_CAP_BASE_URL|LAYER_ID`
+  - We don't differentiate between group of layers and regular WMS layer in the URL. This differentiation was neither done in the legacy viewer.
 - an external WMTS: `WMTS|GET_CAP_BASE_URL|LAYER_ID`
   - The WMTS version is taken from the Get Capabilities
-- an external KML: `KML|URL|TITLE`
-  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `KML`
-- a geoadmin KML: `KML|URL|TITLE`
-  - TITLE is set to `Drawing` upon drawing creation and in the current language at that time
-- a geoadmin KML with adminId: `KML|URL|TITLE@adminId=ADMIN_ID`
-- an external GPX: `GPX|GPX|TITLE`
-  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `GPX`
-- an external KMZ: `KMZ|KMZ|TITLE` (needs to pass by proxy to be unzipped)
-  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `KMZ`
+- an external KML: `KML|URL`
+  - The title is read from the metadata
+- a geoadmin KML: `KML|URL`
+  - The title is read from the metadata
+- a geoadmin KML with adminId: `KML|URL@adminId=ADMIN_ID`
+  - The title is read from the metadata
+- an external GPX: `GPX|URL`
+  - The title is read from the metadata
+- an external KMZ: `KMZ|URL` (needs to pass by proxy to be unzipped)
 
 ## Consequences
 

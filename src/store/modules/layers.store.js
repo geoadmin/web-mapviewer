@@ -3,7 +3,6 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const getActiveLayersById = (state, layerId) =>
@@ -13,16 +12,20 @@ const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 const cloneActiveLayerConfig = (getters, layer) => {
     const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
     if (clone) {
-        if (layer.visible != undefined) {
+        if (typeof layer.visible === 'boolean') {
             clone.visible = layer.visible
         }
-        if (layer.opacity != undefined) {
+        if (typeof layer.opacity === 'number') {
             clone.opacity = layer.opacity
         }
-        if (layer.customAttributes.year && clone.timeConfig) {
-            clone.timeConfig.updateCurrentTimeEntry(
-                clone.timeConfig.getTimeEntryForYear(layer.customAttributes.year)
-            )
+        if (layer.customAttributes) {
+            const { year, updateDelay } = layer.customAttributes
+            if (year && clone.timeConfig) {
+                clone.timeConfig.updateCurrentTimeEntry(clone.timeConfig.getTimeEntryForYear(year))
+            }
+            if (updateDelay) {
+                clone.updateDelay = updateDelay
+            }
         }
     }
     return clone
@@ -279,7 +282,7 @@ const actions = {
                 let clone = null
                 if (layer instanceof AbstractLayer) {
                     clone = layer.clone()
-                } else if (layer instanceof ActiveLayerConfig) {
+                } else if (layer instanceof Object) {
                     clone = cloneActiveLayerConfig(getters, layer)
                 } else if (layer instanceof String || typeof layer === 'string') {
                     // should be string
@@ -487,9 +490,7 @@ const actions = {
             } else {
                 clone = getters.getLayerConfigById(layer)?.clone()
                 if (!clone) {
-                    throw new Error(
-                        `Failed to setPreviewLayer: layer ${layer.id} not found in config`
-                    )
+                    throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
             }
             clone.visible = true
@@ -512,14 +513,11 @@ const actions = {
      * @param {number} year Year to set
      * @param {string} dispatcher Action dispatcher name
      */
-    setPreviewYear({ commit, getters }, { year, dispatcher }) {
-        const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
-            (layer) => layer.timeConfig.years
-        )
-        if (possibleYears.includes(year)) {
-            commit('setPreviewYear', { year, dispatcher })
+    setPreviewYear({ commit }, { year, dispatcher }) {
+        if (isNaN(year)) {
+            log.error('Invalid year value given in setPreviewYear, ignoring', year)
         } else {
-            log.error('year not found in active layers, ignoring', year)
+            commit('setPreviewYear', { year, dispatcher })
         }
     },
 

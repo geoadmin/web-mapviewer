@@ -192,33 +192,29 @@ describe('Test of layer handling', () => {
                         expect(layer.isLoading).to.be.false
                         expect(layer.isExternal).to.be.true
                     })
-                    expect(layers[0].id).to.be.eq(fakeWmsLayerUrlId1)
+                    expect(layers[0].id).to.be.eq(fakeWmsLayerId1)
                     expect(layers[0].baseUrl).to.be.eq(fakeWmsBaseUrl1)
-                    expect(layers[0].externalLayerId).to.be.eq(fakeWmsLayerId1)
                     expect(layers[0].name).to.be.eq(fakeWmsLayerName1)
                     expect(layers[0].wmsVersion).to.be.eq('1.3.0')
                     expect(layers[0].visible).to.be.true
                     expect(layers[0].opacity).to.be.eq(1.0)
 
-                    expect(layers[1].id).to.be.eq(fakeWmsLayerUrlId2)
+                    expect(layers[1].id).to.be.eq(fakeWmsLayerId2)
                     expect(layers[1].baseUrl).to.be.eq(fakeWmsBaseUrl1)
-                    expect(layers[1].externalLayerId).to.be.eq(fakeWmsLayerId2)
                     expect(layers[1].name).to.be.eq(fakeWmsLayerName2)
                     expect(layers[1].wmsVersion).to.be.eq('1.3.0')
                     expect(layers[1].visible).to.be.true
                     expect(layers[1].opacity).to.be.eq(0.8)
 
-                    expect(layers[2].id).to.be.eq(fakeWmsLayerUrlId3)
+                    expect(layers[2].id).to.be.eq(fakeWmsLayerId3)
                     expect(layers[2].baseUrl).to.be.eq(fakeWmsBaseUrl2)
-                    expect(layers[2].externalLayerId).to.be.eq(fakeWmsLayerId3)
                     expect(layers[2].name).to.be.eq(fakeWmsLayerName3)
                     expect(layers[2].wmsVersion).to.be.eq('1.3.0')
                     expect(layers[2].visible).to.be.false
                     expect(layers[2].opacity).to.be.eq(1.0)
 
-                    expect(layers[3].id).to.be.eq(fakeWmsLayerUrlId4)
+                    expect(layers[3].id).to.be.eq(fakeWmsLayerId4)
                     expect(layers[3].baseUrl).to.be.eq(fakeWmsBaseUrl2)
-                    expect(layers[3].externalLayerId).to.be.eq(fakeWmsLayerId4)
                     expect(layers[3].name).to.be.eq(fakeWmsLayerName4)
                     expect(layers[3].layers).to.have.length.above(0)
                     expect(layers[3].visible).to.be.false
@@ -247,8 +243,8 @@ describe('Test of layer handling', () => {
 
                 cy.log('getFeatureInfo testing')
                 // layer 1 and 2 have the same "backend", so we deactivate layer 2 and activate layer 3
-                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId2}-"]`).click()
-                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerUrlId3}-"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerId2}-"]`).click()
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${fakeWmsLayerId3}-"]`).click()
                 cy.checkOlLayer([
                     bgLayer,
                     { id: fakeWmsLayerId1, visible: true, opacity: 1.0 },
@@ -306,24 +302,20 @@ describe('Test of layer handling', () => {
                         expect(layer.visible).to.be.true
                         expect(layer.opacity).to.be.eq(1.0)
                     })
-                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerId1)
                     expect(layers[0].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
-                    expect(layers[0].externalLayerId).to.be.eq(fakeWmtsLayerId1)
                     expect(layers[0].name).to.be.eq(fakeWmtsLayerName1)
 
-                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerId2)
                     expect(layers[1].baseUrl).to.be.eq(fakeWmtsGetCapUrl1)
-                    expect(layers[1].externalLayerId).to.be.eq(fakeWmtsLayerId2)
                     expect(layers[1].name).to.be.eq(fakeWmtsLayerName2)
 
-                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerId3)
                     expect(layers[2].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
-                    expect(layers[2].externalLayerId).to.be.eq(fakeWmtsLayerId3)
                     expect(layers[2].name).to.be.eq(fakeWmtsLayerName3)
 
-                    expect(layers[3].id).to.be.eq(fakeWmtsLayerUrlId4)
+                    expect(layers[3].id).to.be.eq(fakeWmtsLayerId4)
                     expect(layers[3].baseUrl).to.be.eq(fakeWmtsGetCapUrl2)
-                    expect(layers[3].externalLayerId).to.be.eq(fakeWmtsLayerId4)
                     expect(layers[3].name).to.be.eq(fakeWmtsLayerName4)
                 })
                 cy.checkOlLayer([
@@ -361,15 +353,15 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                     expect(layers).to.have.length(3)
 
-                    expect(layers[0].id).to.be.eq(fakeWmtsLayerUrlId1)
+                    expect(layers[0].id).to.be.eq(fakeWmtsLayerId1)
                     expect(layers[0].visible).to.be.false
                     expect(layers[0].opacity).to.be.eq(0.5)
 
-                    expect(layers[1].id).to.be.eq(fakeWmtsLayerUrlId2)
+                    expect(layers[1].id).to.be.eq(fakeWmtsLayerId2)
                     expect(layers[1].visible).to.be.false
                     expect(layers[1].opacity).to.be.eq(1.0)
 
-                    expect(layers[2].id).to.be.eq(fakeWmtsLayerUrlId3)
+                    expect(layers[2].id).to.be.eq(fakeWmtsLayerId3)
                     expect(layers[2].visible).to.be.true
                     expect(layers[2].opacity).to.be.eq(0.8)
                 })
@@ -464,19 +456,18 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[0]
-                    expect(externaLayer.id).to.eq(wmtsUnreachableUrlId)
+                    expect(externaLayer.id).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.baseUrl).to.eq(wmtsUnreachableUrl)
-                    expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy^="menu-active-layer-${wmtsUnreachableUrlId}-"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmtsUnreachableLayerId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy^="button-error-${wmtsUnreachableUrlId}-"]`)
+                cy.get(`[data-cy^="button-error-${wmtsUnreachableLayerId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy^="button-error-${wmtsUnreachableUrlId}-"]`).click()
+                cy.get(`[data-cy^="button-error-${wmtsUnreachableLayerId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
@@ -486,19 +477,18 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[1]
-                    expect(externaLayer.id).to.eq(wmtsInvalidContentUrlId)
+                    expect(externaLayer.id).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.baseUrl).to.eq(wmtsInvalidContentUrl)
-                    expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy^="menu-active-layer-${wmtsInvalidContentUrlId}-"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmtsInvalidContentLayerId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy^="button-error-${wmtsInvalidContentUrlId}-"]`)
+                cy.get(`[data-cy^="button-error-${wmtsInvalidContentLayerId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy^="button-error-${wmtsInvalidContentUrlId}-"]`).click()
+                cy.get(`[data-cy^="button-error-${wmtsInvalidContentLayerId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
@@ -508,19 +498,18 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[2]
-                    expect(externaLayer.id).to.eq(wmsUnreachableUrlId)
+                    expect(externaLayer.id).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.baseUrl).to.eq(wmsUnreachableUrl)
-                    expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy^="menu-active-layer-${wmsUnreachableUrlId}-"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmsUnreachableLayerId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy^="button-error-${wmsUnreachableUrlId}-"]`)
+                cy.get(`[data-cy^="button-error-${wmsUnreachableLayerId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy^="button-error-${wmsUnreachableUrlId}-"]`).click()
+                cy.get(`[data-cy^="button-error-${wmsUnreachableLayerId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
@@ -530,19 +519,18 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[3]
-                    expect(externaLayer.id).to.eq(wmsInvalidContentUrlId)
+                    expect(externaLayer.id).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.baseUrl).to.eq(wmsInvalidContentUrl)
-                    expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
-                cy.get(`[data-cy^="menu-active-layer-${wmsInvalidContentUrlId}-"]`)
+                cy.get(`[data-cy^="menu-active-layer-${wmsInvalidContentLayerId}-"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
-                cy.get(`[data-cy^="button-error-${wmsInvalidContentUrlId}-"]`)
+                cy.get(`[data-cy^="button-error-${wmsInvalidContentLayerId}-"]`)
                     .should('be.visible')
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
-                cy.get(`[data-cy^="button-error-${wmsInvalidContentUrlId}-"]`).click()
+                cy.get(`[data-cy^="button-error-${wmsInvalidContentLayerId}-"]`).click()
                 cy.get('[data-cy^="tippy-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')

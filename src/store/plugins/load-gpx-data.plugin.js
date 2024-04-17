@@ -17,7 +17,7 @@ const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
  * @returns {Promise<void>}
  */
 async function loadGpx(store, gpxLayer) {
-    log.debug(`Loading data/metadata for added GPX layer`, gpxLayer)
+    log.debug(`Loading data for added GPX layer`, gpxLayer)
     try {
         const response = await axios.get(gpxLayer.gpxFileUrl)
         const gpxContent = response.data
@@ -30,7 +30,12 @@ async function loadGpx(store, gpxLayer) {
             ...dispatcher,
         })
     } catch (error) {
-        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.id}`)
+        log.error(`Error while fetching GPX data for layer ${gpxLayer?.id}`)
+        store.dispatch('setLayerErrorKey', {
+            layerId: gpxLayer.id,
+            errorKey: `loading_error_network_failure`,
+            ...dispatcher,
+        })
     }
 }
 
@@ -43,7 +48,7 @@ async function loadGpx(store, gpxLayer) {
 export default function loadGpxDataAndMetadata(store) {
     store.subscribe((mutation) => {
         const addLayerSubscriber = (layer) => {
-            if (layer instanceof GPXLayer && (!layer?.gpxData || !layer?.gpxMetadata)) {
+            if (layer instanceof GPXLayer && !layer?.gpxData) {
                 loadGpx(store, layer)
             }
         }

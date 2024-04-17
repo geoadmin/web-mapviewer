@@ -20,8 +20,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isTopic: {
+        type: Boolean,
+        default: false,
+    },
 })
-const { layerCatalogue, compact, withSearchBar } = toRefs(props)
+const { layerCatalogue, compact, withSearchBar, isTopic } = toRefs(props)
 
 const store = useStore()
 const i18n = useI18n()
@@ -94,6 +98,7 @@ function clearSearchText() {
             :item="item"
             :search="searchText.toLowerCase()"
             :compact="compact"
+            :is-topic="isTopic"
         />
     </div>
 </template>

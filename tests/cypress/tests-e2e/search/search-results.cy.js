@@ -88,8 +88,8 @@ describe('Test the search bar result handling', () => {
                     layer: expectedLayerId,
                 },
             },
-            { attrs: { label: 'Test layer #2' } },
-            { attrs: { label: 'Test layer #3' } },
+            { id: 4322, weight: 1, attrs: { layer: 'test-2.wms.layer', label: 'Test layer #2' } },
+            { id: 4323, weight: 1, attrs: { layer: 'test-3.wms.layer', label: 'Test layer #3' } },
         ],
     }
     const layerFeatureResponse = {
@@ -211,9 +211,13 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
 
+        cy.log('Toggling the search result with ESC')
         cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
         cy.get('[data-cy="search-results"]').should('not.be.visible')
+        cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
+        cy.get('[data-cy="search-results"]').should('be.visible')
 
+        cy.log('Navigating with arrow UP/DOWN')
         cy.get(searchbarSelector).trigger('keydown', { key: 'ArrowDown' })
         cy.get('[data-cy="search-results"]').should('be.visible')
 
@@ -301,7 +305,7 @@ describe('Test the search bar result handling', () => {
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
-        cy.get('@locationSearchResults').first().click()
+        cy.get('@locationSearchResults').first().realClick()
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
@@ -322,6 +326,17 @@ describe('Test the search bar result handling', () => {
         cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
+
+        cy.log('Search bar dropdown should be hidden after centering on the feature')
+        cy.get('@locationSearchResults').should('not.be.visible')
+
+        cy.log(`Search input should be focused`)
+        cy.focused().should('have.attr', 'data-cy', 'searchbar')
+
+        cy.log(`Pressing enter should re-open the result`)
+        cy.focused().trigger('keyup', { key: 'enter' })
+        cy.get('@locationSearchResults').should('be.visible')
+        cy.focused().should('have.attr', 'data-cy', 'search-result-entry')
 
         cy.log('It hides the results when the user clicks on the map')
         cy.get('@locationSearchResults').should('be.visible')

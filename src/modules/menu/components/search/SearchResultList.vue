@@ -138,7 +138,6 @@ defineExpose({ focusFirstEntry })
                 'border rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
-            @keydown.esc.prevent="emit('close')"
         >
             <div class="search-results-inner">
                 <SearchResultCategory
@@ -149,6 +148,7 @@ defineExpose({ focusFirstEntry })
                     :title="i18n.t(`${category.id}_results_header`)"
                     :results="category.results"
                     :data-cy="`search-results-${category.id}`"
+                    @entry-selected="emit('close')"
                     @first-entry-reached="onFirstEntryReached(index)"
                     @last-entry-reached="onLastEntryReached(index)"
                     @set-preview="setPreview"

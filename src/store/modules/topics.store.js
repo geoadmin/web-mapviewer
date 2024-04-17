@@ -60,22 +60,49 @@ const actions = {
             log.error(`Invalid topic ID ${topicId}`)
         }
     },
-    setTopicTreeOpenedThemesIds: ({ commit }, { catalogNodes, dispatcher }) => {
-        if (typeof catalogNodes === 'string') {
+    setTopicTreeOpenedThemesIds: ({ commit }, { themes, dispatcher }) => {
+        if (typeof themes === 'string') {
             commit('setTopicTreeOpenedThemesIds', {
-                themes: catalogNodes.split(','),
+                themes: themes.split(','),
                 dispatcher,
             })
-        } else if (Array.isArray(catalogNodes)) {
-            commit('setTopicTreeOpenedThemesIds', { themes: catalogNodes.slice(), dispatcher })
+        } else if (Array.isArray(themes)) {
+            commit('setTopicTreeOpenedThemesIds', { themes: themes.slice(), dispatcher })
         }
     },
+    addTopicTreeOpenedThemeId: ({ commit }, { themeId, dispatcher }) => {
+        commit('addTopicTreeOpenedThemeId', {
+            themeId,
+            dispatcher,
+        })
+    },
+    removeTopicTreeOpenedThemeId: ({ commit }, { themeId, dispatcher }) => {
+        commit('removeTopicTreeOpenedThemeId', {
+            themeId,
+            dispatcher,
+        })
+    },
 }
+
 const mutations = {
     setTopics: (state, { topics }) => (state.config = topics),
     setTopicTree: (state, { layers }) => (state.tree = layers),
     setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
     changeTopic: (state, { topicId }) => (state.current = topicId),
+    addTopicTreeOpenedThemeId: (state, { themeId }) => {
+        if (!state.openedTreeThemesIds.includes(themeId)) {
+            const newOpenThemesIds = [...state.openedTreeThemesIds]
+            newOpenThemesIds.push(themeId)
+            state.openedTreeThemesIds = newOpenThemesIds
+        }
+    },
+    removeTopicTreeOpenedThemeId: (state, { themeId }) => {
+        if (state.openedTreeThemesIds.includes(themeId)) {
+            const newOpenThemesIds = [...state.openedTreeThemesIds]
+            newOpenThemesIds.splice(newOpenThemesIds.indexOf(themeId), 1)
+            state.openedTreeThemesIds = newOpenThemesIds
+        }
+    },
 }
 
 export default {

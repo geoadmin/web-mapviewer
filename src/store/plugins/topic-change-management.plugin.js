@@ -37,7 +37,7 @@ const topicChangeManagementPlugin = (store) => {
             const currentTopic = store.getters.currentTopic
 
             log.debug(
-                `Topic change management plugin: topic changed to`,
+                `[Topic change management plugin]: topic changed to`,
                 mutation.payload,
                 currentTopic,
                 queryKeys
@@ -92,13 +92,32 @@ const topicChangeManagementPlugin = (store) => {
                     layers: topicTree.layers,
                     ...dispatcher,
                 })
-                // checking that no values were set in the URL at app startup, otherwise we might
-                // overwrite them here
-                if (store.state.topics.openedTreeThemesIds.length === 0) {
+                // Here we have different behavior possible
+                if (
+                    mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
+                    (!queryKeys.includes('catalogNodes') && !store.getters.isDefaultTopic)
+                ) {
+                    // 1. When changing the topic from the menu always open the topic menu and its sub
+                    //    themes defined by the topic
+                    // 2. When setting the query parameter topic and we don't have a catalogNodes query
+                    //    parameter and the topic is not the default, then we want the topic catalog
+                    //    to be open
                     store.dispatch('setTopicTreeOpenedThemesIds', {
-                        catalogNodes: topicTree.itemIdToOpen,
+                        themes: [currentTopic.id, ...topicTree.itemIdToOpen],
                         ...dispatcher,
                     })
+                } else if (!queryKeys.includes('catalogNodes') && store.getters.isDefaultTopic) {
+                    // 3. When setting the query parameter topic to the default topic, without
+                    //    having a catalogNodes query param, then we don't want to have the main
+                    //    catalog menu open but only the sub menus.
+                    store.dispatch('setTopicTreeOpenedThemesIds', {
+                        themes: [...topicTree.itemIdToOpen],
+                        ...dispatcher,
+                    })
+                } else {
+                    log.debug(
+                        `[Topic change management plugin]: do not set topic tree opened themes ids, let them be set by catalogNodes`
+                    )
                 }
 
                 log.debug(

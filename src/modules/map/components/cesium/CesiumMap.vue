@@ -64,7 +64,7 @@
                 </button>
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
-            <FeatureList direction="column" />
+            <FeatureList />
         </CesiumPopover>
         <CesiumToolbox
             v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
@@ -169,17 +169,17 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
-            selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
+            'selectedFeatures',
             'centerEpsg4326',
             'resolution',
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
-            'tooltipFeatureInfo',
+            'showFeatureInfoInTooltip',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -193,7 +193,7 @@ export default {
             )
         },
         isFeatureInfoInTooltip() {
-            return this.tooltipFeatureInfo
+            return this.showFeatureInfoInTooltip
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -295,6 +295,7 @@ export default {
             'setCameraPosition',
             'clearAllSelectedFeatures',
             'click',
+            'clearClick',
             'setFeatureInfoPosition',
             'setCenter',
             'mapModuleReady',
@@ -575,6 +576,7 @@ export default {
         onPopupClose() {
             unhighlightGroup(this.viewer)
             this.clearAllSelectedFeatures(dispatcher)
+            this.clearClick(dispatcher)
         },
         onTouchStart(event) {
             this.clearLongPressTimer()
@@ -609,7 +611,7 @@ export default {
         },
         setBottomPanelFeatureInfoPosition() {
             this.setFeatureInfoPosition({
-                featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                position: FeatureInfoPositions.BOTTOMPANEL,
                 ...dispatcher,
             })
         },

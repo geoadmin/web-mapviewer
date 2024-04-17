@@ -28,26 +28,28 @@ export default function loadExternalLayerAttributes(store) {
                     layer instanceof ExternalGroupOfLayers ||
                     layer instanceof ExternalWMTSLayer)
         )
-        // We get first the capabilities
-        const wmsCapabilities = getWMSCababilitiesForLayers(externalLayers)
-        const wmtsCapabilities = getWMTSCababilitiesForLayers(externalLayers)
-        const updatedLayers = []
-        externalLayers.forEach((layer) => {
-            updatedLayers.push(
-                updateExternalLayer(
-                    store,
-                    layer instanceof ExternalWMTSLayer
-                        ? wmtsCapabilities[layer.baseUrl]
-                        : wmsCapabilities[layer.baseUrl],
-                    layer,
-                    state.position.projection
+        if (externalLayers.length > 0) {
+            // We get first the capabilities
+            const wmsCapabilities = getWMSCababilitiesForLayers(externalLayers)
+            const wmtsCapabilities = getWMTSCababilitiesForLayers(externalLayers)
+            const updatedLayers = []
+            externalLayers.forEach((layer) => {
+                updatedLayers.push(
+                    updateExternalLayer(
+                        store,
+                        layer instanceof ExternalWMTSLayer
+                            ? wmtsCapabilities[layer.baseUrl]
+                            : wmsCapabilities[layer.baseUrl],
+                        layer,
+                        state.position.projection
+                    )
                 )
-            )
-        })
-        store.dispatch('updateLayers', {
-            layers: (await Promise.all(updatedLayers)).filter((layer) => !!layer),
-            ...dispatcher,
-        })
+            })
+            store.dispatch('updateLayers', {
+                layers: (await Promise.all(updatedLayers)).filter((layer) => !!layer),
+                ...dispatcher,
+            })
+        }
     }
     store.subscribe((mutation, state) => {
         if (mutation.type === 'addLayer') {
@@ -97,7 +99,7 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             resolvedCapabilities
         )
         const updated = resolvedCapabilities.getExternalLayerObject(
-            layer.externalLayerId,
+            layer.id,
             projection,
             layer.opacity,
             layer.visible,

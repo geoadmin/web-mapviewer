@@ -1,100 +1,92 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
-
-const dispatcher = { dispatcher: 'FeatureList.vue' }
+import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
 const props = defineProps({
-    direction: {
-        type: String,
-        default: 'row',
-        validator: (value) => ['row', 'column'].includes(value),
+    /**
+     * Tells if the height should be fixed (non-fluid) or if it should take 100% of available space
+     * (if fluid). Default is false, which is the way it will be displayed in the InfoboxModule.
+     * MapPopup might want to set fluid to true, it might otherwise display two scroll bars in some
+     * cases (one for the modal, one for the feature list)
+     */
+    fluid: {
+        type: Boolean,
+        default: false,
     },
 })
-const { direction } = toRefs(props)
 
+const { fluid } = toRefs(props)
+
+const featureListContainer = ref(null)
+const editableFeatureCategory = ref(null)
+const layerFeatureCategories = ref([])
+
+const i18n = useI18n()
 const store = useStore()
-const features = computed(() =>
-    store.state.features.selectedFeatures.filter((feature) => !feature.isEditable)
-)
+const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 
-function highlightFeature(feature) {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: feature?.id,
-        ...dispatcher,
-    })
-}
-function clearHighlightedFeature() {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: null,
-        ...dispatcher,
-    })
+function getLayerName(layerId) {
+    return store.state.layers.activeLayers
+        .filter(
+            (layer) =>
+                layer.id === layerId ||
+                // when we add a group of (external) layers for the first time, features will be categorized with the sub layer ID,
+                // once we reload the app, only the group ID will remain. So we need to check if a sub-layer also match this ID,
+                // or feature selection just after adding a group of layer will output nothing
+                (layer.layers && layer.layers.find((subLayer) => subLayer.id === layerId))
+        )
+        .map(
+            (layer) => layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
+        )
+        .reduce((previousValue, currentValue) => previousValue ?? currentValue)
 }
 </script>
 
 <template>
     <div
+        ref="featureListContainer"
         class="feature-list"
-        :class="{ 'feature-list-row': direction === 'row' }"
+        :class="{ fluid }"
         data-cy="highlighted-features"
     >
-        <FeatureDetail
-            v-for="(feature, index) in features"
-            :key="feature.id ?? index"
-            :feature="feature"
+        <!-- Only showing drawing features when outside the drawing module/mode -->
+        <FeatureListCategory
+            v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
+            ref="editableFeatureCategory"
             class="feature-list-item"
-            @mouseenter.passive="highlightFeature(feature)"
-            @mouseleave.passive="clearHighlightedFeature"
+            :name="i18n.t('draw_layer_label')"
+            :children="selectedEditableFeatures"
+        />
+        <FeatureListCategory
+            v-for="(layerFeatures, layerId) in selectedFeaturesByLayerId"
+            :key="layerId"
+            ref="layerFeatureCategories"
+            class="feature-list-item"
+            :name="getLayerName(layerId)"
+            :children="layerFeatures"
         />
     </div>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables-admin.module';
-
+@import '@/scss/variables';
 .feature-list {
-    margin: 0;
-    list-style: none;
-
-    &-item {
-        $item-border: $border-width solid $border-color;
-        border-right: $item-border;
-        border-bottom: $item-border;
-        &:hover {
-            background-color: rgba($mocassin-to-red-1, 0.8);
-        }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax($overlay-width, 1fr));
+    justify-content: stretch;
+    align-content: stretch;
+    &.fluid {
+        max-height: 100%;
+        overflow: hidden;
     }
-    &-row {
-        display: grid;
-        // on mobile (default size) only one column
-        // see media query under for other screen sizes
-        grid-template-columns: 1fr;
-        max-height: 50vh;
-        overflow-y: auto;
-    }
-}
-
-@include respond-above(md) {
-    .feature-list-row {
-        // with screen larger than 768px we can afford to have two tooltip side by side
-        grid-template-columns: 1fr 1fr;
+    &:not(.fluid) {
         max-height: 33vh;
-    }
-}
-@include respond-above(lg) {
-    .feature-list-row {
-        // with screen larger than 992px we can place 3 tooltips
-        grid-template-columns: 1fr 1fr 1fr;
-        max-height: 25vh;
-    }
-}
-@include respond-above(xl) {
-    .feature-list-row {
-        // anything above 1200px will have 4 tooltips in a row
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        overflow-y: auto;
     }
 }
 </style>

@@ -9,6 +9,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
@@ -127,9 +128,12 @@ export default function useMapInteractions(map) {
                                             title: olFeature.get('name'),
                                             description: olFeature.get('description'),
                                         },
-                                        coordinates: olFeature.getGeometry().coordinates,
+                                        coordinates: olFeature.getGeometry().getCoordinates(),
                                         geometry: new GeoJSON().writeGeometryObject(
                                             olFeature.getGeometry()
+                                        ),
+                                        extent: normalizeExtent(
+                                            olFeature.getGeometry().getExtent()
                                         ),
                                     })
                             )

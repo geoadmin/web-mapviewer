@@ -294,13 +294,13 @@ async function identifyOnExternalWmsLayer(config) {
         SERVICE: 'WMS',
         VERSION: layer.wmsVersion ?? '1.3.0',
         REQUEST: 'GetFeatureInfo',
-        LAYERS: layer.externalLayerId,
+        LAYERS: layer.id,
         STYLES: null,
         CRS: projection.epsg,
         BBOX: requestExtent.join(','),
         WIDTH: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
         HEIGHT: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
-        QUERY_LAYERS: layer.externalLayerId,
+        QUERY_LAYERS: layer.id,
         INFO_FORMAT: outputFormat,
         FEATURE_COUNT: featureCount,
         LANG: lang,
@@ -369,6 +369,7 @@ async function identifyOnExternalWmsLayer(config) {
             return new LayerFeature({
                 layer,
                 id: feature.id,
+                name: feature.title ?? feature.name ?? feature.id,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,
@@ -521,7 +522,18 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
                 if (featureMetadata.bbox) {
                     featureExtent.push(...featureMetadata.bbox)
                 }
-                const featureName = featureMetadata?.properties?.name
+                let featureName = featureID
+                if (featureMetadata.properties) {
+                    const { name = null, title = null } = featureMetadata.properties
+                    const titleInCurrentLang = featureMetadata.properties[`title_${lang}`]
+                    if (name) {
+                        featureName = name
+                    } else if (title) {
+                        featureName = title
+                    } else if (titleInCurrentLang) {
+                        featureName = titleInCurrentLang
+                    }
+                }
 
                 if (outputProjection.epsg !== LV95.epsg) {
                     if (featureExtent.length === 4) {

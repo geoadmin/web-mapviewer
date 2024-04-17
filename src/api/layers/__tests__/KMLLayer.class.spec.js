@@ -46,8 +46,8 @@ describe('KMLLayer', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
         const kmlLayer = new KMLLayer({ kmlFileUrl })
-        const expectedID = `KML|${kmlFileUrl}`
-        expect(kmlLayer.id).toBe(expectedID)
+        expect(kmlLayer.id).toBe(kmlFileUrl)
+        expect(kmlLayer.baseUrl).toBe(kmlFileUrl)
     })
 
     it('should identify legacy KML', () => {

@@ -6,33 +6,33 @@ import { round } from '@/utils/numberUtils'
 function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
 
-    if (typeof urlParamValue !== 'string') {
+    if (typeof urlParamValue !== 'string' && !(urlParamValue instanceof String)) {
         promisesForAllDispatch.push(
             store.dispatch('setCrossHair', {
                 crossHair: null,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         )
-    }
-
-    const parts = urlParamValue.split(',')
-    if (parts.length === 1) {
-        promisesForAllDispatch.push(
-            store.dispatch('setCrossHair', {
-                crossHair: urlParamValue,
-                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-            })
-        )
-    } else if (parts.length === 3) {
-        const crossHair = parts[0]
-        const crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
-        promisesForAllDispatch.push(
-            store.dispatch('setCrossHair', {
-                crossHair,
-                crossHairPosition,
-                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-            })
-        )
+    } else {
+        const parts = urlParamValue.split(',')
+        if (parts.length === 1) {
+            promisesForAllDispatch.push(
+                store.dispatch('setCrossHair', {
+                    crossHair: urlParamValue,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            )
+        } else if (parts.length === 3) {
+            const crossHair = parts[0]
+            const crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
+            promisesForAllDispatch.push(
+                store.dispatch('setCrossHair', {
+                    crossHair,
+                    crossHairPosition,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            )
+        }
     }
     return Promise.all(promisesForAllDispatch)
 }
@@ -61,13 +61,13 @@ function generateCrossHairUrlParamFromStoreValues(store) {
  */
 export default class CrossHairParamConfig extends AbstractParamConfig {
     constructor() {
-        super(
-            'crosshair',
-            'setCrossHair,setCrossHairPosition',
-            dispatchCrossHairFromUrlIntoStore,
-            generateCrossHairUrlParamFromStoreValues,
-            false,
-            String
-        )
+        super({
+            urlParamName: 'crosshair',
+            mutationsToWatch: ['setCrossHair', 'setCrossHairPosition'],
+            setValuesInStore: dispatchCrossHairFromUrlIntoStore,
+            extractValueFromStore: generateCrossHairUrlParamFromStoreValues,
+            keepInUrlWhenDefault: false,
+            valueType: String,
+        })
     }
 }

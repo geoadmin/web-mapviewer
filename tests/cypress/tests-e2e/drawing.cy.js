@@ -51,7 +51,7 @@ describe('Drawing module tests', () => {
                 .should((request) =>
                     checkKMLRequest(request, [new RegExp(`<name>${title}</name>`)])
                 )
-            cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
+            cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
         function readCoordinateClipboard(name, coordinate) {
             cy.log(name)
@@ -206,10 +206,7 @@ describe('Drawing module tests', () => {
                         new RegExp(`<description>${description}</description>`),
                     ])
                 )
-            cy.readStoreValue('state.features.selectedFeatures[0].description').should(
-                'eq',
-                description
-            )
+            cy.readStoreValue('getters.selectedFeatures[0].description').should('eq', description)
 
             //  moving the marker by drag&drop on the map
             const moveInPixel = {
@@ -463,7 +460,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
 
             // checks that it adds the kml file ID in the URL while in drawing mode
-            cy.url().should('match', /layers=[^;&]*KML|[^|Drawing,f1]+/)
+            cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)
             // checks that it doesn't add adminId to the url
             cy.url().should('not.contain', 'adminId')
 
@@ -471,7 +468,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.id).to.include('KML|')
+                expect(drawingLayer.type).to.eq(LayerTypes.KML)
                 expect(drawingLayer.visible).to.be.true
             })
             // checks that it clears the drawing when the drawing layer is removed
@@ -495,7 +492,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -513,7 +510,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -530,7 +527,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -572,10 +569,10 @@ describe('Drawing module tests', () => {
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
                     )
                     cy.get(
-                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
                     ).should('not.exist')
                     cy.get(
-                        `[data-cy^="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
+                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
                     )
                         .should('be.visible')
                         .contains('Drawing')
@@ -604,13 +601,13 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
 
             // checking that the KML was correctly loaded
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
             // clicking on the single feature of the fixture
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
@@ -680,7 +677,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
 
             // checking that the KML was correctly loaded
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
@@ -688,7 +685,7 @@ describe('Drawing module tests', () => {
             // clicking on the single feature of the fixture
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
@@ -734,14 +731,6 @@ describe('Drawing module tests', () => {
             }
 
             cy.goToDrawing()
-
-            // preparing profile intercept
-            cy.intercept('**/rest/services/profile.json**', {
-                fixture: 'service-alti/profile.fixture.json',
-            }).as('profile')
-            cy.intercept('**/rest/services/profile.csv**', {
-                fixture: 'service-alti/profile.fixture.csv',
-            }).as('profileAsCsv')
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(100, 200)
@@ -904,7 +893,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-popup-info-container"]').should('not.exist')
 
             // deleting feature
-            cy.get('[data-cy="profile-popup-delete-button"]').click()
+            cy.get('[data-cy="drawing-style-delete-button"]').click()
             cy.get('[data-cy="profile-popup-content"]').should('not.exist')
             cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
 

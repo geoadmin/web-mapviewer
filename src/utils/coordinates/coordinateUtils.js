@@ -164,3 +164,37 @@ export function wrapXCoordinates(coordinates, projection, inPlace = false) {
     }
     return wrapX(wrappedCoords, getProjection(projection.epsg))
 }
+
+/**
+ * Returns the coordinates unwrapped if they were placed into an extra array. This can happen when
+ * dealing with GeoJSON coordinate, where some geometry types require coordinate in a format such as
+ * [ [ [x,y], [x,y] ], [...feature2...] ]
+ *
+ * Most of our backends only deal with the first feature of such array, this function will unwrap
+ * it, or return the array as is if it is not required
+ *
+ * @param {Array} geometryCoordinates
+ */
+export function unwrapGeometryCoordinates(geometryCoordinates) {
+    if (Array.isArray(geometryCoordinates)) {
+        const [firstEntry] = geometryCoordinates
+        if (Array.isArray(firstEntry) && !(typeof firstEntry[0] === 'number')) {
+            return firstEntry
+        }
+    }
+    return geometryCoordinates
+}
+
+/**
+ * Remove any Z value from a set of coordinates
+ *
+ * @param {[[Number, Number]] | [[Number, Number, Number]]} coordinates
+ * @returns {[[Number, Number]] | null}
+ */
+export function removeZValues(coordinates) {
+    const unwrapped = unwrapGeometryCoordinates(coordinates)
+    if (!Array.isArray(unwrapped) || !unwrapped.some((coordinate) => coordinate.length > 2)) {
+        return coordinates
+    }
+    return unwrapped.map((coordinate) => [coordinate[0], coordinate[1]])
+}

@@ -464,7 +464,8 @@
     "swisstopo": "swisstopo",
     "swisstopo_service_link_href": "https://www.swisstopo.admin.ch/it/home.html",
     "swisstopo_service_link_label": "Ufficio federale di topografia swisstopo ",
-    "test_host_warning": "TESTSITE – DO NOT-SHARE -  NOT FOR OPERATIONAL USE<br/>This site is for testing purposes only. It's not meant for operational use and there's no guarantee whatsoever.",
+    "test_host_warning": "SITO DI PROVA - NON CONDIVIDERE - NON PER USO OPERATIVO",
+    "test_host_full_disclaimer": "Questo sito è solo a scopo di test. Non è destinato all'uso operativo e non vi è alcuna garanzia.",
     "text_to_display": "Descrizione del link",
     "third_party_data_warning": "Attenzione: questi dati provengono da terze parti. Il permalink usato fa riferimento probabilmente a dati di terze parti. Volete veramente caricare questi dati?",
     "tile": "Foglio",
@@ -652,5 +653,9 @@
     "kml_gpx_file_empty": "Il file KML/GPX è vuoto",
     "large_size": "Grande",
     "extra_large_size": "Extra Grande",
-    "duplicate_layer": "Mappa duplicata"
+    "duplicate_layer": "Mappa duplicata",
+    "feedback_empty_warning": "Il messaggio di segnalazione non può essere vuoto",
+    "operation_successful": "Successo!",
+    "operation_failed": "Oops! Qualcosa è andato storto. Si prega di riprovare.",
+    "operation_aborted": "Operazione annullata."
 }

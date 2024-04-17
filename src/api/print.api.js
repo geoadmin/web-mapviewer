@@ -7,7 +7,7 @@ import {
 } from '@geoblocks/mapfishprint'
 import axios from 'axios'
 
-import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import { API_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
 
@@ -15,7 +15,8 @@ const PRINTING_RESOLUTION = 96 // dpi
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
-const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+// const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
+const SERVICE_PRINT_URL = `https://sys-map.int.bgdi.ch/api/print3/print/default`
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
@@ -38,6 +39,35 @@ class GeoAdminCustomizer extends BaseCustomizer {
         }
         // Call parent layerFilter method for other layers
         return super.layerFilter(layerState)
+    }
+
+    /**
+     * Remove the "editableFeature" adn "geodesic" property from the feature as it is not needed and
+     * can cause issues with mapfishprint
+     *
+     * @param {State} layerState
+     * @param {GeoJSONFeature} feature Manipulated feature
+     */
+    feature(layerState, feature) {
+        // cause circular reference issues
+        delete feature.properties?.geodesic
+        // unnecessary properties for printing and cause mapfishprint to throw an error
+        delete feature.properties?.editableFeature
+    }
+
+    /**
+     * Manipulate the symbolizer of a line feature before printing it. In this case replace the
+     * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
+     * @param {Stroke} stroke Stroke style of the line feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    line(layerState, symbolizer, stroke) {
+        if (symbolizer?.strokeDashstyle === '8') {
+            symbolizer.strokeDashstyle = 'dash'
+        }
     }
 }
 
@@ -196,6 +226,8 @@ export class PrintError extends Error {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
  *   from the print. Default is `[]`
+ * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
+ *   null, let the server decide. Default is `null`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -209,6 +241,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        outputFilename = null,
     } = config
 
     if (!qrCodeUrl) {
@@ -267,6 +300,8 @@ async function transformOlMapToPrintParams(olMap, config) {
             },
             format: 'pdf',
             layout: layout.name,
+            lang,
+            outputFilename,
         }
         if (layersWithLegends.length > 0) {
             spec.attributes.legend = {
@@ -284,7 +319,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         return spec
     } catch (error) {
         log.error("Couldn't encode map to print request", error)
-        throw new PrintError('Failed to print the map')
+        throw new PrintError(`Couldn't encode map to print request: ${error}`)
     }
 }
 
@@ -309,6 +344,8 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of IDs of OpenLayers layer to exclude from
  *   the print. Default is `[]`
+ * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
+ *   null, let the server decide. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -324,6 +361,7 @@ export async function createPrintJob(map, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        outputFilename = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -337,12 +375,13 @@ export async function createPrintJob(map, config) {
             printGrid,
             projection,
             excludedLayerIDs,
+            outputFilename,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
     } catch (error) {
         log.error('Error while creating print job', error)
-        return null
+        throw new PrintError(`Error while creating print job: ${error}`)
     }
 }
 
