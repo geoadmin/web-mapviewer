@@ -2,6 +2,7 @@
 import { computed, defineEmits, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import { isValidUrl } from '@/utils/utils'
 
 const i18n = useI18n()
@@ -12,25 +13,25 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    urlDescription: {
+    urlLabel: {
         type: String,
         required: true,
     },
-    extraUrlDescription: {
+    descriptionLabel: {
         type: String,
         default: null,
     },
 })
 
-const { mediaType, urlDescription, extraUrlDescription } = toRefs(props)
+const { mediaType, urlLabel, descriptionLabel } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
 const urlValid = computed(() => {
     return isValidUrl(generatedMediaLink.value)
 })
 
-const urlDescriptionValid = computed(() => {
-    return !extraUrlDescription.value || linkDescription.value
+const urlLabelValid = computed(() => {
+    return !descriptionLabel.value || linkDescription.value
 })
 
 function createVideo() {
@@ -38,10 +39,9 @@ function createVideo() {
         generatedMediaLink.value.includes('youtube.com/') ||
         generatedMediaLink.value.includes('youtu.be/')
     ) {
-        let youtubeRegExp = new RegExp(
-            '^.*(?:(?:youtu.be/|v/|vi/|u/w/|embed/|shorts/)|(?:(?:watch)??v(?:i)?=|&v(?:i)?=))([^#&?]*).*'
-        )
-        let videoId = youtubeRegExp.exec(generatedMediaLink.value)[1]
+        //taken from https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url/71010058#71010058
+        let youtubeRegExp = /(youtu.*be.*)\/(watch\?v=|embed\/|v|shorts|)(.*?((?=[&#?])|$))/
+        let videoId = youtubeRegExp.exec(generatedMediaLink.value)[3]
         return `<iframe src="${'https://www.youtube.com/embed/' + videoId}" height="200" width="auto"></iframe>`
     } else {
         return `<iframe src="${generatedMediaLink.value}" height="200" width="auto"></iframe>`
@@ -56,13 +56,13 @@ function createLink() {
 
 function addLink(generatedMediaLink) {
     switch (mediaType.value) {
-        case 'link':
+        case MediaTypes.link:
             emit('generatedMediaLink', createLink(generatedMediaLink))
             break
-        case 'image':
+        case MediaTypes.image:
             emit('generatedMediaLink', createImage(generatedMediaLink))
             break
-        case 'video':
+        case MediaTypes.video:
             emit('generatedMediaLink', createVideo(generatedMediaLink))
             break
     }
@@ -71,24 +71,24 @@ function addLink(generatedMediaLink) {
 
 <template>
     <div class="px-3 pb-2">
-        <div v-if="extraUrlDescription" class="pb-2">
+        <div v-if="descriptionLabel" class="pb-2">
             <label class="form-label" for="drawing-style-media-link-description">
-                {{ extraUrlDescription }}
+                {{ descriptionLabel }}
             </label>
             <div class="input-group d-flex needs-validation">
                 <input
                     id="drawing-style-media-link-description"
                     v-model="linkDescription"
                     type="text"
-                    placeholder="More info ..."
+                    :placeholder="i18n.t('link_description')"
                     data-cy="drawing-style-media-description-input"
                     class="feature-url-description form-control"
                     :class="{
-                        'is-invalid': urlValid && !urlDescriptionValid,
+                        'is-invalid': urlValid && !urlLabelValid,
                     }"
                 />
                 <div
-                    v-if="!urlDescriptionValid && urlValid"
+                    v-if="!urlLabelValid && urlValid"
                     class="invalid-feedback-description invalid-feedback"
                     data-cy="drawing-style-media-empty-description-error"
                 >
@@ -97,28 +97,29 @@ function addLink(generatedMediaLink) {
             </div>
         </div>
         <label class="form-label" for="drawing-style-media-url-description">
-            {{ urlDescription }}
+            {{ urlLabel }}
         </label>
         <div class="input-group d-flex needs-validation">
             <input
                 id="drawing-style-media-url-description"
                 v-model="generatedMediaLink"
                 type="text"
-                placeholder="Paste URL"
+                :placeholder="i18n.t('paste_url')"
                 data-cy="drawing-style-media-url-input"
                 class="feature-url-description form-control text-truncate"
                 :class="{
                     'is-invalid': !urlValid && generatedMediaLink,
                 }"
+                @keydown.enter="addLink(generatedMediaLink)"
             />
             <button
-                :disabled="!urlValid || !urlDescriptionValid"
+                :disabled="!urlValid || !urlLabelValid"
                 class="btn btn-outline-secondary rounded-end"
                 type="button"
                 data-cy="drawing-style-media-generate-button"
                 @click="addLink(generatedMediaLink)"
             >
-                Add
+                {{ i18n.t('add') }}
             </button>
             <div
                 v-if="generatedMediaLink && !urlValid"

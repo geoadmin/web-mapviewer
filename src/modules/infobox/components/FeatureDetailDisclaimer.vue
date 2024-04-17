@@ -1,6 +1,5 @@
 <script setup>
-import tippy from 'tippy.js'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -8,10 +7,17 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
+/** IframeHosts contains a list of all iframe hosts and a list of all external iframe hosts */
 const props = defineProps({
-    hosts: {
+    iframeHosts: {
         type: Object,
         required: true,
+        validator: (value) => {
+            if (value.all.length > 0 && value.external) {
+                return value.all.every((element) => Boolean(new URL('https://' + element)))
+            }
+            return false
+        },
     },
     title: {
         type: String,
@@ -19,27 +25,12 @@ const props = defineProps({
     },
 })
 
-const { hosts, title } = toRefs(props)
+const { iframeHosts, title } = toRefs(props)
 const i18n = useI18n()
 const store = useStore()
 
-let tippyInstance = null
-let tippyAnchor = ref(null)
-
 const disclaimerIsShown = computed(() => {
     return store.state.ui.showDisclaimer
-})
-watch(disclaimerIsShown, () => {
-    // wait one tick to ensure the tippy is created at the right element
-    nextTick(() => {
-        updateTippy()
-    })
-})
-onMounted(() => {
-    updateTippy()
-})
-onBeforeUnmount(() => {
-    tippyInstance?.destroy()
 })
 function setDisclaimerAgree() {
     store.dispatch('setShowDisclaimer', {
@@ -47,19 +38,10 @@ function setDisclaimerAgree() {
         ...dispatcher,
     })
 }
-function updateTippy() {
-    tippyInstance = tippy(tippyAnchor.value, {
-        content: hosts.value.all,
-        arrow: true,
-        interactive: true,
-        placement: 'top',
-        theme: 'selectable',
-    })
-}
 </script>
 
 <template>
-    <div v-if="hosts.external.length && disclaimerIsShown">
+    <div v-if="iframeHosts.external.length && disclaimerIsShown">
         <div class="py-1">{{ i18n.t(title) }}</div>
         <div
             data-cy="feature-detail-media-disclaimer"
@@ -68,7 +50,7 @@ function updateTippy() {
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :source-name="hosts.external.toString()"
+                    :source-name="iframeHosts.external.toString()"
                 >
                     <button
                         class="d-flex btn btn-default btn-xs"
@@ -77,7 +59,7 @@ function updateTippy() {
                         <FontAwesomeIcon style="color: white" size="lg" icon="info-circle" />
                     </button>
                 </ThirdPartyDisclaimer>
-                <div ref="tippyAnchor" class="px-1 d-flex">
+                <div class="px-1 d-flex">
                     {{ i18n.t('media_disclaimer') }}
                 </div>
             </div>
@@ -92,20 +74,18 @@ function updateTippy() {
     </div>
     <div v-else class="d-flex align-items-center">
         <div class="d-flex py-1 align-items-center">{{ i18n.t(title) }}</div>
-        <div ref="tippyAnchor">
-            <button
-                :disabled="!hosts.external.length"
-                class="d-flex btn btn-default btn-xs border-0"
-                data-cy="feature-detail-media-disclaimer-button-open"
-                @click="setDisclaimerAgree"
-            >
-                <FontAwesomeIcon
-                    size="lg"
-                    :color="!hosts.external.length ? 'black' : 'red'"
-                    :icon="!hosts.external.length ? 'info-circle' : 'fa-user'"
-                />
-            </button>
-        </div>
+        <button
+            :disabled="!iframeHosts.external.length"
+            class="d-flex btn btn-default btn-xs border-0"
+            data-cy="feature-detail-media-disclaimer-button-open"
+            @click="setDisclaimerAgree"
+        >
+            <FontAwesomeIcon
+                size="lg"
+                :color="!iframeHosts.external.length ? 'black' : 'red'"
+                :icon="!iframeHosts.external.length ? 'info-circle' : 'fa-user'"
+            />
+        </button>
     </div>
 </template>
 

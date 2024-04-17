@@ -13,6 +13,7 @@ import DrawingStyleMediaLink from '@/modules/infobox/components/styling/DrawingS
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
+import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
@@ -123,23 +124,24 @@ function onDelete() {
 function onAddMediaLink(descriptionMediaLink) {
     mediaPopover.value?.forEach((popover) => popover.hidePopover())
     description.value += descriptionMediaLink
+    console.error(description.value)
 }
 
 function mediaTypes() {
     return [
         {
-            type: 'link',
+            type: MediaTypes.link,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link',
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: 'image',
+            type: MediaTypes.image,
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image',
         },
         {
-            type: 'video',
+            type: MediaTypes.video,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film',
         },
@@ -180,8 +182,8 @@ function mediaTypes() {
                         >
                             <DrawingStyleMediaLink
                                 :media-type="media.type"
-                                :url-description="$t('url_' + media.type)"
-                                :extra-url-description="
+                                :url-label="$t('url_' + media.type)"
+                                :description-label="
                                     media.extraUrlDescription ? $t(media.extraUrlDescription) : null
                                 "
                                 @generated-media-link="onAddMediaLink"

@@ -12,7 +12,9 @@
         fluid
         @close="showCompleteDisclaimer = false"
     >
-        {{ $t('external_data_warning').replace('--URL--', sourceName) }}
+        <div class="external_data_warning">
+            {{ $t('external_data_warning').replace('--URL--', sourceName) }}
+        </div>
     </ModalWithBackdrop>
 </template>
 
@@ -73,3 +75,9 @@ export default {
     },
 }
 </script>
+<style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+.external_data_warning {
+    @extend .clear-no-ios-long-press;
+}
+</style>
