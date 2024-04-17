@@ -182,7 +182,9 @@ export async function getKmlFromRequest(req) {
     console.log(`getKMLRequest ${req.method} ${req.url} body=${req.body}`)
     console.log(`getKMLRequest ${req.method} ${req.url} blob=${paramBlob}`)
     try {
-        return new TextDecoder().decode(pako.ungzip(paramBlob))
+        const kml = new TextDecoder().decode(pako.ungzip(paramBlob))
+        console.log(`getKMLRequest ${req.method} ${req.url} kml=${kml}`)
+        return kml
     } catch (error) {
         console.error(`Failed to unzip KML file from payload`, req, error)
         expect(`Failed to unzip KML file from request payload for ${req.method} ${req.url}`).to.be

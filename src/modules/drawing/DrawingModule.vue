@@ -112,6 +112,7 @@ onMounted(() => {
         isNewDrawing.value = false
         addKmlLayerToDrawing(activeKmlLayer.value)
     }
+    log.debug(`Add drawing layer to OpenLayer`, drawingLayer)
     olMap.addLayer(drawingLayer)
 
     // listening for "Delete" keystroke (to remove last point when drawing lines or measure)
@@ -126,6 +127,7 @@ onBeforeUnmount(() => {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
     store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
 
+    log.debug(`Remove drawing layer to OpenLayer`, drawingLayer)
     drawingLayer.getSource().clear()
     olMap.removeLayer(drawingLayer)
 

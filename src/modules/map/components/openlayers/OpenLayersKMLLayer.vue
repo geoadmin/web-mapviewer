@@ -43,7 +43,10 @@ const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.
 const url = computed(() => kmlLayerConfig.value.baseUrl)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
 
-watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(opacity, (newOpacity) => {
+    log.debug(`KML layer opacity changed to ${newOpacity}`)
+    layer.setOpacity(newOpacity)
+})
 watch(projection, createSourceForProjection)
 watch(iconsArePresent, createSourceForProjection)
 watch(availableIconSets, createSourceForProjection)
@@ -62,6 +65,7 @@ const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
+    log.debug(`KML Layer mounted`)
     if (!iconsArePresent.value) {
         store.dispatch('loadAvailableIconSets', dispatcher)
     }
@@ -79,6 +83,7 @@ onUnmounted(() => {
         delete window.kmlLayer
         delete window.kmlLayerUrl
     }
+    log.debug(`KML Layer unmounted`)
 })
 
 function createSourceForProjection() {
