@@ -327,7 +327,7 @@ export default {
                 // each geometry instance will only be rendered in 3D to save GPU memory.
                 scene3DOnly: true,
                 // activating shadows so that buildings cast shadows on the ground/roof elements
-                shadows: true,
+                shadows: false,
                 // no casting of buildings shadow on the terrain
                 terrainShadows: ShadowMode.DISABLED,
                 // skybox/stars visible if sufficiently zoomed out and looking at the horizon
@@ -351,7 +351,7 @@ export default {
 
             const clock = this.viewer.clock
             // good time/date for lighting conditions
-            clock.currentTime = JulianDate.fromIso8601('2024-06-20T07:00')
+            clock.currentTime = JulianDate.fromIso8601('2024-06-20T10:00')
 
             const shadowMap = this.viewer.shadowMap
             // lighter shadow than default (closer to 0.1 the darker)
@@ -376,7 +376,8 @@ export default {
             globe.showGroundAtmosphere = false
             globe.showWaterEffect = false
             // increases the LOD (Cesium will load one tile further down the zoom pyramid) => higher rez WMTS
-            globe.maximumScreenSpaceError = 0.5
+            // currently we do not set it, as the loading of the higher rez slows down the 3D user experience
+            //globe.maximumScreenSpaceError = 0.5
 
             const sscController = scene.screenSpaceCameraController
             sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE

@@ -32,7 +32,7 @@ export default {
          *
          * @type Boolean
          */
-        showVegetation: false,
+        showVegetation: true,
         /**
          * Flag telling if the 3D viewer should show buildings (ch.swisstopo.swisstlbuildings3d.3d).
          * As this layer has already been updated for the latest Cesium stack, we activate it by
