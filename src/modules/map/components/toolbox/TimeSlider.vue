@@ -304,10 +304,12 @@ function setYearToInputIfValid() {
                     data-cy="times-slider-cursor"
                     class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
                     :style="cursorPosition"
-                    @touchstart.passive="grabCursor"
-                    @mousedown.passive="grabCursor"
                 >
-                    <div class="px-2 border-end d-flex align-items-center">
+                    <div
+                        class="px-2 border-end d-flex align-items-center"
+                        @touchstart.passive="grabCursor"
+                        @mousedown.passive="grabCursor"
+                    >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                     <input
@@ -320,7 +322,11 @@ function setYearToInputIfValid() {
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                         @input="setYearToInputIfValid"
                     />
-                    <div class="px-2 border-start d-flex align-items-center">
+                    <div
+                        class="px-2 border-start d-flex align-items-center"
+                        @touchstart.passive="grabCursor"
+                        @mousedown.passive="grabCursor"
+                    >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                 </div>
@@ -396,7 +402,7 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
             position: absolute;
             top: 0.75 * $spacer;
             height: $cursor-height;
-            width: 92px;
+            width: 100px;
             &-year {
                 position: relative;
                 top: 1px;
@@ -488,13 +494,13 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
     resize: none;
 }
 .form-control.time-slider-bar-cursor-year {
-    padding: 0 !important;
+    padding: 3px !important;
 }
 .form-control.is-invalid.time-slider-bar-cursor-year {
-    background-size: 0 !important;
+    background-size: 0;
 }
 .form-control:focus.time-slider-bar-cursor-year {
-    outline: none !important;
-    box-shadow: none !important;
+    outline: none;
+    box-shadow: none;
 }
 </style>
