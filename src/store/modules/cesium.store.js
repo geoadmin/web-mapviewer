@@ -1,7 +1,7 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
 const labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
-const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
+const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', 'v1', false)
 const buildingsLayer = new GeoAdmin3DLayer(
     'ch.swisstopo.swissbuildings3d.3d',
     'v1',
@@ -32,7 +32,7 @@ export default {
          *
          * @type Boolean
          */
-        showVegetation: false,
+        showVegetation: true,
         /**
          * Flag telling if the 3D viewer should show buildings (ch.swisstopo.swisstlbuildings3d.3d).
          * As this layer has already been updated for the latest Cesium stack, we activate it by
