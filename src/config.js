@@ -75,7 +75,7 @@ export const API_SERVICE_ALTI_BASE_URL = enforceEndingSlashInUrl(
  *
  * @type Integer
  */
-export const PROFILE_MAX_POINTS = 10000
+export const PROFILE_MAX_POINTS = 5000
 /**
  * Base part of the URL to use when requesting the search service.
  *

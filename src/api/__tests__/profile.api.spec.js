@@ -4,6 +4,10 @@ import { describe, it } from 'vitest'
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
+import { PROFILE_MAX_POINTS } from '@/config'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+
+import { getProfileDataForChunk } from '../profile/profile.api'
 
 const testProfile = new ElevationProfile([
     new ElevationProfileSegment([
@@ -72,5 +76,21 @@ describe('Profile calculation', () => {
         // between 3 and 4 : 50m of distance and 110m of elevation, so sqrt(50^2 + 110^2) ~= 120.83m
         // total : 397.86m
         expect(testProfile.slopeDistance).to.approximately(397.86, 0.01)
+    })
+    it('blocks the query from being sent to backend if the profile has too many points', () => {
+        const chunk = {
+            coordinates: [],
+            isWithinBounds: true,
+        }
+        for (let i = 0; i < PROFILE_MAX_POINTS + 50; i++) {
+            chunk.coordinates.push([[LV95.bounds.center[0] + i], [LV95.bounds.center[1] + i]])
+        }
+        const result = getProfileDataForChunk(chunk, null, 0, LV95)
+        result.then((data) => {
+            expect(data.points.length).to.eq(PROFILE_MAX_POINTS + 50)
+            data.points.forEach((profilePoint) =>
+                expect(profilePoint.hasElevationData).to.eq(false)
+            )
+        })
     })
 })
