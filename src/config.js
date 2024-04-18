@@ -70,6 +70,13 @@ export const API_SERVICE_ALTI_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
+ * Limit the number of points there can be in a profile to send the query to the backend. Any query
+ * with more points will be blocked.
+ *
+ * @type Integer
+ */
+export const PROFILE_MAX_POINTS = 10000
+/**
  * Base part of the URL to use when requesting the search service.
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST

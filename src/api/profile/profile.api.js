@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL, PROFILE_MAX_POINTS } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
@@ -38,8 +38,8 @@ function parseProfileFromBackendResponse(backendResponse, startingDist, outputPr
  * @returns {ElevationProfile}
  * @throws ProfileError
  */
-async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
-    if (chunk.isWithinBounds) {
+export async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
+    if (chunk.isWithinBounds && chunk?.coordinates.length <= PROFILE_MAX_POINTS) {
         try {
             const dataForChunk = await axios({
                 url: `${API_SERVICE_ALTI_BASE_URL}rest/services/profile.json`,
@@ -78,6 +78,11 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
             }
             throw new ProfileError('Error while trying to fetch profile data', 'network_error')
         }
+    } else if (chunk.coordinates.length > PROFILE_MAX_POINTS) {
+        log.error(
+            'Too many points requested in this profile.Temporarily Blocking the request to the Backend',
+            chunk
+        )
     }
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
     let lastDist = startingDist
