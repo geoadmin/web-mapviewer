@@ -47,10 +47,17 @@ export const pointStyle = {
         color: hexToRgba(black),
     }),
 }
-export const circleStyle = new Circle({
+export const whiteCircleStyle = new Circle({
     ...pointStyle,
     fill: new Fill({
         color: hexToRgba(white),
+    }),
+})
+
+export const redCircleStyle = new Circle({
+    ...pointStyle,
+    fill: new Fill({
+        color: hexToRgba(red),
     }),
 })
 /** Style for grabbing points when editing a feature */
@@ -58,11 +65,12 @@ export const sketchPointStyle = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
 })
-export const gpxStyle = new Style({
-    fill: redFill,
-    stroke: redStroke,
-    image: circleStyle,
-})
+
+export const gpxStyles = {
+    Point: new Style({ image: redCircleStyle }),
+    LineString: new Style({ stroke: redStroke, fill: redFill }),
+    MultiLineString: new Style({ stroke: redStroke, fill: redFill }),
+}
 
 export const geolocationPointStyle = new Style({
     image: new CircleStyle({
