@@ -3,10 +3,10 @@ import { Circle, Fill, Style } from 'ol/style'
 
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import {
-    circleStyle,
     dashedRedStroke,
     redStroke,
     sketchPointStyle,
+    whiteCircleStyle,
     whiteSketchFill,
 } from '@/utils/styleUtils.js'
 
@@ -46,7 +46,7 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
     the white dot when selecting a symbol or text feature. */
     const styles = [
         new Style({
-            image: circleStyle,
+            image: whiteCircleStyle,
             zIndex: 30,
         }),
     ]
@@ -58,7 +58,7 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
         // grabable.)
         styles.push(
             new Style({
-                image: circleStyle,
+                image: whiteCircleStyle,
                 geometry(f) {
                     const geometry = f.getGeometry()
                     let coordinates = geometry.getCoordinates()

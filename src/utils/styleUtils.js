@@ -47,7 +47,14 @@ export const pointStyle = {
         color: hexToRgba(black),
     }),
 }
-export const circleStyle = new Circle({
+export const whiteCircleStyle = new Circle({
+    ...pointStyle,
+    fill: new Fill({
+        color: hexToRgba(white),
+    }),
+})
+
+export const redCircleStyle = new Circle({
     ...pointStyle,
     fill: new Fill({
         color: hexToRgba(red),
@@ -58,14 +65,9 @@ export const sketchPointStyle = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
 })
-export const gpxStyle = new Style({
-    fill: redFill,
-    stroke: redStroke,
-    image: circleStyle,
-})
 
 export const gpxStyles = {
-    Point: new Style({ image: circleStyle }),
+    Point: new Style({ image: redCircleStyle }),
     LineString: new Style({ stroke: redStroke, fill: redFill }),
     MultiLineString: new Style({ stroke: redStroke, fill: redFill }),
 }
