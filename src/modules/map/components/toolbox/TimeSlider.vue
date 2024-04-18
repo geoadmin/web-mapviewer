@@ -1,11 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
+const i18n = useI18n()
 
 /**
  * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
@@ -47,6 +50,9 @@ let playYearInterval = null
 // refs to dom elements
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
+
+const yearCursorInput = ref(null)
+let tippyInstance = null
 
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
@@ -133,6 +139,13 @@ watch(screenWidth, (newValue) => {
 watch(currentYear, () => {
     displayedYear.value = currentYear.value
 })
+watch(invalidYear, () => {
+    if (invalidYear.value) {
+        tippyInstance.show()
+    } else {
+        tippyInstance.hide()
+    }
+})
 
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
 // dispatch too many times when the user is moving the time slider (we wait for mouseup our
@@ -162,11 +175,26 @@ onMounted(() => {
     } else {
         currentYear.value = previewYear.value
     }
+    tippyInstance = tippy(yearCursorInput.value, {
+        content:
+            i18n.t('outside_valid_year_range') +
+            '{' +
+            ALL_YEARS[0] +
+            '-' +
+            ALL_YEARS[ALL_YEARS.length - 1] +
+            '}',
+        arrow: true,
+        hideOnClick: false,
+        placement: 'bottom',
+        trigger: 'manual',
+        theme: 'danger',
+    })
 })
 
 onUnmounted(() => {
     // TODO : when we have an 'activeTimeSlider' in store, we'll get rid of this.
     store.dispatch('clearPreviewYear', dispatcher)
+    tippyInstance.destroy()
 })
 
 function setCurrentYearAndDispatchToStore(year) {
@@ -313,6 +341,7 @@ function setYearToInputIfValid() {
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                     <input
+                        ref="yearCursorInput"
                         v-model="displayedYear"
                         class="form-control time-slider-bar-cursor-year"
                         :class="{ 'is-invalid': invalidYear }"
