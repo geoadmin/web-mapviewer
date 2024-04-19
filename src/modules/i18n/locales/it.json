@@ -657,5 +657,6 @@
     "feedback_empty_warning": "Il messaggio di segnalazione non può essere vuoto",
     "operation_successful": "Successo!",
     "operation_failed": "Oops! Qualcosa è andato storto. Si prega di riprovare.",
-    "operation_aborted": "Operazione annullata."
+    "operation_aborted": "Operazione annullata.",
+    "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:"
 }

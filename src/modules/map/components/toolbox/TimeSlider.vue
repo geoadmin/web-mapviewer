@@ -1,11 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
+const i18n = useI18n()
 
 /**
  * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
@@ -38,6 +41,7 @@ const PLAY_BUTTON_SIZE = 54
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
 const currentYear = ref(YOUNGEST_YEAR)
+const displayedYear = ref(YOUNGEST_YEAR)
 let cursorX = 0
 let playYearsWithData = false
 let yearCursorIsGrabbed = false
@@ -47,12 +51,22 @@ let playYearInterval = null
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
 
+const yearCursorInput = ref(null)
+let tippyInstance = null
+
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
+const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() =>
     store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
 )
 const previewYear = computed(() => store.state.layers.previewYear)
+const invalidYear = computed(
+    () =>
+        displayedYear.value != previewYear.value &&
+        displayedYear.value.toString().length == 4 &&
+        !allYears.value.includes(parseInt(displayedYear.value))
+)
 
 /**
  * Filtering of all years to only give ones that will need to be shown in the label section of the
@@ -123,6 +137,17 @@ const yearsWithData = computed(() => {
 watch(screenWidth, (newValue) => {
     setSliderWidth(newValue)
 })
+watch(currentYear, () => {
+    displayedYear.value = currentYear.value
+})
+watch(invalidYear, () => {
+    if (invalidYear.value) {
+        tippyInstance.show()
+    } else {
+        tippyInstance.hide()
+    }
+})
+watch(lang, setTooltipContent)
 
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
 // dispatch too many times when the user is moving the time slider (we wait for mouseup our
@@ -152,12 +177,29 @@ onMounted(() => {
     } else {
         currentYear.value = previewYear.value
     }
+    tippyInstance = tippy(yearCursorInput.value, {
+        content: tooltipContent,
+        arrow: true,
+        hideOnClick: false,
+        placement: 'bottom',
+        trigger: 'manual',
+        theme: 'danger',
+    })
 })
 
 onUnmounted(() => {
     // TODO : when we have an 'activeTimeSlider' in store, we'll get rid of this.
     store.dispatch('clearPreviewYear', dispatcher)
+    tippyInstance.destroy()
 })
+
+function tooltipContent() {
+    return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+}
+
+function setTooltipContent() {
+    tippyInstance.setContent(tooltipContent)
+}
 
 function setCurrentYearAndDispatchToStore(year) {
     currentYear.value = year
@@ -268,6 +310,14 @@ function togglePlayYearsWithData() {
         playYearInterval = null
     }
 }
+function setYearToInputIfValid() {
+    if (
+        currentYear.value != displayedYear.value &&
+        allYears.value.includes(parseInt(displayedYear.value))
+    ) {
+        setCurrentYearAndDispatchToStore(parseInt(displayedYear.value))
+    }
+}
 </script>
 
 <template>
@@ -285,21 +335,37 @@ function togglePlayYearsWithData() {
                     data-cy="times-slider-cursor"
                     class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
                     :style="cursorPosition"
-                    @touchstart.passive="grabCursor"
-                    @mousedown.passive="grabCursor"
                 >
-                    <div class="px-2 border-end d-flex align-items-center">
+                    <div
+                        class="px-2 border-end d-flex align-items-center"
+                        data-cy="time-slider-bar-cursor-grab"
+                        @touchstart.passive="grabCursor"
+                        @mousedown.passive="grabCursor"
+                    >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
-                    <div data-cy="time-slider-current-year" class="time-slider-bar-cursor-year">
-                        {{ currentYear }}
-                    </div>
-                    <div class="px-2 border-start d-flex align-items-center">
+                    <input
+                        ref="yearCursorInput"
+                        v-model="displayedYear"
+                        class="form-control time-slider-bar-cursor-year"
+                        :class="{ 'is-invalid': invalidYear }"
+                        data-cy="time-slider-bar-cursor-year"
+                        maxlength="4"
+                        type="text"
+                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                        @input="setYearToInputIfValid"
+                    />
+                    <div
+                        class="px-2 border-start d-flex align-items-center"
+                        @touchstart.passive="grabCursor"
+                        @mousedown.passive="grabCursor"
+                    >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                 </div>
                 <div
                     ref="yearCursorArrow"
+                    data-cy="time-slider-bar-cursor-arrow"
                     class="time-slider-bar-cursor-arrow"
                     :style="cursorArrowPosition"
                 />
@@ -369,7 +435,7 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
             position: absolute;
             top: 0.75 * $spacer;
             height: $cursor-height;
-            width: 92px;
+            width: 100px;
             &-year {
                 position: relative;
                 top: 1px;
@@ -450,6 +516,20 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
         display: inline-flex;
         width: 32px;
         text-align: center;
+    }
+}
+.time-slider-bar-cursor-year {
+    &.form-control {
+        padding: 3px;
+        border-color: $white;
+        &.is-invalid {
+            padding: 3px;
+            background-size: 0;
+        }
+        &:focus {
+            outline: none;
+            box-shadow: none;
+        }
     }
 }
 </style>

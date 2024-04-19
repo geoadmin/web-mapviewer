@@ -655,5 +655,6 @@
     "feedback_empty_warning": "La messadi dal raport po betg esser vegnida lasciada basa",
     "operation_successful": "Success! ",
     "operation_failed": "Oops! Qualche cosa è andada schabetg. Per favur, retentas.",
-    "operation_aborted": "Operaziun avorta"
+    "operation_aborted": "Operaziun avorta",
+    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:"
 }

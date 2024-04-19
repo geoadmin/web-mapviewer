@@ -657,5 +657,6 @@
     "feedback_empty_warning": "Report message can not be empty",
     "operation_successful": "Operation successful!",
     "operation_failed": "Oops! Something went wrong. Please try again.",
-    "operation_aborted": "Operation aborted"
+    "operation_aborted": "Operation aborted",
+    "outside_valid_year_range": "The entered year is outside ot the available range:"
 }

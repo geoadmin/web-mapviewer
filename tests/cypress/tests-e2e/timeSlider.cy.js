@@ -22,12 +22,15 @@ describe('Testing the time slider', () => {
     })
     context('Time slider interactions', () => {
         function moveSlider(x) {
-            cy.get('[data-cy="times-slider-cursor"]').trigger('mousedown', { which: 1 })
-            cy.get('[data-cy="times-slider-cursor"]').trigger('mousemove', {
+            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { which: 1 })
+            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
                 screenX: Math.abs(x),
                 screenY: 0,
             })
             cy.get('[data-cy="times-slider-cursor"]').trigger('mouseup', { force: true })
+        }
+        function extractDecimal(string) {
+            return parseInt(string.match(/[\d.]+/g)[0])
         }
         const preSelectedYear = 2019
         beforeEach(() => {
@@ -37,11 +40,59 @@ describe('Testing the time slider', () => {
             cy.get('[data-cy="time-slider-button"]').click()
         })
         it('should have the preselected year correctly set', () => {
-            cy.get('[data-cy="time-slider-current-year"]').should('contain', preSelectedYear)
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', preSelectedYear)
         })
-        it('should change the year if the user drags the tooltip on the right with the mouse', () => {
-            moveSlider(200)
-            cy.get('[data-cy="time-slider-current-year"]').should('not.contain', preSelectedYear)
+        it('should move the timeslider with mouse drag and text input', () => {
+            cy.log('the year changes if the user drags the tooltip on the left with the mouse')
+            moveSlider(0)
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
+                'not.have.value',
+                preSelectedYear
+            )
+
+            cy.log('Check time slider year cursor text input')
+            cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                .invoke('attr', 'style')
+                .then(($barCursorPosition) => {
+                    cy.log($barCursorPosition)
+
+                    cy.log('Time slider does not accept non number characters')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('asdf')
+                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                        .invoke('attr', 'style')
+                        .should('eq', $barCursorPosition)
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '')
+
+                    cy.log('Time slider does not move with out of bound year')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('1191')
+                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                        .invoke('attr', 'style')
+                        .should('eq', $barCursorPosition)
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('654321')
+                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                        .invoke('attr', 'style')
+                        .should('eq', $barCursorPosition)
+                    cy.log('Time slider is limited to four characters')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '6543')
+
+                    cy.log('Time slider does not move with incomplete year')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('200')
+                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                        .invoke('attr', 'style')
+                        .should('eq', $barCursorPosition)
+
+                    cy.log('Time slider Bar moves when valid year entered')
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2000')
+                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                        .invoke('attr', 'style')
+                        .then(extractDecimal)
+                        .should('gt', extractDecimal($barCursorPosition))
+                })
         })
     })
 })
