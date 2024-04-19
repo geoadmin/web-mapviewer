@@ -660,6 +660,5 @@
     "operation_aborted": "Operazione annullata.",
     "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
     "share_map_title": "Link al geoportale della Confederazione Svizzera",
-    "link_description": "Descrizione del link  (facoltativo)",
-    "media_disclaimer": "Contiene contenuti di terze parti"
+    "linkedin_tooltip": "Condivida la carta su LinkedIn"
 }

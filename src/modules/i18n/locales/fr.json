@@ -661,5 +661,6 @@
     "outside_valid_year_range": "L'année entrée se situe en dehors de la plage disponible :",
     "share_map_title": "Lien sur le géoportail de la Confédération",
     "link_description": "Description du lien (facultatif)",
-    "media_disclaimer": "Contient du contenu de tiers"
+    "linkedin_tooltip": "Partager cette carte sur LinkedIn"
+    "share_map_title": "Lien sur le géoportail de la Confédération"
 }

@@ -660,6 +660,5 @@
     "operation_aborted": "Operation aborted",
     "outside_valid_year_range": "The entered year is outside ot the available range:",
     "share_map_title": "Link to the geoportal of Swiss Confederation",
-    "link_description": "Link description (optional)",
-    "media_disclaimer": "Contains third party content"
+    "linkedin_tooltip": "Share this map on LinkedIn"
 }
