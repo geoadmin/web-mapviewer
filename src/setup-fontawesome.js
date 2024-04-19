@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faFacebook, faWhatsapp, faXTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faFacebook, faLinkedin, faWhatsapp, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 import {
     faCheckSquare,
     faCircle as faRegularCircle,
@@ -151,5 +151,6 @@ library.add(
     // Brands
     faFacebook,
     faWhatsapp,
-    faXTwitter
+    faXTwitter,
+    faLinkedin
 )
