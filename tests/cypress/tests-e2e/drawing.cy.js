@@ -299,7 +299,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Button should be disabled if url empty')
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
+                cy.get('[data-cy="invalid-feedback-error"]').should('not.exist')
                 cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
                     'not.exist'
                 )
@@ -307,13 +307,13 @@ describe('Drawing module tests', () => {
                 cy.log('Button should be disabled if url invalid')
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(invalid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('be.visible')
+                cy.get('[data-cy="invalid-feedback-error"]').should('be.visible')
                 cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
                     'not.exist'
                 )
 
                 cy.log('Generate hyperlink')
-                cy.get('[data-cy="drawing-style-media-url-input"]').clear()
+                cy.get('[data-cy="text-input-clear"]').click()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-description-input"]').type(media_description)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -375,7 +375,6 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(180, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 waitForKmlUpdate(`(iframe src="${valid_url}".*){2}`)
@@ -384,7 +383,6 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(220, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 waitForKmlUpdate(`iframe src="${valid_whitelisted_url}"`)

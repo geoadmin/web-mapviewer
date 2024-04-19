@@ -274,7 +274,6 @@
     "layers_displayed": "Mappe visualizzate",
     "layers_results_header": "Aggiungi set di dati ...",
     "legend": "Legenda",
-    "link_description": "TODO",
     "link_bowl_crosshair": "Condividi posizione",
     "link_validate_kml": "Link alla validazione KML",
     "load_local_file": "Caricare",
@@ -293,7 +292,6 @@
     "measure": "Misurazione",
     "measure_instruction": "Digitalizzare una polilinea...",
     "measure_tooltip": "Misurazione sulla mappa",
-    "media_disclaimer": "TODO",
     "medium_size": "Medie",
     "menu": "Menu",
     "metadata_window_title": "Infobox",
@@ -660,5 +658,9 @@
     "operation_successful": "Successo!",
     "operation_failed": "Oops! Qualcosa è andato storto. Si prega di riprovare.",
     "operation_aborted": "Operazione annullata.",
-    "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:"
+    "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
+    "linkedin_tooltip": "Condivida la carta su LinkedIn",
+    "share_map_title": "Link al geoportale della Confederazione Svizzera",
+    "link_description": "Descrizione del link  (facoltativo)",
+    "media_disclaimer": "Contiene contenuti di terze parti"
 }

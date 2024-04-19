@@ -272,7 +272,6 @@
     "layers_displayed": "Chartas preschentadas",
     "layers_results_header": "Agiuntar charta ...",
     "legend": "Legenda",
-    "link_description": "TODO",
     "link_bowl_crosshair": "Parter posiziun",
     "link_validate_kml": "Link zur Validierung der KML-Datei",
     "load_local_file": "Chargiar",
@@ -291,7 +290,6 @@
     "measure": "Mesirar",
     "measure_instruction": "Digitalisai ina polilingia ...",
     "measure_tooltip": "Mesirar sin la carta",
-    "media_disclaimer": "TODO",
     "medium_size": "Media",
     "menu": "Menu",
     "metadata_window_title": "Infobox",
@@ -658,5 +656,9 @@
     "operation_successful": "Success! ",
     "operation_failed": "Oops! Qualche cosa è andada schabetg. Per favur, retentas.",
     "operation_aborted": "Operaziun avorta",
-    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:"
+    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:",
+    "linkedin_tooltip": "Partais quella charta sin LinkedIn",
+    "share_map_title": "Link al geoportail da la Confederaziun Svizra",
+    "link_description": "Descripziun link (optional)",
+    "media_disclaimer": "Contegn contens da terzas partidas"
 }
