@@ -56,6 +56,7 @@ let tippyInstance = null
 
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
+const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() =>
     store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
 )
@@ -146,6 +147,7 @@ watch(invalidYear, () => {
         tippyInstance.hide()
     }
 })
+watch(lang, setTooltipContent)
 
 // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
 // dispatch too many times when the user is moving the time slider (we wait for mouseup our
@@ -176,13 +178,7 @@ onMounted(() => {
         currentYear.value = previewYear.value
     }
     tippyInstance = tippy(yearCursorInput.value, {
-        content:
-            i18n.t('outside_valid_year_range') +
-            '{' +
-            ALL_YEARS[0] +
-            '-' +
-            ALL_YEARS[ALL_YEARS.length - 1] +
-            '}',
+        content: tooltipContent,
         arrow: true,
         hideOnClick: false,
         placement: 'bottom',
@@ -196,6 +192,14 @@ onUnmounted(() => {
     store.dispatch('clearPreviewYear', dispatcher)
     tippyInstance.destroy()
 })
+
+function tooltipContent() {
+    return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+}
+
+function setTooltipContent() {
+    tippyInstance.setContent(tooltipContent)
+}
 
 function setCurrentYearAndDispatchToStore(year) {
     currentYear.value = year

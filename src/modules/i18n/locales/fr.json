@@ -359,7 +359,6 @@
     "open_menu": "Ouvrir menu",
     "operation_canceled": "Opération annulée",
     "orange": "orange",
-    "outside_valid_year_range": "TODO",
     "page_description": "map.geo.admin.ch est la plateforme cartographique de la Confédération suisse et des cantons. Elle donne accès aux cartes, géoinformations, géodonnées, géoservices et métadonnées de la Suisse.",
     "page_title": "Cartes de la Suisse - Confédération suisse - map.geo.admin.ch",
     "parcel": "Parcelle",
@@ -658,5 +657,6 @@
     "feedback_empty_warning": "Le message ne peut pas être vide",
     "operation_successful": "Succès !",
     "operation_failed": "Oups ! Quelque chose s'est mal passé. Veuillez réessayer.",
-    "operation_aborted": "Opération annulée"
+    "operation_aborted": "Opération annulée",
+    "outside_valid_year_range": "L'année entrée se situe en dehors de la plage disponible :"
 }

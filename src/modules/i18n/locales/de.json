@@ -359,7 +359,6 @@
     "open_menu": "Menü öffnen",
     "operation_canceled": "Operation abgebrochen",
     "orange": "Orange",
-    "outside_valid_year_range": "TODO",
     "page_description": "map.geo.admin.ch ist die Kartenplattform der Schweizerischen Eidgenossenschaft. Zugang zu Karten, Geoinformationen, -daten, -dienste und Metadaten der Schweiz.",
     "page_title": "Karten der Schweiz - Schweizerische Eidgenossenschaft - map.geo.admin.ch",
     "parcel": "Parzelle",
@@ -658,5 +657,6 @@
     "feedback_empty_warning": "Die Berichtsnachricht darf nicht leer sein",
     "operation_successful": "Erfolg!",
     "operation_failed": "Hoppla! Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.",
-    "operation_aborted": "Operation abgebrochen"
+    "operation_aborted": "Operation abgebrochen",
+    "outside_valid_year_range": "Das eingegebene Jahr liegt außerhalb des verfügbaren Bereichs:"
 }
