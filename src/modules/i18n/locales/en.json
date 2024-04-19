@@ -359,7 +359,6 @@
     "open_menu": "Open menu",
     "operation_canceled": "Operation canceled",
     "orange": "orange",
-    "outside_valid_year_range": "The entered year is outside ot the available range:",
     "page_description": "map.geo.admin.ch is the mapping platform of the Swiss Confederation. Access federal geographical information, maps, data, services and metadata of Switzerland.",
     "page_title": "Maps of Switzerland - Swiss Confederation  - map.geo.admin.ch",
     "parcel": "Parcel",
@@ -658,5 +657,6 @@
     "feedback_empty_warning": "Report message can not be empty",
     "operation_successful": "Operation successful!",
     "operation_failed": "Oops! Something went wrong. Please try again.",
-    "operation_aborted": "Operation aborted"
+    "operation_aborted": "Operation aborted",
+    "outside_valid_year_range": "The entered year is outside ot the available range:"
 }
