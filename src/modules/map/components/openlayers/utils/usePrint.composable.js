@@ -61,7 +61,10 @@ export function usePrint(map) {
                 layout: store.state.print.selectedLayout,
                 scale: store.state.print.selectedScale,
                 attributions: store.getters.visibleLayers
+                    .concat([store.state.layers.currentBackgroundLayer])
+                    .filter((layer) => !!layer)
                     .map((layer) => layer.attributions)
+                    .flat()
                     .map((attribution) => attribution.name)
                     .filter((attribution, index, self) => self.indexOf(attribution) === index),
                 qrCodeUrl,
