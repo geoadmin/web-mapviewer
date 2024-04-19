@@ -72,8 +72,7 @@ function getIframeHosts(value) {
             return iframe.src
         }
     })
-    const externalHosts = hosts.filter((host) => !whitelistedHosts.includes(host))
-    return { all: hosts, external: externalHosts }
+    return hosts.filter((host) => !whitelistedHosts.includes(host))
 }
 </script>
 
@@ -85,14 +84,14 @@ function getIframeHosts(value) {
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div
-                v-for="[key, value, iframeHosts] in sanitizedFeatureDataEntries"
+                v-for="[key, value, externalIframeHosts] in sanitizedFeatureDataEntries"
                 :key="key"
                 class="mb-1"
             >
                 <FeatureDetailDisclaimer
-                    v-if="iframeHosts.all.length"
+                    v-if="externalIframeHosts.length"
                     class="fw-bold"
-                    :iframe-hosts="iframeHosts"
+                    :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 ></FeatureDetailDisclaimer>
                 <div v-else class="fw-bold">{{ i18n.t(key) }}</div>
