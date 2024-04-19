@@ -297,31 +297,14 @@ describe('Drawing module tests', () => {
                 cy.log('Open hyperlink popup')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
 
-                cy.log('Button should be disabled if url and description empty')
+                cy.log('Button should be disabled if url empty')
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
-                cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
-                    'not.exist'
-                )
-
-                cy.log('Button should be disabled if description empty')
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
-                cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
-                    'be.visible'
-                )
-
-                cy.log('Button should be enabled if url and description valid')
-                cy.get('[data-cy="drawing-style-media-description-input"]').type(media_description)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
                 cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('not.exist')
                 cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
                     'not.exist'
                 )
 
                 cy.log('Button should be disabled if url invalid')
-                cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(invalid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
                 cy.get('[data-cy="drawing-style-media-invalid-url-error"]').should('be.visible')
@@ -332,6 +315,7 @@ describe('Drawing module tests', () => {
                 cy.log('Generate hyperlink')
                 cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-description-input"]').type(media_description)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 cy.get('[data-cy="drawing-style-feature-description"]').should(
@@ -341,9 +325,22 @@ describe('Drawing module tests', () => {
                 waitForKmlUpdate(`href="${valid_url}".*`)
                 cy.get('[data-cy="infobox-close"]').click()
 
-                cy.log('Open image embed popup')
+                cy.log('Entering no description should use link as description')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(60, 160)
+                cy.get('[data-cy="drawing-style-link-button"]').click()
+                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+                cy.get('[data-cy="drawing-style-feature-description"]').should(
+                    'have.value',
+                    `<a target="_blank" href="${valid_url}">${valid_url}</a>`
+                )
+                waitForKmlUpdate(`(${valid_url}.*){3}`)
+                cy.get('[data-cy="infobox-close"]').click()
+
+                cy.log('Open image embed popup')
+                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+                cy.get('[data-cy="ol-map"]').click(100, 160)
                 cy.get('[data-cy="drawing-style-image-button"]').click()
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -360,7 +357,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Open video embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(100, 160)
+                cy.get('[data-cy="ol-map"]').click(140, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -376,7 +373,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(140, 160)
+                cy.get('[data-cy="ol-map"]').click(180, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
@@ -385,7 +382,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(180, 160)
+                cy.get('[data-cy="ol-map"]').click(220, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url-input"]').clear()
                 cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
@@ -395,7 +392,7 @@ describe('Drawing module tests', () => {
 
                 cy.closeDrawingMode()
                 cy.closeMenuIfMobile()
-                waitForKmlUpdate(`(ExtendedData.*){14}`)
+                waitForKmlUpdate(`(ExtendedData.*){16}`)
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.log('Hyperlink exists after sanitize')
@@ -407,9 +404,21 @@ describe('Drawing module tests', () => {
                     .invoke('attr', 'href')
                     .should('eq', `${valid_url}`)
 
+                cy.log('blank attribute is not removed by sanitize')
+                cy.get('[data-cy="feature-detail-description-content"]')
+                    .find('a')
+                    .invoke('attr', 'target')
+                    .should('eq', '_blank')
+
+                cy.log('noopener attribute exists due to _blank')
+                cy.get('[data-cy="feature-detail-description-content"]')
+                    .find('a')
+                    .invoke('attr', 'rel')
+                    .should('eq', 'noopener')
+
                 cy.log('Image link exists after sanitize')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(60, 160)
+                cy.get('[data-cy="ol-map"]').click(100, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
                     .find('img')
@@ -418,7 +427,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Video link has disclaimer')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(100, 160)
+                cy.get('[data-cy="ol-map"]').click(140, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
 
                 cy.log('Disclaimer provides more information on click')
@@ -441,7 +450,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Closing disclaimer persists when selecting different marker')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(140, 160)
+                cy.get('[data-cy="ol-map"]').click(180, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
 
                 cy.log('Clicking button again reopens disclaimer')
@@ -450,7 +459,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Disclaimer should not appear when host is whitelisted')
                 cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
-                cy.get('[data-cy="ol-map"]').click(180, 160)
+                cy.get('[data-cy="ol-map"]').click(220, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             })
         })

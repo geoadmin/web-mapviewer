@@ -30,10 +30,6 @@ const urlValid = computed(() => {
     return isValidUrl(generatedMediaLink.value)
 })
 
-const urlLabelValid = computed(() => {
-    return !descriptionLabel.value || linkDescription.value
-})
-
 function createVideo() {
     if (
         generatedMediaLink.value.includes('youtube.com/') ||
@@ -51,7 +47,11 @@ function createImage() {
     return `<image src="${generatedMediaLink.value}" style="max-height:200px;"/>`
 }
 function createLink() {
-    return `<a target="_blank" href="${generatedMediaLink.value}">${linkDescription.value}</a>`
+    if (linkDescription.value) {
+        return `<a target="_blank" href="${generatedMediaLink.value}">${linkDescription.value}</a>`
+    } else {
+        return `<a target="_blank" href="${generatedMediaLink.value}">${generatedMediaLink.value}</a>`
+    }
 }
 
 function addLink(generatedMediaLink) {
@@ -83,17 +83,7 @@ function addLink(generatedMediaLink) {
                     :placeholder="i18n.t('link_description')"
                     data-cy="drawing-style-media-description-input"
                     class="feature-url-description form-control"
-                    :class="{
-                        'is-invalid': urlValid && !urlLabelValid,
-                    }"
                 />
-                <div
-                    v-if="!urlLabelValid && urlValid"
-                    class="invalid-feedback-description invalid-feedback"
-                    data-cy="drawing-style-media-empty-description-error"
-                >
-                    {{ i18n.t('empty_description') }}
-                </div>
             </div>
         </div>
         <label class="form-label" for="drawing-style-media-url-description">
@@ -113,7 +103,7 @@ function addLink(generatedMediaLink) {
                 @keydown.enter="addLink(generatedMediaLink)"
             />
             <button
-                :disabled="!urlValid || !urlLabelValid"
+                :disabled="!urlValid"
                 class="btn btn-outline-secondary rounded-end"
                 type="button"
                 data-cy="drawing-style-media-generate-button"

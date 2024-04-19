@@ -124,7 +124,6 @@ function onDelete() {
 function onAddMediaLink(descriptionMediaLink) {
     mediaPopover.value?.forEach((popover) => popover.hidePopover())
     description.value += descriptionMediaLink
-    console.error(description.value)
 }
 
 function mediaTypes() {
