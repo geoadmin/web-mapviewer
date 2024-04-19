@@ -7,14 +7,14 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
-/** IframeHosts contains a list of all iframe hosts and a list of all external iframe hosts */
+/** ExternalIframeHosts contains a list all external iframe hosts */
 const props = defineProps({
-    iframeHosts: {
+    externalIframeHosts: {
         type: Object,
         required: true,
         validator: (value) => {
-            if (value.all.length > 0 && value.external) {
-                return value.all.every((element) => Boolean(new URL('https://' + element)))
+            if (value.length > 0) {
+                return value.every((element) => Boolean(new URL('https://' + element)))
             }
             return false
         },
@@ -25,7 +25,7 @@ const props = defineProps({
     },
 })
 
-const { iframeHosts, title } = toRefs(props)
+const { externalIframeHosts, title } = toRefs(props)
 const i18n = useI18n()
 const store = useStore()
 
@@ -41,7 +41,7 @@ function setDisclaimerAgree() {
 </script>
 
 <template>
-    <div v-if="iframeHosts.external.length && disclaimerIsShown">
+    <div v-if="externalIframeHosts.length && disclaimerIsShown">
         <div class="py-1">{{ i18n.t(title) }}</div>
         <div
             data-cy="feature-detail-media-disclaimer"
@@ -50,7 +50,7 @@ function setDisclaimerAgree() {
             <div class="d-flex align-items-center">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :source-name="iframeHosts.external.toString()"
+                    :source-name="externalIframeHosts.toString()"
                 >
                     <button
                         class="d-flex btn btn-default btn-xs"
@@ -75,15 +75,15 @@ function setDisclaimerAgree() {
     <div v-else class="d-flex align-items-center">
         <div class="d-flex py-1 align-items-center">{{ i18n.t(title) }}</div>
         <button
-            :disabled="!iframeHosts.external.length"
+            :disabled="!externalIframeHosts.length"
             class="d-flex btn btn-default btn-xs border-0"
             data-cy="feature-detail-media-disclaimer-button-open"
             @click="setDisclaimerAgree"
         >
             <FontAwesomeIcon
                 size="lg"
-                :color="!iframeHosts.external.length ? 'black' : 'red'"
-                :icon="!iframeHosts.external.length ? 'info-circle' : 'fa-user'"
+                :color="!externalIframeHosts.length ? 'black' : 'red'"
+                :icon="!externalIframeHosts.length ? 'info-circle' : 'fa-user'"
             />
         </button>
     </div>
