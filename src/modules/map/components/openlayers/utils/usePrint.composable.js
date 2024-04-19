@@ -70,7 +70,13 @@ export function usePrint(map) {
                 qrCodeUrl,
                 shortLink,
                 layersWithLegends: printLegend
-                    ? store.getters.visibleLayers.filter((layer) => layer.hasLegend)
+                    ? store.getters.visibleLayers
+                          .filter((layer) => layer.hasLegend)
+                          // remove duplicate layers for the legends to avoid duplicate legends
+                          .filter(
+                              (layer, index, self) =>
+                                  self.findIndex((l) => l.id === layer.id) === index
+                          )
                     : [],
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
