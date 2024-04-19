@@ -3,6 +3,7 @@ import { computed, defineEmits, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
+import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
 const i18n = useI18n()
@@ -55,6 +56,9 @@ function createLink() {
 }
 
 function addLink(generatedMediaLink) {
+    if (!urlValid.value) {
+        return
+    }
     switch (mediaType.value) {
         case MediaTypes.link:
             emit('generatedMediaLink', createLink(generatedMediaLink))
@@ -67,6 +71,14 @@ function addLink(generatedMediaLink) {
             break
     }
 }
+function validateUrl(url) {
+    if (!url) {
+        return 'no_url'
+    } else if (!isValidUrl(url)) {
+        return 'invalid_url'
+    }
+    return ''
+}
 </script>
 
 <template>
@@ -76,48 +88,38 @@ function addLink(generatedMediaLink) {
                 {{ descriptionLabel }}
             </label>
             <div class="input-group d-flex needs-validation">
-                <input
+                <TextInput
                     id="drawing-style-media-link-description"
                     v-model="linkDescription"
-                    type="text"
+                    class="feature-url-description mb-2"
                     :placeholder="i18n.t('link_description')"
                     data-cy="drawing-style-media-description-input"
-                    class="feature-url-description form-control"
                 />
             </div>
         </div>
         <label class="form-label" for="drawing-style-media-url-description">
             {{ urlLabel }}
         </label>
-        <div class="input-group d-flex needs-validation">
-            <input
+        <div class="d-flex align-items-start">
+            <TextInput
                 id="drawing-style-media-url-description"
                 v-model="generatedMediaLink"
-                type="text"
+                class="feature-url-description mb-2"
                 :placeholder="i18n.t('paste_url')"
+                :validate="validateUrl"
+                :is-last-element="false"
                 data-cy="drawing-style-media-url-input"
-                class="feature-url-description form-control text-truncate"
-                :class="{
-                    'is-invalid': !urlValid && generatedMediaLink,
-                }"
                 @keydown.enter="addLink(generatedMediaLink)"
             />
             <button
                 :disabled="!urlValid"
-                class="btn btn-outline-secondary rounded-end"
+                class="btn btn-default btn-outline-secondary rounded-0 rounded-end"
                 type="button"
                 data-cy="drawing-style-media-generate-button"
                 @click="addLink(generatedMediaLink)"
             >
                 {{ i18n.t('add') }}
             </button>
-            <div
-                v-if="generatedMediaLink && !urlValid"
-                class="invalid-feedback-url invalid-feedback"
-                data-cy="drawing-style-media-invalid-url-error"
-            >
-                {{ i18n.t('invalid_url') }}
-            </div>
         </div>
     </div>
 </template>

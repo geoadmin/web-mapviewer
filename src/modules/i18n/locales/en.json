@@ -273,7 +273,6 @@
     "layer_selection": "Selection",
     "layers_displayed": "Maps displayed",
     "layers_results_header": "Add map ...",
-    "link_description": "Link description (optional)",
     "legend": "Legend",
     "link_bowl_crosshair": "Share Position",
     "link_validate_kml": "Link to KML validation",
@@ -293,7 +292,6 @@
     "measure": "Measure",
     "measure_instruction": "Digitize a polyline...",
     "measure_tooltip": "Measure on the map",
-    "media_disclaimer": "Contains third party content",
     "medium_size": "Medium",
     "menu": "Menu",
     "metadata_window_title": "Infobox",
@@ -660,5 +658,9 @@
     "operation_successful": "Operation successful!",
     "operation_failed": "Oops! Something went wrong. Please try again.",
     "operation_aborted": "Operation aborted",
-    "outside_valid_year_range": "The entered year is outside ot the available range:"
+    "outside_valid_year_range": "The entered year is outside ot the available range:",
+    "linkedin_tooltip": "Share this map on LinkedIn",
+    "share_map_title": "Link to the geoportal of Swiss Confederation",
+    "link_description": "Link description (optional)",
+    "media_disclaimer": "Contains third party content"
 }

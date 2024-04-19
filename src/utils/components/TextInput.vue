@@ -62,6 +62,14 @@ const props = defineProps({
         type: [Boolean, null],
         default: null,
     },
+    /**
+     * Styling parameter which describes whether there is another element to the right (e.g another
+     * button) to determine the rounding of corners
+     */
+    isLastElement: {
+        type: Boolean,
+        default: true,
+    },
 })
 const { placeholder, validate } = props
 const { formValidated, formValidationError, description } = toRefs(props)
@@ -120,7 +128,7 @@ defineExpose({ focus })
                 type="text"
                 class="form-control text-truncate"
                 :class="{
-                    'rounded-end': !value?.length,
+                    'rounded-end': !value?.length && isLastElement,
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
                 }"
@@ -135,7 +143,8 @@ defineExpose({ focus })
             <button
                 v-if="value?.length > 0"
                 :id="clearButtonId"
-                class="btn btn-outline-group rounded-end"
+                class="btn btn-outline-group rounded-0"
+                :class="{ 'rounded-end': isLastElement }"
                 type="button"
                 data-cy="text-input-clear"
                 @click="onClearInput"

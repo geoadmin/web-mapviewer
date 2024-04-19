@@ -274,7 +274,6 @@
     "layers_displayed": "Dargestellte Karten",
     "layers_results_header": "Karte hinzufügen ...",
     "legend": "Legende",
-    "link_description": "TODO",
     "link_bowl_crosshair": "Teile Position",
     "link_validate_kml": "Link zur Validierung der KML-Datei",
     "load_local_file": "Laden...",
@@ -293,7 +292,6 @@
     "measure": "Messen",
     "measure_instruction": "Erfassen Sie eine Polylinie...",
     "measure_tooltip": "Messen auf der Karte",
-    "media_disclaimer": "TODO",
     "medium_size": "Mittel",
     "menu": "Menü",
     "metadata_window_title": "Infobox",
@@ -660,5 +658,9 @@
     "operation_successful": "Erfolg!",
     "operation_failed": "Hoppla! Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.",
     "operation_aborted": "Operation abgebrochen",
-    "outside_valid_year_range": "Das eingegebene Jahr liegt außerhalb des verfügbaren Bereichs:"
+    "outside_valid_year_range": "Das eingegebene Jahr liegt außerhalb des verfügbaren Bereichs:",
+    "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn",
+    "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
+    "link_description": "Link Beschreibung (optional)",
+    "media_disclaimer": "Enthält Inhalte von Drittanbietern"
 }
