@@ -34,7 +34,7 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
-const mediaPopover = ref(null)
+const mediaPopovers = ref(null)
 
 // Update the UI when the feature changes
 watch(
@@ -121,8 +121,8 @@ function onIconSizeChange(iconSize) {
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
-function onAddMediaLink(descriptionMediaLink) {
-    mediaPopover.value?.forEach((popover) => popover.hidePopover())
+function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
+    mediaPopovers.value[mediaPopoverIndex].hidePopover()
     description.value += descriptionMediaLink
 }
 
@@ -172,9 +172,9 @@ function mediaTypes() {
             </label>
             <div>
                 <div class="d-flex justify-content-end align-items-center">
-                    <div v-for="media in mediaTypes()" :key="media.type">
+                    <div v-for="(media, index) in mediaTypes()" :key="media.type">
                         <DrawingStylePopoverButton
-                            ref="mediaPopover"
+                            ref="mediaPopovers"
                             :data-cy="`drawing-style-${media.type}-button`"
                             :button-class-options="media.buttonClassOptions"
                             :icon="media.icon"
@@ -185,7 +185,7 @@ function mediaTypes() {
                                 :description-label="
                                     media.extraUrlDescription ? $t(media.extraUrlDescription) : null
                                 "
-                                @generated-media-link="onAddMediaLink"
+                                @generated-media-link="onAddMediaLink(index, $event)"
                             />
                         </DrawingStylePopoverButton>
                     </div>
