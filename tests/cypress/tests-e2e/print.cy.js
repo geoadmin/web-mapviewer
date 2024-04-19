@@ -94,8 +94,19 @@ describe('Testing print', () => {
                 expect(interception.request.body['layout']).to.equal('1. A4 landscape')
                 expect(interception.request.body).to.haveOwnProperty('format')
                 expect(interception.request.body['format']).to.equal('pdf')
+                expect(interception.request.body).to.haveOwnProperty('lang')
+                expect(interception.request.body['lang']).to.equal('en')
+                expect(interception.request.body).to.haveOwnProperty('outputFilename')
+                cy.location('hostname').then((hostname) => {
+                    expect(interception.request.body['outputFilename']).to.equal(
+                        `${hostname}_\${yyyy-MM-dd'T'HH-mm-ss'Z'}`
+                    )
+                })
 
+                expect(interception.request.body).to.haveOwnProperty('attributes')
                 const attributes = interception.request.body.attributes
+                expect(attributes).to.haveOwnProperty('copyright')
+                expect(attributes['copyright']).to.equal('© attribution.test.wmts.layer')
                 expect(attributes).to.haveOwnProperty('printLegend')
                 expect(attributes['printLegend']).to.equals(0)
                 expect(attributes).to.haveOwnProperty('qrimage')
@@ -169,10 +180,11 @@ describe('Testing print', () => {
                     'test-2.wms.layer,,',
                     'test-3.wms.layer,f',
                     'test-4.wms.layer,f,0.4',
+                    // add duplicate layer to test duplicate attributions
                     'test.wmts.layer,,0.5',
+                    'test.wmts.layer,,0.8',
                 ].join(';'),
             })
-            cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
@@ -188,8 +200,18 @@ describe('Testing print', () => {
                 expect(interception.request.body).to.haveOwnProperty('format')
                 expect(interception.request.body['format']).to.equal('pdf')
 
+                expect(interception.request.body).to.haveOwnProperty('attributes')
                 const attributes = interception.request.body.attributes
                 expect(attributes).to.not.haveOwnProperty('printLegend')
+
+                expect(attributes).to.haveOwnProperty('copyright')
+                expect(attributes['copyright']).to.equal(
+                    `© ${[
+                        'attribution.test-1.wms.layer',
+                        'attribution.test-2.wms.layer',
+                        'attribution.test.wmts.layer',
+                    ].join(', ')}`
+                )
 
                 // Check legends
                 expect(attributes).to.haveOwnProperty('legend')
@@ -224,16 +246,18 @@ describe('Testing print', () => {
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
-                expect(layers).to.have.length(4)
+                expect(layers).to.have.length(5)
                 expect(layers[0]['layer']).to.equals('test.wmts.layer')
-                expect(layers[1]['layers'][0]).to.equals('test-2.wms.layer')
-                expect(layers[2]['layers'][0]).to.equals('test-1.wms.layer')
-                expect(layers[3]['layer']).to.equals('test.background.layer2')
+                expect(layers[1]['layer']).to.equals('test.wmts.layer')
+                expect(layers[2]['layers'][0]).to.equals('test-2.wms.layer')
+                expect(layers[3]['layers'][0]).to.equals('test-1.wms.layer')
+                expect(layers[4]['layer']).to.equals('test.background.layer2')
 
                 expect(layers[0]['type']).to.equals('wmts')
-                expect(layers[1]['type']).to.equals('wms')
+                expect(layers[1]['type']).to.equals('wmts')
                 expect(layers[2]['type']).to.equals('wms')
-                expect(layers[3]['type']).to.equals('wmts')
+                expect(layers[3]['type']).to.equals('wms')
+                expect(layers[4]['type']).to.equals('wmts')
 
                 // Check for matrix size, should start with 1x1
                 expect(layers[0]['matrices'][0]['matrixSize']).to.deep.eq([1, 1])
