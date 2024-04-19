@@ -5,6 +5,7 @@
  */
 
 import { onUpdated, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
@@ -18,6 +19,7 @@ const props = defineProps({
 })
 const { shortLink } = toRefs(props)
 
+const i18n = useI18n()
 const { refreshTippyAttachment } = useTippyTooltip('.share-network-button[data-tippy-content]')
 
 const networks = ref([
@@ -25,6 +27,7 @@ const networks = ref([
         id: 'email',
         icons: 'envelope',
         tooltip: 'mail_tooltip',
+        subject: 'share_map_title',
     },
     {
         id: 'facebook',
@@ -75,7 +78,7 @@ onUpdated(() => refreshTippyAttachment())
             v-slot="{ share }"
             :network="network.id"
             :url="shortLink"
-            title=""
+            :title="network.subject ? i18n.t(network.subject) : ''"
         >
             <button
                 :class="buttonClass"

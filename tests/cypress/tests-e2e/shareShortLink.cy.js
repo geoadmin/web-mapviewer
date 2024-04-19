@@ -119,7 +119,7 @@ describe('Testing the share menu', () => {
             })
             checkSocialNetworkType(
                 'email',
-                `mailto:?subject=&body=${encodeURIComponent(dummyShortLink + '\r\n')}`
+                `mailto:?subject=Link%20to%20the%20geoportal%20of%20Swiss%20Confederation&body=${encodeURIComponent(dummyShortLink + '\r\n')}`
             )
             cy.log('opens an email containing a short link')
             cy.intercept('**/qrcode').as('qrCode')

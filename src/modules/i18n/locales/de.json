@@ -660,6 +660,5 @@
     "operation_aborted": "Operation abgebrochen",
     "outside_valid_year_range": "Das eingegebene Jahr liegt außerhalb des verfügbaren Bereichs:",
     "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
-    "link_description": "Link Beschreibung (optional)",
-    "media_disclaimer": "Enthält Inhalte von Drittanbietern"
+    "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn"
 }
