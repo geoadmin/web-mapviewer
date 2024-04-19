@@ -7,7 +7,6 @@ import './setup-fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import tippy from 'tippy.js'
 import { createApp } from 'vue'
-import VueSocialSharing from 'vue-social-sharing'
 
 import {
     API_BASE_URL,
@@ -65,7 +64,6 @@ if (ENVIRONMENT !== 'production') {
 app.use(router)
 app.use(i18n)
 app.use(store)
-app.use(VueSocialSharing)
 
 app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
