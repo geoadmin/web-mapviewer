@@ -54,7 +54,6 @@ function createLink() {
         return `<a target="_blank" href="${generatedMediaLink.value}">${generatedMediaLink.value}</a>`
     }
 }
-
 function addLink(generatedMediaLink) {
     if (!urlValid.value) {
         return
@@ -70,6 +69,10 @@ function addLink(generatedMediaLink) {
             emit('generatedMediaLink', createVideo(generatedMediaLink))
             break
     }
+    clearInput()
+}
+function clearInput() {
+    generatedMediaLink.value = null
 }
 function validateUrl(url) {
     if (!url) {
