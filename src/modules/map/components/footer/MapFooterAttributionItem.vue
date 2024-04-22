@@ -3,9 +3,9 @@
         :is="sourceUrl ? 'a' : 'span'"
         :id="`source-${sourceId}`"
         :href="sourceUrl"
-        target="_blank"
+        :target="sourceUrl ? '_blank' : null"
         class="map-footer-attribution-source"
-        :class="{ 'data-disclaimer': hasDataDisclaimer }"
+        :class="{ 'text-primary': hasDataDisclaimer }"
         :data-cy="`layer-copyright-${sourceName}`"
     >
         {{ `${sourceName}${isLast ? '' : ','}` }}
@@ -49,9 +49,7 @@ export default {
 
     &:hover {
         text-decoration: underline;
-    }
-    &.data-disclaimer {
-        color: $primary;
+        cursor: pointer;
     }
 }
 </style>

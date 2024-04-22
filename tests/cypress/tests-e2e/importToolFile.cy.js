@@ -199,7 +199,21 @@ describe('The Import File Tool', () => {
         // Test the disclaimer in the footer
         cy.log('Test the external layer disclaimer in the footer')
         cy.closeMenuIfMobile()
-        cy.get('[data-cy="layer-copyright-example.com"]').should('be.visible')
+        cy.get('[data-cy="layer-copyright-example.com"]')
+            .should('be.visible')
+            .should('have.class', 'text-primary')
+        cy.get('[data-cy="layer-copyright-example.com"]').realHover()
+        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+            .should('be.visible')
+            .contains('Dataset and/or style provided by third party')
+        cy.get('[data-cy="layer-copyright-example.com"]')
+            .should('have.css', 'cursor', 'pointer')
+            .should('not.have.attr', 'href')
+        cy.get('[data-cy="layer-copyright-example.com"]').click()
+        cy.get('[data-cy="modal-content"]')
+            .should('be.visible')
+            .contains('Warning: Third party data and/or style shown')
+        cy.get('[data-cy="modal-close-button"]:visible').click()
 
         //---------------------------------------------------------------------
         // Test reloading the page

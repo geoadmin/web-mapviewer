@@ -55,7 +55,6 @@ export default {
                 this.layers
                     // Discard layers without attribution. (eg. drawing layer)
                     .filter((layer) => layer.attributions.length > 0)
-                    // Only keeping one attribution of the same data owner.
                     .map((layer) => {
                         return layer.attributions.map((attribution) => {
                             return {
@@ -86,6 +85,6 @@ export default {
     font-size: 0.7rem;
     text-align: center;
     position: relative;
-    cursor: pointer;
+    pointer-events: all;
 }
 </style>
