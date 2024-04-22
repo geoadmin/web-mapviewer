@@ -39,6 +39,18 @@ const actions = {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
             const coordinates = coordinateFromString(query, currentProjection)
+            let what3wordLocation = null
+            if (!coordinates && isWhat3WordsString(query)) {
+                try {
+                    what3wordLocation = await retrieveWhat3WordsLocation(query, currentProjection)
+                } catch (error) {
+                    log.info(
+                        `Query "${query}" is not a valid What3Words, fallback to service search`
+                    )
+                    what3wordLocation = null
+                }
+            }
+
             if (coordinates) {
                 const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
                 dispatch('setCenter', {
@@ -59,30 +71,28 @@ const actions = {
                     })
                 }
                 dispatch('setPinnedLocation', { coordinates, dispatcher: dispatcherCoordinate })
-            } else if (isWhat3WordsString(query)) {
-                retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
-                    const dispatcherWhat3words = `${dispatcher}/search.store/setSearchQuery/what3words`
-                    dispatch('setCenter', {
-                        center: what3wordLocation,
+            } else if (what3wordLocation) {
+                const dispatcherWhat3words = `${dispatcher}/search.store/setSearchQuery/what3words`
+                dispatch('setCenter', {
+                    center: what3wordLocation,
+                    dispatcher: dispatcherWhat3words,
+                })
+                if (currentProjection instanceof CustomCoordinateSystem) {
+                    dispatch('setZoom', {
+                        zoom: currentProjection.transformStandardZoomLevelToCustom(
+                            STANDARD_ZOOM_LEVEL_1_25000_MAP
+                        ),
                         dispatcher: dispatcherWhat3words,
                     })
-                    if (currentProjection instanceof CustomCoordinateSystem) {
-                        dispatch('setZoom', {
-                            zoom: currentProjection.transformStandardZoomLevelToCustom(
-                                STANDARD_ZOOM_LEVEL_1_25000_MAP
-                            ),
-                            dispatcher: dispatcherWhat3words,
-                        })
-                    } else {
-                        dispatch('setZoom', {
-                            zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
-                            dispatcher: dispatcherWhat3words,
-                        })
-                    }
-                    dispatch('setPinnedLocation', {
-                        coordinates: what3wordLocation,
+                } else {
+                    dispatch('setZoom', {
+                        zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
                         dispatcher: dispatcherWhat3words,
                     })
+                }
+                dispatch('setPinnedLocation', {
+                    coordinates: what3wordLocation,
+                    dispatcher: dispatcherWhat3words,
                 })
             } else {
                 try {
