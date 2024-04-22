@@ -18,7 +18,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
         const standard_layer = 'test.wmts.layer'
         const timestamps = {}
         const time_layer_std = 'test.timeenabled.wmts.layer' // years 2021 - 2015
-        
+
         timestamps[time_layer_std] = [
             '20210101',
             '20200101',
@@ -226,6 +226,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-current-year"]').should('contain', 2023)
             cy.url().should((url) => url.includes('timeSlider=2023'))
 
+            // ---------------------- TEST 13 -----------------------------------------------------------------------------
             cy.log(
                 'Test 13: When using a wrong Time Slider Parameter, the time slider should not appear and the url should not show the parameter'
             )
@@ -244,61 +245,77 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.goToMapView({ layers: time_layer_std, timeSlider: 'aCompletelyInvalidValue' })
             cy.get('[data-cy="time-slider-current-year"]').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
-        
-        it('should move the timeslider with mouse drag and text input', () => {
-            cy.goToMapView({
-                layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
-            })
-            cy.log('the year changes if the user drags the tooltip on the left with the mouse')
-            moveSlider(0)
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
-                'not.have.value',
-                preSelectedYear
+
+            // ---------------------- TEST 14 -----------------------------------------------------------------------------
+            cy.log(
+                'Test 14: When having a duplicate layer, when one is invisible, they both still behave as expected'
             )
+            cy.goToMapView({ layers: `${time_layer_std}@year=2019`, timeSlider: 2017 })
+            cy.openMenuIfMobile()
+            cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
+            cy.get(`[data-cy="button-duplicate-layer-${time_layer_std}-0"]`).click()
+            cy.get(`[data-cy="button-toggle-visibility-layer-${time_layer_std}-0"]`).click()
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
+            cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2017)
 
-            cy.log('Check time slider year cursor text input')
-            cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                .invoke('attr', 'style')
-                .then(($barCursorPosition) => {
-                    cy.log($barCursorPosition)
-
-                    cy.log('Time slider does not accept non number characters')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('asdf')
-                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                        .invoke('attr', 'style')
-                        .should('eq', $barCursorPosition)
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '')
-
-                    cy.log('Time slider does not move with out of bound year')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('1191')
-                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                        .invoke('attr', 'style')
-                        .should('eq', $barCursorPosition)
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('654321')
-                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                        .invoke('attr', 'style')
-                        .should('eq', $barCursorPosition)
-                    cy.log('Time slider is limited to four characters')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '6543')
-
-                    cy.log('Time slider does not move with incomplete year')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('200')
-                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                        .invoke('attr', 'style')
-                        .should('eq', $barCursorPosition)
-
-                    cy.log('Time slider Bar moves when valid year entered')
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
-                    cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2000')
-                    cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
-                        .invoke('attr', 'style')
-                        .then(extractDecimal)
-                        .should('gt', extractDecimal($barCursorPosition))
+            it('should move the timeslider with mouse drag and text input', () => {
+                cy.goToMapView({
+                    layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
                 })
+                cy.log('the year changes if the user drags the tooltip on the left with the mouse')
+                moveSlider(0)
+                cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
+                    'not.have.value',
+                    preSelectedYear
+                )
+
+                cy.log('Check time slider year cursor text input')
+                cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                    .invoke('attr', 'style')
+                    .then(($barCursorPosition) => {
+                        cy.log($barCursorPosition)
+
+                        cy.log('Time slider does not accept non number characters')
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').type('asdf')
+                        cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                            .invoke('attr', 'style')
+                            .should('eq', $barCursorPosition)
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '')
+
+                        cy.log('Time slider does not move with out of bound year')
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').type('1191')
+                        cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                            .invoke('attr', 'style')
+                            .should('eq', $barCursorPosition)
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').type('654321')
+                        cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                            .invoke('attr', 'style')
+                            .should('eq', $barCursorPosition)
+                        cy.log('Time slider is limited to four characters')
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
+                            'have.value',
+                            '6543'
+                        )
+
+                        cy.log('Time slider does not move with incomplete year')
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').type('200')
+                        cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                            .invoke('attr', 'style')
+                            .should('eq', $barCursorPosition)
+
+                        cy.log('Time slider Bar moves when valid year entered')
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+                        cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2000')
+                        cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
+                            .invoke('attr', 'style')
+                            .then(extractDecimal)
+                            .should('gt', extractDecimal($barCursorPosition))
+                    })
+            })
         })
     })
 })

@@ -180,7 +180,6 @@ onMounted(() => {
     })
 })
 
-
 function tooltipContent() {
     return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
 }

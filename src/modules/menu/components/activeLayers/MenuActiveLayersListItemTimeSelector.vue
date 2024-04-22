@@ -41,9 +41,8 @@ const timeSelectorModal = ref(null)
 const previewYear = computed(() => store.state.layers.previewYear)
 const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
-const isLayerVisible = computed(
-    () => !!store.getters.visibleLayers.find((layer) => layer.id === layerId.value)
-)
+
+const isLayerVisible = computed(() => store.state.layers.activeLayers[layerIndex.value].visible)
 const humanReadableCurrentTimestamp = computed(() => {
     if (isLayerVisible.value && isTimeSliderActive.value) {
         return timeConfig.value.years.includes(previewYear.value) ? previewYear.value : '-'
@@ -116,7 +115,6 @@ function baseYear(timeEntry) {
         timeEntry?.year !== previewYear.value
     )
 }
-
 </script>
 
 <template>
