@@ -41,6 +41,8 @@ export const dashedRedStroke = new Stroke({
     lineDash: [8],
 })
 
+export const gpxStrokeStyle = new Stroke({ width: 1.5, color: hexToRgba(red, 1) })
+
 export const pointStyle = {
     radius: 7,
     stroke: new Stroke({
@@ -59,6 +61,7 @@ export const redCircleStyle = new Circle({
     fill: new Fill({
         color: hexToRgba(red),
     }),
+    stroke: gpxStrokeStyle,
 })
 /** Style for grabbing points when editing a feature */
 export const sketchPointStyle = new Circle({
@@ -68,8 +71,8 @@ export const sketchPointStyle = new Circle({
 
 export const gpxStyles = {
     Point: new Style({ image: redCircleStyle }),
-    LineString: new Style({ stroke: redStroke, fill: redFill }),
-    MultiLineString: new Style({ stroke: redStroke, fill: redFill }),
+    LineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
+    MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
 }
 
 export const geolocationPointStyle = new Style({
@@ -132,3 +135,14 @@ export const highlightPointStyle = new Style({
         stroke: highlightedStroke,
     }),
 })
+
+// Change a distance according to the change of DPI
+export function adjustDistance(dist, dpi) {
+    if (!dist) {
+        return
+    }
+    // Taken from the old geoadmin where the distance is calculated based on the DPI used.
+    // In the old geoadmin we use (dist * 90) / dpi. With dpi either 150 (A3) or 254 (A4).
+    // I use 34 as a constant to have a similar result (i.e. 90/254 * 96 = 34)
+    return (dist * 34) / dpi
+}
