@@ -10,6 +10,7 @@ import axios from 'axios'
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
+import { adjustDistance } from '@/utils/styleUtils'
 
 const PRINTING_RESOLUTION = 96 // dpi
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
@@ -19,10 +20,12 @@ const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
-    constructor(layerIDsToExclude) {
+    constructor(layerIDsToExclude, printResolution) {
         super()
         this.layerIDsToExclude = layerIDsToExclude
+        this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
+        this.line = this.line.bind(this)
     }
 
     /**
@@ -66,6 +69,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
     line(layerState, symbolizer, stroke) {
         if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
+        }
+        if (symbolizer.strokeWidth) {
+            symbolizer.strokeWidth = adjustDistance(symbolizer.strokeWidth, this.printResolution)
         }
     }
 }
@@ -262,7 +268,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         throw new PrintError('Missing projection to print the grid')
     }
 
-    const customizer = new GeoAdminCustomizer(excludedLayerIDs)
+    const customizer = new GeoAdminCustomizer(excludedLayerIDs, PRINTING_RESOLUTION)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
