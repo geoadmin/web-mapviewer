@@ -4,7 +4,7 @@ let components = 0
 </script>
 <script setup>
 /** Input with clear button component */
-import { computed, nextTick, ref, toRefs, watch } from 'vue'
+import { computed, nextTick, ref, toRefs, useSlots, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // On each component creation set the current component ID and increase the counter
@@ -62,19 +62,12 @@ const props = defineProps({
         type: [Boolean, null],
         default: null,
     },
-    /**
-     * Styling parameter which describes whether there is another element to the right (e.g another
-     * button) to determine the rounding of corners
-     */
-    isLastElement: {
-        type: Boolean,
-        default: true,
-    },
 })
 const { placeholder, validate } = props
 const { formValidated, formValidationError, description } = toRefs(props)
 
 const i18n = useI18n()
+const slots = useSlots()
 
 const inputElement = ref(null)
 const value = ref(model.value)
@@ -128,7 +121,7 @@ defineExpose({ focus })
                 type="text"
                 class="form-control text-truncate"
                 :class="{
-                    'rounded-end': !value?.length && isLastElement,
+                    'rounded-end': !value?.length && !slots.default,
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
                 }"
@@ -144,13 +137,14 @@ defineExpose({ focus })
                 v-if="value?.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
-                :class="{ 'rounded-end': isLastElement }"
+                :class="{ 'rounded-end': !slots.default }"
                 type="button"
                 data-cy="text-input-clear"
                 @click="onClearInput"
             >
                 <FontAwesomeIcon :icon="['fas', 'times-circle']" />
             </button>
+            <slot />
             <div v-if="error" class="invalid-feedback" data-cy="invalid-feedback-error">
                 {{ i18n.t(error) }}
             </div>

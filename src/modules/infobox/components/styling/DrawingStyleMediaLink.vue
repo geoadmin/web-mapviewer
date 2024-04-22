@@ -6,9 +6,6 @@ import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
-const i18n = useI18n()
-const generatedMediaLink = ref(null)
-const linkDescription = ref(null)
 const props = defineProps({
     mediaType: {
         type: String,
@@ -27,6 +24,10 @@ const props = defineProps({
 const { mediaType, urlLabel, descriptionLabel } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
+const i18n = useI18n()
+const generatedMediaLink = ref(null)
+const linkDescription = ref(null)
+
 const urlValid = computed(() => {
     return isValidUrl(generatedMediaLink.value)
 })
@@ -44,9 +45,11 @@ function createVideo() {
         return `<iframe src="${generatedMediaLink.value}" height="200" width="auto"></iframe>`
     }
 }
+
 function createImage() {
     return `<image src="${generatedMediaLink.value}" style="max-height:200px;"/>`
 }
+
 function createLink() {
     if (linkDescription.value) {
         return `<a target="_blank" href="${generatedMediaLink.value}">${linkDescription.value}</a>`
@@ -54,6 +57,7 @@ function createLink() {
         return `<a target="_blank" href="${generatedMediaLink.value}">${generatedMediaLink.value}</a>`
     }
 }
+
 function addLink(generatedMediaLink) {
     if (!urlValid.value) {
         return
@@ -71,9 +75,12 @@ function addLink(generatedMediaLink) {
     }
     clearInput()
 }
+
 function clearInput() {
     generatedMediaLink.value = null
+    linkDescription.value = null
 }
+
 function validateUrl(url) {
     if (!url) {
         return 'no_url'
@@ -110,19 +117,19 @@ function validateUrl(url) {
                 class="feature-url-description mb-2"
                 :placeholder="i18n.t('paste_url')"
                 :validate="validateUrl"
-                :is-last-element="false"
                 data-cy="drawing-style-media-url-input"
                 @keydown.enter="addLink(generatedMediaLink)"
-            />
-            <button
-                :disabled="!urlValid"
-                class="btn btn-default btn-outline-secondary rounded-0 rounded-end"
-                type="button"
-                data-cy="drawing-style-media-generate-button"
-                @click="addLink(generatedMediaLink)"
             >
-                {{ i18n.t('add') }}
-            </button>
+                <button
+                    :disabled="!urlValid"
+                    class="btn btn-default btn-outline-group rounded-0 rounded-end"
+                    type="button"
+                    data-cy="drawing-style-media-generate-button"
+                    @click="addLink(generatedMediaLink)"
+                >
+                    {{ i18n.t('add') }}
+                </button>
+            </TextInput>
         </div>
     </div>
 </template>
