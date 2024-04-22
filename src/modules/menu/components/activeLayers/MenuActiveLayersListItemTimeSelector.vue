@@ -147,16 +147,9 @@ function baseYear(timeEntry) {
                 :key="timeEntry.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': isTimeSliderActive
-                        ? previewYear === timeEntry.year
-                        : timeConfig.currentTimestamp === timeEntry.timestamp,
-                    'btn-outline-primary':
-                        isTimeSliderActive &&
-                        timeConfig.currentTimestamp === timeEntry.timestamp &&
-                        timeEntry.year !== previewYear,
-                    'btn-light':
-                        timeEntry.timestamp !== timeConfig.currentTimestamp &&
-                        (!isTimeSliderActive || previewYear !== timeEntry.year),
+                    'btn-primary': isSelected(timeEntry),
+                    'btn-outline-primary': baseYear(timeEntry),
+                    'btn-light': !isSelected(timeEntry) && !baseYear(timeEntry),
                 }"
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"
