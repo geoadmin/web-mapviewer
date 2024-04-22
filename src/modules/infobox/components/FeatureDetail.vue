@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import { WHITELISTED_HOSTNAMES } from '@/config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
@@ -60,7 +61,6 @@ function sanitizeHtml(htmlText, withIframe = false) {
 }
 
 function getIframeHosts(value) {
-    const whitelistedHosts = ['map.geo.admin.ch', 'test.map.geo.admin.ch']
     let parser = new DOMParser()
     let dom = parser.parseFromString(value, 'text/html')
 
@@ -72,7 +72,7 @@ function getIframeHosts(value) {
             return iframe.src
         }
     })
-    return hosts.filter((host) => !whitelistedHosts.includes(host))
+    return hosts.filter((host) => !WHITELISTED_HOSTNAMES.includes(host))
 }
 </script>
 
@@ -90,7 +90,7 @@ function getIframeHosts(value) {
             >
                 <FeatureDetailDisclaimer
                     v-if="externalIframeHosts.length"
-                    class="fw-bold"
+                    class="mb-2 fw-bold"
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 ></FeatureDetailDisclaimer>
