@@ -67,6 +67,9 @@ export default {
                 placement: 'top',
                 touch: false,
                 delay: 250,
+                onCreate: (instance) => {
+                    instance.popper.setAttribute('data-cy', `tippy-third-part-disclaimer`)
+                },
             })
         }
     },
