@@ -36,6 +36,11 @@ export default {
             type: Number,
             default: -1,
         },
+
+        isTimeSliderActive: {
+            type: Boolean,
+            default: false,
+        },
     },
     computed: {
         ...mapState({
@@ -57,7 +62,11 @@ export default {
             return this.wmsLayerConfig.baseUrl
         },
         timestamp() {
-            return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)
+            return getTimestampFromConfig(
+                this.wmsLayerConfig,
+                this.previewYear,
+                this.isTimeSliderActive
+            )
         },
         /**
          * Definition of all relevant URL param for our WMS backends. Passes as parameters to

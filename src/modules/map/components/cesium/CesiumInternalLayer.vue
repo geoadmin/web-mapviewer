@@ -10,6 +10,7 @@
             :preview-year="previewYear"
             :projection="projection"
             :z-index="zIndex"
+            :is-time-slider-active="isTimeSliderActive"
         />
         <CesiumWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS && !layerConfig.isExternal"
@@ -17,6 +18,7 @@
             :preview-year="previewYear"
             :projection="projection"
             :z-index="zIndex"
+            :is-time-slider-active="isTimeSliderActive"
         />
         <CesiumGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
@@ -73,6 +75,10 @@ export default {
         projection: {
             type: CoordinateSystem,
             required: true,
+        },
+        isTimeSliderActive: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {

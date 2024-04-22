@@ -37,6 +37,7 @@
                 :preview-year="previewYear"
                 :projection="projection"
                 :z-index="index + startingZIndexForImageryLayers"
+                :is-time-slider-active="isTimeSliderActive"
             />
             <CesiumInternalLayer
                 v-for="layer in visiblePrimitiveLayers"
@@ -171,6 +172,7 @@ export default {
             previewYear: (state) => state.layers.previewYear,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
+            isTimeSliderActive: (state) => state.ui.isTimeSliderActive,
         }),
         ...mapGetters([
             'selectedFeatures',
