@@ -656,5 +656,9 @@
     "operation_successful": "Success! ",
     "operation_failed": "Oops! Qualche cosa è andada schabetg. Per favur, retentas.",
     "operation_aborted": "Operaziun avorta",
-    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:"
+    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:",
+    "linkedin_tooltip": "Partais quella charta sin LinkedIn",
+    "share_map_title": "Link al geoportail da la Confederaziun Svizra",
+    "link_description": "Descripziun link (optional)",
+    "media_disclaimer": "Contegn contens da terzas partidas"
 }

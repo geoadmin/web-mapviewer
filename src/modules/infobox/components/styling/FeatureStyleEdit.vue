@@ -9,9 +9,11 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
+import DrawingStyleMediaLink from '@/modules/infobox/components/styling/DrawingStyleMediaLink.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
+import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
@@ -32,6 +34,7 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
+const mediaPopovers = ref(null)
 
 // Update the UI when the feature changes
 watch(
@@ -118,6 +121,31 @@ function onIconSizeChange(iconSize) {
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
+function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
+    mediaPopovers.value[mediaPopoverIndex].hidePopover()
+    description.value += descriptionMediaLink
+}
+
+function mediaTypes() {
+    return [
+        {
+            type: MediaTypes.link,
+            buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
+            icon: 'fa-link',
+            extraUrlDescription: 'text_to_display',
+        },
+        {
+            type: MediaTypes.image,
+            buttonClassOptions: 'rounded-0',
+            icon: 'fa-image',
+        },
+        {
+            type: MediaTypes.video,
+            buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
+            icon: 'fa-film',
+        },
+    ]
+}
 </script>
 
 <template>
@@ -142,16 +170,37 @@ function onDelete() {
             <label class="form-label" for="drawing-style-feature-description">
                 {{ $t('modify_description') }}
             </label>
-            <textarea
-                id="drawing-style-feature-description"
-                v-model="description"
-                :readonly="readOnly"
-                data-cy="drawing-style-feature-description"
-                class="feature-description form-control"
-                :class="{
-                    'form-control-plaintext': readOnly,
-                }"
-            ></textarea>
+            <div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <div v-for="(media, index) in mediaTypes()" :key="media.type">
+                        <DrawingStylePopoverButton
+                            ref="mediaPopovers"
+                            :data-cy="`drawing-style-${media.type}-button`"
+                            :button-class-options="media.buttonClassOptions"
+                            :icon="media.icon"
+                        >
+                            <DrawingStyleMediaLink
+                                :media-type="media.type"
+                                :url-label="$t('url_' + media.type)"
+                                :description-label="
+                                    media.extraUrlDescription ? $t(media.extraUrlDescription) : null
+                                "
+                                @generated-media-link="onAddMediaLink(index, $event)"
+                            />
+                        </DrawingStylePopoverButton>
+                    </div>
+                </div>
+                <textarea
+                    id="drawing-style-feature-description"
+                    v-model="description"
+                    :readonly="readOnly"
+                    data-cy="drawing-style-feature-description"
+                    class="feature-description form-control rounded-0 rounded-bottom-2 rounded-start-2"
+                    :class="{
+                        'form-control-plaintext': readOnly,
+                    }"
+                ></textarea>
+            </div>
         </div>
         <div class="d-flex small gap-1 justify-content-start align-items-center">
             <CoordinateCopySlot

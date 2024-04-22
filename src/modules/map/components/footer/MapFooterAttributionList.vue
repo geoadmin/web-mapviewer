@@ -2,7 +2,7 @@
     <div class="map-footer-attribution" data-cy="layers-copyrights">
         <span v-if="sources.length > 0">{{ $t('copyright_data') }}</span>
         <div v-for="(source, index) in sources" :key="source.name" class="d-inline-flex">
-            <ThirdPartDisclaimer
+            <ThirdPartyDisclaimer
                 v-if="source.hasDataDisclaimer"
                 :source-name="source.name"
                 :complete-disclaimer-on-click="!source.url"
@@ -14,7 +14,7 @@
                     :has-data-disclaimer="true"
                     :is-last="index === sources.length - 1"
                 ></MapFooterAttributionItem>
-            </ThirdPartDisclaimer>
+            </ThirdPartyDisclaimer>
             <MapFooterAttributionItem
                 v-else
                 :source-id="source.id"
@@ -31,10 +31,10 @@
 import { mapGetters, mapState } from 'vuex'
 
 import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
-import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 export default {
-    components: { MapFooterAttributionItem, ThirdPartDisclaimer },
+    components: { MapFooterAttributionItem, ThirdPartyDisclaimer },
     computed: {
         ...mapState({
             layersConfig: (state) => state.layers.config,
