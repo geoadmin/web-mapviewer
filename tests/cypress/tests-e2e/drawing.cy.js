@@ -426,10 +426,11 @@ describe('Drawing module tests', () => {
                 cy.log('Video link has disclaimer')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(140, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('be.visible')
+                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('be.visible')
+                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('not.exist')
 
                 cy.log('Disclaimer provides more information on click')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-info"]').click()
+                cy.get('[data-cy="feature-detail-media-disclaimer-opened-info"]').click()
                 cy.get('[data-cy="modal-with-backdrop"]').should('exist')
                 cy.get('[data-cy="modal-close-button"]').click()
                 cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
@@ -441,19 +442,23 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Closing disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-close"]').click({
+                cy.get('[data-cy="feature-detail-media-disclaimer-close"]').click({
                     scrollBehavior: 'center',
                 })
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
+                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
+
+                cy.log('Closed Disclaimer provides more information on click')
+                cy.get('[data-cy="feature-detail-media-disclaimer-closed-info"]').click()
+                cy.get('[data-cy="modal-with-backdrop"]').should('exist')
+                cy.get('[data-cy="modal-close-button"]').click()
+                cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
 
                 cy.log('Closing disclaimer persists when selecting different marker')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(180, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-
-                cy.log('Clicking button again reopens disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-button-open"]').click()
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('exist')
+                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
+                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
 
                 cy.log('Disclaimer should not appear when host is whitelisted')
                 cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')

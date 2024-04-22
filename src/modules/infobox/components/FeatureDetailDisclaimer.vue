@@ -41,51 +41,62 @@ function setDisclaimerAgree() {
 </script>
 
 <template>
-    <div v-if="externalIframeHosts.length && disclaimerIsShown">
-        <div class="py-1">{{ i18n.t(title) }}</div>
+    <div data-cy="feature-detail-media-disclaimer">
         <div
-            data-cy="feature-detail-media-disclaimer"
-            class="disclaimer d-flex justify-content-between rounded-2"
+            v-if="externalIframeHosts.length && disclaimerIsShown"
+            data-cy="feature-detail-media-disclaimer-opened"
         >
-            <div class="d-flex align-items-center">
+            <div class="py-1">{{ i18n.t(title) }}</div>
+            <div class="disclaimer d-flex justify-content-between rounded-2">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
+                    :show-tippy="false"
                     :source-name="externalIframeHosts.toString()"
                 >
-                    <button
-                        class="d-flex btn btn-default btn-xs"
-                        data-cy="feature-detail-media-disclaimer-button-info"
+                    <div
+                        class="d-flex align-items-center"
+                        style="cursor: pointer"
+                        data-cy="feature-detail-media-disclaimer-opened-info"
                     >
-                        <FontAwesomeIcon style="color: white" size="lg" icon="info-circle" />
-                    </button>
+                        <FontAwesomeIcon
+                            class="px-1 ps-2"
+                            style="color: white"
+                            size="lg"
+                            icon="info-circle"
+                        />
+                        <div class="px-1 d-flex">
+                            {{ i18n.t('media_disclaimer') }}
+                        </div>
+                    </div>
                 </ThirdPartyDisclaimer>
-                <div class="px-1 d-flex">
-                    {{ i18n.t('media_disclaimer') }}
-                </div>
+
+                <button
+                    class="d-flex btn btn-default btn-xs"
+                    data-cy="feature-detail-media-disclaimer-close"
+                    @click="setDisclaimerAgree"
+                >
+                    <FontAwesomeIcon style="color: white" size="lg" icon="times" />
+                </button>
             </div>
-            <button
-                class="d-flex btn btn-default btn-xs"
-                data-cy="feature-detail-media-disclaimer-button-close"
-                @click="setDisclaimerAgree"
-            >
-                <FontAwesomeIcon style="color: white" size="lg" icon="times" />
-            </button>
         </div>
-    </div>
-    <div v-else class="d-flex align-items-center">
-        <div class="d-flex py-1 align-items-center">{{ i18n.t(title) }}</div>
-        <button
-            :disabled="!externalIframeHosts.length"
-            class="d-flex btn btn-default btn-xs border-0"
-            data-cy="feature-detail-media-disclaimer-button-open"
-            @click="setDisclaimerAgree"
+        <div
+            v-else
+            class="d-flex align-items-center"
+            data-cy="feature-detail-media-disclaimer-closed"
         >
-            <FontAwesomeIcon
-                size="lg"
-                :color="!externalIframeHosts.length ? 'black' : 'red'"
-                :icon="!externalIframeHosts.length ? 'info-circle' : 'fa-user'"
-            />
-        </button>
+            <div class="d-flex py-1 align-items-center">{{ i18n.t(title) }}</div>
+            <ThirdPartyDisclaimer
+                :complete-disclaimer-on-click="true"
+                :source-name="externalIframeHosts.toString()"
+            >
+                <button
+                    class="d-flex btn btn-default btn-xs border-0"
+                    data-cy="feature-detail-media-disclaimer-closed-info"
+                >
+                    <FontAwesomeIcon size="lg" color="red" icon="fa-user" />
+                </button>
+            </ThirdPartyDisclaimer>
+        </div>
     </div>
 </template>
 
