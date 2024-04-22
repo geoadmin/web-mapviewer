@@ -40,6 +40,7 @@ function setDrawingMode() {
     if (isActive.value) {
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     } else {
+        store.dispatch('clearAllSelectedFeatures', dispatcher)
         store.dispatch('setDrawingMode', { mode: drawingMode.value, ...dispatcher })
     }
 }
