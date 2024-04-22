@@ -659,6 +659,8 @@
     "operation_failed": "Oops! Something went wrong. Please try again.",
     "operation_aborted": "Operation aborted",
     "outside_valid_year_range": "The entered year is outside ot the available range:",
+    "linkedin_tooltip": "Share this map on LinkedIn",
     "share_map_title": "Link to the geoportal of Swiss Confederation",
-    "linkedin_tooltip": "Share this map on LinkedIn"
+    "link_description": "Link description (optional)",
+    "media_disclaimer": "Contains third party content"
 }
