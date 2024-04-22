@@ -659,6 +659,8 @@
     "operation_failed": "Oops! Qualcosa è andato storto. Si prega di riprovare.",
     "operation_aborted": "Operazione annullata.",
     "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
+    "linkedin_tooltip": "Condivida la carta su LinkedIn",
     "share_map_title": "Link al geoportale della Confederazione Svizzera",
-    "linkedin_tooltip": "Condivida la carta su LinkedIn"
+    "link_description": "Descrizione del link  (facoltativo)",
+    "media_disclaimer": "Contiene contenuti di terze parti"
 }

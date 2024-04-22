@@ -659,8 +659,8 @@
     "operation_failed": "Oups ! Quelque chose s'est mal passé. Veuillez réessayer.",
     "operation_aborted": "Opération annulée",
     "outside_valid_year_range": "L'année entrée se situe en dehors de la plage disponible :",
+    "linkedin_tooltip": "Partager cette carte sur LinkedIn",
     "share_map_title": "Lien sur le géoportail de la Confédération",
     "link_description": "Description du lien (facultatif)",
-    "linkedin_tooltip": "Partager cette carte sur LinkedIn"
-    "share_map_title": "Lien sur le géoportail de la Confédération"
+    "media_disclaimer": "Contient du contenu de tiers"
 }

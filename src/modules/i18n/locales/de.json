@@ -649,7 +649,7 @@
     "no_result": "Kein Ergebnis",
     "loading": "Laden",
     "search_in_catalogue_placeholder": "Suche in importierten Karten",
-    "kml_gpx_file_out_of_bounds": "Der Dateiinhalt liegt außerhalb der Projektionsgrenzen",
+    "kml_gpx_file_out_of_bounds": "Der Dateiinhalt liegt ausserhalb der Projektionsgrenzen",
     "kml_gpx_file_empty": "Die KML/GPX-Datei ist leer",
     "large_size": "Gross",
     "extra_large_size": "Extra Gross",
@@ -658,7 +658,9 @@
     "operation_successful": "Erfolg!",
     "operation_failed": "Hoppla! Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.",
     "operation_aborted": "Operation abgebrochen",
-    "outside_valid_year_range": "Das eingegebene Jahr liegt außerhalb des verfügbaren Bereichs:",
+    "outside_valid_year_range": "Das eingegebene Jahr liegt ausserhalb des verfügbaren Bereichs:",
+    "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn",
     "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
-    "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn"
+    "link_description": "Link Beschreibung (optional)",
+    "media_disclaimer": "Enthält Inhalte von Drittanbietern"
 }
