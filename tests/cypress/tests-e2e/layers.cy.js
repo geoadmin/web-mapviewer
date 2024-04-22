@@ -1181,9 +1181,13 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: layerWithAttributionUrl.serverLayerName,
                 })
+                cy.get(
+                    `a[data-cy="layer-copyright-${layerWithAttributionUrl.attribution}"]`
+                ).realHover()
                 cy.get(`a[data-cy="layer-copyright-${layerWithAttributionUrl.attribution}"]`)
                     .should('be.visible')
                     .should('contain', layerWithAttributionUrl.attribution)
+                    .should('have.css', 'cursor', 'pointer')
                     .should('have.attr', 'href', layerWithAttributionUrl.attributionUrl)
             })
         })

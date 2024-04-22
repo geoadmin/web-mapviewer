@@ -349,6 +349,14 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
             .should('be.visible')
             .contains('Das Geoportal des Bundes')
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]').realHover()
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
+            .should('have.css', 'cursor', 'pointer')
+            .should('have.class', 'text-primary')
+            .should('have.attr', 'href', 'http://www.geo.admin.ch/')
+        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+            .should('be.visible')
+            .contains('Dataset and/or style provided by third party')
 
         //---------------------------------------------------------------------
         cy.log('Reload should keep the layers')
