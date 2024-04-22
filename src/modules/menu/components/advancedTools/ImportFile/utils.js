@@ -16,7 +16,7 @@ const dispatcher = { dispatcher: 'ImportFile/utils' }
  * @returns {boolean}
  */
 export function isKml(fileContent) {
-    return /<kml/.test(fileContent) && /<\/kml\s*>/.test(fileContent)
+    return /<(kml:)?kml/.test(fileContent) && /<\/(kml:)?kml\s*>/.test(fileContent)
 }
 
 /**
