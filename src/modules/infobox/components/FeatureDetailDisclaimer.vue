@@ -90,7 +90,7 @@ function setDisclaimerAgree() {
                 :source-name="externalIframeHosts.toString()"
             >
                 <button
-                    class="d-flex btn btn-default btn-xs border-0"
+                    class="d-flex px-2 btn btn-default btn-xs border-0"
                     data-cy="feature-detail-media-disclaimer-closed-info"
                 >
                     <FontAwesomeIcon size="lg" color="red" icon="fa-user" />
