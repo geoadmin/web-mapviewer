@@ -754,6 +754,20 @@ describe('Test of layer handling', () => {
                     const layer = visibleLayers.find((layer) => layer.id === layerId)
                     expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
                 })
+
+                cy.log(
+                    'Check that, for both WMS and WMTS, sliding all the way left gets us an opacity of 0'
+                )
+                visibleLayerIds.forEach((layerId, index) => {
+                    cy.openLayerSettings(layerId)
+                    cy.get(`[data-cy="slider-opacity-layer-${layerId}-${index}"]`)
+                        .should('be.visible')
+                        .realClick({ position: 'left' })
+                    cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+                        const layer = visibleLayers.find((layer) => layer.id === layerId)
+                        expect(layer.opacity).to.eq(0.0)
+                    })
+                })
             })
             it('reorders visible layers when corresponding buttons are pressed', () => {
                 const [firstLayerId, secondLayerId] = visibleLayerIds
