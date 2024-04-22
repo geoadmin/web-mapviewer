@@ -31,6 +31,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        showTippy: {
+            type: Boolean,
+            default: true,
+        },
         sourceName: {
             type: String,
             default: '',
@@ -55,17 +59,21 @@ export default {
         },
     },
     mounted() {
-        this.tippyInstance = tippy(this.$refs.tippyAnchor, {
-            theme: 'primary',
-            content: this.tooltipContent,
-            arrow: true,
-            placement: 'top',
-            touch: false,
-            delay: 250,
-        })
+        if (this.showTippy) {
+            this.tippyInstance = tippy(this.$refs.tippyAnchor, {
+                theme: 'primary',
+                content: this.tooltipContent,
+                arrow: true,
+                placement: 'top',
+                touch: false,
+                delay: 250,
+            })
+        }
     },
     beforeUnmount() {
-        this.tippyInstance.destroy()
+        if (this.showTippy) {
+            this.tippyInstance.destroy()
+        }
     },
     methods: {
         onClick() {

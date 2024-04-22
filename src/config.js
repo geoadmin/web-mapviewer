@@ -292,10 +292,10 @@ export const OLDEST_YEAR = 1844
  *
  * @type {Number}
  */
+export const YOUNGEST_YEAR = new Date().getFullYear() - 1
 
 /**
- * Export const YOUNGEST_YEAR = new Date().getFullYear() - 1 Don't show third party disclaimer for
- * iframe with one of these hosts as src
+ * Don't show third party disclaimer for iframe with one of these hosts as src
  *
  * @type {String[]}
  */
