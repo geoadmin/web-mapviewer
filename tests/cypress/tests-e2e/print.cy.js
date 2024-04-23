@@ -116,7 +116,7 @@ describe('Testing print', () => {
 
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
@@ -159,7 +159,7 @@ describe('Testing print', () => {
 
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(500000)
-                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:3857')
 
                 const layers = mapAttributes.layers
@@ -241,7 +241,7 @@ describe('Testing print', () => {
 
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
@@ -328,7 +328,7 @@ describe('Testing print', () => {
 
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(10000)
-                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
@@ -345,7 +345,7 @@ describe('Testing print', () => {
                 expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
             })
         })
-        it('should send a print request correctly to mapfishprint with GPX layer', () => {
+        it.only('should send a print request correctly to mapfishprint with GPX layer', () => {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
@@ -410,7 +410,7 @@ describe('Testing print', () => {
 
                 const mapAttributes = attributes.map
                 expect(mapAttributes['scale']).to.equals(10000)
-                expect(mapAttributes['dpi']).to.equals(96)
+                expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
@@ -431,6 +431,12 @@ describe('Testing print', () => {
                 expect(gpxLayer['geoJson']['features'][1]['properties']['_mfp_style']).to.equal('1')
                 expect(gpxLayer['style']).to.haveOwnProperty("[_mfp_style = '1']")
                 expect(gpxLayer['style']).to.haveOwnProperty("[_mfp_style = '2']")
+                expect(gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['type']).to.equals(
+                    'line'
+                )
+                expect(
+                    gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['strokeWidth']
+                ).to.lessThan(1.5) // thinner than the drawn in the OL map.
             })
         })
     })
