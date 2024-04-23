@@ -2,6 +2,7 @@ import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.clas
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 export default class GPXLayer extends AbstractLayer {
     /**
@@ -15,6 +16,8 @@ export default class GPXLayer extends AbstractLayer {
      * @param {GPXMetadata | null} [gpxLayerData.gpxMetadata=null] Metadata of the GPX file. This
      *   object contains all the metadata found in the file itself within the <metadata> tag.
      *   Default is `null`
+     * @param {Number} [gpxLayerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
+     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(gpxLayerData) {
@@ -27,6 +30,7 @@ export default class GPXLayer extends AbstractLayer {
             opacity = 1.0,
             gpxData = null,
             gpxMetadata = null,
+            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = gpxLayerData
         if (gpxFileUrl === null) {
             throw new InvalidLayerDataError('Missing GPX file URL', gpxLayerData)
@@ -47,6 +51,7 @@ export default class GPXLayer extends AbstractLayer {
             hasLegend: false,
             isExternal: true,
             isLoading: !gpxData,
+            maxResolution,
         })
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData

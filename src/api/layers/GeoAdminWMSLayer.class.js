@@ -1,7 +1,7 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WMS_BASE_URL } from '@/config'
+import { DEFAULT_MAX_GEOADMIN_RESOLUTION, WMS_BASE_URL } from '@/config'
 
 /**
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
@@ -54,6 +54,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
+     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
+     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -78,6 +80,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             topics = [],
             hasLegend = false,
             searchable = false,
+            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = layerData
         super({
             name,
@@ -96,6 +99,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             timeConfig,
             hasLegend,
             searchable,
+            maxResolution,
         })
         this.format = format
         this.lang = lang

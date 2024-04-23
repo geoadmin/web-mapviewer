@@ -111,6 +111,8 @@ function createTileGridForProjection() {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
+    // TODO : in WMTSSource : overload getTile to have z set to maxZoom or make retrys until we find the good one
+    // wmtsSourceConfig should have a maxzoom, WMTSSource should store maxZoom
     return new WMTSSource(wmtsSourceConfig.value)
 }
 </script>

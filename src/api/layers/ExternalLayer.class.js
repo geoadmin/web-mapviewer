@@ -1,5 +1,6 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
@@ -94,6 +95,8 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {ExternalLayerGetFeatureInfoCapability | null} [externalLayerData.getFeatureInfoCapability=null]
      *   Configuration describing how to request this layer's server to get feature information.
      *   Default is `null`
+     * @param {Number} [externalLayerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
+     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -115,6 +118,7 @@ export default class ExternalLayer extends AbstractLayer {
             availableProjections = [],
             hasTooltip = false,
             getFeatureInfoCapability = null,
+            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = externalLayerData
         // keeping this checks, even though it will be checked again by the super constructor, because we use the baseUrl
         // to build our call to the super constructor (with a URL construction, which could raise an error if baseUrl is
@@ -135,6 +139,7 @@ export default class ExternalLayer extends AbstractLayer {
             isLoading,
             hasDescription: abstract?.length > 0 || legends?.length > 0,
             hasLegend: legends?.length > 0,
+            maxResolution,
         })
         this.abstract = abstract
         this.extent = extent

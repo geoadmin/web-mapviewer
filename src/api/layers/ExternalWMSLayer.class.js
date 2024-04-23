@@ -1,6 +1,7 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * Metadata for an external WMS layer.
@@ -45,6 +46,8 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {ExternalLayerGetFeatureInfoCapability | null} [externalWmsData.getFeatureInfoCapability=null]
      *   Configuration describing how to request this layer's server to get feature information.
      *   Default is `null`
+     * @param {Number} [externalWmsData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
+     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
     constructor(externalWmsData) {
@@ -67,7 +70,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
             availableProjections = [],
             hasTooltip = false,
             getFeatureInfoCapability = null,
+            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = externalWmsData
+
         super({
             name,
             id,
@@ -83,6 +88,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             availableProjections,
             hasTooltip,
             getFeatureInfoCapability,
+            maxResolution,
         })
         this.wmsVersion = wmsVersion
         this.format = format
