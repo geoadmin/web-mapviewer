@@ -136,13 +136,10 @@ export const highlightPointStyle = new Style({
     }),
 })
 
-// Change a distance according to the change of DPI
+// Change a distance according to the change of DPI (from the old geoadmin)
 export function adjustDistance(dist, dpi) {
     if (!dist) {
         return
     }
-    // Taken from the old geoadmin where the distance is calculated based on the DPI used.
-    // In the old geoadmin we use (dist * 90) / dpi. With dpi either 150 (A3) or 254 (A4).
-    // I use 34 as a constant to have a similar result (i.e. 90/254 * 96 = 34)
-    return (dist * 34) / dpi
+    return (dist * 90) / dpi
 }

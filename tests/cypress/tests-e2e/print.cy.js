@@ -345,7 +345,7 @@ describe('Testing print', () => {
                 expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
             })
         })
-        it.only('should send a print request correctly to mapfishprint with GPX layer', () => {
+        it('should send a print request correctly to mapfishprint with GPX layer', () => {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
