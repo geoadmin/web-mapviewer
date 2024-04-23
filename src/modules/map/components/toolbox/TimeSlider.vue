@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import tippy from 'tippy.js'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -28,6 +28,7 @@ const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
 const currentYear = ref(YOUNGEST_YEAR)
 const displayedYear = ref(YOUNGEST_YEAR)
+const isPristine = ref(true)
 let cursorX = 0
 let playYearsWithData = false
 let yearCursorIsGrabbed = false
@@ -46,6 +47,7 @@ const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() =>
     store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
 )
+const activeLayers = computed(() => store.state.layers.activeLayers)
 const previewYear = computed(() => store.state.layers.previewYear)
 const invalidYear = computed(
     () =>
@@ -180,6 +182,20 @@ onMounted(() => {
     })
 })
 
+onUnmounted(() => {
+    if (!isPristine.value) {
+        activeLayers.value.forEach((layer, index) => {
+            if (layer.hasMultipleTimestamps) {
+                store.dispatch('setTimedLayerCurrentYear', {
+                    index,
+                    year: previewYear.value,
+                    ...dispatcher,
+                })
+            }
+        })
+    }
+})
+
 function tooltipContent() {
     return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
 }
@@ -213,6 +229,7 @@ function positionNodeLabel(year) {
 
 function grabCursor(event) {
     yearCursorIsGrabbed = true
+    isPristine.value = false
     if (event.type === 'touchstart') {
         // for touch events we have to select which touch we want to get the screen position
         // (there can be multiple fingers gestures)
@@ -302,6 +319,7 @@ function setYearToInputIfValid() {
         currentYear.value != displayedYear.value &&
         allYears.value.includes(parseInt(displayedYear.value))
     ) {
+        isPristine.value = false
         setCurrentYearAndDispatchToStore(parseInt(displayedYear.value))
     }
 }
