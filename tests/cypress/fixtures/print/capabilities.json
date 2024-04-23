@@ -1,21 +1,17 @@
 {
-    "app": "default",
+    "app": "mapviewer",
     "layouts": [
         {
             "name": "1. A4 landscape",
             "attributes": [
-                {
-                    "name": "name",
-                    "type": "String",
-                    "default": "this is a name"
-                },
                 {
                     "name": "url",
                     "type": "String"
                 },
                 {
                     "name": "copyright",
-                    "type": "String"
+                    "type": "String",
+                    "default": "© swisstopo"
                 },
                 {
                     "name": "qrimage",
@@ -170,32 +166,12 @@
                         }
                     },
                     "clientInfo": {
-                        "dpiSuggestions": [
-                            72,
-                            91,
-                            128,
-                            254,
-                            300,
-                            400
-                        ],
+                        "dpiSuggestions": [254],
                         "scales": [
-                            2500000,
-                            1500000,
-                            1000000,
-                            500000,
-                            300000,
-                            200000,
-                            100000,
-                            50000,
-                            25000,
-                            20000,
-                            10000,
-                            5000,
-                            2500,
-                            1000,
-                            500
+                            2500000, 1500000, 1000000, 500000, 300000, 200000, 100000, 50000, 25000,
+                            20000, 10000, 5000, 2500, 1000, 500
                         ],
-                        "maxDPI": 400,
+                        "maxDPI": 254,
                         "width": 802,
                         "height": 514
                     }
@@ -310,17 +286,13 @@
             "name": "2. A4 portrait",
             "attributes": [
                 {
-                    "name": "name",
-                    "type": "String",
-                    "default": "this is a name"
-                },
-                {
                     "name": "url",
                     "type": "String"
                 },
                 {
                     "name": "copyright",
-                    "type": "String"
+                    "type": "String",
+                    "default": "© swisstopo"
                 },
                 {
                     "name": "qrimage",
@@ -475,32 +447,12 @@
                         }
                     },
                     "clientInfo": {
-                        "dpiSuggestions": [
-                            72,
-                            91,
-                            128,
-                            254,
-                            300,
-                            400
-                        ],
+                        "dpiSuggestions": [254],
                         "scales": [
-                            2500000,
-                            1500000,
-                            1000000,
-                            500000,
-                            300000,
-                            200000,
-                            100000,
-                            50000,
-                            25000,
-                            20000,
-                            10000,
-                            5000,
-                            2500,
-                            1000,
-                            500
+                            2500000, 1500000, 1000000, 500000, 300000, 200000, 100000, 50000, 25000,
+                            20000, 10000, 5000, 2500, 1000, 500
                         ],
-                        "maxDPI": 400,
+                        "maxDPI": 254,
                         "width": 555,
                         "height": 752
                     }
@@ -615,17 +567,13 @@
             "name": "3. A3 landscape",
             "attributes": [
                 {
-                    "name": "name",
-                    "type": "String",
-                    "default": "this is a name"
-                },
-                {
                     "name": "url",
                     "type": "String"
                 },
                 {
                     "name": "copyright",
-                    "type": "String"
+                    "type": "String",
+                    "default": "© swisstopo"
                 },
                 {
                     "name": "qrimage",
@@ -780,32 +728,12 @@
                         }
                     },
                     "clientInfo": {
-                        "dpiSuggestions": [
-                            72,
-                            91,
-                            128,
-                            254,
-                            300,
-                            400
-                        ],
+                        "dpiSuggestions": [150],
                         "scales": [
-                            2500000,
-                            1500000,
-                            1000000,
-                            500000,
-                            300000,
-                            200000,
-                            100000,
-                            50000,
-                            25000,
-                            20000,
-                            10000,
-                            5000,
-                            2500,
-                            1000,
-                            500
+                            2500000, 1500000, 1000000, 500000, 300000, 200000, 100000, 50000, 25000,
+                            20000, 10000, 5000, 2500, 1000, 500
                         ],
-                        "maxDPI": 400,
+                        "maxDPI": 150,
                         "width": 1151,
                         "height": 751
                     }
@@ -920,17 +848,13 @@
             "name": "4. A3 portrait",
             "attributes": [
                 {
-                    "name": "name",
-                    "type": "String",
-                    "default": "this is a name"
-                },
-                {
                     "name": "url",
                     "type": "String"
                 },
                 {
                     "name": "copyright",
-                    "type": "String"
+                    "type": "String",
+                    "default": "© swisstopo"
                 },
                 {
                     "name": "qrimage",
@@ -1085,32 +1009,12 @@
                         }
                     },
                     "clientInfo": {
-                        "dpiSuggestions": [
-                            72,
-                            91,
-                            128,
-                            254,
-                            300,
-                            400
-                        ],
+                        "dpiSuggestions": [150],
                         "scales": [
-                            2500000,
-                            1500000,
-                            1000000,
-                            500000,
-                            300000,
-                            200000,
-                            100000,
-                            50000,
-                            25000,
-                            20000,
-                            10000,
-                            5000,
-                            2500,
-                            1000,
-                            500
+                            2500000, 1500000, 1000000, 500000, 300000, 200000, 100000, 50000, 25000,
+                            20000, 10000, 5000, 2500, 1000, 500
                         ],
-                        "maxDPI": 400,
+                        "maxDPI": 150,
                         "width": 802,
                         "height": 1100
                     }
@@ -1225,17 +1129,13 @@
             "name": "5. A6 landscape",
             "attributes": [
                 {
-                    "name": "name",
-                    "type": "String",
-                    "default": "this is a name"
-                },
-                {
                     "name": "url",
                     "type": "String"
                 },
                 {
                     "name": "copyright",
-                    "type": "String"
+                    "type": "String",
+                    "default": "© swisstopo"
                 },
                 {
                     "name": "qrimage",
@@ -1390,32 +1290,12 @@
                         }
                     },
                     "clientInfo": {
-                        "dpiSuggestions": [
-                            72,
-                            91,
-                            128,
-                            254,
-                            300,
-                            400
-                        ],
+                        "dpiSuggestions": [254],
                         "scales": [
-                            2500000,
-                            1500000,
-                            1000000,
-                            500000,
-                            300000,
-                            200000,
-                            100000,
-                            50000,
-                            25000,
-                            20000,
-                            10000,
-                            5000,
-                            2500,
-                            1000,
-                            500
+                            2500000, 1500000, 1000000, 500000, 300000, 200000, 100000, 50000, 25000,
+                            20000, 10000, 5000, 2500, 1000, 500
                         ],
-                        "maxDPI": 400,
+                        "maxDPI": 254,
                         "width": 380,
                         "height": 240
                     }
@@ -1530,15 +1410,5 @@
     "smtp": {
         "enabled": false
     },
-    "formats": [
-        "bmp",
-        "gif",
-        "jpeg",
-        "jpg",
-        "pdf",
-        "png",
-        "svg",
-        "tif",
-        "tiff"
-    ]
+    "formats": ["bmp", "gif", "jpeg", "jpg", "pdf", "png", "svg", "tif", "tiff"]
 }
