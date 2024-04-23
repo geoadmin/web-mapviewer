@@ -115,6 +115,9 @@ $spacing: 8px;
     line-height: 1.42857143;
     line-break: auto;
     text-align: start;
+
+    // allow user selection
+    @extend .clear-no-ios-long-press;
 }
 
 .legend-header {
