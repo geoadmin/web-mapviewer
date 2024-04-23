@@ -82,6 +82,7 @@ export function usePrint(map) {
                 printGrid: printGrid,
                 projection: store.state.position.projection,
                 excludedLayerIDs: [PRINT_AREA_LAYER_ID],
+                dpi: store.getters.selectedDPI,
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)
