@@ -12,7 +12,6 @@ import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
 import { adjustDistance } from '@/utils/styleUtils'
 
-const PRINTING_RESOLUTION = 96 // dpi
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
@@ -231,6 +230,7 @@ export class PrintError extends Error {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
  *   from the print. Default is `[]`
+ * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
  */
@@ -246,6 +246,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        dpi = null,
         outputFilename = null,
     } = config
 
@@ -267,8 +268,11 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (printGrid && !projection) {
         throw new PrintError('Missing projection to print the grid')
     }
+    if (!dpi) {
+        throw new PrintError('Missing DPI for printing')
+    }
 
-    const customizer = new GeoAdminCustomizer(excludedLayerIDs, PRINTING_RESOLUTION)
+    const customizer = new GeoAdminCustomizer(excludedLayerIDs, dpi)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
@@ -276,8 +280,8 @@ async function transformOlMapToPrintParams(olMap, config) {
         const encodedMap = await encoder.encodeMap({
             map: olMap,
             scale,
-            printResolution: PRINTING_RESOLUTION,
-            dpi: PRINTING_RESOLUTION,
+            printResolution: dpi,
+            dpi: dpi,
             customizer: customizer,
         })
         if (printGrid) {
@@ -291,7 +295,7 @@ async function transformOlMapToPrintParams(olMap, config) {
                 styles: [''],
                 customParams: {
                     TRANSPARENT: true,
-                    MAP_RESOLUTION: PRINTING_RESOLUTION,
+                    MAP_RESOLUTION: dpi,
                 },
             })
         }
@@ -351,6 +355,7 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   the print. Default is `[]`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
+ * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -367,6 +372,7 @@ export async function createPrintJob(map, config) {
         projection = null,
         excludedLayerIDs = [],
         outputFilename = null,
+        dpi = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -381,6 +387,7 @@ export async function createPrintJob(map, config) {
             projection,
             excludedLayerIDs,
             outputFilename,
+            dpi,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
