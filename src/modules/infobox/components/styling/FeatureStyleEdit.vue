@@ -106,6 +106,15 @@ const availableIconSets = computed(() => store.state.drawing.iconSets)
 function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
 }
+function onTextAlignChange(textAlign) {
+    textAlign = [0, -40]
+    console.error('Set title offset of feature in drawing mode to : ', textAlign)
+    store.dispatch('changeFeatureTextAlign', {
+        feature: feature.value,
+        textAlign,
+        ...dispatcher,
+    })
+}
 function onTextColorChange(textColor) {
     store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
 }
@@ -218,6 +227,7 @@ function mediaTypes() {
         </div>
         <div class="d-flex justify-content-end align-items-center">
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
+                <button @click="onTextAlignChange">{{ 'change text align' }}</button>
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"

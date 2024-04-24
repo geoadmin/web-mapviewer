@@ -108,8 +108,8 @@ export function generateKmlString(projection, features = []) {
         clone.unset('geodesic')
 
         exportFeatures.push(clone)
-    })
 
+    })
     if (exportFeatures.length > 0) {
         if (exportFeatures.length === 1) {
             // force the add of a <Document> node

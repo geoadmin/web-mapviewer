@@ -188,6 +188,16 @@ export function getTextSize(textScale) {
 }
 
 /**
+ * Get text alignment from style *
+ *
+ * @param {Style} style Feature style
+ * @returns {Array | null} Returns the feature style color object or null if text is not found
+ */
+export function getTextAlign(style) {
+    return [style.getText().getOffsetX(), style.getText().getOffsetY()]
+}
+
+/**
  * Get KML text color from style
  *
  * When a text is present but no color is given, then default to RED.
@@ -239,6 +249,8 @@ export function featureStyleFunction(feature, resolution) {
                     width: 3,
                 }),
                 scale: editableFeature.textSizeScale || 1,
+                offsetX: editableFeature.textAlign[0],
+                offsetY: editableFeature.textAlign[1],
             }),
             stroke:
                 editableFeature.featureType === EditableFeatureTypes.MEASURE

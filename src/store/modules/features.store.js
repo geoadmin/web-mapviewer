@@ -231,6 +231,26 @@ export default {
          * @param commit
          * @param state
          * @param {EditableFeature} feature
+         * @param {Array} textAlign
+         */
+        changeFeatureTextAlign({ commit, state }, { feature, textAlign, dispatcher }) {
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
+            if (textAlign && selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureTextAlign', {
+                    feature: selectedFeature,
+                    textAlign,
+                    dispatcher,
+                })
+            }
+        },
+        /**
+         * Changes the text color of the feature. Only change the text color if the feature is
+         * editable, part of the currently selected features and that the given color is a valid
+         * color from {@link FeatureStyleColor}
+         *
+         * @param commit
+         * @param state
+         * @param {EditableFeature} feature
          * @param {FeatureStyleColor} textColor
          */
         changeFeatureTextColor({ commit, state }, { feature, textColor, dispatcher }) {
@@ -379,6 +399,9 @@ export default {
         },
         changeFeatureTextSize(state, { feature, textSize }) {
             feature.textSize = textSize
+        },
+        changeFeatureTextAlign(state, { feature, textAlign }) {
+            feature.textAlign = textAlign
         },
         changeFeatureTextColor(state, { feature, textColor }) {
             feature.textColor = textColor

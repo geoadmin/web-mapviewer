@@ -18,6 +18,7 @@ import {
     featureStyleFunction,
     getFeatureStyleColor,
     getStyle,
+    getTextAlign,
     getTextColor,
     getTextSize,
     RED,
@@ -380,6 +381,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const title = kmlFeature.get('name') ?? ''
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
+    const textAlign = getTextAlign(style)
     const textColor = getTextColor(style)
 
     const description = kmlFeature.get('description') ?? ''
@@ -434,6 +436,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         description: description,
         coordinates,
         geometry,
+        textAlign,
         textColor,
         textSize,
         fillColor,

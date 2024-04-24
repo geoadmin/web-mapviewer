@@ -25,6 +25,7 @@ export default class EditableFeature extends SelectableFeature {
      * @param {String} featureData.description A description of this feature, can not be HTML
      *   content (only text)
      * @param {EditableFeatureTypes} featureData.featureType Type of this editable feature
+     * @param {Array} featureData.textAlign Alignment for the text of this feature
      * @param {FeatureStyleColor} featureData.textColor Color for the text of this feature
      * @param {FeatureStyleSize} featureData.textSize Size of the text for this feature
      * @param {FeatureStyleColor} featureData.fillColor Color of the icon (if defined)
@@ -40,6 +41,7 @@ export default class EditableFeature extends SelectableFeature {
             title = '',
             description = '',
             featureType,
+            textAlign = [0, 0],
             textColor = RED,
             textSize = MEDIUM,
             fillColor = RED,
@@ -48,6 +50,7 @@ export default class EditableFeature extends SelectableFeature {
         } = featureData
         super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
+        this._textAlign = textAlign
         this._textColor = textColor
         this._textSize = textSize
         this._fillColor = fillColor
@@ -79,6 +82,17 @@ export default class EditableFeature extends SelectableFeature {
         return this._featureType
     }
     // no setter for featureType, immutable
+
+    /** @returns {FeatureStyleColor} */
+    get textAlign() {
+        return this._textAlign
+    }
+
+    /** @param textAlign {String} */
+    set textAlign(newAlign) {
+        this._textAlign = newAlign
+        this.emitStylingChangeEvent('textAlign')
+    }
 
     /** @returns {FeatureStyleColor} */
     get textColor() {
