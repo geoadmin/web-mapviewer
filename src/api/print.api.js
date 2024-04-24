@@ -10,7 +10,7 @@ import axios from 'axios'
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
-import { adjustDistance } from '@/utils/styleUtils'
+import { adjustWidth } from '@/utils/styleUtils'
 
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
@@ -70,7 +70,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
             symbolizer.strokeDashstyle = 'dash'
         }
         if (symbolizer.strokeWidth) {
-            symbolizer.strokeWidth = adjustDistance(symbolizer.strokeWidth, this.printResolution)
+            symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         }
     }
 }
