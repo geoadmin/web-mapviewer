@@ -136,10 +136,13 @@ export const highlightPointStyle = new Style({
     }),
 })
 
-// Change a distance according to the change of DPI (from the old geoadmin)
-export function adjustDistance(dist, dpi) {
-    if (!dist) {
+// Change a width according to the change of DPI (from the old geoadmin)
+// Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
+export function adjustWidth(width, dpi) {
+    if (!width) {
         return
     }
-    return (dist * 90) / dpi
+    // 90 is choosen to compensate the difference DPI between the WMTS or WMS and the print DPI used.
+    // The number is from the old geoadmin (see the link above)
+    return (width * 90) / dpi
 }
