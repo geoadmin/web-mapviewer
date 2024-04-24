@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineEmits, ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
@@ -102,7 +102,7 @@ function validateUrl(url) {
                     id="drawing-style-media-link-description"
                     v-model="linkDescription"
                     class="feature-url-description mb-2"
-                    :placeholder="i18n.t('link_description')"
+                    placeholder="link_description"
                     data-cy="drawing-style-media-description-input"
                 />
             </div>
@@ -115,7 +115,7 @@ function validateUrl(url) {
                 id="drawing-style-media-url-description"
                 v-model="generatedMediaLink"
                 class="feature-url-description mb-2"
-                :placeholder="i18n.t('paste_url')"
+                placeholder="paste_url"
                 :validate="validateUrl"
                 data-cy="drawing-style-media-url-input"
                 @keydown.enter="addLink(generatedMediaLink)"
