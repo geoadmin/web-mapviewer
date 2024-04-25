@@ -28,13 +28,13 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
-const online = computed(() => store.state.drawing.drawingOverlay.online)
+const online = computed(() => store.state.drawing.online)
 const hasKml = computed(() => {
     if (online.value) {
         return !!activeKmlLayer.value
     }
     return !!store.state.layers.systemLayers.find(
-        (l) => l.id === store.state.drawing.drawingOverlay.kmlId
+        (l) => l.id === store.state.drawing.temporaryKmlId
     )
 })
 

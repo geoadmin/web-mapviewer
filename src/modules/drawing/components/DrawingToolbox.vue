@@ -55,7 +55,7 @@ const drawingStateMessage = computed(() => {
             return null
     }
 })
-const online = computed(() => store.state.drawing.drawingOverlay.online)
+const online = computed(() => store.state.drawing.online)
 
 function onCloseClearConfirmation(confirmed) {
     showClearConfirmationModal.value = false

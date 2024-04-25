@@ -96,7 +96,7 @@ export default {
         },
         toggleDrawingOverlay(
             { commit, state },
-            { dispatcher, online = null, kmlId = null, title = null }
+            { online = true, kmlId = null, title = defaultDrawingTitle, dispatcher }
         ) {
             commit('setShowDrawingOverlay', {
                 show: !state.drawingOverlay.show,
@@ -129,8 +129,8 @@ export default {
         setShowDrawingOverlay(state, { show, online, kmlId, title }) {
             state.drawingOverlay.show = show
             state.drawingOverlay.title = title
-            state.drawingOverlay.online = online
-            state.drawingOverlay.kmlId = kmlId
+            state.online = online
+            state.temporaryKmlId = kmlId
         },
     },
 }
