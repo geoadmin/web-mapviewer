@@ -1,6 +1,8 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 
+const defaultDrawingTitle = 'draw_mode_title'
+
 /**
  * @typedef SelectedFeatureData
  * @property {[number, number]} coordinate
@@ -30,6 +32,37 @@ export default {
          * @type {String[]}
          */
         featureIds: [],
+        /**
+         * Drawing overlay configuration
+         *
+         * @type {{ show: boolean; title: string }}
+         */
+        drawingOverlay: {
+            /**
+             * Flag to toggle drawing mode overlay
+             *
+             * @type {Boolean}
+             */
+            show: false,
+            /**
+             * Title translation key of the drawing overlay
+             *
+             * @type {String}
+             */
+            title: defaultDrawingTitle,
+        },
+        /**
+         * KML is saved online using the KML backend service
+         *
+         * @type {Boolean}
+         */
+        online: true,
+        /**
+         * KML ID to use for temporary local KML (only used when online === false)
+         *
+         * @type {String | null}
+         */
+        temporaryKmlId: null,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -61,6 +94,30 @@ export default {
         setDrawingFeatures({ commit }, { featureIds, dispatcher }) {
             commit('setDrawingFeatures', { featureIds, dispatcher })
         },
+        toggleDrawingOverlay(
+            { commit, state },
+            { dispatcher, online = null, kmlId = null, title = null }
+        ) {
+            commit('setShowDrawingOverlay', {
+                show: !state.drawingOverlay.show,
+                online,
+                kmlId,
+                title,
+                dispatcher,
+            })
+        },
+        setShowDrawingOverlay(
+            { commit },
+            { show, online = true, kmlId = null, title = defaultDrawingTitle, dispatcher }
+        ) {
+            commit('setShowDrawingOverlay', {
+                show,
+                online,
+                kmlId,
+                title,
+                dispatcher,
+            })
+        },
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
@@ -69,5 +126,11 @@ export default {
         deleteDrawingFeature: (state, { featureId }) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
         setDrawingFeatures: (state, { featureIds }) => (state.featureIds = featureIds),
+        setShowDrawingOverlay(state, { show, online, kmlId, title }) {
+            state.drawingOverlay.show = show
+            state.drawingOverlay.title = title
+            state.drawingOverlay.online = online
+            state.drawingOverlay.kmlId = kmlId
+        },
     },
 }

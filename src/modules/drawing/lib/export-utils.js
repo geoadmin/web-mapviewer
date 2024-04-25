@@ -69,6 +69,7 @@ export function generateGpxString(projection, features = []) {
  * @returns {string}
  */
 export function generateKmlString(projection, features = []) {
+    log.debug(`Generate KML for ${features.length} features`)
     if (!projection) {
         log.error('Cannot generate KML string without projection')
         return ''

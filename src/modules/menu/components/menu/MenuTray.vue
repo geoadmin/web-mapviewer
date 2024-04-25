@@ -128,7 +128,7 @@ export default {
             lang: (state) => state.i18n.lang,
             is3dMode: (state) => state.cesium.active,
             showImportFile: (state) => state.ui.importFile,
-            showDrawingOverlay: (state) => state.ui.drawingOverlay.show,
+            showDrawingOverlay: (state) => state.drawing.drawingOverlay.show,
             mapModuleReady: (state) => state.app.isMapReady,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),

@@ -26,7 +26,7 @@ const layerFeatureCategories = ref([])
 
 const i18n = useI18n()
 const store = useStore()
-const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 

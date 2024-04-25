@@ -35,7 +35,7 @@ const store = useStore()
 
 const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
+const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
 </script>
 

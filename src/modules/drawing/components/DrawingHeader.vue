@@ -8,7 +8,7 @@ const emits = defineEmits(['close'])
 const store = useStore()
 
 const isClosing = ref(false)
-const drawingTitle = computed(() => store.state.ui.drawingOverlay.title)
+const drawingTitle = computed(() => store.state.drawing.drawingOverlay.title)
 
 const i18n = useI18n()
 

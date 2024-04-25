@@ -116,7 +116,7 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                 promisesForAllDispatch.push(
                     store.dispatch('setShowDrawingOverlay', {
-                        showDrawingOverlay: true,
+                        show: true,
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
                 )

@@ -56,14 +56,18 @@ const isMessageValid = computed(() => feedback.value.message?.length > 0)
 const isEmailValid = computed(() => {
     return !feedback.value.email || isValidEmail(feedback.value.email)
 })
-const showDrawingOverlay = computed(() => store.state.ui.drawingOverlay.show)
+const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const temporaryKml = computed(() =>
     store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId)
 )
 
-watch(temporaryKml, () => {
-    feedback.value.kml = temporaryKml.value?.kmlData ?? null
-})
+watch(
+    () => temporaryKml.value?.kmlData,
+    () => {
+        feedback.value.kml = temporaryKml.value?.kmlData ?? null
+    },
+    { deep: true }
+)
 
 // Methods
 async function sendReportProblem() {
