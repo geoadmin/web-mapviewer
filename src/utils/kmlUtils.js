@@ -381,7 +381,6 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const title = kmlFeature.get('name') ?? ''
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
-    const textAlign = getTextAlign(style)
     const textColor = getTextColor(style)
 
     const description = kmlFeature.get('description') ?? ''
@@ -401,6 +400,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
+    const textAlign = getTextAlign(textScale, iconSize, iconArgs)
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 

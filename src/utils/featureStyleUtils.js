@@ -188,13 +188,45 @@ export function getTextSize(textScale) {
 }
 
 /**
+ * Calculate text alignment from style parameters *
+ *
+ * @param {Number} textScale Text size
+ * @param {Number} iconScale Icon size
+ * @param {String} name Name of icon
+ * @returns {Array | null} Returns the feature label offset
+ */
+export function calculateTextAlign(textScale, iconScale, name) {
+    let fontSize = 12
+    let iconSize = 18
+    let anchorScale = name === '001-marker' ? 2 : 1
+
+    let defaultOffset = -5
+    let iconOffset = -iconSize * iconScale * anchorScale
+    let textOffset = -fontSize * 0.5 * textScale
+
+    console.error('title offset of feature is calculated to be : ', [
+        0,
+        defaultOffset + iconOffset + textOffset,
+    ])
+
+    return [0, defaultOffset + iconOffset + textOffset]
+}
+
+/**
  * Get text alignment from style *
  *
- * @param {Style} style Feature style
- * @returns {Array | null} Returns the feature style color object or null if text is not found
+ * @param {FeatureStyleSize} textScale Text size
+ * @param {FeatureStyleSize} iconSize Icon size
+ * @param {IconArgs} iconArgs Name of icon
+ * @returns {Array | null} Returns the feature label offset
  */
-export function getTextAlign(style) {
-    return [style.getText().getOffsetX(), style.getText().getOffsetY()]
+export function getTextAlign(textScale, iconSize, iconArgs) {
+    let iconScale = iconSize ? iconSize._iconScale : 1
+    let name = iconArgs ? iconArgs.name : null
+
+    let tmp = calculateTextAlign(textScale, iconScale, name)
+    console.error('title offset of feature from kml is calculated to be : ', tmp)
+    return calculateTextAlign(textScale, iconScale, name)
 }
 
 /**
