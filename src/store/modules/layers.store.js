@@ -71,6 +71,13 @@ const state = {
      * @type Number
      */
     previewYear: null,
+    /**
+     * System layers. List of system layers that are added on top and cannot be directly controlled
+     * by the user.
+     *
+     * @type AbstractLayer[]
+     */
+    systemLayers: [],
 }
 
 const getters = {
@@ -86,7 +93,7 @@ const getters = {
         if (state.previewLayer !== null) {
             visibleLayers.push(state.previewLayer)
         }
-        return visibleLayers
+        return visibleLayers.concat(state.systemLayers.filter((layer) => layer.visible))
     },
 
     /**
@@ -156,12 +163,15 @@ const getters = {
     },
 
     /**
-     * Get layers with time config
+     * Get visiblelayers with time config. (Preview and system layer are filtered)
      *
      * @returns {GeoAdminLayer[]} List of layers with time config
      */
-    visibleLayersWithTimeConfig: (state, getters) =>
-        getters.visibleLayers.filter((layer) => layer.timeConfig?.timeEntries?.length),
+    visibleLayersWithTimeConfig: (state) =>
+        // Here we cannot take the getter visibleLayers as it also contain the preview and system layers
+        state.activeLayers.filter(
+            (layer) => layer.visible && layer.timeConfig?.timeEntries?.length
+        ),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
@@ -610,6 +620,48 @@ const actions = {
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
     },
+    /**
+     * Add a system layer
+     *
+     * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are added/remove
+     * by ID
+     *
+     * @param {AbstractLayer} layer
+     * @param {String} dispatcher
+     */
+    addSystemLayer({ commit }, { layer, dispatcher }) {
+        commit('addSystemLayer', { layer, dispatcher })
+    },
+    /**
+     * Update a system layer
+     *
+     * @param {AbstractLayer | Object} layer
+     * @param {String} dispatcher
+     */
+    updateSystemLayer({ commit }, { layer, dispatcher }) {
+        commit('updateSystemLayer', { layer, dispatcher })
+    },
+    /**
+     * Remove a system layer
+     *
+     * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are added/remove
+     * by ID
+     *
+     * @param {AbstractLayer} layer
+     * @param {String} dispatcher
+     */
+    removeSystemLayer({ commit }, { layerId, dispatcher }) {
+        commit('removeSystemLayer', { layerId, dispatcher })
+    },
+    /**
+     * Set all system layers
+     *
+     * @param {[AbstractLayer]} layers
+     * @param {String} dispatcher
+     */
+    setSystemLayers({ commit }, { layers, dispatcher }) {
+        commit('setSystemLayers', { layers, dispatcher })
+    },
 }
 
 const mutations = {
@@ -693,6 +745,34 @@ const mutations = {
     },
     setPreviewYear(state, { year }) {
         state.previewYear = year
+    },
+    addSystemLayer(state, { layer }) {
+        if (state.systemLayers.find((l) => l.id === layer.id)) {
+            throw new Error(`Cannot add system layer ${layer.id}: duplicate`)
+        }
+        state.systemLayers.push(layer)
+    },
+    updateSystemLayer(state, { layer }) {
+        const layer2Update = state.systemLayers.find((l) => l.id === layer.id)
+        if (!layer2Update) {
+            throw new Error(`Cannot update system layer ${layer.id}: layer not found`)
+        }
+        if (layer instanceof AbstractLayer) {
+            Object.assign(layer2Update, layer)
+        } else {
+            Object.entries(layer).forEach((entry) => (layer2Update[entry[0]] = entry[1]))
+        }
+    },
+    removeSystemLayer(state, { layerId }) {
+        const index = state.systemLayers.findIndex((l) => l.id === layerId)
+        if (index < 0) {
+            log.warn(`Cannot remove layer ${layerId}: layer not found`)
+        } else {
+            state.systemLayers.splice(index, 1)
+        }
+    },
+    setSystemLayers(state, { layers }) {
+        state.systemLayers = layers
     },
 }
 

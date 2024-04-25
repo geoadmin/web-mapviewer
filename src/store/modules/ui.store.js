@@ -85,6 +85,12 @@ export default {
          *
          * @type Boolean
          */
+        drawingOverlay: {
+            show: false,
+            online: true,
+            title: 'draw_mode_title',
+            kmlId: null,
+        },
         showDrawingOverlay: false,
         /**
          * Current UI mode of the application, dictates how the menu interaction is made (for touch
@@ -299,9 +305,15 @@ export default {
                 dispatcher,
             })
         },
-        toggleDrawingOverlay({ commit, state }, { dispatcher }) {
+        toggleDrawingOverlay(
+            { commit, state },
+            { dispatcher, online = null, kmlId = null, title = null }
+        ) {
             commit('setShowDrawingOverlay', {
                 showDrawingOverlay: !state.showDrawingOverlay,
+                online,
+                kmlId,
+                title,
                 dispatcher,
             })
         },
@@ -405,8 +417,18 @@ export default {
                 state.loadingBarRequesters
             )
         },
-        setShowDrawingOverlay(state, { showDrawingOverlay }) {
+        setShowDrawingOverlay(state, { showDrawingOverlay, online, kmlId, title }) {
             state.showDrawingOverlay = showDrawingOverlay
+            state.drawingOverlay.show = showDrawingOverlay
+            if (title != null) {
+                state.drawingOverlay.title = title
+            }
+            if (online != null) {
+                state.drawingOverlay.online = online
+            }
+            if (kmlId != null) {
+                state.drawingOverlay.kmlId = kmlId
+            }
         },
         setUiMode(state, { mode }) {
             state.mode = mode

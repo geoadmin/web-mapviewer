@@ -1,11 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 const emits = defineEmits(['close'])
+const store = useStore()
 
 const isClosing = ref(false)
+const drawingTitle = computed(() => store.state.ui.drawingOverlay.title)
 
 const i18n = useI18n()
 
@@ -30,7 +33,7 @@ function onClose() {
                 {{ i18n.t('draw_back') }}
             </span>
         </button>
-        <h1 class="drawing-header-title">{{ i18n.t('draw_mode_title') }}</h1>
+        <h1 class="drawing-header-title">{{ i18n.t(drawingTitle) }}</h1>
     </div>
 </template>
 

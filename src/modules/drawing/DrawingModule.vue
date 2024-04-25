@@ -28,6 +28,16 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
+const online = computed(() => store.state.ui.drawingOverlay.online)
+const hasKml = computed(() => {
+    if (online.value) {
+        return !!activeKmlLayer.value
+    }
+    return !!store.state.layers.systemLayers.find(
+        (l) => l.id === store.state.ui.drawingOverlay.kmlId
+    )
+})
+
 const drawingLayer = new VectorLayer({
     source: createSourceForProjection(),
     zIndex: 9999,
@@ -35,7 +45,7 @@ const drawingLayer = new VectorLayer({
 provide('drawingLayer', drawingLayer)
 
 const {
-    addKmlLayerToDrawing,
+    addKmlToDrawing,
     debounceSaveDrawing,
     clearPendingSaveDrawing,
     saveState,
@@ -107,10 +117,9 @@ onMounted(() => {
 
     // if a KML was previously created with the drawing module
     // we add it back for further editing
-    if (activeKmlLayer.value) {
-        log.debug(`Add current active kml layer to drawing`, activeKmlLayer.value)
+    if (hasKml.value) {
         isNewDrawing.value = false
-        addKmlLayerToDrawing(activeKmlLayer.value)
+        addKmlToDrawing()
     }
     olMap.addLayer(drawingLayer)
 
