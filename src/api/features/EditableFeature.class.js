@@ -50,7 +50,7 @@ export default class EditableFeature extends SelectableFeature {
         } = featureData
         super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
-        this._textAlign = textAlign
+        this._textAlign = featureType == EditableFeatureTypes.MARKER ? textAlign : [0, 0]
         this._textColor = textColor
         this._textSize = textSize
         this._fillColor = fillColor

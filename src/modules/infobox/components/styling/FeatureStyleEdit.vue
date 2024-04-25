@@ -111,8 +111,8 @@ function onTextSizeChange(textSize) {
 function updateTextAlign() {
     let val = calculateTextAlign(
         feature.value.textSize.textScale,
-        feature.value.iconSize.iconScale,
-        feature.value.icon.name
+        feature.value.icon ? feature.value.iconSize.iconScale : null,
+        feature.value.icon ? feature.value.icon.name : null
     )
     store.dispatch('changeFeatureTextAlign', {
         feature: feature.value,

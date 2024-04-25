@@ -196,6 +196,9 @@ export function getTextSize(textScale) {
  * @returns {Array | null} Returns the feature label offset
  */
 export function calculateTextAlign(textScale, iconScale, name) {
+    if (!iconScale) {
+        return [0, 0]
+    }
     let fontSize = 12
     let iconSize = 18
     let anchorScale = name === '001-marker' ? 2 : 1
