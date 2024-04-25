@@ -282,6 +282,36 @@ describe('Test of layer handling', () => {
                         WEBMERCATOR.epsg,
                     ])
                 })
+                cy.openMenuIfMobile()
+                // we play with the transparency to ensure nothing goes wrong
+                cy.log('We ensure transparency works as expected for external layers too')
+                cy.openLayerSettings(fakeWmsLayerId1)
+
+                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId1}-"]`)
+                    .should('be.visible')
+                    .realClick({ position: 'left' })
+                cy.openLayerSettings(fakeWmsLayerId4)
+
+                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId4}-"]`)
+                    .should('be.visible')
+                    .realClick({ position: 'right' })
+
+                // we had some issues with wms transparency reverting back to default when reaching 0
+                // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
+                // this way
+                cy.openLayerSettings(fakeWmsLayerId3)
+
+                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId3}-"]`)
+                    .should('be.visible')
+                    .realClick({ position: 'left' })
+
+                cy.checkOlLayer([
+                    bgLayer,
+                    { id: fakeWmsLayerId1, visible: true, opacity: 0.0 },
+                    { id: fakeWmsLayerId2, visible: false, opacity: 0.8 },
+                    { id: fakeWmsLayerId3, visible: true, opacity: 0.0 },
+                    { id: fakeWmsLayerId4, visible: false, opacity: 1.0 },
+                ])
             })
             it('reads and adds an external WMTS correctly', () => {
                 const layers = [
@@ -753,6 +783,20 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
                     const layer = visibleLayers.find((layer) => layer.id === layerId)
                     expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
+                })
+
+                cy.log(
+                    'Check that, for both WMS and WMTS, sliding all the way left gets us an opacity of 0'
+                )
+                visibleLayerIds.forEach((layerId, index) => {
+                    cy.openLayerSettings(layerId)
+                    cy.get(`[data-cy="slider-opacity-layer-${layerId}-${index}"]`)
+                        .should('be.visible')
+                        .realClick({ position: 'left' })
+                    cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+                        const layer = visibleLayers.find((layer) => layer.id === layerId)
+                        expect(layer.opacity).to.eq(0.0)
+                    })
                 })
             })
             it('reorders visible layers when corresponding buttons are pressed', () => {
