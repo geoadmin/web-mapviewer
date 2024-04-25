@@ -25,6 +25,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
         this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
         this.line = this.line.bind(this)
+        this.text = this.text.bind(this)
     }
 
     /**
@@ -72,6 +73,13 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (symbolizer.strokeWidth) {
             symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         }
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    text(layerState, symbolizer, text) {
+        symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
+        symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
     }
 }
 
