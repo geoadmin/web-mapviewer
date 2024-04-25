@@ -231,14 +231,14 @@ export default {
          * @param commit
          * @param state
          * @param {EditableFeature} feature
-         * @param {Array} textAlign
+         * @param {Array} textOffset
          */
-        changeFeatureTextAlign({ commit, state }, { feature, textAlign, dispatcher }) {
+        changeFeatureTextOffset({ commit, state }, { feature, textOffset, dispatcher }) {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
-            if (textAlign && selectedFeature && selectedFeature.isEditable) {
-                commit('changeFeatureTextAlign', {
+            if (textOffset && selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureTextOffset', {
                     feature: selectedFeature,
-                    textAlign,
+                    textOffset,
                     dispatcher,
                 })
             }
@@ -400,8 +400,8 @@ export default {
         changeFeatureTextSize(state, { feature, textSize }) {
             feature.textSize = textSize
         },
-        changeFeatureTextAlign(state, { feature, textAlign }) {
-            feature.textAlign = textAlign
+        changeFeatureTextOffset(state, { feature, textOffset }) {
+            feature.textOffset = textOffset
         },
         changeFeatureTextColor(state, { feature, textColor }) {
             feature.textColor = textColor

@@ -17,7 +17,7 @@ import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { calculateTextAlign } from '@/utils/featureStyleUtils'
+import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
@@ -106,17 +106,17 @@ const availableIconSets = computed(() => store.state.drawing.iconSets)
 
 function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
-    updateTextAlign()
+    updateTextOffset()
 }
-function updateTextAlign() {
-    let val = calculateTextAlign(
+function updateTextOffset() {
+    let val = calculateTextOffset(
         feature.value.textSize.textScale,
         feature.value.icon ? feature.value.iconSize.iconScale : null,
         feature.value.icon ? feature.value.icon.name : null
     )
-    store.dispatch('changeFeatureTextAlign', {
+    store.dispatch('changeFeatureTextOffset', {
         feature: feature.value,
-        textAlign: val,
+        textOffset: val,
         ...dispatcher,
     })
 }
@@ -128,11 +128,11 @@ function onColorChange(color) {
 }
 function onIconChange(icon) {
     store.dispatch('changeFeatureIcon', { feature: feature.value, icon, ...dispatcher })
-    updateTextAlign()
+    updateTextOffset()
 }
 function onIconSizeChange(iconSize) {
     store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize, ...dispatcher })
-    updateTextAlign()
+    updateTextOffset()
 }
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })

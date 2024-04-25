@@ -195,7 +195,7 @@ export function getTextSize(textScale) {
  * @param {String} name Name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextAlign(textScale, iconScale, name) {
+export function calculateTextOffset(textScale, iconScale, name) {
     if (!iconScale) {
         return [0, 0]
     }
@@ -207,7 +207,7 @@ export function calculateTextAlign(textScale, iconScale, name) {
     let iconOffset = -iconSize * iconScale * anchorScale
     let textOffset = -fontSize * 0.5 * textScale
 
-    console.error('calculateTextAlign input: ', textScale, iconScale, name)
+    console.error('calculateTextOffset input: ', textScale, iconScale, name)
     console.error('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
@@ -224,13 +224,13 @@ export function calculateTextAlign(textScale, iconScale, name) {
  * @param {IconArgs} iconArgs Name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function getTextAlign(textScale, iconSize, iconArgs) {
+export function getTextOffset(textScale, iconSize, iconArgs) {
     let iconScale = iconSize ? iconSize._iconScale : 1
     let name = iconArgs ? iconArgs.name : null
 
-    let tmp = calculateTextAlign(textScale, iconScale, name)
+    let tmp = calculateTextOffset(textScale, iconScale, name)
     console.error('title offset of feature from kml is calculated to be : ', tmp)
-    return calculateTextAlign(textScale, iconScale, name)
+    return calculateTextOffset(textScale, iconScale, name)
 }
 
 /**
@@ -285,8 +285,8 @@ export function featureStyleFunction(feature, resolution) {
                     width: 3,
                 }),
                 scale: editableFeature.textSizeScale || 1,
-                offsetX: editableFeature.textAlign[0],
-                offsetY: editableFeature.textAlign[1],
+                offsetX: editableFeature.textOffset[0],
+                offsetY: editableFeature.textOffset[1],
             }),
             stroke:
                 editableFeature.featureType === EditableFeatureTypes.MEASURE
