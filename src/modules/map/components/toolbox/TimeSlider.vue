@@ -229,7 +229,6 @@ function positionNodeLabel(year) {
 
 function grabCursor(event) {
     yearCursorIsGrabbed = true
-    isPristine.value = false
     if (event.type === 'touchstart') {
         // for touch events we have to select which touch we want to get the screen position
         // (there can be multiple fingers gestures)
@@ -277,6 +276,9 @@ function releaseCursor() {
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseCursor)
     window.removeEventListener('touchend', releaseCursor)
+    if (isPristine.value && previewYear.value !== currentYear.value) {
+        isPristine.value = false
+    }
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 
