@@ -31,7 +31,7 @@ describe('Testing the buttons of the right toolbox', () => {
         cy.get('[data-cy="toolbox-right"]').within(($toolboxRight) => {
             expect($toolboxRight.children().length).to.eq(1)
         })
-        cy.get('[data-cy="app-header"]').should('not.exist')
+        cy.get('[data-cy="app-header"]').should('not.be.visible')
         cy.get('[data-cy="menu-tray"]').should('be.hidden')
         cy.get('[data-cy="app-footer"]').should('be.hidden')
     })

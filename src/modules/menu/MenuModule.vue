@@ -60,7 +60,7 @@ function toggleMenu() {
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-if="isHeaderShown" class="header" />
+        <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
