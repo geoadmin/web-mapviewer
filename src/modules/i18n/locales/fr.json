@@ -662,5 +662,6 @@
     "linkedin_tooltip": "Partager cette carte sur LinkedIn",
     "share_map_title": "Lien sur le géoportail de la Confédération",
     "link_description": "Description du lien (facultatif)",
-    "media_disclaimer": "Contient du contenu de tiers"
+    "media_disclaimer": "Contient du contenu de tiers",
+    "drawing_attached": "Dessin ajouté en pièce jointe"
 }

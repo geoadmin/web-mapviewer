@@ -195,7 +195,9 @@ function toggleDrawingOverlay() {
                 >
                     {{ i18n.t('draw_tooltip') }}
                 </button>
-                <div class="valid-feedback ps-2">Drawing added</div>
+                <div class="valid-feedback ps-2" data-cy="report-problem-drawing-added-feedback">
+                    {{ i18n.t('drawing_attached') }}
+                </div>
             </div>
 
             <EmailValidationField

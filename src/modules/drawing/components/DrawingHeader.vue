@@ -23,6 +23,7 @@ function onClose() {
         <button
             class="drawing-header-close-button btn btn-dark"
             :disabled="isClosing"
+            data-cy="drawing-header-close-button"
             @click="onClose"
         >
             <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
@@ -33,7 +34,9 @@ function onClose() {
                 {{ i18n.t('draw_back') }}
             </span>
         </button>
-        <h1 class="drawing-header-title">{{ i18n.t(drawingTitle) }}</h1>
+        <h1 class="drawing-header-title" data-cy="drawing-header-title">
+            {{ i18n.t(drawingTitle) }}
+        </h1>
     </div>
 </template>
 

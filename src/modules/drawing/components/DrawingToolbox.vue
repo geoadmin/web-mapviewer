@@ -55,6 +55,7 @@ const drawingStateMessage = computed(() => {
             return null
     }
 })
+const online = computed(() => store.state.drawing.drawingOverlay.online)
 
 function onCloseClearConfirmation(confirmed) {
     showClearConfirmationModal.value = false
@@ -140,7 +141,7 @@ function onDeleteLastPoint() {
                         <div class="col d-grid">
                             <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         </div>
-                        <div class="col d-grid">
+                        <div v-if="online" class="col d-grid">
                             <button
                                 type="button"
                                 class="btn btn-light"
@@ -163,8 +164,11 @@ function onDeleteLastPoint() {
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDesktopMode" class="row mt-2">
-                        <div class="col text-center text-muted">
+                    <div v-if="isDesktopMode && online" class="row mt-2">
+                        <div
+                            class="col text-center text-muted"
+                            data-cy="drawing-toolbox-disclaimer"
+                        >
                             <!-- eslint-disable vue/no-v-html-->
                             <small v-html="i18n.t('share_file_disclaimer')" />
                             <!-- eslint-enable vue/no-v-html-->

@@ -662,5 +662,6 @@
     "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn",
     "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
     "link_description": "Link Beschreibung (optional)",
-    "media_disclaimer": "Enthält Inhalte von Drittanbietern"
+    "media_disclaimer": "Enthält Inhalte von Drittanbietern",
+    "drawing_attached": "Zeichnung als Anhang hinzugefügt"
 }

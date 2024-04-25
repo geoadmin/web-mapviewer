@@ -20,7 +20,7 @@
             ref="dropdownToggleButton"
             :disabled="disabled"
             type="button"
-            class="btn btn-light dropdown-toggle dropdown-toggle-split"
+            class="btn btn-light dropdown-toggle dropdown-toggle-split dropdown-button-carret"
             data-cy="dropdown-toggle-button"
             data-bs-toggle="dropdown"
             data-bs-reference="parent"
@@ -156,5 +156,8 @@ export default {
 <style lang="scss" scoped>
 .dropdown-item {
     cursor: pointer;
+}
+.dropdown-button-carret {
+    max-width: fit-content;
 }
 </style>
