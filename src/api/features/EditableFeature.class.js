@@ -41,7 +41,7 @@ export default class EditableFeature extends SelectableFeature {
             title = '',
             description = '',
             featureType,
-            textAlign = [0, 0],
+            textAlign = [0, -41],
             textColor = RED,
             textSize = MEDIUM,
             fillColor = RED,
@@ -88,7 +88,7 @@ export default class EditableFeature extends SelectableFeature {
         return this._textAlign
     }
 
-    /** @param textAlign {String} */
+    /** @param textAlign {Array} */
     set textAlign(newAlign) {
         this._textAlign = newAlign
         this.emitStylingChangeEvent('textAlign')

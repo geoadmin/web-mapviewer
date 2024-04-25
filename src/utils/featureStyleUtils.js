@@ -204,6 +204,7 @@ export function calculateTextAlign(textScale, iconScale, name) {
     let iconOffset = -iconSize * iconScale * anchorScale
     let textOffset = -fontSize * 0.5 * textScale
 
+    console.error('calculateTextAlign input: ', textScale, iconScale, name)
     console.error('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
