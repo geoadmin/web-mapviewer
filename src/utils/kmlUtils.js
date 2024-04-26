@@ -18,8 +18,8 @@ import {
     featureStyleFunction,
     getFeatureStyleColor,
     getStyle,
-    getTextOffset,
     getTextColor,
+    getTextOffset,
     getTextSize,
     RED,
     SMALL,
@@ -400,7 +400,13 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    const textOffset = getTextOffset(textScale, iconSize, iconArgs)
+    const textOffset = getTextOffset(
+        textScale,
+        iconSize,
+        iconArgs,
+        iconStyle.getAnchor(),
+        iconStyle.getSize()
+    )
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 

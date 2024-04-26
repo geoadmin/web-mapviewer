@@ -195,19 +195,23 @@ export function getTextSize(textScale) {
  * @param {String} name Name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, name) {
+export function calculateTextOffset(textScale, iconScale, name, anchor, iconExtent) {
+    // no offset for annotations
     if (!iconScale) {
         return [0, 0]
     }
-    let fontSize = 12
-    let iconSize = 18
-    let anchorScale = name === '001-marker' ? 2 : 1
-
+    let fontSize = 11
     let defaultOffset = -5
-    let iconOffset = -iconSize * iconScale * anchorScale
+    let iconSize = iconExtent ? iconExtent[1] : 48
+    let anchorScale = anchor ? anchor[1] * 2 : 1
+    // for these markers openlayers does not seem to take the actual anchor value
+    if (name === '001-marker' || name === '001-marker') {
+        anchorScale = 2
+    }
+
+    let iconOffset = -iconSize * 0.5 * 0.75 * iconScale * anchorScale
     let textOffset = -fontSize * 0.5 * textScale
 
-    console.error('calculateTextOffset input: ', textScale, iconScale, name)
     console.error('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
@@ -224,13 +228,12 @@ export function calculateTextOffset(textScale, iconScale, name) {
  * @param {IconArgs} iconArgs Name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function getTextOffset(textScale, iconSize, iconArgs) {
+export function getTextOffset(textScale, iconSize, iconArgs, iconAnchor, iconExtent) {
     let iconScale = iconSize ? iconSize._iconScale : 1
     let name = iconArgs ? iconArgs.name : null
+    let anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
 
-    let tmp = calculateTextOffset(textScale, iconScale, name)
-    console.error('title offset of feature from kml is calculated to be : ', tmp)
-    return calculateTextOffset(textScale, iconScale, name)
+    return calculateTextOffset(textScale, iconScale, name, anchor, iconExtent)
 }
 
 /**

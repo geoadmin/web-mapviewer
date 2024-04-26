@@ -112,8 +112,11 @@ function updateTextOffset() {
     let val = calculateTextOffset(
         feature.value.textSize.textScale,
         feature.value.icon ? feature.value.iconSize.iconScale : null,
-        feature.value.icon ? feature.value.icon.name : null
+        feature.value.icon ? feature.value.icon.name : null,
+        feature.value.icon ? feature.value.icon.anchor : null,
+        [48, 48]
     )
+
     store.dispatch('changeFeatureTextOffset', {
         feature: feature.value,
         textOffset: val,
