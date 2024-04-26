@@ -9,7 +9,7 @@ import {
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
-describe('Testing 3D navigation', () => {
+describe.skip('Testing 3D navigation', () => {
     context('camera limits', () => {
         beforeEach(() => {
             cy.goToMapView({

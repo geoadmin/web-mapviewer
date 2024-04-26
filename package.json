@@ -97,7 +97,7 @@
         "@vue/tsconfig": "^0.5.1",
         "axios-retry": "^4.1.0",
         "chai": "^5.1.0",
-        "cypress": "^13.7.2",
+        "cypress": "^13.8.1",
         "cypress-browser-permissions": "^1.1.0",
         "cypress-real-events": "^1.12.0",
         "cypress-recurse": "^1.35.3",

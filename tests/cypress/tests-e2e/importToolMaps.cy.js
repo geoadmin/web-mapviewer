@@ -287,7 +287,9 @@ describe('The Import Maps Tool', () => {
 
         //-----------------------------------------------------------------------------------------
         cy.log('Toggle import menu')
-        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('have.class', 'text-primary')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]')
+            .should('have.class', 'text-primary')
+            .scrollIntoView()
         cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import_maps"]').should(
             'not.have.class',

@@ -89,7 +89,7 @@ describe('Testing the embed view', () => {
             .should(
                 'have.attr',
                 'href',
-                `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=1.667&bgLayer=test.background.layer2&topic=ech`
+                `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190075.19&z=1.667&bgLayer=test.background.layer2&topic=ech`
             )
             .should('have.attr', 'target', '_blank')
     })

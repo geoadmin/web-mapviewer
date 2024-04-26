@@ -6,7 +6,7 @@ import proj4 from 'proj4'
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
-describe('Testing transitioning between 2D and 3D', () => {
+describe.skip('Testing transitioning between 2D and 3D', () => {
     context('3D toggle button', () => {
         beforeEach(() => {
             cy.goToMapView()

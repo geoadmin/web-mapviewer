@@ -257,7 +257,7 @@ describe('Test menu tray ui', () => {
         checkScrollbarVisibility(true, false)
     })
     it('no scrolling if menus are small enough', () => {
-        init(3, 2)
+        init(3, 1)
         checkOpenSections(['topics', 'activeLayers'])
         measureMenu(false)
         checkScrollbarVisibility(false, false)

@@ -29,11 +29,11 @@ describe('Testing the buttons of the right toolbox', () => {
 
         // only the map and the fullscreen button should be visible
         cy.get('[data-cy="toolbox-right"]').within(($toolboxRight) => {
-            expect($toolboxRight.children().length).to.eq(1)
+            expect($toolboxRight.children().length).to.eq(2) // fullscreen button + dev tools
         })
         cy.get('[data-cy="app-header"]').should('not.exist')
         cy.get('[data-cy="menu-tray"]').should('be.hidden')
-        cy.get('[data-cy="app-footer"]').should('be.hidden')
+        cy.get('[data-cy="app-footer"]').should('not.exist')
     })
     it('shows a compass in the toolbox when map orientation is not pure north', () => {
         // Should not be visible on standard startup, as the map is facing north

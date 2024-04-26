@@ -2,7 +2,7 @@
 
 import { APP_VERSION } from '@/config'
 
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import { interceptFeedback, parseFormData } from '../support/feedbackTestUtils.js'
 
 const text =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'

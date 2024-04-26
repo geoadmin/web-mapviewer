@@ -125,17 +125,17 @@ describe('Test mouse position and interactions', () => {
 
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
+            cy.log('the LocationPopUp is visible when right-clicking the map')
             cy.get('[data-cy="map"]').rightclick()
             cy.wait('@convert-to-w3w')
             cy.wait('@coordinates-for-height')
 
             cy.get('[data-cy="location-popup"]').should('be.visible')
-            cy.log('the LocationPopUp is visible')
 
+            cy.log('the location popup has been hidden when entering drawing mode')
             cy.openDrawingMode()
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
             cy.get('[data-cy="location-popup"]').should('not.exist')
-            cy.log('the location popup has been hidden when entering drawing mode')
 
             cy.closeDrawingMode()
 
@@ -144,52 +144,52 @@ describe('Test mouse position and interactions', () => {
 
             cy.get('[data-cy="ol-map"]').should('be.visible').rightclick()
 
+            cy.log('it uses the what3words API in the location popup')
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {
                 cy.get('[data-cy="location-popup-w3w"]').contains(fakeW3w.words)
             })
-            cy.log('it uses the what3words API in the location popup')
 
+            cy.log('it uses the elevation API in the location popup')
             cy.wait('@coordinates-for-height')
             cy.fixture('service-alti/height.fixture').then((fakeheight) => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
-            cy.log('it uses the elevation API in the location popup')
 
             const [lon, lat] = centerWGS84
+            cy.log('it shows coordinates, correctly re-projected into LV95, in the popup')
             cy.get('[data-cy="location-popup-lv95"]')
                 .invoke('text')
                 .then(parseLV)
                 .then(checkXY(...centerLV95))
-            cy.log('it shows coordinates, correctly re-projected into LV95, in the popup')
 
+            cy.log('it shows coordinates, correctly re-projected into LV03, in the popup')
             cy.get('[data-cy="location-popup-lv03"]')
                 .invoke('text')
                 .then(parseLV)
                 .then(checkXY(...centerLV03))
-            cy.log('it shows coordinates, correctly re-projected into LV03, in the popup')
 
+            cy.log('it shows correct plain WGS coordinates in the popup')
             cy.get('[data-cy="location-popup-wgs84"]').contains(
                 `${lat.toFixed(6)}, ${lon.toFixed(6)}`
             )
-            cy.log('it shows correct plain WGS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
-                WGS84Format.format(center, DEFAULT_PROJECTION)
-            )
             cy.log(
                 'it uses the correct format to show a second line with WGS84 coordinates in the popup'
             )
+            cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
+                WGS84Format.format(center, DEFAULT_PROJECTION)
+            )
 
+            cy.log('it shows correct UTM coordinates in the popup')
             cy.get('[data-cy="location-popup-utm"]').contains(
                 UTMFormat.format(center, DEFAULT_PROJECTION)
             )
-            cy.log('it shows correct UTM coordinates in the popup')
 
+            cy.log('it shows correct MGRS coordinates in the popup')
             cy.get('[data-cy="location-popup-mgrs"]').contains(
                 MGRSFormat.format(center, DEFAULT_PROJECTION)
             )
-            cy.log('it shows correct MGRS coordinates in the popup')
 
             cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
 
@@ -198,24 +198,27 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
-            cy.get('[data-cy="map"]').rightclick()
 
+            cy.log('link updated when new position selected')
             shortUrl = 'https://s.geo.admin.ch/1111111'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
-            cy.get('[data-cy="map"]').trigger('mousemove', 0, 0, { force: true })
+
+            cy.changeUrlParam('center', [centerLV95[0], centerLV95[1] + 50])
             cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
             cy.get('[data-cy="menu-share-input-copy-button"]').should(
                 'contain.value',
                 'https://s.geo.admin.ch/1111111'
             )
-            cy.log('link updated when new position selected')
+            cy.get('[data-cy="map"]').rightclick()
 
+            cy.log('link updated when new language selected')
             shortUrl = 'https://s.geo.admin.ch/2222222'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
+
             cy.openMenuIfMobile()
             cy.clickOnLanguage('de')
             cy.closeMenuIfMobile()
@@ -223,7 +226,6 @@ describe('Test mouse position and interactions', () => {
                 'contain.value',
                 'https://s.geo.admin.ch/2222222'
             )
-            cy.log('link updated when new language  selected')
 
             shortUrl = 'https://s.geo.admin.ch/3333333'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
@@ -236,8 +238,10 @@ describe('Test mouse position and interactions', () => {
             cy.get('[data-cy="location-popup-share-tab-button"]').click()
             cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
             cy.get('[data-cy="location-popup-share-tab-check"]').should('have.class', 'fa-check')
-            cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.be.equal('https://s.geo.admin.ch/3333333')
+            cy.window().then((win) => {
+                cy.wrap(win.navigator.clipboard.readText()).should((clipboardText) => {
+                    expect(clipboardText).to.be.equal('https://s.geo.admin.ch/3333333')
+                })
             })
             cy.log('link copied to clipboard if share tab is pressed ')
 

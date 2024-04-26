@@ -5,7 +5,7 @@ describe('Testing the share menu', () => {
     const dummyEmbeddedShortLink = 'https://dummy.embedded.short.link'
     beforeEach(() => {
         cy.goToMapView()
-        cy.get('[data-cy="menu-button"]').click()
+        cy.openMenuIfMobile()
         // intercepting short link requests, in order not to have to import the config
         // we check only for the first part of the URL (without the staging)
         cy.intercept('POST', /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, (req) => {
@@ -38,7 +38,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             // a short link should be generated as it is our first time opening this section
             cy.wait('@shortLink')
-            // We close the menu to still be able too click on the zoom button
+            // We close the menu to still be able to click on the zoom button
             cy.get('[data-cy="menu-button"]').click()
             // zoom in the map in order to change the URL
             cy.get('[data-cy="zoom-in"]').click()
@@ -165,9 +165,6 @@ describe('Testing the share menu', () => {
             }
 
             beforeEach(() => {
-                // beforeEach for the whole test is clicking on the menu button once, we must click it another time
-                // otherwise the menu will be closed by the first click
-                cy.get('[data-cy="menu-button"]').click()
                 cy.get('[data-cy="menu-share-section"]').click()
                 cy.get('[data-cy="menu-share-embed-button"]').click()
             })

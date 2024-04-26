@@ -2,7 +2,7 @@
 
 import { APP_VERSION } from '@/config'
 
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import { interceptFeedback, parseFormData } from '../support/feedbackTestUtils.js'
 
 describe('Testing the feedback form', () => {
     function closeForm() {
@@ -92,7 +92,9 @@ describe('Testing the feedback form', () => {
             ;[
                 { name: 'subject', contains: `[rating: ${rating}/` },
                 { name: 'feedback', contains: text },
-                { name: 'version', contains: APP_VERSION },
+                // removing .dirty part, as e2e tests are done against prod build, which removes the .dirty
+                // without this replace, this test will always fail locally if some local changes are present
+                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'email', contains: email },
             ].forEach((param) => {
