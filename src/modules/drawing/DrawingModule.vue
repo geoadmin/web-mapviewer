@@ -181,7 +181,7 @@ async function closeDrawing() {
 </script>
 
 <template>
-    <div>
+    <div class="drawing-module">
         <DrawingToolbox @remove-last-point="removeLastPoint" @close-drawing="closeDrawing" />
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />

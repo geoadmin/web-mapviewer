@@ -85,7 +85,7 @@ function forceFeatureInfoAtBottom() {
 }
 
 function onShowProfile(event) {
-    showContentAndScrollIntoView(event)
+    setShowContent(true, event, false)
     // as the profile will be stored at the bottom of the screen, we do not want to have
     // a floating tooltip while some information are at the bottom, so we force the tooltip down
     forceFeatureInfoAtBottom()

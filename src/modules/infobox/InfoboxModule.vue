@@ -143,7 +143,7 @@ function onHideProfile() {
                     class="drawing-feature-profile flex-grow-1"
                 />
             </div>
-            <div v-else class="d-flex flex-column h-100">
+            <div v-else class="d-flex flex-column h-100 overflow-y-auto">
                 <Transition name="slide-fade">
                     <div
                         v-if="showElevationProfile"

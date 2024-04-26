@@ -16,52 +16,18 @@ function onClose() {
 </script>
 
 <template>
-    <div class="drawing-header">
-        <button
-            class="drawing-header-close-button btn btn-dark"
-            :disabled="isClosing"
-            @click="onClose"
-        >
-            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
-            <span v-if="isClosing">
-                {{ i18n.t('draw_file_saving') }}
-            </span>
-            <span v-else>
-                {{ i18n.t('draw_back') }}
-            </span>
-        </button>
-        <h1 class="drawing-header-title">{{ i18n.t('draw_mode_title') }}</h1>
+    <div class="p-1 bg-white shadow">
+        <div class="d-flex gap-1 justify-content-center align-items-center">
+            <button class="btn btn-dark" :disabled="isClosing" @click="onClose">
+                <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
+                <span v-if="isClosing">
+                    {{ i18n.t('draw_file_saving') }}
+                </span>
+                <span v-else>
+                    {{ i18n.t('draw_back') }}
+                </span>
+            </button>
+            <h2 class="flex-grow-1 fw-bold m-0 p-0 text-center">{{ i18n.t('draw_mode_title') }}</h2>
+        </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
-.drawing-header {
-    position: relative;
-    height: $header-height;
-    width: 100%;
-    background-color: #e6e6e6;
-    box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
-    display: grid;
-    grid-template: 1fr / auto 1fr;
-    place-items: center;
-    &-title {
-        font-size: 2rem;
-        font-weight: 700;
-    }
-    &-close-button {
-        margin-left: 10px;
-    }
-}
-@include respond-above(lg) {
-    .drawing-header {
-        &-title {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-    }
-}
-</style>

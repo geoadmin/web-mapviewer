@@ -81,127 +81,125 @@ function onDeleteLastPoint() {
 </script>
 
 <template>
-    <teleport to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="isDesktopMode" @close="closeDrawing" />
-        <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
-            <div
-                class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
-            >
-                <div class="card-body position-relative container">
+    <DrawingHeader
+        class="drawing-header d-none d-sm-block position-relative"
+        @close="closeDrawing"
+    />
+    <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
+        <div
+            class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
+        >
+            <div class="card-body position-relative container">
+                <div class="row justify-content-start g-2" :class="{ 'row-cols-2': isDesktopMode }">
                     <div
-                        class="row justify-content-start g-2"
-                        :class="{ 'row-cols-2': isDesktopMode }"
+                        v-for="drawingMode in Object.values(EditableFeatureTypes)"
+                        :key="drawingMode"
+                        class="col"
+                        :class="{
+                            'd-grid': isPhoneMode,
+                            'd-block': isDesktopMode,
+                        }"
                     >
+                        <DrawingToolboxButton
+                            :drawing-mode="drawingMode"
+                            :is-active="currentDrawingMode === drawingMode"
+                            :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                            @set-drawing-mode="selectDrawingMode"
+                        />
+                    </div>
+                    <button
+                        v-if="isPhoneMode"
+                        class="btn col-2 d-flex align-items-center justify-content-center"
+                        data-cy="drawing-toolbox-close-button"
+                        @click="closeDrawing"
+                    >
+                        <FontAwesomeIcon icon="times" />
+                    </button>
+                </div>
+                <div class="row mt-1">
+                    <div class="col">
                         <div
-                            v-for="drawingMode in Object.values(EditableFeatureTypes)"
-                            :key="drawingMode"
-                            class="col"
-                            :class="{
-                                'd-grid': isPhoneMode,
-                                'd-block': isDesktopMode,
-                            }"
+                            v-show="drawingStateMessage"
+                            class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
+                            :class="{ 'text-danger': isDrawingStateError }"
                         >
-                            <DrawingToolboxButton
-                                :drawing-mode="drawingMode"
-                                :is-active="currentDrawingMode === drawingMode"
-                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                                @set-drawing-mode="selectDrawingMode"
-                            />
-                        </div>
-                        <button
-                            v-if="isPhoneMode"
-                            class="btn col-2 d-flex align-items-center justify-content-center"
-                            data-cy="drawing-toolbox-close-button"
-                            @click="closeDrawing"
-                        >
-                            <FontAwesomeIcon icon="times" />
-                        </button>
-                    </div>
-                    <div class="row mt-1">
-                        <div class="col">
-                            <div
-                                v-show="drawingStateMessage"
-                                class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
-                                :class="{ 'text-danger': isDrawingStateError }"
-                            >
-                                {{ drawingStateMessage }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col d-grid">
-                            <button
-                                :disabled="isDrawingEmpty"
-                                class="btn-light btn"
-                                data-cy="drawing-toolbox-delete-button"
-                                @click="showClearConfirmationModal = true"
-                            >
-                                {{ $t('delete') }}
-                            </button>
-                        </div>
-                        <div class="col d-grid">
-                            <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
-                        </div>
-                        <div class="col d-grid">
-                            <button
-                                type="button"
-                                class="btn btn-light"
-                                :disabled="isDrawingEmpty || !kmlLayerId"
-                                data-cy="drawing-toolbox-share-button"
-                                @click="showShareModal = true"
-                            >
-                                {{ $t('share') }}
-                            </button>
-                        </div>
-                    </div>
-                    <div v-if="isDrawingLineOrMeasure" class="row mt-2">
-                        <div class="col d-grid">
-                            <button
-                                data-cy="drawing-delete-last-point-button"
-                                class="btn btn-outline-danger"
-                                @click="onDeleteLastPoint"
-                            >
-                                {{ i18n.t('draw_button_delete_last_point') }}
-                            </button>
-                        </div>
-                    </div>
-                    <div v-if="isDesktopMode" class="row mt-2">
-                        <div class="col text-center text-muted">
-                            <!-- eslint-disable vue/no-v-html-->
-                            <small v-html="i18n.t('share_file_disclaimer')" />
-                            <!-- eslint-enable vue/no-v-html-->
+                            {{ drawingStateMessage }}
                         </div>
                     </div>
                 </div>
-            </div>
-            <div v-if="isDesktopMode" class="text-center">
-                <button
-                    class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
-                    data-cy="menu-button"
-                    @click="drawMenuOpen = !drawMenuOpen"
-                >
-                    <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
-                    <span class="ms-1">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
-                </button>
+                <div class="row g-2">
+                    <div class="col d-grid">
+                        <button
+                            :disabled="isDrawingEmpty"
+                            class="btn-light btn"
+                            data-cy="drawing-toolbox-delete-button"
+                            @click="showClearConfirmationModal = true"
+                        >
+                            {{ $t('delete') }}
+                        </button>
+                    </div>
+                    <div class="col d-grid">
+                        <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
+                    </div>
+                    <div class="col d-grid">
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            :disabled="isDrawingEmpty || !kmlLayerId"
+                            data-cy="drawing-toolbox-share-button"
+                            @click="showShareModal = true"
+                        >
+                            {{ $t('share') }}
+                        </button>
+                    </div>
+                </div>
+                <div v-if="isDrawingLineOrMeasure" class="row mt-2">
+                    <div class="col d-grid">
+                        <button
+                            data-cy="drawing-delete-last-point-button"
+                            class="btn btn-outline-danger"
+                            @click="onDeleteLastPoint"
+                        >
+                            {{ i18n.t('draw_button_delete_last_point') }}
+                        </button>
+                    </div>
+                </div>
+                <div v-if="isDesktopMode" class="row mt-2">
+                    <div class="col text-center text-muted">
+                        <!-- eslint-disable vue/no-v-html-->
+                        <small v-html="i18n.t('share_file_disclaimer')" />
+                        <!-- eslint-enable vue/no-v-html-->
+                    </div>
+                </div>
             </div>
         </div>
-        <ModalWithBackdrop
-            v-if="showClearConfirmationModal"
-            show-confirmation-buttons
-            fluid
-            @close="onCloseClearConfirmation"
-        >
-            {{ $t('confirm_remove_all_features') }}
-        </ModalWithBackdrop>
-        <ModalWithBackdrop
-            v-if="showShareModal"
-            fluid
-            :title="$t('share')"
-            @close="showShareModal = false"
-        >
-            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlLayerAdminId" />
-        </ModalWithBackdrop>
-    </teleport>
+        <div v-if="isDesktopMode" class="text-center">
+            <button
+                class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
+                data-cy="menu-button"
+                @click="drawMenuOpen = !drawMenuOpen"
+            >
+                <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
+                <span class="ms-1">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
+            </button>
+        </div>
+    </div>
+    <ModalWithBackdrop
+        v-if="showClearConfirmationModal"
+        show-confirmation-buttons
+        fluid
+        @close="onCloseClearConfirmation"
+    >
+        {{ $t('confirm_remove_all_features') }}
+    </ModalWithBackdrop>
+    <ModalWithBackdrop
+        v-if="showShareModal"
+        fluid
+        :title="$t('share')"
+        @close="showShareModal = false"
+    >
+        <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlLayerAdminId" />
+    </ModalWithBackdrop>
 </template>
 
 <style lang="scss" scoped>
@@ -210,12 +208,8 @@ function onDeleteLastPoint() {
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
-// So that the toolbox can slip behind the header when the closing animation occurs.
-$zindex-drawing-toolbox: -1;
 
 .drawing-toolbox {
-    position: relative;
-    z-index: $zindex-drawing-toolbox;
     transition: transform $animation-time;
     .button-open-close-draw-menu {
         height: $openCloseButtonHeight;
@@ -238,6 +232,9 @@ $zindex-drawing-toolbox: -1;
 }
 
 @include respond-above(phone) {
+    .drawing-header {
+        z-index: $zindex-menu-header;
+    }
     .drawing-toolbox {
         position: absolute;
         max-width: $menu-tray-width;
@@ -248,7 +245,7 @@ $zindex-drawing-toolbox: -1;
             .drawing-toolbox-content {
                 opacity: 0;
             }
-            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
+            transform: translateY(calc(-100% + #{$openCloseButtonHeight}));
         }
         &-disclaimer {
             display: block;

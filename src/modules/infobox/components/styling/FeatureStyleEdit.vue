@@ -185,12 +185,8 @@ function mediaTypes() {
                 <textarea
                     id="drawing-style-feature-description"
                     v-model="description"
-                    :readonly="readOnly"
                     data-cy="drawing-style-feature-description"
                     class="feature-description form-control rounded-0 rounded-bottom-2 rounded-start-2"
-                    :class="{
-                        'form-control-plaintext': readOnly,
-                    }"
                 ></textarea>
             </div>
         </div>

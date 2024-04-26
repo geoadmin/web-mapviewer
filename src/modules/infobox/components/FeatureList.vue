@@ -80,13 +80,5 @@ function getLayerName(layerId) {
     grid-template-columns: repeat(auto-fill, minmax($overlay-width, 1fr));
     justify-content: stretch;
     align-content: stretch;
-    &.fluid {
-        max-height: 100%;
-        overflow: hidden;
-    }
-    &:not(.fluid) {
-        max-height: 33vh;
-        overflow-y: auto;
-    }
 }
 </style>
