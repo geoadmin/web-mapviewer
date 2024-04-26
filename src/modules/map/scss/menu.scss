@@ -1,0 +1,21 @@
+@import 'src/scss/variables';
+
+.header,
+.toolbox {
+  z-index: $zindex-map-toolbox;
+}
+.menu {
+  z-index: $zindex-menu;
+  width: 100%;
+  max-width: $menu-tray-width;
+  &.phone-mode {
+    max-width: 100%;
+  }
+  height: 100%;
+  // so that the menu container can take 100% of height without hindering/blocking click event
+  // that can go through the emptiness
+  pointer-events: none;
+  & > * {
+    pointer-events: all;
+  }
+}

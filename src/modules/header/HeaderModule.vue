@@ -82,10 +82,13 @@ function resetApp() {
             </div>
             <HeaderMenuButton class="d-sm-none mx-1" />
         </div>
+        <!-- On very small devices, this text is too big and wraps if left unchecked. So I've added text: no-wrap
+             and set the same text as HTML title (so that it can be accessed if needed by a user on a very small phone) -->
         <div
             v-if="hasDevSiteWarning"
             data-tippy-content="test_host_full_disclaimer"
-            class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+            :title="i18n.t('test_host_warning')"
+            class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1 text-nowrap"
         >
             {{ i18n.t('test_host_warning') }}
         </div>

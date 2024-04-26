@@ -1,13 +1,15 @@
 <template>
-    <a
-        v-for="(link, index) in links"
-        :key="index"
-        :href="link.url"
-        target="_blank"
-        :data-cy="`app-copyright-${index}`"
-    >
-        {{ $t(link.label) }}
-    </a>
+    <div class="d-flex align-items-center-center gap-1 p-1 text-nowrap">
+        <a
+            v-for="(link, index) in links"
+            :key="index"
+            :href="link.url"
+            target="_blank"
+            :data-cy="`app-copyright-${index}`"
+        >
+            {{ $t(link.label) }}
+        </a>
+    </div>
 </template>
 
 <script>
@@ -39,6 +41,7 @@ export default {
 a {
     color: $black;
     text-decoration: initial;
+    font-size: 0.6rem;
 }
 a:hover,
 a:focus {

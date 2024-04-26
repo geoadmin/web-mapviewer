@@ -1,41 +1,24 @@
 <script setup>
-import { computed, onUpdated, ref, useSlots } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
-const slots = useSlots()
 
 const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
-const hasTopLeftFooter = ref(!!slots['top-left'])
-const hasTopRightFooter = ref(!!slots['top-right'])
-const hasBottomLeftFooter = ref(!!slots['bottom-left'])
-const hasBottomRightFooter = ref(!!slots['bottom-right'])
-
-onUpdated(() => {
-    // Slots are not reactive therefore we need to update our checks based on the onUpdated
-    // life cycle hook, using a computed would not work here.
-    hasTopLeftFooter.value = !!slots['top-left']
-    hasBottomLeftFooter.value = !!slots['bottom-left']
-    hasBottomRightFooter.value = !!slots['bottom-right']
-})
 </script>
 
 <template>
     <div
-        class="map-footer"
+        class="map-footer bg-light w-100 d-flex gap-2 shadow align-items-stretch"
         :class="{ 'map-footer-fullscreen': isFullscreenMode }"
         data-cy="app-footer"
     >
-        <div v-if="hasTopLeftFooter || hasTopRightFooter" class="map-footer-top">
-            <span v-if="hasTopRightFooter" class="map-footer-top-spacer" />
-            <slot name="top-right" />
+        <div class="map-footer-left d-flex justify-content-start align-items-center gap-1">
+            <slot name="bottom-left" />
         </div>
-        <div class="map-footer-middle">
-            <slot name="middle" />
-        </div>
-        <div v-if="hasBottomLeftFooter || hasBottomRightFooter" class="map-footer-bottom">
-            <slot name="bottom-left" @vue:updated="handleSlotChange" />
-            <span v-if="hasBottomRightFooter" class="map-footer-bottom-spacer" />
+        <div
+            class="map-footer-right d-flex flex-grow-1 justify-content-end align-items-center gap-1"
+        >
             <slot name="bottom-right" />
         </div>
     </div>
@@ -52,29 +35,10 @@ $flex-gap: 1em;
 
 .map-footer {
     transition: transform $transition-duration;
-    pointer-events: none;
-
-    &-top {
-        position: relative;
-        z-index: $zindex-footer;
-        display: flex;
-        align-items: flex-end;
-        flex-direction: row;
-        justify-content: space-between;
-
-        &-spacer {
-            flex-grow: 1;
-        }
-    }
-
-    &-middle {
-        position: relative;
-        z-index: $zindex-footer;
-        background-color: $white;
-        @include respond-above(phone) {
-            z-index: $zindex-desktop-footer-infobox;
-        }
-    }
+    z-index: $zindex-footer;
+    font-size: 0.6rem;
+    justify-content: stretch;
+    padding: 0.1rem;
 
     &-bottom {
         position: relative;

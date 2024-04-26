@@ -7,9 +7,9 @@ import { useStore } from 'vuex'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
-import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
+import { useMouseOnMap } from '@/modules/map/components/common/useMouseOnMap.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils.js'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
@@ -99,8 +99,14 @@ export default function useMapInteractions(map) {
         // such as the floating tooltip. Without this check, clicking on the floating tooltip button
         // will trigger an identification of feature at the position of the button.
         if (event.target?.nodeName?.toLowerCase() === 'canvas') {
-            const pixel = [event.x, event.y]
-            onLeftClickDown(pixel, map.getCoordinateFromPixel(pixel))
+            const screenPixel = [event.x, event.y]
+            const mapBoundingRect = map.getTargetElement().getBoundingClientRect()
+            const mapPixel = [event.x - mapBoundingRect.left, event.y - mapBoundingRect.top]
+            if (event.buttons === 1) {
+                onLeftClickDown(screenPixel, mapPixel, map.getCoordinateFromPixel(mapPixel))
+            } else if (event.buttons === 2) {
+                onRightClick(screenPixel, mapPixel, map.getCoordinateFromPixel(mapPixel))
+            }
         }
     }
     function onPointerUp(event) {

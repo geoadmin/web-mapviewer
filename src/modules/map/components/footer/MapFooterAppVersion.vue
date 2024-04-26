@@ -11,9 +11,9 @@ const isProd = computed(() => store.getters.isProductionSite)
 </script>
 
 <template>
-    <div class="app-version" :class="{ 'app-version-prod': isProd }" data-cy="app-version">
-        {{ appVersion }}
-    </div>
+    <span class="app-version" :class="{ 'app-version-prod': isProd }" data-cy="app-version">
+        <small>{{ appVersion }}</small>
+    </span>
 </template>
 
 <style lang="scss" scoped>

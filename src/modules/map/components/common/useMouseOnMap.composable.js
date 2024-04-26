@@ -4,32 +4,36 @@ import { useStore } from 'vuex'
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
-const dispatcher = { dispatcher: 'mouse-click.composable' }
+const dispatcher = { dispatcher: 'useMouseOnMap.composable' }
 const msBeforeTriggeringLocationPopup = 700
 
-export function useMouseOnMap() {
-    let isPointerDown = false
-    let isStillOnStartingPosition = false
-    let hasPointerDownTriggeredLocationPopup = false
-    let contextMenuTimeout = null
+let isPointerDown = false
+let isStillOnStartingPosition = false
+let hasPointerDownTriggeredLocationPopup = false
+let contextMenuTimeout = null
 
+export function useMouseOnMap() {
     const store = useStore()
     const isCurrentlyTrackingGeoLocation = computed(
         () => store.state.geolocation.active && store.state.geolocation.tracking
     )
 
     /**
-     * @param {[Number, Number]} screenPosition
-     * @param {[Number, Number]} coordinate
+     * @param {[Number, Number]} [screenPixel=[]] Position of the last click on the screen [x, y] in
+     *   pixels (counted from top left corner OF THE SCREEN). Default is `[]`
+     * @param {[Number, Number]} [mapPixel=[]] Position of the last click on the map [x, y] in
+     *   pixels (counted from top left corner OF THE MAP). Default is `[]`
+     * @param {[Number, Number]} coordinate Position of the click expressed in the current mapping
+     *   projection
      */
-    function onLeftClickDown(screenPosition, coordinate) {
+    function onLeftClickDown(screenPixel, mapPixel, coordinate) {
         isPointerDown = true
         isStillOnStartingPosition = true
         // if the user stays with a mouse left (or touch) down for a certain amount of time, we want
         // to show the LocationPopup instead of running an identification of features
         contextMenuTimeout = setTimeout(() => {
-            if (isStillOnStartingPosition) {
-                onRightClick(screenPosition, coordinate)
+            if (isStillOnStartingPosition && isPointerDown) {
+                onRightClick(screenPixel, mapPixel, coordinate)
                 hasPointerDownTriggeredLocationPopup = true
                 log.debug('Long touch at the same spot detected, showing the location popup')
             }
@@ -52,6 +56,7 @@ export function useMouseOnMap() {
      *   at the click position
      */
     function onLeftClickUp(screenPixel, mapPixel, coordinate, features = []) {
+        isPointerDown = false
         clearTimeout(contextMenuTimeout)
         // if we've already "handled" this click event, we do nothing more
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
@@ -67,7 +72,6 @@ export function useMouseOnMap() {
             })
         }
         // reset of all flags
-        isPointerDown = false
         isStillOnStartingPosition = false
         hasPointerDownTriggeredLocationPopup = false
     }

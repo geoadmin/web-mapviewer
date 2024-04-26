@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
+import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
@@ -28,6 +29,9 @@ onMounted(() => {
         <MapModule>
             <template #toolbox>
                 <MapToolbox toggle3d-button />
+            </template>
+            <template #bottom-right>
+                <MapFooterAttributionList />
             </template>
             <template #footer>
                 <MapFooter />

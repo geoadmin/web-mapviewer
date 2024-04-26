@@ -116,7 +116,7 @@ $openCloseButtonHeight: 2.5rem;
     }
     .menu-tray-container {
         pointer-events: none;
-        max-height: calc(100% - $header-height);
+        max-height: 100%;
     }
     .menu-tray {
         /* Don't activate pointer events right here, as this box is still a bit larger than the

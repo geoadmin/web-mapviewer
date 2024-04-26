@@ -64,17 +64,25 @@ function setDisplayedFormatWithId() {
 </script>
 
 <template>
-    <select
-        v-model="displayedFormatId"
-        class="map-projection form-control-xs"
-        data-cy="mouse-position-select"
-        @change="setDisplayedFormatWithId"
-    >
-        <option v-for="format in allFormats" :key="format.id" :value="format.id">
-            {{ format.label }}
-        </option>
-    </select>
-    <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
+    <div>
+        <div class="d-flex align-content-center gap-1 justify-content-start align-items-stretch">
+            <select
+                v-model="displayedFormatId"
+                class="map-projection form-control-xs"
+                data-cy="mouse-position-select"
+                @change="setDisplayedFormatWithId"
+            >
+                <option v-for="format in allFormats" :key="format.id" :value="format.id">
+                    {{ format.label }}
+                </option>
+            </select>
+            <div
+                ref="mousePosition"
+                class="mouse-position d-flex align-items-center"
+                data-cy="mouse-position"
+            ></div>
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>

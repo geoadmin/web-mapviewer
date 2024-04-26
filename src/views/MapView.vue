@@ -6,8 +6,8 @@ import HeaderModule from '@/modules/header/HeaderModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
-import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterAppCopyright.vue'
 import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVersion.vue'
+import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterCmsLink.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
@@ -16,6 +16,7 @@ import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import { UIModes } from '@/store/modules/ui.store'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import log from '@/utils/logging'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
@@ -61,7 +62,7 @@ onMounted(() => {
                     :geoloc-button="!isDrawingMode"
                     :full-screen-button="!isDrawingMode"
                     :toggle3d-button="!isDrawingMode"
-                    compass-button
+                    :compass-button="!is3DActive"
                 >
                     <TimeSliderButton v-if="!isDrawingMode" />
                 </MapToolbox>
@@ -76,10 +77,10 @@ onMounted(() => {
                 <MapFooter>
                     <template v-if="!is3DActive" #bottom-left>
                         <OpenLayersScale />
-                        <OpenLayersMouseTracker />
+                        <OpenLayersMouseTracker class="d-none d-md-block" />
                     </template>
                     <template #bottom-right>
-                        <MapFooterAppVersion />
+                        <TextTruncate><MapFooterAppVersion /></TextTruncate>
                         <MapFooterAppCopyright />
                     </template>
                 </MapFooter>

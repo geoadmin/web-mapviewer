@@ -23,10 +23,6 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    clickInfo: {
-        type: Object,
-        required: true,
-    },
     projection: {
         type: Object,
         required: true,
@@ -36,7 +32,7 @@ const props = defineProps({
         required: true,
     },
 })
-const { coordinate, clickInfo, projection, currentLang } = toRefs(props)
+const { coordinate, projection, currentLang } = toRefs(props)
 
 const what3Words = ref(null)
 const height = ref(null)
@@ -68,40 +64,40 @@ const heightInMeter = computed(() => {
 })
 
 onMounted(() => {
-    if (clickInfo.value) {
-        updateWhat3Word()
-        updateHeight()
-    }
+    updateWhat3Word()
+    updateHeight()
 })
 
-watch(clickInfo, (newClickInfo) => {
-    if (newClickInfo) {
-        updateWhat3Word()
-        updateHeight()
-    }
+watch(coordinate, () => {
+    updateWhat3Word()
+    updateHeight()
 })
 watch(currentLang, () => {
     updateWhat3Word()
 })
 
 async function updateWhat3Word() {
-    try {
-        what3Words.value = await registerWhat3WordsLocation(
-            coordinate.value,
-            projection.value,
-            currentLang.value
-        )
-    } catch (error) {
-        log.error(`Failed to retrieve What3Words Location`, error)
-        what3Words.value = null
+    if (coordinate.value) {
+        try {
+            what3Words.value = await registerWhat3WordsLocation(
+                coordinate.value,
+                projection.value,
+                currentLang.value
+            )
+        } catch (error) {
+            log.error(`Failed to retrieve What3Words Location`, error)
+            what3Words.value = null
+        }
     }
 }
 async function updateHeight() {
-    try {
-        height.value = await requestHeight(coordinate.value, projection.value)
-    } catch (error) {
-        log.error(`Failed to get position height`, error)
-        height.value = null
+    if (coordinate.value) {
+        try {
+            height.value = await requestHeight(coordinate.value, projection.value)
+        } catch (error) {
+            log.error(`Failed to get position height`, error)
+            height.value = null
+        }
     }
 }
 </script>

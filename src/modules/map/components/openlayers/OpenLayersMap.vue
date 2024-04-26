@@ -21,7 +21,6 @@ import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLay
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
-import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
@@ -49,7 +48,6 @@ const mapElement = ref(null)
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 const map = new Map({ controls: [] })
@@ -121,9 +119,8 @@ useOnMapResize(mapElement)
                 </div>
                 <MapFooterAttributionList />
             </div>
-            <div class="toolbox position-absolute top-0 end-0 p-1 pe-none">
+            <div class="toolbox position-absolute top-0 end-0 pe-none">
                 <slot name="toolbox" />
-                <DebugToolbar v-if="hasDevSiteWarning" class="float-end me-n1" />
             </div>
         </div>
         <slot />
@@ -133,29 +130,10 @@ useOnMapResize(mapElement)
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/map/scss/menu';
 
 .ol-map {
     z-index: $zindex-map;
-
-    .header,
-    .toolbox {
-        z-index: $zindex-map-toolbox;
-    }
-    .menu {
-        z-index: $zindex-menu;
-        width: 100%;
-        max-width: $menu-tray-width;
-        &.phone-mode {
-            max-width: 100%;
-        }
-        height: 100%;
-        // so that the menu container can take 100% of height without hindering/blocking click event
-        // that can go through the emptiness
-        pointer-events: none;
-        & > * {
-            pointer-events: all;
-        }
-    }
 }
 
 $dragbox-width: 3px;

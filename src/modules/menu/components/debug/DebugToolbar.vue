@@ -49,7 +49,7 @@ function toggleShowLayerExtents() {
             >
                 <FontAwesomeIcon icon="gear" title="Debug tools" />
             </div>
-            <div class="debug-tools-body bg-white border-danger border p-3">
+            <div class="debug-tools-body bg-white border-danger border p-3 pe-auto">
                 <h5 class="text-decoration-underline">Map projection</h5>
                 <div class="my-1 d-flex align-content-center">
                     <strong class="me-2 align-self-center" data-cy="current-projection">

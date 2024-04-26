@@ -109,8 +109,12 @@ function initializeTippy() {
 </script>
 
 <template>
-    <div ref="outterElement" class="text-truncate" data-cy="outter-element">
-        <span ref="innerElement" data-cy="inner-element">
+    <div
+        ref="outterElement"
+        class="text-truncate d-flex align-items-stretch"
+        data-cy="outter-element"
+    >
+        <span ref="innerElement" class="d-flex align-items-center" data-cy="inner-element">
             <slot data-cy="slot-element" />
         </span>
     </div>

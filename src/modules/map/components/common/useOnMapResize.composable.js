@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, toValue } from 'vue'
+import { computed, onBeforeUnmount, onMounted, toValue } from 'vue'
 import { useStore } from 'vuex'
 
 const dispatcher = { dispatcher: 'useOnMapResize.composable' }
@@ -13,6 +13,13 @@ const dispatcher = { dispatcher: 'useOnMapResize.composable' }
 export default function useOnMapResize(mapElement) {
     const store = useStore()
 
+    const currentSize = computed(() => {
+        return {
+            width: store.state.map.width,
+            height: store.state.map.height,
+        }
+    })
+
     let mapSizeObserver
     onMounted(() => {
         mapSizeObserver = new ResizeObserver(onMapResize)
@@ -25,7 +32,11 @@ export default function useOnMapResize(mapElement) {
 
     function onMapResize() {
         const element = toValue(mapElement)
-        if (element) {
+        if (
+            element &&
+            (currentSize.value.height !== element.offsetHeight ||
+                currentSize.value.width !== element.offsetWidth)
+        ) {
             store.dispatch('setMapSize', {
                 size: {
                     width: element.offsetWidth,

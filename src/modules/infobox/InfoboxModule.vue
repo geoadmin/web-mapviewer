@@ -113,8 +113,8 @@ function onHideProfile() {
                 data-cy="infobox-minimize-maximize"
                 @click="onToggleContent"
             >
-                <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
                 <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
+                <FontAwesomeIcon v-else icon="window-maximize" />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
@@ -125,10 +125,12 @@ function onHideProfile() {
             </button>
         </div>
 
+        <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
         <div
             v-show="showContent"
             ref="content"
-            class="infobox-content d-flex flex-column"
+            class="infobox-content flex-column"
+            :class="{ 'd-flex': showContent }"
             data-cy="infobox-content"
         >
             <div

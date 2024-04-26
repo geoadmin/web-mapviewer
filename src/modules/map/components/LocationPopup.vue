@@ -43,7 +43,10 @@ const mappingFrameworkSpecificPopup = computed(() => {
     return OpenLayersPopover
 })
 const coordinate = computed(() => {
-    return clickInfo.value?.coordinate
+    if (Array.isArray(clickInfo.value?.coordinate) && clickInfo.value.coordinate.length >= 2) {
+        return [clickInfo.value.coordinate[0], clickInfo.value.coordinate[1]]
+    }
+    return null
 })
 const copyButtonIcon = computed(() => {
     if (shareLinkCopied.value) {
@@ -56,9 +59,7 @@ const copyButtonIcon = computed(() => {
 watch(clickInfo, () => {
     newClickInfo.value = true
     requestClipboard.value = false
-    if (showEmbedSharing.value) {
-        updateShareLink()
-    }
+    updateShareLink()
 })
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
@@ -66,22 +67,9 @@ watch(shareLinkUrlShorten, () => {
         requestClipboard.value = false
     }
 })
-watch(showEmbedSharing, () => {
-    if (showEmbedSharing.value) {
-        updateShareLink()
-    }
-})
-watch(
-    () => route.query,
-    (newQuery, oldQuery) => {
-        //Cannot watch language and zoom directly due to the delayed url update
-        if (showEmbedSharing.value) {
-            if (oldQuery['lang'] != newQuery['lang']) {
-                updateShareLink()
-            }
-        }
-    }
-)
+watch(showEmbedSharing, updateShareLink)
+// any changes in the query (on the state of the app) must update the share link too
+watch(() => route.query, updateShareLink)
 
 onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
@@ -104,13 +92,15 @@ function showCopiedTooltip() {
 }
 
 function updateShareLink() {
-    let query = {
-        ...route.query,
-        crosshair: 'marker',
-        center: coordinate.value.join(','),
+    if (showEmbedSharing.value) {
+        let query = {
+            ...route.query,
+            crosshair: 'marker',
+            center: coordinate.value.join(','),
+        }
+        shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
+        shortenShareLink(shareLinkUrl.value)
     }
-    shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
-    shortenShareLink(shareLinkUrl.value)
 }
 async function shortenShareLink(url) {
     try {
@@ -126,7 +116,7 @@ function onPositionTabClick() {
     newClickInfo.value = false
 }
 async function onShareTabClick() {
-    if (newClickInfo.value && showEmbedSharing.value == false) {
+    if (newClickInfo.value && !showEmbedSharing.value) {
         //copyShareLink is called by watcher since new shortlink is computed with a delay
         requestClipboard.value = true
     } else {
@@ -159,7 +149,7 @@ function clearClick() {
     <component
         :is="mappingFrameworkSpecificPopup"
         v-if="coordinate"
-        :title="selectedTab == 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
+        :title="selectedTab === 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="projection"
         use-content-padding
@@ -201,8 +191,7 @@ function clearClick() {
                     <!-- Italian text does not fit on one line with normal sized text -->
                     <div
                         :class="{
-                            small: currentLang == 'it',
-                            '': currentLang != 'it',
+                            small: currentLang === 'it',
                         }"
                     >
                         {{ i18n.t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
@@ -222,7 +211,6 @@ function clearClick() {
                     show: selectedTab === 'position',
                 }"
                 :coordinate="coordinate"
-                :click-info="clickInfo"
                 :projection="projection"
                 :current-lang="currentLang"
             />
