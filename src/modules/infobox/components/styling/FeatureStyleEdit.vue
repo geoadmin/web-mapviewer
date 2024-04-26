@@ -109,19 +109,23 @@ function onTextSizeChange(textSize) {
     updateTextOffset()
 }
 function updateTextOffset() {
-    let val = calculateTextOffset(
-        feature.value.textSize.textScale,
-        feature.value.icon ? feature.value.iconSize.iconScale : null,
-        feature.value.icon ? feature.value.icon.name : null,
-        feature.value.icon ? feature.value.icon.anchor : null,
-        [48, 48]
-    )
+    console.error(isFeatureMarker.value)
+    if (isFeatureMarker.value) {
+        const marker_extent = [48, 48]
+        const offset = calculateTextOffset(
+            feature.value.textSize.textScale,
+            feature.value.iconSize.iconScale,
+            feature.value.icon.name,
+            feature.value.icon.anchor,
+            marker_extent
+        )
 
-    store.dispatch('changeFeatureTextOffset', {
-        feature: feature.value,
-        textOffset: val,
-        ...dispatcher,
-    })
+        store.dispatch('changeFeatureTextOffset', {
+            feature: feature.value,
+            textOffset: offset,
+            ...dispatcher,
+        })
+    }
 }
 function onTextColorChange(textColor) {
     store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })

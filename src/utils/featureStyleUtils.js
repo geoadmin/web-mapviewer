@@ -188,50 +188,23 @@ export function getTextSize(textScale) {
 }
 
 /**
- * Calculate text alignment from style parameters *
- *
- * @param {Number} textScale Text size
- * @param {Number} iconScale Icon size
- * @param {String} name Name of icon
- * @returns {Array | null} Returns the feature label offset
- */
-export function calculateTextOffset(textScale, iconScale, name, anchor, iconExtent) {
-    // no offset for annotations
-    if (!iconScale) {
-        return [0, 0]
-    }
-    let fontSize = 11
-    let defaultOffset = -5
-    let iconSize = iconExtent ? iconExtent[1] : 48
-    let anchorScale = anchor ? anchor[1] * 2 : 1
-    // for these markers openlayers does not seem to take the actual anchor value
-    if (name === '001-marker' || name === '001-marker') {
-        anchorScale = 2
-    }
-
-    let iconOffset = -iconSize * 0.5 * 0.75 * iconScale * anchorScale
-    let textOffset = -fontSize * 0.5 * textScale
-
-    console.error('title offset of feature is calculated to be : ', [
-        0,
-        defaultOffset + iconOffset + textOffset,
-    ])
-
-    return [0, defaultOffset + iconOffset + textOffset]
-}
-
-/**
  * Get text alignment from style *
  *
  * @param {FeatureStyleSize} textScale Text size
  * @param {FeatureStyleSize} iconSize Icon size
- * @param {IconArgs} iconArgs Name of icon
+ * @param {IconArgs} iconArgs Contains name of icon
+ * @param {Array} iconAnchor Anchor of icon in pixel
+ * @param {Array} iconExtent Size of icon in pixel
  * @returns {Array | null} Returns the feature label offset
  */
 export function getTextOffset(textScale, iconSize, iconArgs, iconAnchor, iconExtent) {
-    let iconScale = iconSize ? iconSize._iconScale : 1
+    console.error(textScale, iconSize, iconArgs, iconAnchor, iconExtent)
+    if (!iconSize) {
+        return [0, 0]
+    }
+    let iconScale = iconSize._iconScale
     let name = iconArgs ? iconArgs.name : null
-    let anchor = iconAnchor ? [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]] : null
+    let anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
 
     return calculateTextOffset(textScale, iconScale, name, anchor, iconExtent)
 }
@@ -250,6 +223,41 @@ export function getTextColor(style) {
         return getFeatureStyleColor(style.getText().getFill()?.getColor())
     }
     return null
+}
+
+/**
+ * Calculate text alignment from style parameters *
+ *
+ * @param {Number} textScale Text size
+ * @param {Number} iconScale Icon size
+ * @param {String} name Name of icon
+ * @param {Array} anchor Relative position of Anchor
+ * @param {Array} iconExtent Size of icon in pixel
+ * @returns {Array | null} Returns the feature label offset
+ */
+export function calculateTextOffset(textScale, iconScale, name, anchor, iconExtent) {
+    // no offset for annotations
+    if (!iconScale) {
+        return [0, 0]
+    }
+    const fontSize = 11
+    const defaultOffset = -5
+    const iconSize = iconExtent ? iconExtent[1] : 48
+    let anchorScale = anchor ? anchor[1] * 2 : 1
+    // for these markers openlayers does not seem to take the actual anchor value
+    if (name === '001-marker' || name === '007-marker-stroked') {
+        anchorScale = 2
+    }
+
+    const iconOffset = -iconSize * 0.5 * 0.75 * iconScale * anchorScale
+    const textOffset = -fontSize * 0.5 * textScale
+
+    console.error('title offset of feature is calculated to be : ', [
+        0,
+        defaultOffset + iconOffset + textOffset,
+    ])
+
+    return [0, defaultOffset + iconOffset + textOffset]
 }
 
 /**
