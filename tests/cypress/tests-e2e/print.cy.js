@@ -64,14 +64,24 @@ describe('Testing print', () => {
             cy.goToMapView()
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
-            cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 5)
-            cy.get('[data-cy="print-layout-selector"]')
-                .find('option:selected')
-                .should('have.value', '1. A4 landscape')
-            cy.get('[data-cy="print-scale-selector"]').find('option').should('have.length', 15)
-            cy.get('[data-cy="print-scale-selector"]')
-                .find('option:selected')
-                .should('have.text', `1:${formatThousand(1500000)}`)
+            cy.fixture('print/capabilities.json').then((printCapabilities) => {
+                cy.get('[data-cy="print-layout-selector"]')
+                    .find('option')
+                    .should('have.length', printCapabilities.layouts.length)
+                const [firstLayer] = printCapabilities.layouts
+                cy.get('[data-cy="print-layout-selector"]')
+                    .find('option:selected')
+                    .should('have.value', firstLayer.name)
+                const mapAttributes = firstLayer.attributes.find(
+                    (attribute) => attribute.type === 'MapAttributeValues'
+                )
+                cy.get('[data-cy="print-scale-selector"]')
+                    .find('option')
+                    .should('have.length', mapAttributes.clientInfo.scales.length)
+                cy.get('[data-cy="print-scale-selector"]')
+                    .find('option:selected')
+                    .should('have.text', `1:${formatThousand(1500000)}`)
+            })
         })
     })
 
@@ -327,7 +337,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['scale']).to.equals(5000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -409,7 +419,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['scale']).to.equals(5000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 

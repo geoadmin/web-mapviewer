@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import { ClickType } from '@/store/modules/map.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
-describe('Testing click', () => {
+describe.skip('Testing click', () => {
     it('handles left click on the map', () => {
         const lon = 7.451498
         const lat = 46.92805

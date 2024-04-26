@@ -112,21 +112,6 @@ const addGeoJsonIntercept = () => {
     }).as('geojson-style')
 }
 
-const addCesiumTilesetIntercepts = () => {
-    cy.intercept('**/*.3d/**/tileset.json', {
-        fixture: '3d/tileset.json',
-    }).as('cesiumTileset')
-    cy.intercept('**/tile.vctr*', {
-        fixture: '3d/tile.vctr',
-    }).as('cesiumTile')
-    cy.intercept('**/*.terrain.3d/**/*.terrain*', {
-        fixture: '3d/tile.terrain',
-    }).as('cesiumTerrainTile')
-    cy.intercept('**/*.terrain.3d/**/layer.json', {
-        fixture: '3d/terrain-3d-layer.json',
-    }).as('cesiumTerrainConfig')
-}
-
 const addHtmlPopupIntercepts = () => {
     cy.intercept('**/MapServer/**/htmlPopup**', {
         fixture: 'html-popup.fixture.html',
@@ -147,7 +132,6 @@ export function getDefaultFixturesAndIntercepts() {
         addDefaultIconsFixtureAndIntercept,
         addSecondIconsFixtureAndIntercept,
         addGeoJsonIntercept,
-        addCesiumTilesetIntercepts,
         addHtmlPopupIntercepts,
     }
 }
@@ -504,52 +488,52 @@ const mockupBackendResponse = (endpoint, wantedOutput, aliasName) => {
 }
 Cypress.Commands.add('mockupBackendResponse', mockupBackendResponse)
 
-// Reads a value from clipboard
-Cypress.Commands.add('readClipboardValue', () => {
-    return cy.window().then((win) => {
-        return win.navigator.clipboard.readText().then((t) => {
-            return t
-        })
-    })
-})
+/**
+ * @typedef MapEvent
+ * @param {string} type Event type.
+ * @param {number} x Horizontal offset from map center.
+ * @param {number} y Vertical offset from map center.
+ * @param {boolean} [opt_shiftKey] Shift key is pressed.
+ */
 
 /**
  * This function has been taken from the OL draw spec. Simulates a browser event on the map
  * viewport. The client x/y location will be adjusted as if the map were centered at 0,0.
  *
- * @param {string} type Event type.
- * @param {number} x Horizontal offset from map center.
- * @param {number} y Vertical offset from map center.
- * @param {boolean} [opt_shiftKey] Shift key is pressed.
- * @param {number} [opt_pointerId] Pointer id.
- * @returns {MapBrowserEvent} The simulated event.
+ * @param {MapEvent[]} events Events to be fired on the map.
  */
-Cypress.Commands.add(
-    'simulateEvent',
-    { prevSubject: false },
-    (map, type, x = 0, y = 0, opt_shiftKey = false, opt_pointerId = 0) => {
-        cy.log(`simulating ${type} at [${x}, ${y}]`)
-
+Cypress.Commands.add('simulateEventsOnMap', { prevSubject: false }, (events) => {
+    cy.readWindowValue('map').then((map) => {
         const viewport = map.getViewport()
 
-        // calculated in case body has top < 0 (test runner with small window)
-        const event = {
-            type,
-            target: viewport.firstChild,
-            clientX: viewport.clientLeft + x + viewport.clientWidth / 2,
-            clientY: viewport.clientTop + y + viewport.clientHeight / 2,
-            shiftKey: opt_shiftKey,
-            preventDefault() {},
-            pointerType: 'mouse',
-            pointerId: opt_pointerId,
-            isPrimary: true,
-            button: 0,
-        }
+        events.forEach((event) => {
+            const { type = 'click', x = 0, y = 0, opt_shiftKey = false } = event
 
-        const simulatedEvent = new MapBrowserEvent(type, map, event)
-        map.handleMapBrowserEvent(simulatedEvent)
-    }
-)
+            const eventLocation = {
+                x: viewport.clientLeft + x + viewport.clientWidth / 2,
+                y: viewport.clientTop + y + viewport.clientHeight / 2,
+            }
+            cy.log(
+                `simulating ${type} on map at [${x}, ${y}] relative to center, meaning [${eventLocation.x}, ${eventLocation.y}]`
+            )
+
+            const simulatedEvent = new MapBrowserEvent(type, map, {
+                type,
+                target: viewport.firstChild,
+                clientX: eventLocation.x,
+                clientY: eventLocation.y,
+                shiftKey: opt_shiftKey,
+                preventDefault() {},
+                pointerType: 'mouse',
+                pointerId: 0,
+                isPrimary: true,
+                isTrusted: true,
+                button: 0,
+            })
+            map.handleMapBrowserEvent(simulatedEvent)
+        })
+    })
+})
 
 Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
     if (Array.isArray(mockupData)) {
@@ -562,27 +546,14 @@ Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
 })
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
-    cy.wait(
-        [
-            '@cesiumTerrainConfig',
-            '@cesiumTerrainTile',
-            '@cesiumTerrainTile',
-            '@cesiumTileset',
-            '@cesiumTileset',
-            '@cesiumTile',
-            '@cesiumTile',
-        ],
-        // the timeout is increased to allow to run the test locally on
-        // which cesium is much slower
-        { timeout: 20000 }
-    )
+    cy.window().its('cesiumIsReady').should('be.true')
 })
 
 Cypress.Commands.add('openMenuIfMobile', () => {
     if (isMobile()) {
         cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
             if (!isMenuCurrentlyOpen) {
-                cy.get('[data-cy="menu-button"]').click()
+                cy.get('[data-cy="menu-button"]:visible').click()
             }
             // waiting on the animation to finish by grabbing the content of the menu and assessing its visibility
             cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
@@ -652,6 +623,45 @@ Cypress.Commands.add(
     }
 )
 
+function parseCheckLayerArgs(args) {
+    let layers = []
+    if (typeof args === 'string' || args instanceof String) {
+        layers.push({ id: args, visible: true, opacity: 1 })
+    } else if (args instanceof Array) {
+        layers = args.slice()
+    } else if (args instanceof Object) {
+        layers.push(Object.assign({}, args))
+    } else {
+        throw new Error(`Invalid check layer argument: ${args}`)
+    }
+
+    // validate the layers arguments
+    layers = layers.map((l) => {
+        if (typeof l === 'string' || l instanceof String) {
+            return { id: l, visible: true, opacity: 1 }
+        } else {
+            if (!l.id) {
+                throw new Error(`Invalid layer object ${l}: don't have an id`)
+            }
+            if (l.visible === undefined) {
+                l.visible = true
+            }
+            if (l.opacity === undefined) {
+                l.opacity = 1
+            }
+            return l
+        }
+    })
+    const visibleLayers = layers.filter((l) => l.visible)
+    const invisibleLayers = layers.filter((l) => !l.visible)
+
+    return {
+        visibleLayers,
+        invisibleLayers,
+        layers,
+    }
+}
+
 /**
  * Check if the layer(s) have been successfully added and rendered on Open Layer Map.
  *
@@ -667,36 +677,7 @@ Cypress.Commands.add(
  *   Layer(s) to check
  */
 Cypress.Commands.add('checkOlLayer', (args = null) => {
-    let layers = []
-    if (typeof args === 'string' || args instanceof String) {
-        layers.push({ id: args, visible: true, opacity: 1 })
-    } else if (args instanceof Array) {
-        layers = args.slice()
-    } else if (args instanceof Object) {
-        layers.push(Object.assign({}, args))
-    } else {
-        throw new Error(`Invalid checkOlLayer argument: ${args}`)
-    }
-
-    // validate the layers arguments
-    layers = layers.map((l) => {
-        if (typeof l === 'string' || l instanceof String) {
-            return { id: l, visible: true, opacity: 1 }
-        } else {
-            if (!l.id) {
-                throw new Error(`Invalid layer object ${l}: don't have an id`)
-            }
-            if (l.visible == undefined) {
-                l.visible = true
-            }
-            if (l.opacity == undefined) {
-                l.opacity = 1
-            }
-            return l
-        }
-    })
-    const visibleLayers = layers.filter((l) => l.visible)
-    const invisibleLayers = layers.filter((l) => !l.visible)
+    const { layers, visibleLayers, invisibleLayers } = parseCheckLayerArgs(args)
 
     cy.window().its('map').invoke('getAllLayers').as('olLayers')
 
@@ -738,5 +719,65 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
                 `[${layer.id}] layer found`
             ).to.be.undefined
         })
+    })
+})
+
+Cypress.Commands.add('checkCesiumLayer', (args = null) => {
+    const { layers, visibleLayers } = parseCheckLayerArgs(args)
+
+    cy.window().its('cesiumViewer.scene.imageryLayers').as('cesiumImageryLayers')
+    cy.get('@cesiumImageryLayers').then((imageryLayers) => {
+        const layerIds = layers.map((l) => l.id)
+        const cesiumLayerIds = layerIds
+            .map((id, index) => `[${index}]:${imageryLayers.get(index)?.id}`)
+            .join(',')
+        cy.log(
+            `Check if layers [${layerIds.join(',')}] are set correctly in Cesium [${cesiumLayerIds}]`
+        )
+    })
+
+    // Here in order to have the cy.log() working as expected we need to do the loop outside the
+    // cy.get('@cesiumImageryLayers')
+    visibleLayers.forEach((layer, index) => {
+        cy.get('@cesiumImageryLayers').then((imageryLayers) => {
+            cy.log(
+                `Check that visible layer ${layer.id} at zIndex ${index} is set correctly in Cesium`
+            )
+            const cesiumlayer = imageryLayers.get(index)
+            expect(cesiumlayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
+            expect(cesiumlayer, `[${layer.id}] layer at index ${index} not found`).not.to.be
+                .undefined
+            expect(cesiumlayer.show, `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
+            expect(cesiumlayer.alpha, `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
+            // The rendered flag is set asynchronously therefore we need to do some retry here
+            cy.waitUntil(() => cesiumlayer.ready, {
+                description: `[${layer.id}] waitUntil layer.ready`,
+                errorMsg: `[${layer.id}] layer.ready is not true`,
+            })
+        })
+    })
+})
+
+Cypress.Commands.add('clickOlMapAtCoordinate', (coordinate, options = {}) => {
+    const { doubleClick = false } = options
+    cy.readWindowValue('map').then((map) => {
+        const pixel = map.getPixelFromCoordinate(coordinate).map(Math.floor)
+        if (pixel.some((value) => value < 0)) {
+            cy.log(
+                'Error, coordinate',
+                coordinate,
+                ' are outside current map viewport (',
+                pixel,
+                '), cannot click on these coordinate'
+            )
+            cy.wrap(false).should('be.true')
+        } else {
+            cy.log('Clicking at coordinate', coordinate, 'on pixel', pixel, 'with options', options)
+            if (doubleClick) {
+                cy.get('[data-cy="ol-map"]').dblclick(pixel[0], pixel[1])
+            } else {
+                cy.get('[data-cy="ol-map"]').click(pixel[0], pixel[1])
+            }
+        }
     })
 })

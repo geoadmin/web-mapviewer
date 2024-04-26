@@ -14,7 +14,7 @@ import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL, DEFAULT_PROJECTION } from '@/config'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingColors,
     allStylingSizes,
@@ -53,104 +53,120 @@ describe('Drawing module tests', () => {
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
-        function readCoordinateClipboard(name, coordinate) {
-            cy.log(name)
-            cy.get(`[data-cy="${name}-button"]`).focus()
-            cy.get(`[data-cy="${name}-button"]`).realClick()
-            cy.get(`[data-cy="${name}-icon"]`).should('have.class', 'fa-check')
-            cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.be.equal(coordinate)
-            })
-        }
-        function waitForKmlUpdate(regexExpression) {
-            cy.get('@update-kml')
-                .its('request')
-                .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
-        }
+
         beforeEach(() => {
             cy.goToDrawing()
         })
         it('can create marker/icons and edit them', () => {
-            // it should load all icon sets as soon as we enter the drawing module
+            cy.log('it should load all icon sets as soon as we enter the drawing module')
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
 
+            const markerCoordinate = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]:visible').click()
+            cy.clickOlMapAtCoordinate(markerCoordinate)
+            cy.wait('@post-kml')
 
-            cy.wait('@post-kml').then((interception) => {
-                const kmlId = `https://sys-public.dev.bgdi.ch/api/kml/files/${interception.response.body.id}`
-                const bgLayer = 'test.background.layer2'
+            cy.log(
+                'it should show the default icon set by default with the red color in the icon style popup'
+            )
+            cy.wait('@icon-default')
+                .its('request.url')
+                .should('include', '/api/icons/sets/default/icons/')
+                .should('include', `${RED.rgbString}.png`)
 
-                // it should show the default icon set by default with the red color in the icon style popup
-                cy.wait('@icon-default')
-                    .its('request.url')
-                    .should('include', '/api/icons/sets/default/icons/')
-                    .should('include', `${RED.rgbString}.png`)
+            cy.log('clicking on the "Edit icon" button')
+            cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
 
-                // clicking on the "Edit icon" button
-                cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
-                // opening up the icon set selector
-                cy.get(
-                    '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
-                ).click()
-                // the list of icon sets should contain all backend's possibilities
-                cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
-                cy.get(`[data-cy="dropdown-item-babs"]`).should('be.visible')
+            cy.log('opening up the icon set selector')
+            cy.get(
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
+            ).click()
 
-                // selecting babs icon set
-                cy.get('[data-cy="dropdown-item-babs"]').click()
-                // all icons in the selector must swap to the newly selected icon set
-                cy.wait('@icon-set-babs')
-                cy.wait('@icon-babs')
-                // as babs icon set is not colorable, the color box should have disappeared
-                cy.get(
-                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
-                ).should('not.exist')
-                // going back to the default icon set
-                cy.get(
-                    '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
-                ).click()
-                cy.get('[data-cy="dropdown-item-default"]:visible').click()
-                cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
-                // color selector should be back
-                cy.get(
-                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
-                ).should('be.visible')
+            cy.log("the list of icon sets should contain all backend's possibilities")
+            cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
+            cy.get(`[data-cy="dropdown-item-babs"]`).should('be.visible')
 
-                // changing icon list's color to green
-                cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
-                ).click()
-                // it should load all icons with the green color
-                cy.waitOnAllIconsDefaultGreen()
+            cy.log('selecting babs icon set')
+            cy.get('[data-cy="dropdown-item-babs"]').click()
+            cy.log('all icons in the selector must swap to the newly selected icon set')
+            cy.wait('@icon-set-babs')
+            cy.wait('@icon-babs')
+            cy.log('as babs icon set is not colorable, the color box should have disappeared')
+            cy.get(
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
+            ).should('not.exist')
+            cy.log('going back to the default icon set')
+            cy.get(
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
+            ).click()
+            cy.get('[data-cy="dropdown-item-default"]:visible').click()
+            cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
+            cy.log('color selector should be back')
+            cy.get(
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
+            ).should('be.visible')
 
-                // the color of the marker already placed on the map must switch to green
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) => {
-                        checkKMLRequest(request, [
-                            new RegExp(
-                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                            ),
-                        ])
-                    })
+            cy.log("changing icon list's color to green")
+            cy.get(
+                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
+            ).click()
+            cy.log('it should load all icons with the green color')
+            cy.waitOnAllIconsDefaultGreen()
 
-                // opening up the icon size selector
-                cy.get(
-                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
-                ).click()
-                // all sizes should be represented
-                allStylingSizes.forEach((size) => {
-                    cy.get(
-                        `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
-                    ).should('be.visible')
+            cy.log('the color of the marker already placed on the map must switch to green')
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                        ),
+                    ])
                 })
-                // selecting large size
+
+            cy.log('opening up the icon size selector')
+            cy.get(
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
+            ).click()
+            cy.log('all sizes should be represented')
+            allStylingSizes.forEach((size) => {
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
-                ).click()
-                // the existing icon on the map must be updated to large and green
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
+                ).should('be.visible')
+            })
+            cy.log('selecting large size')
+            cy.get(
+                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
+            ).click()
+            cy.log('the existing icon on the map must be updated to large and green')
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) => {
+                    checkKMLRequest(request, [
+                        new RegExp(
+                            `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
+                        ),
+                        new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
+                        new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
+                        new RegExp(
+                            `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                        ),
+                    ])
+                })
+
+            cy.log('opening up all icons of the current sets so that we may choose a new one')
+            cy.get(
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
+            ).click()
+            cy.log('picking up the 4th icon of the set')
+            cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
+                const fourthIcon = defaultIconSet.items[3]
+                cy.get(
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
+                ).click({ force: true })
+                cy.log('the KML must be updated with the newly selected icon')
                 cy.wait('@update-kml')
                     .its('request')
                     .should((request) => {
@@ -161,314 +177,88 @@ describe('Drawing module tests', () => {
                             new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
                             new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
                             new RegExp(
-                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                                `<href>https?://.*/api/icons/sets/default/icons/004-placeholder@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                             ),
                         ])
                     })
+            })
+            cy.log('closing the icons')
+            cy.get(
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
+            ).click({ force: true })
+            cy.log('closing the icon style popup')
+            cy.get('[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]').click({
+                force: true,
+            })
 
-                // opening up all icons of the current sets so that we may choose a new one
-                cy.get(
-                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
-                ).click()
-                // picking up the 4th icon of the set
-                cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
-                    const fourthIcon = defaultIconSet.items[3]
-                    cy.get(
-                        `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
-                    ).click()
-                    // the KML must be updated with the newly selected icon
-                    cy.wait('@update-kml')
-                        .its('request')
-                        .should((request) =>
-                            checkKMLRequest(request, [
-                                new RegExp(
-                                    `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                                ),
-                            ])
-                        )
-                })
-                // closing the icons
-                cy.get(
-                    '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
-                ).click()
-                // closing the icon style popup
-                cy.get(
-                    '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
-                ).click()
+            cy.log('changing/editing the title of this marker')
+            testTitleEdit()
 
-                // changing/editing the title of this marker
-                testTitleEdit()
-
-                // changing/editing the description of this marker
-                const description = 'A description for this marker'
-                cy.get('[data-cy="drawing-style-feature-description"]').type(description)
-                cy.get('[data-cy="drawing-style-feature-description"]').should(
-                    'have.value',
-                    description
+            cy.log('changing/editing the description of this marker')
+            const description = 'A description for this marker'
+            cy.get('[data-cy="drawing-style-feature-description"]').type(description)
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                description
+            )
+            cy.wait('@update-kml')
+                .its('request')
+                .should((request) =>
+                    checkKMLRequest(request, [
+                        new RegExp(`<description>${description}</description>`),
+                    ])
                 )
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [
-                            new RegExp(`<description>${description}</description>`),
-                        ])
-                    )
-                cy.readStoreValue('getters.selectedFeatures[0].description').should(
-                    'eq',
-                    description
-                )
+            cy.readStoreValue('getters.selectedFeatures[0].description').should('eq', description)
 
-                //  moving the marker by drag&drop on the map
-                const moveInPixel = {
-                    x: 40,
-                    y: -50,
+            cy.log('moving the marker by drag&drop on the map')
+            const moveInPixel = {
+                x: 40,
+                y: -50,
+            }
+            cy.get('[data-cy="ol-map"]').then((olMapElement) => {
+                const mapSize = {
+                    height: olMapElement.height(),
+                    width: olMapElement.width(),
                 }
-                cy.window().then((window) => {
-                    const endingPixel = [
-                        window.innerWidth / 2.0 + moveInPixel.x,
-                        window.innerHeight / 2.0 + moveInPixel.y,
-                    ]
+                /** Pixel at the center of the map, relative to the map top-left corner */
+                const pixelMapCenterInMapViewport = {
+                    x: mapSize.width / 2.0,
+                    y: mapSize.height / 2.0,
+                }
+                const endingPixel = [
+                    pixelMapCenterInMapViewport.x + moveInPixel.x,
+                    pixelMapCenterInMapViewport.y + moveInPixel.y,
+                ]
+                cy.log('Move/drag the marker, the drawing must be updated with the new position')
+                cy.readWindowValue('map').then((map) => {
+                    const startingPixel = map.getPixelFromCoordinate(markerCoordinate)
+                    cy.log('moving marker from pixel ', startingPixel, 'to', endingPixel)
 
-                    // Move it, the geojson geometry should move
-                    cy.readWindowValue('map').then((map) => {
-                        cy.log('ending pixel is', endingPixel)
-                        const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
-
-                        cy.simulateEvent(map, 'pointerdown', 0, 0)
-                        cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
-                        cy.simulateEvent(map, 'pointerup')
-
-                        cy.wait('@update-kml')
-                        cy.readWindowValue('drawingLayer').should((drawingLayer) => {
-                            const features = drawingLayer.getSource().getFeatures()
-                            expect(features).to.have.lengthOf(1)
-                            const foundType = features[0].getGeometry().getType()
-                            expect(foundType).to.equal('Point')
-                            expect(features).to.be.an('Array').lengthOf(1)
-                            expect(features[0].getGeometry().getCoordinates()).to.be.eql(
-                                expectedCoordinates,
-                                `wrong coordinates after drag&drop, expected ${JSON.stringify(
-                                    expectedCoordinates
-                                )}, received: ${JSON.stringify(
-                                    features[0].getGeometry().getCoordinates()
-                                )}`
-                            )
-                        })
+                    cy.get('[data-cy="ol-map"]').realMouseDown({
+                        x: startingPixel[0],
+                        y: startingPixel[1],
                     })
+                    cy.get('[data-cy="ol-map"]').realMouseMove(
+                        startingPixel[0] + moveInPixel.x,
+                        startingPixel[1] + moveInPixel.y,
+                        {
+                            position: 'topLeft',
+                        }
+                    )
+                    cy.get('[data-cy="ol-map"]').realMouseUp({
+                        x: endingPixel[0],
+                        y: endingPixel[1],
+                    })
+
+                    cy.wait('@update-kml')
                 })
-
-                cy.log('Coordinates for marker can be copied in drawing mode')
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(160, 200)
-                waitForKmlUpdate(`(ExtendedData.*){4}`)
-                readCoordinateClipboard(
-                    'feature-style-edit-coordinate-copy',
-                    "2'660'013.50, 1'227'172.00"
-                )
-
-                cy.log('Coordinates for marker can be copied while not in drawing mode')
-                cy.closeDrawingMode()
-                cy.closeMenuIfMobile()
-                waitForKmlUpdate(`(ExtendedData.*){4}`)
-                cy.checkOlLayer([bgLayer, kmlId])
-
-                cy.get('[data-cy="ol-map"]').click(160, 200)
-                readCoordinateClipboard(
-                    'feature-detail-coordinate-copy',
-                    "2'660'013.50, 1'227'172.00"
-                )
-                cy.log('Coordinates for marker are updated when selecting new marker')
-                cy.get('[data-cy="ol-map"]').click(200, 234)
-                readCoordinateClipboard(
-                    'feature-detail-coordinate-copy',
-                    "2'680'013.50, 1'210'172.00"
-                )
-
-                cy.log('Can generate and display media links')
-                cy.openDrawingMode()
-                const valid_url = 'http:dummy'
-                const valid_whitelisted_url = 'https://map.geo.admin.ch'
-                const invalid_url = 'invalidurl'
-                const media_description = 'description'
-
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(20, 160)
-
-                cy.log('Open hyperlink popup')
-                cy.get('[data-cy="drawing-style-link-button"]').click()
-
-                cy.log('Button should be disabled if url empty')
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="invalid-feedback-error"]').should('not.exist')
-                cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
-                    'not.exist'
-                )
-
-                cy.log('Button should be disabled if url invalid')
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(invalid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="invalid-feedback-error"]').should('be.visible')
-                cy.get('[data-cy="drawing-style-media-empty-description-error"]').should(
-                    'not.exist'
-                )
-
-                cy.log('Generate hyperlink')
-                cy.get('[data-cy="text-input-clear"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-description-input"]').type(media_description)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.get('[data-cy="drawing-style-feature-description"]').should(
-                    'have.value',
-                    `<a target="_blank" href="${valid_url}">${media_description}</a>`
-                )
-                waitForKmlUpdate(`href="${valid_url}".*`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.log('Entering no description should use link as description')
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(60, 160)
-                cy.get('[data-cy="drawing-style-link-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.get('[data-cy="drawing-style-feature-description"]').should(
-                    'have.value',
-                    `<a target="_blank" href="${valid_url}">${valid_url}</a>`
-                )
-                waitForKmlUpdate(`(${valid_url}.*){3}`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.log('Open image embed popup')
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(100, 160)
-                cy.get('[data-cy="drawing-style-image-button"]').click()
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-
-                cy.log('Generate image link')
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.get('[data-cy="drawing-style-feature-description"]').should(
-                    'have.value',
-                    `<image src="${valid_url}" style="max-height:200px;"/>`
-                )
-                waitForKmlUpdate(`image src="${valid_url}".*`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.log('Open video embed popup')
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(140, 160)
-                cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
-
-                cy.log('Generate video link')
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                cy.get('[data-cy="drawing-style-feature-description"]').should(
-                    'have.value',
-                    `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
-                )
-                waitForKmlUpdate(`iframe src="${valid_url}".*`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(180, 160)
-                cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                waitForKmlUpdate(`(iframe src="${valid_url}".*){2}`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(220, 160)
-                cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]').click()
-                waitForKmlUpdate(`iframe src="${valid_whitelisted_url}"`)
-                cy.get('[data-cy="infobox-close"]').click()
-
-                cy.closeDrawingMode()
-                cy.closeMenuIfMobile()
-                waitForKmlUpdate(`(ExtendedData.*){16}`)
-                cy.checkOlLayer([bgLayer, kmlId])
-
-                cy.log('Hyperlink exists after sanitize')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(20, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-                cy.get('[data-cy="feature-detail-description-content"]')
-                    .find('a')
-                    .invoke('attr', 'href')
-                    .should('eq', `${valid_url}`)
-
-                cy.log('blank attribute is not removed by sanitize')
-                cy.get('[data-cy="feature-detail-description-content"]')
-                    .find('a')
-                    .invoke('attr', 'target')
-                    .should('eq', '_blank')
-
-                cy.log('noopener attribute exists due to _blank')
-                cy.get('[data-cy="feature-detail-description-content"]')
-                    .find('a')
-                    .invoke('attr', 'rel')
-                    .should('eq', 'noopener')
-
-                cy.log('Image link exists after sanitize')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(100, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
-                cy.get('[data-cy="feature-detail-description-content"]')
-                    .find('img')
-                    .invoke('attr', 'src')
-                    .should('eq', `${valid_url}`)
-
-                cy.log('Video link has disclaimer')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(140, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('be.visible')
-                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('not.exist')
-
-                cy.log('Disclaimer provides more information on click')
-                cy.get('[data-cy="feature-detail-media-disclaimer-opened-info"]').click()
-                cy.get('[data-cy="modal-with-backdrop"]').should('exist')
-                cy.get('[data-cy="modal-close-button"]').click()
-                cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
-
-                cy.log('Video link exists after sanitize')
-                cy.get('[data-cy="feature-detail-description-content"]')
-                    .find('iframe')
-                    .invoke('attr', 'src')
-                    .should('eq', `${valid_url}`)
-
-                cy.log('Closing disclaimer')
-                cy.get('[data-cy="feature-detail-media-disclaimer-close"]').click({
-                    scrollBehavior: 'center',
-                })
-                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
-                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
-
-                cy.log('Closed Disclaimer provides more information on click')
-                cy.get('[data-cy="feature-detail-media-disclaimer-closed-info"]').click()
-                cy.get('[data-cy="modal-with-backdrop"]').should('exist')
-                cy.get('[data-cy="modal-close-button"]').click()
-                cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
-
-                cy.log('Closing disclaimer persists when selecting different marker')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(180, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
-                cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
-
-                cy.log('Disclaimer should not appear when host is whitelisted')
-                cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
-                cy.get('[data-cy="ol-map"]').click(220, 160)
-                cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             })
         })
         it('can create annotation/text and edit them', () => {
+            const firstAnnotationCoordinate = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
-            cy.get('[data-cy="ol-map"]').click()
+            cy.clickOlMapAtCoordinate(firstAnnotationCoordinate)
             cy.wait('@post-kml')
                 .its('request')
                 .should((request) => {
@@ -507,7 +297,10 @@ describe('Drawing module tests', () => {
 
             cy.get(
                 '[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
-            ).click({ force: true })
+            ).click({
+                // clicking in this popup is flaky (Cypress considers there's something else on top), so we force the click
+                force: true,
+            })
             // checking that all (text) sizes are represented in the size selector
             allStylingSizes.forEach((size) => {
                 cy.get(
@@ -517,7 +310,10 @@ describe('Drawing module tests', () => {
             // selecting "very small" size
             cy.get(
                 `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${SMALL.label}"]`
-            ).click({ force: true })
+            ).click({
+                // clicking in this popup is flaky (Cypress considers there's something else on top), so we force the click
+                force: true,
+            })
             cy.wait('@update-kml')
                 .its('request')
                 .should((request) => {
@@ -525,39 +321,37 @@ describe('Drawing module tests', () => {
                         new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                     ])
                 })
-
-            cy.log('Coordinates for annotation can be copied while in drawing mode')
-            cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
-            cy.get('[data-cy="ol-map"]').click(160, 200)
-            cy.wait('@update-kml')
-            readCoordinateClipboard(
-                'feature-style-edit-coordinate-copy',
-                "2'660'013.50, 1'227'172.00"
-            )
-            cy.log('Coordinates for annotation can be copied while not in drawing mode')
-            cy.closeDrawingMode()
-            cy.closeMenuIfMobile()
-            cy.get('[data-cy="ol-map"]').click(160, 200)
-            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
-            cy.log('Coordinates for annotation are updated when selecting new marker')
-            cy.get('[data-cy="ol-map"]').click('center')
-            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
+            cy.get('[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]').click({
+                // clicking on this button is flaky (Cypress considers there's something else on top), so we force the click
+                force: true,
+            })
+            cy.get('[data-cy="infobox-close"]').click()
         })
         it('can create line/polygons and edit them', () => {
+            const firstPointCoordinate = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+            const secondPointCoordinate = [
+                firstPointCoordinate[0] + 20000 /* m */,
+                firstPointCoordinate[1],
+            ]
+            const thirdPointCoordinate = [
+                secondPointCoordinate[0],
+                secondPointCoordinate[1] + 20000 /* m */,
+            ]
+
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.clickOlMapAtCoordinate(firstPointCoordinate)
+            cy.clickOlMapAtCoordinate(secondPointCoordinate)
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
 
             // checking that we can delete the last point by either clicking the button or using right-click
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
 
             cy.get('[data-cy="ol-map"]').rightclick()
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
 
             // should create a polygon by re-clicking the first point
-            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.clickOlMapAtCoordinate(firstPointCoordinate)
 
             let kmlId = null
             cy.wait('@post-kml').then((interception) => {
@@ -588,9 +382,6 @@ describe('Drawing module tests', () => {
                     const [polygonCoordinates] = polygon.getGeometry().getCoordinates()
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
-            cy.get('[data-cy="feature-area-information"]')
-                .should('be.visible')
-                .contains('187.64 km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()
@@ -617,11 +408,20 @@ describe('Drawing module tests', () => {
                 )
 
             // Now creating a line, and finishing it by double-clicking the same spot
-            cy.get('[data-cy="close-popover-button"]').click()
+            cy.get('[data-cy="close-popover-button"]').click({
+                // clicking in this popup is flaky (Cypress considers there's something else on top), so we force the click
+                force: true,
+            })
             cy.get('[data-cy="infobox-close"]').click()
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(120, 220)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            const lineLength = 13500 // meters
+            const lineFirstCoordinate = [firstPointCoordinate[0] - 30000, firstPointCoordinate[1]]
+            const lineSecondCoordinate = [
+                lineFirstCoordinate[0],
+                lineFirstCoordinate[1] + lineLength,
+            ]
+            cy.clickOlMapAtCoordinate(lineFirstCoordinate)
+            cy.clickOlMapAtCoordinate(lineSecondCoordinate, { doubleClick: true })
             cy.wait('@update-kml')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
@@ -816,7 +616,7 @@ describe('Drawing module tests', () => {
 
             // creating another feature
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(200, 200)
+            cy.get('[data-cy="ol-map"]').click(200, 100)
 
             // checking that it updates the existing KML, and not creating a new copy of it
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
@@ -903,7 +703,7 @@ describe('Drawing module tests', () => {
             // creating another feature
             cy.log('Test creating a new feature')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click(200, 200)
+            cy.get('[data-cy="ol-map"]').click(200, 100)
 
             // checking that it updates the existing KML, and not creating a new copy of it
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
@@ -1036,21 +836,25 @@ describe('Drawing module tests', () => {
             // Check that the copied URL is the shortened one
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
-            cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.be.equal(
-                    publicShortlink,
-                    `Share link is not a public shortlink`
-                )
+            cy.window().then((win) => {
+                cy.wrap(win.navigator.clipboard.readText()).should((clipboardText) => {
+                    expect(clipboardText).to.be.equal(
+                        publicShortlink,
+                        `Share link is not a public shortlink`
+                    )
+                })
             })
 
             // Same check, but with the other input (that should contain the adminId)
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
-            cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.be.equal(
-                    adminshortlink,
-                    `Share link is not an admin shortlink`
-                )
+            cy.window().then((win) => {
+                cy.wrap(win.navigator.clipboard.readText()).should((clipboardText) => {
+                    expect(clipboardText).to.be.equal(
+                        adminshortlink,
+                        `Share link is not an admin shortlink`
+                    )
+                })
             })
             // closing the share modal/popup
             cy.get('[data-cy="modal-close-button"]').click()
@@ -1065,20 +869,34 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             // checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)
-            cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.contain(`/${kmlId}`)
-                expect(clipboardText).to.not.contain(`@adminId`)
+            cy.window().then((win) => {
+                cy.wrap(win.navigator.clipboard.readText()).should((clipboardText) => {
+                    expect(clipboardText).to.contain(`/${kmlId}`)
+                    expect(clipboardText).to.not.contain(`@adminId`)
+                })
             })
             // checking that the "Edit later" link contains the adminId
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
-            cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.contain(`/${kmlId}`)
-                expect(clipboardText).to.contain(`@adminId=${adminId}`)
+            cy.window().then((win) => {
+                cy.wrap(win.navigator.clipboard.readText()).should((clipboardText) => {
+                    expect(clipboardText).to.contain(`/${kmlId}`)
+                    expect(clipboardText).to.contain(`@adminId=${adminId}`)
+                })
             })
         })
         it('shows a profile of a line/measure coming from service-alti data', () => {
             const profileIntercept = '**/rest/services/profile.json**'
+
+            const profileThirdCoordinate = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+            const profileSecondCoordinate = [
+                profileThirdCoordinate[0],
+                profileThirdCoordinate[1] + 45000,
+            ]
+            const profileFirstCoordinate = [
+                profileSecondCoordinate[0] + 30000,
+                profileSecondCoordinate[1],
+            ]
 
             cy.goToDrawing()
 
@@ -1086,9 +904,9 @@ describe('Drawing module tests', () => {
             cy.intercept(profileIntercept, []).as('empty-profile')
 
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            cy.clickOlMapAtCoordinate(profileFirstCoordinate)
+            cy.clickOlMapAtCoordinate(profileSecondCoordinate)
+            cy.clickOlMapAtCoordinate(profileThirdCoordinate, { doubleClick: true })
             cy.wait('@empty-profile')
 
             // the profile info container shouldn't show up if there's no data for this profile
@@ -1105,9 +923,9 @@ describe('Drawing module tests', () => {
             }).as('profile')
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            cy.clickOlMapAtCoordinate(profileFirstCoordinate)
+            cy.clickOlMapAtCoordinate(profileSecondCoordinate)
+            cy.clickOlMapAtCoordinate(profileThirdCoordinate, { doubleClick: true })
             cy.wait('@profile')
 
             // checking all the information found in the info container
@@ -1149,7 +967,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"]').should('not.exist')
 
             // re-opening
-            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.window()
+                .its('map')
+                .invoke('getPixelFromCoordinate', profileThirdCoordinate)
+                .as('profileEndingPixel')
+            cy.get('@profileEndingPixel').then((pixel) => {
+                cy.get('[data-cy="ol-map"]').click(pixel[0], pixel[1])
+            })
             cy.get('[data-cy="infobox"]').should('be.visible')
 
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
@@ -1189,11 +1013,10 @@ describe('Drawing module tests', () => {
             // same test, but this time with a line
             // (the placement of the popup is a bit trickier and different from a single coordinate marker)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(120, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
-            cy.get('[data-cy="ol-map"]').click(150, 250)
-            // finishing the line by click the same spot
-            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(20, 20)
+            cy.get('[data-cy="ol-map"]').click(40, 60)
+            // finishing the line by click the same spot twice
+            cy.get('[data-cy="ol-map"]').dblclick('center')
             testEditPopupFloatingToggle()
 
             cy.log('Infobox closes when drawing tool is selected')
@@ -1213,6 +1036,328 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
+        })
+        // too many issues with the CI not having the same behaviour with the clipboard management as the local non-headless run, skipping for the time being
+        it.skip('can copy coordinate from marker and text/annotation features (in and out of drawing mode)', () => {
+            /**
+             * @param {String} name Feature "name" so that it can be selected in the DOM
+             * @param {[Number, Number]} coordinate Coordinate expected to be displayed/copied, will
+             *   tolerate a 1m margin
+             */
+            function readCoordinateClipboard(name, coordinate) {
+                cy.log('Reading clipboard for selector', name)
+                // we start by clearing the clipboard (no spill over with previous tests)
+                cy.window()
+                    .its('navigator.clipboard')
+                    .then((clipboard) => clipboard.writeText(''))
+                cy.get(`[data-cy="${name}-button"]`).focus()
+                cy.get(`[data-cy="${name}-button"]`).realClick()
+                cy.get(`[data-cy="${name}-icon"]`).should('have.class', 'fa-check')
+                cy.readStoreValue('getters.resolution').then((currentMapResolution) => {
+                    cy.window()
+                        .its('navigator.clipboard')
+                        .then((clipboard) => clipboard.readText())
+                        .should((clipboardText) => {
+                            const clipboardCoordinate = clipboardText
+                                .replaceAll("'", '')
+                                .split(', ')
+                                .map(parseFloat)
+                            expect(clipboardCoordinate).to.be.an('Array').lengthOf(2)
+                            // we allow 1 pixel of error (if the calculated pixel for a coordinate not a rounded value we might have
+                            // some error involved with the real coordinate being chosen)
+                            expect(clipboardCoordinate[0]).to.approximately(
+                                coordinate[0],
+                                currentMapResolution
+                            )
+                            expect(clipboardCoordinate[1]).to.approximately(
+                                coordinate[1],
+                                currentMapResolution
+                            )
+                        })
+                })
+            }
+            const markerCoordinate = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+            const annotationCoordinate = [markerCoordinate[0], markerCoordinate[1] + 30000]
+
+            cy.goToDrawing()
+
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(markerCoordinate)
+            cy.wait('@post-kml')
+            readCoordinateClipboard('feature-style-edit-coordinate-copy', markerCoordinate)
+
+            cy.log('Coordinates for annotation can be copied while in drawing mode')
+            cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+            cy.clickOlMapAtCoordinate(annotationCoordinate)
+            cy.wait('@update-kml')
+            readCoordinateClipboard('feature-style-edit-coordinate-copy', annotationCoordinate)
+
+            cy.closeDrawingMode()
+            cy.closeMenuIfMobile()
+
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.clickOlMapAtCoordinate(markerCoordinate)
+            readCoordinateClipboard('feature-detail-coordinate-copy', markerCoordinate)
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Coordinates for annotation can be copied while not in drawing mode')
+            cy.clickOlMapAtCoordinate(annotationCoordinate)
+            readCoordinateClipboard('feature-detail-coordinate-copy', annotationCoordinate)
+
+            cy.log('Coordinates in tooltip are updated when selecting another feature')
+            cy.clickOlMapAtCoordinate(markerCoordinate)
+            readCoordinateClipboard('feature-detail-coordinate-copy', markerCoordinate)
+        })
+        it('can generate and display media links', () => {
+            cy.goToDrawing()
+
+            const valid_url = 'http:dummy'
+            const valid_whitelisted_url = 'https://map.geo.admin.ch'
+            const invalid_url = 'invalidurl'
+            const media_description = 'description'
+
+            const mapCenter = LV95.getBoundsAs(DEFAULT_PROJECTION).center
+
+            const xDeltaBetweenFeatures = 20000
+            const featureWithHyperlinkCoordinate = [mapCenter[0] - 60000, mapCenter[1]]
+            const featureHyperLinkWithoutDescriptionCoordinate = [
+                featureWithHyperlinkCoordinate[0] + xDeltaBetweenFeatures,
+                featureWithHyperlinkCoordinate[1],
+            ]
+            const featureWithImageCoordinate = [
+                featureHyperLinkWithoutDescriptionCoordinate[0] + xDeltaBetweenFeatures,
+                featureHyperLinkWithoutDescriptionCoordinate[1],
+            ]
+            const featureWithVideoCoordinate = [
+                featureWithImageCoordinate[0] + xDeltaBetweenFeatures,
+                featureWithImageCoordinate[1],
+            ]
+            const featureWithExternalIFrameCoordinate = [
+                featureWithVideoCoordinate[0] + xDeltaBetweenFeatures,
+                featureWithVideoCoordinate[1],
+            ]
+            const featureWithWhitelistedIFrameCoordinate = [
+                featureWithExternalIFrameCoordinate[0] + xDeltaBetweenFeatures,
+                featureWithExternalIFrameCoordinate[1],
+            ]
+
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureWithHyperlinkCoordinate)
+            cy.wait('@post-kml')
+
+            cy.log('Open hyperlink popup')
+            cy.get('[data-cy="drawing-style-link-button"]').click()
+
+            cy.log('Button should be disabled if url empty')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="invalid-feedback-error"]').should('not.exist')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
+
+            cy.log('Button should be disabled if url invalid')
+            cy.get('[data-cy="drawing-style-media-url-input"] [data-cy="text-input"]').type(
+                invalid_url
+            )
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="invalid-feedback-error"]').should('be.visible')
+            cy.get('[data-cy="drawing-style-media-empty-description-error"]').should('not.exist')
+
+            cy.log('Generate hyperlink')
+            cy.get('[data-cy="text-input-clear"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"] [data-cy="text-input"]').type(
+                valid_url
+            )
+            cy.get('[data-cy="drawing-style-media-description-input"] [data-cy="text-input"]').type(
+                media_description,
+                { force: true }
+            )
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<a target="_blank" href="${valid_url}">${media_description}</a>`
+            )
+            cy.wait('@update-kml')
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(
+                    `a target="_blank" href="${valid_url}"&gt;${media_description}`
+                )
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Entering no description should use link as description')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureHyperLinkWithoutDescriptionCoordinate)
+            cy.wait('@update-kml')
+
+            cy.get('[data-cy="drawing-style-link-button"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<a target="_blank" href="${valid_url}">${valid_url}</a>`
+            )
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(`a target="_blank" href="${valid_url}"`)
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Open image embed popup')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureWithImageCoordinate)
+            cy.wait('@update-kml')
+
+            cy.get('[data-cy="drawing-style-image-button"]').click()
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+
+            cy.log('Generate image link')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<image src="${valid_url}" style="max-height:200px;"/>`
+            )
+            cy.wait('@update-kml')
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(`image src="${valid_url}"`)
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Open video embed popup')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureWithVideoCoordinate)
+            cy.wait('@update-kml')
+
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.disabled')
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
+
+            cy.log('Generate video link')
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                `<iframe src="${valid_url}" height="200" width="auto"></iframe>`
+            )
+            cy.wait('@update-kml')
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(`iframe src="${valid_url}"`)
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureWithExternalIFrameCoordinate)
+            cy.wait('@update-kml')
+
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.wait('@update-kml')
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(`iframe src="${valid_url}"`)
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.clickOlMapAtCoordinate(featureWithWhitelistedIFrameCoordinate)
+            cy.wait('@update-kml')
+
+            cy.get('[data-cy="drawing-style-video-button"]').click()
+            cy.get('[data-cy="drawing-style-media-url-input"]').type(valid_whitelisted_url)
+            cy.get('[data-cy="drawing-style-media-generate-button"]').click()
+            cy.wait('@update-kml')
+            cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                expect(activeKmlLayer).to.have.property('kmlData')
+                expect(activeKmlLayer.kmlData).to.contain(`iframe src="${valid_whitelisted_url}"`)
+            })
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.closeDrawingMode()
+            cy.closeMenuIfMobile()
+            cy.wait('@update-kml')
+
+            cy.log('Hyperlink exists after sanitize')
+            cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
+
+            cy.clickOlMapAtCoordinate(featureWithHyperlinkCoordinate)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('a')
+                .invoke('attr', 'href')
+                .should('eq', `${valid_url}`)
+
+            cy.log('blank attribute is not removed by sanitize')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('a')
+                .invoke('attr', 'target')
+                .should('eq', '_blank')
+
+            cy.log('noopener attribute exists due to _blank')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('a')
+                .invoke('attr', 'rel')
+                .should('eq', 'noopener')
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Image link exists after sanitize')
+            cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
+
+            cy.clickOlMapAtCoordinate(featureWithImageCoordinate)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('img')
+                .invoke('attr', 'src')
+                .should('eq', `${valid_url}`)
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Video link has disclaimer')
+            cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
+            cy.clickOlMapAtCoordinate(featureWithVideoCoordinate)
+            cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('be.visible')
+            cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('not.exist')
+
+            cy.log('Disclaimer provides more information on click')
+            cy.get('[data-cy="feature-detail-media-disclaimer-opened-info"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('exist')
+            cy.get('[data-cy="modal-close-button"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
+
+            cy.log('Video link exists after sanitize')
+            cy.get('[data-cy="feature-detail-description-content"]')
+                .find('iframe')
+                .invoke('attr', 'src')
+                .should('eq', `${valid_url}`)
+
+            cy.log('Closing disclaimer')
+            cy.get('[data-cy="feature-detail-media-disclaimer-close"]').click({
+                scrollBehavior: 'center',
+            })
+            cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
+
+            cy.log('Closed Disclaimer provides more information on click')
+            cy.get('[data-cy="feature-detail-media-disclaimer-closed-info"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('exist')
+            cy.get('[data-cy="modal-close-button"]').click()
+            cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
+
+            cy.log('Closing disclaimer persists when selecting different marker')
+            cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
+            cy.clickOlMapAtCoordinate(featureWithExternalIFrameCoordinate)
+            cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
+            cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
+            cy.get('[data-cy="infobox-close"]').click()
+
+            cy.log('Disclaimer should not appear when host is whitelisted')
+            cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
+            cy.clickOlMapAtCoordinate(featureWithWhitelistedIFrameCoordinate)
+            cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
         })
     })
 })

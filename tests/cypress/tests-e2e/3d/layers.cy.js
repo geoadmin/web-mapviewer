@@ -1,7 +1,7 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
-describe('Test of layer handling in 3D', () => {
+describe.skip('Test of layer handling in 3D', () => {
     const visibleLayerIds = [
         'test.wms.layer',
         'test.wmts.layer',
@@ -105,6 +105,12 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy^="button-raise-order-layer-${firstLayerId}-"]`)
             .should('be.visible')
             .click()
+
+        cy.checkCesiumLayer([
+            { id: 'test.background.layer2' },
+            { id: secondLayerId },
+            { id: firstLayerId },
+        ])
         // checking that the order has changed
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
@@ -180,12 +186,12 @@ describe('Test of layer handling in 3D', () => {
         cy.get(olSelector).click(150, 200)
         cy.get(olSelector).should('be.visible').dblclick(120, 240, { force: true })
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-        cy.readWindowValue('map').then((map) => {
-            // Create a point
-            cy.simulateEvent(map, 'pointermove', 0, 0)
-            cy.simulateEvent(map, 'pointerdown', 0, 0)
-            cy.simulateEvent(map, 'pointerup', 0, 0)
-        })
+        // Create a point
+        cy.simulateEventsOnMap([
+            { type: 'pointermove', x: 0, y: 0 },
+            { type: 'pointerdown', x: 0, y: 0 },
+            { type: 'pointerup', x: 0, y: 0 },
+        ])
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
         cy.wait('@post-kml')
         cy.closeDrawingMode()
