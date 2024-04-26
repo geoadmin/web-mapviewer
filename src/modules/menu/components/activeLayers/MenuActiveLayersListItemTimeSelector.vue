@@ -91,7 +91,7 @@ function handleClickOnTimestamp(year) {
     // deactivating the time slider, as a change on this time selector is incompatible with
     // the time slider being shown and active
     if (isTimeSliderActive.value) {
-        store.dispatch('setTimeSliderActive', { timeSliderActive: false, ...dispatcher })
+        store.dispatch('setTimeSliderActive', { active: false, ...dispatcher })
     }
     store.dispatch('setTimedLayerCurrentYear', { index: layerIndex.value, year, ...dispatcher })
 }

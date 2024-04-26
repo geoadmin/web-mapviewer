@@ -345,8 +345,17 @@ export default {
                 commit('setCompareRatio', { compareRatio: null, dispatcher })
             }
         },
-        setCompareSliderActive({ commit }, args) {
-            commit('setCompareSliderActive', args)
+        setCompareSliderActive({ commit }, { active, dispatcher }) {
+            commit('setCompareSliderActive', {
+                active: !!active,
+                dispatcher,
+            })
+        },
+        setTimeSliderActive({ commit }, { active, dispatcher }) {
+            commit('setTimeSliderActive', {
+                active: !!active,
+                dispatcher,
+            })
         },
         setFeatureInfoPosition({ commit, state }, { position, dispatcher }) {
             const upCasePos = position?.toUpperCase()
@@ -364,9 +373,6 @@ export default {
                 position: FeatureInfoPositions[upCasePos],
                 dispatcher: dispatcher,
             })
-        },
-        setTimeSliderActive({ commit }, args) {
-            commit('setTimeSliderActive', args)
         },
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
@@ -426,11 +432,11 @@ export default {
         setCompareRatio(state, { compareRatio }) {
             state.compareRatio = compareRatio
         },
-        setCompareSliderActive(state, { compareSliderActive }) {
-            state.isCompareSliderActive = compareSliderActive
+        setCompareSliderActive(state, { active }) {
+            state.isCompareSliderActive = active
         },
-        setTimeSliderActive(state, { timeSliderActive }) {
-            state.isTimeSliderActive = timeSliderActive
+        setTimeSliderActive(state, { active }) {
+            state.isTimeSliderActive = active
         },
         setFeatureInfoPosition(state, { position }) {
             state.featureInfoPosition = position

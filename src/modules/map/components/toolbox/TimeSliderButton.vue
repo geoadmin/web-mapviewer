@@ -22,7 +22,7 @@ watch(visibleLayersWithTimeConfig, () =>
         refreshTippyAttachment()
         if (isTimeSliderActive.value && visibleLayersWithTimeConfig.value.length === 0) {
             store.dispatch('setTimeSliderActive', {
-                timeSliderActive: false,
+                active: false,
                 ...dispatcher,
             })
         }
@@ -31,7 +31,7 @@ watch(visibleLayersWithTimeConfig, () =>
 
 function toggleTimeSlider() {
     store.dispatch('setTimeSliderActive', {
-        timeSliderActive: !isTimeSliderActive.value,
+        active: !isTimeSliderActive.value,
         ...dispatcher,
     })
 }

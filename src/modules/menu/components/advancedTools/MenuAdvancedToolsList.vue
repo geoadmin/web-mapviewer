@@ -38,7 +38,7 @@ function onToggleCompareSlider() {
         })
     }
     store.dispatch('setCompareSliderActive', {
-        compareSliderActive: !isCompareSliderActive.value,
+        active: !isCompareSliderActive.value,
         ...dispatcher,
     })
 }

@@ -22,7 +22,7 @@ function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
         if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length > 0) {
             promisesForAllDispatch.push(
                 store.dispatch('setTimeSliderActive', {
-                    timeSliderActive: true,
+                    active: true,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             )
