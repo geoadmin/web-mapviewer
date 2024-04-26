@@ -259,11 +259,11 @@ describe('Drawing module tests', () => {
 
                 cy.log('Coordinates for marker can be copied in drawing mode')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(160, 200)
+                cy.get('[data-cy="ol-map"]').click(120, 234)
                 waitForKmlUpdate(`(ExtendedData.*){4}`)
                 readCoordinateClipboard(
                     'feature-style-edit-coordinate-copy',
-                    "2'660'013.50, 1'227'172.00"
+                    "2'640'013.50, 1'210'172.00"
                 )
 
                 cy.log('Coordinates for marker can be copied while not in drawing mode')
@@ -272,10 +272,10 @@ describe('Drawing module tests', () => {
                 waitForKmlUpdate(`(ExtendedData.*){4}`)
                 cy.checkOlLayer([bgLayer, kmlId])
 
-                cy.get('[data-cy="ol-map"]').click(160, 200)
+                cy.get('[data-cy="ol-map"]').click(120, 234)
                 readCoordinateClipboard(
                     'feature-detail-coordinate-copy',
-                    "2'660'013.50, 1'227'172.00"
+                    "2'640'013.50, 1'210'172.00"
                 )
                 cy.log('Coordinates for marker are updated when selecting new marker')
                 cy.get('[data-cy="ol-map"]').click(200, 234)

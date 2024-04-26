@@ -404,8 +404,8 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         textScale,
         iconSize,
         iconArgs,
-        iconStyle.getAnchor(),
-        iconStyle.getSize()
+        iconStyle ? iconStyle.getAnchor() : null,
+        iconStyle ? iconStyle.getSize() : null
     )
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)

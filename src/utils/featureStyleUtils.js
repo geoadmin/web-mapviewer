@@ -231,7 +231,7 @@ export function calculateTextOffset(textScale, iconScale, name, anchor, iconExte
 export function getTextOffset(textScale, iconSize, iconArgs, iconAnchor, iconExtent) {
     let iconScale = iconSize ? iconSize._iconScale : 1
     let name = iconArgs ? iconArgs.name : null
-    let anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
+    let anchor = iconAnchor ? [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]] : null
 
     return calculateTextOffset(textScale, iconScale, name, anchor, iconExtent)
 }
