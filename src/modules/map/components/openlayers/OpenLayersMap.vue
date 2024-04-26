@@ -7,7 +7,6 @@ import { useStore } from 'vuex'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useOnMapResize from '@/modules/map/components/common/useOnMapResize.composable'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
 import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
 import OpenLayersBackgroundLayer from '@/modules/map/components/openlayers/OpenLayersBackgroundLayer.vue'
@@ -89,6 +88,9 @@ useOnMapResize(mapElement)
         >
             <slot name="menu" />
         </div>
+        <div class="time-slider position-absolute w-100">
+            <slot name="time-slider" />
+        </div>
         <div
             ref="mapElement"
             class="ol-map-container flex-grow-1 position-relative w-100 h-100"
@@ -114,10 +116,7 @@ useOnMapResize(mapElement)
             <div
                 class="toolbox position-absolute bottom-0 end-0 d-flex flex-column align-items-end gap-1"
             >
-                <div class="me-1">
-                    <slot name="bottom-right" />
-                </div>
-                <MapFooterAttributionList />
+                <slot name="bottom-right" />
             </div>
             <div class="toolbox position-absolute top-0 end-0 pe-none">
                 <slot name="toolbox" />

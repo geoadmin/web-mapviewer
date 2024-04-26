@@ -44,6 +44,9 @@ const mapComponent = computed(() => (is3DActive.value ? CesiumMap : OpenLayersMa
             <template #menu>
                 <slot name="menu" />
             </template>
+            <template #time-slider>
+                <slot name="time-slider" />
+            </template>
             <template #toolbox>
                 <slot name="toolbox" />
             </template>

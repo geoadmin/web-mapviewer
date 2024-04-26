@@ -11,6 +11,7 @@ import { useStore } from 'vuex'
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
+import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
 import ZoomInButton from '@/modules/map/components/toolbox/ZoomInButton.vue'
 import ZoomOutButton from '@/modules/map/components/toolbox/ZoomOutButton.vue'
@@ -25,8 +26,11 @@ const props = defineProps({
     toggle3dButton: { type: Boolean, default: false },
     /** Add the compass button (only available in 2D mode) */
     compassButton: { type: Boolean, default: false },
+    /** Add the time slider (when a time layer is activated) */
+    timeSliderButton: { type: Boolean, default: false },
 })
-const { fullScreenButton, geolocButton, toggle3dButton, compassButton } = toRefs(props)
+const { fullScreenButton, geolocButton, toggle3dButton, compassButton, timeSliderButton } =
+    toRefs(props)
 
 const store = useStore()
 
@@ -43,7 +47,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
         <ZoomOutButton v-if="!isFullscreenMode && !is3dActive" />
         <Toggle3dButton v-if="toggle3dButton && !isFullscreenMode" />
         <OpenLayersCompassButton v-if="compassButton && !is3dActive && !isFullscreenMode" />
-        <slot />
+        <TimeSliderButton v-if="!isFullscreenMode && timeSliderButton" />
         <DebugToolbar v-if="hasDevSiteWarning" class="dev-toolbox" />
     </div>
 </template>

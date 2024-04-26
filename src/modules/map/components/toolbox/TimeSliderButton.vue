@@ -2,7 +2,6 @@
 import { computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
 import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
@@ -14,7 +13,6 @@ const { refreshTippyAttachment } = useTippyTooltip('#timeSlider [data-tippy-cont
 })
 
 const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 watch(visibleLayersWithTimeConfig, () =>
@@ -38,66 +36,18 @@ function toggleTimeSlider() {
 </script>
 
 <template>
-    <div v-if="visibleLayersWithTimeConfig.length > 0" id="timeSlider">
-        <button
-            class="toolbox-button d-print-none mb-1"
-            data-cy="time-slider-button"
-            :class="{ active: isTimeSliderActive }"
-            :data-tippy-content="isTimeSliderActive ? 'time_hide' : 'time_show'"
-            @click="toggleTimeSlider()"
-        >
-            <font-awesome-icon size="lg" :icon="['fas', 'clock-rotate-left']" />
-        </button>
-        <div
-            class="time-sliders m-1 position-fixed"
-            :class="{
-                'dev-disclaimer-present': hasDevSiteWarning,
-            }"
-        >
-            <TimeSlider v-if="isTimeSliderActive" />
-        </div>
-    </div>
+    <button
+        v-if="visibleLayersWithTimeConfig.length > 0"
+        class="toolbox-button d-print-none mb-1"
+        data-cy="time-slider-button"
+        :class="{ active: isTimeSliderActive }"
+        :data-tippy-content="isTimeSliderActive ? 'time_hide' : 'time_show'"
+        @click="toggleTimeSlider"
+    >
+        <font-awesome-icon size="lg" :icon="['fas', 'clock-rotate-left']" />
+    </button>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
 @import 'src/modules/map/scss/toolbox-buttons';
-
-$openCloseButtonHeight: 0rem;
-
-.time-sliders {
-    top: $header-height;
-    left: 0;
-    width: calc(100% - $map-button-diameter - $spacer);
-    &.dev-disclaimer-present {
-        top: $header-height + $dev-disclaimer-height;
-    }
-    &.fullscreen-mode,
-    &.dev-disclaimer-present.fullscreen-mode {
-        top: 0;
-    }
-}
-
-@include respond-above(sm) {
-    .time-sliders {
-        top: $header-height + $openCloseButtonHeight;
-        &.dev-disclaimer-present {
-            top: $header-height + $openCloseButtonHeight + $dev-disclaimer-height;
-        }
-    }
-}
-
-@include respond-above(lg) {
-    .time-sliders {
-        left: $menu-tray-width;
-        transform: none;
-        width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
-    }
-    .time-sliders {
-        top: 2 * $header-height;
-        &.dev-disclaimer-present {
-            top: 2 * $header-height + $dev-disclaimer-height;
-        }
-    }
-}
 </style>
