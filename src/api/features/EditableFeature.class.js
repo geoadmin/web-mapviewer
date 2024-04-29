@@ -25,7 +25,7 @@ export default class EditableFeature extends SelectableFeature {
      * @param {String} featureData.description A description of this feature, can not be HTML
      *   content (only text)
      * @param {EditableFeatureTypes} featureData.featureType Type of this editable feature
-     * @param {Array} featureData.textOffset Alignment for the text of this feature
+     * @param {Array} featureData.textOffset Offset for the text of this feature
      * @param {FeatureStyleColor} featureData.textColor Color for the text of this feature
      * @param {FeatureStyleSize} featureData.textSize Size of the text for this feature
      * @param {FeatureStyleColor} featureData.fillColor Color of the icon (if defined)
@@ -89,8 +89,8 @@ export default class EditableFeature extends SelectableFeature {
     }
 
     /** @param textOffset {Array} */
-    set textOffset(newAlign) {
-        this._textOffset = newAlign
+    set textOffset(newOffset) {
+        this._textOffset = newOffset
         this.emitStylingChangeEvent('textOffset')
     }
 

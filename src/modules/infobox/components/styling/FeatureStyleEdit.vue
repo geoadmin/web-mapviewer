@@ -109,15 +109,12 @@ function onTextSizeChange(textSize) {
     updateTextOffset()
 }
 function updateTextOffset() {
-    console.error(isFeatureMarker.value)
     if (isFeatureMarker.value) {
-        const marker_extent = [48, 48]
         const offset = calculateTextOffset(
             feature.value.textSize.textScale,
             feature.value.iconSize.iconScale,
             feature.value.icon.name,
-            feature.value.icon.anchor,
-            marker_extent
+            feature.value.icon.anchor
         )
 
         store.dispatch('changeFeatureTextOffset', {

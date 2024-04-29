@@ -198,15 +198,15 @@ export function getTextSize(textScale) {
  * @returns {Array | null} Returns the feature label offset
  */
 export function getTextOffset(textScale, iconSize, iconArgs, iconAnchor, iconExtent) {
-    console.error(textScale, iconSize, iconArgs, iconAnchor, iconExtent)
+    //console.error(textScale, iconSize, iconArgs, iconAnchor, iconExtent)
     if (!iconSize) {
         return [0, 0]
     }
     let iconScale = iconSize._iconScale
-    let name = iconArgs ? iconArgs.name : null
+    let iconName = iconArgs ? iconArgs.name : null
     let anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
 
-    return calculateTextOffset(textScale, iconScale, name, anchor, iconExtent)
+    return calculateTextOffset(textScale, iconScale, iconName, anchor)
 }
 
 /**
@@ -230,28 +230,28 @@ export function getTextColor(style) {
  *
  * @param {Number} textScale Text size
  * @param {Number} iconScale Icon size
- * @param {String} name Name of icon
+ * @param {String} iconName Name of icon
  * @param {Array} anchor Relative position of Anchor
- * @param {Array} iconExtent Size of icon in pixel
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, name, anchor, iconExtent) {
+export function calculateTextOffset(textScale, iconScale, iconName, anchor) {
     // no offset for annotations
     if (!iconScale) {
         return [0, 0]
     }
+
+    const iconSize = [32, 32]
     const fontSize = 11
-    const defaultOffset = -5
-    const iconSize = iconExtent ? iconExtent[1] : 48
     let anchorScale = anchor ? anchor[1] * 2 : 1
-    // for these markers openlayers does not seem to take the actual anchor value
-    if (name === '001-marker' || name === '007-marker-stroked') {
+    // for these markers the code implementation seems to assume that the anchor is
+    // at the bottom edge instead of the actual anchor value
+    if (iconName === '001-marker' || iconName === '007-marker-stroked') {
         anchorScale = 2
     }
 
-    const iconOffset = -iconSize * 0.5 * 0.75 * iconScale * anchorScale
-    const textOffset = -fontSize * 0.5 * textScale
-
+    const iconOffset = -0.5 * iconScale * anchorScale * iconSize[1]
+    const textOffset = -0.5 * fontSize * textScale
+    const defaultOffset = -0.5 * fontSize * iconScale
     console.error('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
