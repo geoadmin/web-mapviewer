@@ -230,28 +230,21 @@ describe('Drawing module tests', () => {
                     pixelMapCenterInMapViewport.y + moveInPixel.y,
                 ]
                 cy.log('Move/drag the marker, the drawing must be updated with the new position')
-                cy.readWindowValue('map').then((map) => {
-                    const startingPixel = map.getPixelFromCoordinate(markerCoordinate)
-                    cy.log('moving marker from pixel ', startingPixel, 'to', endingPixel)
+                cy.log('moving marker from pixel', pixelMapCenterInMapViewport, 'to', endingPixel)
 
-                    cy.get('[data-cy="ol-map"]').realMouseDown({
-                        x: startingPixel[0],
-                        y: startingPixel[1],
-                    })
-                    cy.get('[data-cy="ol-map"]').realMouseMove(
-                        startingPixel[0] + moveInPixel.x,
-                        startingPixel[1] + moveInPixel.y,
-                        {
-                            position: 'topLeft',
-                        }
-                    )
-                    cy.get('[data-cy="ol-map"]').realMouseUp({
-                        x: endingPixel[0],
-                        y: endingPixel[1],
-                    })
-
-                    cy.wait('@update-kml')
+                cy.get('[data-cy="ol-map"]').realMouseDown({
+                    x: pixelMapCenterInMapViewport[0],
+                    y: pixelMapCenterInMapViewport[1],
                 })
+                cy.get('[data-cy="ol-map"]').realMouseMove(moveInPixel.x, moveInPixel.y, {
+                    position: 'center',
+                })
+                cy.get('[data-cy="ol-map"]').realMouseUp({
+                    x: endingPixel[0],
+                    y: endingPixel[1],
+                })
+
+                cy.wait('@update-kml')
             })
         })
         it('can create annotation/text and edit them', () => {
@@ -339,19 +332,19 @@ describe('Drawing module tests', () => {
             ]
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.clickOlMapAtCoordinate(firstPointCoordinate)
-            cy.clickOlMapAtCoordinate(secondPointCoordinate)
-            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
+            cy.clickOlMapAtCoordinate(firstPointCoordinate, { behavior: 'in-place' })
+            cy.clickOlMapAtCoordinate(secondPointCoordinate, { behavior: 'in-place' })
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate, { behavior: 'in-place' })
 
             // checking that we can delete the last point by either clicking the button or using right-click
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate, { behavior: 'in-place' })
 
             cy.get('[data-cy="ol-map"]').rightclick()
-            cy.clickOlMapAtCoordinate(thirdPointCoordinate)
+            cy.clickOlMapAtCoordinate(thirdPointCoordinate, { behavior: 'in-place' })
 
             // should create a polygon by re-clicking the first point
-            cy.clickOlMapAtCoordinate(firstPointCoordinate)
+            cy.clickOlMapAtCoordinate(firstPointCoordinate, { behavior: 'in-place' })
 
             let kmlId = null
             cy.wait('@post-kml').then((interception) => {
@@ -420,8 +413,11 @@ describe('Drawing module tests', () => {
                 lineFirstCoordinate[0],
                 lineFirstCoordinate[1] + lineLength,
             ]
-            cy.clickOlMapAtCoordinate(lineFirstCoordinate)
-            cy.clickOlMapAtCoordinate(lineSecondCoordinate, { doubleClick: true })
+            cy.clickOlMapAtCoordinate(lineFirstCoordinate, { behavior: 'in-place' })
+            cy.clickOlMapAtCoordinate(lineSecondCoordinate, {
+                doubleClick: true,
+                behavior: 'in-place',
+            })
             cy.wait('@update-kml')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
@@ -1038,7 +1034,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
         })
         // too many issues with the CI not having the same behaviour with the clipboard management as the local non-headless run, skipping for the time being
-        it.skip('can copy coordinate from marker and text/annotation features (in and out of drawing mode)', () => {
+        it('can copy coordinate from marker and text/annotation features (in and out of drawing mode)', () => {
             /**
              * @param {String} name Feature "name" so that it can be selected in the DOM
              * @param {[Number, Number]} coordinate Coordinate expected to be displayed/copied, will
