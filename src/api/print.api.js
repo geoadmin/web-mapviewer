@@ -26,6 +26,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
         this.layerFilter = this.layerFilter.bind(this)
         this.line = this.line.bind(this)
         this.text = this.text.bind(this)
+        this.point = this.point.bind(this)
     }
 
     /**
@@ -75,11 +76,42 @@ class GeoAdminCustomizer extends BaseCustomizer {
         }
     }
 
+    /**
+     * Manipulate the symbolizer of a text style of a feature before printing it. In this case it
+     * manipulate the outline / halo for different text to match the old geadmin where there is no
+     * outline for marker and text
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
+     * @param {Text} text Text style of the feature
+     */
     // eslint-disable-next-line no-unused-vars
     text(layerState, symbolizer, text) {
-        symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
-        symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
-        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
+        // Remove the halo / outline if the font family is normal 16px Helvetica (as used in the point and marker text)
+        if (symbolizer.fontFamily === 'normal 16px Helvetica') {
+            symbolizer.pointRadius = 0
+            symbolizer.strokeWidth = 0
+            symbolizer.haloRadius = 0
+        } else {
+            symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
+            symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+            symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
+        }
+    }
+
+    /**
+     * Manipulate the symbolizer of a point style of a feature before printing it. In this case it
+     * manipulate the width and offset of the image to match the old geoadmin
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerPoint} symbolizer Interface for the symbolizer of a text feature
+     * @param {Image} image Image style of the feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    point(layerState, symbolizer, image) {
+        symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+        symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
+        symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
     }
 }
 
