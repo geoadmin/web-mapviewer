@@ -95,12 +95,11 @@ function getTransformedXYZUrl() {
  * @returns {WMTSTileGrid} The tile grid system for the wmts source
  */
 function createTileGridForProjection() {
+    const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
     return new WMTSTileGrid({
-        resolutions: projection.value
-            .getResolutions()
-            .slice(0, indexOfMaxResolution(projection.value, maxResolution.value)),
+        resolutions: projection.value.getResolutions().slice(0, maxResolutionIndex),
         origin: projection.value.getTileOrigin(),
-        matrixIds: projection.value.getMatrixIds(),
+        matrixIds: projection.value.getMatrixIds().slice(0, maxResolutionIndex),
         extent: projection.value.bounds.flatten,
     })
 }
