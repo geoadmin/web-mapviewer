@@ -108,22 +108,6 @@ function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
     updateTextOffset()
 }
-function updateTextOffset() {
-    if (isFeatureMarker.value) {
-        const offset = calculateTextOffset(
-            feature.value.textSize.textScale,
-            feature.value.iconSize.iconScale,
-            feature.value.icon.name,
-            feature.value.icon.anchor
-        )
-
-        store.dispatch('changeFeatureTextOffset', {
-            feature: feature.value,
-            textOffset: offset,
-            ...dispatcher,
-        })
-    }
-}
 function onTextColorChange(textColor) {
     store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
 }
@@ -144,6 +128,23 @@ function onDelete() {
 function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     mediaPopovers.value[mediaPopoverIndex].hidePopover()
     description.value += descriptionMediaLink
+}
+
+function updateTextOffset() {
+    if (isFeatureMarker.value) {
+        const offset = calculateTextOffset(
+            feature.value.textSize.textScale,
+            feature.value.iconSize.iconScale,
+            feature.value.icon.anchor,
+            feature.value.icon.name
+        )
+
+        store.dispatch('changeFeatureTextOffset', {
+            feature: feature.value,
+            textOffset: offset,
+            ...dispatcher,
+        })
+    }
 }
 
 function mediaTypes() {

@@ -3,7 +3,13 @@ import { Icon as olIcon } from 'ol/style'
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
-import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    DEFAULT_OFFSET,
+    MEDIUM,
+    RED,
+} from '@/utils/featureStyleUtils'
 
 /** @enum */
 export const EditableFeatureTypes = {
@@ -41,7 +47,7 @@ export default class EditableFeature extends SelectableFeature {
             title = '',
             description = '',
             featureType,
-            textOffset = [0, -41],
+            textOffset = DEFAULT_OFFSET,
             textColor = RED,
             textSize = MEDIUM,
             fillColor = RED,
@@ -50,7 +56,7 @@ export default class EditableFeature extends SelectableFeature {
         } = featureData
         super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
-        this._textOffset = featureType == EditableFeatureTypes.MARKER ? textOffset : [0, 0]
+        this._textOffset = featureType === EditableFeatureTypes.MARKER ? textOffset : [0, 0]
         this._textColor = textColor
         this._textSize = textSize
         this._fillColor = fillColor

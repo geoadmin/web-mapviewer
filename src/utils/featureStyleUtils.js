@@ -188,28 +188,6 @@ export function getTextSize(textScale) {
 }
 
 /**
- * Get text alignment from style *
- *
- * @param {FeatureStyleSize} textScale Text size
- * @param {FeatureStyleSize} iconSize Icon size
- * @param {IconArgs} iconArgs Contains name of icon
- * @param {Array} iconAnchor Anchor of icon in pixel
- * @param {Array} iconExtent Size of icon in pixel
- * @returns {Array | null} Returns the feature label offset
- */
-export function getTextOffset(textScale, iconSize, iconArgs, iconAnchor, iconExtent) {
-    //console.error(textScale, iconSize, iconArgs, iconAnchor, iconExtent)
-    if (!iconSize) {
-        return [0, 0]
-    }
-    let iconScale = iconSize._iconScale
-    let iconName = iconArgs ? iconArgs.name : null
-    let anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
-
-    return calculateTextOffset(textScale, iconScale, iconName, anchor)
-}
-
-/**
  * Get KML text color from style
  *
  * When a text is present but no color is given, then default to RED.
@@ -226,16 +204,34 @@ export function getTextColor(style) {
 }
 
 /**
- * Calculate text alignment from style parameters *
+ * Get text alignment from style *
  *
- * @param {Number} textScale Text size
- * @param {Number} iconScale Icon size
- * @param {String} iconName Name of icon
- * @param {Array} anchor Relative position of Anchor
+ * @param {Number} textScale Text scaling
+ * @param {FeatureStyleSize} iconSize Icon size parameters
+ * @param {IconStyle} iconStyle KML icon style containing absolute anchor values
+ * @param {IconArgs} iconArgs Parsed url containing name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, iconName, anchor) {
-    // no offset for annotations
+export function getTextOffset(textScale, iconSize, iconStyle, iconArgs) {
+    const iconScale = iconSize.iconScale
+    const iconName = iconArgs ? iconArgs.name : null
+    const iconAnchor = iconStyle.getAnchor()
+    const iconExtent = iconStyle.getSize()
+    const anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
+
+    return calculateTextOffset(textScale, iconScale, anchor, iconName)
+}
+
+/**
+ * Calculate text alignment from style parameters *
+ *
+ * @param {Number} textScale Text scaling
+ * @param {Number} iconScale Icon scaling
+ * @param {Array} anchor Relative position of Anchor
+ * @param {String} iconName Name of icon
+ * @returns {Array | null} Returns the feature label offset
+ */
+export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
     if (!iconScale) {
         return [0, 0]
     }
@@ -249,16 +245,19 @@ export function calculateTextOffset(textScale, iconScale, iconName, anchor) {
         anchorScale = 2
     }
 
-    const iconOffset = -0.5 * iconScale * anchorScale * iconSize[1]
-    const textOffset = -0.5 * fontSize * textScale
-    const defaultOffset = -0.5 * fontSize * iconScale
+    const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
+    const textOffset = 0.5 * fontSize * textScale
+    const defaultOffset = 5 + 0.5 * fontSize * iconScale
     console.error('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
     ])
 
-    return [0, defaultOffset + iconOffset + textOffset]
+    return [0, -(defaultOffset + iconOffset + textOffset)]
 }
+
+/** Offset of the marker with default styling and anchor on bottom of icon */
+export const DEFAULT_OFFSET = calculateTextOffset(MEDIUM.textScale, MEDIUM.iconScale, [0, 1], '')
 
 /**
  * OpenLayers style function that will style a feature that is not currently edited but loaded in
