@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { getTimestampFromConfig, getWmtsXyzUrl } from '@/utils/layerUtils'
+import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -32,6 +32,7 @@ const projection = computed(() => store.state.position.projection)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
+const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
 const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
 const timestamp = computed(
@@ -89,9 +90,15 @@ function getTransformedXYZUrl() {
         .replace('{y}', '{TileRow}')
 }
 
+/**
+ * @param {Number} layerMaxResolution The maximum resolution for this layer.
+ * @returns {WMTSTileGrid} The tile grid system for the wmts source
+ */
 function createTileGridForProjection() {
     return new WMTSTileGrid({
-        resolutions: projection.value.getResolutions(),
+        resolutions: projection.value
+            .getResolutions()
+            .slice(0, indexOfMaxResolution(projection.value, maxResolution.value)),
         origin: projection.value.getTileOrigin(),
         matrixIds: projection.value.getMatrixIds(),
         extent: projection.value.bounds.flatten,
@@ -111,8 +118,6 @@ function createTileGridForProjection() {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
-    // TODO : in WMTSSource : overload getTile to have z set to maxZoom or make retrys until we find the good one
-    // wmtsSourceConfig should have a maxzoom, WMTSSource should store maxZoom
     return new WMTSSource(wmtsSourceConfig.value)
 }
 </script>

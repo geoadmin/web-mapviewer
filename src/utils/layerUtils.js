@@ -63,3 +63,17 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear, isTimeSl
     }
     return null
 }
+
+/**
+ * Returns the index of the max resolution, which is used to determine the maximum zoom level
+ * default to the array length
+ *
+ * @param {CoordinateSystem} projection
+ * @param {Number} layerMaxResolution
+ * @returns {Number}
+ */
+export function indexOfMaxResolution(projection, layerMaxResolution) {
+    return projection.getResolutions().indexOf(layerMaxResolution) === -1
+        ? projection.getResolutions().length
+        : projection.getResolutions().indexOf(layerMaxResolution)
+}
