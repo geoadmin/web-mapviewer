@@ -1,3 +1,111 @@
+<script setup>
+import { computed, onUnmounted, ref, toRefs, watch } from 'vue'
+
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import { createShortLink } from '@/api/shortlink.api'
+import { encodeLayerId } from '@/router/storeSync/layersParamParser'
+import log from '@/utils/logging'
+import { stringifyQuery } from '@/utils/url-router'
+
+const props = defineProps({
+    kmlLayer: {
+        type: KMLLayer,
+        default: null,
+    },
+})
+const { kmlLayer } = toRefs(props)
+
+const adminUrlCopied = ref(false)
+const fileUrlCopied = ref(false)
+const shareUrl = ref(' ')
+const adminShareUrl = ref(' ')
+
+const kmlAdminId = computed(() => kmlLayer.value?.adminId)
+const kmlLayerId = computed(() => kmlLayer.value?.id)
+const baseUrl = computed(() => {
+    return `${location.origin}${location.pathname}#/map`
+})
+const fileUrl = computed(() => {
+    if (kmlLayer.value?.id) {
+        const query = { layers: encodeLayerId(kmlLayer.value) }
+        return `${baseUrl.value}?${stringifyQuery(query)}`
+    }
+    return ''
+})
+const adminUrl = computed(() => {
+    if (kmlLayer.value?.id && kmlLayer.value?.adminId) {
+        const query = {
+            layers: `${encodeLayerId(kmlLayer.value)}@adminId=${kmlLayer.value.adminId}`,
+        }
+        return `${baseUrl.value}?${stringifyQuery(query)}`
+    }
+    // if no adminID is available don't show the edit share link.
+    return null
+})
+
+watch(kmlAdminId, () => {
+    updateAdminShareUrl()
+})
+watch(kmlLayerId, () => {
+    updateShareUrl()
+    updateAdminShareUrl()
+})
+
+updateShareUrl()
+updateAdminShareUrl()
+
+let adminTimeout = null
+let fileTimeout = null
+
+onUnmounted(() => {
+    clearTimeout(adminTimeout)
+    clearTimeout(fileTimeout)
+})
+
+async function copyShareUrl() {
+    try {
+        await navigator.clipboard.writeText(shareUrl.value)
+        fileUrlCopied.value = true
+        fileTimeout = setTimeout(() => {
+            fileUrlCopied.value = false
+        }, 5000)
+    } catch (error) {
+        log.error(`Failed to copy: `, error)
+    }
+}
+async function copyAdminShareUrl() {
+    try {
+        await navigator.clipboard.writeText(adminShareUrl.value)
+        adminUrlCopied.value = true
+        adminTimeout = setTimeout(() => {
+            adminUrlCopied.value = false
+        }, 5000)
+    } catch (error) {
+        log.error(`Failed to copy: `, error)
+    }
+}
+async function updateShareUrl() {
+    if (fileUrl.value) {
+        try {
+            shareUrl.value = await createShortLink(fileUrl.value)
+        } catch (error) {
+            // Fallback to normal url
+            shareUrl.value = fileUrl.value
+        }
+    }
+}
+async function updateAdminShareUrl() {
+    if (adminUrl.value) {
+        try {
+            adminShareUrl.value = await createShortLink(adminUrl.value)
+        } catch (error) {
+            // Fallback to normal url
+            adminShareUrl.value = adminUrl.value
+        }
+    }
+}
+</script>
+
 <template>
     <div class="ga-share">
         <div class="form-group">
@@ -44,114 +152,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { createShortLink } from '@/api/shortlink.api'
-import log from '@/utils/logging'
-import { stringifyQuery } from '@/utils/url-router'
-
-export default {
-    props: {
-        kmlLayerId: {
-            type: String,
-            default: '',
-        },
-        kmlAdminId: {
-            type: [String, null],
-            default: null,
-        },
-    },
-    data() {
-        return {
-            adminUrlCopied: false,
-            fileUrlCopied: false,
-            shareUrl: ' ',
-            adminShareUrl: ' ',
-        }
-    },
-    computed: {
-        baseUrl() {
-            return `${location.origin}${location.pathname}#/map`
-        },
-        fileUrl() {
-            if (this.kmlLayerId) {
-                const query = { layers: this.kmlLayerId }
-                return `${this.baseUrl}?${stringifyQuery(query)}`
-            }
-            return ''
-        },
-        adminUrl() {
-            if (this.kmlLayerId && this.kmlAdminId) {
-                const query = { layers: `KML|${this.kmlLayerId}@adminId=${this.kmlAdminId}` }
-                return `${this.baseUrl}?${stringifyQuery(query)}`
-            }
-            // if no adminID is available don't show the edit share link.
-            return null
-        },
-    },
-    watch: {
-        kmlAdminId() {
-            this.updateAdminShareUrl()
-        },
-        kmlLayerId() {
-            this.updateShareUrl()
-            this.updateAdminShareUrl()
-        },
-    },
-    created() {
-        this.updateShareUrl()
-        this.updateAdminShareUrl()
-    },
-    unmounted() {
-        clearTimeout(this.adminTimeout)
-        clearTimeout(this.fileTimeout)
-    },
-    methods: {
-        async copyShareUrl() {
-            try {
-                await navigator.clipboard.writeText(this.shareUrl)
-                this.fileUrlCopied = true
-                this.fileTimeout = setTimeout(() => {
-                    this.fileUrlCopied = false
-                }, 5000)
-            } catch (error) {
-                log.error(`Failed to copy: `, error)
-            }
-        },
-        async copyAdminShareUrl() {
-            try {
-                await navigator.clipboard.writeText(this.adminShareUrl)
-                this.adminUrlCopied = true
-                this.adminTimeout = setTimeout(() => {
-                    this.adminUrlCopied = false
-                }, 5000)
-            } catch (error) {
-                log.error(`Failed to copy: `, error)
-            }
-        },
-        async updateShareUrl() {
-            if (this.fileUrl) {
-                try {
-                    this.shareUrl = await createShortLink(this.fileUrl)
-                } catch (error) {
-                    // Fallback to normal url
-                    this.shareUrl = this.fileUrl
-                }
-            }
-        },
-        async updateAdminShareUrl() {
-            if (this.adminUrl) {
-                try {
-                    this.adminShareUrl = await createShortLink(this.adminUrl)
-                } catch (error) {
-                    // Fallback to normal url
-                    this.adminShareUrl = this.adminUrl
-                }
-            }
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';

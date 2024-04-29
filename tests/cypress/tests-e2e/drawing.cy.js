@@ -79,7 +79,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = `https://sys-public.dev.bgdi.ch/api/kml/files/${interception.response.body.id}`
+                const kmlId = `${API_SERVICE_KML_BASE_URL}api/kml/files/${interception.response.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 // it should show the default icon set by default with the red color in the icon style popup
@@ -694,7 +694,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -712,7 +712,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -729,7 +729,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -771,10 +771,10 @@ describe('Drawing module tests', () => {
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
                     )
                     cy.get(
-                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}-"]`
+                        `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
                     ).should('not.exist')
                     cy.get(
-                        `[data-cy^="active-layer-name-https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}-"]`
+                        `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${newKmlId}-"]`
                     )
                         .should('be.visible')
                         .contains('Drawing')
@@ -794,7 +794,7 @@ describe('Drawing module tests', () => {
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
             const kmlFileUrl = `${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlFileId}`
-            const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
+            const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
 
             // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
@@ -1066,14 +1066,18 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             // checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)
             cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.contain(`/${kmlId}`)
+                expect(clipboardText).to.contain(
+                    `KML%7C${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}`
+                )
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
             // checking that the "Edit later" link contains the adminId
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
-                expect(clipboardText).to.contain(`/${kmlId}`)
+                expect(clipboardText).to.contain(
+                    `KML%7C${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}`
+                )
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)
             })
         })
