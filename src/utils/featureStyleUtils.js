@@ -210,17 +210,15 @@ export function getTextColor(style) {
  * @param {Number} textScale Text scaling
  * @param {FeatureStyleSize} iconSize Icon size parameters
  * @param {IconStyle} iconStyle KML icon style containing absolute anchor values
- * @param {IconArgs} iconArgs Parsed url containing name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function getTextOffset(textScale, iconSize, iconStyle, iconArgs) {
+export function getTextOffset(textScale, iconSize, iconStyle) {
     const iconScale = iconSize.iconScale
-    const iconName = iconArgs ? iconArgs.name : null
     const iconAnchor = iconStyle.getAnchor()
     const iconExtent = iconStyle.getSize()
     const anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
 
-    return calculateTextOffset(textScale, iconScale, anchor, iconName)
+    return calculateTextOffset(textScale, iconScale, anchor)
 }
 
 /**
@@ -229,10 +227,9 @@ export function getTextOffset(textScale, iconSize, iconStyle, iconArgs) {
  * @param {Number} textScale Text scaling
  * @param {Number} iconScale Icon scaling
  * @param {Array} anchor Relative position of Anchor
- * @param {String} iconName Name of icon
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
+export function calculateTextOffset(textScale, iconScale, anchor) {
     if (!iconScale) {
         return [0, 0]
     }
@@ -240,11 +237,6 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
     const iconSize = [48, 48]
     const fontSize = 11
     let anchorScale = anchor ? anchor[1] * 2 : 1
-    // for these markers the code implementation seems to assume that the anchor is
-    // at the bottom edge instead of the actual anchor value
-    if (iconName === '001-marker' || iconName === '007-marker-stroked') {
-        anchorScale = 2
-    }
 
     const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
     const textOffset = 0.5 * fontSize * textScale
@@ -258,7 +250,7 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
 }
 
 /** Offset of the marker with default styling and anchor on bottom of icon */
-export const DEFAULT_OFFSET = calculateTextOffset(MEDIUM.textScale, MEDIUM.iconScale, [0, 1], '')
+export const DEFAULT_OFFSET = calculateTextOffset(MEDIUM.textScale, MEDIUM.iconScale, [0, 1])
 
 /**
  * OpenLayers style function that will style a feature that is not currently edited but loaded in

@@ -136,7 +136,6 @@ function updateTextOffset() {
             feature.value.textSize.textScale,
             feature.value.iconSize.iconScale,
             feature.value.icon.anchor,
-            feature.value.icon.name
         )
 
         store.dispatch('changeFeatureTextOffset', {
