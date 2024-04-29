@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL, PROFILE_MAX_POINTS } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
@@ -38,7 +38,7 @@ function parseProfileFromBackendResponse(backendResponse, startingDist, outputPr
  * @returns {ElevationProfile}
  * @throws ProfileError
  */
-async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
+export async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
     if (chunk.isWithinBounds) {
         try {
             const dataForChunk = await axios({
@@ -72,6 +72,22 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
                 )
             }
         } catch (err) {
+            if (
+                err.response &&
+                err.response.status === 413 &&
+                err.response.data.error?.message ===
+                    `Request Geometry contains too many points. Maximum number of points allowed: ${PROFILE_MAX_POINTS}, found ${chunk.coordinates.length}`
+            ) {
+                log.error(
+                    'Requesting too many points for a profile, request could not be processed',
+                    err
+                )
+                throw new ProfileError(
+                    'Error requesting profile with too many points',
+                    'too_many_points_profile_error'
+                )
+            }
+
             log.error('Error while trying to fetch profile data', err)
             if (err instanceof ProfileError) {
                 throw err
