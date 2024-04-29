@@ -396,25 +396,11 @@ const getTooltipTextBox = (text) =>
         fill: new Fill({
             color: '#ffffff',
         }),
-        // backgroundFill: new Fill({
-        //     color: [255, 0, 0, 0.9],
-        // }),
-        // // This background stroke is used to round the corners of the tooltip box
-        // backgroundStroke: new Stroke({
-        //     color: [255, 0, 0, 0.9],
-        //     width: 7,
-        //     lineCap: 'round',
-        //     lineJoin: 'round',
-        // }),
         stroke: new Stroke({
             color: [255, 0, 0, 0.9],
             width: 3,
         }),
-        // /* These padding values in the format [top, right, bottom, left] should approximately
-        // center the text in the tooltip box */
-        // padding: [2, 2.5, -1, 4],
-        // scale: 1,
-        // offsetY: -18,
+        offsetY: -18,
     })
 
 /**
