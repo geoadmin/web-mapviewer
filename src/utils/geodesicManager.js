@@ -7,7 +7,7 @@ import {
 } from 'ol/extent'
 import { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
 import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
-import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
+import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
 
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -332,6 +332,7 @@ export class GeodesicGeometries {
         }
         styles.push(
             new Style({
+                image: tooltipArrow,
                 text: getTooltipTextBox(lengthText),
                 geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
                     WGS84.epsg,
@@ -346,6 +347,7 @@ export class GeodesicGeometries {
             const areaText = formatMeters(uArea, { dim: 2 })
             styles.push(
                 new Style({
+                    image: tooltipArrow,
                     text: getTooltipTextBox(areaText),
                     geometry: new Point(
                         this.geodesicPolygonGeom.getPolygon(0).getInteriorPoint().getCoordinates()
@@ -389,6 +391,15 @@ const circleStyle = new Circle({
     }),
 })
 
+const tooltipArrow = new RegularShape({
+    points: 4,
+    radius: 10,
+    fill: new Fill({
+        color: [255, 0, 0, 0.9],
+    }),
+    displacement: [0, 10],
+})
+
 const getTooltipTextBox = (text) =>
     new Text({
         text: text,
@@ -400,6 +411,20 @@ const getTooltipTextBox = (text) =>
             color: [255, 0, 0, 0.9],
             width: 3,
         }),
+        backgroundFill: new Fill({
+            color: [255, 0, 0, 0.9],
+        }),
+        // This background stroke is used to round the corners of the tooltip box
+        backgroundStroke: new Stroke({
+            color: [255, 0, 0, 0.9],
+            width: 7,
+            lineCap: 'round',
+            lineJoin: 'round',
+        }),
+        /* These padding values in the format [top, right, bottom, left] should approximately
+        center the text in the tooltip box */
+        padding: [2, 2.5, -1, 4],
+        scale: 1,
         offsetY: -18,
     })
 
