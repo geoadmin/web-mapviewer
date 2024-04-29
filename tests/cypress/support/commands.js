@@ -643,11 +643,10 @@ function parseCheckLayerArgs(args) {
             if (!l.id) {
                 throw new Error(`Invalid layer object ${l}: don't have an id`)
             }
-            // if layer is missing either keys visible or opacity, we set some default values
-            if (!Object.keys(l).some((key) => key === 'visible')) {
+            if (l.visible === undefined) {
                 l.visible = true
             }
-            if (!Object.keys(l).some((key) => key === 'opacity')) {
+            if (l.opacity === undefined) {
                 l.opacity = 1
             }
             return l
@@ -759,49 +758,26 @@ Cypress.Commands.add('checkCesiumLayer', (args = null) => {
     })
 })
 
-/**
- * @property {[Number, Number]} coordinate
- * @property {'auto-center' | 'in-place'} [behavior='auto-center'] Default is `'auto-center'`
- */
 Cypress.Commands.add('clickOlMapAtCoordinate', (coordinate, options = {}) => {
-    const { doubleClick = false, behavior = 'auto-center' } = options
-    if (behavior === 'auto-center') {
-        cy.changeUrlParam('center', coordinate.join(','))
-        cy.log('Clicking at coordinate', coordinate, 'on map center with options', options)
-        if (doubleClick) {
-            cy.get('[data-cy="ol-map"]:visible').dblclick('center', { ...options })
+    const { doubleClick = false } = options
+    cy.readWindowValue('map').then((map) => {
+        const pixel = map.getPixelFromCoordinate(coordinate).map(Math.floor)
+        if (pixel.some((value) => value < 0)) {
+            cy.log(
+                'Error, coordinate',
+                coordinate,
+                ' are outside current map viewport (',
+                pixel,
+                '), cannot click on these coordinate'
+            )
+            cy.wrap(false).should('be.true')
         } else {
-            cy.get('[data-cy="ol-map"]:visible').click('center', { ...options })
-        }
-    } else {
-        cy.readWindowValue('map').then((map) => {
-            const pixel = map.getPixelFromCoordinate(coordinate).map(Math.floor)
-            if (pixel.some((value) => value < 0)) {
-                cy.log(
-                    'Error, coordinate',
-                    coordinate,
-                    ' are outside current map viewport (',
-                    pixel,
-                    '), cannot click on these coordinate'
-                )
-                cy.wrap(false).should('be.true')
+            cy.log('Clicking at coordinate', coordinate, 'on pixel', pixel, 'with options', options)
+            if (doubleClick) {
+                cy.get('[data-cy="ol-map"]').dblclick(pixel[0], pixel[1])
             } else {
-                cy.log(
-                    'Clicking at coordinate',
-                    coordinate,
-                    'on pixel',
-                    pixel,
-                    'with options',
-                    options
-                )
-                if (doubleClick) {
-                    cy.get('[data-cy="ol-map"]:visible').dblclick(pixel[0], pixel[1], {
-                        ...options,
-                    })
-                } else {
-                    cy.get('[data-cy="ol-map"]:visible').click(pixel[0], pixel[1], { ...options })
-                }
+                cy.get('[data-cy="ol-map"]').click(pixel[0], pixel[1])
             }
-        })
-    }
+        }
+    })
 })
