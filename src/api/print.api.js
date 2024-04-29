@@ -77,9 +77,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
     }
 
     /**
-     * Manipulate the symbolizer of a text style of a feature before printing it. In this case it
-     * manipulate the outline / halo for different text to match the old geadmin where there is no
-     * outline for marker and text
+     * Manipulate the symbolizer of a text style of a feature before printing it.
      *
      * @param {State} layerState
      * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
@@ -87,16 +85,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     // eslint-disable-next-line no-unused-vars
     text(layerState, symbolizer, text) {
-        // Remove the halo / outline if the font family is normal 16px Helvetica (as used in the point and marker text)
-        if (symbolizer.fontFamily === 'normal 16px Helvetica') {
-            symbolizer.pointRadius = 0
-            symbolizer.strokeWidth = 0
-            symbolizer.haloRadius = 0
-        } else {
-            symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
-            symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
-            symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-        }
+        symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
+        symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
     }
 
     /**
