@@ -225,18 +225,24 @@ describe('Drawing module tests', () => {
                     x: mapSize.width / 2.0,
                     y: mapSize.height / 2.0,
                 }
-                const endingPixel = {
-                    x: pixelMapCenterInMapViewport.x + moveInPixel.x,
-                    y: pixelMapCenterInMapViewport.y + moveInPixel.y,
-                }
+                const endingPixel = [
+                    pixelMapCenterInMapViewport.x + moveInPixel.x,
+                    pixelMapCenterInMapViewport.y + moveInPixel.y,
+                ]
                 cy.log('Move/drag the marker, the drawing must be updated with the new position')
                 cy.log('moving marker from pixel', pixelMapCenterInMapViewport, 'to', endingPixel)
 
-                cy.get('[data-cy="ol-map"]').realMouseDown(pixelMapCenterInMapViewport)
+                cy.get('[data-cy="ol-map"]').realMouseDown({
+                    x: pixelMapCenterInMapViewport[0],
+                    y: pixelMapCenterInMapViewport[1],
+                })
                 cy.get('[data-cy="ol-map"]').realMouseMove(moveInPixel.x, moveInPixel.y, {
                     position: 'center',
                 })
-                cy.get('[data-cy="ol-map"]').realMouseUp(endingPixel)
+                cy.get('[data-cy="ol-map"]').realMouseUp({
+                    x: endingPixel[0],
+                    y: endingPixel[1],
+                })
 
                 cy.wait('@update-kml')
             })
