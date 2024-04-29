@@ -38,8 +38,6 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const kmlLayerId = computed(() => activeKmlLayer.value?.id)
-const kmlLayerAdminId = computed(() => activeKmlLayer.value?.adminId)
 
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
@@ -146,7 +144,7 @@ function onDeleteLastPoint() {
                             <button
                                 type="button"
                                 class="btn btn-light"
-                                :disabled="isDrawingEmpty || !kmlLayerId"
+                                :disabled="isDrawingEmpty || !activeKmlLayer"
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
@@ -199,7 +197,7 @@ function onDeleteLastPoint() {
             :title="$t('share')"
             @close="showShareModal = false"
         >
-            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlLayerAdminId" />
+            <SharePopup :kml-layer="activeKmlLayer" />
         </ModalWithBackdrop>
     </teleport>
 </template>
