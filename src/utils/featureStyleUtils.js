@@ -3,6 +3,7 @@ import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import log from '@/utils/logging'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */
@@ -236,7 +237,7 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
         return [0, 0]
     }
 
-    const iconSize = [32, 32]
+    const iconSize = [48, 48]
     const fontSize = 11
     let anchorScale = anchor ? anchor[1] * 2 : 1
     // for these markers the code implementation seems to assume that the anchor is
@@ -247,8 +248,8 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconName) {
 
     const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
     const textOffset = 0.5 * fontSize * textScale
-    const defaultOffset = 5 + 0.5 * fontSize * iconScale
-    console.error('title offset of feature is calculated to be : ', [
+    const defaultOffset = 5
+    log.debug('title offset of feature is calculated to be : ', [
         0,
         defaultOffset + iconOffset + textOffset,
     ])
