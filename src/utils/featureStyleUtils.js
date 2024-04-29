@@ -215,10 +215,10 @@ export function getTextColor(style) {
 export function getTextOffset(textScale, iconSize, iconStyle) {
     const iconScale = iconSize.iconScale
     const iconAnchor = iconStyle.getAnchor()
-    const iconExtent = iconStyle.getSize()
-    const anchor = [iconAnchor[0] / iconExtent[0], iconAnchor[1] / iconExtent[1]]
+    const iconSize2D = iconStyle.getSize()
+    const anchor = [iconAnchor[0] / iconSize2D[0], iconAnchor[1] / iconSize2D[1]]
 
-    return calculateTextOffset(textScale, iconScale, anchor)
+    return calculateTextOffset(textScale, iconScale, anchor, iconSize2D)
 }
 
 /**
@@ -227,14 +227,14 @@ export function getTextOffset(textScale, iconSize, iconStyle) {
  * @param {Number} textScale Text scaling
  * @param {Number} iconScale Icon scaling
  * @param {Array} anchor Relative position of Anchor
+ * @param {Array} iconSize Absolute size of icon in pixel
  * @returns {Array | null} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, anchor) {
+export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
     if (!iconScale) {
         return [0, 0]
     }
 
-    const iconSize = [48, 48]
     const fontSize = 11
     let anchorScale = anchor ? anchor[1] * 2 : 1
 
@@ -250,7 +250,12 @@ export function calculateTextOffset(textScale, iconScale, anchor) {
 }
 
 /** Offset of the marker with default styling and anchor on bottom of icon */
-export const DEFAULT_OFFSET = calculateTextOffset(MEDIUM.textScale, MEDIUM.iconScale, [0, 1])
+export const DEFAULT_OFFSET = calculateTextOffset(
+    MEDIUM.textScale,
+    MEDIUM.iconScale,
+    [0, 1],
+    [48, 48]
+)
 
 /**
  * OpenLayers style function that will style a feature that is not currently edited but loaded in

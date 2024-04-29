@@ -136,6 +136,7 @@ function updateTextOffset() {
             feature.value.textSize.textScale,
             feature.value.iconSize.iconScale,
             feature.value.icon.anchor,
+            [48, 48] //TODO: PB-303 Use icon size from backend
         )
 
         store.dispatch('changeFeatureTextOffset', {
