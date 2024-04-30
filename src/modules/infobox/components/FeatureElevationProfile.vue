@@ -80,7 +80,7 @@ function onCSVDownload() {
     >
         <div v-if="!hasData">
             <LoadingBar v-if="!profileRequestError" />
-            <span v-else class="text-muted">
+            <span v-else class="text-danger" data-cy="profile-error-message">
                 {{ i18n.t(profileRequestError.messageKey) }}
             </span>
         </div>

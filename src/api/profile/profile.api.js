@@ -75,7 +75,9 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
             if (
                 err.response &&
                 err.response.status === 413 &&
-                err.response.data.error?.message?.includes('Request Geometry contains too many points. Maximum number of points allowed')
+                err.response.data.error?.message?.includes(
+                    'Request Geometry contains too many points. Maximum number of points allowed'
+                )
             ) {
                 log.error(
                     'Requesting too many points for a profile, request could not be processed',
