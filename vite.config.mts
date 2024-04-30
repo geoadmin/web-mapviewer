@@ -11,7 +11,10 @@ import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 // it from git describe command
 let appVersion = process.env.APP_VERSION
 if (!appVersion) {
-    appVersion = 'v' + gitDescribe.gitDescribeSync().semverString
+    // NOTE: git-describe package add sometimes `+` signs (what the real git describe command don't)
+    // and the `+` sign on the URL is actually a space, so it should be percent encoded.
+    // Therefore we change the + sign into '-' for simplification.
+    appVersion = 'v' + gitDescribe.gitDescribeSync().semverString.replace('+', '-')
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
