@@ -29,8 +29,6 @@ import log from '@/utils/logging'
 const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
     let layer = undefined
     if (layerConfig) {
-        const maxResolution =
-            layerConfig.resolutions?.slice(-1)[0] ?? DEFAULT_MAX_GEOADMIN_RESOLUTION
         const {
             serverLayerName,
             label: name,
@@ -88,7 +86,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     topics,
                     hasLegend: !!hasLegend,
                     searchable: !!searchable,
-                    maxResolution,
+                    maxResolution:
+                        layerConfig.resolutions?.slice(-1)[0] ?? DEFAULT_MAX_GEOADMIN_RESOLUTION,
                 })
                 break
             case 'wms':
@@ -110,7 +109,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     topics,
                     hasLegend: !!hasLegend,
                     searchable: !!searchable,
-                    maxResolution,
                 })
                 break
             case 'geojson':
@@ -124,7 +122,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     styleUrl: layerConfig.styleUrl,
                     updateDelay: layerConfig.updateDelay,
                     hasLegend: !!hasLegend,
-                    maxResolution,
                 })
                 break
             case 'aggregate': {
@@ -183,7 +180,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     topics,
                     subLayers,
                     hasLegend: !!hasLegend,
-                    maxResolution,
                 })
 
                 break

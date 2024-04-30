@@ -1,6 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * @abstract
@@ -61,8 +60,6 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
-     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
-     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -88,7 +85,6 @@ export default class GeoAdminLayer extends AbstractLayer {
             hasDescription = true,
             hasLegend = false,
             searchable = false,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = layerData
         if (geoAdminId === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
@@ -118,7 +114,6 @@ export default class GeoAdminLayer extends AbstractLayer {
             isLoading,
             hasDescription,
             hasLegend,
-            maxResolution,
         })
         this.geoAdminId = geoAdminId
         this.technicalName = technicalName

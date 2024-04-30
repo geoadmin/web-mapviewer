@@ -1,7 +1,6 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * Metadata for an external WMTS layer, that will be defined through a GetCapabilities.xml endpoint
@@ -38,8 +37,6 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {CoordinateSystem[]} [externalWmtsData.availableProjections=[]] All projection that
      *   can be used to request this layer. Default is `[]`
      * @param {ol/WMTS/Options} [externalWmtsData.options] WMTS Get Capabilities options
-     * @param {Number} [externalWmtsData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
-     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `externalWmtsData` is given or if it is invalid
      */
     constructor(externalWmtsData) {
@@ -59,7 +56,6 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             isLoading = true,
             availableProjections = [],
             options = null,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = externalWmtsData
         super({
             name,
@@ -75,7 +71,6 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             legends,
             isLoading,
             availableProjections,
-            maxResolution,
         })
         this.options = options
     }

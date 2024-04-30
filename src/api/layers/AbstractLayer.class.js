@@ -1,6 +1,4 @@
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
-import { TILEGRID_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 
 /**
  * Name (or description) of a data holder for a layer, with the possibility to define a URL
@@ -71,8 +69,6 @@ export default class AbstractLayer {
      *   is from another (external) source. Default is `false`
      * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
      *   metadata) are still loading. Default is `false`
-     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
-     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
@@ -94,7 +90,6 @@ export default class AbstractLayer {
             hasLegend = false,
             isExternal = false,
             isLoading = false,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = layerData
         if (name === null) {
             throw new InvalidLayerDataError('Missing layer name', layerData)
@@ -107,12 +102,6 @@ export default class AbstractLayer {
         }
         if (baseUrl === null) {
             throw new InvalidLayerDataError('Missing base URL', layerData)
-        }
-        if (!TILEGRID_RESOLUTIONS.includes(maxResolution)) {
-            throw new InvalidLayerDataError(
-                'Maximum resolution not within accepted resolutions',
-                layerData
-            )
         }
         this.name = name
         this.id = id
@@ -131,7 +120,6 @@ export default class AbstractLayer {
         this.hasLegend = hasLegend
         this.errorKey = null
         this.hasError = false
-        this.maxResolution = maxResolution
     }
 
     clone() {

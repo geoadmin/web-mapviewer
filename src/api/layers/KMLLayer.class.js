@@ -1,7 +1,7 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL, DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
 
 /**
@@ -29,8 +29,6 @@ export default class KMLLayer extends AbstractLayer {
      *   Default is `null`
      * @param {KmlMetadata | null} [kmlLayerData.kmlMetadata=null] Metadata of the KML drawing. This
      *   object contains all the metadata returned by the backend. Default is `null`
-     * @param {Number} [kmlLayerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
-     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -44,7 +42,6 @@ export default class KMLLayer extends AbstractLayer {
             adminId = null,
             kmlData = null,
             kmlMetadata = null,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -63,7 +60,6 @@ export default class KMLLayer extends AbstractLayer {
             isExternal,
             hasDescription: false,
             hasLegend: false,
-            maxResolution,
         })
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId

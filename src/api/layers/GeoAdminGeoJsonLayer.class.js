@@ -1,7 +1,6 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * Metadata for a GeoJSON layer
@@ -30,8 +29,6 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      * @param {Number | null} [layerData.updateDelay=null] Delay after which the data of this layer
      *   should be re-requested (if null is given, no further data reload will be triggered). A good
      *   example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null`
-     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
-     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -47,7 +44,6 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
             geoJsonUrl = null,
             styleUrl = null,
             updateDelay = null,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = layerData
         if (geoJsonUrl === null) {
             throw new InvalidLayerDataError('Missing geoadmin GeoJSON data URL', layerData)
@@ -65,7 +61,6 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
             visible,
             attributions,
             isLoading: true,
-            maxResolution,
         })
         this.geoJsonUrl = geoJsonUrl
         this.styleUrl = styleUrl

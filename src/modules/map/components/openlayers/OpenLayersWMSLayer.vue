@@ -13,7 +13,7 @@ import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { getTimestampFromConfig, indexOfMaxResolution } from '@/utils/layerUtils'
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const props = defineProps({
     wmsLayerConfig: {
@@ -40,7 +40,6 @@ const currentLang = computed(() => store.state.i18n.lang)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmsLayerConfig.value.technicalName || wmsLayerConfig.value.id)
 const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
-const maxResolution = computed(() => wmsLayerConfig.value.maxResolution)
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
@@ -118,9 +117,7 @@ function createSourceForProjection() {
     }
     if (projection.value instanceof CustomCoordinateSystem) {
         source.tileGrid = new TileGrid({
-            resolutions: projection.value
-                .getResolutions()
-                .slice(0, indexOfMaxResolution(projection.value, maxResolution.value)),
+            resolutions: projection.value.getResolutions(),
             extent: projection.value.bounds.flatten,
             origin: projection.value.getTileOrigin(),
             tileSize: WMS_TILE_SIZE,

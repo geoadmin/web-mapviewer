@@ -1,7 +1,6 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * Description of a group of layers, that could be added altogether or separately, that stems from a
@@ -46,8 +45,6 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      *   Default is `null`
      * @param {CoordinateSystem[]} [externalLayerData.availableProjections=[]] All projection that
      *   can be used to request this layer. Default is `[]`
-     * @param {Number} [externalLayerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the
-     *   maximum resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -68,7 +65,6 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             isLoading = true,
             availableProjections = [],
             getFeatureInfoCapability = null,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = externalLayerData
         if (!layers?.length > 0) {
             throw new InvalidLayerDataError(
@@ -92,7 +88,6 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             // if one of the sublayers is not queryable, this group is then not queryable/has no tooltip
             hasTooltip: !layers.some((layer) => !layer.hasTooltip),
             getFeatureInfoCapability,
-            maxResolution,
         })
         this.layers = [...layers]
     }

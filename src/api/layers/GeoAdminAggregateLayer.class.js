@@ -1,7 +1,6 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION } from '@/config'
 
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown
@@ -80,8 +79,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
      * @param {[AggregateSubLayer]} layerData.subLayers
-     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
-     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -100,7 +97,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             topics = [],
             subLayers = [],
             hasLegend = false,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
         } = layerData
         super({
             name,
@@ -117,7 +113,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             topics,
             timeConfig,
             hasLegend,
-            maxResolution,
         })
         this.subLayers = [...subLayers]
     }
