@@ -386,6 +386,7 @@
     "profile_poi_up": "Punto più alto",
     "profile_slope_distance": "Lunghezza strada ",
     "profile_title": "Profilo",
+    "profile_too_many_points_error": "La richiesta del profilo era troppo grande e non è stato possibile elaborarla.",
     "profile_x_label": "Distanza",
     "profile_y_label": "Elevazione",
     "qrcode_tooltip": "Creare un QRCode e aprire questa carta su dispositivo mobile",

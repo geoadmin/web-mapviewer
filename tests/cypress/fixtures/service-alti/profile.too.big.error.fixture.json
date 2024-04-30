@@ -1,0 +1,7 @@
+{
+    "error": {
+        "code": 413,
+        "message": "Request Geometry contains too many points. Maximum number of points allowed: 123, found 456"
+    },
+    "success": false
+}
