@@ -81,12 +81,6 @@ export default {
          */
         loadingBarRequesters: { [MAP_LOADING_BAR_REQUESTER]: 1 },
         /**
-         * Flag telling if the drawing toolkit / overlay should be visible
-         *
-         * @type Boolean
-         */
-        showDrawingOverlay: false,
-        /**
          * Current UI mode of the application, dictates how the menu interaction is made (for touch
          * the menu has to be opened through a button, for desktop it is always shown) and how the
          * information about a selected feature are shown.
@@ -204,8 +198,8 @@ export default {
          *
          * @returns {boolean}
          */
-        isHeaderShown(state) {
-            return !state.fullscreenMode && !state.showDrawingOverlay
+        isHeaderShown(state, getters, rootState) {
+            return !state.fullscreenMode && !rootState.drawing?.drawingOverlay.show
         },
 
         isPhoneMode(state) {
@@ -296,18 +290,6 @@ export default {
             commit('setShowLoadingBar', {
                 requester: MAP_LOADING_BAR_REQUESTER,
                 loading: false,
-                dispatcher,
-            })
-        },
-        toggleDrawingOverlay({ commit, state }, { dispatcher }) {
-            commit('setShowDrawingOverlay', {
-                showDrawingOverlay: !state.showDrawingOverlay,
-                dispatcher,
-            })
-        },
-        setShowDrawingOverlay({ commit }, { showDrawingOverlay, dispatcher }) {
-            commit('setShowDrawingOverlay', {
-                showDrawingOverlay: !!showDrawingOverlay,
                 dispatcher,
             })
         },
@@ -404,9 +386,6 @@ export default {
                 `Loading bar has been set; requester=${requester}, loading=${loading}, loadingBarRequesters=`,
                 state.loadingBarRequesters
             )
-        },
-        setShowDrawingOverlay(state, { showDrawingOverlay }) {
-            state.showDrawingOverlay = showDrawingOverlay
         },
         setUiMode(state, { mode }) {
             state.mode = mode

@@ -2,7 +2,7 @@
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
-        <div data-cy="modal-with-backdrop">
+        <div v-show="!hide" data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div
                 class="modal-popup position-fixed start-50"
@@ -115,6 +115,14 @@ export default {
             default: false,
         },
         top: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
+         * its content
+         */
+        hide: {
             type: Boolean,
             default: false,
         },

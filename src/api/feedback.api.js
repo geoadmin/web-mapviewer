@@ -9,12 +9,13 @@ import log from '@/utils/logging'
  * @param {String} subject Mandatory
  * @param {String} text Mandatory
  * @param {String | null} [options.kmlFileUrl=null] Default is `null`
+ * @param {String | null} [options.kml=null] Default is `null`
  * @param {String | null} [options.email=null] Default is `null`
  * @param {File | null} [options.attachment=null] Default is `null`
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(subject, text, options) {
-    const { kmlFileUrl = null, email = null, attachment = null } = options
+    const { kmlFileUrl = null, kml = null, email = null, attachment = null } = options
 
     try {
         let shortLink = null
@@ -29,10 +30,10 @@ export default async function sendFeedback(subject, text, options) {
             shortLink = window.location.href
         }
 
-        let kml = null
+        let kmlData = null
         if (kmlFileUrl) {
             try {
-                kml = await getKmlFromUrl(kmlFileUrl)
+                kmlData = await getKmlFromUrl(kmlFileUrl)
             } catch (err) {
                 log.error(
                     'could not load KML from URL',
@@ -41,6 +42,8 @@ export default async function sendFeedback(subject, text, options) {
                     err
                 )
             }
+        } else {
+            kmlData = kml
         }
 
         const data = {
@@ -49,7 +52,7 @@ export default async function sendFeedback(subject, text, options) {
             version: APP_VERSION,
             ua: navigator.userAgent,
             permalink: shortLink,
-            kml,
+            kml: kmlData,
             email,
             attachment,
         }

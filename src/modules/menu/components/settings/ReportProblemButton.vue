@@ -1,5 +1,7 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
@@ -11,7 +13,13 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
 import { isValidEmail } from '@/utils/utils'
 
+const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
+const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
+
 const acceptedFileTypes = '.kml,.gpx,.pdf,.zip,.jpg,.jpeg,.kmz'
+
+const i18n = useI18n()
+const store = useStore()
 
 const props = defineProps({
     showAsLink: {
@@ -48,6 +56,18 @@ const isMessageValid = computed(() => feedback.value.message?.length > 0)
 const isEmailValid = computed(() => {
     return !feedback.value.email || isValidEmail(feedback.value.email)
 })
+const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
+const temporaryKml = computed(() =>
+    store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId)
+)
+
+watch(
+    () => temporaryKml.value?.kmlData,
+    () => {
+        feedback.value.kml = temporaryKml.value?.kmlData ?? null
+    },
+    { deep: true }
+)
 
 // Methods
 async function sendReportProblem() {
@@ -66,6 +86,7 @@ async function sendReportProblem() {
             {
                 email: feedback.value.email,
                 attachment: feedback.value.file,
+                kml: feedback.value.kml,
             }
         )
         request.value.completed = feedbackSentSuccessfully
@@ -92,6 +113,9 @@ function closeAndCleanForm() {
     // reset also the completed/failed state, so that the user can send another feedback later on
     request.value.failed = false
     request.value.completed = false
+    if (temporaryKml.value) {
+        store.dispatch('removeSystemLayer', { layerId: temporaryKmlId, ...dispatcher })
+    }
 }
 function handleFile(file) {
     feedback.value.file = file
@@ -106,6 +130,15 @@ function openForm() {
         feedbackMessageTextArea.value.focus()
     })
 }
+
+function toggleDrawingOverlay() {
+    store.dispatch('toggleDrawingOverlay', {
+        online: false,
+        kmlId: temporaryKmlId,
+        title: 'feedback_drawing',
+        ...dispatcher,
+    })
+}
 </script>
 
 <template>
@@ -115,7 +148,7 @@ function openForm() {
         data-cy="report-problem-link-button"
         @click="openForm"
     >
-        <strong>{{ $t('problem_announcement') }}</strong>
+        <strong>{{ i18n.t('problem_announcement') }}</strong>
     </HeaderLink>
     <button
         v-else
@@ -123,17 +156,18 @@ function openForm() {
         data-cy="report-problem-button"
         @click="openForm"
     >
-        {{ $t('problem_announcement') }}
+        {{ i18n.t('problem_announcement') }}
     </button>
     <ModalWithBackdrop
         v-if="showReportProblemForm"
-        :title="request.completed ? '' : $t('problem_announcement')"
+        :title="request.completed ? '' : i18n.t('problem_announcement')"
         fluid
+        :hide="showDrawingOverlay"
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="p-2" data-cy="report-problem-form">
             <div class="my-3">
-                <span>{{ $t('feedback_description') }}</span>
+                <span>{{ i18n.t('feedback_description') }}</span>
                 <div class="input-group has-validation">
                     <textarea
                         ref="feedbackMessageTextArea"
@@ -145,19 +179,36 @@ function openForm() {
                         @focusin="userIsTypingFeedback = true"
                         @focusout="userIsTypingFeedback = false"
                     ></textarea>
-                    <div class="invalid-feedback">{{ $t('feedback_empty_warning') }}</div>
+                    <div class="invalid-feedback">{{ i18n.t('feedback_empty_warning') }}</div>
+                </div>
+            </div>
+
+            <div>
+                <div>
+                    {{ i18n.t('feedback_drawing') }}
+                </div>
+                <button
+                    class="btn btn-outline-secondary"
+                    :class="{ 'is-valid': temporaryKml && !temporaryKml.isEmpty() }"
+                    data-cy="report-problem-drawing-button"
+                    @click="toggleDrawingOverlay"
+                >
+                    {{ i18n.t('draw_tooltip') }}
+                </button>
+                <div class="valid-feedback ps-2" data-cy="report-problem-drawing-added-feedback">
+                    {{ i18n.t('drawing_attached') }}
                 </div>
             </div>
 
             <EmailValidationField
                 class="my-3"
                 :disabled="request.pending"
-                :label="'feedback_email'"
+                :label="'feedback_mail'"
                 @email-updated="feedback.email = $event"
             />
 
             <div class="my-3">
-                <span>{{ $t('feedback_attachment') }}</span>
+                <span>{{ i18n.t('feedback_attachment') }}</span>
                 <ImportLocalFile
                     :accepted-file-types="acceptedFileTypes"
                     :check-on-select="true"
@@ -167,12 +218,12 @@ function openForm() {
             </div>
             <div class="my-4">
                 <div>
-                    <small>{{ $t('feedback_permalink') }}</small>
-                    <a target="_blank" :href="shortLink">{{ $t('permalink') }}</a>
+                    <small>{{ i18n.t('feedback_permalink') }}</small>
+                    <a target="_blank" :href="shortLink">{{ i18n.t('permalink') }}</a>
                 </div>
                 <div>
                     <!-- eslint-disable vue/no-v-html-->
-                    <small v-html="$t('feedback_disclaimer')" />
+                    <small v-html="i18n.t('feedback_disclaimer')" />
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
@@ -189,12 +240,12 @@ function openForm() {
                 class="text-end text-danger mt-3"
                 data-cy="report-problem-failed-text"
             >
-                <small>{{ $t('send_failed') }}</small>
+                <small>{{ i18n.t('send_failed') }}</small>
             </div>
         </div>
         <div v-else class="p-2">
             <h6 class="text-success" data-cy="report-problem-success-text">
-                {{ $t('feedback_success_message') }}
+                {{ i18n.t('feedback_success_message') }}
             </h6>
             <button
                 ref="reportProblemCloseSuccessful"
@@ -202,7 +253,7 @@ function openForm() {
                 data-cy="report-problem-close-successful"
                 @click="closeAndCleanForm"
             >
-                {{ $t('close') }}
+                {{ i18n.t('close') }}
             </button>
         </div>
     </ModalWithBackdrop>

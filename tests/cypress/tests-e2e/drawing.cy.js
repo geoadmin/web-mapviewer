@@ -800,7 +800,7 @@ describe('Drawing module tests', () => {
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL
-            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
+            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
 
             // checking that the KML was correctly loaded
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
@@ -876,7 +876,7 @@ describe('Drawing module tests', () => {
             cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL
-            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
+            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
 
             // checking that the KML was correctly loaded
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)

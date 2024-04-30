@@ -14,7 +14,7 @@ useTippyTooltip('#threeDButton[data-tippy-content]', { placement: 'left' })
 const webGlIsSupported = ref(false)
 
 const isActive = computed(() => store.state.cesium.active)
-const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
+const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
         return `tilt3d_${isActive.value ? 'active' : 'inactive'}`

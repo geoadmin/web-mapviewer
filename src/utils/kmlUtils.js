@@ -27,6 +27,8 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
 
+export const EMPTY_KML_DATA = '<kml></kml>'
+
 // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
 // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
 // 32 pixel scale factor below

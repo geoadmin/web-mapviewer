@@ -2,7 +2,7 @@ import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.clas
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
-import { parseKmlName } from '@/utils/kmlUtils'
+import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
 
 /**
  * Metadata for an external KML layer, mostly used to show drawing
@@ -88,6 +88,10 @@ export default class KMLLayer extends AbstractLayer {
      */
     isLegacy() {
         return this.kmlMetadata?.author !== 'web-mapviewer'
+    }
+
+    isEmpty() {
+        return !this.kmlData || this.kmlData === EMPTY_KML_DATA
     }
 
     clone() {
