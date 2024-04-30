@@ -103,6 +103,11 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
         symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
         symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
+        // Handling the case where we need to print a circle in the end of measurement lines
+        // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
+        if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
+            symbolizer.fillOpacity = 1
+        }
     }
 }
 

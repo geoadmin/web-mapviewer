@@ -341,6 +341,24 @@ export class GeodesicGeometries {
                 zIndex: 40,
             })
         )
+        // This style will only be shown in the printing, that's why the alpha is 0.0
+        // THe alpha will be changed to 1 when passed to the service print
+        // See GeoAdminCustomizer in print module.
+        styles.push(
+            new Style({
+                image: new Circle({
+                    radius: 4,
+                    fill: new Fill({
+                        color: [255, 0, 0, 0.0],
+                    }),
+                }),
+                geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
+                    WGS84.epsg,
+                    this.projection.epsg
+                ),
+                zIndex: 23,
+            })
+        )
         //Total area tooltip
         if (this.isPolygon && this.geodesicPolygonGeom) {
             const uArea = Math.abs(this.totalArea)
