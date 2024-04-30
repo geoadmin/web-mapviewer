@@ -386,6 +386,7 @@
     "profile_poi_up": "Point culminant",
     "profile_slope_distance": "Longeur chemin ",
     "profile_title": "Profil",
+    "profile_too_many_points_error": "La demande de profil était trop volumineuse et n'a pas pu être traitée.",
     "profile_x_label": "Distance",
     "profile_y_label": "Altitude",
     "qrcode_tooltip": "Créer un QRCode et ouvrir cette carte depuis votre appareil mobile",

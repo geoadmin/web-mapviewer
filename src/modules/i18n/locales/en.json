@@ -386,6 +386,7 @@
     "profile_poi_up": "Highest point",
     "profile_slope_distance": "Path distance",
     "profile_title": "Profile",
+    "profile_too_many_points_error": "The profile request was too big and could not be processed.",
     "profile_x_label": "Distance",
     "profile_y_label": "Elevation",
     "qrcode_tooltip": "Create a QRCode and open this map on your mobile device",

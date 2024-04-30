@@ -386,6 +386,7 @@
     "profile_poi_up": "Höchster Punkt",
     "profile_slope_distance": "Wegstrecke",
     "profile_title": "Profil",
+    "profile_too_many_points_error": "Die Profilanfrage war zu gross und konnte nicht verarbeitet werden.",
     "profile_x_label": "Entfernung",
     "profile_y_label": "Höhe",
     "qrcode_tooltip": "Erstellen Sie einen QRCode und öffnen Sie die Karte auf Ihrem mobilen Gerät",
