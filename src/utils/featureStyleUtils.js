@@ -249,14 +249,6 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
     return [0, -(defaultOffset + iconOffset + textOffset)]
 }
 
-/** Offset of the marker with default styling and anchor on bottom of icon */
-export const DEFAULT_OFFSET = calculateTextOffset(
-    MEDIUM.textScale,
-    MEDIUM.iconScale,
-    [0, 1],
-    [48, 48]
-)
-
 /**
  * OpenLayers style function that will style a feature that is not currently edited but loaded in
  * the drawing layer.

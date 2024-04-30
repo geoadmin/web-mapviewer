@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { API_SERVICES_BASE_URL } from '@/config'
-import { RED } from '@/utils/featureStyleUtils'
+import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
@@ -17,6 +17,14 @@ export const DEFAULT_ICON_URL_PARAMS = {
     scale: 1,
     size: [48, 48],
 }
+
+/** Offset of the marker with default styling and anchor on bottom of icon */
+export const DEFAULT_TEXT_OFFSET = calculateTextOffset(
+    MEDIUM.textScale,
+    MEDIUM.iconScale,
+    [0, 1],
+    DEFAULT_ICON_URL_PARAMS.size
+)
 
 /**
  * Collection of icons belonging to the same "category" (or set).

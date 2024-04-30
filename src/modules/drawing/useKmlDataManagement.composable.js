@@ -40,7 +40,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 log.debug(`Add current temporary kml layer to drawing`, temporaryKml.value)
                 availableKmlLayer = temporaryKml.value
             }
-            if (!availableKmlLayer) {
+            if (!availableKmlLayer?.kmlData) {
                 throw new Error('missing KML data')
             }
             const features = parseKml(availableKmlLayer, projection.value, availableIconSets.value)

@@ -401,8 +401,10 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    const textOffset =
-        iconSize && !kmlLayer.isLegacy() ? getTextOffset(textScale, iconSize, iconStyle) : [0, 0]
+    let textOffset = [0, 0]
+    if (!kmlLayer.isLegacy() && iconSize && featureType === EditableFeatureTypes.MARKER) {
+        textOffset = getTextOffset(textScale, iconSize, iconStyle)
+    }
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
@@ -450,7 +452,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
 /**
  * Parses a KML's data into OL Features
  *
- * @param {String} kmlData KML content to parse
+ * @param {kmlLayer} kmlLayer KML layer to parse
  * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
