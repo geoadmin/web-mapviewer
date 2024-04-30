@@ -85,7 +85,7 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
                 )
                 throw new ProfileError(
                     'Error requesting profile with too many points',
-                    'too_many_points_profile_error'
+                    'profile_too_many_points_error'
                 )
             }
 
