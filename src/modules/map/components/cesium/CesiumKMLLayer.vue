@@ -64,7 +64,11 @@ export default {
                     new VectorSource({
                         wrapX: true,
                         projection: this.projection.epsg,
-                        features: parseKml(this.kmlData, this.projection, this.availableIconSets),
+                        features: parseKml(
+                            this.kmlLayerConfig,
+                            this.projection,
+                            this.availableIconSets
+                        ),
                     })
                 )
                 resolve()

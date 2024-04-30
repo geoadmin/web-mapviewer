@@ -354,11 +354,12 @@ export function getFillColor(style, geometryType, iconArgs) {
  * Get the geoadmin editable feature for the given open layer KML feature
  *
  * @param {Feature} kmlFeature Open layer KML feature
+ * @param {kmlLayer} kmlLayer Open layer KML layer
  * @param {DrawingIconSet[]} availableIconSets
  * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
  *   feature
  */
-export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
+export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
         return null
@@ -400,7 +401,8 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    const textOffset = iconSize ? getTextOffset(textScale, iconSize, iconStyle) : null
+    const textOffset =
+        iconSize && !kmlLayer.isLegacy() ? getTextOffset(textScale, iconSize, iconStyle) : [0, 0]
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
@@ -453,13 +455,14 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
-export function parseKml(kmlData, projection, iconSets) {
+export function parseKml(kmlLayer, projection, iconSets) {
+    const kmlData = kmlLayer.kmlData
     const features = new KML().readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
     features.forEach((olFeature) => {
-        const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
+        const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
 
         if (editableFeature) {
             // Set the EditableFeature coordinates from the olFeature geometry
