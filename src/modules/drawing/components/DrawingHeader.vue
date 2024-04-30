@@ -4,6 +4,8 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import TextTruncate from '@/utils/components/TextTruncate.vue'
+
 const emits = defineEmits(['close'])
 const store = useStore()
 
@@ -19,7 +21,7 @@ function onClose() {
 </script>
 
 <template>
-    <div class="drawing-header">
+    <div class="drawing-header d-flex justify-content-between align-items-center">
         <button
             class="drawing-header-close-button btn btn-dark"
             :disabled="isClosing"
@@ -34,9 +36,13 @@ function onClose() {
                 {{ i18n.t('draw_back') }}
             </span>
         </button>
-        <h1 class="drawing-header-title" data-cy="drawing-header-title">
+        <TextTruncate class="drawing-header-title px-2" data-cy="drawing-header-title">
             {{ i18n.t(drawingTitle) }}
-        </h1>
+        </TextTruncate>
+        <diV>
+            <!-- This empty div is needed to keep the title in the middle of the header it uses
+            the d-flex justify-content-between functionality -->
+        </diV>
     </div>
 </template>
 
@@ -49,9 +55,7 @@ function onClose() {
     width: 100%;
     background-color: #e6e6e6;
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
-    display: grid;
-    grid-template: 1fr / auto 1fr;
-    place-items: center;
+    white-space: nowrap;
     &-title {
         font-size: 2rem;
         font-weight: 700;
@@ -60,13 +64,11 @@ function onClose() {
         margin-left: 10px;
     }
 }
-@include respond-above(lg) {
+
+@include respond-below(lg) {
     .drawing-header {
         &-title {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
         }
     }
 }
