@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
-import { API_SERVICE_ALTI_BASE_URL, PROFILE_MAX_POINTS } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
@@ -75,8 +75,7 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
             if (
                 err.response &&
                 err.response.status === 413 &&
-                err.response.data.error?.message ===
-                    `Request Geometry contains too many points. Maximum number of points allowed: ${PROFILE_MAX_POINTS}, found ${chunk.coordinates.length}`
+                err.response.data.error?.message?.includes('Request Geometry contains too many points. Maximum number of points allowed')
             ) {
                 log.error(
                     'Requesting too many points for a profile, request could not be processed',

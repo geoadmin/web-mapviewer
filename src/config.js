@@ -70,14 +70,6 @@ export const API_SERVICE_ALTI_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
- * Queries from service alti are currently capped at 5000 points. We need to make some error
- * processing when there is more points. This will be removed when we get rid of the limit in the
- * backend.
- *
- * @type Integer
- */
-export const PROFILE_MAX_POINTS = 5000
-/**
  * Base part of the URL to use when requesting the search service.
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST
