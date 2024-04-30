@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import FeedbackButton from '@/modules/menu/components/settings/feedback/FeedbackButton.vue'
+import HelpLink from '@/modules/menu/components/settings/HelpLink.vue'
 import MoreInfo from '@/modules/menu/components/settings/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/settings/ReportProblemButton.vue'
 
@@ -30,5 +31,6 @@ const hasReportProblemButton = computed(() => store.getters.hasReportProblemButt
         <FeedbackButton v-if="hasGiveFeedbackButton" :show-as-link="showAsLinks" />
         <ReportProblemButton v-if="hasReportProblemButton" :show-as-link="showAsLinks" />
         <MoreInfo :show-as-link="showAsLinks" />
+        <HelpLink :show-as-link="showAsLinks" />
     </div>
 </template>
