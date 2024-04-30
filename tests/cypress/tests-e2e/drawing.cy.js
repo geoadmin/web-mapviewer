@@ -1177,10 +1177,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-popup-content"]').should('be.visible')
             cy.get('[data-cy="profile-error-message"]')
                 .should('be.visible')
-                .should('satisfy', (element) => {
-                    const classList = Array.from(element[0].classList)
-                    return classList.includes('text-danger')
-                })
+                .should('have.class', 'text-danger')
         })
         it('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()
