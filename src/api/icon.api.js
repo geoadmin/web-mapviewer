@@ -18,11 +18,14 @@ export const DEFAULT_ICON_URL_PARAMS = {
     size: [48, 48],
 }
 
-/** Offset of the marker with default styling and anchor on bottom of icon */
-export const DEFAULT_TEXT_OFFSET = calculateTextOffset(
+/** Default offset of title for any feature */
+export const DEFAULT_TITLE_OFFSET = [0, 0]
+
+/** Default offset of title for the default marker */
+export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
     MEDIUM.textScale,
     MEDIUM.iconScale,
-    [0, 1],
+    [0, 0.875],
     DEFAULT_ICON_URL_PARAMS.size
 )
 

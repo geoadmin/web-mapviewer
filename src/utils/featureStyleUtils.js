@@ -3,6 +3,7 @@ import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import log from '@/utils/logging'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
 
@@ -205,23 +206,6 @@ export function getTextColor(style) {
 }
 
 /**
- * Get text alignment from style *
- *
- * @param {Number} textScale Text scaling
- * @param {FeatureStyleSize} iconSize Icon size parameters
- * @param {IconStyle} iconStyle KML icon style containing absolute anchor values
- * @returns {Array | null} Returns the feature label offset
- */
-export function getTextOffset(textScale, iconSize, iconStyle) {
-    const iconScale = iconSize.iconScale
-    const iconAnchor = iconStyle.getAnchor()
-    const iconSize2D = iconStyle.getSize()
-    const anchor = [iconAnchor[0] / iconSize2D[0], iconAnchor[1] / iconSize2D[1]]
-
-    return calculateTextOffset(textScale, iconScale, anchor, iconSize2D)
-}
-
-/**
  * Calculate text alignment from style parameters *
  *
  * @param {Number} textScale Text scaling
@@ -232,7 +216,7 @@ export function getTextOffset(textScale, iconSize, iconStyle) {
  */
 export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
     if (!iconScale) {
-        return [0, 0]
+        return DEFAULT_TITLE_OFFSET
     }
 
     const fontSize = 11

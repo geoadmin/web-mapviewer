@@ -8,6 +8,8 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
@@ -120,6 +122,11 @@ export default function useDrawingModeInteraction({
                 // feature type as proprietary property
                 type: args.featureType.toLowerCase(),
             })
+            if (args.featureType === EditableFeatureTypes.MARKER) {
+                feature.setProperties({
+                    textOffset: DEFAULT_MARKER_TITLE_OFFSET.toString(),
+                })
+            }
             log.debug(`onAddFeature: feature ${feature.getId()} added`)
         }
     }

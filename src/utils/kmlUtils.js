@@ -11,6 +11,7 @@ import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import { DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -19,7 +20,6 @@ import {
     getFeatureStyleColor,
     getStyle,
     getTextColor,
-    getTextOffset,
     getTextSize,
     RED,
     SMALL,
@@ -383,6 +383,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
     const textColor = getTextColor(style)
+    const textOffset = kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
 
     const description = kmlFeature.get('description') ?? ''
 
@@ -401,10 +402,6 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    let textOffset = [0, 0]
-    if (!kmlLayer.isLegacy() && iconSize && featureType === EditableFeatureTypes.MARKER) {
-        textOffset = getTextOffset(textScale, iconSize, iconStyle)
-    }
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
