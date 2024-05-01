@@ -618,8 +618,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/map/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
@@ -627,13 +627,13 @@ export default {
 }
 :global(.cesium-performanceDisplay-defaultContainer) {
     left: $screen-padding-for-ui-elements;
-    bottom: $footer-height + $screen-padding-for-ui-elements;
+    bottom: calc($footer-height + $screen-padding-for-ui-elements);
     top: unset;
     right: unset;
 }
 
 .cesium-toolbox {
-    bottom: $footer-height + $screen-padding-for-ui-elements;
+    bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
 }
 </style>

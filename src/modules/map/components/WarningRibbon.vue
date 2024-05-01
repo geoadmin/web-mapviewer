@@ -13,9 +13,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables-admin.module';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables-admin.module';
+@import '@/scss/variables.module';
 
 /* Corner ribbons, from http://codepen.io/eode9/pen/twkKm
 * mobile: ribbon top left, desktop: bottom left

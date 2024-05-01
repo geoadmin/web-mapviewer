@@ -102,7 +102,7 @@ defineExpose({ close })
 </template>
 
 <style lang="scss" scoped>
-@import 'src/modules/menu/scss/menu-items';
+@import '@/modules/menu/scss/menu-items';
 
 .menu-topic-switch {
     border: 0;

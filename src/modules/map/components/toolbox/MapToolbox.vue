@@ -59,14 +59,14 @@ const is3dActive = computed(() => store.state.cesium.active)
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 
 .toolbox-right {
     z-index: $zindex-map-toolbox;
     top: $header-height;
     &.dev-disclaimer-present {
-        top: $header-height + $dev-disclaimer-height;
+        top: calc($header-height + $dev-disclaimer-height);
     }
     &.fullscreen-mode,
     &.dev-disclaimer-present.fullscreen-mode {
@@ -82,7 +82,7 @@ const is3dActive = computed(() => store.state.cesium.active)
     .toolbox-right {
         top: 2 * $header-height;
         &.dev-disclaimer-present {
-            top: 2 * $header-height + $dev-disclaimer-height;
+            top: calc(2 * $header-height + $dev-disclaimer-height);
         }
         &.drawing-mode,
         &.dev-disclaimer-present.drawing-mode {

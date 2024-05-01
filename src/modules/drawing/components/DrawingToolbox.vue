@@ -207,8 +207,8 @@ function onDeleteLastPoint() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;

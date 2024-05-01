@@ -87,7 +87,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 .external_data_warning {
     @extend .clear-no-ios-long-press;
 }

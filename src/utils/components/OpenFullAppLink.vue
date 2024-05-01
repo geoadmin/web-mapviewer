@@ -35,7 +35,7 @@ const mapView = computed(() => router.resolve({ ...router.currentRoute.value, na
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
+@import '@/scss/variables.module';
 .open-full-app-link {
     position: absolute;
     z-index: $zindex-map + 1;

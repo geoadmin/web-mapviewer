@@ -159,7 +159,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 .menu-tray-inner {
     display: grid;

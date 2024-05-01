@@ -77,7 +77,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 .map-footer-attribution {
     padding: 0.2em 0.6em;

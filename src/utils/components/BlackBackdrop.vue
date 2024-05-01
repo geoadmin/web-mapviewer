@@ -29,7 +29,7 @@ const { withSpinner, placeForModal } = defineProps({
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
+@import '@/scss/variables.module';
 
 .black-backdrop {
     z-index: $zindex-map + 1;
