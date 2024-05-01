@@ -87,8 +87,8 @@ import {
     Color,
     defined,
     Ellipsoid,
-    JulianDate,
     Math as CesiumMath,
+    PostProcessStageCollection,
     RequestScheduler,
     ScreenSpaceEventType,
     ShadowMode,
@@ -307,11 +307,6 @@ export default {
         },
         async createViewer() {
             this.viewer = new Viewer(this.$refs.viewer, {
-                contextOptions: {
-                    webgl: {
-                        powerPreference: 'high-performance',
-                    },
-                },
                 showRenderLoopErrors: this.hasDevSiteWarning,
                 // de-activating default Cesium UI elements
                 animation: false,
@@ -351,20 +346,20 @@ export default {
                 requestRenderMode: true,
             })
 
-            const clock = this.viewer.clock
-            // good time/date for lighting conditions
-            clock.currentTime = JulianDate.fromIso8601('2024-06-20T10:00')
-
-            const shadowMap = this.viewer.shadowMap
-            // lighter shadow than default (closer to 0.1 the darker)
-            shadowMap.darkness = 0.6
-            // increasing shadowMap size 4x the default value, to reduce shadow artifacts at the edges of roofs
-            shadowMap.size = 2048 * 4
+            if (this.hasDevSiteWarning) {
+                this.viewer.scene.debugShowFramesPerSecond = true
+            }
 
             const scene = this.viewer.scene
             scene.useDepthPicking = true
             scene.pickTranslucentDepth = true
             scene.backgroundColor = Color.TRANSPARENT
+
+            const postProcessStages = new PostProcessStageCollection()
+            postProcessStages.ambientOcclusion.enabled = true
+            postProcessStages.bloom.enabled = false
+            postProcessStages.fxaa.enabled = true
+            scene.postProcessStages = postProcessStages
 
             this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
             this.viewer.screenSpaceEventHandler.setInputAction(
@@ -629,6 +624,12 @@ export default {
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
     display: none !important;
+}
+:global(.cesium-performanceDisplay-defaultContainer) {
+    left: $screen-padding-for-ui-elements;
+    bottom: $footer-height + $screen-padding-for-ui-elements;
+    top: unset;
+    right: unset;
 }
 
 .cesium-toolbox {

@@ -33,7 +33,9 @@ let layer
 
 onMounted(async () => {
     layer = getViewer().scene.primitives.add(
-        await loadTileSetAndApplyStyle(url.value, layerId.value === 'ch.swisstopo.swissnames3d.3d')
+        await loadTileSetAndApplyStyle(url.value, {
+            withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
+        })
     )
 })
 onBeforeUnmount(() => {
