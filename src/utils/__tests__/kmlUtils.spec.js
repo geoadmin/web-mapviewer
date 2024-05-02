@@ -1,10 +1,15 @@
 import { expect } from 'chai'
+import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
-import { describe, it } from 'vitest'
+import { resolve } from 'path'
+import { beforeEach, describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { BLUE } from '@/utils/featureStyleUtils'
-import { getIcon, getKmlExtent, parseIconUrl } from '@/utils/kmlUtils'
+import { getIcon, getKmlExtent, parseIconUrl, parseKml } from '@/utils/kmlUtils'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
@@ -111,6 +116,31 @@ describe('Test KML utils', () => {
             expect(getKmlExtent(content)).to.deep.equal([
                 7.659940678339698, 46.75405886506746, 8.092263503513564, 46.96964910688379,
             ])
+        })
+    })
+    describe('get marker title offset', () => {
+        let features = []
+        function findFeatureWithId(featureId) {
+            return features.find((feature) => feature.id === featureId)
+        }
+
+        beforeEach(() => {
+            const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
+            const kmlLayer = new KMLLayer({ kmlFileUrl: '', kmlData: kml })
+            const olFeatures = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets)
+            features = olFeatures.map((f) => {
+                const ef = f.get('editableFeature')
+                ef.olFeature = f
+                return ef
+            })
+        })
+        it('handles correctly text offset from extended data', () => {
+            const icon = findFeatureWithId('drawing_feature_1714651153088')
+            expect(icon.textOffset).to.deep.equal([0, -44.75])
+        })
+        it('handles correctly text offset if no offset provided', () => {
+            const icon = findFeatureWithId('drawing_feature_1714651899088')
+            expect(icon.textOffset).to.deep.equal([0, 0])
         })
     })
     describe('parseIconUrl', () => {
