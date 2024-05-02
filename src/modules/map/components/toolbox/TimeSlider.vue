@@ -5,19 +5,11 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
+import { YOUNGEST_YEAR } from '@/config'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const i18n = useI18n()
-
-const ALL_YEARS = (() => {
-    const years = []
-    for (let year = OLDEST_YEAR; year <= YOUNGEST_YEAR; year++) {
-        years.push(year)
-    }
-    return years
-})()
 
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
@@ -25,7 +17,7 @@ const PLAY_BUTTON_SIZE = 54
 
 // dynamic internal data
 const sliderWidth = ref(0)
-const allYears = ref(ALL_YEARS)
+
 const currentYear = ref(YOUNGEST_YEAR)
 const displayedYear = ref(YOUNGEST_YEAR)
 const isPristine = ref(true)
@@ -42,6 +34,22 @@ const yearCursorInput = ref(null)
 let tippyInstance = null
 
 const store = useStore()
+const allYears = computed(() => {
+    const years = []
+    let minYear = Math.min(...yearsWithData.value.yearsSeparate)
+    if (minYear === Infinity) {
+        minYear = Math.min(...yearsWithData.value.yearsJoint)
+    }
+    let maxYear = Math.max(...yearsWithData.value.yearsSeparate)
+    if (maxYear === -Infinity) {
+        maxYear = Math.max(...yearsWithData.value.yearsJoint)
+    }
+    for (let year = minYear; year <= maxYear; year++) {
+        years.push(year)
+    }
+    return years
+})
+
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() =>
@@ -70,13 +78,13 @@ const yearsShownAsLabel = computed(() => {
     } else if (amountOfLabelsOnScreen < 16) {
         yearThreshold = 25
     }
-    return ALL_YEARS.filter((year) => year % yearThreshold === 0)
+    return allYears.value.filter((year) => year % yearThreshold === 0)
 })
 const innerBarStyle = computed(() => {
     return { width: `${sliderWidth.value}px` }
 })
 const yearPositionOnSlider = computed(
-    () => (1 + ALL_YEARS.indexOf(currentYear.value)) * distanceBetweenLabels.value
+    () => (1 + allYears.value.indexOf(currentYear.value)) * distanceBetweenLabels.value
 )
 const cursorPosition = computed(() => {
     const yearCursorWidth = yearCursor.value?.clientWidth || 0
@@ -98,7 +106,7 @@ const cursorArrowPosition = computed(() => {
         left: `${yearPositionOnSlider.value - 4.5}px`, // 4.5 is half the arrow width of 9px
     }
 })
-const distanceBetweenLabels = computed(() => sliderWidth.value / ALL_YEARS.length)
+const distanceBetweenLabels = computed(() => sliderWidth.value / allYears.value.length)
 const innerBarStepStyle = computed(() => {
     return {
         width: `${distanceBetweenLabels.value}px`,
@@ -161,7 +169,7 @@ onMounted(() => {
     if (!previewYear.value) {
         if (
             layersWithTimestamps.value.length === 1 &&
-            ALL_YEARS.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
+            allYears.value.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
         ) {
             setCurrentYearAndDispatchToStore(layersWithTimestamps.value[0].timeConfig.currentYear)
         } else if (yearsWithData.value.yearsJoint.length > 0) {
@@ -197,7 +205,7 @@ onUnmounted(() => {
 })
 
 function tooltipContent() {
-    return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+    return `${i18n.t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
 }
 
 function setTooltipContent() {
@@ -216,7 +224,7 @@ function setSliderWidth() {
 }
 
 function positionNodeLabel(year) {
-    const timestampIndex = ALL_YEARS.indexOf(year) ?? 1
+    const timestampIndex = allYears.value.indexOf(year) ?? 1
     const leftPosition = Math.max(
         LABEL_WIDTH / 2.0,
         timestampIndex * distanceBetweenLabels.value -
@@ -245,15 +253,15 @@ function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
     const deltaX = cursorX - currentPosition
     if (Math.abs(deltaX) >= distanceBetweenLabels.value) {
-        let futureYearIndex = ALL_YEARS.indexOf(currentYear.value)
+        let futureYearIndex = allYears.value.indexOf(currentYear.value)
 
         // maybe we must skip multiple indexes, checking how wide is the delta
         const absoluteDeltaIndex = Math.floor(Math.abs(deltaX) / distanceBetweenLabels.value)
         if (deltaX < 0) {
-            if (ALL_YEARS.length > futureYearIndex + absoluteDeltaIndex) {
+            if (allYears.value.length > futureYearIndex + absoluteDeltaIndex) {
                 // we can skip steps
                 futureYearIndex += absoluteDeltaIndex
-            } else if (ALL_YEARS.length > futureYearIndex + 1) {
+            } else if (allYears.value.length > futureYearIndex + 1) {
                 // we can't skip steps
                 futureYearIndex++
             }
@@ -264,7 +272,7 @@ function listenToMouseMove(event) {
                 futureYearIndex--
             }
         }
-        const futureYear = ALL_YEARS[futureYearIndex]
+        const futureYear = allYears.value[futureYearIndex]
         // reset of the starting position for delta calculation
         cursorX = currentPosition
         currentYear.value = futureYear
@@ -285,11 +293,12 @@ function releaseCursor() {
 function togglePlayYearsWithData() {
     playYearsWithData = !playYearsWithData
     if (playYearsWithData) {
-        let yearsWithDataForPlayer = ALL_YEARS.filter(
-            (year) =>
-                yearsWithData.value.yearsJoint.includes(year) ||
-                yearsWithData.value.yearsSeparate.includes(year)
-        )
+        let yearsWithDataForPlayer = allYears.value
+            .filter(
+                (year) =>
+                    yearsWithData.value.yearsJoint.includes(year) ||
+                    yearsWithData.value.yearsSeparate.includes(year)
+            )
             .sort()
             .reverse()
         // if current year is the last (most recent) one, or we're not on a year with data, we set the starting year for our
