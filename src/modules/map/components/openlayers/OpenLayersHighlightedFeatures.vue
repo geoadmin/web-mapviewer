@@ -29,9 +29,7 @@ import { randomIntBetween } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 
-const popoverMode = ref(MapPopoverMode.FLOATING)
-
-const i18n = useI18n()
+const { t } = useI18n()
 
 // mapping relevant store values
 const store = useStore()
@@ -92,6 +90,10 @@ const popoverCoordinate = computed(() => {
     )
 })
 
+const popoverMode = ref(
+    isCurrentlyDrawing.value ? MapPopoverMode.FEATURE_TOOLTIP : MapPopoverMode.FLOATING
+)
+
 // When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
 // the floating mode by default.
 // This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
@@ -101,6 +103,14 @@ watch(selectedLayerFeatures, () => {
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === selectedLayerFeatures.value.length
     if (tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
+        popoverMode.value = MapPopoverMode.FLOATING
+    }
+})
+// when drawing the tooltip should be attached to features (and set back to floating when exiting drawing)
+watch(isCurrentlyDrawing, () => {
+    if (isCurrentlyDrawing.value) {
+        popoverMode.value = MapPopoverMode.FEATURE_TOOLTIP
+    } else {
         popoverMode.value = MapPopoverMode.FLOATING
     }
 })
@@ -137,7 +147,7 @@ function togglePopoverMode() {
     <OpenLayersPopover
         v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
-        :title="i18n.t('object_information')"
+        :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
         :use-content-padding="selectedEditableFeatures.length > 0"
         :mode="popoverMode"
@@ -145,6 +155,7 @@ function togglePopoverMode() {
     >
         <template #extra-buttons>
             <button
+                v-if="!isCurrentlyDrawing"
                 class="btn btn-sm btn-light d-flex align-items-center"
                 @click="togglePopoverMode"
             >
