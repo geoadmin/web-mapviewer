@@ -39,6 +39,7 @@ function createWorldPolygon() {
         }),
         style: transparentStyle,
         id: PRINT_AREA_LAYER_ID,
+        zIndex: Infinity, // Make sure the print area is always on top
     })
     return vectorLayer
 }
