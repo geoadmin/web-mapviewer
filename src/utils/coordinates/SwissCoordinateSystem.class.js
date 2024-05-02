@@ -29,7 +29,7 @@ export const LV95_RESOLUTIONS = [
  *
  * @type {Number[]}
  */
-const TILEGRID_RESOLUTIONS = [
+export const TILEGRID_RESOLUTIONS = [
     4000.0,
     3750.0,
     3500.0,

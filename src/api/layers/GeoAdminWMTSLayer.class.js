@@ -1,7 +1,8 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WMTS_BASE_URL } from '@/config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } from '@/config'
+import { TILEGRID_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 
 /**
  * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
@@ -47,6 +48,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
+     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
+     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -69,7 +72,14 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             topics = [],
             hasLegend = false,
             searchable = false,
+            maxResolution = DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
         } = layerData
+        if (!TILEGRID_RESOLUTIONS.includes(maxResolution)) {
+            throw new InvalidLayerDataError(
+                'max Resolution not part of available resolutions',
+                layerData
+            )
+        }
         super({
             name,
             type: LayerTypes.WMTS,
@@ -90,5 +100,6 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             timeConfig,
         })
         this.format = format
+        this.maxResolution = maxResolution
     }
 }
