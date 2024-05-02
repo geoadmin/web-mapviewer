@@ -176,6 +176,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     isHighlightable,
                     hasTooltip,
                     topics,
+                    subLayers,
                     hasLegend: !!hasLegend,
                 })
 
