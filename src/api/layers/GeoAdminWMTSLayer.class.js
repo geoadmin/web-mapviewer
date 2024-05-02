@@ -98,8 +98,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             hasLegend,
             searchable,
             timeConfig,
-            maxResolution,
         })
         this.format = format
+        this.maxResolution = maxResolution
     }
 }
