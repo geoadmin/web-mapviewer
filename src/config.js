@@ -179,13 +179,14 @@ export const WMS_TILE_SIZE = 512 // px
 export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
 
 /**
- * Map default max resolution as it is set in mf-chsdi. When the layer has this as a max resolution,
- * the layersConfig endpoint does not give the resolutions available.
- * https://github.com/geoadmin/mf-chsdi3/blob/0236814544a6bf2df86598889b81ee4023494325/chsdi/models/bod.py#L119-L123
+ * Map default max resolution as it is set in mf-chsdi. Only layers with nonstandard resolutions
+ * give their resolutions. In all other cases, we need to use this default value as the max
+ * resolution.
  *
  * @type {Number}
+ * @see https://github.com/geoadmin/mf-chsdi3/blob/0236814544a6bf2df86598889b81ee4023494325/chsdi/models/bod.py#L119-L123
  */
-export const DEFAULT_MAX_GEOADMIN_RESOLUTION = 0.5 // meters/pixel
+export const DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION = 0.5 // meters/pixel
 /**
  * Horizontal threshold for the phone view. (min-width for tablet) This will change the menu and
  * also some interactions.

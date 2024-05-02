@@ -1,7 +1,7 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_MAX_GEOADMIN_RESOLUTION, WMTS_BASE_URL } from '@/config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } from '@/config'
 import { TILEGRID_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 
 /**
@@ -72,7 +72,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             topics = [],
             hasLegend = false,
             searchable = false,
-            maxResolution = DEFAULT_MAX_GEOADMIN_RESOLUTION,
+            maxResolution = DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
         } = layerData
         if (!TILEGRID_RESOLUTIONS.includes(maxResolution)) {
             throw new InvalidLayerDataError(

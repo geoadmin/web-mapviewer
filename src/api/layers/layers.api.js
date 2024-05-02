@@ -9,7 +9,7 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { API_BASE_URL, DEFAULT_MAX_GEOADMIN_RESOLUTION, WMTS_BASE_URL } from '@/config'
+import { API_BASE_URL, DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
@@ -87,7 +87,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     hasLegend: !!hasLegend,
                     searchable: !!searchable,
                     maxResolution:
-                        layerConfig.resolutions?.slice(-1)[0] ?? DEFAULT_MAX_GEOADMIN_RESOLUTION,
+                        layerConfig.resolutions?.slice(-1)[0] ??
+                        DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
                 })
                 break
             case 'wms':

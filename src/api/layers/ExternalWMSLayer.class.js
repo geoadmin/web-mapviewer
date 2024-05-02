@@ -68,7 +68,6 @@ export default class ExternalWMSLayer extends ExternalLayer {
             hasTooltip = false,
             getFeatureInfoCapability = null,
         } = externalWmsData
-
         super({
             name,
             id,
