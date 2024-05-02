@@ -25,6 +25,8 @@ class GeoAdminCustomizer extends BaseCustomizer {
         this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
         this.line = this.line.bind(this)
+        this.text = this.text.bind(this)
+        this.point = this.point.bind(this)
     }
 
     /**
@@ -71,6 +73,40 @@ class GeoAdminCustomizer extends BaseCustomizer {
         }
         if (symbolizer.strokeWidth) {
             symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        }
+    }
+
+    /**
+     * Manipulate the symbolizer of a text style of a feature before printing it.
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
+     * @param {Text} text Text style of the feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    text(layerState, symbolizer, text) {
+        symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
+        symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
+    }
+
+    /**
+     * Manipulate the symbolizer of a point style of a feature before printing it. In this case it
+     * manipulate the width and offset of the image to match the old geoadmin
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerPoint} symbolizer Interface for the symbolizer of a text feature
+     * @param {Image} image Image style of the feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    point(layerState, symbolizer, image) {
+        symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+        symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
+        symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
+        // Handling the case where we need to print a circle in the end of measurement lines
+        // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
+        if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
+            symbolizer.fillOpacity = 1
         }
     }
 }

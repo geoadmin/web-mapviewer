@@ -114,8 +114,8 @@ describe('Unit tests for Geodesic geometries', () => {
                     [4500, 0],
                 ],
             ],
-            maxStyles: 6, // 4 measure points, azimuth circle, total length
-            minStyles: 2, // azimuth circle + total length
+            maxStyles: 7, // 4 measure points, azimuth circle, total length, transparent circle for printing
+            minStyles: 3, // azimuth circle + total length, transparent circle for printing
             segmentExtents: [[0, 0, 4500, 0]],
         })
 
@@ -180,8 +180,8 @@ describe('Unit tests for Geodesic geometries', () => {
                 ],
             ],
             geodesicPolygonGeom: null,
-            maxStyles: 5, // 3 measure points, azimuth circle, total length
-            minStyles: 2, // azimuth circle + total length
+            maxStyles: 6, // 3 measure points, azimuth circle, total length, transparent circle for printing
+            minStyles: 3, // azimuth circle + total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
         })
 
@@ -220,8 +220,8 @@ describe('Unit tests for Geodesic geometries', () => {
                 ],
             ],
             geodesicPolygonGeom: null,
-            maxStyles: 4, // 3 measure points, total length
-            minStyles: 1, // total length
+            maxStyles: 5, // 3 measure points, total length, transparent circle for printing
+            minStyles: 2, // total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
         })
 
