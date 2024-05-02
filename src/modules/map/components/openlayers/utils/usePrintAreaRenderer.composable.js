@@ -70,6 +70,8 @@ export default function usePrintAreaRenderer(map) {
             worldPolygon = createWorldPolygon()
         }
         map.addLayer(worldPolygon)
+        // Make sure the print area is always on top
+        worldPolygon.setZIndex(9999)
         deregister = [
             worldPolygon.on('prerender', handlePreRender),
             worldPolygon.on('postrender', handlePostRender),
