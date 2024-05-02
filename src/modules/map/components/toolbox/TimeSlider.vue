@@ -386,10 +386,7 @@ function setYearToInputIfValid() {
                         class="time-slider-bar-inner-step"
                         :data-cy="`time-slider-bar-${year}`"
                         :class="{
-                            'has-no-data': !(
-                                yearsWithData.yearsJoint.includes(year) ||
-                                yearsWithData.yearsSeparate.includes(year)
-                            ),
+                            'has-partial-data': yearsWithData.yearsSeparate.includes(year),
                             'has-joint-data': yearsWithData.yearsJoint.includes(year),
                             'big-tick': year % 50 === 0,
                             'medium-tick': year % 25 === 0,
@@ -427,6 +424,7 @@ function setYearToInputIfValid() {
 @import '@/scss/webmapviewer-bootstrap-theme';
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
+$time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 .time-slider {
     background: $time-slider-color-background !important;
     &:not(.grabbed) &-bar-cursor {
@@ -466,19 +464,13 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
             }
         }
         &-inner {
-            background: repeating-linear-gradient(
-                45deg,
-                $silver,
-                $silver 4px,
-                $time-slider-color-has-data 2px,
-                $time-slider-color-has-data 8px
-            );
+            background: $silver;
             width: 100%;
             height: 10px;
             &-step {
                 cursor: pointer;
-                &.has-no-data {
-                    background: $silver;
+                &.has-partial-data {
+                    background: $time-slider-color-partial-data;
                 }
                 &.has-joint-data {
                     background: $time-slider-color-has-data;
