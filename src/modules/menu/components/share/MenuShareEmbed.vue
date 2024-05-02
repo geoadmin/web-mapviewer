@@ -284,9 +284,9 @@ async function copyValue() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/menu/scss/menu-items';
+@import '@/scss/media-query.mixin';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/menu/scss/menu-items';
 
 .embed-btn {
     // Here we add the menu-item styling to the title only to avoid hover

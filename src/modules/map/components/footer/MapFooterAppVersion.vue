@@ -17,7 +17,7 @@ const isProd = computed(() => store.getters.isProductionSite)
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 .app-version {
     color: $gray-800;

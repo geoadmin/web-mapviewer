@@ -64,7 +64,7 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 $rectangle-line-width: 2px;
 $rectangle-line-color: $gray-600;
 $transparent: rgba(0, 0, 0, 0);

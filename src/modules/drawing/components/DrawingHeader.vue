@@ -47,8 +47,8 @@ function onClose() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 .drawing-header {
     position: relative;
     height: $header-height;

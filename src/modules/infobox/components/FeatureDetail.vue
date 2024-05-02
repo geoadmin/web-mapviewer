@@ -120,7 +120,7 @@ function getIframeHosts(value) {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables-admin.module';
+@import '@/scss/variables-admin.module';
 
 // Styling for external HTML content
 :global(.htmlpopup-container) {

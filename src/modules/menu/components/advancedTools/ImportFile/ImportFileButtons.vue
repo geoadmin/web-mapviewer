@@ -66,7 +66,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 .import-file-btn-connect,
 .import-file-btn-close {

@@ -63,7 +63,7 @@ defineExpose({ focusFirstEntry, focusLastEntry })
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 .search-category {
     display: flex;
     overflow: hidden;

@@ -29,7 +29,7 @@ const { feature, readOnly } = toRefs(props)
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 // minmax(0, 1fr) is needed as 1fr is equivalent to minmax(auto, 1fr) where auto
 // is the size of the content. Which in turn leads to cells that are too wide.

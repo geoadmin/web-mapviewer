@@ -176,7 +176,7 @@ async function updateHeight() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 .location-popup {
     &-coordinates {
         display: grid;

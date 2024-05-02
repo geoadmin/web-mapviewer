@@ -74,7 +74,7 @@ function getLayerName(layerId) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables';
+@import '@/scss/variables.module';
 .feature-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax($overlay-width, 1fr));

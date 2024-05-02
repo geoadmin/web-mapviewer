@@ -131,8 +131,8 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/scss/media-query.mixin';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/media-query.mixin';
 .search-category-entry {
     &-main {
         cursor: pointer;

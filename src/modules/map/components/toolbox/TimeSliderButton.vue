@@ -60,8 +60,8 @@ function toggleTimeSlider() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/scss/media-query.mixin';
+@import '@/modules/map/scss/toolbox-buttons';
 
 $openCloseButtonHeight: 0rem;
 
@@ -70,7 +70,7 @@ $openCloseButtonHeight: 0rem;
     left: 0;
     width: calc(100% - $map-button-diameter - $spacer);
     &.dev-disclaimer-present {
-        top: $header-height + $dev-disclaimer-height;
+        top: calc($header-height + $dev-disclaimer-height);
     }
     &.fullscreen-mode,
     &.dev-disclaimer-present.fullscreen-mode {
@@ -80,9 +80,9 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(sm) {
     .time-sliders {
-        top: $header-height + $openCloseButtonHeight;
+        top: calc($header-height + $openCloseButtonHeight);
         &.dev-disclaimer-present {
-            top: $header-height + $openCloseButtonHeight + $dev-disclaimer-height;
+            top: calc($header-height + $openCloseButtonHeight + $dev-disclaimer-height);
         }
     }
 }
@@ -96,7 +96,7 @@ $openCloseButtonHeight: 0rem;
     .time-sliders {
         top: 2 * $header-height;
         &.dev-disclaimer-present {
-            top: 2 * $header-height + $dev-disclaimer-height;
+            top: calc(2 * $header-height + $dev-disclaimer-height);
         }
     }
 }

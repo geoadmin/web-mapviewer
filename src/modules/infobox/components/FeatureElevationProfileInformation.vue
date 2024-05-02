@@ -119,7 +119,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 .profile-info-container {
     overflow-x: auto;
     max-width: 100%;

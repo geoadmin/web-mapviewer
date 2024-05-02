@@ -425,7 +425,7 @@ function setYearToInputIfValid() {
 <style lang="scss">
 @use 'sass:color';
 
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
 .time-slider {

@@ -252,8 +252,8 @@ function duplicateLayer() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/menu/scss/menu-items';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/menu/scss/menu-items';
 
 .data-disclaimer-tooltip {
     cursor: pointer;

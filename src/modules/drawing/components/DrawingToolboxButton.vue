@@ -64,7 +64,7 @@ function setDrawingMode() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 @include respond-above(phone) {
     .drawing-mode-button {
         min-width: 7rem;

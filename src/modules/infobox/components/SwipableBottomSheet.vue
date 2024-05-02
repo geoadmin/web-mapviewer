@@ -182,7 +182,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 .swipe-element {
     width: 100%;
     height: 100%;

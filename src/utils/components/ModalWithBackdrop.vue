@@ -143,8 +143,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
-@import 'src/scss/media-query.mixin';
+@import '@/scss/variables.module';
+@import '@/scss/media-query.mixin';
 
 .on-top-with-padding {
     top: $card-spacer-y !important;

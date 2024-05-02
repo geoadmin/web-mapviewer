@@ -43,8 +43,8 @@ onUpdated(() => {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/media-query.mixin';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 $transition-duration: 0.2s;
 $flex-gap: 1em;
@@ -94,6 +94,7 @@ $flex-gap: 1em;
         padding: 0.6em;
         background-color: rgba($white, 0.9);
         font-size: 0.6rem;
+        height: $footer-height;
 
         display: flex;
         align-items: center;
