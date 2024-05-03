@@ -32,19 +32,18 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     function addKmlToDrawing(retryOnError = true) {
         clearTimeout(addKmlLayerTimeout)
         try {
-            let kmlData = null
+            let availableKmlLayer = null
             if (online.value) {
                 log.debug(`Add current active kml layer to drawing`, activeKmlLayer.value)
-                kmlData = activeKmlLayer.value?.kmlData ?? null
+                availableKmlLayer = activeKmlLayer.value
             } else {
                 log.debug(`Add current temporary kml layer to drawing`, temporaryKml.value)
-                kmlData = temporaryKml.value?.kmlData ?? null
+                availableKmlLayer = temporaryKml.value
             }
-            if (!kmlData) {
+            if (!availableKmlLayer?.kmlData) {
                 throw new Error('missing KML data')
             }
-
-            const features = parseKml(kmlData, projection.value, availableIconSets.value)
+            const features = parseKml(availableKmlLayer, projection.value, availableIconSets.value)
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
             store.dispatch('setDrawingFeatures', {

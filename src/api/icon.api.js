@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { API_SERVICES_BASE_URL } from '@/config'
-import { RED } from '@/utils/featureStyleUtils'
+import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
@@ -17,6 +17,17 @@ export const DEFAULT_ICON_URL_PARAMS = {
     scale: 1,
     size: [48, 48],
 }
+
+/** Default offset of title for any feature */
+export const DEFAULT_TITLE_OFFSET = [0, 0]
+
+/** Default offset of title for the default marker */
+export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
+    MEDIUM.textScale,
+    MEDIUM.iconScale,
+    [0, 0.875],
+    DEFAULT_ICON_URL_PARAMS.size
+)
 
 /**
  * Collection of icons belonging to the same "category" (or set).

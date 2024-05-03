@@ -94,7 +94,7 @@ function createSourceForProjection() {
         new VectorSource({
             wrapX: true,
             projection: projection.value.epsg,
-            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
+            features: parseKml(kmlLayerConfig.value, projection.value, availableIconSets.value),
         })
     )
     log.debug('Openlayer KML layer source created')

@@ -100,6 +100,9 @@ function onFeatureChange(editableFeature) {
     // To do this we need to set them on the ol feature as properties.
     currentlySelectedFeature.value?.set('name', editableFeature.title)
     currentlySelectedFeature.value?.set('description', editableFeature.description)
+    if (editableFeature.featureType === EditableFeatureTypes.MARKER) {
+        currentlySelectedFeature.value?.set('textOffset', editableFeature.textOffset.toString())
+    }
     currentlySelectedFeature.value?.changed()
     debounceSaveDrawing()
 }

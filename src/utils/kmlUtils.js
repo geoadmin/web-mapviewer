@@ -11,6 +11,7 @@ import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import { DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -353,11 +354,12 @@ export function getFillColor(style, geometryType, iconArgs) {
  * Get the geoadmin editable feature for the given open layer KML feature
  *
  * @param {Feature} kmlFeature Open layer KML feature
+ * @param {kmlLayer} kmlLayer Open layer KML layer
  * @param {DrawingIconSet[]} availableIconSets
  * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
  *   feature
  */
-export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
+export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
         return null
@@ -381,6 +383,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
     const textColor = getTextColor(style)
+    const textOffset = kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
 
     const description = kmlFeature.get('description') ?? ''
 
@@ -434,6 +437,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         description: description,
         coordinates,
         geometry,
+        textOffset,
         textColor,
         textSize,
         fillColor,
@@ -445,18 +449,19 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
 /**
  * Parses a KML's data into OL Features
  *
- * @param {String} kmlData KML content to parse
+ * @param {kmlLayer} kmlLayer KML layer to parse
  * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
-export function parseKml(kmlData, projection, iconSets) {
+export function parseKml(kmlLayer, projection, iconSets) {
+    const kmlData = kmlLayer.kmlData
     const features = new KML().readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
     features.forEach((olFeature) => {
-        const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
+        const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
 
         if (editableFeature) {
             // Set the EditableFeature coordinates from the olFeature geometry

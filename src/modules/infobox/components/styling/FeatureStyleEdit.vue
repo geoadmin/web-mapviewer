@@ -6,6 +6,7 @@ import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
@@ -17,6 +18,7 @@ import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
+import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
@@ -105,6 +107,7 @@ const availableIconSets = computed(() => store.state.drawing.iconSets)
 
 function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
+    updateTextOffset()
 }
 function onTextColorChange(textColor) {
     store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
@@ -114,9 +117,11 @@ function onColorChange(color) {
 }
 function onIconChange(icon) {
     store.dispatch('changeFeatureIcon', { feature: feature.value, icon, ...dispatcher })
+    updateTextOffset()
 }
 function onIconSizeChange(iconSize) {
     store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize, ...dispatcher })
+    updateTextOffset()
 }
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
@@ -124,6 +129,23 @@ function onDelete() {
 function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     mediaPopovers.value[mediaPopoverIndex].hidePopover()
     description.value += descriptionMediaLink
+}
+
+function updateTextOffset() {
+    if (isFeatureMarker.value) {
+        const offset = calculateTextOffset(
+            feature.value.textSize.textScale,
+            feature.value.iconSize.iconScale,
+            feature.value.icon.anchor,
+            DEFAULT_ICON_URL_PARAMS.size //TODO: PB-303 Use icon size from backend
+        )
+
+        store.dispatch('changeFeatureTextOffset', {
+            feature: feature.value,
+            textOffset: offset,
+            ...dispatcher,
+        })
+    }
 }
 
 function mediaTypes() {

@@ -224,6 +224,25 @@ export default {
             }
         },
         /**
+         * Changes the text offset of the feature. Only change the text offset if the feature is
+         * editable and part of the currently selected features
+         *
+         * @param commit
+         * @param state
+         * @param {EditableFeature} feature
+         * @param {Array} textOffset
+         */
+        changeFeatureTextOffset({ commit, state }, { feature, textOffset, dispatcher }) {
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureTextOffset', {
+                    feature: selectedFeature,
+                    textOffset,
+                    dispatcher,
+                })
+            }
+        },
+        /**
          * Changes the text color of the feature. Only change the text color if the feature is
          * editable, part of the currently selected features and that the given color is a valid
          * color from {@link FeatureStyleColor}
@@ -379,6 +398,9 @@ export default {
         },
         changeFeatureTextSize(state, { feature, textSize }) {
             feature.textSize = textSize
+        },
+        changeFeatureTextOffset(state, { feature, textOffset }) {
+            feature.textOffset = textOffset
         },
         changeFeatureTextColor(state, { feature, textColor }) {
             feature.textColor = textColor
