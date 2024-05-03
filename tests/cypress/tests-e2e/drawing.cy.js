@@ -1134,6 +1134,11 @@ describe('Drawing module tests', () => {
                 '1341.8 m'
             )
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
+            cy.get('[data-cy="infobox-toggle-floating"]').click()
+
+            cy.log('check that profile gets updated when feature is modified')
+            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.wait('@profile')
 
             // clicking on the header of the profile container
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
@@ -1153,7 +1158,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"]').should('not.exist')
 
             // re-opening
-            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(100, 200)
             cy.get('[data-cy="infobox"]').should('be.visible')
 
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
