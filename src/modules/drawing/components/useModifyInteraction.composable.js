@@ -102,6 +102,12 @@ export default function useModifyInteraction(features) {
                 feature: storeFeature,
                 geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
             })
+            if (
+                storeFeature.geometry.type === 'Polygon' ||
+                storeFeature.geometry.type === 'LineString'
+            ) {
+                store.dispatch('setProfileFeature', { feature: storeFeature, ...dispatcher })
+            }
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
