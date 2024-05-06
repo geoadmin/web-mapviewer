@@ -166,7 +166,7 @@ async function copyValue() {
                     />
                     <button
                         data-cy="menu-share-embed-copy-button"
-                        class="btn btn-outline-secondary"
+                        class="btn btn-outline-group"
                         type="button"
                         data-tippy-content="copy_cta"
                         @click="copyValue"
@@ -178,7 +178,7 @@ async function copyValue() {
                         />
                     </button>
                     <button
-                        class="btn btn-outline-secondary"
+                        class="btn btn-outline-group"
                         data-cy="menu-share-embed-preview-button"
                         @click="togglePreviewModal"
                     >

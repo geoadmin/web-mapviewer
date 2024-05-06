@@ -120,7 +120,7 @@ async function updateAdminShareUrl() {
                     @click="copyShareUrl(false)"
                 />
                 <button
-                    class="btn btn-outline-secondary"
+                    class="btn btn-outline-group"
                     type="button"
                     data-cy="drawing-share-normal-link"
                     @click="copyShareUrl(false)"
@@ -141,7 +141,7 @@ async function updateAdminShareUrl() {
                     @click="copyAdminShareUrl()"
                 />
                 <button
-                    class="btn btn-outline-secondary"
+                    class="btn btn-outline-group"
                     type="button"
                     data-cy="drawing-share-admin-link"
                     @click="copyAdminShareUrl()"
