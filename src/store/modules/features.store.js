@@ -136,13 +136,18 @@ export default {
             }
         },
 
-        changeFeatureGeometry({ commit, state }, { feature, geometry }) {
+        changeFeatureGeometry({ commit, dispatch, state }, { feature, geometry, dispatcher }) {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable && geometry) {
                 commit('changeFeatureGeometry', {
                     feature: selectedFeature,
                     geometry,
+                    dispatcher,
                 })
+                // if the feature can show a profile we need to trigger a profile data update
+                if (canFeatureShowProfile(selectedFeature)) {
+                    dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
+                }
             }
         },
         /**
