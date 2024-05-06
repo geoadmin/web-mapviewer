@@ -484,7 +484,7 @@
     "time_hide": "Deaktivieren der Anzeige von Daten-Zeitständen.",
     "time_select_year": "Wählen Sie ein Jahr aus",
     "time_show": "Aktivieren der Anzeige von Daten-Zeitständen.",
-    "time_slider_legend_tippy_intro": "Der Zeitschieber zeigt verschiedene Farben an, je nachdem, ob die Zeitschichten Daten für das ausgewählte Jahr haben oder nicht.",
+    "time_slider_legend_tippy_intro": "Der Zeitschieber zeigt verschiedene Farben an, je nachdem, ob die Karte Daten für das ausgewählte Jahr enthalten oder nicht.",
     "time_slider_legend_tippy_full_data": "Vollständige Daten",
     "time_slider_legend_tippy_no_data": "Teildaten",
     "time_slider_legend_tippy_partial_data": "Keine Daten",
