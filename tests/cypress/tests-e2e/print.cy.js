@@ -287,16 +287,18 @@ describe('Testing print', () => {
             // Attach a local KML file
             cy.log('Test add a local KML file')
             cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="import-local-file-input"]').selectFile('@kmlFixture', {
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
             // Assertions for successful import
-            cy.get('[data-cy="import-local-file-input-text"]')
+            cy.get('[data-cy="file-input-text"]')
                 .should('have.class', 'is-valid')
                 .should('not.have.class', 'is-invalid')
-            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+            cy.get('[data-cy="file-input-valid-feedback"]')
+                .should('be.visible')
+                .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
@@ -369,16 +371,18 @@ describe('Testing print', () => {
             // Attach a local GPX file
             cy.log('Test add a local GPX file')
             cy.fixture(localGpxlFile, null).as('gpxFixture')
-            cy.get('[data-cy="import-local-file-input"]').selectFile('@gpxFixture', {
+            cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
             // Assertions for successful import
-            cy.get('[data-cy="import-local-file-input-text"]')
+            cy.get('[data-cy="file-input-text"]')
                 .should('have.class', 'is-valid')
                 .should('not.have.class', 'is-invalid')
-            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+            cy.get('[data-cy="file-input-valid-feedback"]')
+                .should('be.visible')
+                .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)

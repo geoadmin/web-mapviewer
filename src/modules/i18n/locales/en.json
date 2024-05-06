@@ -664,5 +664,13 @@
     "share_map_title": "Link to the geoportal of Swiss Confederation",
     "link_description": "Link description (optional)",
     "media_disclaimer": "Contains third party content",
-    "drawing_attached": "Drawing added as attachment"
+    "drawing_attached": "Drawing added as attachment",
+    "switch_tooltip_attached_to_feature": "Attach tooltip to geometry",
+    "switch_tooltip_floating": "Use a floating tooltip",
+    "field_required": "This field is required",
+    "invalid_email": "Invalid email",
+    "no_email": "Email field is required",
+    "file_unsupported_format": "This file format is not supported.  Only the following formats are allowed: ALLOWED_FORMATS",
+    "form_invalid": "Form is invalid",
+    "file_imported_success": "File successfully imported"
 }

@@ -664,5 +664,13 @@
     "share_map_title": "Link al geoportale della Confederazione Svizzera",
     "link_description": "Descrizione del link  (facoltativo)",
     "media_disclaimer": "Contiene contenuti di terze parti",
-    "drawing_attached": "Disegno aggiunto come allegato"
+    "drawing_attached": "Disegno aggiunto come allegato",
+    "switch_tooltip_attached_to_feature": "Collegare il tooltip alla geometria",
+    "switch_tooltip_floating": "Utilizzare un tooltip fluttuante",
+    "field_required": "Questo campo è obbligatorio",
+    "invalid_email": "e-mail non valide",
+    "no_email": "Il campo email è obbligatorio",
+    "file_unsupported_format": "Questo formato file non è supportato. Sono ammessi solo i seguenti formati: ALLOWED_FORMATS",
+    "form_invalid": "Il modulo non è valido",
+    "file_imported_success": "File importato con successo"
 }

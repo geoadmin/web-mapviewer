@@ -662,5 +662,13 @@
     "share_map_title": "Link al geoportail da la Confederaziun Svizra",
     "link_description": "Descripziun link (optional)",
     "media_disclaimer": "Contegn contens da terzas partidas",
-    "drawing_attached": "Dessin agiunt sco allegat"
+    "drawing_attached": "Dessin agiunt sco allegat",
+    "switch_tooltip_attached_to_feature": "Agiuntar il detagl da la geometria",
+    "switch_tooltip_floating": "Duvrar in tool sin ballarait",
+    "field_required": "Quest champ è necessari",
+    "invalid_email": "ungültige E-Mail",
+    "no_email": "Il champ da posta eletronicala è necessari",
+    "file_unsupported_format": "Quest format da datoteca na vegn betg sustegnì. Sun ils seguents formats èn permess: ALLOWED_FORMATS",
+    "form_invalid": "Il formular è invalid",
+    "file_imported_success": "Datoteca importada cun success"
 }

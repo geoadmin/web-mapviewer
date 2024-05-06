@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
@@ -27,10 +27,8 @@ const emit = defineEmits(['generatedMediaLink'])
 const i18n = useI18n()
 const generatedMediaLink = ref(null)
 const linkDescription = ref(null)
-
-const urlValid = computed(() => {
-    return isValidUrl(generatedMediaLink.value)
-})
+const isFormValid = ref(false)
+const activateValidation = ref(false)
 
 function createVideo() {
     if (
@@ -59,7 +57,7 @@ function createLink() {
 }
 
 function addLink(generatedMediaLink) {
-    if (!urlValid.value) {
+    if (!validateForm()) {
         return
     }
     switch (mediaType.value) {
@@ -79,49 +77,57 @@ function addLink(generatedMediaLink) {
 function clearInput() {
     generatedMediaLink.value = null
     linkDescription.value = null
+    isFormValid.value = false
+    activateValidation.value = false
 }
 
 function validateUrl(url) {
     if (!url) {
-        return 'no_url'
+        return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
-        return 'invalid_url'
+        return { valid: false, invalidMessage: 'invalid_url' }
     }
-    return ''
+    return { valid: true, invalidMessage: '' }
+}
+
+function validateForm() {
+    activateValidation.value = true
+    return isFormValid.value
+}
+
+function onUrlValidate(valid) {
+    isFormValid.value = valid
 }
 </script>
 
 <template>
     <div class="px-3 pb-2">
         <div v-if="descriptionLabel" class="pb-2">
-            <label class="form-label" for="drawing-style-media-link-description">
-                {{ descriptionLabel }}
-            </label>
             <div class="input-group d-flex needs-validation">
                 <TextInput
-                    id="drawing-style-media-link-description"
                     v-model="linkDescription"
+                    :label="descriptionLabel"
+                    :activate-validation="activateValidation"
                     class="feature-url-description mb-2"
                     placeholder="link_description"
-                    data-cy="drawing-style-media-description-input"
+                    data-cy="drawing-style-media-description"
                 />
             </div>
         </div>
-        <label class="form-label" for="drawing-style-media-url-description">
-            {{ urlLabel }}
-        </label>
         <div class="d-flex align-items-start">
             <TextInput
-                id="drawing-style-media-url-description"
                 v-model="generatedMediaLink"
+                :label="urlLabel"
+                :activate-validation="activateValidation"
+                required
                 class="feature-url-description mb-2"
                 placeholder="paste_url"
                 :validate="validateUrl"
-                data-cy="drawing-style-media-url-input"
+                data-cy="drawing-style-media-url"
                 @keydown.enter="addLink(generatedMediaLink)"
+                @validate="onUrlValidate"
             >
                 <button
-                    :disabled="!urlValid"
                     class="btn btn-default btn-outline-group rounded-0 rounded-end"
                     type="button"
                     data-cy="drawing-style-media-generate-button"

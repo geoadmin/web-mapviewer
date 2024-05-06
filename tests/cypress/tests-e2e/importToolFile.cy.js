@@ -25,16 +25,17 @@ describe('The Import File Tool', () => {
         }).as('getKmlFile')
 
         // Type a valid online KML file URL
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(validOnlineUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(validOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getKmlFile')
 
         // Assertions for successful import
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="import-file-online-url-text-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
@@ -59,19 +60,19 @@ describe('The Import File Tool', () => {
             fixture: secondLocalKmlFile,
         }).as('getSecondKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible')
-            .find('[data-cy="text-input-clear"]:visible')
-            .click()
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(secondValidOnlineUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible')
+        cy.get('[data-cy="import-file-online-url-text-input-clear"]:visible').click()
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(secondValidOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getSecondKmlFile')
 
         // Assertions for successful import
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="import-file-online-url-text-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
@@ -86,16 +87,18 @@ describe('The Import File Tool', () => {
         // Attach a local KML file
         cy.log('Test add a local KML file')
         cy.fixture(localKmlFile, null).as('kmlFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@kmlFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
         // Assertions for successful import
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="file-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
@@ -111,16 +114,18 @@ describe('The Import File Tool', () => {
         cy.log('Test add another local KML file - feature being in bound and outbound')
         const lineAccrossEuFile = 'import-tool/line-accross-eu.kml'
         cy.fixture(lineAccrossEuFile, null).as('lineAccrossEuFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@lineAccrossEuFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
         // Assertions for successful import
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="file-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
@@ -130,9 +135,9 @@ describe('The Import File Tool', () => {
         // Switch back to the import of an online KML file
         cy.get('[data-cy="import-file-online-btn"]:visible').click()
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
-        cy.get('[data-cy="import-file-online-url-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
             .should('be.visible')
-            .find('[data-cy="text-input"]')
+
             .should('have.class', 'is-valid')
             .should('have.value', secondValidOnlineUrl)
 
@@ -304,16 +309,15 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(invalidFileOnlineUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(invalidFileOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getInvalidKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
+
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-validation-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('Invalid file')
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
@@ -322,45 +326,40 @@ describe('The Import File Tool', () => {
         cy.log('Test online import invalid url')
         const invalidOnlineUrl = 'hello world'
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible')
-            .find('[data-cy="text-input-clear"]:visible')
-            .click()
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible')
+        cy.get('[data-cy="import-file-online-url-text-input-clear"]:visible').click()
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(invalidOnlineUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(invalidOnlineUrl)
 
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
+
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('URL is not valid')
-        cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        cy.get('[data-cy="import-file-online-url-input"]').type('{enter}')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]').type('{enter}')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('URL is not valid')
 
         //---------------------------------------------------------------------
         cy.log('Test online import url not reachable')
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible')
-            .find('[data-cy="text-input-clear"]:visible')
-            .click()
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible')
+        cy.get('[data-cy="import-file-online-url-text-input-clear"]:visible').click()
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(onlineUrlNotReachable)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(onlineUrlNotReachable)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getNoReachableKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
+
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-validation-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('file not accessible')
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
@@ -368,19 +367,17 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach an online KML file that is out of bounds
         cy.log('Test add an online KML file that is out of bounds')
-        cy.get('[data-cy="import-file-online-url-input"]:visible')
-            .find('[data-cy="text-input-clear"]:visible')
-            .click()
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(outOfBoundKMLUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible')
+        cy.get('[data-cy="import-file-online-url-text-input-clear"]:visible').click()
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(outOfBoundKMLUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getOutOfBoundKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
+
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-validation-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('out of projection bounds')
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
@@ -393,19 +390,17 @@ describe('The Import File Tool', () => {
             fixture: emptyKMLFile,
         }).as('getEmptyKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]:visible')
-            .find('[data-cy="text-input-clear"]:visible')
-            .click()
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(emptyKMLUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible')
+        cy.get('[data-cy="import-file-online-url-text-input-clear"]:visible').click()
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(emptyKMLUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getEmptyKmlFile')
 
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
+
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="invalid-feedback-validation-error"]')
+        cy.get('[data-cy="import-file-online-url-text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('file is empty')
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
@@ -415,12 +410,17 @@ describe('The Import File Tool', () => {
         cy.log('Switch to local import')
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
-        cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.get('[data-cy="file-input-text"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
+            .should('have.class', 'invalid-feedback')
+            .should('be.visible')
+            .should('contain', 'No file')
 
         //----------------------------------------------------------------------
         // Attach a local invalid KML file
         cy.log('Test add a local invalid KML file')
-        cy.get('[data-cy="import-local-file-input"]').selectFile(
+        cy.get('[data-cy="file-input"]').selectFile(
             {
                 contents: Cypress.Buffer.from('Invalid kml file contents'),
                 fileName: 'file.txt',
@@ -431,47 +431,45 @@ describe('The Import File Tool', () => {
         )
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-local-file-invalid-feedback"]')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
+            .should('have.class', 'invalid-feedback')
             .should('be.visible')
-            .contains('Invalid file')
-        cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
+            .should('contain', 'This file format is not supported')
 
         //----------------------------------------------------------------------
         // Attach a local KML file that is out of bounds
         cy.log('Test add a local KML file that is out of bounds')
         cy.fixture(outOfBoundKMLFile, null).as('outOfBoundKMLFileFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@outOfBoundKMLFileFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@outOfBoundKMLFileFixture', {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-local-file-invalid-feedback"]')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
             .should('be.visible')
             .contains('out of projection bounds')
-        cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
 
         //----------------------------------------------------------------------
         // Attach a local empty KML file
         cy.log('Test add a local invalid KML file')
         cy.fixture(emptyKMLFile, null).as('emptyKMLFileFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@emptyKMLFileFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@emptyKMLFileFixture', {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
-        cy.get('[data-cy="import-local-file-invalid-feedback"]')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
             .should('be.visible')
             .contains('file is empty')
-        cy.get('[data-cy="import-file-load-button"]:visible').should('be.disabled')
 
         //----------------------------------------------------------------------
         // Close the import tool
@@ -508,16 +506,17 @@ describe('The Import File Tool', () => {
         }).as('getGpxFile')
 
         // Type a valid online GPX file URL
-        cy.get('[data-cy="import-file-online-url-input"]:visible').type(validOnlineUrl)
+        cy.get('[data-cy="import-file-online-url-text-input"]:visible').type(validOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait('@getGpxFile')
 
         // Assertions for successful import
-        cy.get('[data-cy="import-file-online-url-input"]')
-            .find('[data-cy="text-input"]')
+        cy.get('[data-cy="import-file-online-url-text-input"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="import-file-online-url-text-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
@@ -534,16 +533,18 @@ describe('The Import File Tool', () => {
         cy.log('Test adding a local GPX file')
         const gpxFileLayerId = `GPX|${gpxFileName}`
         cy.fixture(gpxFileFixture).as('gpxFileFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@gpxFileFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@gpxFileFixture', {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
         // Assertions for successful import
-        cy.get('[data-cy="import-local-file-input-text"]')
+        cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="file-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
 

@@ -3,8 +3,7 @@
 let components = 0
 </script>
 <script setup>
-/** Input with clear button component */
-import { computed, nextTick, ref, toRefs, useSlots } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -13,12 +12,11 @@ import {
     useFieldValidation,
 } from '@/utils/composables/useFieldValidation'
 
-// On each component creation set the current component ID and increase the counter
-const clearButtonId = useComponentUniqueId('button-addon-clear', components)
-const textInputId = useComponentUniqueId('text-input', components)
+const textAreaInputId = useComponentUniqueId('text-area-input', components)
 
 const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'clear', 'keydown.enter'])
+const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
+const i18n = useI18n()
 
 const props = defineProps({
     /**
@@ -130,9 +128,9 @@ const props = defineProps({
         default: false,
     },
     /**
-     * Validate function to run when the input changes The function should return an object of type
-     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
-     * translation key.
+     * Validate function to run when the input changes The function should return an empty string if
+     * the validation pass or an error message key that will be translated and set as invalid error
+     * message.
      *
      * NOTE: this function is called each time the field is modified
      *
@@ -149,90 +147,58 @@ const props = defineProps({
     },
 })
 const { placeholder, disabled, label, description } = toRefs(props)
+const textAreaElement = ref(null)
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
 
-const i18n = useI18n()
-const slots = useSlots()
-
-const inputElement = ref(null)
-const error = ref('')
-
-const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-text-input` : `text-input`))
-
-function onClearInput() {
-    value.value = ''
-    error.value = ''
-    inputElement.value.focus()
-    emits('clear')
-}
+const dataCyPrefix = computed(() =>
+    props.dataCy ? `${props.dataCy}-text-area-input` : `text-area-input`
+)
 
 function focus() {
-    nextTick(() => inputElement.value.focus())
+    textAreaElement.value.focus()
 }
 
 defineExpose({ focus })
 </script>
 
 <template>
-    <div>
+    <div class="form-group has-validation">
         <label
             v-if="label"
             class="mb-2"
             :class="{ 'fw-bolder': required }"
-            :for="textInputId"
+            :for="textAreaInputId"
             :data-cy="`${dataCyPrefix}-label`"
             >{{ i18n.t(label) }}</label
         >
-        <div class="input-group d-flex needs-validation">
-            <input
-                :id="textInputId"
-                ref="inputElement"
-                v-model="value"
-                type="text"
-                :disabled="disabled"
-                :required="required"
-                class="form-control text-truncate"
-                :class="{
-                    'rounded-end': !value?.length && !slots.default,
-                    'is-invalid': invalidMarker,
-                    'is-valid': validMarker,
-                }"
-                :aria-describedby="clearButtonId"
-                :placeholder="placeholder ? i18n.t(placeholder) : ''"
-                :value="value"
-                :data-cy="`${dataCyPrefix}`"
-                @focusin="onFocus($event, true)"
-                @focusout="onFocus($event, false)"
-                @keydown.enter="emits('keydown.enter')"
-            />
-            <button
-                v-if="value?.length > 0"
-                :id="clearButtonId"
-                class="btn btn-outline-group rounded-0"
-                :class="{ 'rounded-end': !slots.default }"
-                type="button"
-                :data-cy="`${dataCyPrefix}-clear`"
-                @click="onClearInput"
-            >
-                <FontAwesomeIcon :icon="['fas', 'times-circle']" />
-            </button>
-            <slot />
-            <div
-                v-if="invalidMessage"
-                class="invalid-feedback"
-                :data-cy="`${dataCyPrefix}-invalid-feedback`"
-            >
-                {{ i18n.t(invalidMessage) }}
-            </div>
-            <div
-                v-if="validMessage"
-                class="valid-feedback"
-                :data-cy="`${dataCyPrefix}-valid-feedback`"
-            >
-                {{ i18n.t(validMessage) }}
-            </div>
+        <textarea
+            :id="textAreaInputId"
+            ref="textAreaElement"
+            v-model="value"
+            :disabled="disabled"
+            :required="required"
+            :class="{
+                'is-invalid': invalidMarker,
+                'is-valid': validMarker,
+            }"
+            class="form-control"
+            :placeholder="placeholder ? i18n.t(placeholder) : ''"
+            :data-cy="`${dataCyPrefix}`"
+            @focusin="onFocus($event, true)"
+            @focusout="onFocus($event, false)"
+            @keydown.enter="emits('keydown.enter')"
+        ></textarea>
+        <div
+            v-if="invalidMessage"
+            class="invalid-feedback"
+            :data-cy="`${dataCyPrefix}-invalid-feedback`"
+        >
+            {{ i18n.t(invalidMessage) }}
+        </div>
+        <div v-if="validMessage" class="valid-feedback" :data-cy="`${dataCyPrefix}-valid-feedback`">
+            {{ i18n.t(validMessage) }}
         </div>
         <div v-if="description" class="form-text">
             {{ i18n.t(description) }}

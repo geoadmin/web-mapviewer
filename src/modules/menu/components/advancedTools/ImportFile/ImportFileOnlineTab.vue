@@ -1,6 +1,6 @@
 <script setup>
 import axios, { AxiosError } from 'axios'
-import { onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
@@ -25,14 +25,16 @@ const props = defineProps({
 const { active } = toRefs(props)
 
 // Reactive data
+const loading = ref(false)
 const fileUrlInput = ref(null)
 const fileUrl = ref('')
-const buttonState = ref('default')
-const urlError = ref('')
-const layerAdded = ref(false)
+const importSuccessMessage = ref('')
+const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
+const activateValidation = ref(false)
 
-watch(fileUrl, validateForm)
+const buttonState = computed(() => (loading.value ? 'loading' : 'default'))
+
 watch(active, (value) => {
     if (value) {
         fileUrlInput.value.focus()
@@ -45,22 +47,37 @@ onMounted(() => {
 })
 
 // Methods
-function onUrlChange() {
-    buttonState.value = 'default'
-}
 
 function validateUrl(url) {
     if (!url) {
-        return 'no_url'
+        return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
-        return 'invalid_url'
+        return { valid: false, invalidMessage: 'invalid_url' }
     }
-    return ''
+    return { valid: true, invalidMessage: '' }
+}
+
+function validateForm() {
+    activateValidation.value = true
+    return isFormValid.value
+}
+
+function onUrlValidate(valid) {
+    isFormValid.value = valid
+}
+
+function onUrlChange() {
+    errorFileLoadingMessage.value = ''
+    importSuccessMessage.value = ''
 }
 
 async function loadFile() {
-    layerAdded.value = false
-    buttonState.value = 'loading'
+    importSuccessMessage.value = ''
+    errorFileLoadingMessage.value = ''
+    if (!validateForm()) {
+        return
+    }
+    loading.value = true
     let response
 
     try {
@@ -69,41 +86,23 @@ async function loadFile() {
             throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
         }
         handleFileContent(store, response.data, fileUrl.value)
-        buttonState.value = 'succeeded'
-        layerAdded.value = true
+        importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
         buttonState.value = 'default'
         if (error instanceof AxiosError || /fetch/.test(error.message)) {
             log.error(`Failed to load file from url ${fileUrl.value}`, error)
-            urlError.value = 'loading_error_network_failure'
+            errorFileLoadingMessage.value = 'loading_error_network_failure'
         } else if (error instanceof OutOfBoundsError) {
-            urlError.value = 'kml_gpx_file_out_of_bounds'
+            errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
         } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-            urlError.value = 'kml_gpx_file_empty'
+            errorFileLoadingMessage.value = 'kml_gpx_file_empty'
         } else {
             log.error(`Failed to parse file from url ${fileUrl.value}`, error)
-            urlError.value = 'invalid_kml_gpx_file_error'
+            errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
         }
     }
-}
-
-function validateForm() {
-    layerAdded.value = false
-    urlError.value = ''
-    if (validateUrl(fileUrl.value)) {
-        isFormValid.value = false
-    } else {
-        isFormValid.value = true
-    }
-}
-
-function onEnter() {
-    if (!isFormValid.value) {
-        log.debug(`Cannot load file invalid form`)
-        return
-    }
-    loadFile()
+    loading.value = false
 }
 </script>
 
@@ -124,21 +123,20 @@ function onEnter() {
             <TextInput
                 ref="fileUrlInput"
                 v-model="fileUrl"
+                required
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
+                :activate-validation="activateValidation"
+                :invalid-marker="!!errorFileLoadingMessage"
+                :invalid-message="errorFileLoadingMessage"
+                :valid-message="importSuccessMessage"
                 :validate="validateUrl"
-                :form-validation-error="urlError"
-                :form-validated="layerAdded"
-                data-cy="import-file-online-url-input"
-                @input="onUrlChange"
-                @keydown.enter.prevent="onEnter"
+                data-cy="import-file-online-url"
+                @validate="onUrlValidate"
+                @change="onUrlChange"
+                @keydown.enter.prevent="loadFile"
             />
         </div>
-        <ImportFileButtons
-            class="mt-2"
-            :button-state="buttonState"
-            :disabled="!isFormValid"
-            @load-file="loadFile"
-        />
+        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>
