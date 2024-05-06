@@ -22,7 +22,6 @@ const ALL_YEARS = (() => {
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
-
 // dynamic internal data
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
@@ -37,10 +36,10 @@ let playYearInterval = null
 // refs to dom elements
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
-
+const timeSliderBar = ref(null)
 const yearCursorInput = ref(null)
-let tippyInstance = null
-
+let tippyYearOutsideRange = null
+let tippyTimeSliderInfo = null
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
@@ -127,12 +126,20 @@ watch(currentYear, () => {
 })
 watch(invalidYear, () => {
     if (invalidYear.value) {
-        tippyInstance.show()
+        tippyYearOutsideRange.show()
     } else {
-        tippyInstance.hide()
+        tippyYearOutsideRange.hide()
     }
 })
-watch(lang, setTooltipContent)
+
+watch(lang, () => {
+    tippyYearOutsideRange.setContent(
+        `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+    )
+    tippyTimeSliderInfo.setContent(
+        `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div class="no-data-tippy">${i18n.t('time_slider_legend_tippy_no_data')}</div><div class="partial-data-tippy">${i18n.t('time_slider_legend_tippy_partial_data')}</div><div class="full-data-tippy">${i18n.t('time_slider_legend_tippy_full_data')}</div>`
+    )
+})
 
 watch(previewYear, (newValue) => {
     currentYear.value = newValue
@@ -166,13 +173,21 @@ onMounted(() => {
     } else {
         currentYear.value = previewYear.value
     }
-    tippyInstance = tippy(yearCursorInput.value, {
-        content: tooltipContent,
+    tippyYearOutsideRange = tippy(yearCursorInput.value, {
+        content: `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`,
         arrow: true,
         hideOnClick: false,
         placement: 'bottom',
         trigger: 'manual',
         theme: 'danger',
+    })
+    tippyTimeSliderInfo = tippy(timeSliderBar.value, {
+        content: `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div class="no-data-tippy">${i18n.t('time_slider_legend_tippy_no_data')}</div><div class="partial-data-tippy">${i18n.t('time_slider_legend_tippy_partial_data')}</div><div class="full-data-tippy">${i18n.t('time_slider_legend_tippy_full_data')}</div>`,
+        hideOnClick: true,
+        placement: 'bottom',
+        theme: 'light-border',
+        delay: [1500, 500],
+        allowHTML: true,
     })
 })
 
@@ -376,7 +391,8 @@ function setYearToInputIfValid() {
                 />
                 <div
                     v-if="yearsShownAsLabel.length > 0"
-                    class="time-slider-bar-inner d-flex mt-5"
+                    ref="timeSliderBar"
+                    class="time-slider-bar-inner d-flex mt-5 mx-1"
                     :style="innerBarStyle"
                 >
                     <span
@@ -425,6 +441,16 @@ function setYearToInputIfValid() {
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
 $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
+
+.no-data-tippy {
+    background: $silver;
+}
+.partial-data-tippy {
+    background: $time-slider-color-partial-data;
+}
+.full-data-tippy {
+    background: $time-slider-color-has-data;
+}
 .time-slider {
     background: $time-slider-color-background !important;
     &:not(.grabbed) &-bar-cursor {
