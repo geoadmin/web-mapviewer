@@ -96,7 +96,8 @@ const props = defineProps({
      * This can be used if the field requires some external validation. When not set or set to null
      * this props is ignored.
      *
-     * NOTE: this props is ignored when activate-validation is false
+     * NOTE: :data-cy="`${dataCyPrefix}-description`"this props is ignored when activate-validation
+     * is false
      *
      * @type {Boolean}
      */
@@ -200,7 +201,7 @@ defineExpose({ focus })
         <div v-if="validMessage" class="valid-feedback" :data-cy="`${dataCyPrefix}-valid-feedback`">
             {{ i18n.t(validMessage) }}
         </div>
-        <div v-if="description" class="form-text">
+        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
             {{ i18n.t(description) }}
         </div>
     </div>

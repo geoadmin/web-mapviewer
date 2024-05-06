@@ -1,4 +1,4 @@
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, onMounted, ref, toRef, watch } from 'vue'
 
 export function propsValidator4ValidateFunc(value, _props) {
     if (value === null) {
@@ -89,6 +89,10 @@ export function useFieldValidation(
         emits('change', value.value)
     })
     watch(model, (newValue) => (value.value = newValue))
+
+    onMounted(() => {
+        validate()
+    })
 
     function validate() {
         validation.value = customValidate()

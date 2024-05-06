@@ -195,7 +195,7 @@ defineExpose({ focus })
                 :required="required"
                 class="form-control text-truncate"
                 :class="{
-                    'rounded-end': !value?.length && !slots.default,
+                    'rounded-end': !value?.length && !slots?.default,
                     'is-invalid': invalidMarker,
                     'is-valid': validMarker,
                 }"
@@ -211,7 +211,7 @@ defineExpose({ focus })
                 v-if="value?.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
-                :class="{ 'rounded-end': !slots.default }"
+                :class="{ 'rounded-end': !slots?.default }"
                 type="button"
                 :data-cy="`${dataCyPrefix}-clear`"
                 @click="onClearInput"
@@ -234,7 +234,7 @@ defineExpose({ focus })
                 {{ i18n.t(validMessage) }}
             </div>
         </div>
-        <div v-if="description" class="form-text">
+        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
             {{ i18n.t(description) }}
         </div>
     </div>

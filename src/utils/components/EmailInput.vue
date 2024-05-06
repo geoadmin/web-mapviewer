@@ -7,7 +7,10 @@ import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import { useFieldValidation } from '@/utils/composables/useFieldValidation'
+import {
+    propsValidator4ValidateFunc,
+    useFieldValidation,
+} from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
 const inputEmailId = useComponentUniqueId('email-input', components)
@@ -125,6 +128,20 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /**
+     * Validate function to run when the input changes The function should return an object of type
+     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
+     * translation key.
+     *
+     * NOTE: this function is called each time the field is modified
+     *
+     * @type {Function | null}
+     */
+    validate: {
+        type: [Function, null],
+        default: null,
+        validator: propsValidator4ValidateFunc,
+    },
     dataCy: {
         type: String,
         default: '',
@@ -134,7 +151,7 @@ const { placeholder, disabled, label, description } = toRefs(props)
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
     useFieldValidation(props, model, emits, {
-        customValidate: validate,
+        customValidate: validateEmail,
         requiredInvalidMessage: 'no_email',
     })
 
@@ -142,7 +159,7 @@ const emailInputElement = ref(null)
 
 const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-email-input` : `email-input`))
 
-function validate() {
+function validateEmail() {
     if (value.value && !isValidEmail(value.value)) {
         return { valid: false, invalidMessage: 'invalid_email' }
     }
@@ -194,7 +211,7 @@ defineExpose({ focus })
         <div v-if="validMessage" class="valid-feedback" :data-cy="`${dataCyPrefix}-valid-feedback`">
             {{ i18n.t(validMessage) }}
         </div>
-        <div v-if="description" class="form-text">
+        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
             {{ i18n.t(description) }}
         </div>
     </div>

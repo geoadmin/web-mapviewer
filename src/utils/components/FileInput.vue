@@ -15,7 +15,10 @@ import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import { useFieldValidation } from '@/utils/composables/useFieldValidation'
+import {
+    propsValidator4ValidateFunc,
+    useFieldValidation,
+} from '@/utils/composables/useFieldValidation'
 
 // On each component creation set the current component ID and increase the counter
 const inputFileId = useComponentUniqueId('file-input', components)
@@ -155,6 +158,20 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /**
+     * Validate function to run when the input changes The function should return an object of type
+     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
+     * translation key.
+     *
+     * NOTE: this function is called each time the field is modified
+     *
+     * @type {Function | null}
+     */
+    validate: {
+        type: [Function, null],
+        default: null,
+        validator: propsValidator4ValidateFunc,
+    },
     dataCy: {
         type: String,
         default: '',
@@ -164,7 +181,7 @@ const { acceptedFileTypes, placeholder, maxFileSize, disabled, label, descriptio
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required } =
     useFieldValidation(props, model, emits, {
-        customValidate: validate,
+        customValidate: validateFile,
         requiredInvalidMessage: 'no_file',
     })
 
@@ -179,10 +196,10 @@ const filePathInfo = computed(() =>
 const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-file-input` : `file-input`))
 
 // Methods
-function validate() {
+function validateFile() {
     if (
         value.value &&
-        acceptedFileTypes.value &&
+        acceptedFileTypes.value?.length > 0 &&
         !acceptedFileTypes.value.some((type) => value.value.name.endsWith(type))
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
@@ -224,6 +241,7 @@ function onFileSelected(evt) {
             <input
                 ref="InputLocalFile"
                 type="file"
+                :disabled="disabled"
                 :accept="acceptedFileTypes.join(',')"
                 hidden
                 :data-cy="`${dataCyPrefix}`"
@@ -259,7 +277,7 @@ function onFileSelected(evt) {
                 {{ i18n.t(validMessage) }}
             </div>
         </div>
-        <div v-if="description" class="form-text">
+        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
             {{ i18n.t(description) }}
         </div>
     </div>
