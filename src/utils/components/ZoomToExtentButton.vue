@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'ZoomToExtentButton.vue' }
 

@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
     shortLink: {

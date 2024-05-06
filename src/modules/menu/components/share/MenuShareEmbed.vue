@@ -13,8 +13,8 @@ import { computed, nextTick, ref, toRefs } from 'vue'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import log from '@/utils/logging'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 /**
  * Different pre-defined sizes that an iFrame can take
