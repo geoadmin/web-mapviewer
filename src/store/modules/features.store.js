@@ -136,13 +136,18 @@ export default {
             }
         },
 
-        changeFeatureGeometry({ commit, state }, { feature, geometry }) {
+        changeFeatureGeometry({ commit, dispatch, state }, { feature, geometry, dispatcher }) {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable && geometry) {
                 commit('changeFeatureGeometry', {
                     feature: selectedFeature,
                     geometry,
+                    dispatcher,
                 })
+                // if the feature can show a profile we need to trigger a profile data update
+                if (canFeatureShowProfile(selectedFeature)) {
+                    dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
+                }
             }
         },
         /**
@@ -219,6 +224,25 @@ export default {
                 commit('changeFeatureTextSize', {
                     feature: selectedFeature,
                     textSize: wantedSize,
+                    dispatcher,
+                })
+            }
+        },
+        /**
+         * Changes the text offset of the feature. Only change the text offset if the feature is
+         * editable and part of the currently selected features
+         *
+         * @param commit
+         * @param state
+         * @param {EditableFeature} feature
+         * @param {Array} textOffset
+         */
+        changeFeatureTextOffset({ commit, state }, { feature, textOffset, dispatcher }) {
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureTextOffset', {
+                    feature: selectedFeature,
+                    textOffset,
                     dispatcher,
                 })
             }
@@ -379,6 +403,9 @@ export default {
         },
         changeFeatureTextSize(state, { feature, textSize }) {
             feature.textSize = textSize
+        },
+        changeFeatureTextOffset(state, { feature, textOffset }) {
+            feature.textOffset = textOffset
         },
         changeFeatureTextColor(state, { feature, textColor }) {
             feature.textColor = textColor

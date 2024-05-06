@@ -18,5 +18,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../scss/topics-image';
+@import '@/modules/menu/scss/topics-image';
 </style>

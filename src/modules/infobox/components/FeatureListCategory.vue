@@ -47,8 +47,6 @@ const showContent = ref(true)
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
-
 .feature-list-category {
     font-size: 0.8rem;
 }

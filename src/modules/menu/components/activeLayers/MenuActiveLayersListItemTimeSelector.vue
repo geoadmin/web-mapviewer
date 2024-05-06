@@ -40,9 +40,11 @@ const timeSelectorModal = ref(null)
 
 const previewYear = computed(() => store.state.layers.previewYear)
 const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
+const isLayerVisible = computed(() => store.state.layers.activeLayers[layerIndex.value].visible)
 const humanReadableCurrentTimestamp = computed(() => {
-    if (previewYear.value) {
+    if (isLayerVisible.value && isTimeSliderActive.value) {
         return timeConfig.value.years.includes(previewYear.value) ? previewYear.value : '-'
     }
     return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
@@ -86,16 +88,32 @@ function renderHumanReadableTimestamp(timeEntry) {
 }
 
 function handleClickOnTimestamp(year) {
-    // clearing preview year if one was selected, as a change on this time selector is incompatible with
+    // deactivating the time slider, as a change on this time selector is incompatible with
     // the time slider being shown and active
-    if (previewYear.value) {
-        store.dispatch('clearPreviewYear', { ...dispatcher })
+    if (isTimeSliderActive.value) {
+        store.dispatch('setTimeSliderActive', { timeSliderActive: false, ...dispatcher })
     }
     store.dispatch('setTimedLayerCurrentYear', { index: layerIndex.value, year, ...dispatcher })
 }
 
 function hidePopover() {
     popover?.hide()
+}
+
+// for CSS : isSelected refers to either the current year, or the preview year if the time slider is active and the layer is visible
+function isSelected(timeEntry) {
+    return isTimeSliderActive.value && isLayerVisible.value
+        ? previewYear.value === timeEntry?.year
+        : timeConfig.value.currentTimestamp === timeEntry?.timestamp
+}
+// for CSS : baseYear refer to the year to which the timestamp will return to when the time slider is unmounted.
+function baseYear(timeEntry) {
+    return (
+        isTimeSliderActive.value &&
+        isLayerVisible.value &&
+        timeConfig.value.currentTimestamp === timeEntry?.timestamp &&
+        timeEntry?.year !== previewYear.value
+    )
 }
 </script>
 
@@ -129,8 +147,9 @@ function hidePopover() {
                 :key="timeEntry.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': timeEntry.timestamp === timeConfig.currentTimestamp,
-                    'btn-light': timeEntry.timestamp !== timeConfig.currentTimestamp,
+                    'btn-primary': isSelected(timeEntry),
+                    'btn-outline-primary': baseYear(timeEntry),
+                    'btn-light': !isSelected(timeEntry) && !baseYear(timeEntry),
                 }"
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"

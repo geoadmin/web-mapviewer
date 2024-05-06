@@ -18,14 +18,9 @@ function openCmsLink() {
 
 <template>
     <HeaderLink v-if="isDesktopMode" @click="openCmsLink">
-        {{ $t('cms_link_button_title') }}
+        {{ i18n.t('cms_link_button_title') }}
     </HeaderLink>
-    <button
-        v-else
-        class="btn btn-sm btn-light m-1"
-        :title="i18n.t('cms_link_button_title')"
-        @click="openCmsLink"
-    >
-        {{ $t('cms_link_button_title') }}
+    <button v-else class="btn btn-sm btn-light m-1" @click="openCmsLink">
+        {{ i18n.t('cms_link_button_title') }}
     </button>
 </template>

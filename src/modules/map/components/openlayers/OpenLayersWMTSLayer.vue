@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { getTimestampFromConfig, getWmtsXyzUrl } from '@/utils/layerUtils'
+import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -29,13 +29,19 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 const store = useStore()
 const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
-
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
+const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
 const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
 const timestamp = computed(
-    () => getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value) ?? 'current'
+    () =>
+        getTimestampFromConfig(
+            wmtsLayerConfig.value,
+            previewYear.value,
+            isTimeSliderActive.value
+        ) ?? 'current'
 )
 const wmtsSourceConfig = computed(() => {
     return {
@@ -73,17 +79,27 @@ watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
 watch(wmtsSourceConfig, () => layer.setSource(createWMTSSourceForProjection()), { deep: true })
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, previewYear.value)
+    return getWmtsXyzUrl(
+        wmtsLayerConfig.value,
+        projection.value,
+        previewYear.value,
+        isTimeSliderActive.value
+    )
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')
 }
 
+/**
+ * @param {Number} layerMaxResolution The maximum resolution for this layer.
+ * @returns {WMTSTileGrid} The tile grid system for the wmts source
+ */
 function createTileGridForProjection() {
+    const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
     return new WMTSTileGrid({
-        resolutions: projection.value.getResolutions(),
+        resolutions: projection.value.getResolutions().slice(0, maxResolutionIndex),
         origin: projection.value.getTileOrigin(),
-        matrixIds: projection.value.getMatrixIds(),
+        matrixIds: projection.value.getMatrixIds().slice(0, maxResolutionIndex),
         extent: projection.value.bounds.flatten,
     })
 }

@@ -37,6 +37,7 @@
                 :preview-year="previewYear"
                 :projection="projection"
                 :z-index="index + startingZIndexForImageryLayers"
+                :is-time-slider-active="isTimeSliderActive"
             />
             <CesiumInternalLayer
                 v-for="layer in visiblePrimitiveLayers"
@@ -86,8 +87,8 @@ import {
     Color,
     defined,
     Ellipsoid,
-    JulianDate,
     Math as CesiumMath,
+    PostProcessStageCollection,
     RequestScheduler,
     ScreenSpaceEventType,
     ShadowMode,
@@ -171,6 +172,7 @@ export default {
             previewYear: (state) => state.layers.previewYear,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
+            isTimeSliderActive: (state) => state.ui.isTimeSliderActive,
         }),
         ...mapGetters([
             'selectedFeatures',
@@ -305,11 +307,6 @@ export default {
         },
         async createViewer() {
             this.viewer = new Viewer(this.$refs.viewer, {
-                contextOptions: {
-                    webgl: {
-                        powerPreference: 'high-performance',
-                    },
-                },
                 showRenderLoopErrors: this.hasDevSiteWarning,
                 // de-activating default Cesium UI elements
                 animation: false,
@@ -327,7 +324,7 @@ export default {
                 // each geometry instance will only be rendered in 3D to save GPU memory.
                 scene3DOnly: true,
                 // activating shadows so that buildings cast shadows on the ground/roof elements
-                shadows: true,
+                shadows: false,
                 // no casting of buildings shadow on the terrain
                 terrainShadows: ShadowMode.DISABLED,
                 // skybox/stars visible if sufficiently zoomed out and looking at the horizon
@@ -349,20 +346,20 @@ export default {
                 requestRenderMode: true,
             })
 
-            const clock = this.viewer.clock
-            // good time/date for lighting conditions
-            clock.currentTime = JulianDate.fromIso8601('2024-06-20T07:00')
-
-            const shadowMap = this.viewer.shadowMap
-            // lighter shadow than default (closer to 0.1 the darker)
-            shadowMap.darkness = 0.6
-            // increasing shadowMap size 4x the default value, to reduce shadow artifacts at the edges of roofs
-            shadowMap.size = 2048 * 4
+            if (this.hasDevSiteWarning) {
+                this.viewer.scene.debugShowFramesPerSecond = true
+            }
 
             const scene = this.viewer.scene
             scene.useDepthPicking = true
             scene.pickTranslucentDepth = true
             scene.backgroundColor = Color.TRANSPARENT
+
+            const postProcessStages = new PostProcessStageCollection()
+            postProcessStages.ambientOcclusion.enabled = true
+            postProcessStages.bloom.enabled = false
+            postProcessStages.fxaa.enabled = true
+            scene.postProcessStages = postProcessStages
 
             this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
             this.viewer.screenSpaceEventHandler.setInputAction(
@@ -376,7 +373,8 @@ export default {
             globe.showGroundAtmosphere = false
             globe.showWaterEffect = false
             // increases the LOD (Cesium will load one tile further down the zoom pyramid) => higher rez WMTS
-            globe.maximumScreenSpaceError = 0.5
+            // currently we do not set it, as the loading of the higher rez slows down the 3D user experience
+            //globe.maximumScreenSpaceError = 0.5
 
             const sscController = scene.screenSpaceCameraController
             sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
@@ -620,16 +618,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/map/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
     display: none !important;
 }
+:global(.cesium-performanceDisplay-defaultContainer) {
+    left: $screen-padding-for-ui-elements;
+    bottom: calc($footer-height + $screen-padding-for-ui-elements);
+    top: unset;
+    right: unset;
+}
 
 .cesium-toolbox {
-    bottom: $footer-height + $screen-padding-for-ui-elements;
+    bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
 }
 </style>

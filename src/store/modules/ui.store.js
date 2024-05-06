@@ -81,12 +81,6 @@ export default {
          */
         loadingBarRequesters: { [MAP_LOADING_BAR_REQUESTER]: 1 },
         /**
-         * Flag telling if the drawing toolkit / overlay should be visible
-         *
-         * @type Boolean
-         */
-        showDrawingOverlay: false,
-        /**
          * Current UI mode of the application, dictates how the menu interaction is made (for touch
          * the menu has to be opened through a button, for desktop it is always shown) and how the
          * information about a selected feature are shown.
@@ -150,6 +144,19 @@ export default {
          * @type Boolean
          */
         isCompareSliderActive: false,
+        /**
+         * Flag telling if the time slider is currently active or not
+         *
+         * @type Boolean
+         */
+        isTimeSliderActive: false,
+
+        /**
+         * Flag telling if iframe marker description has disclaimer shown
+         *
+         * @type Boolean
+         */
+        showDisclaimer: true,
     },
     getters: {
         showLoadingBar(state) {
@@ -191,8 +198,8 @@ export default {
          *
          * @returns {boolean}
          */
-        isHeaderShown(state) {
-            return !state.fullscreenMode && !state.showDrawingOverlay
+        isHeaderShown(state, getters, rootState) {
+            return !state.fullscreenMode && !rootState.drawing?.drawingOverlay.show
         },
 
         isPhoneMode(state) {
@@ -286,18 +293,6 @@ export default {
                 dispatcher,
             })
         },
-        toggleDrawingOverlay({ commit, state }, { dispatcher }) {
-            commit('setShowDrawingOverlay', {
-                showDrawingOverlay: !state.showDrawingOverlay,
-                dispatcher,
-            })
-        },
-        setShowDrawingOverlay({ commit }, { showDrawingOverlay, dispatcher }) {
-            commit('setShowDrawingOverlay', {
-                showDrawingOverlay: !!showDrawingOverlay,
-                dispatcher,
-            })
-        },
         setUiMode({ commit, state }, { mode, dispatcher }) {
             if (mode in UIModes) {
                 commit('setUiMode', { mode, dispatcher })
@@ -352,6 +347,12 @@ export default {
                 dispatcher: dispatcher,
             })
         },
+        setTimeSliderActive({ commit }, args) {
+            commit('setTimeSliderActive', args)
+        },
+        setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
+            commit('setShowDisclaimer', { showDisclaimer, dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -386,9 +387,6 @@ export default {
                 state.loadingBarRequesters
             )
         },
-        setShowDrawingOverlay(state, { showDrawingOverlay }) {
-            state.showDrawingOverlay = showDrawingOverlay
-        },
         setUiMode(state, { mode }) {
             state.mode = mode
         },
@@ -410,8 +408,12 @@ export default {
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
         },
+        setTimeSliderActive(state, { timeSliderActive }) {
+            state.isTimeSliderActive = timeSliderActive
+        },
         setFeatureInfoPosition(state, { position }) {
             state.featureInfoPosition = position
         },
+        setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
     },
 }

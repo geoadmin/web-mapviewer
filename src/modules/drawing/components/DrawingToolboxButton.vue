@@ -40,6 +40,7 @@ function setDrawingMode() {
     if (isActive.value) {
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     } else {
+        store.dispatch('clearAllSelectedFeatures', dispatcher)
         store.dispatch('setDrawingMode', { mode: drawingMode.value, ...dispatcher })
     }
 }
@@ -63,7 +64,7 @@ function setDrawingMode() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 @include respond-above(phone) {
     .drawing-mode-button {
         min-width: 7rem;

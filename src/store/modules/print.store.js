@@ -19,6 +19,12 @@ export default {
                 height: mapAttributes?.clientParams?.height?.default,
             }
         },
+        selectedDPI(state) {
+            const mapAttributes = state.selectedLayout.attributes.find(
+                (attribute) => attribute.name === 'map'
+            )
+            return mapAttributes?.clientInfo?.maxDPI
+        },
     },
     actions: {
         async loadPrintLayouts({ commit }, { dispatcher }) {

@@ -383,7 +383,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 $arrow-width: 9px;
 $tooltip-height: 58px;

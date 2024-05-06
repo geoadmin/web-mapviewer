@@ -1,9 +1,11 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
 import { useTippyTooltip } from '@/utils/useTippyTooltip'
+
+const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
 
 const store = useStore()
 
@@ -11,20 +13,28 @@ const { refreshTippyAttachment } = useTippyTooltip('#timeSlider [data-tippy-cont
     placement: 'left',
 })
 
-const showTimeSlider = ref(false)
-
 const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
-const previewYear = computed(() => store.state.layers.previewYear)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
-watch(previewYear, () => {
-    // hiding the time slider if the preview has been cleared
-    if (!previewYear.value) {
-        showTimeSlider.value = false
-    }
-})
+watch(visibleLayersWithTimeConfig, () =>
+    nextTick(() => {
+        refreshTippyAttachment()
+        if (isTimeSliderActive.value && visibleLayersWithTimeConfig.value.length === 0) {
+            store.dispatch('setTimeSliderActive', {
+                timeSliderActive: false,
+                ...dispatcher,
+            })
+        }
+    })
+)
 
-watch(visibleLayersWithTimeConfig, () => nextTick(() => refreshTippyAttachment()))
+function toggleTimeSlider() {
+    store.dispatch('setTimeSliderActive', {
+        timeSliderActive: !isTimeSliderActive.value,
+        ...dispatcher,
+    })
+}
 </script>
 
 <template>
@@ -32,9 +42,9 @@ watch(visibleLayersWithTimeConfig, () => nextTick(() => refreshTippyAttachment()
         <button
             class="toolbox-button d-print-none mb-1"
             data-cy="time-slider-button"
-            :class="{ active: showTimeSlider }"
-            :data-tippy-content="showTimeSlider ? 'time_hide' : 'time_show'"
-            @click="showTimeSlider = !showTimeSlider"
+            :class="{ active: isTimeSliderActive }"
+            :data-tippy-content="isTimeSliderActive ? 'time_hide' : 'time_show'"
+            @click="toggleTimeSlider()"
         >
             <font-awesome-icon size="lg" :icon="['fas', 'clock-rotate-left']" />
         </button>
@@ -44,14 +54,14 @@ watch(visibleLayersWithTimeConfig, () => nextTick(() => refreshTippyAttachment()
                 'dev-disclaimer-present': hasDevSiteWarning,
             }"
         >
-            <TimeSlider v-if="showTimeSlider" />
+            <TimeSlider v-if="isTimeSliderActive" />
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/scss/media-query.mixin';
+@import '@/modules/map/scss/toolbox-buttons';
 
 $openCloseButtonHeight: 0rem;
 
@@ -60,7 +70,7 @@ $openCloseButtonHeight: 0rem;
     left: 0;
     width: calc(100% - $map-button-diameter - $spacer);
     &.dev-disclaimer-present {
-        top: $header-height + $dev-disclaimer-height;
+        top: calc($header-height + $dev-disclaimer-height);
     }
     &.fullscreen-mode,
     &.dev-disclaimer-present.fullscreen-mode {
@@ -70,9 +80,9 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(sm) {
     .time-sliders {
-        top: $header-height + $openCloseButtonHeight;
+        top: calc($header-height + $openCloseButtonHeight);
         &.dev-disclaimer-present {
-            top: $header-height + $openCloseButtonHeight + $dev-disclaimer-height;
+            top: calc($header-height + $openCloseButtonHeight + $dev-disclaimer-height);
         }
     }
 }
@@ -86,7 +96,7 @@ $openCloseButtonHeight: 0rem;
     .time-sliders {
         top: 2 * $header-height;
         &.dev-disclaimer-present {
-            top: 2 * $header-height + $dev-disclaimer-height;
+            top: calc(2 * $header-height + $dev-disclaimer-height);
         }
     }
 }

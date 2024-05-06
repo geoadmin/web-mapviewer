@@ -95,6 +95,7 @@
     "https://geoserver.swissdatacube.org/geoserver/gwc/service/wmts?REQUEST=GetCapabilities",
     "https://geoservices.jura.ch/wms/",
     "https://geoshop.sz.ch/WMSSZ",
+    "https://geowms.bl.ch/?SERVICE=WMS&version=1.1.1&REQUEST=GetCapabilities",
     "https://map.geo.sz.ch/mapserv_proxy",
     "https://map.geo.tg.ch/proxy/geofy_chsdi3/av_wms_mbsf?access_key=YoW2syIQ4xe0ccJA",
     "https://map.geo.tg.ch/proxy/geofy_chsdi3/basisplanf?access_key=YoW2syIQ4xe0ccJA",

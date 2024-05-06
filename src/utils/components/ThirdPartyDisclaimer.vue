@@ -12,7 +12,9 @@
         fluid
         @close="showCompleteDisclaimer = false"
     >
-        {{ $t('external_data_warning').replace('--URL--', sourceName) }}
+        <div class="external_data_warning">
+            {{ $t('external_data_warning').replace('--URL--', sourceName) }}
+        </div>
     </ModalWithBackdrop>
 </template>
 
@@ -28,6 +30,10 @@ export default {
         completeDisclaimerOnClick: {
             type: Boolean,
             default: false,
+        },
+        showTippy: {
+            type: Boolean,
+            default: true,
         },
         sourceName: {
             type: String,
@@ -53,17 +59,24 @@ export default {
         },
     },
     mounted() {
-        this.tippyInstance = tippy(this.$refs.tippyAnchor, {
-            theme: 'primary',
-            content: this.tooltipContent,
-            arrow: true,
-            placement: 'top',
-            touch: false,
-            delay: 250,
-        })
+        if (this.showTippy) {
+            this.tippyInstance = tippy(this.$refs.tippyAnchor, {
+                theme: 'primary',
+                content: this.tooltipContent,
+                arrow: true,
+                placement: 'top',
+                touch: false,
+                delay: 250,
+                onCreate: (instance) => {
+                    instance.popper.setAttribute('data-cy', `tippy-third-part-disclaimer`)
+                },
+            })
+        }
     },
     beforeUnmount() {
-        this.tippyInstance.destroy()
+        if (this.showTippy) {
+            this.tippyInstance.destroy()
+        }
     },
     methods: {
         onClick() {
@@ -73,3 +86,9 @@ export default {
     },
 }
 </script>
+<style lang="scss" scoped>
+@import '@/scss/webmapviewer-bootstrap-theme';
+.external_data_warning {
+    @extend .clear-no-ios-long-press;
+}
+</style>

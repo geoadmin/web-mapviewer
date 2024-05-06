@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 // WARNING: We cannot use bootstrap img-fluid to automatically set the height of the swiss-flag
 // as it totally breaks the header and menu on Iphone !

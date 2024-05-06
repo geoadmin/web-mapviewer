@@ -7,7 +7,7 @@ import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLay
 
 const store = useStore()
 const visibleLayers = computed(() => store.getters.visibleLayers)
-const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
 const currentDrawingKmlLayer = computed(() => store.getters.activeKmlLayer)
 
 // We do not want the drawing layer be added to the visible layers while it is being edited, so we filter

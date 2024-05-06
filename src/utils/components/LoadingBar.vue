@@ -10,12 +10,13 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/variables.module';
+
 $loading-element-width: 40rem;
 $loading-bar-animation-duration: 2s;
 
 .header-loading-bar {
-    @import 'src/scss/variables';
     z-index: 1000; //Always on top of current stacking context
     box-sizing: content-box;
     height: 2px;

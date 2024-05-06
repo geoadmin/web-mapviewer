@@ -34,7 +34,7 @@ function toggleGeolocation() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/modules/map/scss/toolbox-buttons';
 
 $normal-color: $map-button-border-color;
 $stroke-width: 9px;

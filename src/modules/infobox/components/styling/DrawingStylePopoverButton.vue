@@ -1,6 +1,10 @@
 <template>
     <div>
-        <button ref="popoverButton" class="btn btn-sm btn-light d-flex align-items-center">
+        <button
+            ref="popoverButton"
+            class="btn btn-sm btn-light d-flex align-items-center"
+            :class="[buttonClassOptions ? buttonClassOptions : '']"
+        >
             <FontAwesomeIcon :icon="icon" />
         </button>
         <div ref="popoverContent" class="card border-0" data-cy="drawing-style-popover">
@@ -42,6 +46,10 @@ export default {
             default: 'pen',
         },
         popoverTitle: {
+            type: String,
+            default: null,
+        },
+        buttonClassOptions: {
             type: String,
             default: null,
         },

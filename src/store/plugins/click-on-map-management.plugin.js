@@ -124,7 +124,7 @@ const clickOnMapManagementPlugin = (store) => {
         }
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
-        else if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
+        else if (mutation.type === 'setClickInfo' && !state.drawing.drawingOverlay.show) {
             const clickInfo = mutation.payload.clickInfo
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU

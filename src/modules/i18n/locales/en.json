@@ -386,6 +386,7 @@
     "profile_poi_up": "Highest point",
     "profile_slope_distance": "Path distance",
     "profile_title": "Profile",
+    "profile_too_many_points_error": "The profile request was too big and could not be processed.",
     "profile_x_label": "Distance",
     "profile_y_label": "Elevation",
     "qrcode_tooltip": "Create a QRCode and open this map on your mobile device",
@@ -657,5 +658,11 @@
     "feedback_empty_warning": "Report message can not be empty",
     "operation_successful": "Operation successful!",
     "operation_failed": "Oops! Something went wrong. Please try again.",
-    "operation_aborted": "Operation aborted"
+    "operation_aborted": "Operation aborted",
+    "outside_valid_year_range": "The entered year is outside ot the available range:",
+    "linkedin_tooltip": "Share this map on LinkedIn",
+    "share_map_title": "Link to the geoportal of Swiss Confederation",
+    "link_description": "Link description (optional)",
+    "media_disclaimer": "Contains third party content",
+    "drawing_attached": "Drawing added as attachment"
 }

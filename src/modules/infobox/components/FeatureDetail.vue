@@ -5,9 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import { WHITELISTED_HOSTNAMES } from '@/config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
+import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
+import log from '@/utils/logging'
 
 const props = defineProps({
     feature: {
@@ -33,10 +36,43 @@ const sanitizedFeatureDataEntries = computed(() => {
     }
     return Object.entries(feature.value.data)
         .filter(([_, value]) => value) // filtering out null values
-        .map(([key, value]) => [key, sanitizeHtml(value)])
+        .map(([key, value]) => [
+            key,
+            sanitizeHtml(value, key === 'description'),
+            getIframeHosts(value),
+        ])
 })
-function sanitizeHtml(htmlText) {
-    return DOMPurify.sanitize(htmlText)
+function sanitizeHtml(htmlText, withIframe = false) {
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if ('target' in node) {
+            node.setAttribute('target', '_blank')
+            node.setAttribute('rel', 'noopener')
+        }
+    })
+    let response = null
+    if (withIframe) {
+        response = DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
+    } else {
+        response = DOMPurify.sanitize(htmlText)
+    }
+    DOMPurify.removeHook('afterSanitizeAttributes')
+    return response
+}
+
+function getIframeHosts(value) {
+    let parser = new DOMParser()
+    let dom = parser.parseFromString(value, 'text/html')
+
+    const hosts = Array.from(dom.getElementsByTagName('iframe')).map((iframe) => {
+        try {
+            return new URL(iframe.src).hostname
+        } catch (error) {
+            log.error(`Invalid iframe source "${iframe.src}" cannot get hostname`)
+            return iframe.src
+        }
+    })
+    return hosts.filter((host) => !WHITELISTED_HOSTNAMES.includes(host))
 }
 </script>
 
@@ -47,10 +83,20 @@ function sanitizeHtml(htmlText) {
     <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
-            <div v-for="[key, value] in sanitizedFeatureDataEntries" :key="key" class="mb-1">
-                <div class="fw-bold">{{ i18n.t(key) }}</div>
+            <div
+                v-for="[key, value, externalIframeHosts] in sanitizedFeatureDataEntries"
+                :key="key"
+                class="mb-1"
+            >
+                <FeatureDetailDisclaimer
+                    v-if="externalIframeHosts.length"
+                    class="mb-2 fw-bold"
+                    :external-iframe-hosts="externalIframeHosts"
+                    :title="key"
+                ></FeatureDetailDisclaimer>
+                <div v-else class="fw-bold">{{ i18n.t(key) }}</div>
                 <!-- eslint-disable-next-line vue/no-v-html-->
-                <div v-html="value"></div>
+                <div data-cy="feature-detail-description-content" v-html="value"></div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}
@@ -74,7 +120,7 @@ function sanitizeHtml(htmlText) {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables-admin.module';
+@import '@/scss/variables-admin.module';
 
 // Styling for external HTML content
 :global(.htmlpopup-container) {

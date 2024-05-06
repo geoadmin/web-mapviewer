@@ -41,28 +41,39 @@ export const dashedRedStroke = new Stroke({
     lineDash: [8],
 })
 
+export const gpxStrokeStyle = new Stroke({ width: 1.5, color: hexToRgba(red, 1) })
+
 export const pointStyle = {
     radius: 7,
     stroke: new Stroke({
         color: hexToRgba(black),
     }),
 }
-export const circleStyle = new Circle({
+export const whiteCircleStyle = new Circle({
     ...pointStyle,
     fill: new Fill({
         color: hexToRgba(white),
     }),
+})
+
+export const redCircleStyle = new Circle({
+    ...pointStyle,
+    fill: new Fill({
+        color: hexToRgba(red),
+    }),
+    stroke: gpxStrokeStyle,
 })
 /** Style for grabbing points when editing a feature */
 export const sketchPointStyle = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
 })
-export const gpxStyle = new Style({
-    fill: redFill,
-    stroke: redStroke,
-    image: circleStyle,
-})
+
+export const gpxStyles = {
+    Point: new Style({ image: redCircleStyle }),
+    LineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
+    MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
+}
 
 export const geolocationPointStyle = new Style({
     image: new CircleStyle({
@@ -124,3 +135,14 @@ export const highlightPointStyle = new Style({
         stroke: highlightedStroke,
     }),
 })
+
+// Change a width according to the change of DPI (from the old geoadmin)
+// Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
+export function adjustWidth(width, dpi) {
+    if (!width) {
+        return
+    }
+    // 90 is choosen to compensate the difference DPI between the WMTS or WMS and the print DPI used.
+    // The number is from the old geoadmin (see the link above)
+    return (width * 90) / dpi
+}

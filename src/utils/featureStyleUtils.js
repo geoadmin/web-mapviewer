@@ -3,6 +3,8 @@ import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
+import log from '@/utils/logging'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */
@@ -204,6 +206,34 @@ export function getTextColor(style) {
 }
 
 /**
+ * Calculate text alignment from style parameters *
+ *
+ * @param {Number} textScale Text scaling
+ * @param {Number} iconScale Icon scaling
+ * @param {Array} anchor Relative position of Anchor
+ * @param {Array} iconSize Absolute size of icon in pixel
+ * @returns {Array | null} Returns the feature label offset
+ */
+export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
+    if (!iconScale) {
+        return DEFAULT_TITLE_OFFSET
+    }
+
+    const fontSize = 11
+    let anchorScale = anchor ? anchor[1] * 2 : 1
+
+    const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
+    const textOffset = 0.5 * fontSize * textScale
+    const defaultOffset = 5
+    log.debug('title offset of feature is calculated to be : ', [
+        0,
+        defaultOffset + iconOffset + textOffset,
+    ])
+
+    return [0, -(defaultOffset + iconOffset + textOffset)]
+}
+
+/**
  * OpenLayers style function that will style a feature that is not currently edited but loaded in
  * the drawing layer.
  *
@@ -239,6 +269,8 @@ export function featureStyleFunction(feature, resolution) {
                     width: 3,
                 }),
                 scale: editableFeature.textSizeScale || 1,
+                offsetX: editableFeature.textOffset[0],
+                offsetY: editableFeature.textOffset[1],
             }),
             stroke:
                 editableFeature.featureType === EditableFeatureTypes.MEASURE

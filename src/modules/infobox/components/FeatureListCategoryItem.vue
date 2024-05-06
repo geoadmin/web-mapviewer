@@ -135,7 +135,7 @@ function onZoomToExtent(event) {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables-admin.module';
+@import '@/scss/variables-admin.module';
 
 .feature-list-category-item-name {
     &.highlighted {

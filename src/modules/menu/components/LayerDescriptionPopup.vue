@@ -102,8 +102,8 @@ onMounted(async () => {
 
 <style lang="scss">
 // No scoping here as we need to apply styles to the markup we included with v-html.
-@import 'src/scss/variables';
-@import 'src/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/variables.module';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 $spacing: 8px;
 
@@ -115,6 +115,9 @@ $spacing: 8px;
     line-height: 1.42857143;
     line-break: auto;
     text-align: start;
+
+    // allow user selection
+    @extend .clear-no-ios-long-press;
 }
 
 .legend-header {

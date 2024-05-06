@@ -384,6 +384,7 @@
     "profile_poi_up": "Punct il pli aut",
     "profile_slope_distance": "Traject",
     "profile_title": "Profil",
+    "profile_too_many_points_error": "La dumonda dal profil era memia gronda e n'ha betg pudì vegnir elavurada.",
     "profile_x_label": "Distanza",
     "profile_y_label": "Autezza",
     "qrcode_tooltip": "Creais in QRCode e avris la charta sin Voss apparat movibel",
@@ -655,5 +656,11 @@
     "feedback_empty_warning": "La messadi dal raport po betg esser vegnida lasciada basa",
     "operation_successful": "Success! ",
     "operation_failed": "Oops! Qualche cosa è andada schabetg. Per favur, retentas.",
-    "operation_aborted": "Operaziun avorta"
+    "operation_aborted": "Operaziun avorta",
+    "outside_valid_year_range": "L'onn entrà è en furmaziun dalla gama disponibla:",
+    "linkedin_tooltip": "Partais quella charta sin LinkedIn",
+    "share_map_title": "Link al geoportail da la Confederaziun Svizra",
+    "link_description": "Descripziun link (optional)",
+    "media_disclaimer": "Contegn contens da terzas partidas",
+    "drawing_attached": "Dessin agiunt sco allegat"
 }

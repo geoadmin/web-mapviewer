@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faFacebook, faWhatsapp, faXTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faFacebook, faLinkedin, faWhatsapp, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 import {
     faCheckSquare,
     faCircle as faRegularCircle,
@@ -37,11 +37,14 @@ import {
     faEarthEurope,
     faEnvelope,
     faExpand,
+    faFilm,
     faFont,
     faGlobe,
     faGripLinesVertical,
     faHouse,
+    faImage,
     faInfoCircle,
+    faLink,
     faMapMarkerAlt,
     faMinus,
     faMinusCircle,
@@ -100,17 +103,20 @@ library.add(
     faEarthEurope,
     faEnvelope,
     faExpand,
+    faFilm,
     faFont,
     faGlobe,
     faGripLinesVertical,
     faHouse,
     faInfoCircle,
+    faLink,
     faMapMarkerAlt,
     faMinus,
     faMinusCircle,
     faMountainSun,
     faPaintBrush,
     faPause,
+    faImage,
     faPlay,
     faPlus,
     faPlusCircle,
@@ -145,5 +151,6 @@ library.add(
     // Brands
     faFacebook,
     faWhatsapp,
-    faXTwitter
+    faXTwitter,
+    faLinkedin
 )

@@ -386,6 +386,7 @@
     "profile_poi_up": "Höchster Punkt",
     "profile_slope_distance": "Wegstrecke",
     "profile_title": "Profil",
+    "profile_too_many_points_error": "Die Profilanfrage war zu gross und konnte nicht verarbeitet werden.",
     "profile_x_label": "Entfernung",
     "profile_y_label": "Höhe",
     "qrcode_tooltip": "Erstellen Sie einen QRCode und öffnen Sie die Karte auf Ihrem mobilen Gerät",
@@ -649,7 +650,7 @@
     "no_result": "Kein Ergebnis",
     "loading": "Laden",
     "search_in_catalogue_placeholder": "Suche in importierten Karten",
-    "kml_gpx_file_out_of_bounds": "Der Dateiinhalt liegt außerhalb der Projektionsgrenzen",
+    "kml_gpx_file_out_of_bounds": "Der Dateiinhalt liegt ausserhalb der Projektionsgrenzen",
     "kml_gpx_file_empty": "Die KML/GPX-Datei ist leer",
     "large_size": "Gross",
     "extra_large_size": "Extra Gross",
@@ -657,5 +658,11 @@
     "feedback_empty_warning": "Die Berichtsnachricht darf nicht leer sein",
     "operation_successful": "Erfolg!",
     "operation_failed": "Hoppla! Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.",
-    "operation_aborted": "Operation abgebrochen"
+    "operation_aborted": "Operation abgebrochen",
+    "outside_valid_year_range": "Das eingegebene Jahr liegt ausserhalb des verfügbaren Bereichs:",
+    "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn",
+    "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
+    "link_description": "Link Beschreibung (optional)",
+    "media_disclaimer": "Enthält Inhalte von Drittanbietern",
+    "drawing_attached": "Zeichnung als Anhang hinzugefügt"
 }

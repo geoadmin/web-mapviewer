@@ -32,5 +32,5 @@ function toggleFullScreen() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/modules/map/scss/toolbox-buttons';
+@import '@/modules/map/scss/toolbox-buttons';
 </style>

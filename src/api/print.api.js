@@ -7,23 +7,26 @@ import {
 } from '@geoblocks/mapfishprint'
 import axios from 'axios'
 
-import { API_BASE_URL, WMS_BASE_URL } from '@/config'
+import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
+import { adjustWidth } from '@/utils/styleUtils'
 
-const PRINTING_RESOLUTION = 96 // dpi
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
-// const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/default`
-const SERVICE_PRINT_URL = `https://sys-map.int.bgdi.ch/api/print3/print/default`
+const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
-    constructor(layerIDsToExclude) {
+    constructor(layerIDsToExclude, printResolution) {
         super()
         this.layerIDsToExclude = layerIDsToExclude
+        this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
+        this.line = this.line.bind(this)
+        this.text = this.text.bind(this)
+        this.point = this.point.bind(this)
     }
 
     /**
@@ -67,6 +70,43 @@ class GeoAdminCustomizer extends BaseCustomizer {
     line(layerState, symbolizer, stroke) {
         if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
+        }
+        if (symbolizer.strokeWidth) {
+            symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        }
+    }
+
+    /**
+     * Manipulate the symbolizer of a text style of a feature before printing it.
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
+     * @param {Text} text Text style of the feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    text(layerState, symbolizer, text) {
+        symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
+        symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
+        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
+    }
+
+    /**
+     * Manipulate the symbolizer of a point style of a feature before printing it. In this case it
+     * manipulate the width and offset of the image to match the old geoadmin
+     *
+     * @param {State} layerState
+     * @param {MFPSymbolizerPoint} symbolizer Interface for the symbolizer of a text feature
+     * @param {Image} image Image style of the feature
+     */
+    // eslint-disable-next-line no-unused-vars
+    point(layerState, symbolizer, image) {
+        symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+        symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
+        symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
+        // Handling the case where we need to print a circle in the end of measurement lines
+        // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
+        if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
+            symbolizer.fillOpacity = 1
         }
     }
 }
@@ -226,6 +266,7 @@ export class PrintError extends Error {
  *   the grid is to be printed (it can otherwise be null). Default is `null`
  * @param {String[]} [config.excludedLayerIDs=[]] List of the IDs of OpenLayers layer to exclude
  *   from the print. Default is `[]`
+ * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
  */
@@ -241,6 +282,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
+        dpi = null,
         outputFilename = null,
     } = config
 
@@ -262,8 +304,11 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (printGrid && !projection) {
         throw new PrintError('Missing projection to print the grid')
     }
+    if (!dpi) {
+        throw new PrintError('Missing DPI for printing')
+    }
 
-    const customizer = new GeoAdminCustomizer(excludedLayerIDs)
+    const customizer = new GeoAdminCustomizer(excludedLayerIDs, dpi)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
@@ -271,8 +316,8 @@ async function transformOlMapToPrintParams(olMap, config) {
         const encodedMap = await encoder.encodeMap({
             map: olMap,
             scale,
-            printResolution: PRINTING_RESOLUTION,
-            dpi: PRINTING_RESOLUTION,
+            printResolution: dpi,
+            dpi: dpi,
             customizer: customizer,
         })
         if (printGrid) {
@@ -286,7 +331,7 @@ async function transformOlMapToPrintParams(olMap, config) {
                 styles: [''],
                 customParams: {
                     TRANSPARENT: true,
-                    MAP_RESOLUTION: PRINTING_RESOLUTION,
+                    MAP_RESOLUTION: dpi,
                 },
             })
         }
@@ -346,6 +391,7 @@ async function transformOlMapToPrintParams(olMap, config) {
  *   the print. Default is `[]`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
+ * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -362,6 +408,7 @@ export async function createPrintJob(map, config) {
         projection = null,
         excludedLayerIDs = [],
         outputFilename = null,
+        dpi = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -376,6 +423,7 @@ export async function createPrintJob(map, config) {
             projection,
             excludedLayerIDs,
             outputFilename,
+            dpi,
         })
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)

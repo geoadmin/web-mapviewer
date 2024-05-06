@@ -7,6 +7,7 @@ import Style from 'ol/style/Style'
 import i18n from '@/modules/i18n/index'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const kmlFormat = new KML()
@@ -68,11 +69,12 @@ export function generateGpxString(projection, features = []) {
  * @returns {string}
  */
 export function generateKmlString(projection, features = []) {
+    log.debug(`Generate KML for ${features.length} features`)
     if (!projection) {
         log.error('Cannot generate KML string without projection')
         return ''
     }
-    let kmlString = '<kml></kml>'
+    let kmlString = EMPTY_KML_DATA
     let exportFeatures = []
     features.forEach((f) => {
         const clone = f.clone()

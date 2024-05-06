@@ -160,8 +160,8 @@ defineExpose({ focusFirstEntry })
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 
 .search-results-container {
     position: fixed;
@@ -174,7 +174,7 @@ defineExpose({ focusFirstEntry })
     pointer-events: none;
 }
 .search-results-dev-site-warning {
-    top: $header-height + $dev-disclaimer-height;
+    top: calc($header-height + $dev-disclaimer-height);
     height: min(calc(100vh - $header-height - $dev-disclaimer-height), max(20rem, 45vh));
     // Put the search results under the rest of the header so hovering over the warning works
     // correctly

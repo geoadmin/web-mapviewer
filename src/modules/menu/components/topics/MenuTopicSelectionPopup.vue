@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 // The preferred width is chosen so that all titles (even the german ones) can stay one one line
 $preferred_button_width: 190px;

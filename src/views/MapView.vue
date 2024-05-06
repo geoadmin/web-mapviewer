@@ -24,7 +24,7 @@ const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/Drawi
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
-const isDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
+const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)

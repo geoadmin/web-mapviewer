@@ -39,7 +39,7 @@ const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => kmlLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.opacity)
+const opacity = computed(() => parentLayerOpacity.value ?? kmlLayerConfig.value.opacity)
 const url = computed(() => kmlLayerConfig.value.baseUrl)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
 
@@ -94,7 +94,7 @@ function createSourceForProjection() {
         new VectorSource({
             wrapX: true,
             projection: projection.value.epsg,
-            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
+            features: parseKml(kmlLayerConfig.value, projection.value, availableIconSets.value),
         })
     )
     log.debug('Openlayer KML layer source created')

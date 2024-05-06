@@ -16,7 +16,7 @@ export default function useMapInteractions(map) {
     const { onLeftClickDown, onLeftClickUp, onRightClick, onMouseMove } = useMouseOnMap()
     const store = useStore()
 
-    const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+    const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
         store.state.layers.activeLayers.filter((layer) =>
             [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)

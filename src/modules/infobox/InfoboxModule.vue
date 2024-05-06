@@ -18,7 +18,7 @@ const store = useStore()
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
-const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
+const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
@@ -107,8 +107,6 @@ function onClose() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
-
 .infobox {
     width: 100%;
 }

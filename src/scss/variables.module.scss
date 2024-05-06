@@ -13,11 +13,11 @@ $zindex-footer: $zindex-compare-slider + 1; // The menu should be displayed abov
 $zindex-warning: 1;
 $zindex-menu: $zindex-footer + 1;
 $zindex-map-toolbox: $zindex-footer;
+$zindex-map-popover: $zindex-menu + 1;
 //Is part of the footer, but should be displayed above other menu items if in desktop mode
 //In phone mode, it makes more sense for the menu to be above.
 $zindex-desktop-footer-infobox: $zindex-menu + 1;
 $zindex-swipable-element: $zindex-menu + 1; //Not used for the moment, please check the value before using it.
-
 
 // Modules teleported to the main stacking context (so that they can be on top of all other elements)
 $zindex-modal: 100;
@@ -26,14 +26,15 @@ $zindex-loading-screen: 101;
 // Menu stacking context
 $zindex-menu-tray: $zindex-menu; // one step behind the header so that it can slip behind when closed, but above the toolbox buttons
 $zindex-menu-header: $zindex-menu + 1;
+$zindex-map-popover: $zindex-menu-header + 1;
 /* in order to have the header slip behind the drawing toolbox when the hiding animation
 occurs (teleported in the menu context)*/
 $zindex-drawing-toolbox: 3;
 
 $header-height: 3rem;
-$dev-disclaimer-height: 1.5rem;
-$footer-height: 1.5rem;
-$overlay-width: 360px;
+$dev-disclaimer-height: 24px;
+$footer-height: 30px;
+$overlay-width: 320px;
 $menu-tray-width: 24rem;
 $drawing-tools-height-mobile: 121px;
 
@@ -45,3 +46,10 @@ $map-button-border-width: calc(($map-button-diameter - $map-button-inner-icon-di
 
 // Space between adjacent buttons
 $button-spacer: 0.5rem;
+
+
+:export {
+  headerHeight: $header-height;
+  devDisclaimerHeight: $dev-disclaimer-height;
+  footerHeight: $footer-height;
+}

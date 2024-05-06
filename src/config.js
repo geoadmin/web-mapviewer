@@ -179,6 +179,15 @@ export const WMS_TILE_SIZE = 512 // px
 export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
 
 /**
+ * Map default max resolution as it is set in mf-chsdi. Only layers with nonstandard resolutions
+ * give their resolutions. In all other cases, we need to use this default value as the max
+ * resolution.
+ *
+ * @type {Number}
+ * @see https://github.com/geoadmin/mf-chsdi3/blob/0236814544a6bf2df86598889b81ee4023494325/chsdi/models/bod.py#L119-L123
+ */
+export const DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION = 0.5 // meters/pixel
+/**
  * Horizontal threshold for the phone view. (min-width for tablet) This will change the menu and
  * also some interactions.
  *
@@ -278,3 +287,25 @@ export const REPORT_PROBLEM_HOSTNAMES = [
     'sys-map.prod.bgdi.ch',
     'map.geo.admin.ch',
 ]
+
+/**
+ * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
+ * which has data from the year 1844
+ *
+ * @type {Number}
+ */
+export const OLDEST_YEAR = 1844
+
+/**
+ * The youngest (closest to now) year in our system, it will always be the previous year as of now
+ *
+ * @type {Number}
+ */
+export const YOUNGEST_YEAR = new Date().getFullYear() - 1
+
+/**
+ * Don't show third party disclaimer for iframe with one of these hosts as src
+ *
+ * @type {String[]}
+ */
+export const WHITELISTED_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']

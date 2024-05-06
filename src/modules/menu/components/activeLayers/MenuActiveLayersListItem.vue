@@ -12,7 +12,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
-import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
@@ -165,7 +165,7 @@ function duplicateLayer() {
                 :time-config="layer.timeConfig"
                 :compact="compact"
             />
-            <ThirdPartDisclaimer
+            <ThirdPartyDisclaimer
                 v-if="hasDataDisclaimer"
                 :complete-disclaimer-on-click="true"
                 :source-name="attributionName"
@@ -176,7 +176,7 @@ function duplicateLayer() {
                     icon="user"
                     data-cy="menu-external-disclaimer-icon"
                 />
-            </ThirdPartDisclaimer>
+            </ThirdPartyDisclaimer>
             <button
                 class="btn border-0"
                 :class="{
@@ -252,8 +252,8 @@ function duplicateLayer() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/modules/menu/scss/menu-items';
+@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/modules/menu/scss/menu-items';
 
 .data-disclaimer-tooltip {
     cursor: pointer;

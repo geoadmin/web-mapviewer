@@ -60,7 +60,7 @@ function toggleMenu() {
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-if="isHeaderShown" class="header" />
+        <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
@@ -107,8 +107,8 @@ function toggleMenu() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
@@ -139,7 +139,7 @@ $openCloseButtonHeight: 2.5rem;
         top: $header-height;
         z-index: $zindex-menu;
         &.dev-disclaimer-present {
-            $menu-tray-offset: $header-height + $dev-disclaimer-height;
+            $menu-tray-offset: calc($header-height + $dev-disclaimer-height);
             top: $menu-tray-offset;
             max-height: calc(100% - $menu-tray-offset);
         }
@@ -195,7 +195,7 @@ $openCloseButtonHeight: 2.5rem;
                 max-height: calc(
                     100vh - 2 * $header-height - $dev-disclaimer-height - $openCloseButtonHeight
                 );
-                top: 2 * $header-height + $dev-disclaimer-height;
+                top: calc(2 * $header-height + $dev-disclaimer-height);
             }
         }
     }

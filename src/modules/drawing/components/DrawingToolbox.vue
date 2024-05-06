@@ -38,8 +38,6 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const kmlLayerId = computed(() => activeKmlLayer.value?.id)
-const kmlLayerAdminId = computed(() => activeKmlLayer.value?.adminId)
 
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
@@ -57,6 +55,7 @@ const drawingStateMessage = computed(() => {
             return null
     }
 })
+const online = computed(() => store.state.drawing.online)
 
 function onCloseClearConfirmation(confirmed) {
     showClearConfirmationModal.value = false
@@ -142,11 +141,11 @@ function onDeleteLastPoint() {
                         <div class="col d-grid">
                             <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         </div>
-                        <div class="col d-grid">
+                        <div v-if="online" class="col d-grid">
                             <button
                                 type="button"
                                 class="btn btn-light"
-                                :disabled="isDrawingEmpty || !kmlLayerId"
+                                :disabled="isDrawingEmpty || !activeKmlLayer"
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
@@ -165,8 +164,11 @@ function onDeleteLastPoint() {
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDesktopMode" class="row mt-2">
-                        <div class="col text-center text-muted">
+                    <div v-if="isDesktopMode && online" class="row mt-2">
+                        <div
+                            class="col text-center text-muted"
+                            data-cy="drawing-toolbox-disclaimer"
+                        >
                             <!-- eslint-disable vue/no-v-html-->
                             <small v-html="i18n.t('share_file_disclaimer')" />
                             <!-- eslint-enable vue/no-v-html-->
@@ -199,14 +201,14 @@ function onDeleteLastPoint() {
             :title="$t('share')"
             @close="showShareModal = false"
         >
-            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlLayerAdminId" />
+            <SharePopup :kml-layer="activeKmlLayer" />
         </ModalWithBackdrop>
     </teleport>
 </template>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
+@import '@/scss/media-query.mixin';
+@import '@/scss/variables.module';
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;

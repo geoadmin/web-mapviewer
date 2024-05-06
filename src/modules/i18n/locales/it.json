@@ -386,6 +386,7 @@
     "profile_poi_up": "Punto più alto",
     "profile_slope_distance": "Lunghezza strada ",
     "profile_title": "Profilo",
+    "profile_too_many_points_error": "La richiesta del profilo era troppo grande e non è stato possibile elaborarla.",
     "profile_x_label": "Distanza",
     "profile_y_label": "Elevazione",
     "qrcode_tooltip": "Creare un QRCode e aprire questa carta su dispositivo mobile",
@@ -657,5 +658,11 @@
     "feedback_empty_warning": "Il messaggio di segnalazione non può essere vuoto",
     "operation_successful": "Successo!",
     "operation_failed": "Oops! Qualcosa è andato storto. Si prega di riprovare.",
-    "operation_aborted": "Operazione annullata."
+    "operation_aborted": "Operazione annullata.",
+    "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
+    "linkedin_tooltip": "Condivida la carta su LinkedIn",
+    "share_map_title": "Link al geoportale della Confederazione Svizzera",
+    "link_description": "Descrizione del link  (facoltativo)",
+    "media_disclaimer": "Contiene contenuti di terze parti",
+    "drawing_attached": "Disegno aggiunto come allegato"
 }

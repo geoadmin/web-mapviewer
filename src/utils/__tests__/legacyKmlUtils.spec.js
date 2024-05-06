@@ -5,6 +5,7 @@ import { beforeEach, describe, it } from 'vitest'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {
     BLACK,
@@ -110,7 +111,8 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
 
     beforeEach(() => {
         const kml = readFileSync(resolve(__dirname, './mfgeoadmin3TestKml.kml'), 'utf8')
-        const olFeatures = parseKml(kml, WEBMERCATOR, fakeIconSets)
+        const kmlLayer = new KMLLayer({ kmlFileUrl: '', kmlData: kml })
+        const olFeatures = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets)
         features = olFeatures.map((f) => {
             const ef = f.get('editableFeature')
             ef.olFeature = f

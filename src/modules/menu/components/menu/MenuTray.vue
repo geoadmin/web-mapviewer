@@ -27,7 +27,13 @@
                 secondary
                 :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
-                @click:header="toggleDrawingOverlay({ dispatcher: 'MenuTray.vue' })"
+                @click:header="
+                    toggleDrawingOverlay({
+                        online: true,
+                        title: 'draw_mode_title',
+                        dispatcher: 'MenuTray.vue',
+                    })
+                "
                 @open-menu-section="onOpenMenuSection"
                 @close-menu-section="onCloseMenuSection"
             />
@@ -122,7 +128,7 @@ export default {
             lang: (state) => state.i18n.lang,
             is3dMode: (state) => state.cesium.active,
             showImportFile: (state) => state.ui.importFile,
-            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
+            showDrawingOverlay: (state) => state.drawing.drawingOverlay.show,
             mapModuleReady: (state) => state.app.isMapReady,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
@@ -153,7 +159,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
+@import '@/scss/media-query.mixin';
 
 .menu-tray-inner {
     display: grid;

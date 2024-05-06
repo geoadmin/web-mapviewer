@@ -22,7 +22,7 @@ const profileData = computed(() => store.state.features.profileData)
 const profileRequestError = computed(() => store.state.features.profileRequestError)
 const hasData = computed(() => !!profileData.value?.hasElevationData)
 const isFeatureEditable = computed(
-    () => store.state.ui.showDrawingOverlay && profileFeature.value.isEditable
+    () => store.state.drawing.drawingOverlay.show && profileFeature.value.isEditable
 )
 
 function onDelete() {
@@ -80,7 +80,7 @@ function onCSVDownload() {
     >
         <div v-if="!hasData">
             <LoadingBar v-if="!profileRequestError" />
-            <span v-else class="text-muted">
+            <span v-else class="text-danger" data-cy="profile-error-message">
                 {{ i18n.t(profileRequestError.messageKey) }}
             </span>
         </div>

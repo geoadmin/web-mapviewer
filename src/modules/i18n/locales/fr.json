@@ -386,6 +386,7 @@
     "profile_poi_up": "Point culminant",
     "profile_slope_distance": "Longeur chemin ",
     "profile_title": "Profil",
+    "profile_too_many_points_error": "La demande de profil était trop volumineuse et n'a pas pu être traitée.",
     "profile_x_label": "Distance",
     "profile_y_label": "Altitude",
     "qrcode_tooltip": "Créer un QRCode et ouvrir cette carte depuis votre appareil mobile",
@@ -657,5 +658,11 @@
     "feedback_empty_warning": "Le message ne peut pas être vide",
     "operation_successful": "Succès !",
     "operation_failed": "Oups ! Quelque chose s'est mal passé. Veuillez réessayer.",
-    "operation_aborted": "Opération annulée"
+    "operation_aborted": "Opération annulée",
+    "outside_valid_year_range": "L'année entrée se situe en dehors de la plage disponible :",
+    "linkedin_tooltip": "Partager cette carte sur LinkedIn",
+    "share_map_title": "Lien sur le géoportail de la Confédération",
+    "link_description": "Description du lien (facultatif)",
+    "media_disclaimer": "Contient du contenu de tiers",
+    "drawing_attached": "Dessin ajouté en pièce jointe"
 }

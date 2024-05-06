@@ -18,19 +18,32 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     const drawingLayer = inject('drawingLayer', drawingLayerDirectReference)
 
     const store = useStore()
+    const online = computed(() => store.state.drawing.online)
     const projection = computed(() => store.state.position.projection)
     const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
     const availableIconSets = computed(() => store.state.drawing.iconSets)
+    const temporaryKmlId = computed(() => store.state.drawing.temporaryKmlId)
+    const temporaryKml = computed(() =>
+        store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId.value)
+    )
 
     let addKmlLayerTimeout = null
     const savesInProgress = ref([])
-    function addKmlLayerToDrawing(layer, retryOnError = true) {
+    function addKmlToDrawing(retryOnError = true) {
         clearTimeout(addKmlLayerTimeout)
         try {
-            if (!layer.kmlData) {
+            let availableKmlLayer = null
+            if (online.value) {
+                log.debug(`Add current active kml layer to drawing`, activeKmlLayer.value)
+                availableKmlLayer = activeKmlLayer.value
+            } else {
+                log.debug(`Add current temporary kml layer to drawing`, temporaryKml.value)
+                availableKmlLayer = temporaryKml.value
+            }
+            if (!availableKmlLayer?.kmlData) {
                 throw new Error('missing KML data')
             }
-            const features = parseKml(layer.kmlData, projection.value, availableIconSets.value)
+            const features = parseKml(availableKmlLayer, projection.value, availableIconSets.value)
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
             store.dispatch('setDrawingFeatures', {
@@ -39,11 +52,24 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             })
             saveState.value = DrawingState.LOADED
         } catch (error) {
-            log.error(`Failed to load KML ${layer.fileId}`, error, layer)
+            if (online.value) {
+                log.error(
+                    `Failed to load KML ${activeKmlLayer.value?.fileId}`,
+                    error,
+                    activeKmlLayer.value
+                )
+            } else {
+                log.error(
+                    `Failed to load temporary KML ${temporaryKmlId.value}`,
+                    error,
+                    temporaryKml.value
+                )
+            }
+
             saveState.value = DrawingState.LOAD_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 addKmlLayerTimeout = setTimeout(() => {
-                    addKmlLayerToDrawing(layer, false)
+                    addKmlToDrawing(false)
                 }, 2000)
             }
         }
@@ -60,46 +86,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 projection.value,
                 drawingLayer.getSource().getFeatures()
             )
-            if (!activeKmlLayer.value?.adminId) {
-                // creation of the new KML (copy or new)
-                const kmlMetadata = await createKml(kmlData)
-                const kmlLayer = new KMLLayer({
-                    kmlFileUrl: getKmlUrl(kmlMetadata.id),
-                    visible: true,
-                    opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
-                    adminId: kmlMetadata.adminId,
-                    kmlData: kmlData,
-                    kmlMetadata: kmlMetadata,
-                })
-                // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
-                // Meaning we must remove the old one from the layers; it will otherwise be there twice
-                // (once the pristine "old" KML, and once the new copy)
-                if (activeKmlLayer.value) {
-                    await store.dispatch('removeLayer', {
-                        layerId: activeKmlLayer.value.id,
-                        ...dispatcher,
-                    })
-                }
-                await store.dispatch('addLayer', {
-                    layer: kmlLayer,
-                    ...dispatcher,
-                })
-                saveState.value = DrawingState.SAVED
+            if (online.value) {
+                await saveOnlineDrawing(kmlData)
             } else {
-                // if a KMLLayer is already defined, we update it
-                const kmlMetadata = await updateKml(
-                    activeKmlLayer.value.fileId,
-                    activeKmlLayer.value.adminId,
-                    kmlData
-                )
-                await store.dispatch('setKmlGpxLayerData', {
-                    layerId: activeKmlLayer.value.id,
-                    data: kmlData,
-                    metadata: kmlMetadata,
-                    ...dispatcher,
-                })
-                saveState.value = DrawingState.SAVED
+                await saveLocalDrawing(kmlData)
             }
+            saveState.value = DrawingState.SAVED
         } catch (e) {
             log.error('Could not save KML layer: ', e)
             saveState.value = DrawingState.SAVE_ERROR
@@ -107,6 +99,61 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 // Retry saving in 5 seconds
                 debounceSaveDrawing({ debounceTime: 5000, retryOnError: false })
             }
+        }
+    }
+
+    async function saveOnlineDrawing(kmlData) {
+        if (!activeKmlLayer.value?.adminId) {
+            // creation of the new KML (copy or new)
+            const kmlMetadata = await createKml(kmlData)
+            const kmlLayer = new KMLLayer({
+                kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                visible: true,
+                opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
+                adminId: kmlMetadata.adminId,
+                kmlData: kmlData,
+                kmlMetadata: kmlMetadata,
+            })
+            // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
+            // Meaning we must remove the old one from the layers; it will otherwise be there twice
+            // (once the pristine "old" KML, and once the new copy)
+            if (activeKmlLayer.value) {
+                await store.dispatch('removeLayer', {
+                    layerId: activeKmlLayer.value.id,
+                    ...dispatcher,
+                })
+            }
+            await store.dispatch('addLayer', {
+                layer: kmlLayer,
+                ...dispatcher,
+            })
+        } else {
+            // if a KMLLayer is already defined, we update it
+            const kmlMetadata = await updateKml(
+                activeKmlLayer.value.fileId,
+                activeKmlLayer.value.adminId,
+                kmlData
+            )
+            await store.dispatch('setKmlGpxLayerData', {
+                layerId: activeKmlLayer.value.id,
+                data: kmlData,
+                metadata: kmlMetadata,
+                ...dispatcher,
+            })
+        }
+    }
+
+    async function saveLocalDrawing(kmlData) {
+        const kmlLayer = new KMLLayer({
+            kmlFileUrl: temporaryKmlId.value,
+            visible: true,
+            opacity: 1,
+            kmlData: kmlData,
+        })
+        if (!temporaryKml.value) {
+            await store.dispatch('addSystemLayer', { layer: kmlLayer, ...dispatcher })
+        } else {
+            await store.dispatch('updateSystemLayer', { layer: kmlLayer, ...dispatcher })
         }
     }
 
@@ -151,7 +198,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     }
 
     return {
-        addKmlLayerToDrawing,
+        addKmlToDrawing,
         debounceSaveDrawing,
         clearPendingSaveDrawing,
         willModify,

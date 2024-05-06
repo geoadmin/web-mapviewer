@@ -116,7 +116,7 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     if (!queryParams.layers || queryParams.layers.indexOf('@adminId=') === -1) {
         cy.openDrawingMode()
     }
-    cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
+    cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
@@ -135,7 +135,7 @@ Cypress.Commands.add('closeDrawingMode', () => {
     cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
         .should('be.visible')
         .click()
-    cy.window().its('store.state.ui.showDrawingOverlay').should('be.false')
+    cy.window().its('store.state.drawing.drawingOverlay.show').should('be.false')
     // In drawing mode the click event on the map are removed therefore we need to wait that
     // they are added again begore continuing testing
     cy.waitMapIsReady()

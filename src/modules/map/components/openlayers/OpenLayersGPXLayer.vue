@@ -34,7 +34,7 @@ const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => gpxLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value || gpxLayerConfig.value.opacity)
+const opacity = computed(() => parentLayerOpacity.value ?? gpxLayerConfig.value.opacity)
 const url = computed(() => gpxLayerConfig.value.baseUrl)
 const gpxData = computed(() => gpxLayerConfig.value.gpxData)
 

@@ -92,7 +92,7 @@ function onToggleImportFile() {
 </template>
 
 <style lang="scss" scoped>
-@import 'src/modules/menu/scss/menu-items';
+@import '@/modules/menu/scss/menu-items';
 
 .advanced-tools-list {
     @extend .menu-list;
