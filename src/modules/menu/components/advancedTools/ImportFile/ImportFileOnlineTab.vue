@@ -119,7 +119,7 @@ async function loadFile() {
         aria-labelledby="nav-online-tab"
         data-cy="import-file-online-content"
     >
-        <div class="needs-validation">
+        <div>
             <TextInput
                 ref="fileUrlInput"
                 v-model="fileUrl"

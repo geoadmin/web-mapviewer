@@ -218,7 +218,7 @@ function onFileSelected(evt) {
 </script>
 
 <template>
-    <div class="needs-validation" :data-cy="`${props.dataCy}`">
+    <div class="form-group has-validation" :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"

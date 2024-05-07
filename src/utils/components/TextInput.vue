@@ -174,7 +174,7 @@ defineExpose({ focus })
 </script>
 
 <template>
-    <div :data-cy="`${props.dataCy}`">
+    <div class="form-group has-validation" :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"
@@ -183,7 +183,7 @@ defineExpose({ focus })
             data-cy="text-input-label"
             >{{ i18n.t(label) }}</label
         >
-        <div class="input-group d-flex needs-validation">
+        <div class="input-group d-flex">
             <input
                 :id="textInputId"
                 ref="inputElement"

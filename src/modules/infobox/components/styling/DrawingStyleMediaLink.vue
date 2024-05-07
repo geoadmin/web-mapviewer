@@ -102,17 +102,15 @@ function onUrlValidate(valid) {
 
 <template>
     <div class="px-3 pb-2">
-        <div v-if="descriptionLabel" class="pb-2">
-            <div class="input-group d-flex needs-validation">
-                <TextInput
-                    v-model="linkDescription"
-                    :label="descriptionLabel"
-                    :activate-validation="activateValidation"
-                    class="feature-url-description mb-2"
-                    placeholder="link_description"
-                    data-cy="drawing-style-media-description"
-                />
-            </div>
+        <div v-if="descriptionLabel" class="pb-2 d-flex">
+            <TextInput
+                v-model="linkDescription"
+                :label="descriptionLabel"
+                :activate-validation="activateValidation"
+                class="feature-url-description mb-2"
+                placeholder="link_description"
+                data-cy="drawing-style-media-description"
+            />
         </div>
         <div class="d-flex align-items-start">
             <TextInput
