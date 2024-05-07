@@ -30,7 +30,7 @@ const scales = computed(() => selectedLayout.value?.scales || [])
 
 const selectedLayoutName = computed({
     get() {
-        return store.state.print.selectedLayout?.name
+        return store.state.print.selectedLayout?.name ?? ''
     },
     set(value) {
         store.dispatch('setSelectedLayout', {
