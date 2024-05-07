@@ -141,7 +141,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
             // ------------------------------------------------------------------------------------------------
             cy.log('When clicking on the time slider bar, we should go to that year')
-            cy.get(`[data-cy="time-slider-bar-${preSelectedYear}"]`).click()
+            cy.get(`[data-cy="time-slider-bar-${preSelectedYear}"]`).click({ force: true })
             cy.openMenuIfMobile()
 
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
@@ -162,7 +162,10 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
 
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', preSelectedYear)
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should(
+                'contain',
+                preSelectedYear
+            )
             cy.closeMenuIfMobile()
 
             // ----------------------------------------------------------------------------------------------------
