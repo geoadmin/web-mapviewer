@@ -3,7 +3,7 @@
 let components = 0
 </script>
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -153,10 +153,6 @@ const textAreaElement = ref(null)
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
 
-const dataCyPrefix = computed(() =>
-    props.dataCy ? `${props.dataCy}-text-area-input` : `text-area-input`
-)
-
 function focus() {
     textAreaElement.value.focus()
 }
@@ -165,13 +161,13 @@ defineExpose({ focus })
 </script>
 
 <template>
-    <div class="form-group has-validation">
+    <div class="form-group has-validation" :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"
             :class="{ 'fw-bolder': required }"
             :for="textAreaInputId"
-            :data-cy="`${dataCyPrefix}-label`"
+            data-cy="text-area-input-label"
             >{{ i18n.t(label) }}</label
         >
         <textarea
@@ -186,7 +182,7 @@ defineExpose({ focus })
             }"
             class="form-control"
             :placeholder="placeholder ? i18n.t(placeholder) : ''"
-            :data-cy="`${dataCyPrefix}`"
+            data-cy="text-area-input"
             @focusin="onFocus($event, true)"
             @focusout="onFocus($event, false)"
             @keydown.enter="emits('keydown.enter')"
@@ -194,14 +190,14 @@ defineExpose({ focus })
         <div
             v-if="invalidMessage"
             class="invalid-feedback"
-            :data-cy="`${dataCyPrefix}-invalid-feedback`"
+            data-cy="text-area-input-invalid-feedback"
         >
             {{ i18n.t(invalidMessage) }}
         </div>
-        <div v-if="validMessage" class="valid-feedback" :data-cy="`${dataCyPrefix}-valid-feedback`">
+        <div v-if="validMessage" class="valid-feedback" data-cy="text-area-input-valid-feedback">
             {{ i18n.t(validMessage) }}
         </div>
-        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
+        <div v-if="description" class="form-text" data-cy="text-area-input-description">
             {{ i18n.t(description) }}
         </div>
     </div>

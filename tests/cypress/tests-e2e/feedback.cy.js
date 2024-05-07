@@ -36,7 +36,7 @@ describe('Testing the feedback form', () => {
         cy.log('It validates the report problem form properly')
         openForm()
         cy.log('it is not possible to send a feedback without a rating')
-        cy.get('[data-cy="feedback-text-area-input"]').type('This is an awesome feedback!')
+        cy.get('[data-cy="text-area-input"]').type('This is an awesome feedback!')
         cy.get('[data-cy="submit-button"]').click()
         cy.get('[data-cy="rating-required-invalid-feedback"]').should('be.visible')
         cy.get('[data-cy="rate-feedback-3"').click()
@@ -46,23 +46,23 @@ describe('Testing the feedback form', () => {
         cy.log('it is possible to send a feedback without specifying an email address')
         openForm()
         cy.get('[data-cy="rate-feedback-4"').click()
-        cy.get('[data-cy="feedback-email-input"').should('be.empty')
+        cy.get('[data-cy="email-input"').should('be.empty')
         cy.get('[data-cy="submit-button"]').should('be.enabled')
         closeForm()
 
         cy.log('it is not possible to send a feedback with a malformed email')
         openForm()
         cy.get('[data-cy="rate-feedback-4"').click()
-        cy.get('[data-cy="feedback-email-input"').type('this.is.not.a.valid@email')
+        cy.get('[data-cy="email-input"').type('this.is.not.a.valid@email')
         cy.get('[data-cy="submit-button"]').click()
-        cy.get('[data-cy="feedback-email-input"').should('have.class', 'is-invalid')
-        cy.get('[data-cy="feedback-email-input-invalid-feedback"').should('be.visible')
+        cy.get('[data-cy="email-input"').should('have.class', 'is-invalid')
+        cy.get('[data-cy="email-input-invalid-feedback"').should('be.visible')
         closeForm()
 
         cy.log('it validates email before enabling the user to send the feedback')
         openForm()
         cy.get('[data-cy="rate-feedback-1"').click()
-        cy.get('[data-cy="feedback-email-input"').type('this.is.a.valid@email.com')
+        cy.get('[data-cy="email-input"').type('this.is.a.valid@email.com')
         cy.get('[data-cy="submit-button"]').should('be.enabled')
         closeForm()
 
@@ -82,8 +82,8 @@ describe('Testing the feedback form', () => {
         const email = 'some.valid@email.com'
         interceptFeedback(true)
         cy.get(`[data-cy="rate-feedback-${rating}"`).click()
-        cy.get('[data-cy="feedback-text-area-input"]').type(text)
-        cy.get('[data-cy="feedback-email-input"]').type(email)
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"]').type(email)
         cy.get('[data-cy="submit-button"]').click()
 
         cy.log(

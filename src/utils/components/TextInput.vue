@@ -4,7 +4,7 @@ let components = 0
 </script>
 <script setup>
 /** Input with clear button component */
-import { computed, nextTick, ref, toRefs, useSlots } from 'vue'
+import { nextTick, ref, toRefs, useSlots } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -159,8 +159,6 @@ const slots = useSlots()
 const inputElement = ref(null)
 const error = ref('')
 
-const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-text-input` : `text-input`))
-
 function onClearInput() {
     value.value = ''
     error.value = ''
@@ -176,13 +174,13 @@ defineExpose({ focus })
 </script>
 
 <template>
-    <div>
+    <div :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"
             :class="{ 'fw-bolder': required }"
             :for="textInputId"
-            :data-cy="`${dataCyPrefix}-label`"
+            data-cy="text-input-label"
             >{{ i18n.t(label) }}</label
         >
         <div class="input-group d-flex needs-validation">
@@ -202,7 +200,7 @@ defineExpose({ focus })
                 :aria-describedby="clearButtonId"
                 :placeholder="placeholder ? i18n.t(placeholder) : ''"
                 :value="value"
-                :data-cy="`${dataCyPrefix}`"
+                data-cy="text-input"
                 @focusin="onFocus($event, true)"
                 @focusout="onFocus($event, false)"
                 @keydown.enter="emits('keydown.enter')"
@@ -213,7 +211,7 @@ defineExpose({ focus })
                 class="btn btn-outline-group rounded-0"
                 :class="{ 'rounded-end': !slots?.default }"
                 type="button"
-                :data-cy="`${dataCyPrefix}-clear`"
+                data-cy="text-input-clear"
                 @click="onClearInput"
             >
                 <FontAwesomeIcon :icon="['fas', 'times-circle']" />
@@ -222,19 +220,15 @@ defineExpose({ focus })
             <div
                 v-if="invalidMessage"
                 class="invalid-feedback"
-                :data-cy="`${dataCyPrefix}-invalid-feedback`"
+                data-cy="text-input-invalid-feedback"
             >
                 {{ i18n.t(invalidMessage) }}
             </div>
-            <div
-                v-if="validMessage"
-                class="valid-feedback"
-                :data-cy="`${dataCyPrefix}-valid-feedback`"
-            >
+            <div v-if="validMessage" class="valid-feedback" data-cy="text-input-valid-feedback">
                 {{ i18n.t(validMessage) }}
             </div>
         </div>
-        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
+        <div v-if="description" class="form-text" data-cy="text-input-description">
             {{ i18n.t(description) }}
         </div>
     </div>

@@ -193,7 +193,6 @@ const InputLocalFile = ref(null)
 const filePathInfo = computed(() =>
     value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
 )
-const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-file-input` : `file-input`))
 
 // Methods
 function validateFile() {
@@ -219,13 +218,13 @@ function onFileSelected(evt) {
 </script>
 
 <template>
-    <div class="needs-validation">
+    <div class="needs-validation" :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"
             :class="{ 'fw-bolder': required }"
             :for="inputFileId"
-            :data-cy="`${dataCyPrefix}-label`"
+            data-cy="file-input-label"
             >{{ i18n.t(label) }}</label
         >
         <div :id="inputFileId" class="input-group rounded has-validation mb-2">
@@ -233,7 +232,7 @@ function onFileSelected(evt) {
                 class="btn btn-outline-group"
                 type="button"
                 :disabled="disabled"
-                :data-cy="`${dataCyPrefix}-browse-button`"
+                data-cy="file-input-browse-button"
                 @click="InputLocalFile.click()"
             >
                 {{ i18n.t('browse') }}
@@ -244,7 +243,7 @@ function onFileSelected(evt) {
                 :disabled="disabled"
                 :accept="acceptedFileTypes.join(',')"
                 hidden
-                :data-cy="`${dataCyPrefix}`"
+                data-cy="file-input"
                 @change="onFileSelected"
             />
             <input
@@ -256,28 +255,24 @@ function onFileSelected(evt) {
                 readonly
                 required
                 tabindex="-1"
-                :data-cy="`${dataCyPrefix}-text`"
+                data-cy="file-input-text"
                 :disabled="disabled"
                 @click="InputLocalFile.click()"
             />
             <div
                 v-if="invalidMessage"
                 class="invalid-feedback"
-                :data-cy="`${dataCyPrefix}-invalid-feedback`"
+                data-cy="file-input-invalid-feedback"
             >
                 {{
                     i18n.t(invalidMessage).replace('ALLOWED_FORMATS', acceptedFileTypes.join(', '))
                 }}
             </div>
-            <div
-                v-if="validMessage"
-                class="valid-feedback"
-                :data-cy="`${dataCyPrefix}-valid-feedback`"
-            >
+            <div v-if="validMessage" class="valid-feedback" data-cy="file-input-valid-feedback">
                 {{ i18n.t(validMessage) }}
             </div>
         </div>
-        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
+        <div v-if="description" class="form-text" data-cy="file-input-description">
             {{ i18n.t(description) }}
         </div>
     </div>

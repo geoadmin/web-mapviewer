@@ -3,7 +3,7 @@
 let components = 0
 </script>
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -157,8 +157,6 @@ const { value, validMarker, invalidMarker, validMessage, invalidMessage, require
 
 const emailInputElement = ref(null)
 
-const dataCyPrefix = computed(() => (props.dataCy ? `${props.dataCy}-email-input` : `email-input`))
-
 function validateEmail() {
     if (value.value && !isValidEmail(value.value)) {
         return { valid: false, invalidMessage: 'invalid_email' }
@@ -174,13 +172,13 @@ defineExpose({ focus })
 </script>
 
 <template>
-    <div class="form-group has-validation">
+    <div class="form-group has-validation" :data-cy="`${props.dataCy}`">
         <label
             v-if="label"
             class="mb-2"
             :class="{ 'fw-bolder': required }"
             :for="inputEmailId"
-            :data-cy="`${dataCyPrefix}-label`"
+            data-cy="email-input-label"
             >{{ i18n.t(label) }}</label
         >
         <input
@@ -196,22 +194,18 @@ defineExpose({ focus })
             class="form-control"
             :required="required"
             :placeholder="placeholder ? i18n.t(placeholder) : ''"
-            :data-cy="`${dataCyPrefix}`"
+            data-cy="email-input"
             @focusin="onFocus($event, true)"
             @focusout="onFocus($event, false)"
             @keydown.enter="emits('keydown.enter')"
         />
-        <div
-            v-if="invalidMessage"
-            class="invalid-feedback"
-            :data-cy="`${dataCyPrefix}-invalid-feedback`"
-        >
+        <div v-if="invalidMessage" class="invalid-feedback" data-cy="email-input-invalid-feedback">
             {{ i18n.t(invalidMessage) }}
         </div>
-        <div v-if="validMessage" class="valid-feedback" :data-cy="`${dataCyPrefix}-valid-feedback`">
+        <div v-if="validMessage" class="valid-feedback" data-cy="email-input-valid-feedback">
             {{ i18n.t(validMessage) }}
         </div>
-        <div v-if="description" class="form-text" :data-cy="`${dataCyPrefix}-description`">
+        <div v-if="description" class="form-text" data-cy="email-input-description">
             {{ i18n.t(description) }}
         </div>
     </div>

@@ -298,21 +298,23 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="drawing-style-link-button"]').click()
 
                 cy.log('Button should be disabled if url empty')
-                cy.get('[data-cy="drawing-style-media-url-text-input-invalid-feedback"]').should(
-                    'not.be.visible'
-                )
+                cy.get(
+                    '[data-cy="drawing-style-media-url"] [data-cy="text-input-invalid-feedback"]'
+                ).should('not.be.visible')
 
                 cy.log('Button should be disabled if url invalid')
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(invalid_url)
-                cy.get('[data-cy="drawing-style-media-generate-button"]:visible').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input-invalid-feedback"]').should(
-                    'be.visible'
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(
+                    invalid_url
                 )
+                cy.get('[data-cy="drawing-style-media-generate-button"]:visible').click()
+                cy.get(
+                    '[data-cy="drawing-style-media-url"] [data-cy="text-input-invalid-feedback"]'
+                ).should('be.visible')
 
                 cy.log('Generate hyperlink')
-                cy.get('[data-cy="drawing-style-media-url-text-input-clear"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_url)
-                cy.get('[data-cy="drawing-style-media-description-text-input"]').type(
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input-clear"]').click()
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-description"] [data-cy="text-input"]').type(
                     media_description
                 )
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -328,7 +330,7 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(60, 160)
                 cy.get('[data-cy="drawing-style-link-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 cy.get('[data-cy="drawing-style-feature-description"]').should(
                     'have.value',
@@ -341,7 +343,7 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(100, 160)
                 cy.get('[data-cy="drawing-style-image-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
 
                 cy.log('Generate image link')
@@ -357,7 +359,7 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(140, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
 
                 cy.log('Generate video link')
@@ -372,7 +374,7 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(180, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_url)
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 waitForKmlUpdate(`(iframe src="${valid_url}".*){2}`)
                 cy.get('[data-cy="infobox-close"]').click()
@@ -380,7 +382,9 @@ describe('Drawing module tests', () => {
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(220, 160)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
-                cy.get('[data-cy="drawing-style-media-url-text-input"]').type(valid_whitelisted_url)
+                cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(
+                    valid_whitelisted_url
+                )
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 waitForKmlUpdate(`iframe src="${valid_whitelisted_url}"`)
                 cy.get('[data-cy="infobox-close"]').click()
