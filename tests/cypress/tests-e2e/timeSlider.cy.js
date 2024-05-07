@@ -139,6 +139,32 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', newYear)
             cy.closeMenuIfMobile()
 
+            // ------------------------------------------------------------------------------------------------
+            cy.log('When clicking on the time slider bar, we should go to that year')
+            cy.get(`[data-cy="time-slider-bar-${preSelectedYear}"]`).click()
+            cy.openMenuIfMobile()
+
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').should(
+                'have.value',
+                `${preSelectedYear}`
+            )
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should(
+                'contain',
+                preSelectedYear
+            )
+            cy.closeMenuIfMobile()
+
+            // ------------------------------------------------------------------------------------------------
+            cy.log('Afterwards, the changes in the year should also be kept in the layers')
+            cy.log(
+                'When removing the time slider after altering it, the new year should be present in the layers'
+            )
+            cy.get('[data-cy="time-slider-button"]').click()
+            cy.openMenuIfMobile()
+
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', preSelectedYear)
+            cy.closeMenuIfMobile()
+
             // ----------------------------------------------------------------------------------------------------
             cy.log(
                 'With a visible time Layer and a TS parameter, the Time slider should appear at the correct year'
