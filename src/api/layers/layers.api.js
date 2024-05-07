@@ -72,7 +72,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             case 'wmts':
                 layer = new GeoAdminWMTSLayer({
                     name,
-                    geoAdminId: id,
+                    id: id,
                     technicalName: serverLayerName,
                     opacity,
                     visible: false,
@@ -94,7 +94,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             case 'wms':
                 layer = new GeoAdminWMSLayer({
                     name,
-                    geoAdminId: id,
+                    id: id,
                     technicalName: serverLayerName,
                     opacity,
                     visible: false,

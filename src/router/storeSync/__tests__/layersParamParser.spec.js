@@ -228,7 +228,7 @@ describe('Testing layersParamParser', () => {
             {
                 pristineLayer: new GeoAdminWMSLayer({
                     name: 'Fake layer',
-                    geoAdminId: 'fake.wms.id',
+                    id: 'fake.wms.id',
                     technicalName: 'fake.wms.id',
                     attributions,
                 }),
@@ -239,7 +239,7 @@ describe('Testing layersParamParser', () => {
             {
                 pristineLayer: new GeoAdminWMTSLayer({
                     name: 'fake WMTS layer',
-                    geoAdminId: 'fake.wmts.id',
+                    id: 'fake.wmts.id',
                     technicalName: 'fake.wmts.id',
                     attributions,
                 }),
@@ -254,13 +254,13 @@ describe('Testing layersParamParser', () => {
                     subLayers: [
                         new GeoAdminWMSLayer({
                             name: 'sub layer 1',
-                            geoAdminId: 'sub.layer.id.1',
+                            id: 'sub.layer.id.1',
                             technicalName: 'sub.layer.id.1',
                             attributions,
                         }),
                         new GeoAdminWMSLayer({
                             name: 'sub layer 2',
-                            geoAdminId: 'sub.layer.id.2',
+                            id: 'sub.layer.id.2',
                             technicalName: 'sub.layer.id.2',
                             attributions,
                         }),

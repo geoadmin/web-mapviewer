@@ -16,7 +16,7 @@ const dispatcher = { dispatcher: 'unit-test' }
 
 const bgLayer = new GeoAdminWMTSLayer({
     name: 'background',
-    geoAdminId: 'bg.layer',
+    id: 'bg.layer',
     technicalName: 'bg.layer',
     visible: true,
     format: 'jpeg',
@@ -25,14 +25,14 @@ const bgLayer = new GeoAdminWMTSLayer({
 })
 const firstLayer = new GeoAdminWMTSLayer({
     name: 'First layer',
-    geoAdminId: 'first.layer',
+    id: 'first.layer',
     technicalName: 'first.layer',
     visible: true,
     attributions: [new LayerAttribution('test')],
 })
 const secondLayer = new GeoAdminWMSLayer({
     name: 'Second layer',
-    geoAdminId: 'second.layer',
+    id: 'second.layer',
     technicalName: 'second.layer',
     visible: true,
     timeConfig: new LayerTimeConfig('last', [

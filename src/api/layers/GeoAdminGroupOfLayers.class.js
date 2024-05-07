@@ -35,7 +35,7 @@ export default class GeoAdminGroupOfLayers extends GeoAdminLayer {
         super({
             name,
             type: LayerTypes.GROUP,
-            geoAdminId: id,
+            id: id,
             technicalName: id,
             baseUrl: '',
             attributions: [new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/')],

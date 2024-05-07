@@ -25,7 +25,7 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
             name: layerId,
             type: LayerTypes.VECTOR,
             baseUrl: VECTOR_TILE_BASE_URL,
-            geoAdminId: layerId,
+            id: layerId,
             technicalName: layerId,
             attributions: [
                 ...extraAttributions,

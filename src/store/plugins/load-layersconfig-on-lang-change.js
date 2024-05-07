@@ -47,7 +47,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
             layersConfig.push(
                 new GeoAdminWMTSLayer({
                     name: swissimage.name,
-                    geoAdminId: `${swissimage.id}_3d`,
+                    id: `${swissimage.id}_3d`,
                     technicalName: swissimage.technicalName,
                     visible: false,
                     attributions: swissimage.attributions,
