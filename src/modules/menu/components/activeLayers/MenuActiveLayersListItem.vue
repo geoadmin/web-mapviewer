@@ -93,9 +93,10 @@ function onToggleLayerVisibility() {
 }
 
 function onOpacityChange(e) {
+    
     store.dispatch('setLayerOpacity', {
         index: index.value,
-        opacity: e.target.value,
+        opacity: 1.0 - e.target.value,
         ...dispatcher,
     })
 }
@@ -204,7 +205,7 @@ function duplicateLayer() {
                 min="0.0"
                 max="1.0"
                 step="0.01"
-                :value="layer.opacity"
+                :value="1.0 - layer.opacity"
                 :data-cy="`slider-opacity-layer-${id}-${index}`"
                 @change="onOpacityChange"
             />
