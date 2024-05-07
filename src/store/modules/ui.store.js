@@ -124,13 +124,6 @@ export default {
         headerHeight: 100,
 
         /**
-         * Height of the menu tray (in px)
-         *
-         * @type Number
-         */
-        menuTrayWidth: 400,
-
-        /**
          * Float telling where across the screen is the compare slider. The compare Slider should
          * only be shown when the value is between 0 and 1
          *
@@ -311,9 +304,6 @@ export default {
         setHeaderHeight({ commit }, { height, dispatcher }) {
             commit('setHeaderHeight', { height: parseFloat(height), dispatcher })
         },
-        setMenuTrayWidth({ commit }, { width, dispatcher }) {
-            commit('setMenuTrayWidth', { width: parseFloat(width), dispatcher })
-        },
         setCompareRatio({ commit }, { compareRatio, dispatcher }) {
             /*
                 This check is here to make sure the compare ratio doesn't get out of hand
@@ -398,9 +388,6 @@ export default {
         },
         setHeaderHeight(state, { height }) {
             state.headerHeight = height
-        },
-        setMenuTrayWidth(state, { width }) {
-            state.menuTrayWidth = width
         },
         setCompareRatio(state, { compareRatio }) {
             state.compareRatio = compareRatio

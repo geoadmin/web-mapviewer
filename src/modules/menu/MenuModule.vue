@@ -1,8 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref } from 'vue'
-import { onMounted } from 'vue'
-import { onBeforeUnmount } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -24,28 +22,6 @@ const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isMenuShown = computed(() => store.getters.isMenuShown)
 const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-
-const menuTray = ref(null)
-
-// Watch for changes on component mount
-onMounted(() => {
-    updateMenuTrayWidth()
-    window.addEventListener('resize', updateMenuTrayWidth)
-})
-
-// Cleanup on component unmount
-onBeforeUnmount(() => {
-    window.removeEventListener('resize', updateMenuTrayWidth)
-})
-
-const updateMenuTrayWidth = () => {
-    if (menuTray.value) {
-        store.dispatch('setMenuTrayWidth', {
-            width: menuTray.value.offsetWidth,
-            ...dispatcher,
-        })
-    }
-}
 
 function toggleMenu() {
     store.dispatch('toggleMenu', dispatcher)
@@ -72,7 +48,6 @@ function toggleMenu() {
             <transition name="slide-up">
                 <div
                     v-show="isMenuTrayShown"
-                    ref="menuTray"
                     class="menu-tray"
                     :class="{
                         'desktop-mode': isDesktopMode,
