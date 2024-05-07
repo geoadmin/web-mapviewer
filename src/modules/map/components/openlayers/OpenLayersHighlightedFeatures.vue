@@ -11,7 +11,7 @@ import nearestPoint from '@turf/nearest-point'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -40,9 +40,7 @@ const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.sho
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
-const tooltipIsInDefaultPosition = computed(
-    () => store.state.ui.featureInfoPosition === FeatureInfoPositions.DEFAULT
-)
+
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
     // And as the drawing module already takes care of applying a specific style to selected editable features,
@@ -90,31 +88,6 @@ const popoverCoordinate = computed(() => {
     )
 })
 
-const popoverMode = ref(
-    isCurrentlyDrawing.value ? MapPopoverMode.FEATURE_TOOLTIP : MapPopoverMode.FLOATING
-)
-
-// When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
-// the floating mode by default.
-// This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
-watch(selectedLayerFeatures, () => {
-    const containsOnlyPoints =
-        selectedLayerFeatures.value.filter((feature) =>
-            ['Point', 'MultiPoint'].includes(feature.geometry?.type)
-        ).length === selectedLayerFeatures.value.length
-    if (tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
-        popoverMode.value = MapPopoverMode.FLOATING
-    }
-})
-// when drawing the tooltip should be attached to features (and set back to floating when exiting drawing)
-watch(isCurrentlyDrawing, () => {
-    if (isCurrentlyDrawing.value) {
-        popoverMode.value = MapPopoverMode.FEATURE_TOOLTIP
-    } else {
-        popoverMode.value = MapPopoverMode.FLOATING
-    }
-})
-
 const olMap = inject('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
 useVectorLayer(
@@ -134,13 +107,6 @@ function setBottomPanelFeatureInfoPosition() {
         ...dispatcher,
     })
 }
-function togglePopoverMode() {
-    if (popoverMode.value === MapPopoverMode.FLOATING) {
-        popoverMode.value = MapPopoverMode.FEATURE_TOOLTIP
-    } else {
-        popoverMode.value = MapPopoverMode.FLOATING
-    }
-}
 </script>
 
 <template>
@@ -150,27 +116,16 @@ function togglePopoverMode() {
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
         :use-content-padding="selectedEditableFeatures.length > 0"
-        :mode="popoverMode"
+        :mode="MapPopoverMode.FLOATING"
         @close="clearAllSelectedFeatures"
     >
         <template #extra-buttons>
-            <button
-                v-if="!isCurrentlyDrawing"
-                class="btn btn-sm btn-light d-flex align-items-center"
-                @click="togglePopoverMode"
-            >
-                <FontAwesomeIcon
-                    v-if="popoverMode === MapPopoverMode.FLOATING"
-                    icon="location-pin-lock"
-                />
-                <FontAwesomeIcon v-else icon="arrows-up-down-left-right" />
-            </button>
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
                 @click="setBottomPanelFeatureInfoPosition"
             >
-                <FontAwesomeIcon icon="caret-down" />
+                <FontAwesomeIcon icon="angles-down" />
             </button>
         </template>
         <FeatureEdit

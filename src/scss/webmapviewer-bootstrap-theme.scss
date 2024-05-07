@@ -65,3 +65,7 @@ $nav-tabs-link-active-bg: $primary;
 .w-13 {
     width: 13%;
 }
+
+.animate-everything {
+    transition: all 0.2s;
+}

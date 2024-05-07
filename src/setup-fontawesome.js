@@ -9,6 +9,8 @@ import {
     faTrashAlt,
 } from '@fortawesome/free-regular-svg-icons'
 import {
+    faAnglesDown,
+    faAnglesUp,
     faArrowDown,
     faArrowLeft,
     faArrowsAltH,
@@ -79,6 +81,8 @@ import {
 
 library.add(
     // Solid
+    faAnglesDown,
+    faAnglesUp,
     faArrowDown,
     faArrowLeft,
     faArrowUp,

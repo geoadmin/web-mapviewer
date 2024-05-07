@@ -54,6 +54,8 @@ const emits = defineEmits(['close'])
 const popoverHeader = ref(null)
 const popover = ref(null)
 
+const showContent = ref(true)
+
 const store = useStore()
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
@@ -136,12 +138,24 @@ function printContent() {
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="map-popover-close-button"
+                    @click="showContent = !showContent"
+                >
+                    <FontAwesomeIcon
+                        icon="caret-down"
+                        :rotation="showContent ? 0 : 90"
+                        class="animate-everything"
+                    />
+                </button>
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
+                    data-cy="map-popover-close-button"
                     @click="onClose"
                 >
                     <FontAwesomeIcon icon="times" />
                 </button>
             </div>
             <div
+                v-if="showContent"
                 id="mapPopoverContent"
                 ref="mapPopoverContent"
                 class="map-popover-content"

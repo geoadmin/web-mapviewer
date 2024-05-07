@@ -72,7 +72,7 @@ function onClose() {
                 data-cy="infobox-toggle-floating"
                 @click.stop="setTooltipInfoPosition"
             >
-                <FontAwesomeIcon icon="caret-up" />
+                <FontAwesomeIcon icon="angles-up" />
             </button>
             <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
                 <FontAwesomeIcon icon="print" />
@@ -82,8 +82,11 @@ function onClose() {
                 data-cy="infobox-minimize-maximize"
                 @click="onToggleContent"
             >
-                <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
-                <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
+                <FontAwesomeIcon
+                    class="animate-everything"
+                    icon="caret-down"
+                    :rotation="!showContent ? 90 : 0"
+                />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
