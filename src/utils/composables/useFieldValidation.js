@@ -26,6 +26,42 @@ export function propsValidator4ValidateFunc(value, _props) {
     return true
 }
 
+/**
+ * Input field validation logic
+ *
+ * @param {object} props Vue properties of the component to add the field validation, see below for
+ *   detail.
+ * @param {String} props.label Label to add above the field
+ * @param {String} props.description Description to add below the input
+ * @param {Boolean} props.disabled Mark the field as disable
+ * @param {String} props.placeholder Placeholder to put in the input field. NOTE: this should be a
+ *   translation key
+ * @param {Boolean} props.required Field is required and will be marked as invalid if empty
+ * @param {Boolean | null} props.validMarker Mark the field as valid. This can be used if the field
+ *   requires some external validation. When not set or set to null this props is ignored. NOTE:
+ *   this props is ignored when activate-validation is false.
+ * @param {String} props.validMessage Valid message Message that will be added in green below the
+ *   field once the validation has been done and the field is valid.
+ * @param {Boolean | null} props.invalidMarker Mark the field as invalid. This can be used if the
+ *   field requires some external validation. When not set or set to null this props is ignored.
+ *   NOTE: this props is ignored when activate-validation is false.
+ * @param {String} props.invalidMessage Invalid message Message that will be added in red below the
+ *   field once the validation has been done and the field is invalid. NOTE: this message is
+ *   overwritten if the internal validation failed (not allow file type or file too big or required
+ *   empty file).
+ * @param {Boolean} props.activateValidation Mark the field has validated. As long as the flag is
+ *   false, no validation is run and no validation marks are set. Also the props is-invalid and
+ *   is-valid are ignored.
+ * @param {Function | null} props.validate Validate function to run when the input changes The
+ *   function should return an object of type `{valid: Boolean, invalidMessage: Sting}`. The
+ *   `invalidMessage` string should be a translation key. See propsValidator4ValidateFunc for
+ *   validation of the function. NOTE: this function is called each time the field is modified
+ * @param {ModelRef} model Vue model definition of the input component
+ * @param emits Vue event emitter definition of the input component
+ * @param {Function} options.customValidate Custom field validation input function. This function is
+ *   called for every validation
+ * @param {String} options.requiredInvalidMessage Custom required invalid message to use
+ */
 export function useFieldValidation(
     props,
     model,
