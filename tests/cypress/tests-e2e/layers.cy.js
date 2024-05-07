@@ -289,12 +289,12 @@ describe('Test of layer handling', () => {
 
                 cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId1}-"]`)
                     .should('be.visible')
-                    .realClick({ position: 'left' })
+                    .realClick({ position: 'right' })
                 cy.openLayerSettings(fakeWmsLayerId4)
 
                 cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId4}-"]`)
                     .should('be.visible')
-                    .realClick({ position: 'right' })
+                    .realClick({ position: 'left' })
 
                 // we had some issues with wms transparency reverting back to default when reaching 0
                 // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
@@ -303,7 +303,7 @@ describe('Test of layer handling', () => {
 
                 cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId3}-"]`)
                     .should('be.visible')
-                    .realClick({ position: 'left' })
+                    .realClick({ position: 'right' })
 
                 cy.checkOlLayer([
                     bgLayer,
@@ -775,14 +775,14 @@ describe('Test of layer handling', () => {
                 // using the keyboard to change slider's value
                 const step = 5
                 const repetitions = 6
-                const command = '{leftarrow}'.repeat(repetitions)
+                const command = '{rightarrow}'.repeat(repetitions)
                 cy.get(`[data-cy^="slider-opacity-layer-${layerId}-"]`)
                     .should('be.visible')
                     .type(command)
                 // checking that the opacity has changed accordingly
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
                     const layer = visibleLayers.find((layer) => layer.id === layerId)
-                    expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
+                    expect(layer.opacity).to.eq(initialOpacity + step * repetitions)
                 })
 
                 cy.log(
@@ -792,7 +792,7 @@ describe('Test of layer handling', () => {
                     cy.openLayerSettings(layerId)
                     cy.get(`[data-cy="slider-opacity-layer-${layerId}-${index}"]`)
                         .should('be.visible')
-                        .realClick({ position: 'left' })
+                        .realClick({ position: 'right' })
                     cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
                         const layer = visibleLayers.find((layer) => layer.id === layerId)
                         expect(layer.opacity).to.eq(0.0)
@@ -936,7 +936,7 @@ describe('Test of layer handling', () => {
                     .click()
                 cy.get(`[data-cy="slider-opacity-layer-${timedLayerId}-3"]`)
                     .should('be.visible')
-                    .realClick({ position: 'left' })
+                    .realClick({ position: 'right' })
                 cy.get(`[data-cy="time-selector-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .contains(timestamp.slice(0, 4))
@@ -1075,7 +1075,7 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .contains(newTimestamp.slice(0, 4))
                 cy.get(`[data-cy="slider-opacity-layer-${topLayerId}-2"]`).realClick({
-                    position: 'left',
+                    position: 'right',
                 })
                 cy.get(`[data-cy="menu-active-layer-${topLayerId}-3"]`).should('be.visible')
                 cy.get(`[data-cy="time-selector-${topLayerId}-3"]`)

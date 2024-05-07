@@ -93,7 +93,6 @@ function onToggleLayerVisibility() {
 }
 
 function onOpacityChange(e) {
-    
     store.dispatch('setLayerOpacity', {
         index: index.value,
         opacity: 1.0 - e.target.value,
