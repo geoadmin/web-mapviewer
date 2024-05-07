@@ -8,6 +8,7 @@
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { mapState } from 'vuex'
 
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
@@ -21,7 +22,7 @@ export default {
     mixins: [addImageryLayerMixins],
     props: {
         wmsLayerConfig: {
-            type: GeoAdminWMSLayer,
+            type: [GeoAdminWMSLayer, ExternalWMSLayer],
             required: true,
         },
         previewYear: {
@@ -47,16 +48,16 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         layerId() {
-            return this.wmsLayerConfig.technicalName || this.wmsLayerConfig.id
+            return this.wmsLayerConfig.technicalName ?? this.wmsLayerConfig.id
         },
         opacity() {
-            return this.wmsLayerConfig.opacity || 1.0
+            return this.wmsLayerConfig.opacity ?? 1.0
         },
         wmsVersion() {
-            return this.wmsLayerConfig.wmsVersion || '1.3.0'
+            return this.wmsLayerConfig.wmsVersion ?? '1.3.0'
         },
         format() {
-            return this.wmsLayerConfig.format || 'png'
+            return this.wmsLayerConfig.format ?? 'png'
         },
         url() {
             return this.wmsLayerConfig.baseUrl

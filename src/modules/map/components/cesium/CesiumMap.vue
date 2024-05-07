@@ -100,6 +100,7 @@ import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
+import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -191,7 +192,10 @@ export default {
         },
         visibleImageryLayers() {
             return this.visibleLayers.filter(
-                (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
+                (l) =>
+                    l instanceof GeoAdminWMTSLayer ||
+                    l instanceof GeoAdminWMSLayer ||
+                    l instanceof ExternalLayer
             )
         },
         isFeatureInfoInTooltip() {
