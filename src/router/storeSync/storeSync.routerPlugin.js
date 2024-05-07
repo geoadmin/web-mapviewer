@@ -3,7 +3,7 @@ import axios from 'axios'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
-import { MAP_VIEWS } from '@/router/viewNames'
+import { LEGACY_VIEWS, MAP_VIEWS } from '@/router/viewNames'
 import log from '@/utils/logging'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
@@ -39,7 +39,8 @@ const isRoutePushNeeded = (store, currentRoute) => {
 
 // flag to distinguish URL change originated by this module or by another source
 let routeChangeIsTriggeredByThisModule = false
-
+// flag to tell us if we need to enforce a query redirection when coming from the legacy router
+let needRouteChangeBecauseOfLegacy = true
 /**
  * Watch for store changes and reflect the changes in the URL query param if needed
  *
@@ -130,13 +131,6 @@ function urlQueryWatcher(store, to, from) {
                 queryValue
             )
             pendingStoreDispatch.push(setValueInStore(paramConfig, store, queryValue))
-            // When coming from the legacy route, if there was no change made to the query through default
-            // parameters not being present, the viewer would change the store, but not the query, staying
-            // in the legacy view and thus, not showing anything. We ensure here that we update the query
-            // if there are changes AND we should go to a different view.
-            if (from.name !== to.name) {
-                requireQueryUpdate = true
-            }
         } else if (!queryValue && storeValue) {
             if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
@@ -176,11 +170,22 @@ function urlQueryWatcher(store, to, from) {
             })
         })
     }
+
     if (requireQueryUpdate) {
+        needRouteChangeBecauseOfLegacy = false
         log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
         // stays on `/#/`. When manually changing any query param it works though.
+        return { name: to.name, query: newQuery }
+    }
+    // When coming from the legacy route, if there was no change made to the query through default
+    // parameters not being present, the viewer would change the store, but not the query, staying
+    // in the legacy view and thus, not showing anything. We ensure here that we update the query
+    // if there are changes AND we should go to a different view. We also ensure we're only going
+    // through this only once.
+    if (needRouteChangeBecauseOfLegacy && LEGACY_VIEWS.includes(from?.name)) {
+        needRouteChangeBecauseOfLegacy = false
         return { name: to.name, query: newQuery }
     }
     return undefined
