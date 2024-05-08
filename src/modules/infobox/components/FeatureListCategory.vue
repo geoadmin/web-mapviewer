@@ -1,9 +1,10 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import EditableFeature from '@/api/features/EditableFeature.class.js'
-import LayerFeature from '@/api/features/LayerFeature.class.js'
+import EditableFeature from '@/api/features/EditableFeature.class'
+import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 
 const props = defineProps({
@@ -18,21 +19,32 @@ const props = defineProps({
             Array.isArray(value) &&
             value.some((item) => item instanceof LayerFeature || item instanceof EditableFeature),
     },
+    canLoadMore: {
+        type: Boolean,
+        default: false,
+    },
 })
 
-const { name, children } = toRefs(props)
+const { name, children, canLoadMore } = toRefs(props)
+
+const emits = defineEmits(['loadMoreResults'])
 
 const showContent = ref(true)
+
+const { t } = useI18n()
 </script>
 
 <template>
-    <div class="feature-list-category border-start">
+    <div class="feature-list-category border-start position-relative">
         <div
-            class="feature-list-category-title p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle"
+            class="position-relative p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />
-            <strong>{{ name }}</strong>
+            <strong class="flex-grow-1">{{ name }}</strong>
+            <small class="text-muted align-self-center">
+                {{ children.length }}<span v-if="canLoadMore">+</span>
+            </small>
         </div>
         <div v-if="showContent" class="feature-list-category-children">
             <FeatureListCategoryItem
@@ -42,6 +54,15 @@ const showContent = ref(true)
                 :item="child"
                 :show-content-by-default="index === 0"
             />
+            <div class="d-flex p-1">
+                <button
+                    v-if="canLoadMore"
+                    class="btn btn-sm btn-secondary flex-grow-1"
+                    @click="emits('loadMoreResults')"
+                >
+                    {{ t('show_more_results') }}
+                </button>
+            </div>
         </div>
     </div>
 </template>

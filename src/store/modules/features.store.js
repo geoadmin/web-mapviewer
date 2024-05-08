@@ -1,8 +1,15 @@
+import { containsCoordinate } from 'ol/extent'
+
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import LayerFeature from '@/api/features/LayerFeature.class.js'
-import getProfile from '@/api/profile/profile.api.js'
+import { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import getProfile from '@/api/profile/profile.api'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-import log from '@/utils/logging.js'
+import log from '@/utils/logging'
+
+const DEFAULT_FEATURE_COUNT_SINGLE_POINT = 10
+const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
@@ -20,11 +27,120 @@ const getEditableFeatureWithId = (state, featureId) => {
     )
 }
 
+function getFeatureCountForCoordinate(coordinate) {
+    return coordinate.length === 2
+        ? DEFAULT_FEATURE_COUNT_SINGLE_POINT
+        : DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION
+}
+
+/**
+ * Identifies feature at the given coordinates
+ *
+ * @param {AbstractLayer[]} config.layers
+ * @param {[Number, Number] | [Number, Number, Number, Number]} config.coordinate Where to identify,
+ *   either a single point, or an extent (expressed as [minX, maxY, minY, maxY])
+ * @param {Number} config.resolution The current map resolution, in meter/pixel
+ * @param {[Number, Number, Number, Number]} config.mapExtent The current map extent, described as
+ *   [minX, maxX, minY, maxY]
+ * @param {Number} config.screenWidth Current screen width (map width) in pixel
+ * @param {Number} config.screenHeight Current screen height (map height) in pixel
+ * @param {String} config.lang Current lang ISO code
+ * @param {CoordinateSystem} config.projection Wanted projection with which to request the backend
+ * @param {Number} [config.featureCount] How many features should be requested. If not given, will
+ *   default to 10.
+ * @returns {Promise<LayerFeature[]>} A promise that will contain all feature identified by the
+ *   different requests (won't be grouped by layer)
+ */
+const runIdentify = (config) => {
+    const {
+        layers,
+        coordinate,
+        resolution,
+        mapExtent,
+        screenWidth,
+        screenHeight,
+        lang,
+        projection,
+        featureCount,
+    } = config
+    return new Promise((resolve, reject) => {
+        const allFeatures = []
+        const pendingRequests = []
+        const commonParams = {
+            coordinate,
+            resolution,
+            mapExtent,
+            screenWidth,
+            screenHeight,
+            lang,
+            projection,
+            featureCount,
+        }
+        // for each layer we run a backend request
+        layers
+            // only request layers that have getFeatureInfo capabilities (or are flagged has having a tooltip in their config for GeoAdmin layers)
+            .filter((layer) => layer.hasTooltip)
+            // filtering out any layer for which their extent doesn't contain the wanted coordinate (no data anyway, no need to request)
+            .filter(
+                (layer) =>
+                    !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
+            )
+            .forEach((layer) => {
+                if (layer.layers) {
+                    // for group of layers, we fire a request per sublayer
+                    layer.layers.forEach((sublayer) => {
+                        pendingRequests.push(
+                            identify({
+                                layer: sublayer,
+                                ...commonParams,
+                            })
+                        )
+                    })
+                } else {
+                    pendingRequests.push(
+                        identify({
+                            layer,
+                            ...commonParams,
+                        })
+                    )
+                }
+            })
+        // grouping all features from the different requests
+        Promise.allSettled(pendingRequests)
+            .then((responses) => {
+                responses.forEach((response) => {
+                    if (response.status === 'fulfilled') {
+                        allFeatures.push(...response.value)
+                    } else {
+                        log.error('Error while identifying features', response.reason?.message)
+                        // no reject, so that we may see at least the result of requests that have been fulfilled
+                    }
+                })
+                // filtering out doppelgangers
+                resolve(
+                    allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
+                )
+            })
+            .catch((error) => {
+                log.error('Error while identifying features', error)
+                reject(error)
+            })
+    })
+}
+
+/**
+ * @typedef FeaturesForLayer
+ * @property {String} layerId
+ * @property {LayerFeature[]} features
+ * @property {Number} featureCountForMoreData If there are more data to load, this will be greater
+ *   than 0. If no more data can be requested from the backend, this will be set to 0.
+ * @property {Boolean} canLoadMore
+ */
+
 export default {
     state: {
-        selectedFeaturesByLayerId: {
-            // "layerId": [ feature1, feature2, ... ],
-        },
+        /** @type {FeaturesForLayer[]} */
+        selectedFeaturesByLayerId: [],
         /** @type Array<EditableFeature> */
         selectedEditableFeatures: [],
         highlightedFeatureId: null,
@@ -44,10 +160,9 @@ export default {
             return [...state.selectedEditableFeatures, ...getters.selectedLayerFeatures]
         },
         selectedLayerFeatures(state) {
-            if (state.selectedFeaturesByLayerId.length === 0) {
-                return []
-            }
-            return [...Object.values(state.selectedFeaturesByLayerId).flat()]
+            return state.selectedFeaturesByLayerId
+                .map((featuresForLayer) => featuresForLayer.features)
+                .flat()
         },
     },
     actions: {
@@ -59,8 +174,13 @@ export default {
          * @param commit
          * @param {SelectableFeature[]} features A list of feature we want to highlight/select on
          *   the map
+         * @param {Number} paginationSize How many features were requested, will help set if a layer
+         *   can have more data or not (if its feature count is a multiple of paginationSize)
          */
-        setSelectedFeatures({ commit, state }, { features, dispatcher }) {
+        setSelectedFeatures(
+            { commit, state },
+            { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT, dispatcher }
+        ) {
             // clearing up any relevant selected features stuff
             if (state.highlightedFeatureId) {
                 commit('setHighlightedFeatureId', {
@@ -72,16 +192,33 @@ export default {
                 commit('setProfileFeature', { feature: null, dispatcher })
                 commit('setProfileData', { data: null, dispatcher })
             }
-            const layerFeaturesByLayerId = {}
+            /** @type {FeaturesForLayer[]} */
+            const layerFeaturesByLayerId = []
             let drawingFeatures = []
             if (Array.isArray(features)) {
                 const layerFeatures = features.filter((feature) => feature instanceof LayerFeature)
                 drawingFeatures = features.filter((feature) => feature instanceof EditableFeature)
                 layerFeatures.forEach((feature) => {
-                    if (!layerFeaturesByLayerId[feature.layer.id]) {
-                        layerFeaturesByLayerId[feature.layer.id] = []
+                    if (
+                        !layerFeaturesByLayerId.some(
+                            (featureForLayer) => featureForLayer.layerId === feature.layer.id
+                        )
+                    ) {
+                        layerFeaturesByLayerId.push({
+                            layerId: feature.layer.id,
+                            features: [],
+                            featureCountForMoreData: paginationSize,
+                        })
                     }
-                    layerFeaturesByLayerId[feature.layer.id].push(feature)
+                    const featureForLayer = layerFeaturesByLayerId.find(
+                        (featureForLayer) => featureForLayer.layerId === feature.layer.id
+                    )
+                    featureForLayer.features.push(feature)
+                })
+                layerFeaturesByLayerId.forEach((layerFeatures) => {
+                    // if less feature than the pagination size are present, we can already tell there won't be more data to load
+                    layerFeatures.featureCountForMoreData =
+                        layerFeatures.features.length % paginationSize === 0 ? paginationSize : 0
                 })
             }
             commit('setSelectedFeatures', {
@@ -90,10 +227,115 @@ export default {
                 dispatcher,
             })
         },
+        /**
+         * Identify features in layers at the given coordinate.
+         *
+         * @param dispatch
+         * @param getters
+         * @param rootState
+         * @param {AbstractLayer[]} layers List of layers for which we want to know if features are
+         *   present at given coordinates
+         * @param {LayerFeature[]} [vectorFeatures=[]] List of existing vector features at given
+         *   coordinate (that should be added to the selected features after identification has been
+         *   run on the backend). Default is `[]`
+         * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
+         *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]). 10 features will
+         *   be requested for a point, 50 for a rectangle.
+         * @param dispatcher
+         * @returns {Promise<void>} As some callers might want to know when identify has been
+         *   done/finished, this returns a promise that will be resolved when this is the case
+         */
+        async identifyFeatureAt(
+            { dispatch, getters, rootState },
+            { layers, coordinate, vectorFeatures = [], dispatcher }
+        ) {
+            const featureCount = getFeatureCountForCoordinate(coordinate)
+            const features = [
+                ...vectorFeatures,
+                ...(await runIdentify({
+                    layers,
+                    coordinate,
+                    resolution: getters.resolution,
+                    mapExtent: flattenExtent(getters.extent),
+                    screenWidth: rootState.ui.width,
+                    screenHeight: rootState.ui.height,
+                    lang: rootState.i18n.lang,
+                    projection: rootState.position.projection,
+                    featureCount,
+                })),
+            ]
+            if (features.length > 0) {
+                dispatch('setSelectedFeatures', {
+                    features,
+                    paginationSize: featureCount,
+                    dispatcher,
+                })
+            }
+        },
+        /**
+         * Loads (if possible) more features for the given layer.
+         *
+         * Only GeoAdmin layers support this for the time being. For external layer, as we use
+         * GetFeatureInfo from WMS, there's no such capabilities (we would have to switch to a WFS
+         * approach to gain access to similar things).
+         *
+         * @param commit
+         * @param state
+         * @param getters
+         * @param rootState
+         * @param {GeoAdminLayer} layer
+         * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
+         *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]).
+         * @param dispatcher
+         */
+        loadMoreFeaturesForLayer(
+            { commit, state, getters, rootState },
+            { layer, coordinate, dispatcher }
+        ) {
+            const featuresAlreadyLoaded = state.selectedFeaturesByLayerId.find(
+                (featureForLayer) => featureForLayer.layerId === layer?.id
+            )
+            if (featuresAlreadyLoaded && featuresAlreadyLoaded.featureCountForMoreData > 0) {
+                identifyOnGeomAdminLayer({
+                    layer,
+                    coordinate,
+                    resolution: getters.resolution,
+                    mapExtent: getters.extent.flat(),
+                    screenWidth: rootState.ui.width,
+                    screenHeight: rootState.ui.height,
+                    lang: rootState.i18n.lang,
+                    projection: rootState.position.projection,
+                    offset: featuresAlreadyLoaded.features.length,
+                    featureCount: featuresAlreadyLoaded.featureCountForMoreData,
+                }).then((moreFeatures) => {
+                    const featuresForLayer = state.selectedFeaturesByLayerId.find(
+                        (featureForLayer) => featureForLayer.layerId === layer.id
+                    )
+                    const canLoadMore =
+                        moreFeatures.length > 0 &&
+                        moreFeatures.length % featuresAlreadyLoaded.featureCountForMoreData === 0
+                    commit('addSelectedFeatures', {
+                        featuresForLayer,
+                        features: moreFeatures,
+                        featureCountForMoreData: canLoadMore
+                            ? featuresAlreadyLoaded.featureCountForMoreData
+                            : 0,
+                        dispatcher,
+                    })
+                })
+            } else {
+                log.error(
+                    'No more features can be loaded for layer',
+                    layer,
+                    'at coordinate',
+                    coordinate
+                )
+            }
+        },
         /** Removes all selected features from the map */
         clearAllSelectedFeatures({ commit, state }, { dispatcher }) {
             commit('setSelectedFeatures', {
-                layerFeaturesByLayerId: {},
+                layerFeaturesByLayerId: [],
                 drawingFeatures: [],
                 dispatcher,
             })
@@ -381,6 +623,10 @@ export default {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
             state.selectedFeaturesByLayerId = layerFeaturesByLayerId
             state.selectedEditableFeatures = [...drawingFeatures]
+        },
+        addSelectedFeatures(state, { featuresForLayer, features, featureCountForMoreData = 0 }) {
+            featuresForLayer.features.push(...features)
+            featuresForLayer.featureCountForMoreData = featureCountForMoreData
         },
         setHighlightedFeatureId(state, { highlightedFeatureId }) {
             state.highlightedFeatureId = highlightedFeatureId

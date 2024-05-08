@@ -5,6 +5,8 @@ import { useStore } from 'vuex'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
+const dispatcher = { dispatcher: 'FeatureList.vue' }
+
 const props = defineProps({
     /**
      * Tells if the height should be fixed (non-fluid) or if it should take 100% of available space
@@ -26,12 +28,26 @@ const layerFeatureCategories = ref([])
 
 const i18n = useI18n()
 const store = useStore()
+const activeLayers = computed(() => store.state.layers.activeLayers)
 const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
+const lastClick = computed(() => store.state.map.clickInfo)
+
+// flag telling if more features could be loaded for a given layer ID
+const canLoadMore = computed(() => (layerId) => {
+    // if the app was loaded with pre-selected features there won't be a clickInfo to latch upon,
+    // so we won't be able to load more features where the user has previously selected these features (we don't know where it was)
+    return (
+        lastClick.value &&
+        selectedFeaturesByLayerId.value.find(
+            (featuresForLayer) => featuresForLayer.layerId === layerId
+        )?.featureCountForMoreData > 0
+    )
+})
 
 function getLayerName(layerId) {
-    return store.state.layers.activeLayers
+    return activeLayers.value
         .filter(
             (layer) =>
                 layer.id === layerId ||
@@ -44,6 +60,14 @@ function getLayerName(layerId) {
             (layer) => layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
         )
         .reduce((previousValue, currentValue) => previousValue ?? currentValue)
+}
+
+function loadMoreResultForLayer(layerId) {
+    store.dispatch('loadMoreFeaturesForLayer', {
+        layer: activeLayers.value.find((layer) => layer.id === layerId),
+        coordinate: lastClick.value?.coordinate,
+        ...dispatcher,
+    })
 }
 </script>
 
@@ -63,12 +87,14 @@ function getLayerName(layerId) {
             :children="selectedEditableFeatures"
         />
         <FeatureListCategory
-            v-for="(layerFeatures, layerId) in selectedFeaturesByLayerId"
-            :key="layerId"
+            v-for="featuresForLayer in selectedFeaturesByLayerId"
+            :key="featuresForLayer.layerId"
             ref="layerFeatureCategories"
             class="feature-list-item"
-            :name="getLayerName(layerId)"
-            :children="layerFeatures"
+            :name="getLayerName(featuresForLayer.layerId)"
+            :children="featuresForLayer.features"
+            :can-load-more="canLoadMore(featuresForLayer.layerId)"
+            @load-more-results="loadMoreResultForLayer(featuresForLayer.layerId)"
         />
     </div>
 </template>

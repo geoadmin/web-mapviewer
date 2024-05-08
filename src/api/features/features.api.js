@@ -94,9 +94,12 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
  * @param {[Number, Number, Number, Number]} mapExtent
  * @param {String} lang
  * @param {Number} featureCount
+ * @param {Number} [offset] Offset of how many items the identification should start after. This
+ *   enables us to do some "pagination" or "load more" (if you already have 10 features, set an
+ *   offset of 10 to get the 10 next, 20 in total).
  * @returns {Promise<LayerFeature[]>}
  */
-async function identifyOnGeomAdminLayer({
+export async function identifyOnGeomAdminLayer({
     layer,
     projection,
     coordinate,
@@ -104,8 +107,23 @@ async function identifyOnGeomAdminLayer({
     screenHeight,
     mapExtent,
     lang,
-    featureCount,
+    featureCount = DEFAULT_FEATURE_COUNT,
+    offset = null,
 }) {
+    if (!layer) {
+        throw new GetFeatureInfoError('Missing layer')
+    }
+    if (!Array.isArray(coordinate)) {
+        throw new GetFeatureInfoError('Coordinate are required to perform a getFeatureInfo request')
+    }
+    if (featureCount === null) {
+        throw new GetFeatureInfoError(
+            'A feature count is required to perform a getFeatureInfo request'
+        )
+    }
+    if (lang === null) {
+        throw new GetFeatureInfoError('A lang is required to build a getFeatureInfo request')
+    }
     const identifyResponse = await axios.get(
         `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
@@ -118,11 +136,14 @@ async function identifyOnGeomAdminLayer({
                 imageDisplay: `${screenWidth},${screenHeight},96`,
                 geometryFormat: 'geojson',
                 geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
-                limit: featureCount,
+                // there's a hard limit of 50 on our backend
+                // see https://api3.geo.admin.ch/services/sdiservices.html#id10
+                limit: Math.min(featureCount, 50),
                 tolerance: DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
                 returnGeometry: true,
                 timeInstant: layer.timeConfig?.currentYear ?? null,
                 lang: lang,
+                offset,
             },
         }
     )
@@ -399,6 +420,9 @@ async function identifyOnExternalWmsLayer(config) {
  * @param {Number} config.screenWidth
  * @param {Number} config.screenHeight
  * @param {String} config.lang
+ * @param {Number} [config.offset] Offset of how many items the identification should start after.
+ *   This enables us to do some "pagination" or "load more" (if you already have 10 features, set an
+ *   offset of 10 to get the 10 next, 20 in total). This only works with GeoAdmin backends
  * @param {CoordinateSystem} config.projection Projection in which the coordinates of the features
  *   should be expressed
  * @returns {Promise<LayerFeature[]>}
@@ -414,6 +438,7 @@ export const identify = (config) => {
         lang = null,
         projection = null,
         featureCount = DEFAULT_FEATURE_COUNT,
+        offset = null,
     } = config
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
@@ -446,6 +471,7 @@ export const identify = (config) => {
                 mapExtent,
                 lang,
                 featureCount,
+                offset,
             })
                 .then(resolve)
                 .catch((error) => {
