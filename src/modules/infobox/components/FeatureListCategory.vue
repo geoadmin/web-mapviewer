@@ -58,6 +58,7 @@ const { t } = useI18n()
                 <button
                     v-if="canLoadMore"
                     class="btn btn-sm btn-secondary flex-grow-1"
+                    data-cy="feature-list-load-more"
                     @click="emits('loadMoreResults')"
                 >
                     {{ t('show_more_results') }}

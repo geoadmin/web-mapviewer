@@ -105,6 +105,7 @@ function onZoomToExtent(event) {
     <div
         class="feature-list-category-item-name p-2 align-middle position-relative"
         :class="{ highlighted: isHighlightedFeature, 'border-bottom': !showContent }"
+        data-cy="feature-item"
         @click="toggleShowContent"
         @mouseenter.passive="highlightFeature(item)"
         @mouseleave.passive="clearHighlightedFeature"
