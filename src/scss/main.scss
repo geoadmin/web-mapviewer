@@ -21,7 +21,9 @@ li {
     @extend .clear-no-ios-long-press;
 }
 
-#main-component {
+// Add #cesium here to give this selector more specificity. Otherwise, the
+// cesium style will override the font as soon as the map is switched to 3d
+#main-component, #cesium {
     font-family: $frutiger;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

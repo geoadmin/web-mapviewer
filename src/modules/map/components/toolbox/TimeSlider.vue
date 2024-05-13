@@ -528,6 +528,9 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
         width: 32px;
         text-align: center;
     }
+    input {
+        margin: 0;
+    }
 }
 .time-slider-bar-cursor-year {
     &.form-control {
