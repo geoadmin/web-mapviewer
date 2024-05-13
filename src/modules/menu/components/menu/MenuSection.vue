@@ -78,7 +78,7 @@ export default {
             default: false,
         },
     },
-    expose: ['close', 'open'],
+    expose: ['close', 'open', 'id'],
     emits: ['openMenuSection', 'closeMenuSection', 'click:header'],
     data() {
         return {
