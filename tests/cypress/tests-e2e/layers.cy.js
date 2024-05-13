@@ -887,7 +887,7 @@ describe('Test of layer handling', () => {
                 // change the opacity to check later on that the new layer as the non default opacity
                 cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
-                    .realClick({ position: 'right', force: true })
+                    .realClick({ position: 'right' })
                 cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .realHover()
