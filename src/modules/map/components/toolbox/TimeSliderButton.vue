@@ -94,8 +94,6 @@ $openCloseButtonHeight: 0rem;
 @include respond-above(lg) {
     .time-sliders {
         transform: none;
-    }
-    .time-sliders {
         top: 2 * $header-height;
         &.dev-disclaimer-present {
             top: calc(2 * $header-height + $dev-disclaimer-height);
