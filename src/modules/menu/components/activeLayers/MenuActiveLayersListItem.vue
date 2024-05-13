@@ -205,7 +205,7 @@ function duplicateLayer() {
                 max="1.0"
                 step="0.01"
                 :value="1.0 - layer.opacity"
-                :data-cy="`slider-opacity-layer-${id}-${index}`"
+                :data-cy="`slider-transparency-layer-${id}-${index}`"
                 @change="onTransparencyChange"
             />
             <button
