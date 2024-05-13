@@ -18,7 +18,7 @@ import { TILEGRID_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} layerData.name Layer name (internationalized)
-     * @param {String} layerData.geoAdminId Unique layer ID
+     * @param {String} layerData.id Unique layer ID
      * @param {String} layerData.technicalName ID to be used in our backend (can be different from
      *   the id)
      * @param {Number} [layerData.opacity=1.0] Opacity value between 0.0 (transparent) and 1.0
@@ -58,7 +58,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         }
         const {
             name = null,
-            geoAdminId = null,
+            id = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -83,7 +83,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         super({
             name,
             type: LayerTypes.WMTS,
-            geoAdminId,
+            id,
             technicalName,
             opacity,
             visible,

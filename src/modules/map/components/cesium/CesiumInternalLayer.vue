@@ -5,7 +5,7 @@
             :layer-config="layerConfig"
         />
         <CesiumWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
+            v-if="layerConfig.type === LayerTypes.WMTS"
             :wmts-layer-config="layerConfig"
             :preview-year="previewYear"
             :projection="projection"
@@ -13,13 +13,24 @@
             :is-time-slider-active="isTimeSliderActive"
         />
         <CesiumWMSLayer
-            v-if="layerConfig.type === LayerTypes.WMS && !layerConfig.isExternal"
+            v-if="layerConfig.type === LayerTypes.WMS"
             :wms-layer-config="layerConfig"
             :preview-year="previewYear"
             :projection="projection"
             :z-index="zIndex"
             :is-time-slider-active="isTimeSliderActive"
         />
+        <div v-if="layerConfig.type === LayerTypes.GROUP">
+            <CesiumWMSLayer
+                v-for="(layer, index) in layerConfig.layers"
+                :key="`${layer.id}-${index}`"
+                :wms-layer-config="layer"
+                :preview-year="previewYear"
+                :projection="projection"
+                :z-index="zIndex + index"
+                :is-time-slider-active="isTimeSliderActive"
+            />
+        </div>
         <CesiumGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
             :layer-id="layerConfig.id"

@@ -17,13 +17,12 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 export default class GeoAdminLayer extends AbstractLayer {
     /**
      * @param {String} layerData.name Name of this layer in the current lang
-     * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData. * @param {String}
-     *   geoAdminLayerData.geoAdminId The unique ID of this layer that will be used to identify this
-     *   layer
+     * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData.
+     * @param {String} geoAdminLayerData.id The unique ID of this layer that will be used to
+     *   identify this layer
      * @param {String} layerData.technicalName The ID/name to use when requesting the WMS/WMTS
-     *   backend, this might be different than geoAdminId, and many layers (with different
-     *   geoAdminId) can in fact request the same layer, through the same technical name, in the
-     *   end)
+     *   backend, this might be different than id, and many layers (with different id) can in fact
+     *   request the same layer, through the same technical name, in the end)
      * @param {Number} [layerData.opacity=1.0] Value from 0.0 to 1.0 telling with which opacity this
      *   layer should be shown on the map. Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
@@ -69,7 +68,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         const {
             name = null,
             type = null,
-            geoAdminId = null,
+            id = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -86,7 +85,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             hasLegend = false,
             searchable = false,
         } = layerData
-        if (geoAdminId === null) {
+        if (id === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
         }
         if (technicalName === null) {
@@ -103,7 +102,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         }
         super({
             name,
-            id: geoAdminId,
+            id,
             type,
             baseUrl,
             ensureTrailingSlashInBaseUrl,
@@ -115,12 +114,11 @@ export default class GeoAdminLayer extends AbstractLayer {
             hasDescription,
             hasLegend,
         })
-        this.geoAdminId = geoAdminId
         this.technicalName = technicalName
         this.isBackground = isBackground
         this.isHighlightable = isHighlightable
         this.topics = topics
-        this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
+        this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.searchable = searchable
