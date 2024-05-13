@@ -3,7 +3,7 @@ import { computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
 

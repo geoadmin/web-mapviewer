@@ -11,7 +11,7 @@
                 @focus="$event.target.select()"
             />
             <button
-                class="btn btn-outline-secondary"
+                class="btn btn-outline-group"
                 data-cy="menu-share-input-copy-button"
                 @click="copyInputToClipboard"
             >

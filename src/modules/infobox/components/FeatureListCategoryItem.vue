@@ -9,7 +9,7 @@ import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import { canFeatureShowProfile } from '@/store/modules/features.store.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
-import ZoomToExtentButton from '@/utils/ZoomToExtentButton.vue'
+import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
 

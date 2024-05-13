@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
 

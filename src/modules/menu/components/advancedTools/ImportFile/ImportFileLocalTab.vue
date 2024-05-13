@@ -1,17 +1,16 @@
 <script setup>
-import { ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
-import { useImportButton } from '@/modules/menu/components/advancedTools/useImportButton'
-import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'
+import FileInput from '@/utils/components/FileInput.vue'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const acceptedFileTypes = '.kml,.KML,.gpx,.GPX'
+const acceptedFileTypes = ['.kml', '.KML', '.gpx', '.GPX']
 
 const store = useStore()
 
@@ -24,32 +23,27 @@ const props = defineProps({
 const { active } = toRefs(props)
 
 // Reactive data
-const buttonState = ref('default')
+const loadingFile = ref(false)
 const selectedFile = ref(null)
 const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
-const layerAdded = ref(false)
+const activateValidation = ref(false)
+const importSuccessMessage = ref('')
 
-useImportButton(buttonState)
-
-watch(errorFileLoadingMessage, validateForm)
-watch(selectedFile, resetInput)
+const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 
 // Methods
-function handleFile(file) {
-    selectedFile.value = file
-}
-
 async function loadFile() {
-    buttonState.value = 'loading'
+    importSuccessMessage.value = ''
+    errorFileLoadingMessage.value = ''
+    activateValidation.value = true
+    loadingFile.value = true
 
-    if (!selectedFile.value) {
-        errorFileLoadingMessage.value = 'no_file'
-    } else {
+    if (isFormValid.value && selectedFile.value) {
         try {
             const content = await selectedFile.value.text()
             handleFileContent(store, content, selectedFile.value.name)
-            layerAdded.value = true
+            importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
                 errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
@@ -62,25 +56,11 @@ async function loadFile() {
         }
     }
 
-    if (!errorFileLoadingMessage.value) {
-        buttonState.value = 'succeeded'
-        setTimeout(() => (buttonState.value = 'default'), 3000)
-    } else {
-        buttonState.value = 'default'
-    }
+    loadingFile.value = false
 }
 
-function validateForm() {
-    if (errorFileLoadingMessage.value) {
-        isFormValid.value = false
-    } else {
-        isFormValid.value = true
-    }
-}
-
-function resetInput() {
-    layerAdded.value = false
-    isFormValid.value = true
+function validateForm(valid) {
+    isFormValid.value = valid
 }
 </script>
 
@@ -96,20 +76,18 @@ function resetInput() {
         aria-labelledby="nav-local-tab"
         data-cy="import-file-local-content"
     >
-        <ImportLocalFile
+        <FileInput
+            v-model="selectedFile"
+            required
             :accepted-file-types="acceptedFileTypes"
-            :additional-error-message="errorFileLoadingMessage"
-            :additional-check="layerAdded"
-            :check-on-select="false"
-            :placeholder-text="'no_file'"
-            @file-selected="handleFile"
-        ></ImportLocalFile>
-        <ImportFileButtons
-            class="mt-2"
-            :button-state="buttonState"
-            :disabled="!isFormValid"
-            @load-file="loadFile"
+            :placeholder="'no_file'"
+            :activate-validation="activateValidation"
+            :invalid-marker="!!errorFileLoadingMessage"
+            :invalid-message="errorFileLoadingMessage"
+            :valid-message="importSuccessMessage"
+            @validate="validateForm"
         />
+        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>
 

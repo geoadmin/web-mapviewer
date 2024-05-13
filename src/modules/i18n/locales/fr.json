@@ -664,5 +664,13 @@
     "share_map_title": "Lien sur le géoportail de la Confédération",
     "link_description": "Description du lien (facultatif)",
     "media_disclaimer": "Contient du contenu de tiers",
-    "drawing_attached": "Dessin ajouté en pièce jointe"
+    "drawing_attached": "Dessin ajouté en pièce jointe",
+    "switch_tooltip_attached_to_feature": "Attacher le tooltip à la géométrie",
+    "switch_tooltip_floating": "Utiliser un tooltip flottant",
+    "field_required": "Ce champ est requis",
+    "invalid_email": "e-mail invalide",
+    "no_email": "Le champ email est requis",
+    "file_unsupported_format": "Ce format de fichier n'est pas pris en charge. Seuls les formats suivants sont autorisés : ALLOWED_FORMATS",
+    "form_invalid": "Le formulaire est invalide",
+    "file_imported_success": "Fichier importé avec succès"
 }
