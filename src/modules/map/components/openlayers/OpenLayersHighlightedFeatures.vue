@@ -4,18 +4,21 @@
  * popup with the features' information
  */
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import explode from '@turf/explode'
 import { point } from '@turf/helpers'
 import nearestPoint from '@turf/nearest-point'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
+import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
@@ -25,6 +28,10 @@ import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
+
+const popoverMode = ref(MapPopoverMode.FLOATING)
+
+const i18n = useI18n()
 
 // mapping relevant store values
 const store = useStore()
@@ -86,19 +93,15 @@ const popoverCoordinate = computed(() => {
 })
 
 // When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
-// the "infobox" (non-floating) tooltip by default.
+// the floating mode by default.
 // This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
 watch(selectedLayerFeatures, () => {
     const containsOnlyPoints =
         selectedLayerFeatures.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === selectedLayerFeatures.value.length
-    if (tooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
-        // check if we're in default
-        store.dispatch('setFeatureInfoPosition', {
-            position: FeatureInfoPositions.BOTTOMPANEL,
-            dispatcher: dispatcher,
-        })
+    if (tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
+        popoverMode.value = MapPopoverMode.FLOATING
     }
 })
 
@@ -121,17 +124,36 @@ function setBottomPanelFeatureInfoPosition() {
         ...dispatcher,
     })
 }
+function togglePopoverMode() {
+    if (popoverMode.value === MapPopoverMode.FLOATING) {
+        popoverMode.value = MapPopoverMode.FEATURE_TOOLTIP
+    } else {
+        popoverMode.value = MapPopoverMode.FLOATING
+    }
+}
 </script>
 
 <template>
     <OpenLayersPopover
         v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
+        :title="i18n.t('object_information')"
         authorize-print
         :use-content-padding="selectedEditableFeatures.length > 0"
+        :mode="popoverMode"
         @close="clearAllSelectedFeatures"
     >
         <template #extra-buttons>
+            <button
+                class="btn btn-sm btn-light d-flex align-items-center"
+                @click="togglePopoverMode"
+            >
+                <FontAwesomeIcon
+                    v-if="popoverMode === MapPopoverMode.FLOATING"
+                    icon="location-pin-lock"
+                />
+                <FontAwesomeIcon v-else icon="arrows-up-down-left-right" />
+            </button>
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"

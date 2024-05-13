@@ -6,7 +6,7 @@
 
 import { inject, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
 
-import MapPopover from '@/modules/map/components/MapPopover.vue'
+import MapPopover, { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 
 const props = defineProps({
     coordinates: {
@@ -24,6 +24,11 @@ const props = defineProps({
     useContentPadding: {
         type: Boolean,
         default: false,
+    },
+    mode: {
+        type: String,
+        default: MapPopoverMode.FLOATING,
+        validator: (value) => Object.values(MapPopoverMode).includes(value),
     },
 })
 const { coordinates, authorizePrint, title, useContentPadding } = toRefs(props)
@@ -63,8 +68,8 @@ function getPixelForCoordinateFromMap() {
         :authorize-print="authorizePrint"
         :title="title"
         :use-content-padding="useContentPadding"
-        :top-position="anchorPosition.top"
-        :left-position="anchorPosition.left"
+        :anchor-position="anchorPosition"
+        :mode="mode"
     >
         <template #extra-buttons>
             <slot name="extra-buttons" />

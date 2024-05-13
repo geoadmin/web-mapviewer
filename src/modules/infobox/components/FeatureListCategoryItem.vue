@@ -7,8 +7,7 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
-import { canFeatureShowProfile } from '@/store/modules/features.store.js'
-import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
+import { canFeatureShowProfile } from '@/store/modules/features.store'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
@@ -39,7 +38,6 @@ const store = useStore()
 const isHighlightedFeature = computed(
     () => store.state.features.highlightedFeatureId === item.value.id
 )
-const selectedFeaturesCount = computed(() => store.getters.selectedFeatures?.length)
 
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
@@ -76,29 +74,6 @@ function showContentAndScrollIntoView(event) {
         return false
     }
 }
-
-function forceFeatureInfoAtBottom() {
-    store.dispatch('setFeatureInfoPosition', {
-        position: FeatureInfoPositions.BOTTOMPANEL,
-        ...dispatcher,
-    })
-}
-
-function onShowProfile(event) {
-    showContentAndScrollIntoView(event)
-    // as the profile will be stored at the bottom of the screen, we do not want to have
-    // a floating tooltip while some information are at the bottom, so we force the tooltip down
-    forceFeatureInfoAtBottom()
-}
-
-function onZoomToExtent(event) {
-    showContentAndScrollIntoView(event)
-    // if more than one feature are currently selected, we can't be sure the new extent of the map will
-    // contain all of them, so we switch the feature list to be at the bottom of the screen
-    if (selectedFeaturesCount.value > 0) {
-        forceFeatureInfoAtBottom()
-    }
-}
 </script>
 
 <template>
@@ -117,7 +92,7 @@ function onZoomToExtent(event) {
             v-if="item.extent"
             :extent="item.extent"
             class="float-end"
-            @click="onZoomToExtent"
+            @click="showContentAndScrollIntoView"
         />
     </div>
     <div
@@ -130,7 +105,7 @@ function onZoomToExtent(event) {
     >
         <FeatureDetail :feature="item" />
         <div v-if="canDisplayProfile" class="d-grid p-1">
-            <ShowGeometryProfileButton :feature="item" @click="onShowProfile" />
+            <ShowGeometryProfileButton :feature="item" @click="showContentAndScrollIntoView" />
         </div>
     </div>
 </template>
