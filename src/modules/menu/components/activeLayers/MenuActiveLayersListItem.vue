@@ -92,10 +92,10 @@ function onToggleLayerVisibility() {
     store.dispatch('toggleLayerVisibility', { index: index.value, ...dispatcher })
 }
 
-function onOpacityChange(e) {
+function onTransparencyChange(e) {
     store.dispatch('setLayerOpacity', {
         index: index.value,
-        opacity: e.target.value,
+        opacity: 1.0 - e.target.value,
         ...dispatcher,
     })
 }
@@ -199,14 +199,14 @@ function duplicateLayer() {
             </label>
             <input
                 :id="`transparency-${id}`"
-                class="menu-layer-transparency-slider"
+                class="menu-layer-transparency-slider ms-2 me-4"
                 type="range"
                 min="0.0"
                 max="1.0"
                 step="0.01"
-                :value="layer.opacity"
-                :data-cy="`slider-opacity-layer-${id}-${index}`"
-                @change="onOpacityChange"
+                :value="1.0 - layer.opacity"
+                :data-cy="`slider-transparency-layer-${id}-${index}`"
+                @change="onTransparencyChange"
             />
             <button
                 v-if="hasMultipleTimestamps"
