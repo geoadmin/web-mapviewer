@@ -76,22 +76,16 @@ const innerBarStyle = computed(() => {
     return { width: `${sliderWidth.value}px` }
 })
 const yearPositionOnSlider = computed(
-    () => (1 + ALL_YEARS.indexOf(currentYear.value)) * distanceBetweenLabels.value
+    () => (1 + ALL_YEARS.indexOf(currentYear.value)) * distanceBetweenLabels.value + 42
 )
 const cursorPosition = computed(() => {
     const yearCursorWidth = yearCursor.value?.clientWidth || 0
-    let left = yearPositionOnSlider.value - yearCursorWidth / 2
-    // we give an overlap of 12px as there is some space between the play button and the end
-    // of the slider
-    if (left > sliderWidth.value - (yearCursorWidth - 12)) {
-        left = sliderWidth.value - (yearCursorWidth - 12)
-    }
-    if (left < 0) {
-        left = 0
-    }
-    return {
-        left: `${left}px`,
-    }
+    // we need to add 4.5 pixels which is half the size of the arrow for the slider to
+    // really be in the middle of the arrow
+    // make sure it doesn't go below 0
+    const left = Math.max(yearPositionOnSlider.value - yearCursorWidth / 2 + 4.5, 0)
+
+    return `${left}px`
 })
 const cursorArrowPosition = computed(() => {
     return {
@@ -213,9 +207,10 @@ function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
 }
 
 function setSliderWidth() {
-    // 19px of padding (7.5 on both side of the container with p-2 class and 4 with px-1)
-
-    sliderWidth.value = sliderContainer.value.clientWidth - 19 - PLAY_BUTTON_SIZE
+    // the padding of the slider container (4px each side) + the padding of the
+    // slider bar (48px each side) = 112
+    const padding = 112
+    sliderWidth.value = sliderContainer.value.clientWidth - padding - PLAY_BUTTON_SIZE
 }
 
 function positionNodeLabel(year) {
@@ -339,12 +334,12 @@ function setYearToInputIfValid() {
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
         <div class="p-2 d-flex">
-            <div class="time-slider-bar">
+            <div class="time-slider-bar px-5">
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
                     class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
-                    :style="cursorPosition"
+                    :style="{ left: cursorPosition }"
                 >
                     <div
                         class="px-2 border-end d-flex align-items-center"
@@ -381,7 +376,7 @@ function setYearToInputIfValid() {
                 />
                 <div
                     v-if="yearsShownAsLabel.length > 0"
-                    class="time-slider-bar-inner d-flex mt-5 mx-1"
+                    class="time-slider-bar-inner d-flex mt-5"
                     :style="innerBarStyle"
                 >
                     <span
