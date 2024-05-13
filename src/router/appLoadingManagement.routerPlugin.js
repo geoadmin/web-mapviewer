@@ -21,6 +21,7 @@ const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
  * @param {Store} store
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
+    log.debug('[APP LOADING MANAGEMENT ROUTER] entry in app loading management plugin')
     if (!store.state.app.isReady) {
         const isLegacyUrl = isLegacyParams(window?.location?.search)
 
@@ -47,7 +48,13 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                     isLegacyUrl,
                     ...dispatcher,
                 })
+                log.error('0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
+                log.error(from)
+                log.error(to)
                 unRegisterRouterHook()
+                log.error('0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
+                log.error(from)
+                log.error(to)
             }
         })
         const unSubscribeStore = store.subscribe((mutation) => {
@@ -58,6 +65,8 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             }
         })
     }
+    log.debug('[APP LOADING MANAGEMENT ROUTER] exiting app loading management plugin')
+    return true
 }
 
 export default appLoadingManagementRouterPlugin

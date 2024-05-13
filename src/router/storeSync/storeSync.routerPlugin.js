@@ -7,7 +7,7 @@ import { LEGACY_VIEWS, MAP_VIEWS } from '@/router/viewNames'
 import log from '@/utils/logging'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
-
+let globalcount = 0
 const watchedMutations = [
     ...new Set(storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch).flat()),
 ]
@@ -39,8 +39,6 @@ const isRoutePushNeeded = (store, currentRoute) => {
 
 // flag to distinguish URL change originated by this module or by another source
 let routeChangeIsTriggeredByThisModule = false
-// flag to tell us if we need to enforce a query redirection when coming from the legacy router
-let needRouteChangeBecauseOfLegacy = true
 /**
  * Watch for store changes and reflect the changes in the URL query param if needed
  *
@@ -102,14 +100,16 @@ function storeMutationWatcher(store, mutation, router) {
  *   parameter.
  */
 function urlQueryWatcher(store, to, from) {
+    log.debug(`[URL query watcher] entry in the url query watcher function`)
     if (routeChangeIsTriggeredByThisModule) {
         log.debug(`[Router store plugin] Url query watcher triggered by itself ignore it`, to)
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
         routeChangeIsTriggeredByThisModule = false
-        return undefined
+        return true
     }
-    log.debug(`[URL query watcher]`, to.query)
+    log.debug('[URL query watcher] coming from :', from.query)
+    log.debug(`[URL query watcher] going to :`, to.query)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
@@ -172,7 +172,10 @@ function urlQueryWatcher(store, to, from) {
     }
 
     if (requireQueryUpdate) {
-        needRouteChangeBecauseOfLegacy = false
+        store.dispatch('setNeedReloadBecauseOfLegacy', {
+            value: false,
+            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+        })
         log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
@@ -184,11 +187,14 @@ function urlQueryWatcher(store, to, from) {
     // in the legacy view and thus, not showing anything. We ensure here that we update the query
     // if there are changes AND we should go to a different view. We also ensure we're only going
     // through this only once.
-    if (needRouteChangeBecauseOfLegacy && LEGACY_VIEWS.includes(from?.name)) {
-        needRouteChangeBecauseOfLegacy = false
+    if (store.state.app.needReloadBecauseOfLegacy && LEGACY_VIEWS.includes(from?.name)) {
+        store.dispatch('setNeedReloadBecauseOfLegacy', {
+            value: false,
+            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+        })
         return { name: to.name, query: newQuery }
     }
-    return undefined
+    return true
 }
 
 /**
@@ -205,6 +211,17 @@ function urlQueryWatcher(store, to, from) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
+        globalcount += 1
+        log.error('ENTRY NUMBER ', globalcount)
+        // we define a return Value, so we can check across the function what its value is
+        let retVal = undefined
+        log.warn('[Router store plugin] Entry in the navigation guard')
+        log.warn('[Router store plugin] We received the following from ', from)
+        log.warn('[Router store plugin] We expect to go to the following to ', to)
+        log.error('-------------------------------------------------------------------')
+        log.error(MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation)
+        log.error(!MAP_VIEWS.includes(to.name))
+        log.error(globalcount)
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
             log.info('[Router store plugin] Entering MapView, register store mutation watcher')
             // listening to store mutation in order to update URL
@@ -214,6 +231,8 @@ const storeSyncRouterPlugin = (router, store) => {
                         '[Router store plugin] app is ready, trigger initial URL query watcher'
                     )
                     const newRoute = urlQueryWatcher(store, to)
+                    log.error(`IN THE QUERY WATCHER SUBSCRIPTION : BEFORE THE IF NEW ROUTE`)
+                    log.error(newRoute)
                     if (newRoute) {
                         router.push(newRoute)
                     }
@@ -227,17 +246,27 @@ const storeSyncRouterPlugin = (router, store) => {
                 log.info(
                     `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
                 )
+
+
                 unsubscribeStoreMutation()
+                retVal = true
             }
         }
+        log.warn('[Router store plugin] return Value currently at ', retVal)
         if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
             // Synchronize the store with the url query only on MapView and when the application
             // is ready
-            return urlQueryWatcher(store, to, from)
+            retVal = urlQueryWatcher(store, to, from)
         }
+        log.warn('[Router store plugin] return Value currently at ', retVal)
+
+        log.warn('[Router store plugin] exiting navigation guard with the following value', retVal)
+        log.warn('[Router store plugin] the query was:', from)
+        log.warn('[Router store plugin] the query will be:', to)
         // Note we return undefined to validate the route, see Vue Router documentation
-        return undefined
+        return retVal
     })
+
 }
 
 export default storeSyncRouterPlugin

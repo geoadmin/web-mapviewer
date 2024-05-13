@@ -15,6 +15,7 @@ import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
+import log from '@/utils/logging'
 
 const history = createWebHashHistory()
 
@@ -67,6 +68,10 @@ const router = createRouter({
     ],
     parseQuery: parseQuery,
     stringifyQuery: stringifyQuery,
+})
+
+router.onError((error) => {
+    log.error(error)
 })
 
 appLoadingManagementRouterPlugin(router, store)
