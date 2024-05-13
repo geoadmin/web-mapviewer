@@ -484,6 +484,10 @@
     "time_hide": "Disable representation of data time stamps.",
     "time_select_year": "Select a year",
     "time_show": "Enable representation of data time stamps.",
+    "time_slider_legend_tippy_intro": "The time slider shows different colors depending on whether the data from time enabled layers are present for the year.",
+    "time_slider_legend_tippy_full_data": "And this one means all layers have data for this year.",
+    "time_slider_legend_tippy_no_data": "This color means there is no data for this year.",
+    "time_slider_legend_tippy_partial_data": "This one means not all layers have data for this year.",
     "title": "Title",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Federal Office for Spatial Development ",
@@ -672,5 +676,11 @@
     "no_email": "Email field is required",
     "file_unsupported_format": "This file format is not supported.  Only the following formats are allowed: ALLOWED_FORMATS",
     "form_invalid": "Form is invalid",
-    "file_imported_success": "File successfully imported"
+    "file_imported_success": "File successfully imported",
+    "3d_labels_active": "Remove geographic names",
+    "3d_labels_inactive": "Add geographic names",
+    "3d_vegetation_active": "Remove vegetations",
+    "3d_vegetation_inactive": "Add vegetations",
+    "3d_constructions_active": "Remove buildings and constructions",
+    "3d_constructions_inactive": "Add buildings and constructions"
 }

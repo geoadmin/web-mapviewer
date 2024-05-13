@@ -484,6 +484,10 @@
     "time_hide": "Désactiver l'outil de représentation historique des données.",
     "time_select_year": "Choisissez une année",
     "time_show": "Activer l'outil de représentation historique des données.",
+    "time_slider_legend_tippy_intro": "Le time slider affiche des couleurs différentes selon que les données des couches ayant des données temporelles sont présentes ou non pour l'année en question.",
+    "time_slider_legend_tippy_full_data": "Et cette couleur signifie que toutes les couches ont des données pour cette année.",
+    "time_slider_legend_tippy_no_data": "Cette couleur signifie qu'il n'y a pas de données pour cette année.",
+    "time_slider_legend_tippy_partial_data": "Cette couleur signifie que certaines couches n'ont pas de données pour cette année.",
     "title": "Titre",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Office fédéral du développement territorial ",
@@ -672,5 +676,11 @@
     "no_email": "Le champ email est requis",
     "file_unsupported_format": "Ce format de fichier n'est pas pris en charge. Seuls les formats suivants sont autorisés : ALLOWED_FORMATS",
     "form_invalid": "Le formulaire est invalide",
-    "file_imported_success": "Fichier importé avec succès"
+    "file_imported_success": "Fichier importé avec succès",
+    "3d_labels_active": "Supprimer les noms géographiques",
+    "3d_labels_inactive": "Ajouter les noms géographiques",
+    "3d_vegetation_active": "Supprimer la végétations",
+    "3d_vegetation_inactive": "Ajouter la végétations",
+    "3d_constructions_active": "Supprimer les bâtiments et constructions",
+    "3d_constructions_inactive": "Ajouter les bâtiments et constructions"
 }
