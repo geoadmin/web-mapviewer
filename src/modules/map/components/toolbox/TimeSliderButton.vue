@@ -80,6 +80,10 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(sm) {
     .time-sliders {
+        // menu appears, we move the slider to the right and take the menu
+        // width into the width calculation
+        left: $menu-tray-width;
+        width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
         top: calc($header-height + $openCloseButtonHeight);
         &.dev-disclaimer-present {
             top: calc($header-height + $openCloseButtonHeight + $dev-disclaimer-height);
@@ -89,9 +93,7 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(lg) {
     .time-sliders {
-        left: $menu-tray-width;
         transform: none;
-        width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
     }
     .time-sliders {
         top: 2 * $header-height;
