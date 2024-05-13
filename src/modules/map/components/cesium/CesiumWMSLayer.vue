@@ -80,7 +80,7 @@ export default {
          * @returns Object
          */
         wmsUrlParams() {
-            return {
+            const params = {
                 SERVICE: 'WMS',
                 REQUEST: 'GetMap',
                 TRANSPARENT: true,
@@ -88,8 +88,11 @@ export default {
                 FORMAT: `image/${this.format}`,
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,
-                TIME: this.timestamp,
             }
+            if (this.timestamp) {
+                params.TIME = this.timestamp
+            }
+            return params
         },
     },
     methods: {
