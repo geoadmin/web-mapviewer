@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 describe('Testing the feature selection', () => {
@@ -251,10 +252,16 @@ describe('Testing the feature selection', () => {
                 y: -100,
             })
             cy.log('making sure 50 items are requested when selecting a dragbox on the map')
-            cy.wait('@identify').its('request.query.limit').should('eq', '50')
+            cy.wait('@identify')
+                .its('request.query.limit')
+                .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
             // waiting for each feature detail to be loaded (can take a while with the stubbing, so it can lead to timeouts
             // with further selectors if not properly waited)
-            for (let featureId = 1; featureId <= 50; featureId++) {
+            for (
+                let featureId = 1;
+                featureId <= DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureId++
+            ) {
                 cy.wait(`@featureDetail_${featureId}`)
             }
 
@@ -265,7 +272,7 @@ describe('Testing the feature selection', () => {
             cy.log('checking that each feature has been rendered in the list')
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', 50)
+                .should('have.length', DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
             cy.get('@highlightedFeatures').scrollTo('bottom')
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
@@ -273,17 +280,21 @@ describe('Testing the feature selection', () => {
             cy.wait('@identify')
                 .its('request.query')
                 .should((query) => {
-                    expect(query.limit).to.eq('50')
-                    expect(query.offset).to.eq('50')
+                    expect(query.limit).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+                    expect(query.offset).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
                 })
 
             // same as above, waiting for each feature deatil to be loaded
-            for (let featureId = 51; featureId <= 100; featureId++) {
+            for (
+                let featureId = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1;
+                featureId <= 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureId++
+            ) {
                 cy.wait(`@featureDetail_${featureId}`)
             }
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', 100)
+                .should('have.length', 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
 
             cy.log('Sending an empty response for further identify')
             cy.intercept('**identify**', {
@@ -316,6 +327,16 @@ describe('Testing the feature selection', () => {
             cy.get('@highlightedFeatures').should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
             cy.get('@loadMore').should('not.exist')
+
+            cy.log('clicking where there is no feature unselect the current one(s)')
+            cy.intercept('**identify**', (req) => {
+                req.reply({
+                    results: [],
+                })
+            }).as('emptyIdentify')
+            cy.get('@olMap').click(20, 100)
+            cy.wait('@emptyIdentify')
+            cy.get('@highlightedFeatures').should('not.exist')
         })
     })
 })

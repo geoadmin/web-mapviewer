@@ -35,9 +35,9 @@ const { t } = useI18n()
 </script>
 
 <template>
-    <div class="feature-list-category border-start position-relative">
+    <div class="feature-list-category border-start">
         <div
-            class="position-relative p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex"
+            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />

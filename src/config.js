@@ -309,3 +309,22 @@ export const YOUNGEST_YEAR = new Date().getFullYear() - 1
  * @type {String[]}
  */
 export const WHITELISTED_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
+
+/**
+ * How many features we will request our backends when identifying features under a single
+ * coordinate (mouse click)
+ *
+ * @type {number}
+ */
+export const DEFAULT_FEATURE_COUNT_SINGLE_POINT = 10
+
+/**
+ * How many features we will request our backends when doing a rectangle selection on the map
+ * (CLTR+drag)
+ *
+ * There's a hard limit of 50 on our backend.
+ *
+ * @type {number}
+ * @see https://api3.geo.admin.ch/services/sdiservices.html#id10
+ */
+export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50

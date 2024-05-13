@@ -6,14 +6,13 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { API_BASE_URL } from '@/config'
+import { API_BASE_URL, DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import { createPixelExtentAround } from '@/utils/extentUtils'
 import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-const DEFAULT_FEATURE_COUNT = 10
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
 const APPLICATION_JSON_TYPE = 'application/json'
@@ -107,7 +106,7 @@ export async function identifyOnGeomAdminLayer({
     screenHeight,
     mapExtent,
     lang,
-    featureCount = DEFAULT_FEATURE_COUNT,
+    featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     offset = null,
 }) {
     if (!layer) {
@@ -136,9 +135,7 @@ export async function identifyOnGeomAdminLayer({
                 imageDisplay: `${screenWidth},${screenHeight},96`,
                 geometryFormat: 'geojson',
                 geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
-                // there's a hard limit of 50 on our backend
-                // see https://api3.geo.admin.ch/services/sdiservices.html#id10
-                limit: Math.min(featureCount, 50),
+                limit: featureCount,
                 tolerance: DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
                 returnGeometry: true,
                 timeInstant: layer.timeConfig?.currentYear ?? null,
@@ -437,7 +434,7 @@ export const identify = (config) => {
         screenHeight = null,
         lang = null,
         projection = null,
-        featureCount = DEFAULT_FEATURE_COUNT,
+        featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
         offset = null,
     } = config
     return new Promise((resolve, reject) => {

@@ -4,12 +4,13 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import getProfile from '@/api/profile/profile.api'
+import {
+    DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
+    DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+} from '@/config.js'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
-
-const DEFAULT_FEATURE_COUNT_SINGLE_POINT = 10
-const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
@@ -47,7 +48,7 @@ function getFeatureCountForCoordinate(coordinate) {
  * @param {String} config.lang Current lang ISO code
  * @param {CoordinateSystem} config.projection Wanted projection with which to request the backend
  * @param {Number} [config.featureCount] How many features should be requested. If not given, will
- *   default to 10.
+ *   default to 10 for single coordinate, or 50 for extents.
  * @returns {Promise<LayerFeature[]>} A promise that will contain all feature identified by the
  *   different requests (won't be grouped by layer)
  */
@@ -116,7 +117,7 @@ const runIdentify = (config) => {
                         // no reject, so that we may see at least the result of requests that have been fulfilled
                     }
                 })
-                // filtering out doppelgangers
+                // filtering out duplicates
                 resolve(
                     allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
                 )
@@ -134,7 +135,6 @@ const runIdentify = (config) => {
  * @property {LayerFeature[]} features
  * @property {Number} featureCountForMoreData If there are more data to load, this will be greater
  *   than 0. If no more data can be requested from the backend, this will be set to 0.
- * @property {Boolean} canLoadMore
  */
 
 export default {
@@ -270,6 +270,8 @@ export default {
                     paginationSize: featureCount,
                     dispatcher,
                 })
+            } else {
+                dispatch('clearAllSelectedFeatures', { dispatcher })
             }
         },
         /**
