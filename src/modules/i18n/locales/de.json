@@ -484,6 +484,10 @@
     "time_hide": "Deaktivieren der Anzeige von Daten-Zeitständen.",
     "time_select_year": "Wählen Sie ein Jahr aus",
     "time_show": "Aktivieren der Anzeige von Daten-Zeitständen.",
+    "time_slider_legend_tippy_intro": "Der Zeitschieberegler zeigt verschiedene Farben an, je nachdem, ob die Daten von zeitaktivierten Schichten für das Jahr vorhanden sind.",
+    "time_slider_legend_tippy_full_data": "Und diese Farbe bedeutet, dass alle Ebenen Daten für dieses Jahr haben.",
+    "time_slider_legend_tippy_no_data": "Diese Farbe bedeutet, dass es für dieses Jahr keine Daten gibt.",
+    "time_slider_legend_tippy_partial_data": "Diese Farbe bedeutet, dass nicht alle Ebenen Daten für dieses Jahr haben.",
     "title": "Titel",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Bundesamt für Raumentwicklung",
@@ -638,7 +642,7 @@
     "loading_error_network_failure": "Laden fehlgeschlagen, auf die Datei kann nicht zugegriffen werden",
     "loading_file": "Laden...",
     "invalid_kml_gpx_file_error": "Ungültige Datei, nur KML- oder GPX-Dateien werden unterstützt",
-    "import_maps": "Karten Importieren",
+    "import_maps": "Karten importieren",
     "import_maps_tooltip": "Importieren Sie externe WMTS- oder WMS-Datenquellen",
     "unsupported_content_type": "Nicht unterstützter Antwortinhaltstyp",
     "invalid_wms_capabilities": "Ungültige WMS-Capabilities-Daten",
@@ -672,5 +676,11 @@
     "no_email": "Das E-Mail-Feld ist erforderlich",
     "file_unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Nur die folgenden Formate sind erlaubt: ALLOWED_FORMATS",
     "form_invalid": "Das Formular ist ungültig",
-    "file_imported_success": "Datei erfolgreich importiert"
+    "file_imported_success": "Datei erfolgreich importiert",
+    "3d_labels_active": "Entferne geografische Namen",
+    "3d_labels_inactive": "Geografische Namen hinzufügen",
+    "3d_vegetation_active": "Entferne Vegetationen",
+    "3d_vegetation_inactive": "Vegetationen hinzufügen",
+    "3d_constructions_active": "Gebäude und Konstruktionen entfernen",
+    "3d_constructions_inactive": "Gebäude und Konstruktionen hinzufügen"
 }

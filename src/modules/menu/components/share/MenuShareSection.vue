@@ -41,7 +41,10 @@ export default {
         MenuSection,
     },
     emits: ['openMenuSection'],
-    expose: ['close'],
+    expose: ['close', 'id'],
+    data() {
+        return { id: 'shareSection' }
+    },
     computed: {
         ...mapState({
             shortLink: (state) => state.share.shortLink,

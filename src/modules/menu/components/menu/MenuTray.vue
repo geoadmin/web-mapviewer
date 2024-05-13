@@ -1,8 +1,9 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
@@ -35,6 +36,7 @@ const singleModeSections = ref([
     'shareSection',
     'toolsSection',
     'printSection',
+    '3dSection',
 ])
 
 const is3dMode = computed(() => store.state.cesium.active)
@@ -45,6 +47,12 @@ const mapModuleReady = computed(() => store.state.app.isMapReady)
 watch(showImportFile, (show) => {
     if (show) {
         refs.value.activeLayersSection.open()
+    }
+})
+
+onMounted(() => {
+    if (is3dMode.value) {
+        refs.value['3dSection'].open()
     }
 })
 
@@ -87,7 +95,11 @@ function updateRef(el) {
         >
             <MenuSettings />
         </MenuSection>
-        <MenuShareSection :ref="updateRef" @open-menu-section="onOpenMenuSection" />
+        <MenuShareSection
+            :ref="updateRef"
+            @open-menu-section="onOpenMenuSection"
+            @close-menu-section="onCloseMenuSection"
+        />
         <MenuPrintSection
             v-if="!is3dMode"
             :ref="updateRef"
@@ -123,6 +135,17 @@ function updateRef(el) {
             @close-menu-section="onCloseMenuSection"
         >
             <MenuAdvancedToolsList :compact="compact" />
+        </MenuSection>
+        <MenuSection
+            id="3dSection"
+            :ref="updateRef"
+            data-cy="menu-tray-3d-section"
+            title="3D"
+            secondary
+            @open-menu-section="onOpenMenuSection"
+            @close-menu-section="onCloseMenuSection"
+        >
+            <MenuThreeD :compact="compact" />
         </MenuSection>
         <MenuTopicSection
             id="topicsSection"
