@@ -24,8 +24,8 @@ export const LogLevel = {
  * @param {...any} message
  */
 const log = (level, ...message) => {
-    // In production we don't log debug level
-    if (ENVIRONMENT === 'production' && [LogLevel.ERROR, LogLevel.WARNING].includes(level)) {
+    // In production we don't log debug level and info level
+    if (ENVIRONMENT === 'production' && ![LogLevel.ERROR, LogLevel.WARNING].includes(level)) {
         return
     }
 
