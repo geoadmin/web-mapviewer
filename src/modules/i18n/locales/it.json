@@ -484,10 +484,10 @@
     "time_hide": "Disattivare la visualizzazione storica dei dati",
     "time_select_year": "Scegliete un anno",
     "time_show": "Attivare la visualizzazione storica dei dati",
-    "time_slider_legend_tippy_intro": "Il cursore temporale mostra colori diversi, a dipendenza se i strati con dati temporali sono presenti per l'anno in questione.",
-    "time_slider_legend_tippy_full_data": "E questo significa che tutti i livelli hanno dati per quest'anno.",
-    "time_slider_legend_tippy_no_data": "Questo colore significa che non ci sono dati per questo anno.",
-    "time_slider_legend_tippy_partial_data": "Questo significa che non tutti i livelli hanno dati per quest'anno.",
+    "time_slider_legend_tippy_intro": "Il cursore del tempo mostra colori diversi a seconda che gli strati temporali abbiano o meno dati per l'anno selezionato.",
+    "time_slider_legend_tippy_full_data": "Vollständige Daten",
+    "time_slider_legend_tippy_no_data": "Nessun dato",
+    "time_slider_legend_tippy_partial_data": "Dati parziali",
     "title": "Titolo",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Ufficio federale dello sviluppo territoriale ",
@@ -677,10 +677,7 @@
     "file_unsupported_format": "Questo formato file non è supportato. Sono ammessi solo i seguenti formati: ALLOWED_FORMATS",
     "form_invalid": "Il modulo non è valido",
     "file_imported_success": "File importato con successo",
-    "3d_labels_active": "Rimuovi nomi geografici",
-    "3d_labels_inactive": "Aggiungi nomi geografici",
-    "3d_vegetation_active": "Rimuovi vegetazione",
-    "3d_vegetation_inactive": "Aggiungi vegetazione",
-    "3d_constructions_active": "Rimuovere edifici e costruzioni",
-    "3d_constructions_inactive": "Aggiungere edifici e costruzioni"
+    "3d_labels": "Nomi geografici",
+    "3d_vegetation": "Vegetazione",
+    "3d_constructions": "Edifici e costruzioni"
 }

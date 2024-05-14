@@ -482,10 +482,10 @@
     "time_hide": "Deactivar la visualisaziun istorica da las datas.",
     "time_select_year": "Selecziunais in onn",
     "time_show": "Activar la visualisaziun istorica da las datas.",
-    "time_slider_legend_tippy_intro": "La strietta da temp mussa differentas colurs, tut tenor sche las datas da stresas pussibilitadas per l'onn èn avant maun.",
-    "time_slider_legend_tippy_full_data": "E quai munta che tut las stresas han era datas per quest onn.",
-    "time_slider_legend_tippy_no_data": "Questa colur munta ch'i na dat naginas datas per quest onn.",
-    "time_slider_legend_tippy_partial_data": "Quai munta che betg tut las stresas han datas per quest onn.",
+    "time_slider_legend_tippy_intro": "Il temp slider mussa differentas colurs, tut tenor sche las stresas dal temp han datas per l'onn tschernì u betg.",
+    "time_slider_legend_tippy_full_data": "Datas entiras",
+    "time_slider_legend_tippy_no_data": "Naginas datas",
+    "time_slider_legend_tippy_partial_data": "Datas parzialas",
     "title": "Titel",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Uffizi federal da planisaziun dal territori",
@@ -675,10 +675,7 @@
     "file_unsupported_format": "Quest format da datoteca na vegn betg sustegnì. Sun ils seguents formats èn permess: ALLOWED_FORMATS",
     "form_invalid": "Il formular è invalid",
     "file_imported_success": "Datoteca importada cun success",
-    "3d_labels_active": "Elimina numns geografics",
-    "3d_labels_inactive": "Agiunga numns geografics",
-    "3d_vegetation_active": "Elimina la vegetaziun",
-    "3d_vegetation_inactive": "Agiunger vegietaziun",
-    "3d_constructions_active": "Eliminar edifizis ed installaziuns",
-    "3d_constructions_inactive": "Agiunger edifizis ed installaziuns"
+    "3d_labels": "Numns geografics",
+    "3d_vegetation": "Vegietaziun",
+    "3d_constructions": "Edifizis ed installaziuns"
 }

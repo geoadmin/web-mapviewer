@@ -53,7 +53,7 @@ export default {
          *
          * @type Boolean
          */
-        showLabels: false,
+        showLabels: true,
     },
     getters: {
         backgroundLayersFor3D(state, _, rootState) {
@@ -100,8 +100,17 @@ export default {
         toggleShow3dVegetation({ commit, state }, { dispatcher }) {
             commit('setShowVegetation', { showVegetation: !state.showVegetation, dispatcher })
         },
-        toggleShow3dLabels({ commit, state }, { dispatcher }) {
-            commit('setShowLabels', { showLabels: !state.showLabels, dispatcher })
+        setShowConstructionsBuildings({ commit }, { showConstructionsBuildings, dispatcher }) {
+            commit('setShowConstructionsBuildings', {
+                showConstructionsBuildings,
+                dispatcher,
+            })
+        },
+        setShowVegetation({ commit }, { showVegetation, dispatcher }) {
+            commit('setShowVegetation', { showVegetation, dispatcher })
+        },
+        setShowLabels({ commit }, { showLabels, dispatcher }) {
+            commit('setShowLabels', { showLabels, dispatcher })
         },
     },
     mutations: {

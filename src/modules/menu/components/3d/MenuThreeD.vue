@@ -1,13 +1,11 @@
 <script setup>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import CheckBox from '@/modules/menu/components/common/CheckBox.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'MenuThreeD.vue' }
-const iconSize = 'lg'
-const iconGap = 'me-3'
 
 useTippyTooltip('.menu-three-d [data-tippy-content]')
 
@@ -20,64 +18,29 @@ const props = defineProps({
 const { compact } = toRefs(props)
 const store = useStore()
 
-const is3dLabelsActive = computed(() => store.state.cesium.showLabels)
-const is3dVegetationActive = computed(() => store.state.cesium.showVegetation)
-const is3dConstructionsActive = computed(
-    () => store.state.cesium.showConstructions || store.state.cesium.showBuildings
-)
-
-const toggle3dLabels = () => store.dispatch('toggleShow3dLabels', dispatcher)
-const toggle3dVegetation = () => store.dispatch('toggleShow3dVegetation', dispatcher)
-const toggle3dConstructions = () => store.dispatch('toggleShow3dConstructionsBuildings', dispatcher)
+const labels = computed({
+    get: () => store.state.cesium.showLabels,
+    set: (value) => store.dispatch('setShowLabels', { showLabels: !!value, ...dispatcher }),
+})
+const vegetation = computed({
+    get: () => store.state.cesium.showVegetation,
+    set: (value) => store.dispatch('setShowVegetation', { showVegetation: !!value, ...dispatcher }),
+})
+const constructions = computed({
+    get: () => store.state.cesium.showBuildings && store.state.cesium.showConstructions,
+    set: (value) =>
+        store.dispatch('setShowConstructionsBuildings', {
+            showConstructionsBuildings: !!value,
+            ...dispatcher,
+        }),
+})
 </script>
 
 <template>
-    <div class="menu-three-d p-2 d-flex flow-row gx-2" data-cy="menu-three-d">
-        <button
-            type="button"
-            class="btn"
-            :class="{
-                'btn-primary': is3dLabelsActive,
-                'btn-light': !is3dLabelsActive,
-                'btn-lg': !compact,
-                [`${iconGap}`]: true,
-            }"
-            :data-tippy-content="is3dLabelsActive ? '3d_labels_active' : '3d_labels_inactive'"
-            @click="toggle3dLabels"
-        >
-            <FontAwesomeIcon :icon="['fas', 'tags']" :size="iconSize" fixed-width />
-        </button>
-        <button
-            type="button"
-            class="btn"
-            :class="{
-                'btn-primary': is3dVegetationActive,
-                'btn-light': !is3dVegetationActive,
-                'btn-lg': !compact,
-                [`${iconGap}`]: true,
-            }"
-            :data-tippy-content="
-                is3dVegetationActive ? '3d_vegetation_active' : '3d_vegetation_inactive'
-            "
-            @click="toggle3dVegetation"
-        >
-            <FontAwesomeIcon :icon="['fas', 'tree']" :size="iconSize" fixed-width />
-        </button>
-        <button
-            type="button"
-            class="btn"
-            :class="{
-                'btn-primary': is3dConstructionsActive,
-                'btn-light': !is3dConstructionsActive,
-                'btn-lg': !compact,
-            }"
-            :data-tippy-content="
-                is3dConstructionsActive ? '3d_constructions_active' : '3d_constructions_inactive'
-            "
-            @click="toggle3dConstructions"
-        >
-            <FontAwesomeIcon :icon="['fas', 'house']" :size="iconSize" fixed-width />
-        </button>
+    <div class="menu-three-d" data-cy="menu-three-d">
+        <CheckBox v-model="labels" label="3d_labels" :compact="compact" />
+        <CheckBox v-model="vegetation" label="3d_vegetation" :compact="compact" />
+        <CheckBox v-model="constructions" label="3d_constructions" :compact="compact" />
     </div>
 </template>
 
