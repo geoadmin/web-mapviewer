@@ -239,6 +239,6 @@ function clearClick() {
 @import '@/scss/webmapviewer-bootstrap-theme';
 
 .location-popup {
-    width: 340px;
+    width: $overlay-width;
 }
 </style>
