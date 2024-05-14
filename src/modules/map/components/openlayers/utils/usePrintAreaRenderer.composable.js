@@ -1,51 +1,11 @@
-import { Feature } from 'ol'
-import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
-import VectorLayer from 'ol/layer/Vector'
 import { getRenderPixel } from 'ol/render'
-import VectorSource from 'ol/source/Vector'
-import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import log from '@/utils/logging'
 
-import { PRINT_AREA_LAYER_ID } from './printConstants'
-
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
-
-function createWorldPolygon() {
-    // Create a polygon feature covering the whole world in EPSG:4326
-    const worldPolygon = new Feature({
-        geometry: new Polygon([
-            [
-                [-180, -90], // Bottom-left corner
-                [180, -90], // Bottom-right corner
-                [180, 90], // Top-right corner
-                [-180, 90], // Top-left corner
-                [-180, -90], // Bottom-left corner
-            ],
-        ]).transform('EPSG:4326', 'EPSG:3857'),
-    })
-
-    // Define a transparent style for the polygon
-    const transparentStyle = new Style({
-        fill: new Fill({
-            color: 'rgba(255, 255, 255, 0)',
-        }),
-    })
-
-    // Create a VectorLayer outside the map creation
-    const vectorLayer = new VectorLayer({
-        source: new VectorSource({
-            features: [worldPolygon],
-        }),
-        style: transparentStyle,
-        id: PRINT_AREA_LAYER_ID,
-        zIndex: Infinity, // Make sure the print area is always on top
-    })
-    return vectorLayer
-}
 
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
@@ -54,7 +14,6 @@ export default function usePrintAreaRenderer(map) {
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
     const UNITS_RATIO = 39.37 // inches per meter
-    let worldPolygon = null
     let printRectangle = []
 
     const isActive = computed(() => store.state.print.printSectionShown)
@@ -75,13 +34,9 @@ export default function usePrintAreaRenderer(map) {
     })
 
     function activatePrintArea() {
-        if (!worldPolygon) {
-            worldPolygon = createWorldPolygon()
-        }
-        map.addLayer(worldPolygon)
         deregister = [
-            worldPolygon.on('prerender', handlePreRender),
-            worldPolygon.on('postrender', handlePostRender),
+            map.getAllLayers()[0].on('prerender', handlePreRender),
+            map.getAllLayers()[0].on('postrender', handlePostRender),
             watch(printLayoutSize, async () => {
                 await store.dispatch('setSelectedScale', {
                     scale: getOptimalScale(),
@@ -105,7 +60,6 @@ export default function usePrintAreaRenderer(map) {
     }
 
     function deactivatePrintArea() {
-        map.removeLayer(worldPolygon)
         while (deregister.length > 0) {
             const item = deregister.pop()
             if (typeof item === 'function') {
