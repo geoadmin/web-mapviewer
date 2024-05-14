@@ -170,12 +170,19 @@ const addFeatureIdentificationIntercepts = () => {
             upperY: LV95.bounds.upperY,
         }
         // if a selection box is sent, we use it as bounds to generate our random coordinates
-        if (identifyGeometry && identifyGeometry.split(',').length === 4) {
-            const split = identifyGeometry.split(',').map(parseFloat).map(Math.floor)
-            identifyBounds.lowerX = split[0]
-            identifyBounds.upperX = split[2]
-            identifyBounds.lowerY = split[1]
-            identifyBounds.upperY = split[3]
+        if (identifyGeometry) {
+            const coordinateSplit = identifyGeometry.split(',').map(parseFloat).map(Math.floor)
+            if (coordinateSplit.length === 4) {
+                identifyBounds.lowerX = coordinateSplit[0]
+                identifyBounds.upperX = coordinateSplit[2]
+                identifyBounds.lowerY = coordinateSplit[1]
+                identifyBounds.upperY = coordinateSplit[3]
+            } else if (coordinateSplit.length === 2) {
+                identifyBounds.lowerX = coordinateSplit[0] - 1000
+                identifyBounds.upperX = coordinateSplit[0] + 1000
+                identifyBounds.lowerY = coordinateSplit[1] - 1000
+                identifyBounds.upperY = coordinateSplit[1] + 1000
+            }
         }
 
         for (let i = 0; i < limit; i++) {
