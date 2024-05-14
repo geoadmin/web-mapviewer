@@ -2,6 +2,7 @@ import { Feature } from 'ol'
 import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
+import { getRenderPixel } from 'ol/render'
 import VectorSource from 'ol/source/Vector'
 import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
@@ -170,20 +171,19 @@ export default function usePrintAreaRenderer(map) {
         context.save()
 
         context.beginPath()
-        // Outside polygon, must be clockwise
-        context.moveTo(0, 0)
-        context.lineTo(width, 0)
-        context.lineTo(width, height)
-        context.lineTo(0, height)
-        context.lineTo(0, 0)
-        context.closePath()
 
-        // Inner polygon,must be counter-clockwise
-        context.moveTo(minx, miny)
-        context.lineTo(minx, maxy)
-        context.lineTo(maxx, maxy)
-        context.lineTo(maxx, miny)
-        context.lineTo(minx, miny)
+        // Outside polygon, must be clockwise
+        context.moveTo(...getRenderPixel(event, [0, 0]))
+        context.lineTo(...getRenderPixel(event, [width, 0]))
+        context.lineTo(...getRenderPixel(event, [width, height]))
+        context.lineTo(...getRenderPixel(event, [0, height]))
+
+        // Inner polygon, must be counter-clockwise
+        context.moveTo(...getRenderPixel(event, [minx, miny]))
+        context.lineTo(...getRenderPixel(event, [minx, maxy]))
+        context.lineTo(...getRenderPixel(event, [maxx, maxy]))
+        context.lineTo(...getRenderPixel(event, [maxx, miny]))
+
         context.closePath()
 
         context.fillStyle = 'rgba(0, 5, 25, 0.75)'
