@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2600000.0,
+          1200000.0
+        ]
+      },
+      "layerBodId": "test.wms.layer",
+      "bbox": [
+        2600000.0,
+        1200000.0,
+        2600000.0,
+        1200000.0
+      ],
+      "featureId": 1234,
+      "layerName": "WMS test layer",
+      "type": "Feature",
+      "id": 1234,
+      "properties": {
+        "label": "Feature 1234",
+        "link_title": "Feature 1234 link title",
+        "link_uri": "https://fake.link.feature_1234.ch",
+        "link_2_title": null,
+        "link_2_uri": null,
+        "link_3_title": null,
+        "link_3_uri": null,
+        "x": 2600000.0,
+        "y": 1200000.0,
+        "lon": 7.43863,
+        "lat": 46.95108
+      }
+    }
+  ]
+}

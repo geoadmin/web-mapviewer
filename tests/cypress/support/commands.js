@@ -3,10 +3,11 @@ import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
 
 import { MapBrowserEvent } from 'ol'
+import proj4 from 'proj4'
 
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import { randomIntBetween } from '@/utils/numberUtils'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { isNumber, randomIntBetween } from '@/utils/numberUtils'
 
 import { isMobile } from './utils'
 
@@ -133,6 +134,109 @@ const addHtmlPopupIntercepts = () => {
     }).as('htmlPopup')
 }
 
+let lastIdentifiedFeatures = []
+
+/**
+ * Generates dynamically a list of features, with the length corresponding to what was requested in
+ * the request's query.
+ *
+ * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
+ * selected within the LV95 extent (or within the selection box, if one is given).
+ */
+const addFeatureIdentificationIntercepts = () => {
+    let featureTemplate = {}
+    let featureDetailTemplate = {}
+    cy.fixture('features/features.fixture').then((featuresFixture) => {
+        // using the first entry of the fixture as template
+        featureTemplate = featuresFixture.results.pop()
+    })
+    cy.fixture('features/featureDetail.fixture').then((featureDetail) => {
+        featureDetailTemplate = featureDetail.feature
+    })
+
+    cy.intercept('**identify**', (identifyRequest) => {
+        lastIdentifiedFeatures = []
+
+        const {
+            limit = 10,
+            offset = null,
+            geometry: identifyGeometry = null,
+        } = identifyRequest.query
+        const startingFeatureId = 1 + (isNumber(offset) ? parseInt(offset) : 0)
+        const identifyBounds = {
+            lowerX: LV95.bounds.lowerX,
+            upperX: LV95.bounds.upperX,
+            lowerY: LV95.bounds.lowerY,
+            upperY: LV95.bounds.upperY,
+        }
+        // if a selection box is sent, we use it as bounds to generate our random coordinates
+        if (identifyGeometry && identifyGeometry.split(',').length === 4) {
+            const split = identifyGeometry.split(',').map(parseFloat).map(Math.floor)
+            identifyBounds.lowerX = split[0]
+            identifyBounds.upperX = split[2]
+            identifyBounds.lowerY = split[1]
+            identifyBounds.upperY = split[3]
+        }
+
+        for (let i = 0; i < limit; i++) {
+            const coordinate = [
+                randomIntBetween(identifyBounds.lowerX, identifyBounds.upperX),
+                randomIntBetween(identifyBounds.lowerY, identifyBounds.upperY),
+            ]
+            const coordinateWGS84 = proj4(LV95.epsg, WGS84.epsg, coordinate)
+            const featureId = startingFeatureId + i
+            const feature = Cypress._.cloneDeep(featureTemplate)
+            feature.geometry.coordinates = [coordinate]
+            feature.bbox = [...coordinate, ...coordinate]
+            feature.featureId = featureId
+            feature.id = featureId
+            feature.properties.label = `Feature ${featureId}`
+            feature.properties.link_title = `Feature ${featureId} link title`
+            feature.properties.link_uri = `https://fake.link.to.feature_${featureId}.ch`
+            feature.properties.x = coordinate[0]
+            feature.properties.y = coordinate[1]
+            feature.properties.lon = coordinateWGS84[0]
+            feature.properties.lat = coordinateWGS84[1]
+            feature.bounds = identifyBounds
+
+            lastIdentifiedFeatures.push(feature)
+        }
+
+        identifyRequest.reply({
+            results: lastIdentifiedFeatures,
+        })
+    }).as('identify')
+
+    // generating an intercept for each feature detail
+    cy.intercept(`**/MapServer/**/**?sr=**&geometryFormat=geojson`, (featureDetailRequest) => {
+        const featureId = parseInt(featureDetailRequest.url.split('/').pop().split('?')[0].trim())
+        const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
+        featureDetail.featureId = featureId
+        featureDetail.id = featureId
+        featureDetail.properties.name = `Feature ${featureId} name`
+        featureDetail.properties.label = `Feature ${featureId} label`
+
+        const matchingFeature = lastIdentifiedFeatures.find((feature) => feature.id === featureId)
+        if (matchingFeature) {
+            const coordinate = matchingFeature.geometry.coordinates[0]
+            featureDetail.bbox = [...coordinate, ...coordinate]
+            featureDetail.geometry.coordinates = [coordinate]
+        } else {
+            const randomCoordinate = [
+                Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
+                Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
+            ]
+            featureDetail.bbox = [...randomCoordinate, ...randomCoordinate]
+            featureDetail.geometry.coordinates = [randomCoordinate]
+        }
+
+        featureDetailRequest.alias = `featureDetail_${featureId}`
+        featureDetailRequest.reply({
+            feature: featureDetail,
+        })
+    }).as('featureDetail')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
@@ -149,6 +253,7 @@ export function getDefaultFixturesAndIntercepts() {
         addGeoJsonIntercept,
         addCesiumTilesetIntercepts,
         addHtmlPopupIntercepts,
+        addFeatureIdentificationIntercepts,
     }
 }
 

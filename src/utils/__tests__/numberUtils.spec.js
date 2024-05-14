@@ -107,6 +107,13 @@ describe('Unit test functions from numberUtils.js', () => {
                 expect(randomIntBetween(start, end)).to.be.within(start, end)
             }
         })
+        it('returns random value according to the given range when starting elsewhere than 0', () => {
+            const start = 2165123
+            const end = 2565228
+            for (let i = 0; i < 10000; i += 1) {
+                expect(randomIntBetween(start, end)).to.be.within(start, end)
+            }
+        })
     })
 
     describe('format(value)', () => {
