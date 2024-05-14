@@ -6,14 +6,13 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { API_BASE_URL } from '@/config'
+import { API_BASE_URL, DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import { createPixelExtentAround } from '@/utils/extentUtils'
 import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-const DEFAULT_FEATURE_COUNT = 10
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
 const APPLICATION_JSON_TYPE = 'application/json'
@@ -94,9 +93,12 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
  * @param {[Number, Number, Number, Number]} mapExtent
  * @param {String} lang
  * @param {Number} featureCount
+ * @param {Number} [offset] Offset of how many items the identification should start after. This
+ *   enables us to do some "pagination" or "load more" (if you already have 10 features, set an
+ *   offset of 10 to get the 10 next, 20 in total).
  * @returns {Promise<LayerFeature[]>}
  */
-async function identifyOnGeomAdminLayer({
+export async function identifyOnGeomAdminLayer({
     layer,
     projection,
     coordinate,
@@ -104,8 +106,23 @@ async function identifyOnGeomAdminLayer({
     screenHeight,
     mapExtent,
     lang,
-    featureCount,
+    featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+    offset = null,
 }) {
+    if (!layer) {
+        throw new GetFeatureInfoError('Missing layer')
+    }
+    if (!Array.isArray(coordinate)) {
+        throw new GetFeatureInfoError('Coordinate are required to perform a getFeatureInfo request')
+    }
+    if (featureCount === null) {
+        throw new GetFeatureInfoError(
+            'A feature count is required to perform a getFeatureInfo request'
+        )
+    }
+    if (lang === null) {
+        throw new GetFeatureInfoError('A lang is required to build a getFeatureInfo request')
+    }
     const identifyResponse = await axios.get(
         `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
@@ -123,6 +140,7 @@ async function identifyOnGeomAdminLayer({
                 returnGeometry: true,
                 timeInstant: layer.timeConfig?.currentYear ?? null,
                 lang: lang,
+                offset,
             },
         }
     )
@@ -399,6 +417,9 @@ async function identifyOnExternalWmsLayer(config) {
  * @param {Number} config.screenWidth
  * @param {Number} config.screenHeight
  * @param {String} config.lang
+ * @param {Number} [config.offset] Offset of how many items the identification should start after.
+ *   This enables us to do some "pagination" or "load more" (if you already have 10 features, set an
+ *   offset of 10 to get the 10 next, 20 in total). This only works with GeoAdmin backends
  * @param {CoordinateSystem} config.projection Projection in which the coordinates of the features
  *   should be expressed
  * @returns {Promise<LayerFeature[]>}
@@ -413,7 +434,8 @@ export const identify = (config) => {
         screenHeight = null,
         lang = null,
         projection = null,
-        featureCount = DEFAULT_FEATURE_COUNT,
+        featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+        offset = null,
     } = config
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
@@ -446,6 +468,7 @@ export const identify = (config) => {
                 mapExtent,
                 lang,
                 featureCount,
+                offset,
             })
                 .then(resolve)
                 .catch((error) => {

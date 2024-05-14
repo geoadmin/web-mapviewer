@@ -4,6 +4,8 @@ import 'cypress-real-events'
 import { mount } from 'cypress/vue'
 import tippy from 'tippy.js'
 
+import i18n from '@/modules/i18n'
+
 tippy.setDefaultProps({ theme: 'light-border' })
 
 Cypress.Commands.add('mount', (component, options = {}) => {
@@ -15,6 +17,11 @@ Cypress.Commands.add('mount', (component, options = {}) => {
     options.global.plugins = options.global.plugins || []
 
     /* Add any global plugins */
+    options.global.plugins.push({
+        install(app) {
+            app.use(i18n)
+        },
+    })
 
     /* Add any global components */
 

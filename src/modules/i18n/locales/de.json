@@ -664,5 +664,13 @@
     "share_map_title": "Link zum Geoportal der Schweizerischen Eidgenossenschaft",
     "link_description": "Link Beschreibung (optional)",
     "media_disclaimer": "Enthält Inhalte von Drittanbietern",
-    "drawing_attached": "Zeichnung als Anhang hinzugefügt"
+    "drawing_attached": "Zeichnung als Anhang hinzugefügt",
+    "switch_tooltip_attached_to_feature": "Tooltip an Geometrie anhängen",
+    "switch_tooltip_floating": "Eine schwebende Tooltip verwenden",
+    "field_required": "Dieses Feld ist erforderlich",
+    "invalid_email": "ungültige E-Mail",
+    "no_email": "Das E-Mail-Feld ist erforderlich",
+    "file_unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Nur die folgenden Formate sind erlaubt: ALLOWED_FORMATS",
+    "form_invalid": "Das Formular ist ungültig",
+    "file_imported_success": "Datei erfolgreich importiert"
 }

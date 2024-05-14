@@ -3,7 +3,7 @@ import { computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
 
@@ -80,6 +80,10 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(sm) {
     .time-sliders {
+        // menu appears, we move the slider to the right and take the menu
+        // width into the width calculation
+        left: $menu-tray-width;
+        width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
         top: calc($header-height + $openCloseButtonHeight);
         &.dev-disclaimer-present {
             top: calc($header-height + $openCloseButtonHeight + $dev-disclaimer-height);
@@ -89,11 +93,7 @@ $openCloseButtonHeight: 0rem;
 
 @include respond-above(lg) {
     .time-sliders {
-        left: $menu-tray-width;
         transform: none;
-        width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
-    }
-    .time-sliders {
         top: 2 * $header-height;
         &.dev-disclaimer-present {
             top: calc(2 * $header-height + $dev-disclaimer-height);

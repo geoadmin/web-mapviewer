@@ -5,18 +5,18 @@ export default {
     state: {
         layouts: [],
         selectedLayout: null,
-        selectedScale: 0,
+        selectedScale: null,
         printSectionShown: false,
     },
     getters: {
-        mapSize(state) {
-            const mapAttributes = state.selectedLayout.attributes.find(
+        printLayoutSize(state) {
+            const mapAttributes = state.selectedLayout?.attributes.find(
                 (attribute) => attribute.name === 'map'
             )
 
             return {
-                width: mapAttributes?.clientParams?.width?.default,
-                height: mapAttributes?.clientParams?.height?.default,
+                width: mapAttributes?.clientParams?.width?.default ?? 0,
+                height: mapAttributes?.clientParams?.height?.default ?? 0,
             }
         },
         selectedDPI(state) {
@@ -40,7 +40,6 @@ export default {
         },
         setSelectedLayout({ commit }, { layout, dispatcher }) {
             commit('setSelectedLayout', { layout, dispatcher })
-            commit('setSelectedScale', { scale: layout.scales[0], dispatcher })
         },
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })

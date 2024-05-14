@@ -46,7 +46,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
         <button
             type="button"
-            class="btn btn-outline-secondary me-md-3 import-file-btn-connect"
+            class="btn btn-outline-group me-md-3 import-file-btn-connect"
             :disabled="isLoading || disabled"
             data-cy="import-file-load-button"
             @click="emit('loadFile')"
@@ -56,7 +56,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
         </button>
         <button
             type="button"
-            class="btn btn-outline-secondary import-file-btn-close"
+            class="btn btn-outline-group import-file-btn-close"
             data-cy="import-file-close-button"
             @click="toggleImportFile()"
         >

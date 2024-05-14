@@ -18,10 +18,10 @@ import { WMS_BASE_URL } from '@/config'
 export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} layerData.name The name of this layer (lang specific)
-     * @param {String} layerData.geoAdminId The unique ID of this layer
+     * @param {String} layerData.id The unique ID of this layer
      * @param {String} layerData.technicalName The ID/name to use when requesting the WMS backend,
-     *   this might be different than geoAdminId, and many layers (with different geoAdminId) can in
-     *   fact request the same layer, through the same technical name, in the end)
+     *   this might be different than id, and many layers (with different id) can in fact request
+     *   the same layer, through the same technical name, in the end)
      * @param {Number} [layerData.opacity=1.0] The opacity to apply to this layer (between 0.0 and
      *   1.0). Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
@@ -62,7 +62,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         }
         const {
             name = null,
-            geoAdminId = null,
+            id = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -82,7 +82,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         super({
             name,
             type: LayerTypes.WMS,
-            geoAdminId,
+            id,
             technicalName,
             opacity,
             visible,

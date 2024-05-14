@@ -7,16 +7,16 @@ import sendFeedback from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
-import EmailValidationField from '@/utils/components/EmailValidationField.vue'
-import ImportLocalFile from '@/utils/components/ImportLocalFile.vue'
+import EmailInput from '@/utils/components/EmailInput.vue'
+import FileInput from '@/utils/components/FileInput.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
-import { isValidEmail } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
 const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
 
-const acceptedFileTypes = '.kml,.gpx,.pdf,.zip,.jpg,.jpeg,.kmz'
+const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
 
 const i18n = useI18n()
 const store = useStore()
@@ -30,11 +30,11 @@ const props = defineProps({
 
 // Reactive data
 const feedbackMessageTextArea = ref(null)
+const validationResult = ref(null)
 const requestResults = ref(null)
 const reportProblemCloseSuccessful = ref(null)
 
 const showReportProblemForm = ref(false)
-const userIsTypingFeedback = ref(false)
 const feedback = ref({
     message: null,
     kml: null,
@@ -47,18 +47,19 @@ const request = ref({
     completed: false,
 })
 const shortLink = ref('')
+const activateValidation = ref(false)
+const isMessageValid = ref(false)
+// by default attachment and email are valid as they are optional
+const isAttachmentValid = ref(true)
+const isEmailValid = ref(true)
 
 //  Computed properties
-const feedbackCanBeSent = computed(() => {
-    return !request.value.pending && isEmailValid.value && isMessageValid.value
-})
-const isMessageValid = computed(() => feedback.value.message?.length > 0)
-const isEmailValid = computed(() => {
-    return !feedback.value.email || isValidEmail(feedback.value.email)
-})
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const temporaryKml = computed(() =>
     store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId)
+)
+const isFormValid = computed(
+    () => isMessageValid.value && isEmailValid.value && isAttachmentValid.value
 )
 
 watch(
@@ -70,11 +71,16 @@ watch(
 )
 
 // Methods
+
+function validate() {
+    activateValidation.value = true
+    return isFormValid.value
+}
+
 async function sendReportProblem() {
-    // if the request was already sent, we don't allow the user to double send
-    if (request.value.completed) {
-        // we instead close the modal if he/she clicks on the check mark
-        closeAndCleanForm()
+    if (!validate()) {
+        // scrolling down to make sure the message with validation result is visible to the user
+        validationResult.value.scrollIntoView()
         return
     }
 
@@ -105,11 +111,13 @@ async function sendReportProblem() {
         reportProblemCloseSuccessful.value.focus()
     }
 }
+
 function closeAndCleanForm() {
+    activateValidation.value = false
     showReportProblemForm.value = false
     feedback.value.message = null
     feedback.value.email = null
-    feedback.value.file = false
+    feedback.value.file = null
     // reset also the completed/failed state, so that the user can send another feedback later on
     request.value.failed = false
     request.value.completed = false
@@ -117,12 +125,23 @@ function closeAndCleanForm() {
         store.dispatch('removeSystemLayer', { layerId: temporaryKmlId, ...dispatcher })
     }
 }
-function handleFile(file) {
-    feedback.value.file = file
+
+function onTextValidate(valid) {
+    isMessageValid.value = valid
 }
+
+function onAttachmentValidate(valid) {
+    isAttachmentValid.value = valid
+}
+
+function onEmailValidate(valid) {
+    isEmailValid.value = valid
+}
+
 async function generateShortLink() {
     shortLink.value = await createShortLink(window.location.href)
 }
+
 function openForm() {
     showReportProblemForm.value = true
     generateShortLink()
@@ -165,31 +184,31 @@ function toggleDrawingOverlay() {
         :hide="showDrawingOverlay"
         @close="closeAndCleanForm"
     >
-        <div v-if="!request.completed" class="p-2" data-cy="report-problem-form">
+        <div v-if="!request.completed" class="p-" data-cy="report-problem-form">
             <div class="my-3">
-                <span>{{ i18n.t('feedback_description') }}</span>
-                <div class="input-group has-validation">
-                    <textarea
-                        ref="feedbackMessageTextArea"
-                        v-model="feedback.message"
-                        :disabled="request.pending"
-                        :class="{ 'is-invalid': !userIsTypingFeedback && !isMessageValid }"
-                        class="form-control feedback-text"
-                        data-cy="report-problem-text"
-                        @focusin="userIsTypingFeedback = true"
-                        @focusout="userIsTypingFeedback = false"
-                    ></textarea>
-                    <div class="invalid-feedback">{{ i18n.t('feedback_empty_warning') }}</div>
-                </div>
+                <TextAreaInput
+                    ref="feedbackMessageTextArea"
+                    v-model="feedback.message"
+                    label="feedback_description"
+                    :disabled="request.pending"
+                    required
+                    data-cy="report-problem"
+                    :activate-validation="activateValidation"
+                    invalid-message="feedback_empty_warning"
+                    @validate="onTextValidate"
+                />
             </div>
 
             <div>
-                <div>
+                <div class="mb-2">
                     {{ i18n.t('feedback_drawing') }}
                 </div>
                 <button
-                    class="btn btn-outline-secondary"
-                    :class="{ 'is-valid': temporaryKml && !temporaryKml.isEmpty() }"
+                    class="btn btn-outline-group"
+                    :class="{
+                        'is-valid': temporaryKml && !temporaryKml.isEmpty(),
+                    }"
+                    :disabled="request.pending"
                     data-cy="report-problem-drawing-button"
                     @click="toggleDrawingOverlay"
                 >
@@ -200,20 +219,27 @@ function toggleDrawingOverlay() {
                 </div>
             </div>
 
-            <EmailValidationField
-                class="my-3"
-                :disabled="request.pending"
-                :label="'feedback_mail'"
-                @email-updated="feedback.email = $event"
-            />
+            <div class="my-3">
+                <EmailInput
+                    v-model="feedback.email"
+                    label="feedback_mail"
+                    :disabled="request.pending"
+                    :activate-validation="activateValidation"
+                    data-cy="report-problem"
+                    @validate="onEmailValidate"
+                />
+            </div>
 
             <div class="my-3">
-                <span>{{ i18n.t('feedback_attachment') }}</span>
-                <ImportLocalFile
+                <FileInput
+                    v-model="feedback.file"
+                    label="feedback_attachment"
                     :accepted-file-types="acceptedFileTypes"
-                    :check-on-select="true"
-                    :placeholder-text="'feedback_placeholder'"
-                    @file-selected="handleFile"
+                    :placeholder="'feedback_placeholder'"
+                    :activate-validation="activateValidation"
+                    :disabled="request.pending"
+                    data-cy="report-problem"
+                    @validate="onAttachmentValidate"
                 />
             </div>
             <div class="my-4">
@@ -229,15 +255,19 @@ function toggleDrawingOverlay() {
             </div>
             <SendActionButtons
                 class="text-end"
-                :is-disabled="!feedbackCanBeSent"
+                :class="{ 'is-invalid': !isFormValid && activateValidation }"
+                :is-disabled="request.pending"
                 :is-pending="request.pending"
                 @send="sendReportProblem"
                 @cancel="closeAndCleanForm"
             />
+            <div ref="validationResult" class="invalid-feedback text-end mt-2">
+                {{ i18n.t('form_invalid') }}
+            </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
-                class="text-end text-danger mt-3"
+                class="text-end text-danger mt-2"
                 data-cy="report-problem-failed-text"
             >
                 <small>{{ i18n.t('send_failed') }}</small>

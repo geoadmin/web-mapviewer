@@ -22,6 +22,7 @@ describe('Testing the report problem form', () => {
     }
 
     it('test the report problem form UI, validations, and it backend interaction', () => {
+        interceptFeedback(false)
         cy.goToMapView()
         cy.get('[data-cy="menu-button"]').should('be.visible').click()
         cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
@@ -44,37 +45,42 @@ describe('Testing the report problem form', () => {
 
         cy.log('It is possible to report a problem without specifying an email address')
         openForm()
-        cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="feedback-email"').should('be.empty')
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"').should('be.empty')
         cy.get('[data-cy="submit-button"]').should('be.enabled')
         closeForm()
 
         cy.log('It is not possible to report a problem with a malformed email')
         openForm()
-        cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="feedback-email"').type('this.is.not.a.valid@email')
-        cy.get('[data-cy="submit-button"]').should('be.disabled')
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"]').type('this.is.not.a.valid@email')
+        cy.get('[data-cy="submit-button"]:visible').click()
+        cy.get('[data-cy="email-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="report-problem-failed-text"]').should('not.exist')
         closeForm()
 
         cy.log('It validates email before enabling the user to report a problem')
         openForm()
-        cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="feedback-email"').type(validEmail)
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"').type(validEmail)
         cy.get('[data-cy="submit-button"]').should('be.enabled')
         closeForm()
 
         cy.log('It is not possible to report a problem without filling the message')
         openForm()
-        cy.get('[data-cy="report-problem-text"').should('be.empty')
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
-        cy.get('[data-cy="submit-button"]').should('be.disabled')
+        cy.get('[data-cy="text-area-input"').should('be.empty')
+        cy.get('[data-cy="email-input"]').type(validEmail)
+        cy.get('[data-cy="submit-button"]:visible').click()
+        cy.get('[data-cy="email-input"]').should('have.class', 'is-valid')
+        cy.get('[data-cy="text-area-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="report-problem-failed-text"]').should('not.exist')
         closeForm()
 
         cy.log('It generates a complete request to service-feedback')
         openForm()
         interceptFeedback(true)
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
-        cy.get('[data-cy="report-problem-text"]').type(text)
+        cy.get('[data-cy="email-input"]').type(validEmail)
+        cy.get('[data-cy="text-area-input"]').type(text)
         cy.get('[data-cy="submit-button"]').click()
 
         cy.log(
@@ -107,14 +113,14 @@ describe('Testing the report problem form', () => {
 
         cy.log('It send the correct version when the email is empty and attach a file')
         openForm()
-        cy.get('[data-cy="report-problem-text"]').type(text)
+        cy.get('[data-cy="text-area-input"]').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
         cy.fixture(localKmlFile, null).as('kmlFixture')
-        cy.get('[data-cy="import-local-file-input"]').selectFile('@kmlFixture', {
+        cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
-        cy.get('[data-cy="import-local-file-input-text"]').should('have.class', 'is-valid')
         cy.get('[data-cy="submit-button"]').click()
+        cy.get('[data-cy="file-input-text"]').should('have.class', 'is-valid')
 
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
@@ -145,8 +151,8 @@ describe('Testing the report problem form', () => {
         cy.log('It shows a text to the user to tell him something went wrong')
         openForm()
         interceptFeedback(false)
-        cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"]').type(validEmail)
         cy.get('[data-cy="submit-button"]').click()
 
         cy.wait('@feedback')
@@ -168,8 +174,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
 
         cy.log('Write description and email')
-        cy.get('[data-cy="report-problem-text"]').type(text)
-        cy.get('[data-cy="feedback-email"]').type(validEmail)
+        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('[data-cy="email-input"]').type(validEmail)
 
         cy.log('Enter the drawing mode')
         cy.viewport('macbook-11')
@@ -198,8 +204,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="report-problem-text"]').should('be.visible').should('have.value', text)
-        cy.get('[data-cy="feedback-email"]').should('be.visible').should('have.value', validEmail)
+        cy.get('[data-cy="text-area-input"]').should('be.visible').should('have.value', text)
+        cy.get('[data-cy="email-input"]').should('be.visible').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]')
             .should('be.visible')
             .should('have.class', 'valid-feedback')
@@ -212,8 +218,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="report-problem-text"]').should('have.value', text)
-        cy.get('[data-cy="feedback-email"]').should('have.value', validEmail)
+        cy.get('[data-cy="text-area-input"]').should('have.value', text)
+        cy.get('[data-cy="email-input"]').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]').should('not.be.visible')
 
         cy.log('Draw some more features')
@@ -240,8 +246,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="report-problem-text"]').should('have.value', text)
-        cy.get('[data-cy="feedback-email"]').should('have.value', validEmail)
+        cy.get('[data-cy="text-area-input"]').should('have.value', text)
+        cy.get('[data-cy="email-input"]').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]')
             .should('be.visible')
             .should('have.class', 'valid-feedback')
@@ -254,7 +260,7 @@ describe('Testing the report problem form', () => {
             ;[
                 { name: 'subject', contains: `Problem report` },
                 { name: 'feedback', contains: text },
-                // { name: 'version', contains: APP_VERSION },
+                { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
                 { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },

@@ -28,7 +28,7 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
             name: layerId,
             type: LayerTypes.VECTOR,
             technicalName: layerId,
-            geoAdminId: layerId,
+            id: layerId,
             baseUrl: BASE_URL_3D_TILES,
             ensureTrailingSlashInBaseUrl: true,
             opacity: 1.0,

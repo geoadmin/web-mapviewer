@@ -144,7 +144,7 @@ function hideProviders() {
                 <!-- Toggle Provider button -->
                 <button
                     id="urlToggleProviderButton"
-                    class="btn btn-outline-secondary rounded-start-0"
+                    class="btn btn-outline-group rounded-start-0"
                     :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
@@ -157,7 +157,7 @@ function hideProviders() {
                 <button
                     v-if="url?.length > 0"
                     id="urlClearButton"
-                    class="btn btn-outline-secondary"
+                    class="btn btn-outline-group"
                     :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
@@ -175,7 +175,7 @@ function hideProviders() {
                     "
                     id="urlConnectButton"
                     type="button"
-                    class="btn btn-outline-secondary"
+                    class="btn btn-outline-group"
                     :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="!isValidUrl(url) || isLoading"
                     data-cy="import-connect-button"

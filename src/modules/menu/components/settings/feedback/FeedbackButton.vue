@@ -1,15 +1,16 @@
 <script setup>
 import { computed, nextTick, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
-import EmailValidationField from '@/utils/components/EmailValidationField.vue'
+import EmailInput from '@/utils/components/EmailInput.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
-import { isValidEmail } from '@/utils/utils'
 
 const props = defineProps({
     showAsLink: {
@@ -21,28 +22,35 @@ const props = defineProps({
 const { showAsLink } = toRefs(props)
 
 const store = useStore()
+const i18n = useI18n()
 
 const requestResults = ref(null)
 const showFeedbackForm = ref(false)
 const maxRating = ref(5)
 const feedback = ref({ rating: 0, message: null, email: null })
 const request = ref({ pending: false, failed: false, completed: false })
+const validationResult = ref(null)
+const activateValidation = ref(false)
+const isMessageValid = ref(false)
+// by default attachment and email are valid as they are optional
+const isEmailValid = ref(true)
 
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const feedbackCanBeSent = computed(
-    () => feedback.value.rating !== 0 && !request.value.pending && isEmailValid.value
-)
-const isEmailValid = computed(() => !feedback.value.email || isValidEmail(feedback.value.email))
+const isFormValid = computed(() => feedback.value.rating && isEmailValid.value)
 
 function ratingChange(newRating) {
     feedback.value.rating = newRating
 }
 
+function validate() {
+    activateValidation.value = true
+    return isFormValid.value
+}
+
 async function sendFeedback() {
-    // if the request was already sent, we don't allow the user to double send
-    if (request.value.completed) {
-        // we instead close the modal if he/she clicks on the check mark
-        closeAndCleanForm()
+    if (!validate()) {
+        // scrolling down to make sure the message with validation result is visible to the user
+        validationResult.value.scrollIntoView()
         return
     }
     request.value.pending = true
@@ -72,6 +80,7 @@ async function sendFeedback() {
 }
 
 function closeAndCleanForm() {
+    activateValidation.value = false
     showFeedbackForm.value = false
     feedback.value.rating = 0
     feedback.value.message = null
@@ -79,6 +88,14 @@ function closeAndCleanForm() {
     // reset also the completed/failed state, so that the user can send another feedback later on
     request.value.failed = false
     request.value.completed = false
+}
+
+function onTextValidate(valid) {
+    isMessageValid.value = valid
+}
+
+function onEmailValidate(valid) {
+    isEmailValid.value = valid
 }
 </script>
 
@@ -89,7 +106,7 @@ function closeAndCleanForm() {
         data-cy="feedback-link-button"
         @click="showFeedbackForm = true"
     >
-        <strong>{{ $t('test_map_give_feedback') }}</strong>
+        <strong>{{ i18n.t('test_map_give_feedback') }}</strong>
     </HeaderLink>
     <button
         v-else
@@ -97,68 +114,86 @@ function closeAndCleanForm() {
         data-cy="feedback-button"
         @click="showFeedbackForm = true"
     >
-        {{ $t('test_map_give_feedback') }}
+        {{ i18n.t('test_map_give_feedback') }}
     </button>
     <ModalWithBackdrop
         v-if="showFeedbackForm"
-        :title="request.completed ? '' : $t('test_map_give_feedback')"
+        :title="request.completed ? '' : i18n.t('test_map_give_feedback')"
         fluid
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="p-2" data-cy="feedback-form">
-            <span>{{ $t('feedback_rating_title') }}</span>
-            <FeedbackRating
-                class="my-4 text-center"
-                :max-rating="maxRating"
-                :disabled="request.pending"
-                @rating-change="ratingChange"
-            />
-            <textarea
-                v-model="feedback.message"
-                :disabled="request.pending"
-                class="form-control feedback-text"
-                data-cy="feedback-text"
-                :placeholder="$t('feedback_rating_text')"
-            ></textarea>
+            <div class="">
+                <label class="fw-bold my-2">{{ i18n.t('feedback_rating_title') }}</label>
+                <FeedbackRating
+                    class="text-center"
+                    :class="{ 'is-invalid': !isFormValid && activateValidation }"
+                    :max-rating="maxRating"
+                    :disabled="request.pending"
+                    @rating-change="ratingChange"
+                />
+                <div class="invalid-feedback" data-cy="rating-required-invalid-feedback">
+                    {{ i18n.t('field_required') }}
+                </div>
+            </div>
+            <div class="my-3">
+                <TextAreaInput
+                    ref="feedbackMessageTextArea"
+                    v-model="feedback.message"
+                    placeholder="feedback_rating_text"
+                    :disabled="request.pending"
+                    data-cy="feedback"
+                    :activate-validation="activateValidation"
+                    @validate="onTextValidate"
+                />
+            </div>
 
-            <EmailValidationField
-                class="my-3"
-                :disabled="request.pending"
-                :label="'feedback_email'"
-                @email-updated="feedback.email = $event"
-            />
+            <div class="my-3">
+                <EmailInput
+                    v-model="feedback.email"
+                    label="feedback_mail"
+                    :disabled="request.pending"
+                    :activate-validation="activateValidation"
+                    data-cy="feedback"
+                    @validate="onEmailValidate"
+                />
+            </div>
 
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
-                <small v-html="$t('feedback_disclaimer')" />
+                <small v-html="i18n.t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <SendActionButtons
                 class="text-end"
-                :is-disabled="!feedbackCanBeSent"
+                :class="{ 'is-invalid': !isFormValid && activateValidation }"
+                :is-disabled="request.pending"
                 :is-pending="request.pending"
                 @send="sendFeedback"
                 @cancel="closeAndCleanForm"
             />
+            <div ref="validationResult" class="invalid-feedback text-end mt-2">
+                {{ i18n.t('form_invalid') }}
+            </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
                 class="text-end text-danger mt-3"
                 data-cy="feedback-failed-text"
             >
-                <small>{{ $t('send_failed') }}</small>
+                {{ i18n.t('send_failed') }}
             </div>
         </div>
         <div v-else class="p-2">
             <h6 class="text-success" data-cy="feedback-success-text">
-                {{ $t('feedback_success_message') }}
+                {{ i18n.t('feedback_success_message') }}
             </h6>
             <button
                 class="my-2 btn btn-light float-end"
                 data-cy="feedback-close-successful"
                 @click="closeAndCleanForm"
             >
-                {{ $t('close') }}
+                {{ i18n.t('close') }}
             </button>
         </div>
     </ModalWithBackdrop>

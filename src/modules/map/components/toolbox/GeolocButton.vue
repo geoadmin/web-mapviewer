@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'GeolocButton.vue' }
 

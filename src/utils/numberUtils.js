@@ -67,7 +67,7 @@ export function randomIntBetween(start, end) {
     if (!Number.isInteger(start) || !Number.isInteger(end) || end < start) {
         return 0
     }
-    return Math.floor(Math.random() * end) + start
+    return Math.floor(Math.random() * (end - start + 1) + start)
 }
 
 // grabbed from https://github.com/geoadmin/mf-geoadmin3/blob/5e10a0d224eba9335070eceb25de8d4cc4eb0579/src/components/measure/MeasureService.js#L18-L25

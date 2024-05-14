@@ -7,6 +7,8 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import log from '@/utils/logging'
+
 import { PRINT_AREA_LAYER_ID } from './printConstants'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
@@ -55,8 +57,13 @@ export default function usePrintAreaRenderer(map) {
     let printRectangle = []
 
     const isActive = computed(() => store.state.print.printSectionShown)
-    const selectedLayoutName = computed(() => store.state.print.selectedLayout.name)
+    const printLayoutSize = computed(() => store.getters.printLayoutSize)
     const selectedScale = computed(() => store.state.print.selectedScale)
+    // For simplicity we use the screen size for the map size
+    const mapWidth = computed(() => store.state.ui.width)
+    // Same here for simplicity we take the screen size minus the header size for the map size
+    const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight)
+    const headerHeight = computed(() => store.state.ui.headerHeight)
 
     watch(isActive, (newValue) => {
         if (newValue) {
@@ -74,21 +81,26 @@ export default function usePrintAreaRenderer(map) {
         deregister = [
             worldPolygon.on('prerender', handlePreRender),
             worldPolygon.on('postrender', handlePostRender),
-            watch(selectedLayoutName, () => {
-                updatePrintRectanglePixels(selectedScale)
+            watch(printLayoutSize, async () => {
+                await store.dispatch('setSelectedScale', {
+                    scale: getOptimalScale(),
+                    ...dispatcher,
+                })
+                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
             }),
             watch(selectedScale, () => {
-                updatePrintRectanglePixels(selectedScale)
+                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
             }),
             map.on('change:size', () => {
-                updatePrintRectanglePixels(selectedScale)
+                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
             }),
             map.getView().on('propertychange', () => {
-                updatePrintRectanglePixels(selectedScale)
+                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
             }),
         ]
-        store.dispatch('setSelectedScale', { scale: getOptimalScale(), ...dispatcher })
-        refreshComp()
+        const scale = getOptimalScale()
+        store.dispatch('setSelectedScale', { scale, ...dispatcher })
+        updatePrintRectanglePixels(scale, printLayoutSize.value)
     }
 
     function deactivatePrintArea() {
@@ -101,24 +113,19 @@ export default function usePrintAreaRenderer(map) {
                 item.target.un(item.type, item.listener)
             }
         }
-        refreshComp()
-    }
-
-    function refreshComp() {
-        updatePrintRectanglePixels(selectedScale)
         map.render()
     }
 
-    function updatePrintRectanglePixels(scale) {
+    function updatePrintRectanglePixels(scale, size) {
         if (isActive.value) {
-            printRectangle = calculatePageBoundsPixels(scale)
+            printRectangle = calculatePageBoundsPixels(scale, size)
             map.render()
         }
     }
 
-    function calculatePageBoundsPixels(scale) {
-        const s = parseFloat(scale.value)
-        const size = store.getters.mapSize
+    function calculatePageBoundsPixels(scale, size) {
+        log.debug(`Calculate page bounds pixels for scale ${scale}`)
+        const s = parseFloat(scale)
         const view = map.getView()
         const resolution = view.getResolution()
         const w =
@@ -134,9 +141,11 @@ export default function usePrintAreaRenderer(map) {
         ]
 
         const minx = center[0] - w / 2
-        const miny = center[1] - h / 2
+        // here we move the center down due to the header that overlap the map
+        const miny = center[1] - h / 2 + headerHeight.value
         const maxx = center[0] + w / 2
-        const maxy = center[1] + h / 2
+        // here we move the center down due to the header that overlap the map
+        const maxy = center[1] + h / 2 + headerHeight.value
         return [minx, miny, maxx, maxy]
     }
 
@@ -186,13 +195,10 @@ export default function usePrintAreaRenderer(map) {
     // Compute the optimal scale based on the map size (layout), resolution,
     // non-covered map vie (by header and menu tray)
     function getOptimalScale() {
-        const size = map.getSize()
         const resolution = map.getView().getResolution()
-        const widthMargin = store.state.ui.menuTrayWidth
-        const heightMargin = store.state.ui.headerHeight
-        const width = resolution * (size[0] - widthMargin * 2)
-        const height = resolution * (size[1] - heightMargin * 2)
-        const layoutSize = store.getters.mapSize
+        const width = resolution * mapWidth.value
+        const height = resolution * mapHeight.value
+        const layoutSize = printLayoutSize.value
         const scaleWidth = (width * UNITS_RATIO * POINTS_PER_INCH) / layoutSize.width
         const scaleHeight = (height * UNITS_RATIO * POINTS_PER_INCH) / layoutSize.height
         let testScale = scaleWidth
@@ -202,7 +208,13 @@ export default function usePrintAreaRenderer(map) {
         const selectedLayoutScales = Array.from(store.state.print.selectedLayout.scales)
         // Make sure it's sorted descending
         selectedLayoutScales.sort((a, b) => b - a)
+        log.debug(
+            `Get print optimal scale, testScale=${testScale} size=[${mapWidth.value},${mapHeight.value}], resolution=${resolution}, layoutSize=`,
+            layoutSize,
+            `, scaleWidth=${scaleWidth} scaleHeight=${scaleHeight}`,
+            selectedLayoutScales
+        )
         // Find the first scale that is smaller than the testScale in descending order
-        return selectedLayoutScales.find((scale) => scale < testScale)
+        return selectedLayoutScales.find((scale) => scale < testScale) ?? selectedLayoutScales[0]
     }
 }

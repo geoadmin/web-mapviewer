@@ -21,7 +21,7 @@ describe('Test parsing of legacy URL param into new params', () => {
         const fakeLayerConfig = [
             new GeoAdminWMSLayer({
                 name: 'Test layer WMS',
-                geoAdminId: 'test.wms.layer',
+                id: 'test.wms.layer',
                 technicalName: 'test.wms.layer',
                 opacity: 0.8,
                 attributions: [new LayerAttribution('attribution.test.wms.layer')],
@@ -31,14 +31,14 @@ describe('Test parsing of legacy URL param into new params', () => {
             }),
             new GeoAdminWMTSLayer({
                 name: 'Test layer WMTS',
-                geoAdminId: 'test.wmts.layer',
+                id: 'test.wmts.layer',
                 technicalName: 'test.wmts.layer',
                 attributions: [new LayerAttribution('test')],
             }),
             new GeoAdminWMTSLayer({
                 name: 'Test timed layer WMTS',
                 technicalName: 'test.timed.wmts.layer',
-                geoAdminId: 'test.timed.wmts.layer',
+                id: 'test.timed.wmts.layer',
                 opacity: 0.8,
                 attributions: [new LayerAttribution('attribution.test.timed.wmts.layer')],
                 timeConfig: new LayerTimeConfig('123', [

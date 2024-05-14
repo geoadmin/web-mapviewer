@@ -3,10 +3,10 @@ import area from '@turf/area'
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { round } from '@/utils/numberUtils'
-import { useTippyTooltip } from '@/utils/useTippyTooltip'
 
 const props = defineProps({
     geometry: {

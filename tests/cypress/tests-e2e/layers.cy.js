@@ -287,23 +287,23 @@ describe('Test of layer handling', () => {
                 cy.log('We ensure transparency works as expected for external layers too')
                 cy.openLayerSettings(fakeWmsLayerId1)
 
-                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId1}-"]`)
-                    .should('be.visible')
-                    .realClick({ position: 'left' })
-                cy.openLayerSettings(fakeWmsLayerId4)
-
-                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId4}-"]`)
+                cy.get(`[data-cy^="slider-transparency-layer-${fakeWmsLayerId1}-"]`)
                     .should('be.visible')
                     .realClick({ position: 'right' })
+                cy.openLayerSettings(fakeWmsLayerId4)
+
+                cy.get(`[data-cy^="slider-transparency-layer-${fakeWmsLayerId4}-"]`)
+                    .should('be.visible')
+                    .realClick({ position: 'left' })
 
                 // we had some issues with wms transparency reverting back to default when reaching 0
                 // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
                 // this way
                 cy.openLayerSettings(fakeWmsLayerId3)
 
-                cy.get(`[data-cy^="slider-opacity-layer-${fakeWmsLayerId3}-"]`)
+                cy.get(`[data-cy^="slider-transparency-layer-${fakeWmsLayerId3}-"]`)
                     .should('be.visible')
-                    .realClick({ position: 'left' })
+                    .realClick({ position: 'right' })
 
                 cy.checkOlLayer([
                     bgLayer,
@@ -775,14 +775,14 @@ describe('Test of layer handling', () => {
                 // using the keyboard to change slider's value
                 const step = 5
                 const repetitions = 6
-                const command = '{leftarrow}'.repeat(repetitions)
-                cy.get(`[data-cy^="slider-opacity-layer-${layerId}-"]`)
+                const command = '{rightarrow}'.repeat(repetitions)
+                cy.get(`[data-cy^="slider-transparency-layer-${layerId}-"]`)
                     .should('be.visible')
                     .type(command)
                 // checking that the opacity has changed accordingly
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
                     const layer = visibleLayers.find((layer) => layer.id === layerId)
-                    expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
+                    expect(layer.opacity).to.eq(initialOpacity + step * repetitions)
                 })
 
                 cy.log(
@@ -790,9 +790,9 @@ describe('Test of layer handling', () => {
                 )
                 visibleLayerIds.forEach((layerId, index) => {
                     cy.openLayerSettings(layerId)
-                    cy.get(`[data-cy="slider-opacity-layer-${layerId}-${index}"]`)
+                    cy.get(`[data-cy="slider-transparency-layer-${layerId}-${index}"]`)
                         .should('be.visible')
-                        .realClick({ position: 'left' })
+                        .realClick({ position: 'right' })
                     cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
                         const layer = visibleLayers.find((layer) => layer.id === layerId)
                         expect(layer.opacity).to.eq(0.0)
@@ -843,7 +843,7 @@ describe('Test of layer handling', () => {
             })
         })
         context('Timestamp management', () => {
-            it('layer with timestmap can be configured', () => {
+            it('layer with timestamp can be configured', () => {
                 goToMenuWithLayers()
                 cy.log('shows all possible timestamps in the timestamp popover')
                 const timedLayerId = 'test.timeenabled.wmts.layer'
@@ -885,9 +885,9 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .click()
                 // change the opacity to check later on that the new layer as the non default opacity
-                cy.get(`[data-cy="slider-opacity-layer-${timedLayerId}-2"]`)
+                cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
-                    .realClick()
+                    .realClick({ position: 'right' })
                 cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .realHover()
@@ -913,7 +913,7 @@ describe('Test of layer handling', () => {
                     expect(activeLayers[3]).not.to.be.undefined
                     expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(timestamp)
                     expect(activeLayers[3].visible).to.be.true
-                    expect(activeLayers[3].opacity).to.eq(0.5)
+                    expect(activeLayers[3].opacity).to.eq(0)
                 })
 
                 //---------------------------------------------------------------------------------
@@ -934,9 +934,9 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-3"] svg`)
                     .should('be.visible')
                     .click()
-                cy.get(`[data-cy="slider-opacity-layer-${timedLayerId}-3"]`)
+                cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-3"]`)
                     .should('be.visible')
-                    .realClick({ position: 'left' })
+                    .realClick({ position: 'center' })
                 cy.get(`[data-cy="time-selector-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .contains(timestamp.slice(0, 4))
@@ -956,12 +956,12 @@ describe('Test of layer handling', () => {
                     expect(activeLayers[3]).not.to.be.undefined
                     expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(newTimestamp)
                     expect(activeLayers[3].visible).to.be.false
-                    expect(activeLayers[3].opacity).to.eq(0)
+                    expect(activeLayers[3].opacity).to.eq(0.5)
 
                     expect(activeLayers[2]).not.to.be.undefined
                     expect(activeLayers[2].timeConfig.currentTimestamp).to.eq(timestamp)
                     expect(activeLayers[2].visible).to.be.true
-                    expect(activeLayers[2].opacity).to.eq(0.5)
+                    expect(activeLayers[2].opacity).to.eq(0)
                 })
             })
         })
@@ -1051,7 +1051,7 @@ describe('Test of layer handling', () => {
                 cy.log('Moving the layers and change the opacity')
                 cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
                 cy.get(`[data-cy^="button-lower-order-layer-${middleLayerId}-"]`).click()
-                cy.get(`[data-cy^="slider-opacity-layer-${middleLayerId}-"]`).realClick()
+                cy.get(`[data-cy^="slider-transparency-layer-${middleLayerId}-"]`).realClick()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
@@ -1074,8 +1074,8 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="time-selector-${topLayerId}-2"]`)
                     .should('be.visible')
                     .contains(newTimestamp.slice(0, 4))
-                cy.get(`[data-cy="slider-opacity-layer-${topLayerId}-2"]`).realClick({
-                    position: 'left',
+                cy.get(`[data-cy="slider-transparency-layer-${topLayerId}-2"]`).realClick({
+                    position: 'right',
                 })
                 cy.get(`[data-cy="menu-active-layer-${topLayerId}-3"]`).should('be.visible')
                 cy.get(`[data-cy="time-selector-${topLayerId}-3"]`)

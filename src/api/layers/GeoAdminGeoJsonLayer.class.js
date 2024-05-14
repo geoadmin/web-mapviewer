@@ -55,7 +55,7 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
             name,
             type: LayerTypes.GEOJSON,
             baseUrl: geoJsonUrl,
-            geoAdminId: id,
+            id: id,
             technicalName: id,
             opacity,
             visible,

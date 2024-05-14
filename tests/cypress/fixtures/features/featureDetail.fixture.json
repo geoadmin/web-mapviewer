@@ -1,0 +1,28 @@
+{
+  "feature": {
+    "type": "Feature",
+    "featureId": 1234,
+    "bbox": [
+      2600000.0,
+      1200000.0,
+      2600000.0,
+      1200000.0
+    ],
+    "layerBodId": "test.wms.layer",
+    "layerName": "WMS test layer",
+    "id": 1234,
+    "geometry": {
+      "type": "MultiPoint",
+      "coordinates": [
+        [
+          2600000.0,
+          1200000.0
+        ]
+      ]
+    },
+    "properties": {
+      "name": "Feature 1234 title",
+      "label": "Feature 1234 label"
+    }
+  }
+}

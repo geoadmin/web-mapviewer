@@ -204,7 +204,10 @@ function setTooltipContent() {
     tippyInstance.setContent(tooltipContent)
 }
 
-function setCurrentYearAndDispatchToStore(year) {
+function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
+    if (removePristineStatus) {
+        isPristine.value = false
+    }
     currentYear.value = year
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
@@ -386,6 +389,7 @@ function setYearToInputIfValid() {
                         :key="year"
                         :style="innerBarStepStyle"
                         class="time-slider-bar-inner-step"
+                        :data-cy="`time-slider-bar-${year}`"
                         :class="{
                             'has-no-data': !(
                                 yearsWithData.yearsJoint.includes(year) ||
@@ -396,7 +400,7 @@ function setYearToInputIfValid() {
                             'medium-tick': year % 25 === 0,
                             'small-tick': year % 5 === 0,
                         }"
-                        @click="setCurrentYearAndDispatchToStore(year)"
+                        @click="setCurrentYearAndDispatchToStore(year, true)"
                     />
                 </div>
                 <div
@@ -523,6 +527,9 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
         display: inline-flex;
         width: 32px;
         text-align: center;
+    }
+    input {
+        margin: 0;
     }
 }
 .time-slider-bar-cursor-year {

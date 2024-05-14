@@ -103,7 +103,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             type: LayerTypes.AGGREGATE,
             // no base URL for aggregate layers, so giving an empty base URL to accommodate constraints
             baseUrl: '',
-            geoAdminId: id,
+            id: id,
             technicalName: id,
             opacity,
             visible,

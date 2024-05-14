@@ -47,7 +47,11 @@ function shouldStarBeChecked(starRating) {
 </script>
 
 <template>
-    <div class="container-fluid ratings" :class="{ disabled }" @mouseleave="setPreviewRating(0)">
+    <div
+        class="container-fluid ratings rounded p-1"
+        :class="{ disabled }"
+        @mouseleave="setPreviewRating(0)"
+    >
         <FontAwesomeIcon
             v-for="note in maxRating"
             :key="note"
@@ -69,6 +73,7 @@ function shouldStarBeChecked(starRating) {
 
 .ratings {
     color: $gray-500;
+    border: 1px solid white;
     .star.checked {
         color: $orange;
     }
@@ -76,6 +81,9 @@ function shouldStarBeChecked(starRating) {
         .star.checked {
             color: $gray-600;
         }
+    }
+    &.is-invalid {
+        border: 1px solid $danger;
     }
 }
 </style>

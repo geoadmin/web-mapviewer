@@ -203,9 +203,9 @@ function mediaTypes() {
                         >
                             <DrawingStyleMediaLink
                                 :media-type="media.type"
-                                :url-label="$t('url_' + media.type)"
+                                :url-label="`url_${media.type}`"
                                 :description-label="
-                                    media.extraUrlDescription ? $t(media.extraUrlDescription) : null
+                                    media.extraUrlDescription ? media.extraUrlDescription : ''
                                 "
                                 @generated-media-link="onAddMediaLink(index, $event)"
                             />

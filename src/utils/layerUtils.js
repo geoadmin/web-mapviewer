@@ -1,4 +1,3 @@
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 
 /**
@@ -24,7 +23,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum.js'
  * @param {GeoAdminWMSLayer | GeoAdminWMTSLayer} config
  * @param {Number} previewYear
  * @param {Boolean} isTimeSliderActive
- * @returns {String | string | LayerTimeConfig.currentTimeEntry.timestamp}
+ * @returns {String | null | LayerTimeConfig.currentTimeEntry.timestamp}
  */
 export function getTimestampFromConfig(config, previewYear, isTimeSliderActive) {
     if (config.timeConfig) {
@@ -41,7 +40,7 @@ export function getTimestampFromConfig(config, previewYear, isTimeSliderActive) 
             return config.timeConfig.currentTimestamp
         }
     }
-    return config instanceof GeoAdminWMTSLayer ? null : ''
+    return null
 }
 
 /**
