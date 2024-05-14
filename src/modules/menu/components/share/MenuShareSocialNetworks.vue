@@ -16,10 +16,6 @@ const props = defineProps({
         type: String,
         default: null,
     },
-    small: {
-        type: Boolean,
-        default: true,
-    },
 })
 const { shortLink } = toRefs(props)
 

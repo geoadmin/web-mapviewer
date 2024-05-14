@@ -9,7 +9,7 @@
         @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
         <div class="p-2">
-            <MenuShareSocialNetworks :short-link="shortLink" :small="compact" />
+            <MenuShareSocialNetworks :short-link="shortLink" />
             <MenuShareInputCopyButton
                 :input-text="shortLink"
                 :label-text="'share_link'"
