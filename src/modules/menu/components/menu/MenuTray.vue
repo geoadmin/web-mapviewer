@@ -133,6 +133,7 @@ function updateRef(el) {
             <MenuAdvancedToolsList :compact="compact" />
         </MenuSection>
         <MenuSection
+            v-if="is3dMode"
             id="3dSection"
             :ref="updateRef"
             data-cy="menu-tray-3d-section"
