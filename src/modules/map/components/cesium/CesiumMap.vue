@@ -68,15 +68,18 @@
             <FeatureList />
         </CesiumPopover>
         <CesiumGeolocationFeedback v-if="viewerCreated" />
-        <CesiumToolbox
+        
+        <cesium-compass
             v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
-            class="cesium-toolbox position-absolute start-50 translate-middle-x"
+            ref="compass"
+            class="cesium-toolbox position-absolute start-50 translate-middle-x cesium-toolbox-compass"
         />
         <slot />
     </div>
 </template>
 <script>
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import '@geoblocks/cesium-compass'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import * as cesium from 'cesium'
@@ -119,7 +122,6 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
@@ -144,11 +146,14 @@ import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
-
+// TODO : REF TO COMPASS
 export default {
     components: {
+<<<<<<< HEAD
         CesiumGeolocationFeedback,
         CesiumToolbox,
+=======
+>>>>>>> 9ad6fc74 (PB-490: move 3d zoom buttons to right toolbox)
         FontAwesomeIcon,
         CesiumPopover,
         FeatureEdit,
@@ -400,6 +405,9 @@ export default {
                 limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
             )
 
+            this.$refs.compass.scene = this.viewer.scene
+            this.$refs.compass.clock = this.viewer.clock
+
             this.flyToPosition()
 
             if (this.selectedFeatures.length > 0) {
@@ -490,7 +498,7 @@ export default {
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
-            const cartesian = this.viewer.scene.pickPosition(new Cartesian2(x, y))
+            const cartesian = this.viewer?.scene.pickPosition(new Cartesian2(x, y))
             let coordinates = []
             if (cartesian) {
                 const cartCoords = Cartographic.fromCartesian(cartesian)
