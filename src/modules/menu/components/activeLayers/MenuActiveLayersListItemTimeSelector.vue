@@ -121,9 +121,10 @@ function baseYear(timeEntry) {
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary me-2 w-13"
+        class="btn btn-secondary me-2"
         :class="{
             'btn-sm': compact,
+            'w-13': compact,
         }"
         :data-cy="`time-selector-${layerId}-${layerIndex}`"
     >
