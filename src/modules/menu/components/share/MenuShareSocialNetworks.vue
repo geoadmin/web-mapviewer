@@ -4,7 +4,7 @@
  * sharing to external social media will be done through a popup.
  */
 
-import { onUpdated, ref, toRefs } from 'vue'
+import { computed, onUpdated, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
@@ -16,8 +16,12 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    small: {
+        type: Boolean,
+        default: true,
+    },
 })
-const { shortLink } = toRefs(props)
+const { shortLink, small } = toRefs(props)
 
 const i18n = useI18n()
 const { refreshTippyAttachment } = useTippyTooltip('.share-network-button[data-tippy-content]')
@@ -51,7 +55,9 @@ const networks = ref([
     },
 ])
 
-const buttonClass = 'btn btn-sm btn-light share-network-button'
+const buttonClass = computed(
+    () => `btn ${small.value ? 'btn-sm' : ''} btn-light share-network-button m-2`
+)
 const iconSize = '2x'
 
 function openQrcode() {
@@ -71,7 +77,7 @@ onUpdated(() => refreshTippyAttachment())
 </script>
 
 <template>
-    <div v-if="shortLink" class="d-flex">
+    <div v-if="shortLink" class="row row-cols-5">
         <ShareNetwork
             v-for="network in networks"
             :key="network.id"
@@ -102,8 +108,4 @@ onUpdated(() => refreshTippyAttachment())
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
-
-.share-network-button {
-    margin-right: $button-spacer;
-}
 </style>
