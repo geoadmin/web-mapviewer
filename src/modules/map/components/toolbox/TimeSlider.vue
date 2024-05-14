@@ -137,7 +137,7 @@ watch(lang, () => {
         `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
     )
     tippyTimeSliderInfo.setContent(
-        `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div class="no-data-tippy">${i18n.t('time_slider_legend_tippy_no_data')}</div><div class="partial-data-tippy">${i18n.t('time_slider_legend_tippy_partial_data')}</div><div class="full-data-tippy">${i18n.t('time_slider_legend_tippy_full_data')}</div>`
+        `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div><div class="color-tippy-data-none"></div><div>${i18n.t('time_slider_legend_tippy_no_data')}</div></div><div><div class="color-tippy-data-partial"></div><div>${i18n.t('time_slider_legend_tippy_partial_data')}</div></div><div><div class="color-tippy-data-full"></div><div>${i18n.t('time_slider_legend_tippy_full_data')}</div></div>`
     )
 })
 
@@ -182,7 +182,7 @@ onMounted(() => {
         theme: 'danger',
     })
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
-        content: `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div class="no-data-tippy">${i18n.t('time_slider_legend_tippy_no_data')}</div><div class="partial-data-tippy">${i18n.t('time_slider_legend_tippy_partial_data')}</div><div class="full-data-tippy">${i18n.t('time_slider_legend_tippy_full_data')}</div>`,
+        content: `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div><div class="color-tippy-data-none"></div><div>${i18n.t('time_slider_legend_tippy_no_data')}</div></div><div><div class="color-tippy-data-partial"></div><div>${i18n.t('time_slider_legend_tippy_partial_data')}</div></div><div><div class="color-tippy-data-full"></div><div>${i18n.t('time_slider_legend_tippy_full_data')}</div></div>`,
         hideOnClick: true,
         placement: 'bottom',
         theme: 'light-border',
@@ -436,21 +436,45 @@ function setYearToInputIfValid() {
 
 <style lang="scss">
 @use 'sass:color';
-
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
 $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
-.no-data-tippy {
+.color-tippy-data-none {
+    height: 1rem;
+    width: 1rem;
+    border-radius: 0.1rem;
+    margin-right: 0.2rem;
+
+    float: left;
+    border-color: $silver;
     background: $silver;
 }
-.partial-data-tippy {
+.color-tippy-data-partial {
+    height: 1rem;
+    width: 1rem;
+    border-radius: 0.1rem;
+    margin-right: 0.2rem;
+    float: left;
+
+    border-color: $time-slider-color-partial-data;
     background: $time-slider-color-partial-data;
 }
-.full-data-tippy {
+
+.color-tippy-data-full {
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.2rem;
+
+    border-radius: 0.1rem;
+    float: left;
+
+    border-color: $time-slider-color-has-data;
     background: $time-slider-color-has-data;
 }
+
 .time-slider {
     background: $time-slider-color-background !important;
     &:not(.grabbed) &-bar-cursor {
