@@ -74,7 +74,16 @@ function onCloseMenuSection(id) {
     }
 }
 
-function updateRef(el) {
+/**
+ * Add the element reference to the refs object. The reference can be then retrieved by it's id
+ * attribute
+ *
+ * NOTE: To work the element requires an id attribute. For Component, it requires to expose an "id"
+ * constant.
+ *
+ * @param {any} el Reference to the element
+ */
+function addRefById(el) {
     if (el !== null && !Object.keys(refs.value).includes(el.id)) {
         refs.value[el.id] = el
     }
@@ -85,7 +94,7 @@ function updateRef(el) {
     <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
         <MenuSection
             id="settingsSection"
-            :ref="updateRef"
+            :ref="addRefById"
             class="settings-section"
             :title="i18n.t('settings')"
             :show-content="false"
@@ -95,10 +104,15 @@ function updateRef(el) {
         >
             <MenuSettings />
         </MenuSection>
-        <MenuShareSection :ref="updateRef" :compact="compact" @open-menu-section="onOpenMenuSection" @close-menu-section="onCloseMenuSection" />
+        <MenuShareSection
+            :ref="addRefById"
+            :compact="compact"
+            @open-menu-section="onOpenMenuSection"
+            @close-menu-section="onCloseMenuSection"
+        />
         <MenuPrintSection
             v-if="!is3dMode"
-            :ref="updateRef"
+            :ref="addRefById"
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
@@ -123,7 +137,7 @@ function updateRef(el) {
         </div>
         <MenuSection
             id="toolsSection"
-            :ref="updateRef"
+            :ref="addRefById"
             data-cy="menu-tray-tool-section"
             :title="i18n.t('map_tools')"
             secondary
@@ -135,7 +149,7 @@ function updateRef(el) {
         <MenuSection
             v-if="is3dMode"
             id="3dSection"
-            :ref="updateRef"
+            :ref="addRefById"
             data-cy="menu-tray-3d-section"
             title="3D"
             secondary
@@ -145,8 +159,7 @@ function updateRef(el) {
             <MenuThreeD :compact="compact" />
         </MenuSection>
         <MenuTopicSection
-            id="topicsSection"
-            :ref="updateRef"
+            :ref="addRefById"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
         />
@@ -154,7 +167,7 @@ function updateRef(el) {
              content, otherwise this would slow down the application startup -->
         <MenuSection
             id="activeLayersSection"
-            :ref="updateRef"
+            :ref="addRefById"
             :title="i18n.t('layers_displayed')"
             light
             :show-content="mapModuleReady"

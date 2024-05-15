@@ -2,7 +2,7 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-import CheckBox from '@/modules/menu/components/common/CheckBox.vue'
+import MenuItemCheckBox from '@/modules/menu/components/common/MenuItemCheckBox.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'MenuThreeD.vue' }
@@ -38,9 +38,9 @@ const constructions = computed({
 
 <template>
     <div class="menu-three-d" data-cy="menu-three-d">
-        <CheckBox v-model="labels" label="3d_labels" :compact="compact" />
-        <CheckBox v-model="vegetation" label="3d_vegetation" :compact="compact" />
-        <CheckBox v-model="constructions" label="3d_constructions" :compact="compact" />
+        <MenuItemCheckBox v-model="labels" label="3d_labels" :compact="compact" />
+        <MenuItemCheckBox v-model="vegetation" label="3d_vegetation" :compact="compact" />
+        <MenuItemCheckBox v-model="constructions" label="3d_constructions" :compact="compact" />
     </div>
 </template>
 
