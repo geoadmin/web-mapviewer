@@ -48,6 +48,8 @@ function checkWebGlSupport() {
 function toggle3d() {
     if (webGlIsSupported.value && !showDrawingOverlay.value) {
         store.dispatch('set3dActive', { active: !isActive.value, ...dispatcher })
+        // Hide print section when 3D is activated
+        store.dispatch('setPrintSectionShown', { show: false, ...dispatcher })
     }
 }
 </script>
