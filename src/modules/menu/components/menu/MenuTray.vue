@@ -27,7 +27,7 @@ const { compact } = toRefs(props)
 
 const refs = ref({})
 // multiMenuSections means that they can be open together
-const multiMenuSections = ref(['topicsSection', 'activeLayersSection'])
+const multiMenuSections = ref(['topicsSection', 'activeLayersSection', '3dSection'])
 // singleModeSections means that those section cannot be open together with other
 // sections and would therefore toggle other sections automatically.
 const singleModeSections = ref([
@@ -36,7 +36,6 @@ const singleModeSections = ref([
     'shareSection',
     'toolsSection',
     'printSection',
-    '3dSection',
 ])
 
 const is3dMode = computed(() => store.state.cesium.active)
