@@ -88,7 +88,16 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-        symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
+        // Ideally this should be done in the geoblocks/mapfishprint
+        // but it's quite complex to handle all the cases
+        try {
+            const fontFamily = symbolizer.fontFamily.split(' ')
+            symbolizer.fontWeight = fontFamily[0]
+            symbolizer.fontSize = parseInt(fontFamily[1])
+            symbolizer.fontFamily = fontFamily[2].toUpperCase()
+        } catch (error) {
+            // Keep the font family as it is
+        }
     }
 
     /**
