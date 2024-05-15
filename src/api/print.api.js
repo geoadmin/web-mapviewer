@@ -110,7 +110,11 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     // eslint-disable-next-line no-unused-vars
     point(layerState, symbolizer, image) {
-        symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+        if (symbolizer.externalGraphic) {
+            symbolizer.graphicWidth = symbolizer.graphicWidth * image.getScale()
+        } else {
+            symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+        }
         symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
         symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
         // Handling the case where we need to print a circle in the end of measurement lines
