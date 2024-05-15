@@ -148,7 +148,7 @@ export function useFieldValidation(
     function onFocus($event, inFocus) {
         userIsTyping.value = inFocus
         if (inFocus) {
-            emits('focusint', event)
+            emits('focusin', event)
         } else {
             emits('focusout', event)
         }
