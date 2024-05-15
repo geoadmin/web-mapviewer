@@ -23,7 +23,6 @@ export default function usePrintAreaRenderer(map) {
     const mapWidth = computed(() => store.state.ui.width)
     // Same here for simplicity we take the screen size minus the header size for the map size
     const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight)
-    const headerHeight = computed(() => store.state.ui.headerHeight)
 
     watch(isActive, (newValue) => {
         if (newValue) {
@@ -96,11 +95,9 @@ export default function usePrintAreaRenderer(map) {
         ]
 
         const minx = center[0] - w / 2
-        // here we move the center down due to the header that overlap the map
-        const miny = center[1] - h / 2 + headerHeight.value
+        const miny = center[1] - h / 2
         const maxx = center[0] + w / 2
-        // here we move the center down due to the header that overlap the map
-        const maxy = center[1] + h / 2 + headerHeight.value
+        const maxy = center[1] + h / 2
         return [minx, miny, maxx, maxy]
     }
 
