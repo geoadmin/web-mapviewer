@@ -59,7 +59,7 @@ const emit = defineEmits(['close'])
     right: 4rem;
 
     width: max-content;
-    max-width: 100vw;
+    max-width: 400px;
 
     max-height: calc(100vh - $top-margin);
     @include respond-below(phone) {
@@ -69,6 +69,7 @@ const emit = defineEmits(['close'])
         right: unset;
         transform: translate(-50%, 0%);
         max-height: calc(100vh - $top-margin);
+        max-width: 100vw;
     }
     .card-body {
         overflow-y: auto;

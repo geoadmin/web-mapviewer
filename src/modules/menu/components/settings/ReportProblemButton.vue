@@ -284,9 +284,6 @@ function toggleDrawingOverlay() {
 </template>
 
 <style lang="scss" scoped>
-.report-problem {
-    max-width: 400px;
-}
 .feedback-text {
     min-height: 7rem;
 }
