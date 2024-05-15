@@ -9,7 +9,7 @@ import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
 
@@ -172,14 +172,13 @@ function toggleDrawingOverlay() {
     <button v-else class="btn btn-primary m-1" data-cy="report-problem-button" @click="openForm">
         {{ i18n.t('problem_announcement') }}
     </button>
-    <ModalWithBackdrop
+    <SimpleWindow
         v-if="showReportProblemForm"
-        :title="request.completed ? '' : i18n.t('problem_announcement')"
-        fluid
+        :title="request.completed ? '' : 'problem_announcement'"
         :hide="showDrawingOverlay"
         @close="closeAndCleanForm"
     >
-        <div v-if="!request.completed" class="p-" data-cy="report-problem-form">
+        <div v-if="!request.completed" class="report-problem" data-cy="report-problem-form">
             <div class="my-3">
                 <TextAreaInput
                     ref="feedbackMessageTextArea"
@@ -281,10 +280,13 @@ function toggleDrawingOverlay() {
                 {{ i18n.t('close') }}
             </button>
         </div>
-    </ModalWithBackdrop>
+    </SimpleWindow>
 </template>
 
 <style lang="scss" scoped>
+.report-problem {
+    max-width: 400px;
+}
 .feedback-text {
     min-height: 7rem;
 }
