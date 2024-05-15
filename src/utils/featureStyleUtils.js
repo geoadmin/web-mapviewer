@@ -225,7 +225,7 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
     const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
     const textOffset = 0.5 * fontSize * textScale
     const defaultOffset = 5
-    const offset = -(defaultOffset + iconOffset + textOffset)
+    const offset = [0, -(defaultOffset + iconOffset + textOffset)]
     log.debug('title offset of feature is calculated to be : ', offset)
 
     return offset
