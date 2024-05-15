@@ -87,7 +87,7 @@ onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
         content: i18n.t('copy_success'),
         arrow: true,
-        placement: 'right',
+        placement: 'top',
         trigger: 'manual',
         onShow(instance) {
             setTimeout(() => {
@@ -237,4 +237,8 @@ function clearClick() {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
+.location-popup {
+    width: $overlay-width;
+}
 </style>

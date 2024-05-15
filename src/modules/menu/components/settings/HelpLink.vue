@@ -20,7 +20,7 @@ function openCmsLink() {
     <HeaderLink v-if="isDesktopMode" @click="openCmsLink">
         {{ i18n.t('help_label') }}
     </HeaderLink>
-    <button v-else class="btn btn-sm btn-light m-1" @click="openCmsLink">
+    <button v-else class="btn btn-light m-1" @click="openCmsLink">
         {{ i18n.t('help_label') }}
     </button>
 </template>

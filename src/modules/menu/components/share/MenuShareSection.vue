@@ -16,6 +16,7 @@
                 :copy-text="'copy_url'"
                 :copied-text="'copy_success'"
                 class="p-2"
+                :small="compact"
             />
         </div>
         <MenuShareEmbed :short-link="embeddedShortLink" class="menu-share-embed border-top" />
@@ -39,6 +40,12 @@ export default {
         MenuShareInputCopyButton,
         MenuShareSocialNetworks,
         MenuSection,
+    },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['openMenuSection'],
     expose: ['close'],

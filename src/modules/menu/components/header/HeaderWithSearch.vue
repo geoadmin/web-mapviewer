@@ -26,7 +26,7 @@
         </div>
         <div class="header-settings-section" data-cy="header-settings-section">
             <LinksToolbar id="menu-links" :show-as-links="true" />
-            <LangSwitchToolbar id="menu-lang-selector" />
+            <LangSwitchToolbar id="menu-lang-selector" :show-as-links="true" />
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div

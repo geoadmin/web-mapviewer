@@ -169,12 +169,7 @@ function toggleDrawingOverlay() {
     >
         <strong>{{ i18n.t('problem_announcement') }}</strong>
     </HeaderLink>
-    <button
-        v-else
-        class="btn btn-primary btn-sm m-1"
-        data-cy="report-problem-button"
-        @click="openForm"
-    >
+    <button v-else class="btn btn-primary m-1" data-cy="report-problem-button" @click="openForm">
         {{ i18n.t('problem_announcement') }}
     </button>
     <ModalWithBackdrop
