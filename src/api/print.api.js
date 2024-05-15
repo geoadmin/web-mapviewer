@@ -88,11 +88,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-        // There an inconsistency in MFP documentation about the Y offset of the label.
-        // Based on the documentation, it behaves the same as in the OpenLayers
-        // But when tested, the behaviour is the opposite (thus I put the negative value)
-        // It can be a fix either on MFP code or MFP doc (and geoblocks/mapfishprint), but for now I will put it here
-        symbolizer.labelYOffset = -1 * adjustWidth(symbolizer.labelYOffset, this.printResolution)
+        symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
     }
 
     /**
