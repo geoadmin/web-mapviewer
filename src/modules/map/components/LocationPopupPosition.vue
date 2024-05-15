@@ -108,7 +108,7 @@ async function updateHeight() {
 
 <template>
     <div id="nav-local" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
-        <div class="pb-2 location-popup-coordinates">
+        <div class="pb-2 location-popup-coordinates align-items-center">
             <CoordinateCopySlot
                 identifier="location-popup-lv95"
                 :value="coordinate"

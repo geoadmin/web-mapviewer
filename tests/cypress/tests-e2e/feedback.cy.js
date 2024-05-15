@@ -6,7 +6,7 @@ import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 
 describe('Testing the feedback form', () => {
     function closeForm() {
-        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        cy.get('[data-cy="window-close"]').should('be.visible').click()
     }
 
     function openForm() {

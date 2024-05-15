@@ -12,7 +12,11 @@
         >
             <MenuSettings />
         </MenuSection>
-        <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
+        <MenuShareSection
+            ref="shareSection"
+            :compact="compact"
+            @open-menu-section="onOpenMenuSection"
+        />
         <MenuPrintSection
             v-if="!is3dMode"
             ref="printSection"

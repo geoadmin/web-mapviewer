@@ -13,7 +13,7 @@ const validEmail = 'this.is.a.valid@email.com'
 
 describe('Testing the report problem form', () => {
     function closeForm() {
-        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        cy.get('[data-cy="window-close"]').should('be.visible').click()
     }
 
     function openForm() {

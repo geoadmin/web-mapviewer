@@ -1,5 +1,6 @@
 <script setup>
-import { toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
@@ -11,6 +12,10 @@ const props = defineProps({
     },
 })
 const { shareLinkUrlShorten } = toRefs(props)
+
+const store = useStore()
+
+const isDesktopMode = computed(() => store.getters.isDesktopMode)
 </script>
 
 <template>
@@ -30,6 +35,7 @@ const { shareLinkUrlShorten } = toRefs(props)
             :copied-text="'copy_success'"
             class="px-0 py-2"
             data-cy="location-popup-link-bowl-crosshair"
+            :small="isDesktopMode"
         />
     </div>
 </template>

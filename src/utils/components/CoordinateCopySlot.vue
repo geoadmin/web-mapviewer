@@ -101,7 +101,7 @@ async function copyValue() {
     <div class="location-popup-label">
         <slot />
     </div>
-    <div class="location-popup-data gap-1">
+    <div class="location-popup-data gap-1 align-items-center">
         <div>
             <div :data-cy="`${identifier}`">
                 {{ display(value) }}
@@ -113,7 +113,7 @@ async function copyValue() {
         <button
             ref="copyButton"
             :data-cy="`${identifier}-button`"
-            class="location-popup-copy-button btn btn-light text-black-50"
+            class="location-popup-copy-button btn btn-sm btn-light text-black-50"
             type="button"
             @click="copyValue"
         >
@@ -127,13 +127,6 @@ async function copyValue() {
 .location-popup-data {
     display: grid;
     grid-template-columns: auto max-content;
-}
-.location-popup-copy-button {
-    // aligning to the top of the container, so that it doesn't spread down if there's an extra value
-    align-self: start;
-    margin-top: -0.1rem;
-    padding: 0 0.2rem;
-    font-size: inherit;
 }
 .location-popup-data {
     @extend .clear-no-ios-long-press;

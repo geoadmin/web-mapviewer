@@ -8,7 +8,7 @@ import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
 
@@ -110,16 +110,15 @@ function onEmailValidate(valid) {
     </HeaderLink>
     <button
         v-else
-        class="btn btn-primary btn-sm m-1"
+        class="btn btn-primary m-1"
         data-cy="feedback-button"
         @click="showFeedbackForm = true"
     >
         {{ i18n.t('test_map_give_feedback') }}
     </button>
-    <ModalWithBackdrop
+    <SimpleWindow
         v-if="showFeedbackForm"
-        :title="request.completed ? '' : i18n.t('test_map_give_feedback')"
-        fluid
+        :title="request.completed ? '' : 'test_map_give_feedback'"
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="p-2" data-cy="feedback-form">
@@ -196,7 +195,7 @@ function onEmailValidate(valid) {
                 {{ i18n.t('close') }}
             </button>
         </div>
-    </ModalWithBackdrop>
+    </SimpleWindow>
 </template>
 
 <style lang="scss" scoped>
