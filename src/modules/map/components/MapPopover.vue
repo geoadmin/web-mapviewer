@@ -12,13 +12,15 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-import variables from '@/scss/variables.module.scss'
+import {
+    cssDevDisclaimerHeight,
+    cssDrawingMobileToolbarHeight,
+    cssFooterHeight,
+    cssHeaderHeight,
+} from '@/scss/exports'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import promptUserToPrintHtmlContent from '@/utils/print'
-
-const footerHeight = parseInt(variables.footerHeight)
-const devDisclaimerHeight = parseInt(variables.devDisclaimerHeight)
 
 const props = defineProps({
     authorizePrint: {
@@ -57,6 +59,9 @@ const popover = ref(null)
 const showContent = ref(true)
 
 const store = useStore()
+// as the drawing toolbox takes the space of the header on mobile, we have to keep track of its state so that we
+// can adapt the limits for the floating tooltip.
+const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
@@ -73,12 +78,19 @@ const cssPositionOnScreen = computed(() => {
 
 const popoverLimits = computed(() => {
     let top = currentHeaderHeight.value
-    if (hasDevSiteWarning.value) {
-        top += devDisclaimerHeight
+    if (isCurrentlyDrawing.value) {
+        if (isPhoneMode.value) {
+            top = cssDrawingMobileToolbarHeight
+        } else {
+            // drawing header ("Draw & Measure" gray bar) height
+            top = cssHeaderHeight
+        }
+    } else if (hasDevSiteWarning.value) {
+        top += cssDevDisclaimerHeight
     }
     return {
         top,
-        bottom: isPhoneMode.value ? 0 : footerHeight,
+        bottom: isPhoneMode.value ? 0 : cssFooterHeight,
         left: 0,
         right: 0,
     }
@@ -89,7 +101,7 @@ useTippyTooltip('.map-popover-header [data-tippy-content]')
 onMounted(() => {
     if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
         useMovableElement(popover.value, {
-            grabElement: popoverHeader.value,
+            grabElement: popoverHeader,
             offset: popoverLimits,
         })
     }
@@ -113,6 +125,8 @@ function printContent() {
             floating: mode === MapPopoverMode.FLOATING,
             'feature-anchored': mode === MapPopoverMode.FEATURE_TOOLTIP,
             'with-dev-disclaimer': hasDevSiteWarning,
+            'phone-mode': isPhoneMode,
+            'is-drawing': isCurrentlyDrawing,
         }"
     >
         <!--
@@ -177,9 +191,15 @@ function printContent() {
         left: calc(
             100% - $overlay-width - $map-button-diameter - 3 * $screen-padding-for-ui-elements
         );
-    }
-    &.floating.with-dev-disclaimer {
-        top: calc($header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements);
+        &.with-dev-disclaimer {
+            top: calc($header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements);
+        }
+        &.phone-mode.is-drawing {
+            top: calc($drawing-tools-height-mobile + $screen-padding-for-ui-elements);
+        }
+        &.is-drawing {
+            top: calc($header-height + $screen-padding-for-ui-elements);
+        }
     }
     .card {
         pointer-events: auto;

@@ -52,7 +52,7 @@ const emit = defineEmits(['close'])
 @import '@/scss/media-query.mixin';
 
 .simple-window {
-    $top-margin: 2 * $header-height + 2rem;
+    $top-margin: calc(2 * $header-height + 2rem);
     z-index: $zindex-modal;
     position: fixed;
     top: $top-margin;

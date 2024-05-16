@@ -1,4 +1,4 @@
-import { computed, toRefs, toValue } from 'vue'
+import { ref, toValue } from 'vue'
 
 const defaultPadding = 4 // px
 
@@ -18,24 +18,22 @@ const defaultPadding = 4 // px
  *   pixel will be applied if no offset is given.
  */
 export function useMovableElement(element, options) {
-    const { grabElement, offset } = toRefs(options)
+    const { grabElement, offset } = options
 
-    const padding = computed(() => {
-        return {
-            top: toValue(offset)?.top ?? defaultPadding,
-            bottom: toValue(offset)?.bottom ?? defaultPadding,
-            left: toValue(offset)?.left ?? defaultPadding,
-            right: toValue(offset)?.right ?? defaultPadding,
-        }
+    const padding = ref({
+        top: toValue(offset)?.top ?? defaultPadding,
+        bottom: toValue(offset)?.bottom ?? defaultPadding,
+        left: toValue(offset)?.left ?? defaultPadding,
+        right: toValue(offset)?.right ?? defaultPadding,
+    })
+    const viewport = ref({
+        bottom: window.innerHeight - padding.value.bottom,
+        left: padding.value.left,
+        right: window.innerWidth - padding.value.right,
+        top: padding.value.top,
     })
 
-    let rect
-    let viewport = {
-        bottom: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-    }
+    // keeping track of mouse position so that dragMouseDown and elementDrag can share these variables (no ref needed)
     const currentMousePosition = {
         top: 0,
         left: 0,
@@ -44,6 +42,7 @@ export function useMovableElement(element, options) {
         top: 0,
         left: 0,
     }
+
     if (toValue(grabElement)) {
         // if present, the grab element is where you move the element from:
         toValue(grabElement).onmousedown = dragMouseDown
@@ -59,12 +58,13 @@ export function useMovableElement(element, options) {
         lastMousePosition.left = e.clientX
         lastMousePosition.top = e.clientY
 
-        // store the current viewport and element dimensions when a drag starts
-        rect = toValue(element).getBoundingClientRect()
-        viewport.bottom = window.innerHeight - padding.value.bottom
-        viewport.left = padding.value.left
-        viewport.right = window.innerWidth - padding.value.right
-        viewport.top = padding.value.top
+        // updating the viewport dimensions when a drag starts
+        viewport.value = {
+            bottom: window.innerHeight - padding.value.bottom,
+            left: padding.value.left,
+            right: window.innerWidth - padding.value.right,
+            top: padding.value.top,
+        }
 
         document.addEventListener('mouseup', closeDragElement)
         document.addEventListener('mousemove', elementDrag)
@@ -79,22 +79,86 @@ export function useMovableElement(element, options) {
         lastMousePosition.left = e.clientX
         lastMousePosition.top = e.clientY
 
-        // check to make sure the element will be within our viewport boundary
-        let newLeft = toValue(element).offsetLeft - currentMousePosition.left
-        let newTop = toValue(element).offsetTop - currentMousePosition.top
+        const elementOffset = {
+            left: toValue(element).offsetLeft,
+            top: toValue(element).offsetTop,
+        }
+        const elementSize = toValue(element).getBoundingClientRect()
 
-        if (newLeft >= viewport.left && newLeft + rect.width <= viewport.right) {
-            toValue(element).style.left =
-                `${toValue(element).offsetLeft - currentMousePosition.left}px`
+        // check to make sure the element will be within our viewport boundary
+        let newLeft = elementOffset.left - currentMousePosition.left
+        let newTop = elementOffset.top - currentMousePosition.top
+
+        const {
+            top: viewportTop,
+            bottom: viewportBottom,
+            left: viewportLeft,
+            right: viewportRight,
+        } = viewport.value
+
+        if (newTop < viewportTop) {
+            newTop = viewportTop
         }
-        if (newTop >= viewport.top && newTop + rect.height <= viewport.bottom) {
-            toValue(element).style.top =
-                `${toValue(element).offsetTop - currentMousePosition.top}px`
+        if (newTop + elementSize.height > viewportBottom) {
+            newTop = viewportBottom - elementSize.height
         }
+        if (newLeft < viewportLeft) {
+            newLeft = viewportLeft
+        }
+        if (newLeft + elementSize.width > viewportRight) {
+            newLeft = viewportRight - elementSize.width
+        }
+        placeElementAt(newTop, newLeft)
     }
 
     function closeDragElement() {
         document.removeEventListener('mouseup', closeDragElement)
         document.removeEventListener('mousemove', elementDrag)
     }
+
+    function placeElementAt(top, left) {
+        const htmlElementStyle = toValue(element).style
+        htmlElementStyle.top = `${top}px`
+        htmlElementStyle.left = `${left}px`
+    }
+
+    /**
+     * Will check that the current position is valid in the context of the viewport (or move the
+     * element to match the viewport/padding).
+     *
+     * Is useful at startup/mount, because the element might be out of viewport. If it is the case,
+     * our code that handles the drag will not flinch (because of the constraints check), rendering
+     * the drag and drop useless (stuck). We make sure the initial position of the element is valid
+     * here.
+     */
+    function constrainsElementWithinViewport() {
+        const currentPosition = {
+            left: toValue(element).offsetLeft,
+            top: toValue(element).offsetTop,
+        }
+        const elementSize = toValue(element).getBoundingClientRect()
+        const positionConstrainedByNewLimits = {
+            ...currentPosition,
+        }
+        if (viewport.value.top > currentPosition.top) {
+            positionConstrainedByNewLimits.top = viewport.value.top
+        }
+        if (viewport.value.bottom < currentPosition.top + elementSize.height) {
+            positionConstrainedByNewLimits.top = viewport.value.bottom - elementSize.height
+        }
+        if (viewport.value.left > currentPosition.left) {
+            positionConstrainedByNewLimits.left = viewport.value.left
+        }
+        if (viewport.value.right < currentPosition.left + elementSize.width) {
+            positionConstrainedByNewLimits.right = viewport.value.right - elementSize.width
+        }
+        if (
+            currentPosition.top !== positionConstrainedByNewLimits.top ||
+            currentPosition.left !== positionConstrainedByNewLimits.left
+        ) {
+            placeElementAt(positionConstrainedByNewLimits.top, positionConstrainedByNewLimits.left)
+        }
+    }
+
+    constrainsElementWithinViewport()
 }
