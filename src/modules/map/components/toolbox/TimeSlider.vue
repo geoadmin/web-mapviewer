@@ -29,7 +29,7 @@ const currentYear = ref(YOUNGEST_YEAR)
 const displayedYear = ref(YOUNGEST_YEAR)
 const isPristine = ref(true)
 let cursorX = 0
-let playYearsWithData = false
+const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
 let playYearInterval = null
 
@@ -292,8 +292,8 @@ function releaseCursor() {
 }
 
 function togglePlayYearsWithData() {
-    playYearsWithData = !playYearsWithData
-    if (playYearsWithData) {
+    playYearsWithData.value = !playYearsWithData.value
+    if (playYearsWithData.value) {
         let yearsWithDataForPlayer = ALL_YEARS.filter(
             (year) =>
                 yearsWithData.value.yearsJoint.includes(year) ||
