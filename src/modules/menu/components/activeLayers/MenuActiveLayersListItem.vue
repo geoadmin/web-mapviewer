@@ -143,7 +143,7 @@ function duplicateLayer() {
             >
             <button
                 v-if="showSpinner"
-                class="loading-button btn border-0"
+                class="loading-button btn border-0 d-flex align-items-center"
                 :class="{
                     'btn-lg': !compact,
                 }"
@@ -178,7 +178,7 @@ function duplicateLayer() {
                 />
             </ThirdPartyDisclaimer>
             <button
-                class="btn border-0"
+                class="btn border-0 d-flex align-items-center"
                 :class="{
                     'btn-lg': !compact,
                     'flip text-primary': showLayerDetail,

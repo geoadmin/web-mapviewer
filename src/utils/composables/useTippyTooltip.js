@@ -93,7 +93,8 @@ export function useTippyTooltip(
         tooltips = tippy(selector, {
             ...options,
             arrow: true,
-            touch: false,
+            // Show tippy on long touch for mobile device
+            touch: ['hold', 500], // 500ms delay,
             // we need to set the content dynamically onTrigger otherwise the tippy would
             // not be reactive when the data-tippy-content changes
             onTrigger: () => setContent(),

@@ -484,6 +484,10 @@
     "time_hide": "Disable representation of data time stamps.",
     "time_select_year": "Select a year",
     "time_show": "Enable representation of data time stamps.",
+    "time_slider_legend_tippy_intro": "The time slider displays different colours depending on whether the time layers have data for the selected year or not.",
+    "time_slider_legend_tippy_full_data": "Full Data.",
+    "time_slider_legend_tippy_no_data": "No data.",
+    "time_slider_legend_tippy_partial_data": "Partial data.",
     "title": "Title",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Federal Office for Spatial Development ",
@@ -672,5 +676,9 @@
     "no_email": "Email field is required",
     "file_unsupported_format": "This file format is not supported.  Only the following formats are allowed: ALLOWED_FORMATS",
     "form_invalid": "Form is invalid",
-    "file_imported_success": "File successfully imported"
+    "file_imported_success": "File successfully imported",
+    "3d_labels": "Geographic names",
+    "3d_vegetation": "Vegetations",
+    "3d_constructions": "Buildings and constructions",
+    "webmapviewer_live_disclaimer": "Big changes are coming soon, <a target='_blank' href='https://www.swisstopo.admin.ch/en'>learn more</a>"
 }
