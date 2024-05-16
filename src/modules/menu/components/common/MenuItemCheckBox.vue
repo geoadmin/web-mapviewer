@@ -30,9 +30,13 @@ function onClick(ev) {
 </script>
 
 <template>
-    <div class="menu-check-box-item" @click="onClick">
+    <div class="menu-check-box-item" :class="{ compact: compact }" @click="onClick">
         <div class="menu-check-box-item-title">
-            <button class="btn border-0" :class="{ 'btn-lg': !compact }" :data-cy="dataCy">
+            <button
+                class="btn border-0 d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
+                :data-cy="dataCy"
+            >
                 <FontAwesomeIcon :icon="`far fa-${model ? 'check-' : ''}square`" />
             </button>
             <label v-if="label" class="ms-2 menu-check-box-item-name">{{ i18n.t(label) }}</label>

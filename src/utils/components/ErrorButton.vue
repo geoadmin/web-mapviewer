@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
 <template>
     <div ref="errorButton">
         <button
-            class="btn text-danger border-0 p-0"
+            class="btn text-danger border-0 p-0 d-flex align-items-center"
             :class="{
                 'btn-lg': !compact,
             }"
