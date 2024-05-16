@@ -49,7 +49,7 @@ export default class LayerTimeConfigEntry {
                 this.year = parseInt(timestamp.substring(0, 4))
             } else {
                 const date = new Date(timestamp)
-                if (date) {
+                if (!isNaN(date)) {
                     this.year = date.getFullYear()
                 } else {
                     this.year = null

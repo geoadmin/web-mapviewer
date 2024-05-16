@@ -210,9 +210,9 @@
             />
             <Dimension>
                 <ows:Identifier>Time</ows:Identifier>
-                <Default>20110805</Default>
-                <Value>20110805</Value>
-                <Value>20081024</Value>
+                <Default>2011-08-05</Default>
+                <Value>2011-08-05</Value>
+                <Value>2008-10-24</Value>
             </Dimension>
         </Layer>
         <Layer>
@@ -249,9 +249,9 @@
             />
             <Dimension>
                 <ows:Identifier>Time</ows:Identifier>
-                <Default>20110805</Default>
-                <Value>20110805</Value>
-                <Value>20081024</Value>
+                <Default>2011-08-05T01:20:34.345Z</Default>
+                <Value>2011-08-05T01:20:34.345Z</Value>
+                <Value>2008-10-24T01:20:34.345Z</Value>
             </Dimension>
         </Layer>
         <Layer>
@@ -306,9 +306,9 @@
             />
             <Dimension>
                 <ows:Identifier>Time</ows:Identifier>
-                <Default>20110805</Default>
-                <Value>20110805</Value>
-                <Value>20081024</Value>
+                <Default>Time A</Default>
+                <Value>Time A</Value>
+                <Value>Time B</Value>
             </Dimension>
         </Layer>
         <TileMatrixSet>
