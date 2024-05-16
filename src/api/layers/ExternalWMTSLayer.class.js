@@ -3,6 +3,57 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
+ * @readonly
+ * @enum {String}
+ */
+export const WMTSEncodingTypes = {
+    KVP: 'KVP',
+    REST: 'REST',
+}
+
+/**
+ * WMTS TileMatrixSet
+ *
+ * @class
+ */
+export class TileMatrixSet {
+    /**
+     * @param {String} id Identifier of the tile matrix set (see WMTS OGC spec)
+     * @param {CoordinateSystem} projection Coordinate system supported by the Tile Matrix Set
+     * @param {any} tileMatrix TileMatrix from GetCapabilities (see WMTS OGC spec)
+     */
+    constructor(id, projection, tileMatrix) {
+        this.id = id
+        this.projection = projection
+        this.tileMatrix = tileMatrix
+    }
+}
+
+/**
+ * A WMTS Layer dimension
+ *
+ * See WMTS OGC Spec
+ *
+ * @class
+ */
+export class WMTSDimension {
+    /**
+     * @param {String} id Dimension identifier
+     * @param {String} dft Dimension default value
+     * @param {[String]} values All dimension values
+     * @param {Boolean} [optionals.current] Boolean flag if the dimension support current (see WMTS
+     *   OGC spec)
+     */
+    constructor(id, dft, values, optionals = {}) {
+        const { current = false } = optionals
+        this.id = id
+        this.default = dft
+        this.values = values
+        this.current = current
+    }
+}
+
+/**
  * Metadata for an external WMTS layer, that will be defined through a GetCapabilities.xml endpoint
  * (and a layer ID)
  *
@@ -37,6 +88,20 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {CoordinateSystem[]} [externalWmtsData.availableProjections=[]] All projection that
      *   can be used to request this layer. Default is `[]`
      * @param {ol/WMTS/Options} [externalWmtsData.options] WMTS Get Capabilities options
+     * @param {String} [externalWmtsData.getTileEncoding=REST] WMTS Get Tile encoding (KVP or REST).
+     *   Default is `REST`
+     * @param {String | null} [externalWmtsData.urlTemplate=''] WMTS Get Tile url template for REST
+     *   encoding. Default is `''`
+     * @param {String} [externalWmtsData.style='default'] WMTS layer style. Default is `'default'`
+     * @param {[TileMatrixSet]} [externalWmtsData.tileMatrixSets=[]] WMTS tile matrix sets
+     *   identifiers. Default is `[]`
+     * @param {[WMTSDimension]} [externalWmtsData.dimensions=[]] WMTS tile dimensions. Default is
+     *   `[]`
+     * @param {LayerTimeConfig | null} [externalLayerData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
+     * @param {Number} [externalWmtsData.currentYear=null] Current year of the time series config to
+     *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
+     *   yet available and parse later on from the GetCapabilities. Default is `null`
      * @throws InvalidLayerDataError if no `externalWmtsData` is given or if it is invalid
      */
     constructor(externalWmtsData) {
@@ -56,6 +121,13 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             isLoading = true,
             availableProjections = [],
             options = null,
+            getTileEncoding = WMTSEncodingTypes.REST,
+            urlTemplate = '',
+            style = 'default',
+            tileMatrixSets = [],
+            dimensions = [],
+            timeConfig = null,
+            currentYear = null,
         } = externalWmtsData
         super({
             name,
@@ -71,7 +143,14 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             legends,
             isLoading,
             availableProjections,
+            timeConfig,
+            currentYear,
         })
         this.options = options
+        this.getTileEncoding = getTileEncoding
+        this.urlTemplate = urlTemplate
+        this.style = style
+        this.tileMatrixSets = tileMatrixSets
+        this.dimensions = dimensions
     }
 }

@@ -8,6 +8,7 @@ import { useStore } from 'vuex'
 
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -29,11 +30,39 @@ const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
+const previewYear = computed(() => store.state.layers.previewYear)
+const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => externalWmtsLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value ?? externalWmtsLayerConfig.value.opacity)
-const options = computed(() => externalWmtsLayerConfig.value.options)
+const options = computed(() => {
+    const options = { ...externalWmtsLayerConfig.value.options }
+    options.dimensions = { ...options.dimensions }
+    if (timestamp.value) {
+        const timeDimension = Object.entries(options.dimensions ?? {}).find(
+            (e) => e[0].toLowerCase() === 'time'
+        )
+        if (timeDimension) {
+            options.dimensions[timeDimension[0]] = timestamp.value
+        } else {
+            if (!options.dimensions) {
+                options.dimensions = {}
+            }
+            options.dimensions.Time = timestamp.value
+        }
+    }
+    return options
+})
+// Use "current" as the default timestamp if not defined in the layer config (or no preview year)
+const timestamp = computed(
+    () =>
+        getTimestampFromConfig(
+            externalWmtsLayerConfig.value,
+            previewYear.value,
+            isTimeSliderActive.value
+        ) ?? 'current'
+)
 
 const layer = new TileLayer({
     id: layerId.value,

@@ -20,7 +20,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 /**
  * Returns timestamp for WMS or WMTS layer from config data
  *
- * @param {GeoAdminWMSLayer | GeoAdminWMTSLayer} config
+ * @param {AbstractLayer} config
  * @param {Number} previewYear
  * @param {Boolean} isTimeSliderActive
  * @returns {String | null | LayerTimeConfig.currentTimeEntry.timestamp}
