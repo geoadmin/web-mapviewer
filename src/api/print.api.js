@@ -9,6 +9,7 @@ import axios from 'axios'
 
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
+import { LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 import { adjustWidth } from '@/utils/styleUtils'
 
@@ -110,8 +111,12 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     // eslint-disable-next-line no-unused-vars
     point(layerState, symbolizer, image) {
+        // We need to resize the image to match the old geoadmin
         if (symbolizer.externalGraphic) {
-            symbolizer.graphicWidth = symbolizer.graphicWidth * image.getScale()
+            symbolizer.graphicWidth = adjustWidth(
+                image.getSize()[0] * image.getScaleArray()[0] * LEGACY_ICON_XML_SCALE_FACTOR,
+                this.printResolution
+            )
         } else {
             symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
         }
