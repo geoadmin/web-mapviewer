@@ -344,7 +344,7 @@ function setYearToInputIfValid() {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="p-2 d-flex">
+        <div class="p-2 d-flex align-items-center justify-content-between">
             <div class="time-slider-bar px-5">
                 <div
                     ref="yearCursor"
@@ -418,6 +418,19 @@ function setYearToInputIfValid() {
                     </small>
                 </div>
             </div>
+
+            <div class="time-slider-dropdown">
+                <select
+                    class="form-select ml-2"
+                    :value="currentYear"
+                    @change="setCurrentYearAndDispatchToStore($event.target.value, true)"
+                >
+                    <option v-for="year in allYears" :key="year" :value="year">
+                        {{ year }}
+                    </option>
+                </select>
+            </div>
+
             <button
                 ref="playButton"
                 data-cy="time-slider-play-button"
@@ -450,6 +463,8 @@ function setYearToInputIfValid() {
 
 <style lang="scss">
 @use 'sass:color';
+
+@import '@/scss/media-query.mixin';
 @import '@/scss/webmapviewer-bootstrap-theme';
 
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
@@ -488,6 +503,47 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     border-color: $time-slider-color-has-data;
     background: $time-slider-color-has-data;
 }
+
+// Display the dropdown instead of the time slider on small screens (tablets),
+// but not on mobile
+.time-slider-dropdown {
+    display: none;
+}
+
+.time-slider {
+    width: 100%;
+}
+
+@include respond-above(sm) {
+    // dropdown mode
+    .time-slider-dropdown {
+        display: block;
+    }
+
+    .time-slider-bar {
+        display: none;
+    }
+
+    .time-slider {
+        width: auto;
+    }
+}
+
+@include respond-above(lg) {
+    // time slider mode
+    .time-slider-bar {
+        display: block;
+    }
+
+    .time-slider-dropdown {
+        display: none;
+    }
+
+    .time-slider {
+        width: 100%;
+    }
+}
+//
 
 .time-slider {
     background: $time-slider-color-background !important;

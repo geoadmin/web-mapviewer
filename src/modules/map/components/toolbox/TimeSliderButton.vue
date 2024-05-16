@@ -54,7 +54,9 @@ function toggleTimeSlider() {
                 'dev-disclaimer-present': hasDevSiteWarning,
             }"
         >
-            <TimeSlider v-if="isTimeSliderActive" />
+            <div class="d-flex justify-content-center">
+                <TimeSlider v-if="isTimeSliderActive" />
+            </div>
         </div>
     </div>
 </template>
