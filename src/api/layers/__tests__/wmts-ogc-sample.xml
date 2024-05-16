@@ -6,8 +6,7 @@
     xmlns:ows="http://www.opengis.net/ows/1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0.0/wmtsGetCapabilities_response.xsd"
->
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd">
     <ows:ServiceIdentification>
         <ows:Title>Web Map Tile Service</ows:Title>
         <ows:Abstract>Service that constrains the map
@@ -98,6 +97,12 @@
             </Style>
             <Format>image/jpeg</Format>
             <Format>image/gif</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>20110805</Default>
+                <Value>20110805</Value>
+                <Value>20081024</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>BigWorldPixel</TileMatrixSet>
             </TileMatrixSetLink>
@@ -117,21 +122,15 @@
                 resourceType="FeatureInfo"
                 template="http://www.example.com/wmts/coastlines/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}.xml"
             />
-            <Dimension>
-                <ows:Identifier>Time</ows:Identifier>
-                <Default>20110805</Default>
-                <Value>20110805</Value>
-                <Value>20081024</Value>
-            </Dimension>
         </Layer>
         <Layer>
             <ows:Title>Blue Marble Second Generation - AG</ows:Title>
             <ows:Abstract>Blue Marble Second Generation Canton Aargau Product</ows:Abstract>
+            <ows:Identifier>BlueMarbleSecondGenerationAG</ows:Identifier>
             <ows:BoundingBox crs="urn:ogc:def:crs:CRS::84">
                 <ows:LowerCorner>7.8 47.09</ows:LowerCorner>
                 <ows:UpperCorner>8.47 47.64</ows:UpperCorner>
             </ows:BoundingBox>
-            <ows:Identifier>BlueMarbleSecondGenerationAG</ows:Identifier>
             <Style isDefault="true">
                 <ows:Title>Dark Blue</ows:Title>
                 <ows:Identifier>DarkBlue</ows:Identifier>
@@ -147,6 +146,12 @@
             </Style>
             <Format>image/jpeg</Format>
             <Format>image/gif</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>20110805</Default>
+                <Value>20110805</Value>
+                <Value>20081024</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>BigWorldPixel</TileMatrixSet>
             </TileMatrixSetLink>
@@ -166,12 +171,6 @@
                 resourceType="FeatureInfo"
                 template="http://www.example.com/wmts/coastlines/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}.xml"
             />
-            <Dimension>
-                <ows:Identifier>Time</ows:Identifier>
-                <Default>20110805</Default>
-                <Value>20110805</Value>
-                <Value>20081024</Value>
-            </Dimension>
         </Layer>
         <Layer>
             <ows:Title>BlueMarbleThirdGenerationZH</ows:Title>
@@ -195,6 +194,12 @@
             </Style>
             <Format>image/jpeg</Format>
             <Format>image/gif</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>2011-08-05</Default>
+                <Value>2011-08-05</Value>
+                <Value>2008-10-24</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>BigWorldPixel</TileMatrixSet>
             </TileMatrixSetLink>
@@ -208,12 +213,6 @@
                 resourceType="FeatureInfo"
                 template="http://www.example.com/wmts/coastlines/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}.xml"
             />
-            <Dimension>
-                <ows:Identifier>Time</ows:Identifier>
-                <Default>2011-08-05</Default>
-                <Value>2011-08-05</Value>
-                <Value>2008-10-24</Value>
-            </Dimension>
         </Layer>
         <Layer>
             <ows:Title>Blue Marble Fourth Generation - JU</ows:Title>
@@ -234,6 +233,12 @@
             </Style>
             <Format>image/jpeg</Format>
             <Format>image/gif</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>2011-08-05T01:20:34.345Z</Default>
+                <Value>2011-08-05T01:20:34.345Z</Value>
+                <Value>2008-10-24T01:20:34.345Z</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>JURA</TileMatrixSet>
             </TileMatrixSetLink>
@@ -247,16 +252,11 @@
                 resourceType="FeatureInfo"
                 template="http://www.example.com/wmts/coastlines/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}.xml"
             />
-            <Dimension>
-                <ows:Identifier>Time</ows:Identifier>
-                <Default>2011-08-05T01:20:34.345Z</Default>
-                <Value>2011-08-05T01:20:34.345Z</Value>
-                <Value>2008-10-24T01:20:34.345Z</Value>
-            </Dimension>
         </Layer>
         <Layer>
             <ows:Title>Blue Marble Fifth Generation - GE</ows:Title>
             <ows:Abstract>Blue Marble Fifth Generation Canton Geneva Product</ows:Abstract>
+            <ows:Identifier>BlueMarbleFifthGenerationGE</ows:Identifier>
             <ows:BoundingBox crs="urn:ogc:def:crs:CRS::84">
                 <ows:LowerCorner>5.95 46.12</ows:LowerCorner>
                 <ows:UpperCorner>6.33 46.32</ows:UpperCorner>
@@ -269,7 +269,6 @@
                 <ows:LowerCorner>2484928.06 1108705.32</ows:LowerCorner>
                 <ows:UpperCorner>2514614.27 1130449.26</ows:UpperCorner>
             </ows:BoundingBox>
-            <ows:Identifier>BlueMarbleFifthGenerationGE</ows:Identifier>
             <Style isDefault="true">
                 <ows:Title>Dark Blue</ows:Title>
                 <ows:Identifier>DarkBlue</ows:Identifier>
@@ -285,6 +284,12 @@
             </Style>
             <Format>image/jpeg</Format>
             <Format>image/gif</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>Time A</Default>
+                <Value>Time A</Value>
+                <Value>Time B</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>BigWorldPixel</TileMatrixSet>
             </TileMatrixSetLink>
@@ -304,12 +309,6 @@
                 resourceType="FeatureInfo"
                 template="http://www.example.com/wmts/coastlines/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}.xml"
             />
-            <Dimension>
-                <ows:Identifier>Time</ows:Identifier>
-                <Default>Time A</Default>
-                <Value>Time A</Value>
-                <Value>Time B</Value>
-            </Dimension>
         </Layer>
         <TileMatrixSet>
             <!-- -180 85.05112878 -->
@@ -503,11 +502,11 @@
         </TileMatrixSet>
         <TileMatrixSet>
             <ows:Identifier>BigWorldPixel</ows:Identifier>
-            <ows:SupportedCRS>urn:ogc:def:crs:OGC:1.3:CRS84</ows:SupportedCRS>
             <ows:BoundingBox>
                 <ows:LowerCorner>-180 -65</ows:LowerCorner>
                 <ows:UpperCorner>180 65</ows:UpperCorner>
             </ows:BoundingBox>
+            <ows:SupportedCRS>urn:ogc:def:crs:OGC:1.3:CRS84</ows:SupportedCRS>
             <WellKnownScaleSet>urn:ogc:def:wkss:OGC:1.0:GlobalCRS84Pixel</WellKnownScaleSet>
             <TileMatrix>
                 <ows:Identifier>10000m</ows:Identifier>
@@ -588,11 +587,11 @@
         </TileMatrixSet>
         <TileMatrixSet>
             <ows:Identifier>JURA</ows:Identifier>
-            <ows:SupportedCRS>urn:ogc:def:crs:OGC:1.3:CRS84</ows:SupportedCRS>
             <ows:BoundingBox>
                 <ows:LowerCorner>6.81 47.12</ows:LowerCorner>
                 <ows:UpperCorner>7.56 47.55</ows:UpperCorner>
             </ows:BoundingBox>
+            <ows:SupportedCRS>urn:ogc:def:crs:OGC:1.3:CRS84</ows:SupportedCRS>
             <TileMatrix>
                 <ows:Identifier>1e6</ows:Identifier>
                 <ScaleDenominator>1e6</ScaleDenominator>

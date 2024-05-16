@@ -39,7 +39,9 @@ const timeSelectorButton = ref(null)
 const timeSelectorModal = ref(null)
 
 const previewYear = computed(() => store.state.layers.previewYear)
-const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
+const hasMultipleTimestamps = computed(
+    () => timeConfig.value.timeEntries.length > 1 && hasValidTimestamp.value
+)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 const isLayerVisible = computed(() => store.state.layers.activeLayers[layerIndex.value].visible)
@@ -49,6 +51,9 @@ const humanReadableCurrentTimestamp = computed(() => {
     }
     return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
 })
+// Some external layers might have a time dimension with invalid timestamps, in this case we
+// use the default timestamp as dimension and don't display the time selector.
+const hasValidTimestamp = computed(() => !!timeConfig.value?.currentTimeEntry?.year)
 
 let popover = null
 
@@ -62,6 +67,8 @@ onMounted(() => {
             interactive: true,
             arrow: true,
             trigger: 'click',
+            // Required by the cypres test to avoid CSS issues on cypress when testing the tippy content
+            appendTo: document.body,
         })
     }
 })
@@ -83,6 +90,9 @@ function renderHumanReadableTimestamp(timeEntry) {
     }
     if (timeEntry.year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
         return i18n.t('time_all')
+    }
+    if (timeEntry.year === null) {
+        return timeEntry.timestamp
     }
     return `${timeEntry.year}`
 }
@@ -121,7 +131,7 @@ function baseYear(timeEntry) {
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary me-2"
+        class="btn btn-secondary me-2 btn-timestamp"
         :class="{
             'btn-sm': compact,
             'w-13': compact,
@@ -146,7 +156,7 @@ function baseYear(timeEntry) {
             <button
                 v-for="timeEntry in timeConfig.timeEntries"
                 :key="timeEntry.timestamp"
-                class="btn mb-1 me-1"
+                class="btn mb-1 me-1 btn-timestamp"
                 :class="{
                     'btn-primary': isSelected(timeEntry),
                     'btn-outline-primary': baseYear(timeEntry),
@@ -168,9 +178,8 @@ function baseYear(timeEntry) {
     overflow-y: auto;
     background: white;
     grid-template-columns: 1fr 1fr 1fr;
-
-    .btn-timestamp {
-        white-space: nowrap;
-    }
+}
+.btn-timestamp {
+    white-space: nowrap;
 }
 </style>

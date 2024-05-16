@@ -109,13 +109,29 @@ export default class WMTSCapabilitiesParser {
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible
+     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
+     *   needed when a time config is present a year is pre-selected in the url parameter. Default
+     *   is `null`
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
      * @returns {[ExternalWMTSLayer]} List of ExternalWMTSLayer objects
      */
-    getAllExternalLayerObjects(projection, opacity = 1, visible = true, ignoreError = true) {
+    getAllExternalLayerObjects(
+        projection,
+        opacity = 1,
+        visible = true,
+        currentYear = null,
+        ignoreError = true
+    ) {
         return this.Contents.Layer.map((layer) =>
-            this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+            this._getExternalLayerObject(
+                layer,
+                projection,
+                opacity,
+                visible,
+                currentYear,
+                ignoreError
+            )
         ).filter((layer) => !!layer)
     }
 
@@ -384,6 +400,6 @@ export default class WMTSCapabilitiesParser {
         }
         const timeEntries =
             timeDimension.values?.map((value) => new LayerTimeConfigEntry(value)) ?? []
-        return new LayerTimeConfig(null, timeEntries)
+        return new LayerTimeConfig(timeDimension.default ?? null, timeEntries)
     }
 }
