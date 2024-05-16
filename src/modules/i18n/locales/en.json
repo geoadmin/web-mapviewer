@@ -123,8 +123,8 @@
     "draw_next_measure": "Click to add another point (double-click to finish)",
     "draw_panel_title": "Draw & Measure on map",
     "draw_point": "Point",
-    "draw_point_description": "",
-    "draw_point_instructions": "import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'",
+    "draw_point_description": "Create point",
+    "draw_point_instructions": "Create point",
     "draw_polygon": "Polygon",
     "draw_polygon_description": "Create polygon",
     "draw_polygon_instructions": "Create polygon",
@@ -679,5 +679,6 @@
     "file_imported_success": "File successfully imported",
     "3d_labels": "Geographic names",
     "3d_vegetation": "Vegetations",
-    "3d_constructions": "Buildings and constructions"
+    "3d_constructions": "Buildings and constructions",
+    "webmapviewer_live_disclaimer": "Big changes are coming soon, <a target='_blank' href='https://www.swisstopo.admin.ch/en'>learn more</a>"
 }

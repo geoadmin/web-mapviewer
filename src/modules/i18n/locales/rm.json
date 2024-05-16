@@ -677,5 +677,6 @@
     "file_imported_success": "Datoteca importada cun success",
     "3d_labels": "Numns geografics",
     "3d_vegetation": "Vegietaziun",
-    "3d_constructions": "Edifizis ed installaziuns"
+    "3d_constructions": "Edifizis ed installaziuns",
+    "webmapviewer_live_disclaimer": "Grondas midadas vegnan prest, <a target='_blank' href='https://www.swisstopo.admin.ch/de'>emprender dapli</a>"
 }

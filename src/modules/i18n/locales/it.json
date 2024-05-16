@@ -679,5 +679,6 @@
     "file_imported_success": "File importato con successo",
     "3d_labels": "Nomi geografici",
     "3d_vegetation": "Vegetazione",
-    "3d_constructions": "Edifici e costruzioni"
+    "3d_constructions": "Edifici e costruzioni",
+    "webmapviewer_live_disclaimer": "Grandi cambiamenti in arrivo, <a target='_blank' href='https://www.swisstopo.admin.ch/it'>per saperne di più</a>"
 }
