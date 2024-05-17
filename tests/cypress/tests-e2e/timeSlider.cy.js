@@ -348,5 +348,28 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                         .should('lt', extractDecimal($barCursorPosition))
                 })
         })
+
+        it('checks that the timeslider dropdown is functional and behaves correctly', () => {
+            // ----------------------------------------------------------------------------------------------------
+            cy.log('Going to the map, the time slider appears')
+            cy.goToMapView({
+                layers: `${time_layer_std}@year=${preSelectedYear}`,
+                timeSlider: preSelectedYear,
+            })
+            cy.get('[data-cy="time-slider-bar"]').should('be.visible')
+
+            cy.log('When resizing the viewport to sm screens, the dropdown should appear')
+            cy.viewport(620, 568)
+            cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
+            cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')
+
+            cy.get('[data-cy="time-slider-dropdown"] select').select('1999')
+
+            cy.log(
+                'When resizing back to mobile, the chosen year from the dropdown should be correct in the time slider'
+            )
+            cy.viewport(320, 568)
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', 1999)
+        })
     })
 })

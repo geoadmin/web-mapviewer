@@ -373,7 +373,7 @@ function togglePlayYearsWithData() {
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
         <div class="p-2 d-flex align-items-center justify-content-between">
-            <div class="time-slider-bar px-5">
+            <div class="time-slider-bar px-5" data-cy="time-slider-bar">
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
@@ -446,7 +446,7 @@ function togglePlayYearsWithData() {
                 </div>
             </div>
 
-            <div class="time-slider-dropdown">
+            <div class="time-slider-dropdown" data-cy="time-slider-dropdown">
                 <select v-model="currentYear" class="form-select ml-2">
                     <option v-for="year in allYears" :key="year" :value="year">
                         {{ year }}
