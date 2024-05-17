@@ -443,5 +443,124 @@ describe('Testing print', () => {
                 ).to.lessThan(1.5) // thinner than the drawn in the OL map.
             })
         })
+        it('should send a print request correctly to mapfishprint (icon and label)', () => {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
+
+            cy.goToMapView({}, true)
+            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+            cy.get('[data-cy="import-file-content"]').should('be.visible')
+            cy.get('[data-cy="import-file-online-content"]').should('be.visible')
+
+            const localKmlFile = 'print/label.kml'
+
+            // Test local import
+            cy.log('Switch to local import')
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
+
+            // Attach a local KML file
+            cy.log('Test add a local KML file')
+            cy.fixture(localKmlFile, null).as('kmlFixture')
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+                force: true,
+            })
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+            // Assertions for successful import
+            cy.get('[data-cy="file-input-text"]')
+                .should('have.class', 'is-valid')
+                .should('not.have.class', 'is-invalid')
+            cy.get('[data-cy="file-input-valid-feedback"]')
+                .should('be.visible')
+                .contains('File successfully imported')
+            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
+            cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+
+            // Close the import tool
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
+            cy.get('[data-cy="import-file-content"]').should('not.exist')
+
+            // Print
+            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-form"]').should('be.visible')
+
+            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+
+            cy.wait('@printRequest').then((interception) => {
+                expect(interception.request.body).to.haveOwnProperty('layout')
+                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
+                expect(interception.request.body).to.haveOwnProperty('format')
+                expect(interception.request.body['format']).to.equal('pdf')
+
+                const attributes = interception.request.body.attributes
+                expect(attributes).to.haveOwnProperty('printLegend')
+                expect(attributes['printLegend']).to.equals(0)
+                expect(attributes).to.haveOwnProperty('qrimage')
+                expect(attributes['qrimage']).to.contains(
+                    encodeURIComponent('https://s.geo.admin.ch/0000000')
+                )
+
+                const mapAttributes = attributes.map
+                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+
+                const layers = mapAttributes.layers
+                expect(layers).to.be.an('array')
+                expect(layers).to.have.length(2)
+                expect(layers[0]['type']).to.equals('geojson')
+                expect(layers[0]['geoJson']['features']).to.have.length(1)
+                expect(layers[0]['geoJson']['features'][0]['properties']).to.haveOwnProperty(
+                    '_mfp_style'
+                )
+                expect(layers[0]['geoJson']['features'][0]['properties']['_mfp_style']).to.equal(
+                    '1'
+                )
+                expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
+
+                const symbolizers = layers[0]['style']["[_mfp_style = '1']"]['symbolizers']
+                const pointSymbol = symbolizers[0]
+                expect(pointSymbol).to.haveOwnProperty('type')
+                const pointSymbolAttributes = {
+                    type: 'point',
+                    externalGraphic: '001-marker@1x-255,0,0.png', // suffix only
+                    graphicWidth: 19.133858267716537,
+                }
+
+                for (const attribute in pointSymbolAttributes) {
+                    expect(pointSymbol).to.haveOwnProperty(attribute)
+                }
+                expect(
+                    pointSymbol['externalGraphic'].endsWith(
+                        pointSymbolAttributes['externalGraphic']
+                    )
+                ).to.be.true
+                expect(
+                    pointSymbol['graphicWidth'] - pointSymbolAttributes['graphicWidth']
+                ).to.lessThan(0.1)
+
+                const textSymbol = symbolizers[1]
+                const textSymbolAttributes = {
+                    type: 'text',
+                    label: 'Sample Label',
+                    fontFamily: 'HELVETICA',
+                    fontSize: 16,
+                    fontWeight: 'normal',
+                    labelYOffset: 44.75,
+                }
+                for (const attribute in textSymbolAttributes) {
+                    expect(textSymbol).to.haveOwnProperty(attribute)
+                    expect(textSymbol[attribute]).to.equal(textSymbolAttributes[attribute])
+                }
+            })
+        })
     })
 })
