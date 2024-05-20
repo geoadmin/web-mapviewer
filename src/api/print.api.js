@@ -6,10 +6,10 @@ import {
     requestReport,
 } from '@geoblocks/mapfishprint'
 import axios from 'axios'
+import { Circle } from 'ol/style'
 
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
-import { LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 import { adjustWidth } from '@/utils/styleUtils'
 
@@ -111,20 +111,32 @@ class GeoAdminCustomizer extends BaseCustomizer {
      */
     // eslint-disable-next-line no-unused-vars
     point(layerState, symbolizer, image) {
+        const scale = image.getScaleArray()[0]
+        let size = null
+        let anchor = null
+
         // We need to resize the image to match the old geoadmin
         if (symbolizer.externalGraphic) {
-            symbolizer.graphicWidth = adjustWidth(
-                image.getSize()[0] * image.getScaleArray()[0] * LEGACY_ICON_XML_SCALE_FACTOR,
-                this.printResolution
-            )
-        } else {
-            symbolizer.graphicWidth = adjustWidth(symbolizer.graphicWidth, this.printResolution)
+            size = image.getSize()
+            anchor = image.getAnchor()
+        } else if (image instanceof Circle) {
+            const radius = image.getRadius()
+            const width = adjustWidth(2 * radius, this.printResolution)
+            size = [width, width]
+            anchor = [width / 2, width / 2]
         }
-        symbolizer.graphicXOffset = adjustWidth(symbolizer.graphicXOffset, this.printResolution)
-        symbolizer.graphicYOffset = adjustWidth(symbolizer.graphicYOffset, this.printResolution)
-        // Handling the case where we need to print a circle in the end of measurement lines
-        // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
+
+        if (anchor) {
+            symbolizer.graphicXOffset = adjustWidth(-anchor[0] * scale, this.printResolution)
+            symbolizer.graphicYOffset = adjustWidth(-anchor[1] * scale, this.printResolution)
+        }
+        if (size) {
+            symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
+        }
+
         if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
+            // Handling the case where we need to print a circle in the end of measurement lines
+            // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
             symbolizer.fillOpacity = 1
         }
     }
