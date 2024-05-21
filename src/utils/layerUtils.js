@@ -50,7 +50,7 @@ export function getTimestampFromConfig(config, previewYear, isTimeSliderActive) 
  *   timeslider to the ur. When false the timestamp is set to `{Time}` and need to processed later
  *   on. Default is `false`
  * @param {Number | null} [options.previewYear=null] Default is `null`
- * @param {Boolean | null} [options.isTimeSliderActive=false] Default is `false`
+ * @param {Boolean} [options.isTimeSliderActive=false] Default is `false`
  * @returns {String | null}
  */
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
