@@ -29,18 +29,21 @@ const addImageryLayerMixins = {
             this.getViewer().scene.imageryLayers.remove(layer)
             this.isPresentOnMap = false
         },
+        updateLayer() {
+            const viewer = this.getViewer()
+            const index = viewer.scene.imageryLayers.indexOf(this.layer)
+            viewer.scene.imageryLayers.remove(this.layer)
+            this.layer = this.createImagery(this.url)
+            viewer.scene.imageryLayers.add(this.layer, index)
+        },
     },
     watch: {
         opacity(newOpacity) {
             this.layer.alpha = newOpacity
             this.getViewer().scene.requestRender()
         },
-        url(newUrl) {
-            const viewer = this.getViewer()
-            const index = viewer.scene.imageryLayers.indexOf(this.layer)
-            viewer.scene.imageryLayers.remove(this.layer)
-            this.layer = this.createImagery(newUrl)
-            viewer.scene.imageryLayers.add(this.layer, index)
+        url() {
+            this.updateLayer()
         },
         zIndex(zIndex) {
             if (this.layer) {

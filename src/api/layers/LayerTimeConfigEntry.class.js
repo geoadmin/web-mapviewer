@@ -11,6 +11,7 @@ import { isTimestampYYYYMMDD } from '@/utils/numberUtils'
  * @type {number}
  */
 export const YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA = 9999
+
 /**
  * Timestamp to describe "all data" for time enabled WMS layer
  *
