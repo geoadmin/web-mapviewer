@@ -79,7 +79,7 @@
         "vue": "^3.4.21",
         "vue-chartjs": "^5.3.0",
         "vue-i18n": "^9.11.0",
-        "vue-router": "^4.3.0",
+        "vue-router": "^4.3.2",
         "vue3-social-sharing": "^1.0.3",
         "vuex": "^4.1.0"
     },

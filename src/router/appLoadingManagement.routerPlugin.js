@@ -48,13 +48,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                     isLegacyUrl,
                     ...dispatcher,
                 })
-                log.error('0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
-                log.error(from)
-                log.error(to)
                 unRegisterRouterHook()
-                log.error('0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
-                log.error(from)
-                log.error(to)
             }
         })
         const unSubscribeStore = store.subscribe((mutation) => {

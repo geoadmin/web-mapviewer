@@ -7,7 +7,6 @@ import { LEGACY_VIEWS, MAP_VIEWS } from '@/router/viewNames'
 import log from '@/utils/logging'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
-let globalcount = 0
 const watchedMutations = [
     ...new Set(storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch).flat()),
 ]
@@ -172,6 +171,8 @@ function urlQueryWatcher(store, to, from) {
     }
 
     if (requireQueryUpdate) {
+        // if there is a query update, we won't need to ask the viewer to reload because
+        // of going through the legacy parser.
         store.dispatch('setNeedReloadBecauseOfLegacy', {
             value: false,
             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -192,6 +193,9 @@ function urlQueryWatcher(store, to, from) {
             value: false,
             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
         })
+        log.debug(
+            '[URL query watcher] Coming from legacy, enforcing a route push to avoid being stuck'
+        )
         return { name: to.name, query: newQuery }
     }
     return true
@@ -211,17 +215,12 @@ function urlQueryWatcher(store, to, from) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
-        globalcount += 1
-        log.error('ENTRY NUMBER ', globalcount)
+        log.debug('[Router store plugin] Entering the store sync plugin')
         // we define a return Value, so we can check across the function what its value is
         let retVal = undefined
-        log.warn('[Router store plugin] Entry in the navigation guard')
-        log.warn('[Router store plugin] We received the following from ', from)
-        log.warn('[Router store plugin] We expect to go to the following to ', to)
-        log.error('-------------------------------------------------------------------')
-        log.error(MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation)
-        log.error(!MAP_VIEWS.includes(to.name))
-        log.error(globalcount)
+        log.debug('[Router store plugin] We received the following `from` :', from)
+        log.debug('[Router store plugin] We expect to go to the following `to` :', to)
+
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
             log.info('[Router store plugin] Entering MapView, register store mutation watcher')
             // listening to store mutation in order to update URL
@@ -231,8 +230,6 @@ const storeSyncRouterPlugin = (router, store) => {
                         '[Router store plugin] app is ready, trigger initial URL query watcher'
                     )
                     const newRoute = urlQueryWatcher(store, to)
-                    log.error(`IN THE QUERY WATCHER SUBSCRIPTION : BEFORE THE IF NEW ROUTE`)
-                    log.error(newRoute)
                     if (newRoute) {
                         router.push(newRoute)
                     }
@@ -247,26 +244,20 @@ const storeSyncRouterPlugin = (router, store) => {
                     `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
                 )
 
-
                 unsubscribeStoreMutation()
                 retVal = true
             }
         }
-        log.warn('[Router store plugin] return Value currently at ', retVal)
         if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
             // Synchronize the store with the url query only on MapView and when the application
             // is ready
             retVal = urlQueryWatcher(store, to, from)
         }
-        log.warn('[Router store plugin] return Value currently at ', retVal)
 
-        log.warn('[Router store plugin] exiting navigation guard with the following value', retVal)
-        log.warn('[Router store plugin] the query was:', from)
-        log.warn('[Router store plugin] the query will be:', to)
+        log.debug('[Router store plugin] exiting navigation guard with the following value', retVal)
         // Note we return undefined to validate the route, see Vue Router documentation
         return retVal
     })
-
 }
 
 export default storeSyncRouterPlugin

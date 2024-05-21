@@ -11,11 +11,11 @@ import {
     MAP_VIEW,
 } from '@/router/viewNames'
 import store from '@/store'
+import log from '@/utils/logging'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
-import log from '@/utils/logging'
 
 const history = createWebHashHistory()
 
