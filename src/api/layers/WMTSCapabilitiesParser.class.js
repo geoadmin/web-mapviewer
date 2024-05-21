@@ -4,8 +4,14 @@ import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import ExternalWMTSLayer, {
+    TileMatrixSet,
+    WMTSDimension,
+    WMTSEncodingTypes,
+} from '@/api/layers/ExternalWMTSLayer.class'
 import { CapabilitiesError } from '@/api/layers/layers-external.api'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
@@ -61,13 +67,23 @@ export default class WMTSCapabilitiesParser {
      *
      * @param {string} layerId WMTS Capabilities layer ID to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
-     * @param {number} opacity
-     * @param {boolean} visible
-     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
-     *   value or null
+     * @param {number} [opacity=1] Default is `1`
+     * @param {boolean} [visible=true] Default is `true`
+     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
+     *   needed when a time config is present a year is pre-selected in the url parameter. Default
+     *   is `null`
+     * @param {boolean} [ignoreError=true] Don't throw exception in case of error, but return a
+     *   default value or null. Default is `true`
      * @returns {ExternalWMTSLayer | null} ExternalWMTSLayer object
      */
-    getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
+    getExternalLayerObject(
+        layerId,
+        projection,
+        opacity = 1,
+        visible = true,
+        currentYear = null,
+        ignoreError = true
+    ) {
         const layer = this.findLayer(layerId)
         if (!layer) {
             const msg = `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
@@ -77,7 +93,14 @@ export default class WMTSCapabilitiesParser {
             }
             return null
         }
-        return this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+        return this._getExternalLayerObject(
+            layer,
+            projection,
+            opacity,
+            visible,
+            currentYear,
+            ignoreError
+        )
     }
 
     /**
@@ -86,17 +109,33 @@ export default class WMTSCapabilitiesParser {
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible
+     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
+     *   needed when a time config is present a year is pre-selected in the url parameter. Default
+     *   is `null`
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
      * @returns {[ExternalWMTSLayer]} List of ExternalWMTSLayer objects
      */
-    getAllExternalLayerObjects(projection, opacity = 1, visible = true, ignoreError = true) {
+    getAllExternalLayerObjects(
+        projection,
+        opacity = 1,
+        visible = true,
+        currentYear = null,
+        ignoreError = true
+    ) {
         return this.Contents.Layer.map((layer) =>
-            this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+            this._getExternalLayerObject(
+                layer,
+                projection,
+                opacity,
+                visible,
+                currentYear,
+                ignoreError
+            )
         ).filter((layer) => !!layer)
     }
 
-    _getExternalLayerObject(layer, projection, opacity, visible, ignoreError) {
+    _getExternalLayerObject(layer, projection, opacity, visible, currentYear, ignoreError) {
         const attributes = this._getLayerAttributes(layer, projection, ignoreError)
 
         if (!attributes) {
@@ -121,6 +160,12 @@ export default class WMTSCapabilitiesParser {
             isLoading: false,
             availableProjections: attributes.availableProjections,
             options,
+            getTileEncoding: attributes.getTileEncoding,
+            urlTemplate: attributes.urlTemplate,
+            tileMatrixSets: attributes.tileMatrixSets,
+            dimensions: attributes.dimensions,
+            timeConfig: this._getTimeConfig(attributes.layerId, attributes.dimensions),
+            currentYear,
         })
     }
 
@@ -154,6 +199,11 @@ export default class WMTSCapabilitiesParser {
             extent: this._getLayerExtent(layerId, layer, projection),
             legends: this._getLegends(layerId, layer),
             availableProjections: this._getAvailableProjections(layerId, layer, ignoreError),
+            getTileEncoding: this._getTileEncoding(),
+            urlTemplate: this._getUrlTemplate(layerId, layer),
+            style: this._getStyle(layerId, layer),
+            tileMatrixSets: this._getTileMatrixSets(layerId, layer),
+            dimensions: this._getDimensions(layerId, layer),
         }
     }
 
@@ -184,9 +234,17 @@ export default class WMTSCapabilitiesParser {
         )
 
         // Take the available projections from the tile matrix set
-        availableProjections.push(
-            parseCrs(this._findTileMatrixSetFromLinks(layer.TileMatrixSetLink)?.SupportedCRS)
-        )
+        const tileMatrixSetCrs = this._findTileMatrixSetFromLinks(
+            layer.TileMatrixSetLink
+        )?.SupportedCRS
+        if (tileMatrixSetCrs) {
+            const tileMatrixSetProjection = parseCrs(tileMatrixSetCrs)
+            if (!tileMatrixSetProjection) {
+                log.warn(`CRS ${tileMatrixSetCrs} no supported by application or invalid`)
+            } else {
+                availableProjections.push(tileMatrixSetProjection)
+            }
+        }
 
         // Remove duplicates
         availableProjections = [...new Set(availableProjections)]
@@ -294,5 +352,54 @@ export default class WMTSCapabilitiesParser {
                 )
             )
             .flat()
+    }
+
+    _getTileEncoding() {
+        return (
+            this.OperationsMetadata?.GetTile?.DCP?.HTTP?.Get[0]?.Constraint[0]?.AllowedValues
+                ?.Value[0] ?? WMTSEncodingTypes.REST
+        )
+    }
+
+    _getUrlTemplate(layerId, layer) {
+        return layer.ResourceURL[0]?.template ?? ''
+    }
+
+    _getStyle(layerId, layer) {
+        // Based on the spec at least one style should be available
+        return layer.Style[0].Identifier
+    }
+
+    _getTileMatrixSets(layerId, layer) {
+        // Based on the spec at least one TileMatrixSetLink should be available
+        const ids = layer.TileMatrixSetLink.map((link) => link.TileMatrixSet)
+        return this.Contents.TileMatrixSet.filter((set) => ids.includes(set.Identifier))
+            .map((set) => {
+                const projection = parseCrs(set.SupportedCRS)
+                if (!projection) {
+                    log.warn(
+                        `Invalid or non supported CRS ${set.SupportedCRS} in TileMatrixSet ${set.Identifier} for layer ${layerId}}`
+                    )
+                    return null
+                }
+                return new TileMatrixSet(set.Identifier, projection, set.TileMatrix)
+            })
+            .filter((set) => !!set)
+    }
+
+    _getDimensions(layerId, layer) {
+        return (
+            layer.Dimension?.map((d) => new WMTSDimension(d.Identifier, d.Default, d.Value)) ?? []
+        )
+    }
+
+    _getTimeConfig(layerId, dimensions) {
+        const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
+        if (!timeDimension) {
+            return null
+        }
+        const timeEntries =
+            timeDimension.values?.map((value) => new LayerTimeConfigEntry(value)) ?? []
+        return new LayerTimeConfig(timeDimension.default ?? null, timeEntries)
     }
 }

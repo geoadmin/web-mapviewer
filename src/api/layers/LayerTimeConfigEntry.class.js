@@ -1,3 +1,5 @@
+import { isTimestampYYYYMMDD } from '@/utils/numberUtils'
+
 /**
  * Year we are using to describe the timestamp "all data" for WMS (and also for WMTS as there is no
  * equivalent for that in the norm)
@@ -34,7 +36,7 @@ export const CURRENT_YEAR_WMTS_TIMESTAMP = 'current'
  * to Vue reactivity engine.
  */
 export default class LayerTimeConfigEntry {
-    /** @param {String} timestamp A full timestamp as YYYYYMMDD */
+    /** @param {String} timestamp A full timestamp as YYYYYMMDD or ISO 8601 format */
     constructor(timestamp) {
         this.timestamp = timestamp
         if (
@@ -43,7 +45,16 @@ export default class LayerTimeConfigEntry {
         ) {
             this.year = YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
         } else {
-            this.year = parseInt(timestamp.substring(0, 4))
+            if (isTimestampYYYYMMDD(timestamp)) {
+                this.year = parseInt(timestamp.substring(0, 4))
+            } else {
+                const date = new Date(timestamp)
+                if (!isNaN(date)) {
+                    this.year = date.getFullYear()
+                } else {
+                    this.year = null
+                }
+            }
         }
     }
 }

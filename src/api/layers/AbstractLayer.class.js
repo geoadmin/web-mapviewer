@@ -69,6 +69,8 @@ export default class AbstractLayer {
      *   is from another (external) source. Default is `false`
      * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
      *   metadata) are still loading. Default is `false`
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
@@ -90,6 +92,7 @@ export default class AbstractLayer {
             hasLegend = false,
             isExternal = false,
             isLoading = false,
+            timeConfig = null,
         } = layerData
         if (name === null) {
             throw new InvalidLayerDataError('Missing layer name', layerData)
@@ -120,6 +123,8 @@ export default class AbstractLayer {
         this.hasLegend = hasLegend
         this.errorKey = null
         this.hasError = false
+        this.timeConfig = timeConfig
+        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
     }
 
     clone() {

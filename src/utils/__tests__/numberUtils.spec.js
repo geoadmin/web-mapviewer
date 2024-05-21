@@ -6,6 +6,7 @@ import {
     format,
     formatThousand,
     isNumber,
+    isTimestampYYYYMMDD,
     randomIntBetween,
     round,
     wrapDegrees,
@@ -165,6 +166,31 @@ describe('Unit test functions from numberUtils.js', () => {
             expect(wrapDegrees(-361)).to.eq(-1)
             expect(wrapDegrees(-540)).to.eq(-180)
             expect(wrapDegrees(-720)).to.eq(0)
+        })
+    })
+    describe('isTimestampYYYYMMDD(timestamp)', () => {
+        it('match valid timestamp YYYYMMDD', () => {
+            expect(isTimestampYYYYMMDD('99990101')).to.be.true
+            expect(isTimestampYYYYMMDD('99991231')).to.be.true
+            expect(isTimestampYYYYMMDD('20240101')).to.be.true
+            expect(isTimestampYYYYMMDD('20241201')).to.be.true
+            expect(isTimestampYYYYMMDD('20241231')).to.be.true
+            expect(isTimestampYYYYMMDD('30000101')).to.be.true
+            expect(isTimestampYYYYMMDD('00000101')).to.be.true
+            expect(isTimestampYYYYMMDD('10000101')).to.be.true
+        })
+        it('don not match invalid timestamp YYYYMMDD', () => {
+            expect(isTimestampYYYYMMDD('20241301')).to.be.false
+            expect(isTimestampYYYYMMDD('20241232')).to.be.false
+            expect(isTimestampYYYYMMDD('30000000')).to.be.false
+            expect(isTimestampYYYYMMDD('00000000')).to.be.false
+            expect(isTimestampYYYYMMDD('20240000')).to.be.false
+            expect(isTimestampYYYYMMDD('20240100')).to.be.false
+            expect(isTimestampYYYYMMDD('20240001')).to.be.false
+            expect(isTimestampYYYYMMDD('99999999')).to.be.false
+            expect(isTimestampYYYYMMDD('99990000')).to.be.false
+            expect(isTimestampYYYYMMDD('99991232')).to.be.false
+            expect(isTimestampYYYYMMDD('99991301')).to.be.false
         })
     })
 })

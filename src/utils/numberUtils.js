@@ -116,3 +116,15 @@ export function wrapDegrees(angleInDegrees) {
     }
     return angleInDegrees
 }
+
+/**
+ * Test if the given string match a timestamp of the format YYYYMMDD
+ *
+ * NOTE: it only supports timestamp from 00000101 to 99991231
+ *
+ * @param {String} timestamp
+ * @returns {Boolean} True if it match false otherwise
+ */
+export function isTimestampYYYYMMDD(timestamp) {
+    return /^\d{4}(1[0-2]|0[1-9])(0[1-9]|[1-2][0-9]|3[0-1])$/.test(timestamp)
+}

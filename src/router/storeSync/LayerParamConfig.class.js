@@ -75,16 +75,19 @@ export function createLayerObject(parsedLayer, currentLayer) {
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMTS) {
+        const { year = null } = parsedLayer.customAttributes ?? {}
         return new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: parsedLayer.baseUrl,
+            currentYear: year,
         })
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMS) {
+        const { year = null } = parsedLayer.customAttributes ?? {}
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         return new ExternalWMSLayer({
@@ -93,6 +96,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: parsedLayer.baseUrl,
+            currentYear: year,
         })
     }
     // this is no external layer that needs further parsing, we let it go through to be looked up in the layers config

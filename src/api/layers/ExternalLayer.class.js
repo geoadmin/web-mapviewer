@@ -94,6 +94,11 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {ExternalLayerGetFeatureInfoCapability | null} [externalLayerData.getFeatureInfoCapability=null]
      *   Configuration describing how to request this layer's server to get feature information.
      *   Default is `null`
+     * @param {LayerTimeConfig | null} [externalLayerData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
+     * @param {Number} [externalWmtsData.currentYear=null] Current year of the time series config to
+     *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
+     *   yet available and parse later on from the GetCapabilities. Default is `null`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -115,6 +120,8 @@ export default class ExternalLayer extends AbstractLayer {
             availableProjections = [],
             hasTooltip = false,
             getFeatureInfoCapability = null,
+            timeConfig = null,
+            currentYear = null,
         } = externalLayerData
         // keeping this checks, even though it will be checked again by the super constructor, because we use the baseUrl
         // to build our call to the super constructor (with a URL construction, which could raise an error if baseUrl is
@@ -135,6 +142,7 @@ export default class ExternalLayer extends AbstractLayer {
             isLoading,
             hasDescription: abstract?.length > 0 || legends?.length > 0,
             hasLegend: legends?.length > 0,
+            timeConfig,
         })
         this.abstract = abstract
         this.extent = extent
@@ -148,5 +156,9 @@ export default class ExternalLayer extends AbstractLayer {
             this.availableProjections.push(WGS84)
         }
         this.getFeatureInfoCapability = getFeatureInfoCapability
+        this.currentYear = currentYear
+        if (currentYear && this.timeConfig) {
+            this.timeConfig.updateCurrentTimeEntry(this.timeConfig.getTimeEntryForYear(currentYear))
+        }
     }
 }

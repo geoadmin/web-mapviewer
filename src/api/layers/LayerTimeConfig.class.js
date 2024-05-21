@@ -98,7 +98,7 @@ export default class LayerTimeConfig {
      * @returns {LayerTimeConfigEntry | null}
      */
     getTimeEntryForYear(year) {
-        return this.timeEntries.find((entry) => entry.year === year)
+        return this.timeEntries.find((entry) => entry.year === year) ?? null
     }
 
     /**
@@ -106,7 +106,7 @@ export default class LayerTimeConfig {
      * @returns {LayerTimeConfigEntry | null}
      */
     getTimeEntryForTimestamp(timestamp) {
-        return this.timeEntries.find((entry) => entry.timestamp === timestamp)
+        return this.timeEntries.find((entry) => entry.timestamp === timestamp) ?? null
     }
 
     clone() {
