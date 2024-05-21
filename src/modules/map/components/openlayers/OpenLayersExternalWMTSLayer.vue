@@ -1,6 +1,7 @@
 <script setup>
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
+import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS from 'ol/source/WMTS'
 import { computed, inject, onMounted, toRefs, watch } from 'vue'
@@ -37,22 +38,14 @@ const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 const layerId = computed(() => externalWmtsLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value ?? externalWmtsLayerConfig.value.opacity)
 const options = computed(() => {
-    const options = { ...externalWmtsLayerConfig.value.options }
-    options.dimensions = { ...options.dimensions }
-    if (timestamp.value) {
-        const timeDimension = Object.entries(options.dimensions ?? {}).find(
-            (e) => e[0].toLowerCase() === 'time'
-        )
-        if (timeDimension) {
-            options.dimensions[timeDimension[0]] = timestamp.value
-        } else {
-            if (!options.dimensions) {
-                options.dimensions = {}
-            }
-            options.dimensions.Time = timestamp.value
-        }
+    if (!externalWmtsLayerConfig.value.options) {
+        return null
     }
-    return options
+    const _options = cloneDeep(externalWmtsLayerConfig.value.options)
+    if (Object.hasOwn(_options, 'dimensions')) {
+        delete _options.dimensions
+    }
+    return _options
 })
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
 const timestamp = computed(
@@ -63,6 +56,21 @@ const timestamp = computed(
             isTimeSliderActive.value
         ) ?? 'current'
 )
+const dimensions = computed(() => {
+    if (!options.value) {
+        return null
+    }
+    const _dimensions = cloneDeep(options.value?.dimensions ?? {})
+    if (timestamp.value) {
+        const timeDimension = Object.entries(_dimensions).find((e) => e[0].toLowerCase() === 'time')
+        if (timeDimension) {
+            _dimensions[timeDimension[0]] = timestamp.value
+        } else {
+            _dimensions.Time = timestamp.value
+        }
+    }
+    return _dimensions
+})
 
 const layer = new TileLayer({
     id: layerId.value,
@@ -75,6 +83,12 @@ useAddLayerToMap(layer, olMap, zIndex)
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, setSourceForProjection)
 watch(options, setSourceForProjection)
+watch(dimensions, () => {
+    if (dimensions.value !== null) {
+        log.debug('Update wmts dimension', dimensions.value)
+        layer.getSource().updateDimensions(dimensions.value)
+    }
+})
 
 onMounted(() => {
     setSourceForProjection()
@@ -94,7 +108,7 @@ function setSourceForProjection() {
         )
         // finally setting the source with the options drawn from the getCapabilities helper function
         // the layer might be shown on the map a little later than all the others because of that
-        layer.setSource(new WMTS(options.value))
+        layer.setSource(new WMTS({ ...options.value, dimensions: dimensions.value }))
     } else {
         log.debug(`No WMTS options for layer ${layerId.value} available yet`)
     }
