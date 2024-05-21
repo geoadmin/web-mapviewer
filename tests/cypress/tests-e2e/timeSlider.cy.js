@@ -363,7 +363,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
             cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')
 
-            cy.get('[data-cy="time-slider-dropdown"] select').select('1999')
+            cy.get('[data-cy="time-slider-dropdown"]')
+                .get('[data-cy="searchable-dropdown"] input')
+                .type('1999{downArrow}{enter}')
 
             cy.log(
                 'When resizing back to mobile, the chosen year from the dropdown should be correct in the time slider'

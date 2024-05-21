@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
+import SearchableDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
@@ -459,21 +460,25 @@ function togglePlayYearsWithData() {
             </div>
 
             <div class="time-slider-dropdown" data-cy="time-slider-dropdown">
-                <select v-model="currentYear" class="form-select ml-2">
-                    <option v-for="year in allYears" :key="year" :value="year">
-                        {{ year }}
-                    </option>
-                </select>
+                <TimeSliderDropdown
+                    v-model.number="currentYear"
+                    :entries="allYears"
+                    :is-playing="playYearsWithData"
+                    @play="togglePlayYearsWithData"
+                >
+                </TimeSliderDropdown>
             </div>
 
-            <button
-                ref="playButton"
-                data-cy="time-slider-play-button"
-                class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
-                @click="togglePlayYearsWithData"
-            >
-                <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
-            </button>
+            <div class="time-slider-play-button">
+                <button
+                    ref="playButton"
+                    data-cy="time-slider-play-button"
+                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
+                    @click="togglePlayYearsWithData"
+                >
+                    <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
+                </button>
+            </div>
         </div>
         <!-- Time slider color tooltip content -->
         <div ref="timeSliderTooltipRef">
@@ -562,6 +567,10 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     .time-slider {
         width: auto;
     }
+
+    .time-slider-play-button {
+        display: none;
+    }
 }
 
 @include respond-above(lg) {
@@ -576,6 +585,10 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
     .time-slider {
         width: 100%;
+    }
+
+    .time-slider-play-button {
+        display: block;
     }
 }
 //
