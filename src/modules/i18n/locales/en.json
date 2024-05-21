@@ -487,7 +487,7 @@
     "time_slider_legend_tippy_intro": "The time slider displays different colors depending on whether the maps have data for the year or not.",
     "time_slider_legend_tippy_full_data": "Complete data",
     "time_slider_legend_tippy_no_data": "No data.",
-    "time_slider_legend_tippy_partial_data": "Partial data.",
+    "time_slider_legend_tippy_partial_data": "Partial data",
     "title": "Title",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Federal Office for Spatial Development ",

@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
+import tippy, { followCursor } from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -185,9 +185,10 @@ onMounted(() => {
         content: `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div><div class="color-tippy-data-none"></div><div>${i18n.t('time_slider_legend_tippy_no_data')}</div></div><div><div class="color-tippy-data-partial"></div><div>${i18n.t('time_slider_legend_tippy_partial_data')}</div></div><div><div class="color-tippy-data-full"></div><div>${i18n.t('time_slider_legend_tippy_full_data')}</div></div>`,
         hideOnClick: true,
         placement: 'bottom',
-        theme: 'light-border',
         delay: [1500, 500],
         allowHTML: true,
+        followCursor: 'horizontal',
+        plugins: [followCursor],
     })
 })
 
@@ -204,14 +205,6 @@ onUnmounted(() => {
         })
     }
 })
-
-function tooltipContent() {
-    return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
-}
-
-function setTooltipContent() {
-    tippyInstance.setContent(tooltipContent)
-}
 
 function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
     if (removePristineStatus) {
