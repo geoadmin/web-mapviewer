@@ -71,7 +71,7 @@ const router = createRouter({
 })
 
 router.onError((error) => {
-    log.error(error)
+    log.error('[Router error] :', error)
 })
 
 appLoadingManagementRouterPlugin(router, store)

@@ -111,8 +111,7 @@ function urlQueryWatcher(store, to, from) {
         routeChangeIsTriggeredByThisModule = false
         return undefined
     }
-    log.debug('[URL query watcher] coming from :', from?.query)
-    log.debug(`[URL query watcher] going to :`, to.query)
+    log.debug(`[URL query watcher] queries 'from' and 'to' are :`, from?.query, to.query)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
@@ -175,8 +174,6 @@ function urlQueryWatcher(store, to, from) {
     }
 
     if (requireQueryUpdate) {
-        // if there is a query update, we won't need to ask the viewer to reload because
-        // of going through the legacy parser.
         log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
@@ -200,11 +197,13 @@ function urlQueryWatcher(store, to, from) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
-        log.debug('[Router store plugin] Entering the store sync plugin')
+        log.debug(
+            `[Router store plugin] Entering the store sync plugin with the following 'from' and 'to': `,
+            from,
+            to
+        )
         // we define a return Value, so we can check across the function what its value is
         let retVal = undefined
-        log.debug('[Router store plugin] We received the following `from` :', from)
-        log.debug('[Router store plugin] We expect to go to the following `to` :', to)
 
         if (!MAP_VIEWS.includes(to.name)) {
             // leaving MapView make sure to unsubscribe the store mutation
@@ -227,11 +226,14 @@ const storeSyncRouterPlugin = (router, store) => {
         // Note we return undefined to validate the route, see Vue Router documentation
         return retVal
     })
-    router.afterEach((to, from) => {
+
+    // There were cases were this mutation subscription would trigger too early after a legacy query.
+    // This would cause the storeMutationWatcher to push a new route with its 'currentRoute' value,
+    // which was LEGACY. By moving this subscription to the after Each loop, we ensure the 'currentRoute'
+    // is always set to MAPVIEW, avoiding a lock of the viewer.
+    router.afterEach((to) => {
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
             log.info('[Router store plugin] Entering MapView, register store mutation watcher')
-            log.warn(router.currentRoute.value.name)
-            log.warn('Router Plugin temporary log ', to.name, from.name)
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) => {
                 if (mutation.type === 'setAppIsReady') {

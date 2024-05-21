@@ -281,9 +281,11 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         )
         let unSubscribeStoreMutation = null
         const unsubscribeRouter = router.beforeEach(async (to, from) => {
-            log.debug('[Legacy URL] entry into the legacy router')
-            log.debug('[Legacy URL] we came from the following route', from)
-            log.debug('[Legacy URL] We should reach the following route', to)
+            log.debug(
+                `[Legacy URL] entry into the legacy router with parameters 'form' and 'to': `,
+                from,
+                to
+            )
 
             if (MAP_VIEWS.includes(to.name) && from === START_LOCATION) {
                 // Redirect to the LegacyParamsView until the app is ready and that the legacy
