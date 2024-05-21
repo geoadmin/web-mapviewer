@@ -233,18 +233,30 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+    setPreviewYearToLayers()
+
+    tippyYearOutsideRange?.destroy()
+    tippyTimeSliderInfo?.destroy()
+})
+
+/** Set the current preview years to the layers if they have the year available in their data */
+function setPreviewYearToLayers() {
     activeLayers.value.forEach((layer, index) => {
-        if (layer.hasMultipleTimestamps) {
+        const year = previewYear.value
+        if (
+            layer.hasMultipleTimestamps &&
+            layer.timeConfig &&
+            layer.timeConfig.getTimeEntryForYear(year)
+        ) {
             store.dispatch('setTimedLayerCurrentYear', {
                 index,
-                year: previewYear.value,
+                year,
                 ...dispatcher,
             })
         }
     })
-    tippyYearOutsideRange?.destroy()
-    tippyTimeSliderInfo?.destroy()
-})
+}
+
 function dispatchPreviewYearToStore() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
