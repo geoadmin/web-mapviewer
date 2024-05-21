@@ -316,7 +316,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         const encodedMap = await encoder.encodeMap({
             map: olMap,
             scale,
-            printResolution: dpi,
+            printResolution: olMap.getView().getResolution(),
             dpi: dpi,
             customizer: customizer,
         })
