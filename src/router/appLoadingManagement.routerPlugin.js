@@ -21,6 +21,7 @@ const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
  * @param {Store} store
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
+    log.debug('[APP LOADING MANAGEMENT ROUTER] entry in app loading management plugin')
     if (!store.state.app.isReady) {
         const isLegacyUrl = isLegacyParams(window?.location?.search)
 
@@ -58,6 +59,8 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             }
         })
     }
+    log.debug('[APP LOADING MANAGEMENT ROUTER] exiting app loading management plugin')
+    return true
 }
 
 export default appLoadingManagementRouterPlugin
