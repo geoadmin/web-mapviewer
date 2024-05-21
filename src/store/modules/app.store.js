@@ -13,13 +13,6 @@ export default {
          * not start before the Map Module is ready.
          */
         isMapReady: false,
-
-        /**
-         * Flag telling if we went through the legacy router. This is useful to force a router
-         * 'next' call in the case we went through the legacy parser and there is no default
-         * parameters.
-         */
-        needReloadBecauseOfLegacy: false,
     },
     getters: {},
     actions: {
@@ -29,14 +22,9 @@ export default {
         mapModuleReady: ({ commit }, { dispatcher }) => {
             commit('mapModuleReady', { dispatcher })
         },
-        setNeedReloadBecauseOfLegacy: ({ commit }, { value, dispatcher }) => {
-            commit('setNeedReloadBecauseOfLegacy', { value, dispatcher })
-        },
     },
     mutations: {
         setAppIsReady: (state) => (state.isReady = true),
         mapModuleReady: (state) => (state.isMapReady = true),
-        setNeedReloadBecauseOfLegacy: (state, { value }) =>
-            (state.needReloadBecauseOfLegacy = value),
     },
 }

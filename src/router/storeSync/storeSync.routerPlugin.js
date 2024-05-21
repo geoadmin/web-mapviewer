@@ -3,7 +3,7 @@ import axios from 'axios'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
-import { LEGACY_VIEWS, MAP_VIEWS } from '@/router/viewNames'
+import { MAP_VIEWS } from '@/router/viewNames'
 import log from '@/utils/logging'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
@@ -62,11 +62,15 @@ function storeMutationWatcher(store, mutation, router) {
             storeSyncConfig.forEach((paramConfig) =>
                 paramConfig.populateQueryWithStoreValue(query, store)
             )
-            log.info('[store sync router] Store has changed, rerouting app to query', query)
+            log.info(
+                '[store sync router] Store has changed, rerouting app to query',
+                query,
+                router.currentRoute.value.name
+            )
             routeChangeIsTriggeredByThisModule = true
             router
                 .push({
-                    name: router.currentRoute.name,
+                    name: router.currentRoute.value.name,
                     query,
                 })
                 .catch((error) => {
@@ -105,9 +109,9 @@ function urlQueryWatcher(store, to, from) {
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
         routeChangeIsTriggeredByThisModule = false
-        return true
+        return undefined
     }
-    log.debug('[URL query watcher] coming from :', from.query)
+    log.debug('[URL query watcher] coming from :', from?.query)
     log.debug(`[URL query watcher] going to :`, to.query)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
@@ -173,32 +177,13 @@ function urlQueryWatcher(store, to, from) {
     if (requireQueryUpdate) {
         // if there is a query update, we won't need to ask the viewer to reload because
         // of going through the legacy parser.
-        store.dispatch('setNeedReloadBecauseOfLegacy', {
-            value: false,
-            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-        })
         log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
         // stays on `/#/`. When manually changing any query param it works though.
         return { name: to.name, query: newQuery }
     }
-    // When coming from the legacy route, if there was no change made to the query through default
-    // parameters not being present, the viewer would change the store, but not the query, staying
-    // in the legacy view and thus, not showing anything. We ensure here that we update the query
-    // if there are changes AND we should go to a different view. We also ensure we're only going
-    // through this only once.
-    if (store.state.app.needReloadBecauseOfLegacy && LEGACY_VIEWS.includes(from?.name)) {
-        store.dispatch('setNeedReloadBecauseOfLegacy', {
-            value: false,
-            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-        })
-        log.debug(
-            '[URL query watcher] Coming from legacy, enforcing a route push to avoid being stuck'
-        )
-        return { name: to.name, query: newQuery }
-    }
-    return true
+    return undefined
 }
 
 /**
@@ -221,8 +206,32 @@ const storeSyncRouterPlugin = (router, store) => {
         log.debug('[Router store plugin] We received the following `from` :', from)
         log.debug('[Router store plugin] We expect to go to the following `to` :', to)
 
+        if (!MAP_VIEWS.includes(to.name)) {
+            // leaving MapView make sure to unsubscribe the store mutation
+            if (unsubscribeStoreMutation) {
+                log.info(
+                    `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
+                )
+
+                unsubscribeStoreMutation()
+                retVal = undefined
+            }
+        }
+        if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
+            // Synchronize the store with the url query only on MapView and when the application
+            // is ready
+            retVal = urlQueryWatcher(store, to, from)
+        }
+
+        log.debug('[Router store plugin] exiting navigation guard with the following value', retVal)
+        // Note we return undefined to validate the route, see Vue Router documentation
+        return retVal
+    })
+    router.afterEach((to, from) => {
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
             log.info('[Router store plugin] Entering MapView, register store mutation watcher')
+            log.warn(router.currentRoute.value.name)
+            log.warn('Router Plugin temporary log ', to.name, from.name)
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) => {
                 if (mutation.type === 'setAppIsReady') {
@@ -237,26 +246,7 @@ const storeSyncRouterPlugin = (router, store) => {
                     storeMutationWatcher(store, mutation, router)
                 }
             })
-        } else if (!MAP_VIEWS.includes(to.name)) {
-            // leaving MapView make sure to unsubscribe the store mutation
-            if (unsubscribeStoreMutation) {
-                log.info(
-                    `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
-                )
-
-                unsubscribeStoreMutation()
-                retVal = true
-            }
         }
-        if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
-            // Synchronize the store with the url query only on MapView and when the application
-            // is ready
-            retVal = urlQueryWatcher(store, to, from)
-        }
-
-        log.debug('[Router store plugin] exiting navigation guard with the following value', retVal)
-        // Note we return undefined to validate the route, see Vue Router documentation
-        return retVal
     })
 }
 

@@ -23,8 +23,6 @@ import {
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 
-const dispatcher = { dispatcher: 'legacyPermalinkManagement.routerPlugin' }
-
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
     const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams.get('adminId'))
@@ -271,10 +269,6 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         ? new URLSearchParams(window?.location?.search)
         : null
     if (legacyParams) {
-        store.dispatch('setNeedReloadBecauseOfLegacy', {
-            value: true,
-            ...dispatcher,
-        })
         // NOTE: the legacy embed view was at /embed.html. Unfortunately we cannot in this application
         // reroute to another path before the #, because the vue router using the createWebHashHistory
         // can only handle route after the hash. Therefore we have an external redirect service
