@@ -366,13 +366,14 @@ async function transformOlMapToPrintParams(olMap, config) {
                 },
             })
         }
-
+        const now = i18n.global.d(new Date(), 'datetime', i18n.global.locale)
         const spec = {
             attributes: {
                 map: encodedMap,
                 copyright: attributionsOneLine,
                 url: shortLink,
                 qrimage: qrCodeUrl,
+                printDate: now,
             },
             format: 'pdf',
             layout: layout.name,
