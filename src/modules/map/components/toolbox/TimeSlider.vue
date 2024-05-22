@@ -34,6 +34,7 @@ let yearCursorIsGrabbed = false
 let playYearInterval = null
 
 // refs to dom elements
+const timeSliderTooltipRef = ref(null)
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
 const timeSliderBar = ref(null)
@@ -53,6 +54,9 @@ const invalidYear = computed(
         displayedYear.value != previewYear.value &&
         displayedYear.value.toString().length == 4 &&
         !allYears.value.includes(parseInt(displayedYear.value))
+)
+const tippyYearOutsideRangeContent = computed(
+    () => `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
 )
 
 /**
@@ -133,12 +137,7 @@ watch(invalidYear, () => {
 })
 
 watch(lang, () => {
-    tippyYearOutsideRange.setContent(
-        `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
-    )
-    tippyTimeSliderInfo.setContent(
-        `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div><div class="color-tippy-data-none"></div><div>${i18n.t('time_slider_legend_tippy_no_data')}</div></div><div><div class="color-tippy-data-partial"></div><div>${i18n.t('time_slider_legend_tippy_partial_data')}</div></div><div><div class="color-tippy-data-full"></div><div>${i18n.t('time_slider_legend_tippy_full_data')}</div></div>`
-    )
+    tippyYearOutsideRange.setContent(tippyYearOutsideRangeContent.value)
 })
 
 watch(previewYear, (newValue) => {
@@ -174,7 +173,7 @@ onMounted(() => {
         currentYear.value = previewYear.value
     }
     tippyYearOutsideRange = tippy(yearCursorInput.value, {
-        content: `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`,
+        content: tippyYearOutsideRangeContent.value,
         arrow: true,
         hideOnClick: false,
         placement: 'bottom',
@@ -182,13 +181,15 @@ onMounted(() => {
         theme: 'danger',
     })
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
-        content: `<div>${i18n.t('time_slider_legend_tippy_intro')}</div><div><div class="color-tippy-data-none"></div><div>${i18n.t('time_slider_legend_tippy_no_data')}</div></div><div><div class="color-tippy-data-partial"></div><div>${i18n.t('time_slider_legend_tippy_partial_data')}</div></div><div><div class="color-tippy-data-full"></div><div>${i18n.t('time_slider_legend_tippy_full_data')}</div></div>`,
+        content: timeSliderTooltipRef.value,
         hideOnClick: true,
         placement: 'bottom',
         delay: [1500, 500],
         allowHTML: true,
-        followCursor: 'horizontal',
+        followCursor: 'initial',
         plugins: [followCursor],
+        // Show tippy on long touch for mobile device
+        touch: ['hold', 500], // 500ms delay,
     })
 })
 
@@ -204,6 +205,8 @@ onUnmounted(() => {
             }
         })
     }
+    tippyYearOutsideRange?.destroy()
+    tippyTimeSliderInfo?.destroy()
 })
 
 function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
@@ -385,7 +388,7 @@ function setYearToInputIfValid() {
                 <div
                     v-if="yearsShownAsLabel.length > 0"
                     ref="timeSliderBar"
-                    class="time-slider-bar-inner d-flex mt-5 mx-1"
+                    class="time-slider-bar-inner d-flex mt-5"
                     :style="innerBarStyle"
                 >
                     <span
@@ -423,6 +426,24 @@ function setYearToInputIfValid() {
             >
                 <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
             </button>
+        </div>
+        <!-- Time slider color tooltip content -->
+        <div ref="timeSliderTooltipRef">
+            <div class="mb-2">{{ i18n.t('time_slider_legend_tippy_intro') }}</div>
+            <div class="ps-3">
+                <div class="mb-1">
+                    <div class="color-tippy-data-none me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_no_data') }}</div>
+                </div>
+                <div class="mb-1">
+                    <div class="color-tippy-data-partial me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_partial_data') }}</div>
+                </div>
+                <div>
+                    <div class="color-tippy-data-full me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_full_data') }}</div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
