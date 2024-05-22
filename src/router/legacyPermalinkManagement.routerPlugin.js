@@ -281,6 +281,12 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         )
         let unSubscribeStoreMutation = null
         const unsubscribeRouter = router.beforeEach(async (to, from) => {
+            log.debug(
+                `[Legacy URL] entry into the legacy router with parameters 'form' and 'to': `,
+                from,
+                to
+            )
+
             if (MAP_VIEWS.includes(to.name) && from === START_LOCATION) {
                 // Redirect to the LegacyParamsView until the app is ready and that the legacy
                 // params have been parsed and converted. This is needed in order to postpone the
@@ -307,7 +313,9 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         router.replace(newRoute)
                     }
                 })
-
+                log.debug(
+                    `[Legacy URL]: redirect between embed legacy view or standard legacy view`
+                )
                 return {
                     name: legacyEmbed ? LEGACY_EMBED_PARAM_VIEW : LEGACY_PARAM_VIEW,
                     replace: true,
@@ -315,10 +323,12 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
             }
 
             if (MAP_VIEWS.includes(to.name) && LEGACY_VIEWS.includes(from.name)) {
-                log.debug('[Legacy URL] leaving the legacy URL plugin')
+                log.info('[Legacy URL] Work is done, unsuscribing from the mutations')
                 unsubscribeRouter()
                 unSubscribeStoreMutation()
             }
+            log.debug('[Legacy URL] exiting the Legacy URL router.')
+            return true
         })
     }
 }

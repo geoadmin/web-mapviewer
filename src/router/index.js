@@ -11,6 +11,7 @@ import {
     MAP_VIEW,
 } from '@/router/viewNames'
 import store from '@/store'
+import log from '@/utils/logging'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
@@ -67,6 +68,10 @@ const router = createRouter({
     ],
     parseQuery: parseQuery,
     stringifyQuery: stringifyQuery,
+})
+
+router.onError((error) => {
+    log.error('[Router error] :', error)
 })
 
 appLoadingManagementRouterPlugin(router, store)

@@ -20,7 +20,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 /**
  * Returns timestamp for WMS or WMTS layer from config data
  *
- * @param {GeoAdminWMSLayer | GeoAdminWMTSLayer} config
+ * @param {AbstractLayer} config
  * @param {Number} previewYear
  * @param {Boolean} isTimeSliderActive
  * @returns {String | null | LayerTimeConfig.currentTimeEntry.timestamp}
@@ -46,14 +46,22 @@ export function getTimestampFromConfig(config, previewYear, isTimeSliderActive) 
 /**
  * @param {GeoAdminWMTSLayer | ExternalWMTSLayer} wmtsLayerConfig
  * @param {CoordinateSystem} projection
- * @param {Number} previewYear
- * @param {Boolean} isTimeSliderActive
+ * @param {Boolean} [options.addTimestamp=false] Add the timestamp from the time config or the
+ *   timeslider to the ur. When false the timestamp is set to `{Time}` and need to processed later
+ *   on. Default is `false`
+ * @param {Number | null} [options.previewYear=null] Default is `null`
+ * @param {Boolean | null} [options.isTimeSliderActive=false] Default is `false`
  * @returns {String | null}
  */
-export function getWmtsXyzUrl(wmtsLayerConfig, projection, previewYear, isTimeSliderActive) {
+export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
+    const { addTimestamp = false, previewYear = null, isTimeSliderActive = false } = options ?? {}
     if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
-        const timestamp =
-            getTimestampFromConfig(wmtsLayerConfig, previewYear, isTimeSliderActive) ?? 'current'
+        let timestamp = '{Time}'
+        if (addTimestamp) {
+            timestamp =
+                getTimestampFromConfig(wmtsLayerConfig, previewYear, isTimeSliderActive) ??
+                'current'
+        }
 
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.id

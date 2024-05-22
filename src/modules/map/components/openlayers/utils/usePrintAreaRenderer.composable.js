@@ -1,50 +1,11 @@
-import { Feature } from 'ol'
-import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { Fill, Style } from 'ol/style'
+import { getRenderPixel } from 'ol/render'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import log from '@/utils/logging'
 
-import { PRINT_AREA_LAYER_ID } from './printConstants'
-
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
-
-function createWorldPolygon() {
-    // Create a polygon feature covering the whole world in EPSG:4326
-    const worldPolygon = new Feature({
-        geometry: new Polygon([
-            [
-                [-180, -90], // Bottom-left corner
-                [180, -90], // Bottom-right corner
-                [180, 90], // Top-right corner
-                [-180, 90], // Top-left corner
-                [-180, -90], // Bottom-left corner
-            ],
-        ]).transform('EPSG:4326', 'EPSG:3857'),
-    })
-
-    // Define a transparent style for the polygon
-    const transparentStyle = new Style({
-        fill: new Fill({
-            color: 'rgba(255, 255, 255, 0)',
-        }),
-    })
-
-    // Create a VectorLayer outside the map creation
-    const vectorLayer = new VectorLayer({
-        source: new VectorSource({
-            features: [worldPolygon],
-        }),
-        style: transparentStyle,
-        id: PRINT_AREA_LAYER_ID,
-        zIndex: Infinity, // Make sure the print area is always on top
-    })
-    return vectorLayer
-}
 
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
@@ -53,7 +14,6 @@ export default function usePrintAreaRenderer(map) {
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
     const UNITS_RATIO = 39.37 // inches per meter
-    let worldPolygon = null
     let printRectangle = []
 
     const isActive = computed(() => store.state.print.printSectionShown)
@@ -63,7 +23,6 @@ export default function usePrintAreaRenderer(map) {
     const mapWidth = computed(() => store.state.ui.width)
     // Same here for simplicity we take the screen size minus the header size for the map size
     const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight)
-    const headerHeight = computed(() => store.state.ui.headerHeight)
 
     watch(isActive, (newValue) => {
         if (newValue) {
@@ -74,13 +33,9 @@ export default function usePrintAreaRenderer(map) {
     })
 
     function activatePrintArea() {
-        if (!worldPolygon) {
-            worldPolygon = createWorldPolygon()
-        }
-        map.addLayer(worldPolygon)
         deregister = [
-            worldPolygon.on('prerender', handlePreRender),
-            worldPolygon.on('postrender', handlePostRender),
+            map.getAllLayers()[0].on('prerender', handlePreRender),
+            map.getAllLayers()[0].on('postrender', handlePostRender),
             watch(printLayoutSize, async () => {
                 await store.dispatch('setSelectedScale', {
                     scale: getOptimalScale(),
@@ -104,7 +59,6 @@ export default function usePrintAreaRenderer(map) {
     }
 
     function deactivatePrintArea() {
-        map.removeLayer(worldPolygon)
         while (deregister.length > 0) {
             const item = deregister.pop()
             if (typeof item === 'function') {
@@ -141,11 +95,9 @@ export default function usePrintAreaRenderer(map) {
         ]
 
         const minx = center[0] - w / 2
-        // here we move the center down due to the header that overlap the map
-        const miny = center[1] - h / 2 + headerHeight.value
+        const miny = center[1] - h / 2
         const maxx = center[0] + w / 2
-        // here we move the center down due to the header that overlap the map
-        const maxy = center[1] + h / 2 + headerHeight.value
+        const maxy = center[1] + h / 2
         return [minx, miny, maxx, maxy]
     }
 
@@ -170,20 +122,19 @@ export default function usePrintAreaRenderer(map) {
         context.save()
 
         context.beginPath()
-        // Outside polygon, must be clockwise
-        context.moveTo(0, 0)
-        context.lineTo(width, 0)
-        context.lineTo(width, height)
-        context.lineTo(0, height)
-        context.lineTo(0, 0)
-        context.closePath()
 
-        // Inner polygon,must be counter-clockwise
-        context.moveTo(minx, miny)
-        context.lineTo(minx, maxy)
-        context.lineTo(maxx, maxy)
-        context.lineTo(maxx, miny)
-        context.lineTo(minx, miny)
+        // Outside polygon, must be clockwise
+        context.moveTo(...getRenderPixel(event, [0, 0]))
+        context.lineTo(...getRenderPixel(event, [width, 0]))
+        context.lineTo(...getRenderPixel(event, [width, height]))
+        context.lineTo(...getRenderPixel(event, [0, height]))
+
+        // Inner polygon, must be counter-clockwise
+        context.moveTo(...getRenderPixel(event, [minx, miny]))
+        context.lineTo(...getRenderPixel(event, [minx, maxy]))
+        context.lineTo(...getRenderPixel(event, [maxx, maxy]))
+        context.lineTo(...getRenderPixel(event, [maxx, miny]))
+
         context.closePath()
 
         context.fillStyle = 'rgba(0, 5, 25, 0.75)'

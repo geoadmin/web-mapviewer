@@ -11,6 +11,7 @@ export default defineConfig({
     defaultCommandTimeout: 5000,
     requestTimeout: 5000,
     numTestsKeptInMemory: 2,
+    watchForFileChanges: false, // Prevent auto run on file changes
 
     retries: {
         runMode: 3,

@@ -105,13 +105,23 @@ export default class WMSCapabilitiesParser {
      *
      * @param {string} layerId Layer ID of the layer to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
-     * @param {number} opacity
-     * @param {boolean} visible
-     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
-     *   value or null
+     * @param {number} [opacity=1] Default is `1`
+     * @param {boolean} [visible=true] Default is `true`
+     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
+     *   needed when a time config is present a year is pre-selected in the url parameter. Default
+     *   is `null`
+     * @param {boolean} [ignoreError=true] Don't throw exception in case of error, but return a
+     *   default value or null. Default is `true`
      * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or nul in case of error
      */
-    getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
+    getExternalLayerObject(
+        layerId,
+        projection,
+        opacity = 1,
+        visible = true,
+        currentYear = null,
+        ignoreError = true
+    ) {
         const { layer, parents } = this.findLayer(layerId)
         if (!layer) {
             const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
@@ -127,6 +137,7 @@ export default class WMSCapabilitiesParser {
             projection,
             opacity,
             visible,
+            currentYear,
             ignoreError
         )
     }
@@ -155,7 +166,15 @@ export default class WMSCapabilitiesParser {
         ).filter((layer) => !!layer)
     }
 
-    _getExternalLayerObject(layer, parents, projection, opacity, visible, ignoreError) {
+    _getExternalLayerObject(
+        layer,
+        parents,
+        projection,
+        opacity,
+        visible,
+        currentYear,
+        ignoreError
+    ) {
         const {
             layerId,
             title,
@@ -200,6 +219,7 @@ export default class WMSCapabilitiesParser {
                 isLoading: false,
                 availableProjections,
                 getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
+                currentYear,
             })
         }
         return new ExternalWMSLayer({
@@ -218,6 +238,7 @@ export default class WMSCapabilitiesParser {
             availableProjections,
             hasTooltip: queryable,
             getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
+            currentYear,
         })
     }
 

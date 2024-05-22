@@ -9,7 +9,7 @@ export default {
         isReady: false,
 
         /**
-         * Flag telling that the Map Module is ready. This is usefull for E2E testing which should
+         * Flag telling that the Map Module is ready. This is useful for E2E testing which should
          * not start before the Map Module is ready.
          */
         isMapReady: false,

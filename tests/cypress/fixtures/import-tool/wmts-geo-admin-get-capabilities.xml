@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+<Capabilities
+    version="1.0.0"
+    xmlns="http://www.opengis.net/wmts/1.0"
+    xmlns:gml="http://www.opengis.net/gml"
     xmlns:ows="http://www.opengis.net/ows/1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
-    version="1.0.0">
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd">
 
     <!-- Service Identification -->
     <ows:ServiceIdentification>
@@ -104,6 +106,12 @@
                 <ows:Identifier>default</ows:Identifier>
             </Style>
             <Format>image/png</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>20081024</Default>
+                <Value>20110805</Value>
+                <Value>20081024</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:4326</TileMatrixSet>
             </TileMatrixSetLink>
@@ -123,6 +131,12 @@
                 <ows:Identifier>default</ows:Identifier>
             </Style>
             <Format>image/png</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>2011-08-05T01:20:34.345Z</Default>
+                <Value>2011-08-05T01:20:34.345Z</Value>
+                <Value>2008-10-24T01:20:34.345Z</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:4326</TileMatrixSet>
             </TileMatrixSetLink>
@@ -142,6 +156,12 @@
                 <ows:Identifier>default</ows:Identifier>
             </Style>
             <Format>image/png</Format>
+            <Dimension>
+                <ows:Identifier>Time</ows:Identifier>
+                <Default>Time-B-is-very-long-timestamp</Default>
+                <Value>Time-A</Value>
+                <Value>Time-B-is-very-long-timestamp</Value>
+            </Dimension>
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:2056</TileMatrixSet>
             </TileMatrixSetLink>

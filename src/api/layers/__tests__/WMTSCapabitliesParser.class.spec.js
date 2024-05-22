@@ -219,4 +219,75 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
         expect(layer.legends[0].format).toBe('image/png')
     })
+    it('Parse layer time dimension in format YYYYMMDD', () => {
+        let layer = capabilities.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
+        expect(layer.id).toBe('BlueMarbleSecondGenerationAG')
+        expect(layer.timeConfig).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.hasTimestamp('20110805')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('20081024')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('20081023')).to.be.false
+
+        expect(layer.timeConfig.getTimeEntryForYear(2008)).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.getTimeEntryForYear(2005)).to.be.null
+
+        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('20110805')
+        expect(layer.timeConfig.currentTimeEntry.year).toBe(2011)
+        expect(layer.timeConfig.currentYear).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentYear).toBe(2011)
+        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimestamp).toBe('20110805')
+    })
+    it('Parse layer time dimension in format ISO format YYYY-MM-DD', () => {
+        let layer = capabilities.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
+        expect(layer.id).toBe('BlueMarbleThirdGenerationZH')
+        expect(layer.timeConfig).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.hasTimestamp('2011-08-05')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('2008-10-24')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('2008-10-23')).to.be.false
+
+        expect(layer.timeConfig.getTimeEntryForYear(2008)).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.getTimeEntryForYear(2005)).to.be.null
+
+        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('2011-08-05')
+        expect(layer.timeConfig.currentTimeEntry.year).toBe(2011)
+        expect(layer.timeConfig.currentYear).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentYear).toBe(2011)
+        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimestamp).toBe('2011-08-05')
+    })
+    it('Parse layer time dimension in format full ISO format YYYY-MM-DDTHH:mm:ss.sssZ', () => {
+        let layer = capabilities.getExternalLayerObject('BlueMarbleFourthGenerationJU', WGS84)
+        expect(layer.id).toBe('BlueMarbleFourthGenerationJU')
+        expect(layer.timeConfig).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.hasTimestamp('2011-08-05T01:20:34.345Z')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('2008-10-24T01:20:34.345Z')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('2008-10-23T01:20:34.345Z')).to.be.false
+
+        expect(layer.timeConfig.getTimeEntryForYear(2008)).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.getTimeEntryForYear(2005)).to.be.null
+
+        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('2011-08-05T01:20:34.345Z')
+        expect(layer.timeConfig.currentTimeEntry.year).toBe(2011)
+        expect(layer.timeConfig.currentYear).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentYear).toBe(2011)
+        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimestamp).toBe('2011-08-05T01:20:34.345Z')
+    })
+    it('Parse layer time dimension in unknown format', () => {
+        let layer = capabilities.getExternalLayerObject('BlueMarbleFifthGenerationGE', WGS84)
+        expect(layer.id).toBe('BlueMarbleFifthGenerationGE')
+        expect(layer.timeConfig).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.hasTimestamp('Time A')).to.be.true
+        expect(layer.timeConfig.hasTimestamp('Time B')).to.be.true
+
+        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('Time A')
+        expect(layer.timeConfig.currentTimeEntry.year).to.be.null
+        expect(layer.timeConfig.currentYear).to.be.null
+        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer.timeConfig.currentTimestamp).toBe('Time A')
+    })
 })

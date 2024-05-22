@@ -495,6 +495,53 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="layer-copyright-My Organization"]')
             .should('be.visible')
             .contains('My Organization')
+
+        //---------------------------------------------------------------------
+        cy.log('Check time series layers')
+        cy.get('[data-cy="menu-button"]:visible').click()
+        cy.get('[data-cy="time-selector-layer1-0"]').should('not.exist')
+        cy.get('[data-cy="time-selector-layer2-1"]').should('be.visible').contains(2008).click()
+        cy.get('[data-cy="time-select-20081024"]').should('be.visible').contains(2008)
+        cy.get('[data-cy="time-select-20110805"]').should('be.visible').contains(2011).click()
+        cy.get('[data-cy="time-selector-layer2-1"]').should('be.visible').contains(2011)
+
+        // Add a layer with non standard timestamp
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        const layer4Name = 'Layer 4'
+        const layer4Id = 'layer4'
+
+        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`)
+            .should('be.visible')
+            .contains(layer4Name)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer4Id}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer4Id}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer4Id}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer4Id}"]`).should(
+            'have.class',
+            'text-primary'
+        )
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer4Id}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
+
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+        cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
+        cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Reload and check that everything is still present')
+        cy.reload()
+        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="active-layer-name-layer1-0"]').should('be.visible')
+        cy.get('[data-cy="time-selector-layer1-0"]').should('not.exist')
+        cy.get('[data-cy="active-layer-name-layer2-1"]').should('be.visible')
+        cy.get('[data-cy="time-selector-layer2-1"]').should('be.visible').contains(2011)
+        cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
+        cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
     })
     it('handles error correctly', () => {
         //-----------------------------------------------------------------------------------------

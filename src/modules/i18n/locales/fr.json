@@ -484,6 +484,10 @@
     "time_hide": "Désactiver l'outil de représentation historique des données.",
     "time_select_year": "Choisissez une année",
     "time_show": "Activer l'outil de représentation historique des données.",
+    "time_slider_legend_tippy_intro": "Le curseur de temps affiche différentes couleurs selon si les cartes temporelles disposent de données ou non.",
+    "time_slider_legend_tippy_full_data": "Données complètes",
+    "time_slider_legend_tippy_no_data": "Aucune donnée",
+    "time_slider_legend_tippy_partial_data": "Données partielles",
     "title": "Titre",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Office fédéral du développement territorial ",
@@ -672,5 +676,9 @@
     "no_email": "Le champ email est requis",
     "file_unsupported_format": "Ce format de fichier n'est pas pris en charge. Seuls les formats suivants sont autorisés : ALLOWED_FORMATS",
     "form_invalid": "Le formulaire est invalide",
-    "file_imported_success": "Fichier importé avec succès"
+    "file_imported_success": "Fichier importé avec succès",
+    "3d_labels": "Noms géographiques",
+    "3d_vegetation": "Végétations",
+    "3d_constructions": "Bâtiments et constructions",
+    "webmapviewer_live_disclaimer": "De grands changements sont à venir, <a target='_blank' href='https://www.swisstopo.admin.ch/fr'>en savoir plus</a>"
 }

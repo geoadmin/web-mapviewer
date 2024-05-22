@@ -113,14 +113,13 @@ export default class GeoAdminLayer extends AbstractLayer {
             isLoading,
             hasDescription,
             hasLegend,
+            timeConfig,
         })
         this.technicalName = technicalName
         this.isBackground = isBackground
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
-        this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.searchable = searchable
     }
 

@@ -48,6 +48,12 @@ export default {
          * @type Boolean
          */
         showConstructions: true,
+        /**
+         * Flag telling if the 3D viewer should show the labels ()
+         *
+         * @type Boolean
+         */
+        showLabels: true,
     },
     getters: {
         backgroundLayersFor3D(state, _, rootState) {
@@ -56,8 +62,10 @@ export default {
             if (backgroundLayer) {
                 bgLayers.push(backgroundLayer)
             }
-            // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯
-            bgLayers.push(labelLayer)
+            if (state.showLabels) {
+                // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯
+                bgLayers.push(labelLayer)
+            }
             if (state.showBuildings) {
                 bgLayers.push(buildingsLayer)
             }
@@ -83,8 +91,26 @@ export default {
                 dispatcher,
             })
         },
+        toggleShow3dConstructionsBuildings({ commit, state }, { dispatcher }) {
+            commit('setShowConstructionsBuildings', {
+                showConstructionsBuildings: !(state.showConstructions || state.showBuildings),
+                dispatcher,
+            })
+        },
         toggleShow3dVegetation({ commit, state }, { dispatcher }) {
             commit('setShowVegetation', { showVegetation: !state.showVegetation, dispatcher })
+        },
+        setShowConstructionsBuildings({ commit }, { showConstructionsBuildings, dispatcher }) {
+            commit('setShowConstructionsBuildings', {
+                showConstructionsBuildings,
+                dispatcher,
+            })
+        },
+        setShowVegetation({ commit }, { showVegetation, dispatcher }) {
+            commit('setShowVegetation', { showVegetation, dispatcher })
+        },
+        setShowLabels({ commit }, { showLabels, dispatcher }) {
+            commit('setShowLabels', { showLabels, dispatcher })
         },
     },
     mutations: {
@@ -93,5 +119,10 @@ export default {
         setShowConstructions: (state, { showConstructions }) =>
             (state.showConstructions = showConstructions),
         setShowVegetation: (state, { showVegetation }) => (state.showVegetation = showVegetation),
+        setShowConstructionsBuildings: (state, { showConstructionsBuildings }) => {
+            state.showBuildings = showConstructionsBuildings
+            state.showConstructions = showConstructionsBuildings
+        },
+        setShowLabels: (state, { showLabels }) => (state.showLabels = showLabels),
     },
 }

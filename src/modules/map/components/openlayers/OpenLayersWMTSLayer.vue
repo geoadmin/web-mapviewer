@@ -8,6 +8,7 @@ import { useStore } from 'vuex'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
+import log from '@/utils/logging'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -45,9 +46,6 @@ const timestamp = computed(
 )
 const wmtsSourceConfig = computed(() => {
     return {
-        dimensions: {
-            Time: timestamp.value,
-        },
         // No local cache, so that our CloudFront cache is always used. Was creating an issue on mf-geoadmin3, see :
         // https://github.com/geoadmin/mf-geoadmin3/issues/3491
         cacheSize: 0,
@@ -61,6 +59,9 @@ const wmtsSourceConfig = computed(() => {
         // so that XYZ values will be filled as TileCol, TileRow and TileMatrix in the URL (see getWMTSUrl below)
         requestEncoding: 'REST',
     }
+})
+const wmtsTimeConfig = computed(() => {
+    return { dimensions: { Time: timestamp.value } }
 })
 
 const layer = new TileLayer({
@@ -77,14 +78,13 @@ useAddLayerToMap(layer, olMap, zIndex)
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
 watch(wmtsSourceConfig, () => layer.setSource(createWMTSSourceForProjection()), { deep: true })
+watch(wmtsTimeConfig, () => {
+    log.debug('Update wmts dimension', wmtsTimeConfig.value)
+    layer.getSource().updateDimensions(wmtsTimeConfig.value.dimensions)
+})
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(
-        wmtsLayerConfig.value,
-        projection.value,
-        previewYear.value,
-        isTimeSliderActive.value
-    )
+    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value)
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')
@@ -117,7 +117,8 @@ function createTileGridForProjection() {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
-    return new WMTSSource(wmtsSourceConfig.value)
+    log.debug('Create new WMTS source for projection', wmtsSourceConfig.value, wmtsTimeConfig.value)
+    return new WMTSSource({ ...wmtsSourceConfig.value, ...wmtsTimeConfig.value })
 }
 </script>
 

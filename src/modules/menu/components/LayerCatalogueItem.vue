@@ -234,7 +234,12 @@ function containsLayer(layers, searchText) {
 </script>
 
 <template>
-    <div v-show="showItem" class="menu-catalogue-item" :data-cy="`catalogue-tree-item-${item.id}`">
+    <div
+        v-show="showItem"
+        class="menu-catalogue-item"
+        :class="{ compact: compact }"
+        :data-cy="`catalogue-tree-item-${item.id}`"
+    >
         <div
             class="menu-catalogue-item-title ps-2"
             :class="{ group: hasChildren }"
@@ -244,7 +249,7 @@ function containsLayer(layers, searchText) {
         >
             <button
                 v-if="canBeAddedToTheMap"
-                class="btn border-0"
+                class="btn border-0 d-flex align-items-center"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -258,7 +263,7 @@ function containsLayer(layers, searchText) {
             </button>
             <button
                 v-if="hasChildren"
-                class="btn border-0"
+                class="btn border-0 d-flex align-items-center"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -280,7 +285,7 @@ function containsLayer(layers, searchText) {
             </TextTruncate>
             <button
                 v-if="item.extent?.length"
-                class="btn"
+                class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`catalogue-zoom-extent-button-${item.id}`"
                 @click.stop="zoomToLayer"
@@ -289,7 +294,7 @@ function containsLayer(layers, searchText) {
             </button>
             <button
                 v-if="hasDescription"
-                class="btn"
+                class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`catalogue-tree-item-info-${item.id}`"
                 @click.stop="showLayerDescription = true"
