@@ -57,12 +57,11 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         url() {
-            return getWmtsXyzUrl(
-                this.wmtsLayerConfig,
-                this.projection,
-                this.previewYear,
-                this.isTimeSliderActive
-            )
+            return getWmtsXyzUrl(this.wmtsLayerConfig, this.projection, {
+                addTimestamp: true,
+                previewYear: this.previewYear,
+                isTimeSliderActive: this.isTimeSliderActive,
+            })
         },
         tileMatrixSet() {
             const set =
