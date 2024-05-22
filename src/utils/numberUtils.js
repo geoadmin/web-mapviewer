@@ -86,7 +86,7 @@ export function format(value, decimal = 2) {
 }
 
 /**
- * Returns a string representing a number with the right thousand seaprator
+ * Returns a string representing a number with the right thousand separator
  *
  * @param {Number} num A number
  * @param {String} separator The thousand separator, default to "'"

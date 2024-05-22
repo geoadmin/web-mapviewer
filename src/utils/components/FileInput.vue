@@ -19,6 +19,7 @@ import {
     propsValidator4ValidateFunc,
     useFieldValidation,
 } from '@/utils/composables/useFieldValidation'
+import { humanFileSize } from '@/utils/utils'
 
 // On each component creation set the current component ID and increase the counter
 const inputFileId = useComponentUniqueId('file-input', components)
@@ -193,6 +194,7 @@ const InputLocalFile = ref(null)
 const filePathInfo = computed(() =>
     value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
 )
+const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize.value))
 
 // Methods
 function validateFile() {
@@ -265,7 +267,10 @@ function onFileSelected(evt) {
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    i18n.t(invalidMessage).replace('ALLOWED_FORMATS', acceptedFileTypes.join(', '))
+                    i18n
+                        .t(invalidMessage)
+                        .replace('ALLOWED_FORMATS', acceptedFileTypes.join(', '))
+                        .replace('MAX_FILE_SIZE', maxFileSizeHuman)
                 }}
             </div>
             <div v-if="validMessage" class="valid-feedback" data-cy="file-input-valid-feedback">

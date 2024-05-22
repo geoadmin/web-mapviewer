@@ -199,7 +199,7 @@
     "feedback_success_message": "Votre message a été envoyé avec succès. Merci.",
     "feedback_unsupported_format": "Le format du fichier n’est pas pris en charge, merci d’utiliser un autre format pour votre pièce jointe.",
     "file_is_not_kml": "Ce fichier n'est pas un fichier KML.",
-    "file_too_large": "Ce fichier est trop volumineux",
+    "file_too_large": "Ce fichier est trop volumineux (taille maximale autorisée : MAX_FILE_SIZE)",
     "follow_us": "Suivez-nous",
     "full_screen": "Plein écran",
     "funksender": "Emetteur radio",
@@ -680,5 +680,6 @@
     "3d_labels": "Noms géographiques",
     "3d_vegetation": "Végétations",
     "3d_constructions": "Bâtiments et constructions",
-    "webmapviewer_live_disclaimer": "De grands changements sont à venir, <a target='_blank' href='https://www.swisstopo.admin.ch/fr'>en savoir plus</a>"
+    "webmapviewer_live_disclaimer": "De grands changements sont à venir, <a target='_blank' href='https://www.swisstopo.admin.ch/fr'>en savoir plus</a>",
+    "drawing_too_large": "Ton dessin est trop grand, enlève quelques éléments"
 }

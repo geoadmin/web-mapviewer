@@ -197,7 +197,7 @@
     "feedback_success_message": "Rapport trasmess cun success. Grazia.",
     "feedback_unsupported_format": "Tip da datoteca betg supportà. Duvrai empè da quai pdf, .zip, .jpg, .jpeg, .kml, .kmz u .gpx",
     "file_is_not_kml": "Questa datoteca nun è ina datoteca KML",
-    "file_too_large": "Questa datoteca è memia grond",
+    "file_too_large": "Questa datoteca è memia grond (grondezza maximala lubida: MAX_FILE_SIZE)",
     "follow_us": "Giais suenter a nus",
     "full_screen": "Maletg entir",
     "funksender": "Emettur radiofonic ",
@@ -678,5 +678,6 @@
     "3d_labels": "Numns geografics",
     "3d_vegetation": "Vegietaziun",
     "3d_constructions": "Edifizis ed installaziuns",
-    "webmapviewer_live_disclaimer": "Grondas midadas vegnan prest, <a target='_blank' href='https://www.swisstopo.admin.ch/de'>emprender dapli</a>"
+    "webmapviewer_live_disclaimer": "Grondas midadas vegnan prest, <a target='_blank' href='https://www.swisstopo.admin.ch/de'>emprender dapli</a>",
+    "drawing_too_large": "Tes dissegn è memia grond, allontanescha intgins detagls"
 }

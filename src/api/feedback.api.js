@@ -5,6 +5,10 @@ import { createShortLink } from '@/api/shortlink.api'
 import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
 import log from '@/utils/logging'
 
+/** Maximum size allowed by the backend, can be used to do validation up front */
+export const ATTACHMENT_MAX_SIZE = 10 * 1024 * 1024
+export const KML_MAX_SIZE = 2 * 1024 * 1024
+
 /**
  * @param {String} subject Mandatory
  * @param {String} text Mandatory
