@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
+import tippy, { followCursor } from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -22,7 +22,6 @@ const ALL_YEARS = (() => {
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
-
 // dynamic internal data
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
@@ -35,12 +34,13 @@ let yearCursorIsGrabbed = false
 let playYearInterval = null
 
 // refs to dom elements
+const timeSliderTooltipRef = ref(null)
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
-
+const timeSliderBar = ref(null)
 const yearCursorInput = ref(null)
-let tippyInstance = null
-
+let tippyYearOutsideRange = null
+let tippyTimeSliderInfo = null
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
@@ -54,6 +54,9 @@ const invalidYear = computed(
         displayedYear.value != previewYear.value &&
         displayedYear.value.toString().length == 4 &&
         !allYears.value.includes(parseInt(displayedYear.value))
+)
+const tippyYearOutsideRangeContent = computed(
+    () => `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
 )
 
 /**
@@ -127,12 +130,15 @@ watch(currentYear, () => {
 })
 watch(invalidYear, () => {
     if (invalidYear.value) {
-        tippyInstance.show()
+        tippyYearOutsideRange.show()
     } else {
-        tippyInstance.hide()
+        tippyYearOutsideRange.hide()
     }
 })
-watch(lang, setTooltipContent)
+
+watch(lang, () => {
+    tippyYearOutsideRange.setContent(tippyYearOutsideRangeContent.value)
+})
 
 watch(previewYear, (newValue) => {
     currentYear.value = newValue
@@ -166,13 +172,24 @@ onMounted(() => {
     } else {
         currentYear.value = previewYear.value
     }
-    tippyInstance = tippy(yearCursorInput.value, {
-        content: tooltipContent,
+    tippyYearOutsideRange = tippy(yearCursorInput.value, {
+        content: tippyYearOutsideRangeContent.value,
         arrow: true,
         hideOnClick: false,
         placement: 'bottom',
         trigger: 'manual',
         theme: 'danger',
+    })
+    tippyTimeSliderInfo = tippy(timeSliderBar.value, {
+        content: timeSliderTooltipRef.value,
+        hideOnClick: true,
+        placement: 'bottom',
+        delay: [1500, 500],
+        allowHTML: true,
+        followCursor: 'initial',
+        plugins: [followCursor],
+        // Show tippy on long touch for mobile device
+        touch: ['hold', 500], // 500ms delay,
     })
 })
 
@@ -188,15 +205,9 @@ onUnmounted(() => {
             }
         })
     }
+    tippyYearOutsideRange?.destroy()
+    tippyTimeSliderInfo?.destroy()
 })
-
-function tooltipContent() {
-    return `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
-}
-
-function setTooltipContent() {
-    tippyInstance.setContent(tooltipContent)
-}
 
 function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
     if (removePristineStatus) {
@@ -376,6 +387,7 @@ function setYearToInputIfValid() {
                 />
                 <div
                     v-if="yearsShownAsLabel.length > 0"
+                    ref="timeSliderBar"
                     class="time-slider-bar-inner d-flex mt-5"
                     :style="innerBarStyle"
                 >
@@ -386,10 +398,7 @@ function setYearToInputIfValid() {
                         class="time-slider-bar-inner-step"
                         :data-cy="`time-slider-bar-${year}`"
                         :class="{
-                            'has-no-data': !(
-                                yearsWithData.yearsJoint.includes(year) ||
-                                yearsWithData.yearsSeparate.includes(year)
-                            ),
+                            'has-partial-data': yearsWithData.yearsSeparate.includes(year),
                             'has-joint-data': yearsWithData.yearsJoint.includes(year),
                             'big-tick': year % 50 === 0,
                             'medium-tick': year % 25 === 0,
@@ -418,15 +427,68 @@ function setYearToInputIfValid() {
                 <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
             </button>
         </div>
+        <!-- Time slider color tooltip content -->
+        <div ref="timeSliderTooltipRef">
+            <div class="mb-2">{{ i18n.t('time_slider_legend_tippy_intro') }}</div>
+            <div class="ps-3">
+                <div class="mb-1">
+                    <div class="color-tippy-data-none me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_no_data') }}</div>
+                </div>
+                <div class="mb-1">
+                    <div class="color-tippy-data-partial me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_partial_data') }}</div>
+                </div>
+                <div>
+                    <div class="color-tippy-data-full me-2"></div>
+                    <div>{{ i18n.t('time_slider_legend_tippy_full_data') }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <style lang="scss">
 @use 'sass:color';
-
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
+$time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
+
+.color-tippy-data-none {
+    height: 1rem;
+    width: 1rem;
+    border-radius: 0.1rem;
+    margin-right: 0.2rem;
+
+    float: left;
+    border-color: $silver;
+    background: $silver;
+}
+.color-tippy-data-partial {
+    height: 1rem;
+    width: 1rem;
+    border-radius: 0.1rem;
+    margin-right: 0.2rem;
+    float: left;
+
+    border-color: $time-slider-color-partial-data;
+    background: $time-slider-color-partial-data;
+}
+
+.color-tippy-data-full {
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.2rem;
+
+    border-radius: 0.1rem;
+    float: left;
+
+    border-color: $time-slider-color-has-data;
+    background: $time-slider-color-has-data;
+}
+
 .time-slider {
     background: $time-slider-color-background !important;
     &:not(.grabbed) &-bar-cursor {
@@ -466,19 +528,13 @@ $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
             }
         }
         &-inner {
-            background: repeating-linear-gradient(
-                45deg,
-                $silver,
-                $silver 4px,
-                $time-slider-color-has-data 2px,
-                $time-slider-color-has-data 8px
-            );
+            background: $silver;
             width: 100%;
             height: 10px;
             &-step {
                 cursor: pointer;
-                &.has-no-data {
-                    background: $silver;
+                &.has-partial-data {
+                    background: $time-slider-color-partial-data;
                 }
                 &.has-joint-data {
                     background: $time-slider-color-has-data;

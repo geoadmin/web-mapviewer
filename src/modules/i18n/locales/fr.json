@@ -484,7 +484,7 @@
     "time_hide": "Désactiver l'outil de représentation historique des données.",
     "time_select_year": "Choisissez une année",
     "time_show": "Activer l'outil de représentation historique des données.",
-    "time_slider_legend_tippy_intro": "Le time slider affiche des couleurs différentes selon que les couches temporelles aient des données ou non pour l'année sélectionnée.",
+    "time_slider_legend_tippy_intro": "Le curseur de temps affiche différentes couleurs selon si les cartes temporelles disposent de données ou non.",
     "time_slider_legend_tippy_full_data": "Données complètes",
     "time_slider_legend_tippy_no_data": "Aucune donnée",
     "time_slider_legend_tippy_partial_data": "Données partielles",
