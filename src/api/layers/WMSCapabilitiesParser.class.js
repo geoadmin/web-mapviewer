@@ -1,11 +1,14 @@
+import { range } from 'lodash'
 import { WMSCapabilities } from 'ol/format'
 import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMSLayer, { WMSDimension } from '@/api/layers/ExternalWMSLayer.class'
 import { CapabilitiesError } from '@/api/layers/layers-external.api'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -148,12 +151,21 @@ export default class WMSCapabilitiesParser {
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible
+     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
+     *   needed when a time config is present a year is pre-selected in the url parameter. Default
+     *   is `null`
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
      * @returns {[ExternalWMSLayer | ExternalGroupOfLayers]} List of
      *   ExternalWMSLayer|ExternalGroupOfLayers objects
      */
-    getAllExternalLayerObjects(projection, opacity = 1, visible = true, ignoreError = true) {
+    getAllExternalLayerObjects(
+        projection,
+        opacity = 1,
+        visible = true,
+        currentYear = null,
+        ignoreError = true
+    ) {
         return this.Capability.Layer.Layer.map((layer) =>
             this._getExternalLayerObject(
                 layer,
@@ -161,6 +173,7 @@ export default class WMSCapabilitiesParser {
                 projection,
                 opacity,
                 visible,
+                currentYear,
                 ignoreError
             )
         ).filter((layer) => !!layer)
@@ -186,6 +199,7 @@ export default class WMSCapabilitiesParser {
             legends,
             queryable,
             availableProjections,
+            dimensions,
         } = this._getLayerAttributes(layer, parents, projection, ignoreError)
 
         if (!layerId) {
@@ -239,6 +253,8 @@ export default class WMSCapabilitiesParser {
             hasTooltip: queryable,
             getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
             currentYear,
+            dimensions: dimensions,
+            timeConfig: this._getTimeConfig(layerId, dimensions),
         })
     }
 
@@ -306,6 +322,7 @@ export default class WMSCapabilitiesParser {
             legends: this._getLayerLegends(layerId, layer),
             queryable: layer.queryable,
             availableProjections,
+            dimensions: this._getDimensions(layerId, layer),
         }
     }
 
@@ -405,5 +422,70 @@ export default class WMSCapabilitiesParser {
                 })
             )
             .flat()
+    }
+
+    _parseDimesionValues(layerId, rawValues) {
+        const parseYear = (value) => {
+            const date = new Date(value)
+            if (!isNaN(date)) {
+                return date.getFullYear()
+            }
+            return null
+        }
+        return rawValues
+            .split(',')
+            .map((v) => {
+                if (v.includes('/')) {
+                    const [min, max, res] = v.split('/')
+                    const minYear = parseYear(min)
+                    const maxYear = parseYear(max)
+                    if (minYear === null || maxYear === null) {
+                        log.warn(
+                            `Unsupported dimension min/max value "${min}"/"${max}" for layer ${layerId}`
+                        )
+                        return null
+                    }
+                    let step = 1
+                    const periodMatch = /P(\d+)Y/.exec(res)
+                    if (periodMatch) {
+                        step = periodMatch[1]
+                    } else {
+                        log.warn(
+                            `Unsupported dimension resolution "${res}" for layer ${layerId}, fallback to 1 year period`
+                        )
+                    }
+                    return range(minYear, maxYear, step)
+                }
+                return v
+            })
+            .flat()
+            .filter((v) => !!v)
+            .map((v) => `${v}`)
+    }
+
+    _getDimensions(layerId, layer) {
+        return (
+            layer.Dimension?.map(
+                (d) =>
+                    new WMSDimension(
+                        d.name,
+                        d.default,
+                        this._parseDimesionValues(layerId, d.values ?? ''),
+                        {
+                            current: d.current ?? false,
+                        }
+                    )
+            ) ?? []
+        )
+    }
+
+    _getTimeConfig(layerId, dimensions) {
+        const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
+        if (!timeDimension) {
+            return null
+        }
+        const timeEntries =
+            timeDimension.values?.map((value) => new LayerTimeConfigEntry(value)) ?? []
+        return new LayerTimeConfig(timeDimension.default ?? null, timeEntries)
     }
 }

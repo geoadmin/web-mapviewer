@@ -3,6 +3,30 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
+ * A WMS Layer dimension
+ *
+ * See WMS OGC Spec
+ *
+ * @class
+ */
+export class WMSDimension {
+    /**
+     * @param {String} id Dimension identifier
+     * @param {String} dft Dimension default value
+     * @param {[String]} values All dimension values
+     * @param {Boolean} [optionals.current] Boolean flag if the dimension support current (see WMS
+     *   OGC spec)
+     */
+    constructor(id, dft, values, optionals = {}) {
+        const { current = false } = optionals
+        this.id = id
+        this.default = dft
+        this.values = values
+        this.current = current
+    }
+}
+
+/**
  * Metadata for an external WMS layer.
  *
  * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
@@ -45,6 +69,12 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {ExternalLayerGetFeatureInfoCapability | null} [externalWmsData.getFeatureInfoCapability=null]
      *   Configuration describing how to request this layer's server to get feature information.
      *   Default is `null`
+     * @param {[WMSDimension]} [externalWmsData.dimensions=[]] WMS Dimensions. Default is `[]`
+     * @param {LayerTimeConfig | null} [externalWmsData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
+     * @param {Number} [externalWmsData.currentYear=null] Current year of the time series config to
+     *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
+     *   yet available and parse later on from the GetCapabilities. Default is `null`
      * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
     constructor(externalWmsData) {
@@ -67,6 +97,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
             availableProjections = [],
             hasTooltip = false,
             getFeatureInfoCapability = null,
+            dimensions = [],
+            timeConfig = null,
+            currentYear = null,
         } = externalWmsData
         super({
             name,
@@ -83,8 +116,11 @@ export default class ExternalWMSLayer extends ExternalLayer {
             availableProjections,
             hasTooltip,
             getFeatureInfoCapability,
+            timeConfig,
+            currentYear,
         })
         this.wmsVersion = wmsVersion
         this.format = format
+        this.dimensions = dimensions
     }
 }
