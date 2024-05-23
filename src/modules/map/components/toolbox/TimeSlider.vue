@@ -7,6 +7,7 @@ import { useStore } from 'vuex'
 
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
+import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
 import { useRangeTippy } from './useRangeTippy'
@@ -108,9 +109,7 @@ const currentYear = computed({
     set(value) {
         _currentYear.value = value
 
-        if (!yearCursorIsGrabbed) {
-            dispatchPreviewYearToStore()
-        }
+        dispatchPreviewYearToStore()
     },
 })
 
@@ -258,9 +257,11 @@ function setPreviewYearToLayers() {
     })
 }
 
-function dispatchPreviewYearToStore() {
+// We debounce this call a bit, so that as long as the cursor is moved the
+// store won't be updated immediately
+const dispatchPreviewYearToStore = debounce(() => {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
-}
+}, 500)
 
 function setSliderWidth() {
     // the padding of the slider container (4px each side) + the padding of the
@@ -333,13 +334,6 @@ function releaseCursor() {
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseCursor)
     window.removeEventListener('touchend', releaseCursor)
-
-    // We call this explicitly here. So far, the store wasn't updated,
-    // as this was prevented by the yearCursorIsGrabbed switch.
-    dispatchPreviewYearToStore()
-    // another cool way would be to use a debounce on the dragging. Then
-    // the map gets updated when the user stops dragging, and not just when
-    // they release the mouse
 }
 
 function togglePlayYearsWithData() {
