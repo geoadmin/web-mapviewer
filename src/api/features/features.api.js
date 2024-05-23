@@ -6,6 +6,7 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
@@ -25,6 +26,18 @@ const PLAIN_TEXT_TYPE = 'text/plain'
  * @type {Number}
  */
 const DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE = 10
+
+function getApi3TimeInstantParam(layer) {
+    // The api3 identify endpoint timeInstant parameter doesn't support the "all" and "current"
+    // timestamp therefore we need to set it to null in this case.
+    if (
+        layer.timeConfig?.currentYear &&
+        layer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+    ) {
+        return layer.timeConfig.currentYear
+    }
+    return null
+}
 
 /**
  * Error when building or requesting an external layer's getFeatureInfo endpoint
@@ -138,7 +151,7 @@ export async function identifyOnGeomAdminLayer({
                 limit: featureCount,
                 tolerance: DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
                 returnGeometry: true,
-                timeInstant: layer.timeConfig?.currentYear ?? null,
+                timeInstant: getApi3TimeInstantParam(layer),
                 lang: lang,
                 offset,
             },
