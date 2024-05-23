@@ -97,7 +97,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   identifiers. Default is `[]`
      * @param {[WMTSDimension]} [externalWmtsData.dimensions=[]] WMTS tile dimensions. Default is
      *   `[]`
-     * @param {LayerTimeConfig | null} [externalLayerData.timeConfig=null] Time series config (if
+     * @param {LayerTimeConfig | null} [externalWmtsData.timeConfig=null] Time series config (if
      *   available). Default is `null`
      * @param {Number} [externalWmtsData.currentYear=null] Current year of the time series config to
      *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
