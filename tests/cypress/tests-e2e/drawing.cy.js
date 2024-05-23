@@ -1085,6 +1085,10 @@ describe('Drawing module tests', () => {
         it('shows a profile of a line/measure coming from service-alti data', () => {
             const profileIntercept = '**/rest/services/profile.json**'
 
+            // as we want to edit the measure line while having the profile shown up, we need a bit of vertical space
+            // (the map is entirely covered by the profile + tooltip otherwise)
+            cy.viewport(320, 800)
+
             cy.goToDrawing()
 
             // returning an empty profile as a start
@@ -1135,7 +1139,6 @@ describe('Drawing module tests', () => {
                 '1341.8 m'
             )
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
-            cy.get('[data-cy="infobox-toggle-floating"]').click()
 
             cy.log('check that profile gets updated when feature is modified')
             cy.get('[data-cy="ol-map"]').click(150, 200)

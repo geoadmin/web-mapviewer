@@ -66,24 +66,23 @@ function onClose() {
 <template>
     <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
         <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
+            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
+                <FontAwesomeIcon icon="print" />
+            </button>
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-toggle-floating"
                 @click.stop="setTooltipInfoPosition"
             >
-                <FontAwesomeIcon icon="caret-up" />
-            </button>
-            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
-                <FontAwesomeIcon icon="print" />
+                <FontAwesomeIcon icon="angles-up" />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-minimize-maximize"
                 @click="onToggleContent"
             >
-                <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
-                <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
+                <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
@@ -100,6 +99,7 @@ function onClose() {
                 v-if="isSelectedFeatureEditable && showFeatureInfoInBottomPanel"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
+                class="p-3"
             />
             <FeatureList v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel" />
         </div>

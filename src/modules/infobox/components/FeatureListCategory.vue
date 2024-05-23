@@ -37,7 +37,7 @@ const { t } = useI18n()
 <template>
     <div class="feature-list-category border-start">
         <div
-            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex"
+            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex cursor-pointer"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />
