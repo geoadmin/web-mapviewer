@@ -6,8 +6,10 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
-import SearchableDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
+import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import { round } from '@/utils/numberUtils'
+
+import { useRangeTippy } from './useRangeTippy'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const i18n = useI18n()
@@ -39,9 +41,11 @@ const timeSliderTooltipRef = ref(null)
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
 const timeSliderBar = ref(null)
-const yearCursorInput = ref(null)
-let tippyYearOutsideRange = null
 let tippyTimeSliderInfo = null
+
+// ref to year cursor input
+const yearCursorInput = ref(null)
+
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
@@ -55,6 +59,11 @@ const isInputYearValid = ref(true)
 
 const tippyYearOutsideRangeContent = computed(
     () => `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+)
+
+const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
+    () => yearCursorInput.value,
+    tippyYearOutsideRangeContent.value
 )
 
 /**
@@ -176,14 +185,14 @@ watch(screenWidth, (newValue) => {
 
 watch(isInputYearValid, (newValue) => {
     if (!newValue) {
-        tippyYearOutsideRange.show()
+        tippyOutsideRange.value.show()
     } else {
-        tippyYearOutsideRange.hide()
+        tippyOutsideRange.value.hide()
     }
 })
 
 watch(lang, () => {
-    tippyYearOutsideRange.setContent(tippyYearOutsideRangeContent.value)
+    updateTippyContent(tippyYearOutsideRangeContent.value)
 })
 
 onMounted(() => {
@@ -211,14 +220,6 @@ onMounted(() => {
     } else {
         currentYear.value = previewYear.value
     }
-    tippyYearOutsideRange = tippy(yearCursorInput.value, {
-        content: tippyYearOutsideRangeContent.value,
-        arrow: true,
-        hideOnClick: false,
-        placement: 'bottom',
-        trigger: 'manual',
-        theme: 'danger',
-    })
 
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
         content: timeSliderTooltipRef.value,
@@ -236,7 +237,6 @@ onMounted(() => {
 onUnmounted(() => {
     setPreviewYearToLayers()
 
-    tippyYearOutsideRange?.destroy()
     tippyTimeSliderInfo?.destroy()
 })
 
@@ -323,6 +323,7 @@ function listenToMouseMove(event) {
         // reset of the starting position for delta calculation
         cursorX = currentPosition
         currentYear.value = futureYear
+        inputYear.value = futureYear
     }
 }
 
