@@ -105,9 +105,7 @@ function searchDirectory(directoryPath) {
 
             // Check the file for use of non explicit translations, which are variables only
             // and not realistically easy to find a translation key for. (example : .t(category.id))
-            const variable_array = (fileContent.match(re_non_explicit) ?? []).concat(
-                fileContent.match(re_non_explicit) ?? []
-            )
+            const variable_array = fileContent.match(re_non_explicit) ?? []
 
             variable_array.forEach((key) => {
                 const strippedKey = key
@@ -116,7 +114,27 @@ function searchDirectory(directoryPath) {
                     .replace(')', '')
                     .replace(')', '')
                     .replace(')', '')
-                increaseTranslationCount(strippedKey, filePath, false)
+                if (strippedKey.includes('||')) {
+                    // left is a variable, right is a string
+                    const splits = strippedKey.split('||')
+                    increaseTranslationCount(splits[0].replace(/\s/g, ''), filePath, false)
+                    increaseTranslationCount(
+                        splits[1].replace(/\s/g, '').replace(/'/g, ''),
+                        filePath,
+                        true
+                    )
+                } else if (strippedKey.includes('?')) {
+                    const splits = strippedKey.split('?')[1].split([':'])
+                    splits.forEach((ternary_operator_dependent_key) => {
+                        increaseTranslationCount(
+                            ternary_operator_dependent_key.replace(/\s/g, '').replace(/'/g, ''),
+                            filePath,
+                            !ternary_operator_dependent_key.includes('.')
+                        )
+                    })
+                } else {
+                    increaseTranslationCount(strippedKey, filePath, false)
+                }
             })
         } else if (fs.statSync(`${directoryPath}/${file}`).isDirectory()) {
             // if we are in a directory, we go further in
