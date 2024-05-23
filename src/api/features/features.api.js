@@ -400,10 +400,25 @@ async function identifyOnExternalWmsLayer(config) {
                     coordinates: [...coordinate],
                 }
             }
+            let featureId = feature.id ?? feature.properties?.id
+            if (!featureId && feature.properties) {
+                const propNames = Object.keys(feature.properties)
+                // if no feature ID defined, we take the first property that contains either "id", "title" or "name"
+                // and if nothing is found we use the first property as an "ID"
+                featureId =
+                    propNames.find((name) => {
+                        const lowerCaseName = name.toLowerCase()
+                        return (
+                            lowerCaseName.indexOf('id') !== -1 ||
+                            lowerCaseName.indexOf('title') !== -1 ||
+                            lowerCaseName.indexOf('name') !== -1
+                        )
+                    }) ?? feature.properties[Object.keys(feature.properties)[0]]
+            }
             return new LayerFeature({
                 layer,
-                id: feature.id,
-                name: feature.title ?? feature.name ?? feature.id,
+                id: featureId,
+                name: feature.title ?? feature.name ?? featureId,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,
