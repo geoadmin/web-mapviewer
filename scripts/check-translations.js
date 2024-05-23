@@ -117,19 +117,24 @@ function searchDirectory(directoryPath) {
                 if (strippedKey.includes('||')) {
                     // left is a variable, right is a string
                     const splits = strippedKey.split('||')
-                    increaseTranslationCount(splits[0].replace(/\s/g, ''), filePath, false)
-                    increaseTranslationCount(
-                        splits[1].replace(/\s/g, '').replace(/'/g, ''),
-                        filePath,
-                        true
-                    )
+                    splits.forEach((split_key) => {
+                        increaseTranslationCount(
+                            split_key.replace(/\s/g, '').replace(/'/g, ''),
+                            filePath,
+                            Object.keys(translations.en).includes(
+                                split_key.replace(/\s/g, '').replace(/'/g, '')
+                            )
+                        )
+                    })
                 } else if (strippedKey.includes('?')) {
                     const splits = strippedKey.split('?')[1].split([':'])
-                    splits.forEach((ternary_operator_dependent_key) => {
+                    splits.forEach((split_key) => {
                         increaseTranslationCount(
-                            ternary_operator_dependent_key.replace(/\s/g, '').replace(/'/g, ''),
+                            split_key.replace(/\s/g, '').replace(/'/g, ''),
                             filePath,
-                            !ternary_operator_dependent_key.includes('.')
+                            Object.keys(translations.en).includes(
+                                split_key.replace(/\s/g, '').replace(/'/g, '')
+                            )
                         )
                     })
                 } else {
