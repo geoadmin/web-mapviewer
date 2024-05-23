@@ -39,10 +39,10 @@ function onClose() {
         <TextTruncate class="drawing-header-title px-2" data-cy="drawing-header-title">
             {{ i18n.t(drawingTitle) }}
         </TextTruncate>
-        <diV>
+        <div>
             <!-- This empty div is needed to keep the title in the middle of the header it uses
             the d-flex justify-content-between functionality -->
-        </diV>
+        </div>
     </div>
 </template>
 
