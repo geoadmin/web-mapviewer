@@ -240,3 +240,14 @@ export function isValidEmail(email) {
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return EMAIL_REGEX.test(email)
 }
+
+/**
+ * Human readable size
+ *
+ * @param {Number} size Size in bytes
+ * @returns {String} Human readable size
+ */
+export function humanFileSize(size) {
+    const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
+    return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
+}

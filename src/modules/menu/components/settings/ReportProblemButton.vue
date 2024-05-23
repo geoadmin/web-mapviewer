@@ -3,7 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import sendFeedback from '@/api/feedback.api'
+import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
@@ -58,8 +58,15 @@ const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.sho
 const temporaryKml = computed(() =>
     store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId)
 )
+const isTemporaryKmlValid = computed(
+    () => (temporaryKml.value?.kmlData?.length ?? 0) <= KML_MAX_SIZE
+)
 const isFormValid = computed(
-    () => isMessageValid.value && isEmailValid.value && isAttachmentValid.value
+    () =>
+        isMessageValid.value &&
+        isEmailValid.value &&
+        isAttachmentValid.value &&
+        isTemporaryKmlValid.value
 )
 
 watch(
@@ -198,9 +205,12 @@ function toggleDrawingOverlay() {
                     {{ i18n.t('feedback_drawing') }}
                 </div>
                 <button
-                    class="btn btn-outline-group"
+                    class="btn"
                     :class="{
-                        'is-valid': temporaryKml && !temporaryKml.isEmpty(),
+                        'is-valid': isTemporaryKmlValid && temporaryKml && !temporaryKml.isEmpty(),
+                        'is-invalid': !isTemporaryKmlValid,
+                        'btn-outline-primary': !isTemporaryKmlValid,
+                        'btn-outline-group': isTemporaryKmlValid,
                     }"
                     :disabled="request.pending"
                     data-cy="report-problem-drawing-button"
@@ -208,6 +218,9 @@ function toggleDrawingOverlay() {
                 >
                     {{ i18n.t('draw_tooltip') }}
                 </button>
+                <div class="invalid-feedback ps-2">
+                    {{ i18n.t('drawing_too_large') }}
+                </div>
                 <div class="valid-feedback ps-2" data-cy="report-problem-drawing-added-feedback">
                     {{ i18n.t('drawing_attached') }}
                 </div>
@@ -232,6 +245,7 @@ function toggleDrawingOverlay() {
                     :placeholder="'feedback_placeholder'"
                     :activate-validation="activateValidation"
                     :disabled="request.pending"
+                    :max-file-size="ATTACHMENT_MAX_SIZE"
                     data-cy="report-problem"
                     @validate="onAttachmentValidate"
                 />

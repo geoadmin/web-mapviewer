@@ -1,4 +1,4 @@
-import i18n from '@/modules/i18n'
+import i18n, { langToLocal } from '@/modules/i18n'
 
 /**
  * The name of the mutation for lang changes
@@ -29,7 +29,7 @@ const mutations = {}
 
 mutations[SET_LANG_MUTATION_KEY] = function (state, { lang }) {
     state.lang = lang
-    i18n.global.locale = lang
+    i18n.global.locale = langToLocal(lang)
 }
 
 export default {

@@ -5,6 +5,7 @@ import {
     formatMeters,
     formatMinutesTime,
     formatPointCoordinates,
+    humanFileSize,
     parseUrlHashQuery,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
@@ -118,6 +119,18 @@ describe('utils', () => {
             expect(result.urlObj).not.to.be.null
             expect(result.hash).to.equal('')
             expect(result.query).to.equal('')
+        })
+    })
+    describe('humanFileSize', () => {
+        it('format correctly valid size', () => {
+            expect(humanFileSize(0)).to.be.equal('0 B')
+            expect(humanFileSize(1)).to.be.equal('1 B')
+            expect(humanFileSize(800)).to.be.equal('800 B')
+            expect(humanFileSize(1024)).to.be.equal('1 kB')
+            expect(humanFileSize(1025)).to.be.equal('1 kB')
+            expect(humanFileSize(4 * 1024)).to.be.equal('4 kB')
+            expect(humanFileSize(4 * 1024 * 1024)).to.be.equal('4 MB')
+            expect(humanFileSize(4.3 * 1024 * 1024)).to.be.equal('4.3 MB')
         })
     })
 })
