@@ -78,6 +78,8 @@ const runIdentify = (config) => {
             featureCount,
         }
         // for each layer we run a backend request
+        // NOTE: in theory for the Geoadmin layers we could run one single backend request to API3 instead of one per layer, however
+        // this would not be more efficient as a single request would take more time that several in parallel (this has been tested).
         layers
             // only request layers that have getFeatureInfo capabilities (or are flagged has having a tooltip in their config for GeoAdmin layers)
             .filter((layer) => layer.hasTooltip)
