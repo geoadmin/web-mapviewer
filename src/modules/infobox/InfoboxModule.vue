@@ -99,7 +99,7 @@ function onClose() {
                 v-if="isSelectedFeatureEditable && showFeatureInfoInBottomPanel"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
-                class="p-2"
+                class="p-3"
             />
             <FeatureList v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel" />
         </div>

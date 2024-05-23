@@ -78,7 +78,7 @@ function showContentAndScrollIntoView(event) {
 
 <template>
     <div
-        class="feature-list-category-item-name p-2 align-middle position-relative"
+        class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer"
         :class="{ highlighted: isHighlightedFeature, 'border-bottom': !showContent }"
         data-cy="feature-item"
         @click="toggleShowContent"
