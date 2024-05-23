@@ -11,6 +11,8 @@ import {
     UrlTemplateImageryProvider,
     WebMapTileServiceImageryProvider,
 } from 'cesium'
+import { isEqual } from 'lodash'
+import { mapActions } from 'vuex'
 
 import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -23,7 +25,11 @@ import log from '@/utils/logging'
 
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
 
+const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
+
 const MAXIMUM_LEVEL_OF_DETAILS = 18
+
+const threeDErrorKey = '3d_unsupported_projection'
 
 export default {
     mixins: [addImageryLayerMixins],
@@ -72,6 +78,11 @@ export default {
                 log.error(
                     `External layer ${this.wmtsLayerConfig.id} does not support ${this.projection.epsg}`
                 )
+                this.addLayerErrorKey({
+                    layerId: this.wmtsLayerConfig.id,
+                    errorKey: threeDErrorKey,
+                    ...dispatcher,
+                })
             }
             return set
         },
@@ -108,17 +119,30 @@ export default {
         },
     },
     watch: {
-        dimensions() {
-            this.updateLayer()
+        dimensions(newDimension, oldDimension) {
+            if (!isEqual(newDimension, oldDimension)) {
+                log.debug(`layer dimension have been updated`, oldDimension, newDimension)
+                this.updateLayer()
+            }
         },
     },
+    unmounted() {
+        if (this.wmtsLayerConfig.hasErrorKey(threeDErrorKey)) {
+            this.removeLayerErrorKey({
+                layerId: this.wmtsLayerConfig.id,
+                errorKey: threeDErrorKey,
+                ...dispatcher,
+            })
+        }
+    },
     methods: {
+        ...mapActions(['addLayerErrorKey', 'removeLayerErrorKey']),
         createImagery(url) {
             const options = {
                 show: this.wmtsLayerConfig.visible,
                 alpha: this.opacity,
             }
-            if (this.wmtsLayerConfig instanceof ExternalWMTSLayer) {
+            if (this.wmtsLayerConfig instanceof ExternalWMTSLayer && this.tileMatrixSetId) {
                 return new ImageryLayer(
                     new WebMapTileServiceImageryProvider({
                         url:
@@ -132,17 +156,19 @@ export default {
                     }),
                     options
                 )
+            } else if (this.wmtsLayerConfig instanceof GeoAdminWMTSLayer) {
+                return new ImageryLayer(
+                    new UrlTemplateImageryProvider({
+                        rectangle: Rectangle.fromDegrees(
+                            ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
+                        ),
+                        maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
+                        url: url,
+                    }),
+                    options
+                )
             }
-            return new ImageryLayer(
-                new UrlTemplateImageryProvider({
-                    rectangle: Rectangle.fromDegrees(
-                        ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
-                    ),
-                    maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
-                    url: url,
-                }),
-                options
-            )
+            return null
         },
     },
 }
