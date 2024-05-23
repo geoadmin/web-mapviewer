@@ -169,9 +169,7 @@ const getters = {
      */
     visibleLayersWithTimeConfig: (state) =>
         // Here we cannot take the getter visibleLayers as it also contain the preview and system layers
-        state.activeLayers.filter(
-            (layer) => layer.visible && layer.timeConfig?.timeEntries?.length
-        ),
+        state.activeLayers.filter((layer) => layer.visible && layer.hasMultipleTimestamps),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
