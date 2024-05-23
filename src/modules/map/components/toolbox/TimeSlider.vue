@@ -68,6 +68,26 @@ const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
 )
 
 /**
+ * Debounce the input year a bit
+ *
+ * With this, the error won't be shown immediately while the user is still typing a year, but rather
+ * only when they have finished typing
+ */
+const updateInputYear = debounce((value) => {
+    value = parseInt(value)
+    // only if the year is valid we write this to the property
+    // otherwise we show errors
+    if (!allYears.value.includes(value)) {
+        isInputYearValid.value = false
+        falseYear.value = value || ''
+    } else {
+        isInputYearValid.value = true
+        currentYear.value = parseInt(value)
+        falseYear.value = null
+    }
+}, 500)
+
+/**
  * Used for the year in the input field Validate the input from the user. In case it's invalid, we
  * don't propagate the value to the state, but instead save it to an intermediate state variable to
  * be displayed along with an error message. This is important so that the cursor doesn't jump
@@ -81,18 +101,7 @@ const inputYear = computed({
         return currentYear.value
     },
     set(value) {
-        value = parseInt(value)
-
-        // only if the year is valid we write this to the property
-        // otherwise we show errors
-        if (!allYears.value.includes(value)) {
-            isInputYearValid.value = false
-            falseYear.value = value || ''
-        } else {
-            isInputYearValid.value = true
-            currentYear.value = parseInt(value)
-            falseYear.value = null
-        }
+        updateInputYear(value)
     },
 })
 
@@ -109,7 +118,16 @@ const currentYear = computed({
     set(value) {
         _currentYear.value = value
 
-        dispatchPreviewYearToStore()
+        // we need to reset those here, otherwise, when the error is shown and the users drags
+        // the cursor to a correct year, the error won't go away
+        falseYear.value = null
+        isInputYearValid.value = true
+
+        if (yearCursorIsGrabbed) {
+            dispatchPreviewYearToStoreDebounced()
+        } else {
+            dispatchPreviewYearToStore()
+        }
     },
 })
 
@@ -257,10 +275,12 @@ function setPreviewYearToLayers() {
     })
 }
 
-// We debounce this call a bit, so that as long as the cursor is moved the
-// store won't be updated immediately
-const dispatchPreviewYearToStore = debounce(() => {
+function dispatchPreviewYearToStore() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
+}
+
+const dispatchPreviewYearToStoreDebounced = debounce(() => {
+    dispatchPreviewYearToStore()
 }, 500)
 
 function setSliderWidth() {
@@ -324,7 +344,6 @@ function listenToMouseMove(event) {
         // reset of the starting position for delta calculation
         cursorX = currentPosition
         currentYear.value = futureYear
-        inputYear.value = futureYear
     }
 }
 
