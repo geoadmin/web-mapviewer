@@ -199,7 +199,7 @@
     "feedback_success_message": "Danke für Ihre Nachricht. Diese wurde erfolgreich übermittelt.",
     "feedback_unsupported_format": "Dieser Dateityp wird leider nicht unterstützt. Bitte verwenden Sie eine .pdf, .zip, .jpg, .jpeg, .kml, .kmz oder .gpx Datei.",
     "file_is_not_kml": "Dieses File ist keine KML Datei. ",
-    "file_too_large": "Die Datei ist zu gross (maximal erlaubte Größe: MAX_FILE_SIZE).",
+    "file_too_large": "Die Datei ist zu gross (maximal erlaubte Grösse: {maxFileSize}).",
     "follow_us": "Folgen Sie uns",
     "full_screen": "Vollbild",
     "funksender": "Funksender",
@@ -674,12 +674,12 @@
     "field_required": "Dieses Feld ist erforderlich",
     "invalid_email": "ungültige E-Mail",
     "no_email": "Das E-Mail-Feld ist erforderlich",
-    "file_unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Nur die folgenden Formate sind erlaubt: ALLOWED_FORMATS",
+    "file_unsupported_format": "Dieses Dateiformat wird nicht unterstützt. Nur die folgenden Formate sind erlaubt: {allowedFormats}",
     "form_invalid": "Das Formular ist ungültig",
     "file_imported_success": "Datei erfolgreich importiert",
     "3d_labels": "Geografische Namen",
     "3d_vegetation": "Vegetationen",
     "3d_constructions": "Gebäude und Konstruktionen",
     "webmapviewer_live_disclaimer": "Grosse Veränderungen stehen bevor, <a target='_blank' href='https://www.swisstopo.admin.ch/de'>erfahren Sie mehr</a>",
-    "drawing_too_large": "Deine Zeichnung ist zu groß, entferne einige Details."
+    "drawing_too_large": "Deine Zeichnung ist zu gross, entferne einige Details."
 }

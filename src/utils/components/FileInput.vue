@@ -267,10 +267,10 @@ function onFileSelected(evt) {
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    i18n
-                        .t(invalidMessage)
-                        .replace('ALLOWED_FORMATS', acceptedFileTypes.join(', '))
-                        .replace('MAX_FILE_SIZE', maxFileSizeHuman)
+                    i18n.t(invalidMessage, {
+                        maxFileSize: maxFileSizeHuman,
+                        allowedFormats: acceptedFileTypes.join(', '),
+                    })
                 }}
             </div>
             <div v-if="validMessage" class="valid-feedback" data-cy="file-input-valid-feedback">
