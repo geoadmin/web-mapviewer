@@ -80,7 +80,7 @@ export default {
         },
         dimensions() {
             const dimensions = {}
-            this.wmtsLayerConfig.dimensions.reduce((acc, dimension) => {
+            this.wmtsLayerConfig.dimensions?.reduce((acc, dimension) => {
                 if (dimension.current) {
                     acc[dimension.id] = 'current'
                 } else {
@@ -105,6 +105,11 @@ export default {
             }
 
             return dimensions
+        },
+    },
+    watch: {
+        dimensions() {
+            this.updateLayer()
         },
     },
     methods: {

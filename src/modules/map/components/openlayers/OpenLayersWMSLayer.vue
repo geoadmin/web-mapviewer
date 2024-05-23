@@ -9,6 +9,7 @@ import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import { ALL_YEARS_WMS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
@@ -58,17 +59,25 @@ const timestamp = computed(() =>
  * If we let the URL have all the param beforehand (sending all URL param through the url option),
  * most of our wanted params will be doubled, resulting in longer and more difficult to read URLs
  */
-const wmsUrlParams = computed(() => ({
-    SERVICE: 'WMS',
-    REQUEST: 'GetMap',
-    TRANSPARENT: format.value === 'png',
-    LAYERS: layerId.value,
-    FORMAT: `image/${format.value}`,
-    LANG: currentLang.value,
-    VERSION: wmsVersion.value,
-    TIME: timestamp.value,
-    CRS: projection.value.epsg,
-}))
+const wmsUrlParams = computed(() => {
+    const params = {
+        SERVICE: 'WMS',
+        REQUEST: 'GetMap',
+        TRANSPARENT: format.value === 'png',
+        LAYERS: layerId.value,
+        FORMAT: `image/${format.value}`,
+        LANG: currentLang.value,
+        VERSION: wmsVersion.value,
+        CRS: projection.value.epsg,
+        TIME: timestamp.value,
+    }
+    if (timestamp.value === ALL_YEARS_WMS_TIMESTAMP) {
+        // To request all timestamp we need to set the TIME to null which will force openlayer
+        // to send a request without TIME param, otherwise openlayer takes the previous TIME param.
+        params.TIME = null
+    }
+    return params
+})
 
 let layer
 if (gutter.value !== -1) {
@@ -98,6 +107,9 @@ useAddLayerToMap(layer, olMap, zIndex)
 watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, () => layer.setSource(createSourceForProjection()))
+watch(wmsUrlParams, () => {
+    layer.getSource().updateParams(wmsUrlParams.value)
+})
 
 function createSourceForProjection() {
     let source = null
