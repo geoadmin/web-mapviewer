@@ -1,7 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import TimeSliderDropdownList from '@/modules/map/components/toolbox/TimeSliderDropdownSearchList.vue'
+
+import { useRangeTippy } from './useRangeTippy'
+
+const { t } = useI18n()
+const store = useStore()
 
 const emit = defineEmits(['update:modelValue', 'play'])
 
@@ -27,6 +34,17 @@ const searchList = ref(null)
 
 // reference to the input
 const input = ref(null)
+
+function tooltipContent() {
+    const firstEntry = props.entries[0]
+    const lastEntry = props.entries[props.entries.length - 1]
+    return `${t('outside_valid_year_range')} ${firstEntry}-${lastEntry}`
+}
+
+const { tippyInstance: yearInputError, updateTippyContent } = useRangeTippy(
+    () => input.value,
+    tooltipContent
+)
 
 const displayEntry = computed({
     get() {
@@ -77,6 +95,7 @@ function closeList() {
 
 function chooseEntry(value) {
     emit('update:modelValue', value)
+    yearInputError.value.hide()
     closeList()
 }
 
@@ -89,12 +108,30 @@ function focusSearchlist() {
 }
 
 function onEnter() {
-    if (inputValue.value.length == 4) {
-        emit('update:modelValue', inputValue.value)
+    if (props.entries.includes(parseInt(inputValue.value))) {
+        chooseEntry(inputValue.value)
         input.value.blur()
-        closeList()
+    } else {
+        yearInputError.value.show()
     }
 }
+
+/**
+ * When the user leaves the input, the year gets reset to the the currentYear. In some cases, the
+ * tippy isn't being hidden though, which is why we do it explicitly here
+ */
+function onFocusOut() {
+    yearInputError.value.hide()
+}
+
+// i18n.t isn't reactive, therefore we need to update the content
+// ourselves
+watch(
+    () => store.state.i18n.lang,
+    () => {
+        updateTippyContent(tooltipContent)
+    }
+)
 </script>
 
 <template>
@@ -113,6 +150,7 @@ function onEnter() {
                     :class="{ 'rounded-bottom-0': isDropdownOpen }"
                     @input="inputValue = $event.target.value"
                     @focusin="openList"
+                    @focusout="onFocusOut"
                     @keydown.esc.prevent="closeList"
                     @keydown.down.prevent="focusSearchlist"
                     @keydown.enter.prevent="onEnter"
