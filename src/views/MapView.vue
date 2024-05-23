@@ -53,7 +53,7 @@ onMounted(() => {
                 :toggle3d-button="!isDrawingMode"
                 compass-button
             >
-                <TimeSliderButton v-if="!isDrawingMode" />
+                <TimeSliderButton v-if="!isDrawingMode && !is3DActive" />
             </MapToolbox>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule v-if="loadDrawingModule" />
