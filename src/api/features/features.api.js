@@ -340,6 +340,9 @@ async function identifyOnExternalWmsLayer(config) {
         // there might exist more implementation of WMS, but I stopped there looking for more
         // (please add more if you think one of our customer/external layer providers uses another flavor of WMS)
     }
+    if (layer.timeConfig?.currentYear) {
+        params.TIME = layer.timeConfig.currentYear
+    }
     // WMS 1.3.0 uses i,j to describe pixel coordinate where we want feature info
     if (params.VERSION === '1.3.0') {
         params.I = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
