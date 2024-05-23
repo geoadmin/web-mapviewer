@@ -66,6 +66,9 @@ function onClose() {
 <template>
     <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
         <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
+            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
+                <FontAwesomeIcon icon="print" />
+            </button>
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
@@ -74,19 +77,12 @@ function onClose() {
             >
                 <FontAwesomeIcon icon="angles-up" />
             </button>
-            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
-                <FontAwesomeIcon icon="print" />
-            </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-minimize-maximize"
                 @click="onToggleContent"
             >
-                <FontAwesomeIcon
-                    class="animate-everything"
-                    icon="caret-down"
-                    :rotation="!showContent ? 90 : 0"
-                />
+                <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"

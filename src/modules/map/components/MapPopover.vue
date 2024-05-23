@@ -84,7 +84,7 @@ const popoverLimits = computed(() => {
     }
 })
 
-useTippyTooltip('.map-popover-header .print-button[data-tippy-content]')
+useTippyTooltip('.map-popover-header [data-tippy-content]')
 
 onMounted(() => {
     if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
@@ -126,7 +126,6 @@ function printContent() {
                 <span class="flex-grow-1 align-self-center">
                     {{ title }}
                 </span>
-                <slot name="extra-buttons"></slot>
                 <button
                     v-if="authorizePrint"
                     class="print-button btn btn-sm btn-light d-flex align-items-center"
@@ -135,16 +134,13 @@ function printContent() {
                 >
                     <FontAwesomeIcon icon="print" />
                 </button>
+                <slot name="extra-buttons"></slot>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="map-popover-close-button"
                     @click="showContent = !showContent"
                 >
-                    <FontAwesomeIcon
-                        icon="caret-down"
-                        :rotation="showContent ? 0 : 90"
-                        class="animate-everything"
-                    />
+                    <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
                 </button>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
@@ -173,6 +169,8 @@ function printContent() {
 
 .map-popover {
     position: absolute;
+    min-width: $overlay-width;
+    max-width: $overlay-width;
     z-index: $zindex-map-popover;
     &.floating {
         top: calc($header-height + $screen-padding-for-ui-elements);
@@ -184,7 +182,6 @@ function printContent() {
         top: calc($header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements);
     }
     .card {
-        min-width: $overlay-width;
         pointer-events: auto;
     }
     .map-popover-content {

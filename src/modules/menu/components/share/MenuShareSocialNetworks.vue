@@ -51,7 +51,7 @@ const networks = ref([
     },
 ])
 
-const buttonClass = `btn btn-sm btn-light share-network-button m-1`
+const buttonClass = `btn btn-sm btn-light share-network-button`
 const iconSize = '2x'
 
 function openQrcode() {
@@ -71,7 +71,7 @@ onUpdated(() => refreshTippyAttachment())
 </script>
 
 <template>
-    <div v-if="shortLink" class="container text-center">
+    <div v-if="shortLink" class="share-network">
         <ShareNetwork
             v-for="network in networks"
             :key="network.id"
@@ -102,4 +102,20 @@ onUpdated(() => refreshTippyAttachment())
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
+$shareButtonWidth: 46px;
+.share-network {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, $shareButtonWidth);
+    grid-gap: 0.25rem;
+    justify-content: center;
+    align-content: center;
+    &-button {
+        display: flex;
+        justify-items: center;
+        align-items: center;
+        width: $shareButtonWidth;
+        height: $shareButtonWidth;
+    }
+}
 </style>
