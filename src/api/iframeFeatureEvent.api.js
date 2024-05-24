@@ -17,7 +17,7 @@ export function sendFeatureInformationToIFrameParent(features) {
         return
     }
     // if no features are given, nothing to do
-    if (features?.length === 0) {
+    if (!Array.isArray(features) || features.length === 0) {
         return
     }
     log.debug('sending information about selected features to iframe parent')
