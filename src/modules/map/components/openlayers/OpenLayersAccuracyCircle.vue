@@ -59,5 +59,5 @@ watch(accuracy, (newAccuracy) => accuracyCircle.setRadius(newAccuracy))
 </script>
 
 <template>
-    <div />
+    <slot />
 </template>

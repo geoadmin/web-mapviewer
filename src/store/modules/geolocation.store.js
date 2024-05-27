@@ -1,4 +1,5 @@
 import log from '@/utils/logging'
+import { isNumber } from '@/utils/numberUtils'
 
 const state = {
     /**
@@ -62,7 +63,7 @@ const actions = {
         }
     },
     setGeolocationAccuracy: ({ commit }, { accuracy, dispatcher }) => {
-        if (Number.isFinite(accuracy)) {
+        if (isNumber(accuracy)) {
             commit('setGeolocationAccuracy', { accuracy: Number(accuracy), dispatcher })
         } else {
             log.error(`Invalid geolocation accuracy: ${accuracy}`)
