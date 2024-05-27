@@ -74,7 +74,7 @@ function loadMoreResultForLayer(layerId) {
 <template>
     <div
         ref="featureListContainer"
-        class="feature-list"
+        class="feature-list clear-no-ios-long-press"
         :class="{ fluid }"
         data-cy="highlighted-features"
     >
