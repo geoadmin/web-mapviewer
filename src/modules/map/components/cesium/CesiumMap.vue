@@ -70,7 +70,7 @@
         <CesiumGeolocationFeedback v-if="viewerCreated" />
         
         <cesium-compass
-            v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
+            v-show="isDesktopMode && !isFullScreenMode"
             ref="compass"
             class="cesium-toolbox position-absolute start-50 translate-middle-x cesium-toolbox-compass"
         />
@@ -401,8 +401,10 @@ export default {
                 limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
             )
 
-            this.$refs.compass.scene = this.viewer.scene
-            this.$refs.compass.clock = this.viewer.clock
+            if (this.$refs.compass) {
+                this.$refs.compass.scene = this.viewer.scene
+                this.$refs.compass.clock = this.viewer.clock
+            }
 
             this.flyToPosition()
 
@@ -646,7 +648,6 @@ export default {
 .cesium-toolbox {
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
-    //display: flex;
 
     $compass-size: 95px;
 
