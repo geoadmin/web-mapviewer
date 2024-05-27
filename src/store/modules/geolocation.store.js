@@ -20,7 +20,7 @@ const state = {
      */
     tracking: false,
     /**
-     * Device position in EPSG:3857 (meters) [x, y]
+     * Device position in the current application projection [x, y]
      *
      * @type Array<Number>
      */
@@ -62,8 +62,10 @@ const actions = {
         }
     },
     setGeolocationAccuracy: ({ commit }, { accuracy, dispatcher }) => {
-        if (Number.isInteger(accuracy)) {
+        if (Number.isFinite(accuracy)) {
             commit('setGeolocationAccuracy', { accuracy: Number(accuracy), dispatcher })
+        } else {
+            log.error(`Invalid geolocation accuracy: ${accuracy}`)
         }
     },
 }
