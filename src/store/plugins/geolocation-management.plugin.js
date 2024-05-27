@@ -18,6 +18,7 @@ const readPosition = (position, projection) => {
 }
 
 const handlePositionAndDispatchToStore = (position, store) => {
+    log.debug(`Received position from geolocation`, position, store.state.geolocation)
     const positionProjected = readPosition(position, store.state.position.projection)
     store.dispatch('setGeolocationPosition', {
         position: positionProjected,
@@ -65,6 +66,60 @@ const handlePositionError = (error, store) => {
     }
 }
 
+const activeGeolocation = (store, state) => {
+    if (store.state.geolocation.position[0] !== 0 && store.state.geolocation.position[1] !== 0) {
+        // if we have a previous position use it first to be more reactive but set a
+        // bad accuracy as we don't know how exact it is.
+        store.dispatch('setCenter', {
+            center: store.state.geolocation.position,
+            ...dispatcher,
+        })
+        store.dispatch('setGeolocationAccuracy', {
+            accuracy: 50 * 1000, // 50 km
+            ...dispatcher,
+        })
+    }
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            log.debug(
+                `Geolocation API current position`,
+                position,
+                `firstTimeActivatingGeolocation=${firstTimeActivatingGeolocation}`
+            )
+            // if geoloc was previously denied, we clear the flag
+            if (state.geolocation.denied) {
+                store.dispatch('setGeolocationDenied', {
+                    denied: false,
+                    ...dispatcher,
+                })
+            }
+            // register a watcher
+            geolocationWatcher = navigator.geolocation.watchPosition(
+                (position) => handlePositionAndDispatchToStore(position, store),
+                (error) => handlePositionError(error, store)
+            )
+
+            // handle current position
+            handlePositionAndDispatchToStore(position, store)
+
+            // set zoom level
+            let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
+            if (state.position.projection instanceof CustomCoordinateSystem) {
+                zoomLevel = state.position.projection.transformStandardZoomLevelToCustom(zoomLevel)
+            }
+            store.dispatch('setZoom', {
+                zoom: zoomLevel,
+                ...dispatcher,
+            })
+        },
+        (error) => handlePositionError(error, store),
+        {
+            maximumAge: 5 * 60 * 1000, // 5 minutes
+            timeout: 2 * 60 * 1000, // 2 minutes
+        }
+    )
+}
+
 /**
  * Plugin that handle the HTML5 Geolocation API interaction, and dispatch its output to the store
  * when geolocation is active.
@@ -76,41 +131,21 @@ const geolocationManagementPlugin = (store) => {
         // listening to the start/stop of geolocation
         if (mutation.type === 'setGeolocationActive') {
             if (state.geolocation.active) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        // if geoloc was previously denied, we clear the flag
-                        if (state.geolocation.denied) {
-                            store.dispatch('setGeolocationDenied', {
-                                denied: false,
-                                ...dispatcher,
-                            })
-                        }
-                        handlePositionAndDispatchToStore(position, store)
-                        if (firstTimeActivatingGeolocation) {
-                            firstTimeActivatingGeolocation = false
-                            let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
-                            if (state.position.projection instanceof CustomCoordinateSystem) {
-                                zoomLevel =
-                                    state.position.projection.transformStandardZoomLevelToCustom(
-                                        zoomLevel
-                                    )
-                            }
-                            store.dispatch('setZoom', {
-                                zoom: zoomLevel,
-                                ...dispatcher,
-                            })
-                        }
-                        geolocationWatcher = navigator.geolocation.watchPosition(
-                            (position) => handlePositionAndDispatchToStore(position, store),
-                            (error) => handlePositionError(error, store)
-                        )
-                    },
-                    (error) => handlePositionError(error, store)
-                )
+                activeGeolocation(store, state)
             } else if (geolocationWatcher) {
+                log.debug(`Geolocation clear watcher`)
                 navigator.geolocation.clearWatch(geolocationWatcher)
                 geolocationWatcher = null
             }
+        } else if (
+            mutation.type === 'setCenter' &&
+            mutation.payload?.dispatcher !== dispatcher.dispatcher
+        ) {
+            // if we moved the map we disabled the tracking (unless the tracking moved the map)
+            store.dispatch('setGeolocationTracking', {
+                tracking: false,
+                ...dispatcher,
+            })
         }
     })
 }

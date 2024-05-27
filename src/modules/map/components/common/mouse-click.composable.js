@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
@@ -14,9 +13,6 @@ export function useMouseOnMap() {
     let contextMenuTimeout = null
 
     const store = useStore()
-    const isCurrentlyTrackingGeoLocation = computed(
-        () => store.state.geolocation.active && store.state.geolocation.tracking
-    )
 
     /**
      * @param {[Number, Number]} screenPosition
@@ -72,13 +68,6 @@ export function useMouseOnMap() {
     function onMouseMove() {
         if (isPointerDown) {
             isStillOnStartingPosition = false
-        }
-        if (isCurrentlyTrackingGeoLocation.value) {
-            // stop tracking the user geolocation to the center of the view as soon as the map is dragged
-            store.dispatch('setGeolocationTracking', {
-                tracking: false,
-                ...dispatcher,
-            })
         }
     }
 
