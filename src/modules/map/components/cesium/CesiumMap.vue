@@ -149,11 +149,7 @@ const dispatcher = { dispatcher: 'CesiumMap.vue' }
 // TODO : REF TO COMPASS
 export default {
     components: {
-<<<<<<< HEAD
         CesiumGeolocationFeedback,
-        CesiumToolbox,
-=======
->>>>>>> 9ad6fc74 (PB-490: move 3d zoom buttons to right toolbox)
         FontAwesomeIcon,
         CesiumPopover,
         FeatureEdit,
@@ -650,5 +646,16 @@ export default {
 .cesium-toolbox {
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
+    //display: flex;
+
+    $compass-size: 95px;
+
+    &-compass {
+        position: relative;
+        width: $compass-size;
+        height: $compass-size;
+        --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+        --cesium-compass-fill-color: rgb(224, 225, 226);
+    }
 }
 </style>
