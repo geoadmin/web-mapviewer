@@ -3,6 +3,7 @@ import { containsCoordinate } from 'ol/extent'
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
+import { sendFeatureInformationToIFrameParent } from '@/api/iframeFeatureEvent.api'
 import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
@@ -222,6 +223,11 @@ export default {
                     layerFeatures.featureCountForMoreData =
                         layerFeatures.features.length % paginationSize === 0 ? paginationSize : 0
                 })
+
+                // as described by this example on our documentation : https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
+                // our app should send a message (see https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)
+                // when a feature is selected while embedded, so that the parent can get the selected feature(s) ID(s)
+                sendFeatureInformationToIFrameParent(layerFeatures)
             }
             commit('setSelectedFeatures', {
                 drawingFeatures,

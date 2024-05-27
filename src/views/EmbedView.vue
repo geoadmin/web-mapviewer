@@ -1,8 +1,7 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
-import { sendFeatureInformationToIFrameParent } from '@/api/iframeFeatureEvent.api'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
@@ -18,7 +17,6 @@ const dispatcher = { dispatcher: 'EmbedView.vue' }
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
-const selectedLayerFeatures = computed(() => store.getters.selectedLayerFeatures)
 
 onBeforeMount(() => {
     store.dispatch('setEmbed', { embed: true, ...dispatcher })
@@ -27,13 +25,6 @@ onBeforeMount(() => {
 onMounted(() => {
     log.info(`Embedded map view mounted`)
 })
-
-// as described by this example on our documentation : https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
-// our embed view should send a message (see https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)
-// when a feature is selected while in embedded mode, so that the parent can get the selected feature(s) ID(s)
-watch(selectedLayerFeatures, () =>
-    sendFeatureInformationToIFrameParent(selectedLayerFeatures.value)
-)
 </script>
 
 <template>
