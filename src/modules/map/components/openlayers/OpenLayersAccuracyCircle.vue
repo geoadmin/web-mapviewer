@@ -57,3 +57,7 @@ useAddLayerToMap(layer, olMap, zIndex)
 watch(position, (newPosition) => accuracyCircle.setCenter(newPosition))
 watch(accuracy, (newAccuracy) => accuracyCircle.setRadius(newAccuracy))
 </script>
+
+<template>
+    <div />
+</template>
