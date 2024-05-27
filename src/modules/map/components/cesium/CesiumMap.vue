@@ -146,7 +146,6 @@ import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
-// TODO : REF TO COMPASS
 export default {
     components: {
         CesiumGeolocationFeedback,
