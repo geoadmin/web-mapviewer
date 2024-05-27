@@ -34,7 +34,9 @@ const addImageryLayerMixins = {
             const index = viewer.scene.imageryLayers.indexOf(this.layer)
             viewer.scene.imageryLayers.remove(this.layer)
             this.layer = this.createImagery(this.url)
-            viewer.scene.imageryLayers.add(this.layer, index)
+            if (this.layer) {
+                viewer.scene.imageryLayers.add(this.layer, index)
+            }
         },
     },
     watch: {

@@ -44,7 +44,7 @@ async function loadData(store, kmlLayer) {
         })
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
-        store.dispatch('setLayerErrorKey', {
+        store.dispatch('addLayerErrorKey', {
             layerId: kmlLayer.id,
             errorKey: `loading_error_network_failure`,
             ...dispatcher,
