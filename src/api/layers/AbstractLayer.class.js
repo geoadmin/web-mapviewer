@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash'
+
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
 /**
@@ -121,15 +123,36 @@ export default class AbstractLayer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        this.errorKey = null
+        this.errorKeys = new Set()
         this.hasError = false
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
     }
 
+    hasErrorKey(key) {
+        return this.errorKeys.has(key)
+    }
+
+    getFirstErrorKey() {
+        return this.errorKeys.values().next().value
+    }
+
+    addErrorKey(key) {
+        this.errorKeys.add(key)
+        this.hasError = true
+    }
+
+    removeErrorKey(key) {
+        this.errorKeys.delete(key)
+        this.hasError = !!this.errorKeys.size
+    }
+
+    clearErrorKeys() {
+        this.errorKeys.clear()
+        this.hasError = false
+    }
+
     clone() {
-        let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        clone.attributions = this.attributions.map((attribution) => attribution.clone())
-        return clone
+        return cloneDeep(this)
     }
 }

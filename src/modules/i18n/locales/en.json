@@ -663,7 +663,7 @@
     "operation_successful": "Operation successful!",
     "operation_failed": "Oops! Something went wrong. Please try again.",
     "operation_aborted": "Operation aborted",
-    "outside_valid_year_range": "The entered year is outside ot the available range:",
+    "outside_valid_year_range": "The entered year is outside of the available range:",
     "linkedin_tooltip": "Share this map on LinkedIn",
     "share_map_title": "Link to the geoportal of the Swiss Confederation",
     "link_description": "Link description (optional)",
@@ -681,5 +681,6 @@
     "3d_vegetation": "Vegetations",
     "3d_constructions": "Buildings and constructions",
     "webmapviewer_live_disclaimer": "Big changes are coming soon, <a target='_blank' href='https://www.swisstopo.admin.ch/en'>learn more</a>",
-    "drawing_too_large": "Your drawing is too large, remove some features"
+    "drawing_too_large": "Your drawing is too large, remove some features",
+    "3d_unsupported_projection": "This map provided by external source can't be displayed in 3d because it doesn't support the projection EPSG:4326"
 }

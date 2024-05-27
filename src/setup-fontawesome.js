@@ -9,10 +9,13 @@ import {
     faTrashAlt,
 } from '@fortawesome/free-regular-svg-icons'
 import {
+    faAnglesDown,
+    faAnglesUp,
     faArrowDown,
     faArrowLeft,
     faArrowsAltH,
     faArrowsAltV,
+    faArrowsUpDownLeftRight,
     faArrowUp,
     faBorderNone,
     faBridge,
@@ -45,6 +48,7 @@ import {
     faImage,
     faInfoCircle,
     faLink,
+    faLocationPinLock,
     faMapMarkerAlt,
     faMinus,
     faMinusCircle,
@@ -77,11 +81,14 @@ import {
 
 library.add(
     // Solid
+    faAnglesDown,
+    faAnglesUp,
     faArrowDown,
     faArrowLeft,
     faArrowUp,
     faArrowsAltH,
     faArrowsAltV,
+    faArrowsUpDownLeftRight,
     faBorderNone,
     faBridge,
     faCaretDown,
@@ -110,6 +117,7 @@ library.add(
     faHouse,
     faInfoCircle,
     faLink,
+    faLocationPinLock,
     faMapMarkerAlt,
     faMinus,
     faMinusCircle,

@@ -4,8 +4,7 @@
         :authorize-print="authorizePrint"
         :title="title"
         :use-content-padding="useContentPadding"
-        :left-position="anchorPosition.left"
-        :top-position="anchorPosition.top"
+        :anchor-position="anchorPosition"
         @close="onClose"
     >
         <template #extra-buttons>

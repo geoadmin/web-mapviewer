@@ -122,6 +122,12 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(
                 'When removing the time slider after altering it, the new year should be present in the layers'
             )
+
+            // proper way would be to use cy.tick, but I can't get it to work
+            // it somehow gets into a race condition and the rendering isn't updated
+            // after the debouncing is done
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(1000)
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
 
@@ -293,6 +299,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(
                 'When having a duplicate layer, when one is invisible, they both still behave as expected'
             )
+        })
+
+        it('behaves correctly when years are being entered in the input', () => {
             cy.goToMapView({ layers: `${time_layer_std}@year=2019`, timeSlider: 2017 })
             cy.openMenuIfMobile()
             cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
@@ -342,11 +351,43 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     cy.log('Time slider Bar moves when valid year entered')
                     cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
                     cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2000')
+
+                    // proper way would be to use cy.tick, but I can't get it to work
+                    // it somehow gets into a race condition and the rendering isn't updated
+                    // after the debouncing is done
+                    // eslint-disable-next-line cypress/no-unnecessary-waiting
+                    cy.wait(750)
+
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
                         .invoke('attr', 'style')
                         .then(extractDecimal)
                         .should('lt', extractDecimal($barCursorPosition))
                 })
+        })
+
+        it('checks that the timeslider dropdown is functional and behaves correctly', () => {
+            // ----------------------------------------------------------------------------------------------------
+            cy.log('Going to the map, the time slider appears')
+            cy.goToMapView({
+                layers: `${time_layer_std}@year=${preSelectedYear}`,
+                timeSlider: preSelectedYear,
+            })
+            cy.get('[data-cy="time-slider-bar"]').should('be.visible')
+
+            cy.log('When resizing the viewport to sm screens, the dropdown should appear')
+            cy.viewport(620, 568)
+            cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
+            cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')
+
+            cy.get('[data-cy="time-slider-dropdown"]')
+                .get('[data-cy="searchable-dropdown"] input')
+                .type('1999{downArrow}{enter}')
+
+            cy.log(
+                'When resizing back to mobile, the chosen year from the dropdown should be correct in the time slider'
+            )
+            cy.viewport(320, 568)
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', 1999)
         })
     })
 })

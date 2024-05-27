@@ -257,7 +257,7 @@ const actions = {
             // if the extent's height is greater than width, we base our resolution calculation on that
             if (extentSize.height > extentSize.width) {
                 targetResolution =
-                    extentSize.height / (rootState.ui.height - 96) /* header height */
+                    extentSize.height / (rootState.ui.height - rootState.ui.headerHeight)
             } else {
                 targetResolution = extentSize.width / rootState.ui.width
             }

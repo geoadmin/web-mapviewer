@@ -31,7 +31,7 @@ $zindex-map-popover: $zindex-menu-header + 1;
 occurs (teleported in the menu context)*/
 $zindex-drawing-toolbox: 3;
 
-$header-height: 3rem;
+$header-height: 46px;
 $dev-disclaimer-height: 24px;
 $footer-height: 30px;
 $overlay-width: 340px;
@@ -52,4 +52,6 @@ $button-spacer: 0.5rem;
   headerHeight: $header-height;
   devDisclaimerHeight: $dev-disclaimer-height;
   footerHeight: $footer-height;
+  overlayWidth: $overlay-width;
+  drawingMobileToolbarHeight: $drawing-tools-height-mobile;
 }

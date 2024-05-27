@@ -150,6 +150,22 @@ const getters = {
         state.activeLayers.filter((layer) => layer.id === layerId),
 
     /**
+     * Retrieves layer(s) by ID.
+     *
+     * Search in active layer and in preview layer
+     *
+     * @param {string} layerId ID of the layer(s) to retrieve
+     * @returns {[AbstractLayer]} All active layers matching the ID
+     */
+    getLayersById: (state) => (layerId) => {
+        const layers = state.activeLayers.filter((layer) => layer.id === layerId)
+        if (state.previewLayer?.id === layerId) {
+            layers.push(state.previewLayer)
+        }
+        return layers
+    },
+
+    /**
      * Retrieves active layer by index
      *
      * @param {number} index Index of the layer to retrieve
@@ -539,27 +555,74 @@ const actions = {
     },
 
     /**
-     * Set a layer error translation key.
+     * Add a layer error translation key.
      *
      * NOTE: This set the error key to all layers matching the ID.
      *
      * @param {string} layerId Layer ID of the layer to set the error
+     * @param {string} errorKey Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    setLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const layers = getters.getActiveLayersById(layerId)
+    addLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
+        const layers = getters.getLayersById(layerId)
         if (layers.length === 0) {
             throw new Error(
-                `Failed to update layer error key "${layerId}", layer not found in active layers`
+                `Failed to add layer error key "${layerId}", layer not found in active layers`
             )
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.errorKey = errorKey
-            clone.hasError = !!errorKey
+            clone.addErrorKey(errorKey)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
+            return clone
+        })
+        commit('updateLayers', { layers: updatedLayers, dispatcher })
+    },
+
+    /**
+     * Remove a layer error translation key.
+     *
+     * NOTE: This set the error key to all layers matching the ID.
+     *
+     * @param {string} layerId Layer ID of the layer to set the error
+     * @param {string} errorKey Error translation key to remove
+     * @param {string} dispatcher Action dispatcher name
+     */
+    removeLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
+        const layers = getters.getLayersById(layerId)
+        if (layers.length === 0) {
+            throw new Error(
+                `Failed to remove layer error key "${layerId}", layer not found in active layers`
+            )
+        }
+        const updatedLayers = layers.map((layer) => {
+            const clone = layer.clone()
+            clone.removeErrorKey(errorKey)
+            return clone
+        })
+        commit('updateLayers', { layers: updatedLayers, dispatcher })
+    },
+
+    /**
+     * Remove all layer error translation keys.
+     *
+     * NOTE: This set the error key to all layers matching the ID.
+     *
+     * @param {string} layerId Layer ID of the layer to clear the error keys
+     * @param {string} dispatcher Action dispatcher name
+     */
+    clearLayerErrorKeys({ commit, getters }, { layerId, dispatcher }) {
+        const layers = getters.getLayerById(layerId)
+        if (layers.length === 0) {
+            throw new Error(
+                `Failed to clear layer error keys "${layerId}", layer not found in active layers`
+            )
+        }
+        const updatedLayers = layers.map((layer) => {
+            const clone = layer.clone()
+            clone.clearErrorKeys()
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -599,11 +662,9 @@ const actions = {
                 clone.isLoading = false
 
                 if (!extent) {
-                    clone.errorKey = 'kml_gpx_file_empty'
-                    clone.hasError = true
+                    clone.addErrorKey('kml_gpx_file_empty')
                 } else if (!getExtentForProjection(rootState.position.projection, extent)) {
-                    clone.errorKey = 'kml_gpx_file_out_of_bounds'
-                    clone.hasError = true
+                    clone.addErrorKey('kml_gpx_file_out_of_bounds')
                 }
             }
             if (metadata) {

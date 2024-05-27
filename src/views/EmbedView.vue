@@ -23,7 +23,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    log.info(`Map view mounted`)
+    log.info(`Embedded map view mounted`)
 })
 </script>
 

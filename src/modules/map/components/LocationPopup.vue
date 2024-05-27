@@ -11,6 +11,7 @@ import { createShortLink } from '@/api/shortlink.api'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
+import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
@@ -159,9 +160,10 @@ function clearClick() {
     <component
         :is="mappingFrameworkSpecificPopup"
         v-if="coordinate"
-        :title="selectedTab == 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
+        :title="selectedTab === 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="projection"
+        :mode="MapPopoverMode.FEATURE_TOOLTIP"
         use-content-padding
         class="location-popup"
         data-cy="location-popup"
@@ -201,8 +203,7 @@ function clearClick() {
                     <!-- Italian text does not fit on one line with normal sized text -->
                     <div
                         :class="{
-                            small: currentLang == 'it',
-                            '': currentLang != 'it',
+                            small: currentLang === 'it',
                         }"
                     >
                         {{ i18n.t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon

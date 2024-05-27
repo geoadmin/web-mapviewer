@@ -102,10 +102,6 @@ function loadMoreResultForLayer(layerId) {
 <style lang="scss" scoped>
 @import '@/scss/variables.module';
 .feature-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax($overlay-width, 1fr));
-    justify-content: stretch;
-    align-content: stretch;
     &.fluid {
         max-height: 100%;
         overflow: hidden;
@@ -113,6 +109,10 @@ function loadMoreResultForLayer(layerId) {
     &:not(.fluid) {
         max-height: 33vh;
         overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax($overlay-width, 1fr));
+        justify-content: stretch;
+        align-content: stretch;
     }
 }
 </style>
