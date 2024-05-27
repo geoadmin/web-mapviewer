@@ -14,12 +14,6 @@ export function useLayerZIndexCalculation() {
         }
         return [store.state.layers.currentBackgroundLayer]
     })
-    const selectedFeatures = computed(() => store.getters.selectedFeatures)
-    const pinnedLocation = computed(() => store.state.map.pinnedLocation)
-    const previewLocation = computed(() => store.state.map.previewedPinnedLocation)
-    const crossHair = computed(() => store.state.position.crossHair)
-    const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
-    const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
     const visibleLayers = computed(() => {
         const visibleLayersWithZIndex = [...backgroundLayers.value]
@@ -51,48 +45,13 @@ export function useLayerZIndexCalculation() {
         return visibleLayers.value.length + nbOfSubLayers
     })
     const zIndexHighlightedFeatures = computed(() => startingZIndexForThingsOnTopOfLayers.value)
-    const zIndexDroppedPin = computed(() => {
-        let zIndex = zIndexHighlightedFeatures.value
-        if (selectedFeatures.value.length > 0) {
-            zIndex++
-        }
-        return zIndex
-    })
-    const zIndexPreviewPosition = computed(() => {
-        let zIndex = zIndexDroppedPin.value
-        if (pinnedLocation.value) {
-            zIndex++
-        }
-        return zIndex
-    })
-    const zIndexCrossHair = computed(() => {
-        let zIndex = zIndexPreviewPosition.value
-        if (previewLocation.value) {
-            zIndex++
-        }
-        return zIndex
-    })
-    const zIndexTileInfo = computed(() => {
-        let zIndex = zIndexCrossHair.value
-        if (crossHair.value) {
-            zIndex++
-        }
-        return zIndex
-    })
-    const zIndexLayerExtents = computed(() => {
-        let zIndex = zIndexTileInfo.value
-        if (showTileDebugInfo.value) {
-            zIndex++
-        }
-        return zIndex
-    })
-    const nextAvailableZIndex = computed(() => {
-        let zIndex = zIndexLayerExtents.value
-        if (showLayerExtents.value) {
-            zIndex++
-        }
-        return zIndex
-    })
+    const zIndexDroppedPin = computed(() => zIndexHighlightedFeatures.value + 1)
+    const zIndexPreviewPosition = computed(() => zIndexDroppedPin.value + 1)
+    const zIndexCrossHair = computed(() => zIndexPreviewPosition.value + 1)
+    const zIndexGeolocation = computed(() => zIndexCrossHair.value + 1)
+    const zIndexTileInfo = computed(() => zIndexGeolocation.value + 1)
+    const zIndexLayerExtents = computed(() => zIndexTileInfo.value + 1)
+    const nextAvailableZIndex = computed(() => zIndexLayerExtents.value + 1)
 
     /**
      * Gives the z-index of a layer, taking into account if the map is shown in 3D or not. This
@@ -129,6 +88,7 @@ export function useLayerZIndexCalculation() {
         zIndexDroppedPin,
         zIndexPreviewPosition,
         zIndexCrossHair,
+        zIndexGeolocation,
         zIndexTileInfo,
         zIndexLayerExtents,
         nextAvailableZIndex,
