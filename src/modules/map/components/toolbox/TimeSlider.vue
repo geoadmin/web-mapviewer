@@ -6,7 +6,11 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
+import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
+import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
+
+import { useRangeTippy } from './useRangeTippy'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const i18n = useI18n()
@@ -25,11 +29,11 @@ const PLAY_BUTTON_SIZE = 54
 // dynamic internal data
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
-const currentYear = ref(YOUNGEST_YEAR)
-const displayedYear = ref(YOUNGEST_YEAR)
-const isPristine = ref(true)
+const _currentYear = ref(YOUNGEST_YEAR)
+// used to hold the value in case the entered year is invalid
+const falseYear = ref(null)
 let cursorX = 0
-let playYearsWithData = false
+const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
 let playYearInterval = null
 
@@ -38,9 +42,11 @@ const timeSliderTooltipRef = ref(null)
 const yearCursor = ref(undefined)
 const sliderContainer = ref(undefined)
 const timeSliderBar = ref(null)
-const yearCursorInput = ref(null)
-let tippyYearOutsideRange = null
 let tippyTimeSliderInfo = null
+
+// ref to year cursor input
+const yearCursorInput = ref(null)
+
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
@@ -49,15 +55,81 @@ const layersWithTimestamps = computed(() =>
 )
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const previewYear = computed(() => store.state.layers.previewYear)
-const invalidYear = computed(
-    () =>
-        displayedYear.value != previewYear.value &&
-        displayedYear.value.toString().length == 4 &&
-        !allYears.value.includes(parseInt(displayedYear.value))
-)
+
+const isInputYearValid = ref(true)
+
 const tippyYearOutsideRangeContent = computed(
     () => `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
 )
+
+const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
+    () => yearCursorInput.value,
+    tippyYearOutsideRangeContent.value
+)
+
+/**
+ * Debounce the input year a bit
+ *
+ * With this, the error won't be shown immediately while the user is still typing a year, but rather
+ * only when they have finished typing
+ */
+const updateInputYear = debounce((value) => {
+    value = parseInt(value)
+    // only if the year is valid we write this to the property
+    // otherwise we show errors
+    if (!allYears.value.includes(value)) {
+        isInputYearValid.value = false
+        falseYear.value = value || ''
+    } else {
+        isInputYearValid.value = true
+        currentYear.value = parseInt(value)
+        falseYear.value = null
+    }
+}, 500)
+
+/**
+ * Used for the year in the input field Validate the input from the user. In case it's invalid, we
+ * don't propagate the value to the state, but instead save it to an intermediate state variable to
+ * be displayed along with an error message. This is important so that the cursor doesn't jump
+ * around to invalid years
+ */
+const inputYear = computed({
+    get() {
+        if (falseYear.value !== null) {
+            return falseYear.value
+        }
+        return currentYear.value
+    },
+    set(value) {
+        updateInputYear(value)
+    },
+})
+
+/**
+ * The currently selected year
+ *
+ * We can't use the store value directly, as sometimes we want to update the current year displayed
+ * without updating the store too much
+ */
+const currentYear = computed({
+    get() {
+        return _currentYear.value
+    },
+    set(value) {
+        _currentYear.value = value
+
+        // we need to reset those here, otherwise, when the error is shown and the users drags
+        // the cursor to a correct year, the error won't go away
+        falseYear.value = null
+        isInputYearValid.value = true
+
+        if (yearCursorIsGrabbed) {
+            dispatchPreviewYearToStoreDebounced()
+        } else {
+            dispatchPreviewYearToStore()
+        }
+    },
+})
 
 /**
  * Filtering of all years to only give ones that will need to be shown in the label section of the
@@ -78,9 +150,11 @@ const yearsShownAsLabel = computed(() => {
 const innerBarStyle = computed(() => {
     return { width: `${sliderWidth.value}px` }
 })
+
 const yearPositionOnSlider = computed(
     () => (1 + ALL_YEARS.indexOf(currentYear.value)) * distanceBetweenLabels.value + 42
 )
+
 const cursorPosition = computed(() => {
     const yearCursorWidth = yearCursor.value?.clientWidth || 0
     // we need to add 4.5 pixels which is half the size of the arrow for the slider to
@@ -125,28 +199,18 @@ const yearsWithData = computed(() => {
 watch(screenWidth, (newValue) => {
     setSliderWidth(newValue)
 })
-watch(currentYear, () => {
-    displayedYear.value = currentYear.value
-})
-watch(invalidYear, () => {
-    if (invalidYear.value) {
-        tippyYearOutsideRange.show()
+
+watch(isInputYearValid, (newValue) => {
+    if (!newValue) {
+        tippyOutsideRange.value.show()
     } else {
-        tippyYearOutsideRange.hide()
+        tippyOutsideRange.value.hide()
     }
 })
 
 watch(lang, () => {
-    tippyYearOutsideRange.setContent(tippyYearOutsideRangeContent.value)
+    updateTippyContent(tippyYearOutsideRangeContent.value)
 })
-
-watch(previewYear, (newValue) => {
-    currentYear.value = newValue
-})
-
-// we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
-// dispatch too many times when the user is moving the time slider (we wait for mouseup our
-// touchend to commit the change)
 
 onMounted(() => {
     setSliderWidth()
@@ -159,27 +223,21 @@ onMounted(() => {
         - else, we set it to the most recent year with data
     */
     if (!previewYear.value) {
+        // initialize the current year from the timeConfig layers
         if (
             layersWithTimestamps.value.length === 1 &&
             ALL_YEARS.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
         ) {
-            setCurrentYearAndDispatchToStore(layersWithTimestamps.value[0].timeConfig.currentYear)
+            currentYear.value = layersWithTimestamps.value[0].timeConfig.currentYear
         } else if (yearsWithData.value.yearsJoint.length > 0) {
-            setCurrentYearAndDispatchToStore(yearsWithData.value.yearsJoint[0])
+            currentYear.value = yearsWithData.value.yearsJoint[0]
         } else {
-            setCurrentYearAndDispatchToStore(yearsWithData.value.yearsSeparate[0])
+            currentYear.value = yearsWithData.value.yearsSeparate[0]
         }
     } else {
         currentYear.value = previewYear.value
     }
-    tippyYearOutsideRange = tippy(yearCursorInput.value, {
-        content: tippyYearOutsideRangeContent.value,
-        arrow: true,
-        hideOnClick: false,
-        placement: 'bottom',
-        trigger: 'manual',
-        theme: 'danger',
-    })
+
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
         content: timeSliderTooltipRef.value,
         hideOnClick: true,
@@ -194,28 +252,36 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    if (!isPristine.value) {
-        activeLayers.value.forEach((layer, index) => {
-            if (layer.hasMultipleTimestamps) {
-                store.dispatch('setTimedLayerCurrentYear', {
-                    index,
-                    year: previewYear.value,
-                    ...dispatcher,
-                })
-            }
-        })
-    }
-    tippyYearOutsideRange?.destroy()
+    setPreviewYearToLayers()
+
     tippyTimeSliderInfo?.destroy()
 })
 
-function setCurrentYearAndDispatchToStore(year, removePristineStatus = false) {
-    if (removePristineStatus) {
-        isPristine.value = false
-    }
-    currentYear.value = year
+/** Set the current preview years to the layers if they have the year available in their data */
+function setPreviewYearToLayers() {
+    activeLayers.value.forEach((layer, index) => {
+        const year = previewYear.value
+        if (
+            layer.hasMultipleTimestamps &&
+            layer.timeConfig &&
+            layer.timeConfig.getTimeEntryForYear(year)
+        ) {
+            store.dispatch('setTimedLayerCurrentYear', {
+                index,
+                year,
+                ...dispatcher,
+            })
+        }
+    })
+}
+
+function dispatchPreviewYearToStore() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
+
+const dispatchPreviewYearToStoreDebounced = debounce(() => {
+    dispatchPreviewYearToStore()
+}, 500)
 
 function setSliderWidth() {
     // the padding of the slider container (4px each side) + the padding of the
@@ -250,6 +316,7 @@ function grabCursor(event) {
     window.addEventListener('mouseup', releaseCursor, { passive: true })
     window.addEventListener('touchend', releaseCursor, { passive: true })
 }
+
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
     const deltaX = cursorX - currentPosition
@@ -279,21 +346,18 @@ function listenToMouseMove(event) {
         currentYear.value = futureYear
     }
 }
+
 function releaseCursor() {
     yearCursorIsGrabbed = false
     window.removeEventListener('mousemove', listenToMouseMove)
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseCursor)
     window.removeEventListener('touchend', releaseCursor)
-    if (isPristine.value && previewYear.value !== currentYear.value) {
-        isPristine.value = false
-    }
-    store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
 }
 
 function togglePlayYearsWithData() {
-    playYearsWithData = !playYearsWithData
-    if (playYearsWithData) {
+    playYearsWithData.value = !playYearsWithData.value
+    if (playYearsWithData.value) {
         let yearsWithDataForPlayer = ALL_YEARS.filter(
             (year) =>
                 yearsWithData.value.yearsJoint.includes(year) ||
@@ -307,7 +371,7 @@ function togglePlayYearsWithData() {
             !yearsWithDataForPlayer.includes(currentYear.value) ||
             currentYear.value === yearsWithDataForPlayer[0]
         ) {
-            setCurrentYearAndDispatchToStore(yearsWithDataForPlayer.slice(-1)[0])
+            currentYear.value = yearsWithDataForPlayer.slice(-1)[0]
         }
         playYearInterval = setInterval(() => {
             const currentYearIndex = yearsWithDataForPlayer.indexOf(currentYear.value)
@@ -315,23 +379,14 @@ function togglePlayYearsWithData() {
             if (currentYearIndex === 0) {
                 clearInterval(playYearInterval)
                 playYearInterval = null
-                playYearsWithData = false
+                playYearsWithData.value = false
             } else {
-                setCurrentYearAndDispatchToStore(yearsWithDataForPlayer[currentYearIndex - 1])
+                currentYear.value = yearsWithDataForPlayer[currentYearIndex - 1]
             }
         }, 1000)
     } else {
         clearInterval(playYearInterval)
         playYearInterval = null
-    }
-}
-function setYearToInputIfValid() {
-    if (
-        currentYear.value != displayedYear.value &&
-        allYears.value.includes(parseInt(displayedYear.value))
-    ) {
-        isPristine.value = false
-        setCurrentYearAndDispatchToStore(parseInt(displayedYear.value))
     }
 }
 </script>
@@ -344,8 +399,8 @@ function setYearToInputIfValid() {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="p-2 d-flex">
-            <div class="time-slider-bar px-5">
+        <div class="p-2 d-flex align-items-center justify-content-between">
+            <div class="time-slider-bar px-5" data-cy="time-slider-bar">
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
@@ -362,14 +417,13 @@ function setYearToInputIfValid() {
                     </div>
                     <input
                         ref="yearCursorInput"
-                        v-model="displayedYear"
+                        v-model="inputYear"
                         class="form-control time-slider-bar-cursor-year"
-                        :class="{ 'is-invalid': invalidYear }"
+                        :class="{ 'is-invalid': !isInputYearValid }"
                         data-cy="time-slider-bar-cursor-year"
                         maxlength="4"
                         type="text"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                        @input="setYearToInputIfValid"
                     />
                     <div
                         class="px-2 border-start d-flex align-items-center"
@@ -404,7 +458,7 @@ function setYearToInputIfValid() {
                             'medium-tick': year % 25 === 0,
                             'small-tick': year % 5 === 0,
                         }"
-                        @click="setCurrentYearAndDispatchToStore(year, true)"
+                        @click="currentYear = year"
                     />
                 </div>
                 <div
@@ -418,14 +472,27 @@ function setYearToInputIfValid() {
                     </small>
                 </div>
             </div>
-            <button
-                ref="playButton"
-                data-cy="time-slider-play-button"
-                class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
-                @click="togglePlayYearsWithData"
-            >
-                <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
-            </button>
+
+            <div class="time-slider-dropdown" data-cy="time-slider-dropdown">
+                <TimeSliderDropdown
+                    v-model.number="currentYear"
+                    :entries="allYears"
+                    :is-playing="playYearsWithData"
+                    @play="togglePlayYearsWithData"
+                >
+                </TimeSliderDropdown>
+            </div>
+
+            <div class="time-slider-play-button">
+                <button
+                    ref="playButton"
+                    data-cy="time-slider-play-button"
+                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
+                    @click="togglePlayYearsWithData"
+                >
+                    <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
+                </button>
+            </div>
         </div>
         <!-- Time slider color tooltip content -->
         <div ref="timeSliderTooltipRef">
@@ -450,6 +517,8 @@ function setYearToInputIfValid() {
 
 <style lang="scss">
 @use 'sass:color';
+
+@import '@/scss/media-query.mixin';
 @import '@/scss/webmapviewer-bootstrap-theme';
 
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
@@ -488,6 +557,55 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     border-color: $time-slider-color-has-data;
     background: $time-slider-color-has-data;
 }
+
+// Display the dropdown instead of the time slider on small screens (tablets),
+// but not on mobile
+.time-slider-dropdown {
+    display: none;
+}
+
+.time-slider {
+    width: 100%;
+}
+
+@include respond-above(sm) {
+    // dropdown mode
+    .time-slider-dropdown {
+        display: block;
+    }
+
+    .time-slider-bar {
+        display: none;
+    }
+
+    .time-slider {
+        width: auto;
+    }
+
+    .time-slider-play-button {
+        display: none;
+    }
+}
+
+@include respond-above(lg) {
+    // time slider mode
+    .time-slider-bar {
+        display: block;
+    }
+
+    .time-slider-dropdown {
+        display: none;
+    }
+
+    .time-slider {
+        width: 100%;
+    }
+
+    .time-slider-play-button {
+        display: block;
+    }
+}
+//
 
 .time-slider {
     background: $time-slider-color-background !important;
