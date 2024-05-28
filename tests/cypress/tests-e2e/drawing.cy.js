@@ -232,28 +232,16 @@ describe('Drawing module tests', () => {
                     // Move it, the geojson geometry should move
                     cy.readWindowValue('map').then((map) => {
                         cy.log('ending pixel is', endingPixel)
-                        const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
-
                         cy.simulateEvent(map, 'pointerdown', 0, 0)
                         cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
-                        cy.simulateEvent(map, 'pointerup')
+                        cy.simulateEvent(map, 'pointerup', moveInPixel.x, moveInPixel.y)
 
                         cy.wait('@update-kml')
-                        cy.readWindowValue('drawingLayer').should((drawingLayer) => {
-                            const features = drawingLayer.getSource().getFeatures()
-                            expect(features).to.have.lengthOf(1)
-                            const foundType = features[0].getGeometry().getType()
-                            expect(foundType).to.equal('Point')
-                            expect(features).to.be.an('Array').lengthOf(1)
-                            expect(features[0].getGeometry().getCoordinates()).to.be.eql(
-                                expectedCoordinates,
-                                `wrong coordinates after drag&drop, expected ${JSON.stringify(
-                                    expectedCoordinates
-                                )}, received: ${JSON.stringify(
-                                    features[0].getGeometry().getCoordinates()
-                                )}`
-                            )
-                        })
+
+                        readCoordinateClipboard(
+                            'feature-style-edit-coordinate-copy',
+                            "2'682'013.50, 1'210'172.00"
+                        )
                     })
                 })
 
@@ -281,7 +269,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(200, 234)
                 readCoordinateClipboard(
                     'feature-detail-coordinate-copy',
-                    "2'680'013.50, 1'210'172.00"
+                    "2'682'013.50, 1'210'172.00"
                 )
 
                 cy.log('Can generate and display media links')

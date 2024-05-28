@@ -147,7 +147,10 @@ function onHideProfile() {
             :class="{ 'd-flex': showContent }"
             data-cy="infobox-content"
         >
-            <div v-if="isEditingDrawingFeature" class="drawing-feature d-flex">
+            <div
+                v-if="isEditingDrawingFeature"
+                class="drawing-feature d-flex flex-column flex-md-row"
+            >
                 <FeatureEdit
                     v-if="showFeatureInfoInBottomPanel"
                     :feature="selectedFeature"
