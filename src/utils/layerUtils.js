@@ -80,7 +80,9 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
  * @returns {Number}
  */
 export function indexOfMaxResolution(projection, layerMaxResolution) {
-    return projection.getResolutions().indexOf(layerMaxResolution) === -1
-        ? projection.getResolutions().length
-        : projection.getResolutions().indexOf(layerMaxResolution)
+    const indexOfResolution = projection.getResolutions().indexOf(layerMaxResolution)
+    if (indexOfResolution === -1) {
+        return projection.getResolutions().length
+    }
+    return indexOfResolution
 }

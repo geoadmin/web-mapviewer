@@ -90,16 +90,19 @@ function getTransformedXYZUrl() {
         .replace('{y}', '{TileRow}')
 }
 
-/**
- * @param {Number} layerMaxResolution The maximum resolution for this layer.
- * @returns {WMTSTileGrid} The tile grid system for the wmts source
- */
+/** @returns {WMTSTileGrid} The tile grid system for the wmts source */
 function createTileGridForProjection() {
     const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
+    let resolutions = projection.value.getResolutions()
+    let matrixIds = projection.value.getMatrixIds()
+    if (resolutions.length - 1 > maxResolutionIndex) {
+        resolutions = resolutions.slice(0, maxResolutionIndex)
+        matrixIds = matrixIds.slice(0, maxResolutionIndex)
+    }
     return new WMTSTileGrid({
-        resolutions: projection.value.getResolutions().slice(0, maxResolutionIndex),
+        resolutions,
         origin: projection.value.getTileOrigin(),
-        matrixIds: projection.value.getMatrixIds().slice(0, maxResolutionIndex),
+        matrixIds,
         extent: projection.value.bounds.flatten,
     })
 }
