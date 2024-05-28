@@ -15,8 +15,9 @@ useTippyTooltip('#zoomButtons [data-tippy-content]', { placement: 'left' })
 
 const getViewer = inject('getViewer')
 
-// the '200' magic number has been found empirically to be the most agreeable to emulate
-// a zoom level.
+// The `step` variable is used with the 3D viewer. The goal was to find an increase or
+// decrease in the zoom that emulated a zoom level in an agreeable way. `200` here is a
+// magic number, found empirically, to achieve that goal.
 const step = computed(() => resolution.value * 200)
 
 function moveCamera(distance) {
