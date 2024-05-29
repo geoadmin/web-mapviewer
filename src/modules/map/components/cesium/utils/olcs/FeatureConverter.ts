@@ -283,7 +283,10 @@ export default class FeatureConverter {
      * @param outline
      * @returns {CesiumColor | undefined}
      */
-    protected extractColorFromOlStyle(style: Style | Text, outline: boolean) : CesiumColor | undefined {
+    protected extractColorFromOlStyle(
+        style: Style | Text,
+        outline: boolean
+    ): CesiumColor | undefined {
         const fillColor: OLColorLike | OLColor | PatternDescriptor | null | undefined = style
             .getFill()
             ?.getColor()
@@ -296,7 +299,7 @@ export default class FeatureConverter {
             olColor = fillColor
         }
 
-        const cesiumColor: CesiumColor | ImageMaterialProperty =  convertColorToCesium(olColor)
+        const cesiumColor: CesiumColor | ImageMaterialProperty = convertColorToCesium(olColor)
         if (cesiumColor instanceof ImageMaterialProperty) {
             if (cesiumColor.color instanceof CesiumColor) {
                 return cesiumColor.color
@@ -330,8 +333,8 @@ export default class FeatureConverter {
         olStyle: Style,
         outlineGeometry?: CSGeometry | CircleOutlineGeometry
     ): PrimitiveCollection {
-        const fillColor : CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, false)
-        const outlineColor : CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, true)
+        const fillColor: CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, false)
+        const outlineColor: CesiumColor | undefined = this.extractColorFromOlStyle(olStyle, true)
 
         const primitives = new PrimitiveCollection()
         if (olStyle.getFill()) {
@@ -774,7 +777,8 @@ export default class FeatureConverter {
             imageStyle.load()
         }
 
-        const image : HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap | null = imageStyle.getImage(1) // get normal density
+        const image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap | null =
+            imageStyle.getImage(1) // get normal density
         const isImageLoaded = function (image: HTMLImageElement) {
             return (
                 image.src != '' &&
@@ -788,12 +792,7 @@ export default class FeatureConverter {
             if (!image) {
                 return
             }
-            if (
-                !(
-                    typeof image === 'string' ||
-                    image instanceof HTMLCanvasElement
-                )
-            ) {
+            if (!(typeof image === 'string' || image instanceof HTMLCanvasElement)) {
                 return
             }
             const center = olGeometry.getCoordinates()
@@ -804,7 +803,7 @@ export default class FeatureConverter {
                 color = new CesiumColor(1.0, 1.0, 1.0, opacity)
             }
 
-            const scale : number | Size = imageStyle.getScale()
+            const scale: number | Size = imageStyle.getScale()
             if (Array.isArray(scale)) {
                 return
             }
@@ -1068,7 +1067,7 @@ export default class FeatureConverter {
         geometry: OLGeometry,
         style: Text
     ): LabelCollection | null {
-        const text : string | string[] | undefined = style.getText()
+        const text: string | string[] | undefined = style.getText()
         if (!text || Array.isArray(text)) {
             return null
         }
@@ -1084,7 +1083,7 @@ export default class FeatureConverter {
         const options: Parameters<LabelCollection['add']>[0] = {
             position: ol4326CoordinateToCesiumCartesian(extentCenter),
             text,
-            heightReference: this.getHeightReference(layer, feature, geometry)
+            heightReference: this.getHeightReference(layer, feature, geometry),
         }
 
         const offsetX = style.getOffsetX()
