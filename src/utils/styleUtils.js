@@ -75,16 +75,35 @@ export const gpxStyles = {
     MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
 }
 
+export const geolocationPointWidth = 10
+export const geolocationPointFillColor = hexToRgba(red, 0.9)
+export const geolocationPointBorderWidth = 3
+export const geolocationPointBorderColor = hexToRgba(white, 1.0)
+
 export const geolocationPointStyle = new Style({
     image: new CircleStyle({
-        radius: 15,
+        radius: geolocationPointWidth,
         fill: new Fill({
-            color: hexToRgba(red, 0.9),
+            color: geolocationPointFillColor,
         }),
         stroke: new Stroke({
-            color: hexToRgba(white, 1.0),
-            width: 3,
+            color: geolocationPointBorderColor,
+            width: geolocationPointBorderWidth,
         }),
+    }),
+})
+
+export const geolocationAccuracyCircleFillColor = hexToRgba(red, 0.1)
+export const geolocationAccuracyCircleBorderWidth = geolocationPointBorderWidth
+export const geolocationAccuracyCircleBorderColor = hexToRgba(red, 0.9)
+
+export const geolocationAccuracyCircleStyle = new Style({
+    fill: new Fill({
+        color: geolocationAccuracyCircleFillColor,
+    }),
+    stroke: new Stroke({
+        color: geolocationAccuracyCircleBorderColor,
+        width: geolocationAccuracyCircleBorderWidth,
     }),
 })
 
