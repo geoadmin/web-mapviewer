@@ -2,7 +2,6 @@ import axios from 'axios'
 import proj4 from 'proj4'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
@@ -16,16 +15,60 @@ export class ProfileError {
     }
 }
 
+/**
+ * @typedef ElevationProfilePoint
+ * @property {Number} dist Distance from first to current point (relative to the whole profile, not
+ *   by segments)
+ * @property {[Number, Number]} coordinate Coordinate of this point in the current projection
+ * @property {Number | null} elevation In the COMB elevation model
+ * @property {Boolean} hasElevationData True if some elevation data are present
+ */
+
+/**
+ * How many coordinate we will let a chunk have before splitting it into multiple chunks
+ *
+ * Backend has a hard limit at 5k, we take a conservative approach with 3k.
+ *
+ * @type {number}
+ */
+const MAX_CHUNK_LENGTH = 3000
+
+/**
+ * @param {CoordinatesChunk | null} [chunks]
+ * @returns {null | CoordinatesChunk[]}
+ */
+function splitIfTooManyPoints(chunks = null) {
+    if (!Array.isArray(chunks)) {
+        return null
+    }
+    return chunks.flatMap((chunk) => {
+        if (chunk.coordinates.length <= MAX_CHUNK_LENGTH) {
+            return chunk
+        }
+        const subChunks = []
+        for (let i = 0; i < chunk.coordinates.length; i += MAX_CHUNK_LENGTH) {
+            subChunks.push({
+                isWithinBounds: chunk.isWithinBounds,
+                coordinates: chunk.coordinates.slice(i, i + MAX_CHUNK_LENGTH),
+            })
+        }
+        return subChunks
+    })
+}
+
 function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []
     backendResponse.forEach((rawData) => {
-        let coordinates = [rawData.easting, rawData.northing]
+        let coordinate = [rawData.easting, rawData.northing]
         if (outputProjection.epsg !== LV95.epsg) {
-            coordinates = proj4(LV95.epsg, outputProjection.epsg, coordinates)
+            coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
         }
-        points.push(
-            new ElevationProfilePoint(coordinates, startingDist + rawData.dist, rawData.alts.COMB)
-        )
+        points.push({
+            coordinate,
+            dist: startingDist + rawData.dist,
+            elevation: rawData.alts.COMB,
+            hasElevationData: rawData.alts.COMB !== null,
+        })
     })
     return new ElevationProfileSegment(points)
 }
@@ -35,7 +78,7 @@ function parseProfileFromBackendResponse(backendResponse, startingDist, outputPr
  * @param {[Number, Number] | null} startingPoint
  * @param {Number} startingDist
  * @param {CoordinateSystem} outputProjection
- * @returns {ElevationProfile}
+ * @returns {Object} Raw profile backend response for this chunk
  * @throws ProfileError
  */
 export async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
@@ -59,11 +102,7 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
             // or so of the LV95 bounds, resulting in an empty profile being sent by the backend even though our
             // coordinates were inbound (hence the dataForChunk.data.length > 2 check)
             if (dataForChunk?.data && dataForChunk.data.length > 2) {
-                return parseProfileFromBackendResponse(
-                    dataForChunk.data,
-                    startingDist,
-                    outputProjection
-                )
+                return dataForChunk.data
             } else {
                 log.error('Incorrect/empty response while getting profile', dataForChunk)
                 throw new ProfileError(
@@ -114,10 +153,12 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
             }
             lastDist = dist
             lastCoordinate = coordinate
-            return new ElevationProfilePoint(
+            return {
                 coordinate,
-                outputProjection.roundCoordinateValue(dist)
-            )
+                dist: outputProjection.roundCoordinateValue(dist),
+                elevation: null,
+                hasElevationData: false,
+            }
         }),
     ])
 }
@@ -147,7 +188,7 @@ export default async (coordinates, projection) => {
         )
     }
     const segments = []
-    let coordinateChunks = LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
+    let coordinateChunks = splitIfTooManyPoints(LV95.bounds.splitIfOutOfBounds(coordinatesInLV95))
     if (!coordinateChunks) {
         log.error('No chunks found, no profile data could be fetched', coordinatesInLV95)
         throw new ProfileError(
@@ -157,13 +198,24 @@ export default async (coordinates, projection) => {
     }
     let lastCoordinate = null
     let lastDist = 0
-    for (const chunk of coordinateChunks) {
-        const segment = await getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
-        if (segment) {
-            const newSegmentLastPoint = segment.points.slice(-1)[0]
-            lastCoordinate = newSegmentLastPoint.coordinate
-            lastDist = newSegmentLastPoint.dist
-            segments.push(segment)
+    const requestsForChunks = coordinateChunks.map((chunk) =>
+        getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
+    )
+    for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
+        if (chunkResponse.status === 'fulfilled') {
+            const segment = parseProfileFromBackendResponse(
+                chunkResponse.value,
+                lastDist,
+                projection
+            )
+            if (segment) {
+                const newSegmentLastPoint = segment.points.slice(-1)[0]
+                lastCoordinate = newSegmentLastPoint.coordinate
+                lastDist = newSegmentLastPoint.dist
+                segments.push(segment)
+            }
+        } else {
+            log.error('Error while getting profile for chunk', chunkResponse.reason?.message)
         }
     }
     return new ElevationProfile(segments)

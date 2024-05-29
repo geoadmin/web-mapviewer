@@ -2,15 +2,14 @@ import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 
 const testProfile = new ElevationProfile([
     new ElevationProfileSegment([
-        new ElevationProfilePoint([0, 0], 0, 100),
-        new ElevationProfilePoint([0, 50], 50, 210),
-        new ElevationProfilePoint([0, 150], 150, 90),
-        new ElevationProfilePoint([50, 150], 200, 200),
+        { coordinate: [0, 0], dist: 0, elevation: 100, hasElevationData: true },
+        { coordinates: [0, 50], dist: 50, elevation: 210, hasElevationData: true },
+        { coordinates: [0, 150], dist: 150, elevation: 90, hasElevationData: true },
+        { coordinates: [50, 150], dist: 200, elevation: 200, hasElevationData: true },
     ]),
 ])
 
@@ -19,7 +18,7 @@ describe('Profile calculation', () => {
         const profileWithoutElevationData = new ElevationProfile([
             new ElevationProfileSegment([
                 // using 1 everywhere (except elevation) in order to check it won't be used by calculations
-                new ElevationProfilePoint([1, 1], 1, null),
+                { coordinate: [1, 1], dist: 1, elevation: null, hasElevationData: false },
             ]),
         ])
         expect(profileWithoutElevationData.hasElevationData).to.be.false
@@ -38,8 +37,8 @@ describe('Profile calculation', () => {
         const malformedProfile = new ElevationProfile([
             new ElevationProfileSegment([
                 // using 1 everywhere (except elevation) in order to check it won't be used by calculations
-                new ElevationProfilePoint([1, 1], 0, null),
-                new ElevationProfilePoint([2, 1], 1, 1),
+                { coordinate: [1, 1], dist: 0, elevation: null, hasElevationData: false },
+                { coordinate: [2, 1], dist: 1, elevation: 1, hasElevationData: true },
             ]),
         ])
         expect(malformedProfile.hasElevationData).to.be.false
