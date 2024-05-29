@@ -102,7 +102,9 @@ function activateTracking() {
                 color: transformArrayColorIntoCesiumColor(geolocationPointFillColor),
                 outlineWidth: geolocationPointBorderWidth,
                 outlineColor: transformArrayColorIntoCesiumColor(geolocationPointBorderColor),
-                heightReference: HeightReference.CLAMP_TO_TERRAIN,
+                heightReference: HeightReference.CLAMP_TO_GROUND,
+                // disable depth test so that the point isn't clipped or hidden by the terrain or buildings
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },
         })
     }
