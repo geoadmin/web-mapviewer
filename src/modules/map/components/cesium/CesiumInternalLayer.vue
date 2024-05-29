@@ -9,6 +9,7 @@
             :wmts-layer-config="layerConfig"
             :preview-year="previewYear"
             :projection="projection"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
             :is-time-slider-active="isTimeSliderActive"
         />
@@ -17,6 +18,7 @@
             :wms-layer-config="layerConfig"
             :preview-year="previewYear"
             :projection="projection"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
             :is-time-slider-active="isTimeSliderActive"
         />
@@ -27,9 +29,27 @@
                 :wms-layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
+                :parent-layer-opacity="layerConfig.opacity"
                 :z-index="zIndex + index"
                 :is-time-slider-active="isTimeSliderActive"
             />
+        </div>
+        <div v-if="layerConfig.type === LayerTypes.AGGREGATE">
+            <!-- we can't v-for and v-if at the same time, so we need to wrap all sub-layers in a <div> -->
+            <div
+                v-for="aggregateSubLayer in layerConfig.subLayers"
+                :key="aggregateSubLayer.subLayerId"
+            >
+                <CesiumInternalLayer
+                    v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
+                    :layer-config="aggregateSubLayer.layer"
+                    :parent-layer-opacity="layerConfig.opacity"
+                    :preview-year="previewYear"
+                    :projection="projection"
+                    :is-time-slider-active="isTimeSliderActive"
+                    :z-index="zIndex"
+                />
+            </div>
         </div>
         <CesiumGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
@@ -48,6 +68,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
@@ -63,6 +85,7 @@ import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
  * correct Cesium counterpart depending on the layer type.
  */
 export default {
+    name: 'CesiumInternalLayer',
     components: {
         CesiumVectorLayer,
         CesiumKMLLayer,
@@ -91,11 +114,28 @@ export default {
             type: Boolean,
             default: false,
         },
+        parentLayerOpacity: {
+            type: Number,
+            default: null,
+        },
     },
     data() {
         return {
             LayerTypes,
         }
+    },
+    computed: {
+        ...mapGetters(['resolution']),
+    },
+    methods: {
+        shouldAggregateSubLayerBeVisible(subLayer) {
+            // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
+            // have to worry about checking their validity
+            return (
+                this.resolution >= subLayer.minResolution &&
+                this.resolution <= subLayer.maxResolution
+            )
+        },
     },
 }
 </script>
