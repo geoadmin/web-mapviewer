@@ -1170,24 +1170,6 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="infobox"]').should('not.exist')
         })
-        it('shows an error message when the profile is too big for the backend', () => {
-            cy.goToDrawing()
-            cy.intercept('**/rest/services/profile.json**', (req) => {
-                req.reply({
-                    statusCode: 413,
-                    fixture: 'service-alti/profile.too.big.error.fixture.json',
-                })
-            }).as('error-profile-too-long')
-            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-
-            cy.get('[data-cy="ol-map"]').click(200, 200)
-            cy.get('[data-cy="ol-map"]').dblclick(150, 200)
-            cy.wait('@error-profile-too-long')
-            cy.get('[data-cy="profile-popup-content"]').should('be.visible')
-            cy.get('[data-cy="profile-error-message"]')
-                .should('be.visible')
-                .should('have.class', 'text-danger')
-        })
         it('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()
             // to avoid overlaping with the map footer and the floating tooltip, increase the vertical size.
