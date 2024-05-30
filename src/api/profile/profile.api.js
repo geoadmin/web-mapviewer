@@ -34,10 +34,10 @@ export class ProfileError {
 const MAX_CHUNK_LENGTH = 3000
 
 /**
- * @param {CoordinatesChunk | null} [chunks]
+ * @param {CoordinatesChunk[] | null} [chunks]
  * @returns {null | CoordinatesChunk[]}
  */
-function splitIfTooManyPoints(chunks = null) {
+export function splitIfTooManyPoints(chunks = null) {
     if (!Array.isArray(chunks)) {
         return null
     }

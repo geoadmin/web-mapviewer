@@ -3,6 +3,7 @@ import { describe, it } from 'vitest'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
+import { splitIfTooManyPoints } from '@/api/profile/profile.api.js'
 
 const testProfile = new ElevationProfile([
     new ElevationProfileSegment([
@@ -71,5 +72,48 @@ describe('Profile calculation', () => {
         // between 3 and 4 : 50m of distance and 110m of elevation, so sqrt(50^2 + 110^2) ~= 120.83m
         // total : 397.86m
         expect(testProfile.slopeDistance).to.approximately(397.86, 0.01)
+    })
+})
+
+describe('splitIfTooManyPoints', () => {
+    /**
+     * @param {Number} pointsCount
+     * @returns {CoordinatesChunk}
+     */
+    function generateChunkWith(pointsCount) {
+        const coordinates = []
+        for (let i = 0; i < pointsCount; i++) {
+            coordinates.push([0, i])
+        }
+        return {
+            coordinates,
+            isWithinBounds: true,
+        }
+    }
+
+    it('does not split a segment that does not contain more point than the limit', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3000)])
+        expect(result).to.be.an('Array').lengthOf(1)
+        expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
+    })
+    it('splits if one coordinates above the limit', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3001)])
+        expect(result).to.be.an('Array').lengthOf(2)
+        expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
+        expect(result[1].coordinates).to.be.an('Array').lengthOf(1)
+    })
+    it('creates as many sub-chunks as necessary', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3000 * 4 + 123)])
+        expect(result).to.be.an('Array').lengthOf(5)
+        for (let i = 0; i < 4; i++) {
+            expect(result[i].coordinates).to.be.an('Array').lengthOf(3000)
+        }
+        expect(result[4].coordinates).to.be.an('Array').lengthOf(123)
+    })
+    it('does not fail if the given chunk is empty or invalid', () => {
+        expect(splitIfTooManyPoints(null)).to.be.null
+        expect(splitIfTooManyPoints(undefined)).to.be.null
+        expect(splitIfTooManyPoints({})).to.be.null
+        expect(splitIfTooManyPoints([])).to.be.an('Array').lengthOf(0)
     })
 })
