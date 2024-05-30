@@ -2,15 +2,15 @@ import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
+import { splitIfTooManyPoints } from '@/api/profile/profile.api.js'
 
 const testProfile = new ElevationProfile([
     new ElevationProfileSegment([
-        new ElevationProfilePoint([0, 0], 0, 100),
-        new ElevationProfilePoint([0, 50], 50, 210),
-        new ElevationProfilePoint([0, 150], 150, 90),
-        new ElevationProfilePoint([50, 150], 200, 200),
+        { coordinate: [0, 0], dist: 0, elevation: 100, hasElevationData: true },
+        { coordinates: [0, 50], dist: 50, elevation: 210, hasElevationData: true },
+        { coordinates: [0, 150], dist: 150, elevation: 90, hasElevationData: true },
+        { coordinates: [50, 150], dist: 200, elevation: 200, hasElevationData: true },
     ]),
 ])
 
@@ -19,7 +19,7 @@ describe('Profile calculation', () => {
         const profileWithoutElevationData = new ElevationProfile([
             new ElevationProfileSegment([
                 // using 1 everywhere (except elevation) in order to check it won't be used by calculations
-                new ElevationProfilePoint([1, 1], 1, null),
+                { coordinate: [1, 1], dist: 1, elevation: null, hasElevationData: false },
             ]),
         ])
         expect(profileWithoutElevationData.hasElevationData).to.be.false
@@ -38,8 +38,8 @@ describe('Profile calculation', () => {
         const malformedProfile = new ElevationProfile([
             new ElevationProfileSegment([
                 // using 1 everywhere (except elevation) in order to check it won't be used by calculations
-                new ElevationProfilePoint([1, 1], 0, null),
-                new ElevationProfilePoint([2, 1], 1, 1),
+                { coordinate: [1, 1], dist: 0, elevation: null, hasElevationData: false },
+                { coordinate: [2, 1], dist: 1, elevation: 1, hasElevationData: true },
             ]),
         ])
         expect(malformedProfile.hasElevationData).to.be.false
@@ -72,5 +72,48 @@ describe('Profile calculation', () => {
         // between 3 and 4 : 50m of distance and 110m of elevation, so sqrt(50^2 + 110^2) ~= 120.83m
         // total : 397.86m
         expect(testProfile.slopeDistance).to.approximately(397.86, 0.01)
+    })
+})
+
+describe('splitIfTooManyPoints', () => {
+    /**
+     * @param {Number} pointsCount
+     * @returns {CoordinatesChunk}
+     */
+    function generateChunkWith(pointsCount) {
+        const coordinates = []
+        for (let i = 0; i < pointsCount; i++) {
+            coordinates.push([0, i])
+        }
+        return {
+            coordinates,
+            isWithinBounds: true,
+        }
+    }
+
+    it('does not split a segment that does not contain more point than the limit', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3000)])
+        expect(result).to.be.an('Array').lengthOf(1)
+        expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
+    })
+    it('splits if one coordinates above the limit', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3001)])
+        expect(result).to.be.an('Array').lengthOf(2)
+        expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
+        expect(result[1].coordinates).to.be.an('Array').lengthOf(1)
+    })
+    it('creates as many sub-chunks as necessary', () => {
+        const result = splitIfTooManyPoints([generateChunkWith(3000 * 4 + 123)])
+        expect(result).to.be.an('Array').lengthOf(5)
+        for (let i = 0; i < 4; i++) {
+            expect(result[i].coordinates).to.be.an('Array').lengthOf(3000)
+        }
+        expect(result[4].coordinates).to.be.an('Array').lengthOf(123)
+    })
+    it('does not fail if the given chunk is empty or invalid', () => {
+        expect(splitIfTooManyPoints(null)).to.be.null
+        expect(splitIfTooManyPoints(undefined)).to.be.null
+        expect(splitIfTooManyPoints({})).to.be.null
+        expect(splitIfTooManyPoints([])).to.be.an('Array').lengthOf(0)
     })
 })
