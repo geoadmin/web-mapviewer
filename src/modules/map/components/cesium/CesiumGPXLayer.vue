@@ -24,7 +24,7 @@ export default {
     data() {
         return {
             isPresentOnMap: false,
-            gpxDataSource: null,
+            gpxDataSource: new GpxDataSource(),
         }
     },
 
@@ -45,16 +45,7 @@ export default {
 
     mounted() {
         log.debug('Mounted GPX layer')
-        const gpxUrl =
-            'https://gist.githubusercontent.com/ismailsunni/e4345dd852c5deaff3434eadefdb467f/raw/0eac92b199e10c6498f4a1c305098a3e74ce1521/map.geo.admin.ch_GPX_20240529033356.gpx'
-        GpxDataSource.load(gpxUrl, {
-            clampToGround: true,
-        }).then((dataSource) => {
-            this.gpxDataSource = dataSource
-            if (!this.isPresentOnMap) {
-                this.addLayer()
-            }
-        })
+        this.addLayer()
     },
 
     unmounted() {
@@ -68,22 +59,24 @@ export default {
 
     methods: {
         addLayer() {
-            log.debug('Adding GPX layer')
-            log.debug(this.gpxDataSource)
+            const gpxBlob = new Blob([this.gpxData], { type: 'application/gpx+xml' })
+            const gpxUrl = URL.createObjectURL(gpxBlob)
+
+            this.gpxDataSource.load(gpxUrl, {
+                clampToGround: true,
+            })
+
             this.getViewer().dataSources.add(this.gpxDataSource)
             this.isPresentOnMap = true
-            log.debug(this.getViewer().dataSources)
         },
         removeLayer() {
             log.debug('Remove GPX layer')
-            log.debug(this.gpxDataSource)
             if (this.gpxDataSource) {
                 this.getViewer().dataSources.remove(this.gpxDataSource)
                 this.gpxDataSource = null
                 this.getViewer().scene.requestRender() // Request a render after removing the DataSource
             }
             this.isPresentOnMap = false
-            log.debug(this.getViewer().dataSources)
         },
     },
 }
