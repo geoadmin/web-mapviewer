@@ -68,7 +68,7 @@
             <FeatureList />
         </CesiumPopover>
         <CesiumGeolocationFeedback v-if="viewerCreated" />
-        
+
         <cesium-compass
             v-show="isDesktopMode && !isFullScreenMode"
             ref="compass"
