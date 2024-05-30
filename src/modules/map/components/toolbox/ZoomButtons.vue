@@ -1,4 +1,6 @@
 <script setup>
+import { Ray } from 'cesium'
+import { computed, inject } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -6,13 +8,46 @@ import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 const dispatcher = { dispatcher: 'ZoomButtons.vue' }
 
 const store = useStore()
+const is3dActive = computed(() => store.state.cesium.active)
+const resolution = computed(() => store.getters.resolution)
+
 useTippyTooltip('#zoomButtons [data-tippy-content]', { placement: 'left' })
 
+const getViewer = inject('getViewer')
+
+// The `step` variable is used with the 3D viewer. The goal was to find an increase or
+// decrease in the zoom that emulated a zoom level in an agreeable way. `200` here is a
+// magic number, found empirically, to achieve that goal.
+const step = computed(() => resolution.value * 200)
+
+function moveCamera(distance) {
+    const camera = getViewer().scene?.camera
+    if (camera) {
+        camera.flyTo({
+            destination: Ray.getPoint(new Ray(camera.position, camera.direction), distance),
+            orientation: {
+                heading: camera.heading,
+                pitch: camera.pitch,
+                roll: camera.roll,
+            },
+            duration: 0.25,
+        })
+    }
+}
+
 function increaseZoom() {
-    store.dispatch('increaseZoom', dispatcher)
+    if (is3dActive.value) {
+        moveCamera(step.value)
+    } else {
+        store.dispatch('increaseZoom', dispatcher)
+    }
 }
 function decreaseZoom() {
-    store.dispatch('decreaseZoom', dispatcher)
+    if (is3dActive.value) {
+        moveCamera(-step.value)
+    } else {
+        store.dispatch('decreaseZoom', dispatcher)
+    }
 }
 </script>
 
