@@ -72,7 +72,7 @@
         <cesium-compass
             v-show="isDesktopMode && !isFullScreenMode"
             ref="compass"
-            class="cesium-toolbox position-absolute start-50 translate-middle-x cesium-toolbox-compass"
+            class="position-absolute start-50 translate-middle-x cesium-compass"
         />
         <slot />
     </div>
@@ -644,18 +644,16 @@ export default {
     right: unset;
 }
 
-.cesium-toolbox {
+.cesium-compass {
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
 
     $compass-size: 95px;
 
-    &-compass {
-        position: relative;
-        width: $compass-size;
-        height: $compass-size;
-        --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
-        --cesium-compass-fill-color: rgb(224, 225, 226);
-    }
+    position: relative;
+    width: $compass-size;
+    height: $compass-size;
+    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>
