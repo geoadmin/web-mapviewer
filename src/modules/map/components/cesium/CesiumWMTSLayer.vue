@@ -54,13 +54,17 @@ export default {
             type: Boolean,
             default: false,
         },
+        parentLayerOpacity: {
+            type: Number,
+            default: null,
+        },
     },
     computed: {
         layerId() {
             return this.wmtsLayerConfig.id
         },
         opacity() {
-            return this.wmtsLayerConfig.opacity || 1.0
+            return this.parentLayerOpacity ?? this.wmtsLayerConfig.opacity ?? 1.0
         },
         url() {
             return getWmtsXyzUrl(this.wmtsLayerConfig, this.projection, {
@@ -139,7 +143,6 @@ export default {
         ...mapActions(['addLayerErrorKey', 'removeLayerErrorKey']),
         createImagery(url) {
             const options = {
-                show: this.wmtsLayerConfig.visible,
                 alpha: this.opacity,
             }
             if (this.wmtsLayerConfig instanceof ExternalWMTSLayer && this.tileMatrixSetId) {

@@ -38,10 +38,13 @@ export default {
             type: Number,
             default: -1,
         },
-
         isTimeSliderActive: {
             type: Boolean,
             default: false,
+        },
+        parentLayerOpacity: {
+            type: Number,
+            default: null,
         },
     },
     computed: {
@@ -52,7 +55,7 @@ export default {
             return this.wmsLayerConfig.technicalName ?? this.wmsLayerConfig.id
         },
         opacity() {
-            return this.wmsLayerConfig.opacity ?? 1.0
+            return this.parentLayerOpacity ?? this.wmsLayerConfig.opacity ?? 1.0
         },
         wmsVersion() {
             return this.wmsLayerConfig.wmsVersion ?? '1.3.0'
@@ -107,15 +110,14 @@ export default {
                 new WebMapServiceImageryProvider({
                     url: url,
                     parameters: this.wmsUrlParams,
-                    subdomains: '0123',
-                    layers: this.wmsLayerConfig.id,
+                    layers: this.layerId,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
+                    enablePickFeatures: false,
                     rectangle: Rectangle.fromDegrees(
                         ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
                     ),
                 }),
                 {
-                    show: this.wmsLayerConfig.visible,
                     alpha: this.opacity,
                 }
             )

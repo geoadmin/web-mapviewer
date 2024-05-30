@@ -105,6 +105,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
+import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -198,6 +199,7 @@ export default {
                 (l) =>
                     l instanceof GeoAdminWMTSLayer ||
                     l instanceof GeoAdminWMSLayer ||
+                    l instanceof GeoAdminAggregateLayer ||
                     l instanceof ExternalLayer
             )
         },
