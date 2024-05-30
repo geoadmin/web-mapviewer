@@ -67,6 +67,7 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList />
         </CesiumPopover>
+        <CesiumGeolocationFeedback v-if="viewerCreated" />
         <CesiumToolbox
             v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
             class="cesium-toolbox position-absolute start-50 translate-middle-x"
@@ -115,6 +116,7 @@ import {
 } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
@@ -145,6 +147,7 @@ const dispatcher = { dispatcher: 'CesiumMap.vue' }
 
 export default {
     components: {
+        CesiumGeolocationFeedback,
         CesiumToolbox,
         FontAwesomeIcon,
         CesiumPopover,
