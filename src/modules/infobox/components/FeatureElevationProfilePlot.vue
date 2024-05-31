@@ -1,6 +1,7 @@
 <template>
     <div
         ref="profileChartContainer"
+        class="profile-graph d-flex"
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
@@ -8,7 +9,7 @@
             ref="chart"
             :data="chartJsData"
             :options="chartJsOptions"
-            class="profile-graph"
+            class="profile-graph-container flex-grow-1"
             data-cy="profile-graph"
             @mouseleave="clearHoverPosition"
             @contextmenu.prevent="resetZoom"
@@ -385,6 +386,7 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 
+$profile-min-height: 150px;
 $arrow-width: 9px;
 $tooltip-height: 58px;
 $tooltip-width: 170px;
@@ -397,11 +399,14 @@ $tooltip-width: 170px;
 }
 
 .profile-graph {
-    overflow: hidden;
     width: 100%;
-    min-height: 145px;
-    max-height: 145px;
-    pointer-events: auto;
+
+    &-container {
+        overflow: hidden;
+        min-height: $profile-min-height;
+        max-height: 2 * $profile-min-height;
+        pointer-events: auto;
+    }
 }
 .profile-tooltip {
     width: $tooltip-width;
