@@ -3,7 +3,7 @@
         v-if="isProjectionWebMercator"
         id="cesium"
         ref="viewer"
-        class="cesium-widget"
+        class="cesium-map"
         data-cy="cesium-map"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="clearLongPressTimer"
@@ -67,15 +67,18 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList />
         </CesiumPopover>
-        <CesiumToolbox
-            v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
-            class="cesium-toolbox position-absolute start-50 translate-middle-x"
+        <CesiumGeolocationFeedback v-if="viewerCreated" />
+
+        <cesium-compass
+            v-show="isDesktopMode && !isFullScreenMode"
+            ref="compass"
+            class="position-absolute start-50 translate-middle-x cesium-compass"
         />
         <slot />
     </div>
 </template>
 <script>
-import 'cesium/Build/Cesium/Widgets/widgets.css'
+import '@geoblocks/cesium-compass'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import * as cesium from 'cesium'
@@ -101,6 +104,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
+import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -115,9 +119,9 @@ import {
 } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
@@ -142,10 +146,9 @@ import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
-
 export default {
     components: {
-        CesiumToolbox,
+        CesiumGeolocationFeedback,
         FontAwesomeIcon,
         CesiumPopover,
         FeatureEdit,
@@ -195,6 +198,7 @@ export default {
                 (l) =>
                     l instanceof GeoAdminWMTSLayer ||
                     l instanceof GeoAdminWMSLayer ||
+                    l instanceof GeoAdminAggregateLayer ||
                     l instanceof ExternalLayer
             )
         },
@@ -397,6 +401,11 @@ export default {
                 limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
             )
 
+            if (this.$refs.compass) {
+                this.$refs.compass.scene = this.viewer.scene
+                this.$refs.compass.clock = this.viewer.clock
+            }
+
             this.flyToPosition()
 
             if (this.selectedFeatures.length > 0) {
@@ -487,7 +496,7 @@ export default {
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
-            const cartesian = this.viewer.scene.pickPosition(new Cartesian2(x, y))
+            const cartesian = this.viewer?.scene.pickPosition(new Cartesian2(x, y))
             let coordinates = []
             if (cartesian) {
                 const cartCoords = Cartographic.fromCartesian(cartesian)
@@ -624,20 +633,59 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/modules/map/scss/toolbox-buttons';
+@import '@/scss/media-query.mixin';
+
+.cesium-map,
+.cesium-widget,
+:global(.cesium-viewer),
+:global(.cesium-viewer-cesiumWidgetContainer),
+:global(.cesium-widget),
+:global(.cesium-widget canvas) {
+    overflow: hidden;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
     display: none !important;
 }
 :global(.cesium-performanceDisplay-defaultContainer) {
-    left: $screen-padding-for-ui-elements;
+    position: absolute;
+    right: $screen-padding-for-ui-elements;
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     top: unset;
-    right: unset;
+    left: unset;
+    border: $border-width solid $danger-border-subtle;
+    border-radius: $border-radius;
+    background-color: $danger-bg-subtle;
+    padding: 0.5rem;
 }
 
-.cesium-toolbox {
+@include respond-above(phone) {
+    :global(.cesium-performanceDisplay-defaultContainer) {
+        // Background wheel is on the opposite side of the screen past the phone threshold,
+        // so we move the debug box to the other side too (so that it is not covered/covering the
+        // BG wheel button)
+        left: $screen-padding-for-ui-elements;
+        right: unset;
+    }
+}
+
+.cesium-compass {
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     z-index: $zindex-map + 1;
+
+    $compass-size: 95px;
+
+    position: relative;
+    width: $compass-size;
+    height: $compass-size;
+    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>

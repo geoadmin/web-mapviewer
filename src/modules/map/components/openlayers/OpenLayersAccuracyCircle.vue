@@ -8,11 +8,11 @@ import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { Fill, Stroke, Style } from 'ol/style'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 
 const props = defineProps({
     zIndex: {
@@ -31,17 +31,7 @@ const accuracyCircle = new Circle(position.value, accuracy.value)
 const accuracyCircleFeature = new Feature({
     geometry: accuracyCircle,
 })
-accuracyCircleFeature.setStyle(
-    new Style({
-        fill: new Fill({
-            color: [255, 0, 0, 0.1],
-        }),
-        stroke: new Stroke({
-            color: [255, 0, 0, 0.9],
-            width: 3,
-        }),
-    })
-)
+accuracyCircleFeature.setStyle(geolocationAccuracyCircleStyle)
 const layer = new VectorLayer({
     id: `geolocation-accuracy-layer`,
     source: new VectorSource({

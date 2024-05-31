@@ -1,18 +1,21 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
-
-import FeatureEdit from './components/FeatureEdit.vue'
-import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
-import FeatureList from './components/FeatureList.vue'
 
 const dispatcher = { dispatcher: 'InfoboxModule.vue' }
 const showContent = ref(true)
 const content = ref(null)
+
+const i18n = useI18n()
 const store = useStore()
 
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
@@ -23,8 +26,12 @@ const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.sho
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
 const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
+const isEditingDrawingFeature = computed(
+    () => showDrawingOverlay.value && isSelectedFeatureEditable.value
+)
 
-const showElevationProfile = computed(() => store.state.features.profileFeature !== null)
+const profileFeature = computed(() => store.state.features.profileFeature)
+const showElevationProfile = computed(() => profileFeature.value !== null)
 
 const showContainer = computed(() => {
     return (
@@ -58,14 +65,52 @@ function onPrint() {
     promptUserToPrintHtmlContent(content.value)
 }
 function onClose() {
-    store.dispatch('clearAllSelectedFeatures', dispatcher)
-    store.dispatch('clearClick', dispatcher)
+    if (showFeatureInfoInBottomPanel.value) {
+        store.dispatch('clearAllSelectedFeatures', dispatcher)
+        store.dispatch('clearClick', dispatcher)
+    } else if (showElevationProfile.value) {
+        // if feature details are shown in the floating tooltip we don't want to close the detail
+        // when clicking on the X button, but only close the profile
+        onHideProfile()
+    }
+}
+function onHideProfile() {
+    store.dispatch('setProfileFeature', { feature: null, ...dispatcher })
 }
 </script>
 
 <template>
-    <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
-        <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
+    <div
+        v-if="showContainer"
+        class="infobox card rounded-0 clear-no-ios-long-press"
+        data-cy="infobox"
+        @contextmenu.stop
+    >
+        <div
+            class="infobox-header card-header d-flex justify-content-end m-0"
+            data-cy="infobox-header"
+        >
+            <div
+                v-if="!showDrawingOverlay && showElevationProfile"
+                class="d-flex justify-content-center align-items-center flex-grow-1"
+            >
+                <button
+                    v-if="showFeatureInfoInBottomPanel"
+                    class="btn btn-light btn-xs align-middle"
+                    @click.stop="onHideProfile"
+                >
+                    <FontAwesomeIcon icon="chevron-left" class="me-1" />
+                    {{ i18n.t('hide_profile') }}
+                </button>
+                <strong class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
+                    {{ i18n.t('profile_title') }}
+                    <span class="d-none d-md-inline">&nbsp;:&nbsp;{{ profileFeature.title }}</span>
+                </strong>
+            </div>
+            <ZoomToExtentButton
+                v-if="showElevationProfile && profileFeature.extent"
+                :extent="profileFeature.extent"
+            />
             <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
                 <FontAwesomeIcon icon="print" />
             </button>
@@ -82,7 +127,8 @@ function onClose() {
                 data-cy="infobox-minimize-maximize"
                 @click="onToggleContent"
             >
-                <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
+                <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
+                <FontAwesomeIcon v-else icon="window-maximize" />
             </button>
             <button
                 class="btn btn-light btn-sm d-flex align-items-center"
@@ -93,21 +139,54 @@ function onClose() {
             </button>
         </div>
 
-        <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
-            <FeatureElevationProfile v-if="showElevationProfile" />
-            <FeatureEdit
-                v-if="isSelectedFeatureEditable && showFeatureInfoInBottomPanel"
-                :feature="selectedFeature"
-                :read-only="!showDrawingOverlay"
-                class="p-3"
-            />
-            <FeatureList v-if="!showDrawingOverlay && showFeatureInfoInBottomPanel" />
+        <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
+        <div
+            v-show="showContent"
+            ref="content"
+            class="infobox-content flex-column"
+            :class="{ 'd-flex': showContent }"
+            data-cy="infobox-content"
+        >
+            <div
+                v-if="isEditingDrawingFeature"
+                class="drawing-feature d-flex flex-column flex-md-row"
+            >
+                <FeatureEdit
+                    v-if="showFeatureInfoInBottomPanel"
+                    :feature="selectedFeature"
+                    class="drawing-feature-edit p-3"
+                    :class="{ 'flex-grow-1': !showElevationProfile }"
+                />
+                <FeatureElevationProfile v-if="showElevationProfile" class="flex-grow-1" />
+            </div>
+            <div v-else class="d-flex flex-column h-100 overflow-y-auto">
+                <div
+                    v-if="showElevationProfile"
+                    key="profile-detail"
+                    class="h-100 d-flex flex-column flex-md-row align-content-stretch"
+                >
+                    <FeatureElevationProfile class="flex-grow-1 profile-with-feature" />
+                </div>
+                <FeatureList v-if="showFeatureInfoInBottomPanel" v-show="!showElevationProfile" />
+            </div>
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/variables.module';
+@import '@/scss/media-query.mixin';
+
 .infobox {
     width: 100%;
+    &-content {
+        max-width: 100%;
+    }
+    .drawing-feature {
+        max-width: 100%;
+        &-edit {
+            min-width: $overlay-width;
+        }
+    }
 }
 </style>

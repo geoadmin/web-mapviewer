@@ -73,11 +73,7 @@ function onCSVDownload() {
 </script>
 
 <template>
-    <div
-        data-cy="profile-popup-content"
-        data-infobox="height-reference"
-        class="profile-popup-content p-1 position-relative"
-    >
+    <div data-cy="profile-popup-content" class="profile-popup-content p-1 d-flex flex-column">
         <div v-if="!hasData">
             <LoadingBar v-if="!profileRequestError" />
             <span v-else class="text-danger" data-cy="profile-error-message">
@@ -88,10 +84,11 @@ function onCSVDownload() {
             v-if="hasData"
             :elevation-profile="profileData"
             :tracking-point-color="RED"
+            class="flex-grow-1"
         />
         <FeatureElevationProfileInformation v-if="hasData" :profile="profileData">
             <button
-                class="btn btn-light d-flex align-items-center"
+                class="btn btn-light d-flex align-items-center mx-1"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
             >
@@ -113,5 +110,9 @@ function onCSVDownload() {
 .profile-popup-content {
     // size of the profile information container, so that no scroll bar shows up when drawing a profile outside of CH
     min-height: 2rem;
+    // so that we break the min-width: auto; applied by default by the flexbox
+    // without this, the profile content can overflow the parent
+    // see https://gaurav5430.medium.com/css-flex-positioning-gotchas-child-expands-to-more-than-the-width-allowed-by-the-parent-799c37428dd6
+    min-width: 0;
 }
 </style>

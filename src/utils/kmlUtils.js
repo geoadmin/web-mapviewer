@@ -64,9 +64,12 @@ export function getKmlExtent(content) {
         featureProjection: WGS84.epsg,
     })
     const extent = emptyExtent()
-    features.forEach((feature) => {
-        extendExtent(extent, feature.getGeometry().getExtent())
-    })
+    features
+        // guarding against empty/null geometry (in case the KML feature doesn't declare any coordinate)
+        .filter((feature) => !!feature.getGeometry()?.getExtent())
+        .forEach((feature) => {
+            extendExtent(extent, feature.getGeometry().getExtent())
+        })
     if (isExtentEmpty(extent)) {
         return null
     }
