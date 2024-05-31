@@ -13,7 +13,8 @@ const resolution = computed(() => store.getters.resolution)
 
 useTippyTooltip('#zoomButtons [data-tippy-content]', { placement: 'left' })
 
-const getViewer = inject('getViewer')
+// telling vue that getViewer is a factory method (avoid unnecessary computation or side effects)
+const getViewer = inject('getViewer', () => {}, true)
 
 // The `step` variable is used with the 3D viewer. The goal was to find an increase or
 // decrease in the zoom that emulated a zoom level in an agreeable way. `200` here is a
