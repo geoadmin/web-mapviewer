@@ -3,7 +3,7 @@
         v-if="isProjectionWebMercator"
         id="cesium"
         ref="viewer"
-        class="cesium-widget"
+        class="cesium-map"
         data-cy="cesium-map"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="clearLongPressTimer"
@@ -78,7 +78,6 @@
     </div>
 </template>
 <script>
-import 'cesium/Build/Cesium/Widgets/widgets.css'
 import '@geoblocks/cesium-compass'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -634,16 +633,47 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/modules/map/scss/toolbox-buttons';
+@import '@/scss/media-query.mixin';
+
+.cesium-map,
+.cesium-widget,
+:global(.cesium-viewer),
+:global(.cesium-viewer-cesiumWidgetContainer),
+:global(.cesium-widget),
+:global(.cesium-widget canvas) {
+    overflow: hidden;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 // rule can't be scoped otherwise styles will be not applied
 :global(.cesium-viewer .cesium-widget-credits) {
     display: none !important;
 }
 :global(.cesium-performanceDisplay-defaultContainer) {
-    left: $screen-padding-for-ui-elements;
+    position: absolute;
+    right: $screen-padding-for-ui-elements;
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     top: unset;
-    right: unset;
+    left: unset;
+    border: $border-width solid $danger-border-subtle;
+    border-radius: $border-radius;
+    background-color: $danger-bg-subtle;
+    padding: 0.5rem;
+}
+
+@include respond-above(phone) {
+    :global(.cesium-performanceDisplay-defaultContainer) {
+        // Background wheel is on the opposite side of the screen past the phone threshold,
+        // so we move the debug box to the other side too (so that it is not covered/covering the
+        // BG wheel button)
+        left: $screen-padding-for-ui-elements;
+        right: unset;
+    }
 }
 
 .cesium-compass {
