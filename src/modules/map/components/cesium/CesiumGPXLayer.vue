@@ -106,6 +106,15 @@ function updateStyle() {
     const radius = 8
     const billboardSize = radius * 2
     const redCircleImage = createRedCircleImage(radius)
+
+    const redCircleBillboard = new BillboardGraphics({
+        image: redCircleImage,
+        width: billboardSize,
+        height: billboardSize,
+        eyeOffset: new Cartesian3(0, 0, -100), // Make sure the billboard is always seen
+        heightReference: HeightReference.CLAMP_TO_TERRAIN, // Make the billboard always appear on top of the terrain
+    })
+
     const entities = gpxDataSource.value._entityCollection.values
 
     for (let i = 0; i < entities.length; i++) {
@@ -118,13 +127,7 @@ function updateStyle() {
                 entity.show = false
             } else {
                 entity.show = true
-                entity.billboard = new BillboardGraphics({
-                    image: redCircleImage,
-                    width: billboardSize,
-                    height: billboardSize,
-                    eyeOffset: new Cartesian3(0, 0, -100), // Make sure the billboard is always seen
-                    heightReference: HeightReference.CLAMP_TO_TERRAIN, // Make the billboard always appear on top of the terrain
-                })
+                entity.billboard = redCircleBillboard
             }
         }
 
