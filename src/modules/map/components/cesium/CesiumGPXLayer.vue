@@ -120,6 +120,10 @@ function updateStyle() {
 
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
+        if (opacity.value === 0) {
+            entity.show = false
+            continue
+        }
         // Hide the billboard for billboard on the lines by checking if there is a description
         // Imported GPX files from web-mapviewer have a description for the waypoints
         // This might be not working for generic GPX files
@@ -133,11 +137,13 @@ function updateStyle() {
         }
 
         if (cesiumDefined(entity.polyline)) {
+            entity.show = true
             entity.polyline.material = redColorMaterial
             entity.polyline.width = 1.5
         }
 
         if (cesiumDefined(entity.polygon)) {
+            entity.show = true
             entity.polygon.material = redColorMaterial
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
