@@ -42,23 +42,6 @@
                 :z-index="zIndex"
             />
         </div>
-        <CesiumGeoJSONLayer
-            v-if="layerConfig.type === LayerTypes.GEOJSON"
-            :layer-id="layerConfig.id"
-            :opacity="layerConfig.opacity"
-            :geojson-url="layerConfig.geoJsonUrl"
-            :style-url="layerConfig.styleUrl"
-            :projection="projection"
-        />
-        <CesiumKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML"
-            :kml-layer-config="layerConfig"
-        />
-        <CesiumGPXLayer
-            v-if="layerConfig.type === LayerTypes.GPX"
-            :gpx-layer-config="layerConfig"
-            :projection="projection"
-        />
         <slot />
     </div>
     <CesiumGeoJSONLayer
@@ -70,6 +53,7 @@
         :projection="projection"
     />
     <CesiumKMLLayer v-if="layerConfig.type === LayerTypes.KML" :kml-layer-config="layerConfig" />
+    <CesiumGPXLayer v-if="layerConfig.type === LayerTypes.GPX" :gpx-layer-config="layerConfig" />
     <slot />
 </template>
 
