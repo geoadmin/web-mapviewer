@@ -5,8 +5,15 @@
 </template>
 
 <script>
-import { Color, defined as cesiumDefined, GpxDataSource } from 'cesium'
-import { ColorMaterialProperty } from 'cesium'
+import {
+    BillboardGraphics,
+    Cartesian3,
+    Color,
+    ColorMaterialProperty,
+    defined as cesiumDefined,
+    GpxDataSource,
+    HeightReference,
+} from 'cesium'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import log from '@/utils/logging'
@@ -83,18 +90,52 @@ export default {
             this.isPresentOnMap = false
         },
         updateStyle() {
-            // Inspect the default styles
+            // Function to create a red circle image using a canvas
+            function createRedCircleImage(radius) {
+                // Create a new canvas element
+                const canvas = document.createElement('canvas')
+                const context = canvas.getContext('2d')
+
+                // Set the canvas sizes
+                canvas.width = radius * 2
+                canvas.height = radius * 2
+
+                // Draw a red circle on the canvas
+                context.beginPath()
+                context.arc(radius, radius, radius, 0, 2 * Math.PI, false)
+                context.fillStyle = 'red'
+                context.fill()
+
+                // Return the data URL of the canvas drawing
+                return canvas.toDataURL()
+            }
+
+            // Create a red circle image with a radius of 8 pixels
+            const radius = 8
+            const billboardSize = radius * 2
+            const redCircleImage = createRedCircleImage(radius)
+
             const entities = this.gpxDataSource.entities.values
             log.debug('Entities:', entities.length)
             window.entities = entities
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i]
-                // hacky stuff to draw GPX data like in geoadmin
-                log.debug('Entity:', entity)
-                if (cesiumDefined(entity.billboard) && !entity.description) {
-                    entity.show = false // Hide the billboard for billboard on the lines
-                } else {
-                    entity.show = true
+                // Hide the billboard for billboard on the lines by checking if there is a description
+                // Imported GPX files from web-mapviewer have a description for the waypoints
+                // This might be not working for generic GPX files
+                if (cesiumDefined(entity.billboard)) {
+                    if (!entity.description) {
+                        entity.show = false
+                    } else {
+                        entity.show = true
+                        entity.billboard = new BillboardGraphics({
+                            image: redCircleImage,
+                            width: billboardSize,
+                            height: billboardSize,
+                            eyeOffset: new Cartesian3(0, 0, -100), // Make sure the billboard is always seen
+                            heightReference: HeightReference.CLAMP_TO_TERRAIN, // Make the billboard always appear on top of the terrain
+                        })
+                    }
                 }
 
                 if (cesiumDefined(entity.polyline)) {
