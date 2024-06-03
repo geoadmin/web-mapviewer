@@ -114,6 +114,7 @@ function updateStyle() {
         eyeOffset: new Cartesian3(0, 0, -100), // Make sure the billboard is always seen
         heightReference: HeightReference.CLAMP_TO_TERRAIN, // Make the billboard always appear on top of the terrain
     })
+    const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
 
     const entities = gpxDataSource.value._entityCollection.values
 
@@ -132,12 +133,12 @@ function updateStyle() {
         }
 
         if (cesiumDefined(entity.polyline)) {
-            entity.polyline.material = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
+            entity.polyline.material = redColorMaterial
             entity.polyline.width = 1.5
         }
 
         if (cesiumDefined(entity.polygon)) {
-            entity.polygon.material = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
+            entity.polygon.material = redColorMaterial
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
         }
