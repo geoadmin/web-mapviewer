@@ -24,13 +24,21 @@ const props = defineProps({
 const isPresentOnMap = ref(false)
 const gpxDataSource = ref(new GpxDataSource())
 
-// const opacity = ref(props.gpxLayerConfig.opacity)
+const opacity = ref(props.gpxLayerConfig.opacity)
 const gpxData = ref(props.gpxLayerConfig.gpxData)
 
 const getViewer = inject('getViewer')
 watch(gpxData, () => {
     addLayer()
 })
+
+watch(
+    () => props.gpxLayerConfig.opacity,
+    (newOpacity) => {
+        opacity.value = newOpacity
+        updateStyle()
+    }
+)
 
 onMounted(() => {
     log.debug('Mounted GPX layer')
@@ -85,7 +93,9 @@ function updateStyle() {
         // Draw a red circle on the canvas
         context.beginPath()
         context.arc(radius, radius, radius, 0, 2 * Math.PI, false)
-        context.fillStyle = 'red'
+
+        const color = `rgba(255, 0, 0, ${opacity.value})`
+        context.fillStyle = color
         context.fill()
 
         // Return the data URL of the canvas drawing
@@ -119,12 +129,12 @@ function updateStyle() {
         }
 
         if (cesiumDefined(entity.polyline)) {
-            entity.polyline.material = new ColorMaterialProperty(Color.RED)
+            entity.polyline.material = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
             entity.polyline.width = 1.5
         }
 
         if (cesiumDefined(entity.polygon)) {
-            entity.polygon.material = new ColorMaterialProperty(Color.RED)
+            entity.polygon.material = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
         }
