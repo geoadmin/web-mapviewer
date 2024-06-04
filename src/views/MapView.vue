@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
+import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterAppCopyright.vue'
@@ -77,9 +78,14 @@ onMounted(() => {
                     <template #middle>
                         <InfoboxModule />
                     </template>
-                    <template v-if="!is3DActive && !isPhoneMode" #bottom-left>
-                        <OpenLayersScale />
-                        <OpenLayersMouseTracker />
+                    <template #bottom-left>
+                        <template v-if="!is3DActive && !isPhoneMode">
+                            <OpenLayersScale />
+                            <OpenLayersMouseTracker />
+                        </template>
+                        <template v-if="is3DActive && !isPhoneMode">
+                            <CesiumMouseTracker />
+                        </template>
                     </template>
                     <template v-if="!isPhoneMode" #bottom-right>
                         <MapFooterAppVersion />

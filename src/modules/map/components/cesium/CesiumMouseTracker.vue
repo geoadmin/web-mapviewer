@@ -1,0 +1,99 @@
+<script setup>
+import { ScreenSpaceEventHandler } from 'cesium'
+import { ScreenSpaceEventType } from 'cesium'
+import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { watch } from 'vue'
+import { useStore } from 'vuex'
+
+import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
+
+const mousePosition = ref(null)
+const displayedFormatId = ref(LV95Format.id)
+let handler = null
+
+const store = useStore()
+
+// const olMap = inject('olMap')
+const getViewer = inject('getViewer', () => {}, true)
+
+const is3DReady = computed(() => store.state.cesium.isViewerReady)
+
+watch(
+    is3DReady,
+    (newVal) => {
+        if (newVal) {
+            console.log('is3DReady is now true', getViewer())
+            setupHandler()
+        }
+    },
+    { immediate: true }
+)
+
+onMounted(() => {
+    console.log('CesiumMouseTracker.vue onMounted', getViewer())
+    setupHandler()
+})
+onUnmounted(() => {
+    // olMap.removeControl(mousePositionControl)
+})
+
+function setupHandler() {
+    console.log('Setup Handler')
+    if (!getViewer()) {
+        console.log('No viewer, canceling setupHandler')
+        return
+    }
+    console.log('Viewer', getViewer())
+    handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
+    handler.setInputAction((movement) => {
+        console.log('movement', movement)
+    }, ScreenSpaceEventType.MOUSE_MOVE)
+}
+
+// function showCoordinateLabel(displayedFormat) {
+//     return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
+// }
+function setDisplayedFormatWithId() {
+    store.dispatch('setDisplayedFormatId', {
+        displayedFormatId: displayedFormatId.value,
+        ...dispatcher,
+    })
+    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+    if (displayedFormat) {
+        log.info('displayedFormat', displayedFormat)
+    } else {
+        log.error('Unknown coordinates display format', displayedFormatId.value)
+    }
+}
+</script>
+
+<template>
+    <select
+        v-model="displayedFormatId"
+        class="map-projection form-control-xs"
+        data-cy="mouse-position-select"
+        @change="setDisplayedFormatWithId"
+    >
+        <option v-for="format in allFormats" :key="format.id" :value="format.id">
+            {{ format.label }}
+        </option>
+    </select>
+    <div class="mouse-position" data-cy="mouse-position"></div>
+</template>
+
+<style lang="scss" scoped>
+.mouse-position {
+    display: none;
+    min-width: 10em;
+    text-align: left;
+    white-space: nowrap;
+}
+@media (any-hover: hover) {
+    .mouse-position {
+        display: block;
+    }
+}
+</style>
