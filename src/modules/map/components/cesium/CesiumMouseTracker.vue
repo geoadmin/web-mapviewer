@@ -1,36 +1,30 @@
 <script setup>
-import { ScreenSpaceEventHandler } from 'cesium'
-import { ScreenSpaceEventType } from 'cesium'
-import { Cartographic } from 'cesium'
-import { Math } from 'cesium'
+import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
 import { transform } from 'ol/proj'
-import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { watch } from 'vue'
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
-const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
-
 const mousePosition = ref(null)
 const displayedFormatId = ref(LV95Format.id)
-let handler = null
 
 const store = useStore()
 const i18n = useI18n()
-const projection = computed(() => store.state.position.projection)
-
-const getViewer = inject('getViewer', () => {}, true)
 
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
+const projection = computed(() => store.state.position.projection)
+
+let handler = null
+const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
+const getViewer = inject('getViewer', () => {}, true)
 
 watch(
     is3DReady,
-    (newVal) => {
-        if (newVal) {
-            console.log('is3DReady is now true', getViewer())
+    (newValue) => {
+        if (newValue) {
             setupHandler()
         }
     },
@@ -38,7 +32,6 @@ watch(
 )
 
 onMounted(() => {
-    console.log('CesiumMouseTracker.vue onMounted', getViewer())
     nextTick(() => {
         setupHandler()
     })
@@ -50,12 +43,9 @@ onUnmounted(() => {
 })
 
 function setupHandler() {
-    console.log('Setup Handler')
     if (!getViewer()) {
-        console.log('No viewer, canceling setupHandler')
         return
     }
-    console.log('Viewer', getViewer())
     handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
     const viewer = getViewer()
     handler.setInputAction((movement) => {
@@ -76,17 +66,12 @@ function setupHandler() {
 function showCoordinateLabel(displayedFormat) {
     return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
 }
+
 function setDisplayedFormatWithId() {
     store.dispatch('setDisplayedFormatId', {
         displayedFormatId: displayedFormatId.value,
         ...dispatcher,
     })
-    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
-    if (displayedFormat) {
-        log.info('displayedFormat', displayedFormat)
-    } else {
-        log.error('Unknown coordinates display format', displayedFormatId.value)
-    }
 }
 
 function formatCoordinate(coordinate) {
