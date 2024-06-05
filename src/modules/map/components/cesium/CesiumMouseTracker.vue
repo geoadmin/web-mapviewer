@@ -1,6 +1,8 @@
 <script setup>
 import { ScreenSpaceEventHandler } from 'cesium'
 import { ScreenSpaceEventType } from 'cesium'
+import { Cartographic } from 'cesium'
+import { Math } from 'cesium'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { watch } from 'vue'
 import { useStore } from 'vuex'
@@ -16,7 +18,6 @@ let handler = null
 
 const store = useStore()
 
-// const olMap = inject('olMap')
 const getViewer = inject('getViewer', () => {}, true)
 
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
@@ -34,10 +35,14 @@ watch(
 
 onMounted(() => {
     console.log('CesiumMouseTracker.vue onMounted', getViewer())
-    setupHandler()
+    nextTick(() => {
+        setupHandler()
+    })
 })
 onUnmounted(() => {
-    // olMap.removeControl(mousePositionControl)
+    if (handler) {
+        handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+    }
 })
 
 function setupHandler() {
@@ -48,8 +53,18 @@ function setupHandler() {
     }
     console.log('Viewer', getViewer())
     handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
+    const viewer = getViewer()
     handler.setInputAction((movement) => {
-        console.log('movement', movement)
+        const ray = viewer.camera.getPickRay(movement.endPosition)
+        const cartesian = viewer.scene.globe.pick(ray, viewer.scene)
+        if (cartesian) {
+            const cartographic = Cartographic.fromCartesian(cartesian)
+            const longitude = Math.toDegrees(cartographic.longitude)
+            const latitude = Math.toDegrees(cartographic.latitude)
+            const height = cartographic.height
+            mousePosition.value.textContent = `${longitude.toFixed(6)}, ${latitude.toFixed(6)}, ${height.toFixed(2)}`
+        }
+        // console.log('movement', movement)
     }, ScreenSpaceEventType.MOUSE_MOVE)
 }
 
@@ -81,7 +96,7 @@ function setDisplayedFormatWithId() {
             {{ format.label }}
         </option>
     </select>
-    <div class="mouse-position" data-cy="mouse-position"></div>
+    <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
 
 <style lang="scss" scoped>
