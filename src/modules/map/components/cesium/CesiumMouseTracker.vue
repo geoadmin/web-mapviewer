@@ -3,6 +3,7 @@ import { ScreenSpaceEventHandler } from 'cesium'
 import { ScreenSpaceEventType } from 'cesium'
 import { Cartographic } from 'cesium'
 import { Math } from 'cesium'
+import { transform } from 'ol/proj'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { watch } from 'vue'
 import { useStore } from 'vuex'
@@ -17,6 +18,7 @@ const displayedFormatId = ref(LV95Format.id)
 let handler = null
 
 const store = useStore()
+const projection = computed(() => store.state.position.projection)
 
 const getViewer = inject('getViewer', () => {}, true)
 
@@ -61,10 +63,11 @@ function setupHandler() {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            const height = cartographic.height
-            mousePosition.value.textContent = `${longitude.toFixed(6)}, ${latitude.toFixed(6)}, ${height.toFixed(2)}`
+            const coordinate = transform([longitude, latitude], 'EPSG:4326', projection.value)
+            coordinate.push(cartographic.height)
+
+            mousePosition.value.textContent = `${coordinate}`
         }
-        // console.log('movement', movement)
     }, ScreenSpaceEventType.MOUSE_MOVE)
 }
 

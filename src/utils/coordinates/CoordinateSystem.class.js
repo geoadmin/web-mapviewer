@@ -205,4 +205,13 @@ export default class CoordinateSystem {
         }
         return matrixIds
     }
+
+    /**
+     * Returns the EPSG number of this coordinate system
+     *
+     * @returns {Number}
+     */
+    getCode() {
+        return this.epsgNumber
+    }
 }
