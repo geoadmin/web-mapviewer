@@ -6,6 +6,7 @@ import { Math } from 'cesium'
 import { transform } from 'ol/proj'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
@@ -18,6 +19,7 @@ const displayedFormatId = ref(LV95Format.id)
 let handler = null
 
 const store = useStore()
+const i18n = useI18n()
 const projection = computed(() => store.state.position.projection)
 
 const getViewer = inject('getViewer', () => {}, true)
@@ -66,14 +68,14 @@ function setupHandler() {
             const coordinate = transform([longitude, latitude], 'EPSG:4326', projection.value)
             coordinate.push(cartographic.height)
 
-            mousePosition.value.textContent = `${coordinate}`
+            mousePosition.value.textContent = formatCoordinate(coordinate)
         }
     }, ScreenSpaceEventType.MOUSE_MOVE)
 }
 
-// function showCoordinateLabel(displayedFormat) {
-//     return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
-// }
+function showCoordinateLabel(displayedFormat) {
+    return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
+}
 function setDisplayedFormatWithId() {
     store.dispatch('setDisplayedFormatId', {
         displayedFormatId: displayedFormatId.value,
@@ -82,6 +84,21 @@ function setDisplayedFormatWithId() {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
         log.info('displayedFormat', displayedFormat)
+    } else {
+        log.error('Unknown coordinates display format', displayedFormatId.value)
+    }
+}
+
+function formatCoordinate(coordinate) {
+    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+    if (displayedFormat) {
+        if (showCoordinateLabel(displayedFormat)) {
+            return `${i18n.t('coordinates_label')} ${displayedFormat.format(
+                coordinate,
+                projection.value
+            )}`
+        }
+        return displayedFormat.format(coordinate, projection.value, true)
     } else {
         log.error('Unknown coordinates display format', displayedFormatId.value)
     }
