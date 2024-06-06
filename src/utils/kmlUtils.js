@@ -463,24 +463,27 @@ export function parseKml(kmlLayer, projection, iconSets) {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    features.forEach((olFeature) => {
-        const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
+    // we do not force our DrawingModule styling (especially colors) to external/non-drawing KMLs
+    if (!kmlLayer.isExternal) {
+        features.forEach((olFeature) => {
+            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
 
-        if (editableFeature) {
-            // Set the EditableFeature coordinates from the olFeature geometry
-            editableFeature.setCoordinatesFromFeature(olFeature)
-            olFeature.set('editableFeature', editableFeature)
-            olFeature.setStyle(featureStyleFunction)
+            if (editableFeature) {
+                // Set the EditableFeature coordinates from the olFeature geometry
+                editableFeature.setCoordinatesFromFeature(olFeature)
+                olFeature.set('editableFeature', editableFeature)
+                olFeature.setStyle(featureStyleFunction)
 
-            if (editableFeature.isLineOrMeasure()) {
-                /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                if present. The lines connecting the vertices of the geometry will appear
-                geodesic (follow the shortest path) in this case instead of linear (be straight on
-                the screen)  */
-                olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
+                if (editableFeature.isLineOrMeasure()) {
+                    /* The featureStyleFunction uses the geometries calculated in the geodesic object
+                    if present. The lines connecting the vertices of the geometry will appear
+                    geodesic (follow the shortest path) in this case instead of linear (be straight on
+                    the screen)  */
+                    olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
+                }
             }
-        }
-    })
+        })
+    }
 
     return features
 }
