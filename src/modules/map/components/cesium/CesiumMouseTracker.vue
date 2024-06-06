@@ -17,9 +17,10 @@ const i18n = useI18n()
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
 const projection = computed(() => store.state.position.projection)
 
-let handler = null
 const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
 const getViewer = inject('getViewer', () => {}, true)
+
+let handler = null
 
 watch(
     is3DReady,
@@ -36,6 +37,7 @@ onMounted(() => {
         setupHandler()
     })
 })
+
 onUnmounted(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
@@ -55,9 +57,7 @@ function setupHandler() {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            // Transform to web mercator
             let coordinate = transform([longitude, latitude], 'EPSG:4326', projection.value)
-            window.projection = projection.value
             coordinate.push(cartographic.height)
 
             mousePosition.value.textContent = formatCoordinate(coordinate)
