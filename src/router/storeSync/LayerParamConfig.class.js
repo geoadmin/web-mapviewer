@@ -28,7 +28,7 @@ import log from '@/utils/logging'
  */
 export function createLayerObject(parsedLayer, currentLayer) {
     const defaultOpacity = 1.0
-    if (currentLayer) {
+    if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
