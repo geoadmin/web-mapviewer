@@ -55,7 +55,8 @@ function setupHandler() {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            const coordinate = transform([longitude, latitude], 'EPSG:4326', projection.value)
+            // Transform to web mercator
+            let coordinate = transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857')
             coordinate.push(cartographic.height)
 
             mousePosition.value.textContent = formatCoordinate(coordinate)
