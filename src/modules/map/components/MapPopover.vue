@@ -17,6 +17,7 @@ import {
     cssDrawingMobileToolbarHeight,
     cssFooterHeight,
     cssHeaderHeight,
+    cssTimeSliderHeight,
 } from '@/scss/exports'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -89,6 +90,9 @@ const popoverLimits = computed(() => {
     } else if (hasDevSiteWarning.value) {
         top += cssDevDisclaimerHeight
     }
+    if (isTimeSliderActive.value) {
+        top += cssTimeSliderHeight
+    }
     return {
         top,
         bottom: isPhoneMode.value ? 0 : cssFooterHeight,
@@ -127,6 +131,7 @@ function printContent() {
             'feature-anchored': mode === MapPopoverMode.FEATURE_TOOLTIP,
             'with-dev-disclaimer': hasDevSiteWarning,
             'with-time-slider': isTimeSliderActive,
+            'with-dev-disclaimer-and-time-slider': hasDevSiteWarning && isTimeSliderActive,
             'phone-mode': isPhoneMode,
             'is-drawing': isCurrentlyDrawing,
         }"
@@ -197,6 +202,9 @@ function printContent() {
             top: calc($header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements);
         }
         &.with-time-slider {
+            top: calc($header-height + $time-slider-height + $screen-padding-for-ui-elements);
+        }
+        &.with-dev-disclaimer-and-time-slider {
             top: calc(
                 $header-height + $time-slider-height + $dev-disclaimer-height +
                     $screen-padding-for-ui-elements
@@ -262,6 +270,9 @@ function printContent() {
             );
         }
         &.floating.with-time-slider {
+            top: calc(2 * $header-height + $time-slider-height + $screen-padding-for-ui-elements);
+        }
+        &.floating.with-dev-disclaimer-and-time-slider {
             top: calc(
                 2 * $header-height + $time-slider-height + $dev-disclaimer-height +
                     $screen-padding-for-ui-elements
