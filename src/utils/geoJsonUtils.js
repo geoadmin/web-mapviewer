@@ -85,7 +85,12 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
  *     | Feature<Polygon, Properties>}
  */
 export function transformIntoTurfEquivalent(geoJsonData, fromProjection = null) {
-    const geometryWGS84 = reprojectGeoJsonData(geoJsonData, WGS84, fromProjection)
+    const geometryWGS84 = reprojectGeoJsonData(
+        geoJsonData.type == 'GeometryCollection' ? geoJsonData.geometries[0] : geoJsonData,
+        WGS84,
+        fromProjection
+    )
+
     switch (geometryWGS84.type) {
         case 'Point':
             return point(geometryWGS84.coordinates)
@@ -123,7 +128,7 @@ export function getGeoJsonFeatureCoordinates(geoJsonFeature, inputProjection, ou
         featureCoordinate = geoJsonFeature.coordinates[0]
     } else {
         // this feature has a geometry more complex that a single point, we calculate its centroid as single coordinate
-        featureCoordinate = centroid(geoJsonFeature)
+        featureCoordinate = centroid(geoJsonFeature).geometry.coordinates
     }
 
     if (outputProjection.epsg !== inputProjection.epsg) {
