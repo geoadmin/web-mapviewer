@@ -29,16 +29,13 @@ const gpxData = ref(props.gpxLayerConfig.gpxData)
 
 const getViewer = inject('getViewer')
 watch(gpxData, () => {
+    removeLayer()
     addLayer()
 })
 
-watch(
-    () => props.gpxLayerConfig.opacity,
-    (newOpacity) => {
-        opacity.value = newOpacity
-        updateStyle()
-    }
-)
+watch(opacity, () => {
+    updateStyle()
+})
 
 onMounted(() => {
     log.debug('Mounted GPX layer')
@@ -153,7 +150,5 @@ function updateStyle() {
 }
 </script>
 <template>
-    <div>
-        <slot />
-    </div>
+    <slot />
 </template>
