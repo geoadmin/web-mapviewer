@@ -212,6 +212,6 @@ export default class CoordinateSystem {
      * @returns {Number}
      */
     getCode() {
-        return this.epsgNumber
+        return `EPSG:${this.epsgNumber}`
     }
 }
