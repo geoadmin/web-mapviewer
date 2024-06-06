@@ -42,7 +42,6 @@
                 :z-index="zIndex"
             />
         </div>
-        <slot />
     </div>
     <CesiumGeoJSONLayer
         v-if="layerConfig.type === LayerTypes.GEOJSON"
