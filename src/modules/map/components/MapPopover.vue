@@ -17,7 +17,8 @@ import {
     cssDrawingMobileToolbarHeight,
     cssFooterHeight,
     cssHeaderHeight,
-    cssTimeSliderHeight,
+    cssTimeSliderBarHeight,
+    cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -67,6 +68,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const isDesktopMode = computed(() => store.getters.isTraditionalDesktopSize)
 
 const cssPositionOnScreen = computed(() => {
     if (mode.value === MapPopoverMode.FEATURE_TOOLTIP) {
@@ -91,7 +93,7 @@ const popoverLimits = computed(() => {
         top += cssDevDisclaimerHeight
     }
     if (isTimeSliderActive.value) {
-        top += cssTimeSliderHeight
+        top += isDesktopMode.value ? cssTimeSliderBarHeight : cssTimeSliderDropdownHeight
     }
     return {
         top,
@@ -130,8 +132,12 @@ function printContent() {
             floating: mode === MapPopoverMode.FLOATING,
             'feature-anchored': mode === MapPopoverMode.FEATURE_TOOLTIP,
             'with-dev-disclaimer': hasDevSiteWarning,
-            'with-time-slider': isTimeSliderActive,
-            'with-dev-disclaimer-and-time-slider': hasDevSiteWarning && isTimeSliderActive,
+            'with-time-slider-bar': isTimeSliderActive && isDesktopMode,
+            'with-dev-disclaimer-and-time-slider-bar':
+                hasDevSiteWarning && isTimeSliderActive && isDesktopMode,
+            'with-time-slider-dropdown': isTimeSliderActive && !isDesktopMode,
+            'with-dev-disclaimer-and-time-slider-dropdown':
+                hasDevSiteWarning && isTimeSliderActive && !isDesktopMode,
             'phone-mode': isPhoneMode,
             'is-drawing': isCurrentlyDrawing,
         }"
@@ -201,12 +207,23 @@ function printContent() {
         &.with-dev-disclaimer {
             top: calc($header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements);
         }
-        &.with-time-slider {
-            top: calc($header-height + $time-slider-height + $screen-padding-for-ui-elements);
+        &.with-time-slider-bar {
+            top: calc($header-height + $time-slider-bar-height + $screen-padding-for-ui-elements);
         }
-        &.with-dev-disclaimer-and-time-slider {
+        &.with-time-slider-dropdown {
             top: calc(
-                $header-height + $time-slider-height + $dev-disclaimer-height +
+                $header-height + $time-slider-dropdown-height + $screen-padding-for-ui-elements
+            );
+        }
+        &.with-dev-disclaimer-and-time-slider-bar {
+            top: calc(
+                $header-height + $time-slider-bar-height + $dev-disclaimer-height +
+                    $screen-padding-for-ui-elements
+            );
+        }
+        &.with-dev-disclaimer-and-time-slider-dropdown {
+            top: calc(
+                $header-height + $time-slider-dropdown-height + $dev-disclaimer-height +
                     $screen-padding-for-ui-elements
             );
         }
@@ -269,12 +286,25 @@ function printContent() {
                 2 * $header-height + $dev-disclaimer-height + $screen-padding-for-ui-elements
             );
         }
-        &.floating.with-time-slider {
-            top: calc(2 * $header-height + $time-slider-height + $screen-padding-for-ui-elements);
-        }
-        &.floating.with-dev-disclaimer-and-time-slider {
+        &.floating.with-time-slider-bar {
             top: calc(
-                2 * $header-height + $time-slider-height + $dev-disclaimer-height +
+                2 * $header-height + $time-slider-bar-height + $screen-padding-for-ui-elements
+            );
+        }
+        &.floating.with-time-slider-dropdown {
+            top: calc(
+                2 * $header-height + $time-slider-dropdown-height + $screen-padding-for-ui-elements
+            );
+        }
+        &.floating.with-dev-disclaimer-and-time-slider-bar {
+            top: calc(
+                2 * $header-height + $time-slider-bar-height + $dev-disclaimer-height +
+                    $screen-padding-for-ui-elements
+            );
+        }
+        &.floating.with-dev-disclaimer-and-time-slider-dropdown {
+            top: calc(
+                2 * $header-height + $time-slider-dropdown-height + $dev-disclaimer-height +
                     $screen-padding-for-ui-elements
             );
         }

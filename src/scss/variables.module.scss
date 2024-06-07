@@ -37,7 +37,8 @@ $footer-height: 30px;
 $overlay-width: 340px;
 $menu-tray-width: 24rem;
 $drawing-tools-height-mobile: 121px;
-$time-slider-height: 102px;
+$time-slider-bar-height: 102px;
+$time-slider-dropdown-height: 62px;
 
 $screen-padding-for-ui-elements: 0.5rem;
 
@@ -52,7 +53,8 @@ $button-spacer: 0.5rem;
 :export {
   headerHeight: $header-height;
   devDisclaimerHeight: $dev-disclaimer-height;
-  timeSliderHeight: $time-slider-height;
+  timeSliderBarHeight: $time-slider-bar-height;
+  timeSliderDropdownHeight: $time-slider-dropdown-height;
   footerHeight: $footer-height;
   overlayWidth: $overlay-width;
   drawingMobileToolbarHeight: $drawing-tools-height-mobile;
