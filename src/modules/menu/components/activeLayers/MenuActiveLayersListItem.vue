@@ -14,6 +14,8 @@ import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import debounce from '@/utils/debounce'
+import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
@@ -58,6 +60,7 @@ useTippyTooltip('.menu-layer-item [data-tippy-content]')
 
 const layerUpButton = ref(null)
 const layerDownButton = ref(null)
+const transparencySlider = ref(null)
 
 const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const id = computed(() => layer.value.id)
@@ -92,12 +95,26 @@ function onToggleLayerVisibility() {
     store.dispatch('toggleLayerVisibility', { index: index.value, ...dispatcher })
 }
 
-function onTransparencyChange(e) {
-    store.dispatch('setLayerOpacity', {
-        index: index.value,
-        opacity: 1.0 - e.target.value,
-        ...dispatcher,
-    })
+function dispatchOpacity(opacity) {
+    if (layer.value.opacity.toFixed(2) !== opacity.toFixed(2)) {
+        store.dispatch('setLayerOpacity', {
+            index: index.value,
+            opacity: opacity.toFixed(2),
+            ...dispatcher,
+        })
+    }
+}
+
+function onTransparencyChange() {
+    dispatchOpacity(1.0 - transparencySlider.value.value)
+}
+
+const debounceTransparencyChange = debounce(onTransparencyChange, 50)
+
+function onTransparencyCommit() {
+    log.info('[Menu Active Layers List Item component]: Committing last transparency reached')
+
+    dispatchOpacity(1.0 - transparencySlider.value.value)
 }
 
 function showLayerDescriptionPopup() {
@@ -199,6 +216,7 @@ function duplicateLayer() {
             </label>
             <input
                 :id="`transparency-${id}`"
+                ref="transparencySlider"
                 class="menu-layer-transparency-slider ms-2 me-4"
                 type="range"
                 min="0.0"
@@ -206,7 +224,8 @@ function duplicateLayer() {
                 step="0.01"
                 :value="1.0 - layer.opacity"
                 :data-cy="`slider-transparency-layer-${id}-${index}`"
-                @change="onTransparencyChange"
+                @mouseup="onTransparencyCommit"
+                @input="debounceTransparencyChange"
             />
             <button
                 v-if="hasMultipleTimestamps"
