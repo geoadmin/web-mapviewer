@@ -14,6 +14,7 @@ import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import debounce from '@/utils/debounce'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
@@ -61,8 +62,6 @@ const layerUpButton = ref(null)
 const layerDownButton = ref(null)
 const transparencySlider = ref(null)
 
-const transparencyUpdateInterval = ref(null)
-
 const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const id = computed(() => layer.value.id)
 const attributionName = computed(() =>
@@ -106,21 +105,15 @@ function dispatchOpacity(opacity) {
     }
 }
 
-function setTransparencyUpdateInterval() {
-    log.info('[Menu Active Layers List Item component]: Setting an interval to change opacity')
-    transparencyUpdateInterval.value = setInterval(onTransparencyChange, 100)
-}
-
 function onTransparencyChange() {
     dispatchOpacity(1.0 - transparencySlider.value.value)
 }
 
-function onTransparencyCommit() {
-    log.info(
-        '[Menu Active Layers List Item component]: Committing last transparency reached and clearing the interval'
-    )
+const debounceTransparencyChange = debounce(onTransparencyChange, 50)
 
-    clearInterval(transparencyUpdateInterval.value)
+function onTransparencyCommit() {
+    log.info('[Menu Active Layers List Item component]: Committing last transparency reached')
+
     dispatchOpacity(1.0 - transparencySlider.value.value)
 }
 
@@ -232,7 +225,7 @@ function duplicateLayer() {
                 :value="1.0 - layer.opacity"
                 :data-cy="`slider-transparency-layer-${id}-${index}`"
                 @mouseup="onTransparencyCommit"
-                @mousedown="setTransparencyUpdateInterval"
+                @input="debounceTransparencyChange"
             />
             <button
                 v-if="hasMultipleTimestamps"
