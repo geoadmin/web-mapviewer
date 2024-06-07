@@ -393,7 +393,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.y').should('eq', lat)
             cy.readStoreValue('state.position.camera.z').should('eq', 0)
             cy.readStoreValue('state.position.camera.heading').should('eq', heading)
-            cy.readStoreValue('state.position.camera.pitch').should('eq', 0)
+            cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
             cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
             // EPSG is set to 3857

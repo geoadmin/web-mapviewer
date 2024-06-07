@@ -180,6 +180,10 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
         )
     })
     if (cameraPosition.filter((value) => value !== null).length >= 3) {
+        // if no pitch is set, we look down to the ground instead of letting no value (0, looking at the horizon) go through
+        if (cameraPosition[3] === null) {
+            cameraPosition[3] = -90
+        }
         newQuery['camera'] = cameraPosition.map((value) => value ?? '').join(',')
         newQuery['3d'] = true
         newQuery['sr'] = WEBMERCATOR.epsgNumber
