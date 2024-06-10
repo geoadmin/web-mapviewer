@@ -328,3 +328,6 @@ export const DEFAULT_FEATURE_COUNT_SINGLE_POINT = 10
  * @see https://api3.geo.admin.ch/services/sdiservices.html#id10
  */
 export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
+
+export const VECTOR_TILES_STYLE_URL =
+    'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.leichte-basiskarte.vt/style.json'

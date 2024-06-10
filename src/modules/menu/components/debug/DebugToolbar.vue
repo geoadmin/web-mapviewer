@@ -14,6 +14,7 @@ const showDebugTool = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
+const showMapLibre = computed(() => store.state.debug.showMapLibre)
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
@@ -36,6 +37,12 @@ function toggleShowTileDebugInfo() {
 }
 function toggleShowLayerExtents() {
     store.dispatch('toggleShowLayerExtents', dispatcher)
+}
+function toggleMapLibre() {
+    if (!showMapLibre.value && !isMercatorTheCurrentProjection.value) {
+        toggleProjection()
+    }
+    store.dispatch('toggleShowMapLibre', dispatcher)
 }
 </script>
 
@@ -69,11 +76,27 @@ function toggleShowLayerExtents() {
                             <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
                         </button>
                     </div>
+                    <div v-if="!is3dActive" class="mb-1">
+                        <h5 class="text-decoration-underline">Framework</h5>
+                        <div class="d-flex gap-1 justify-content-around">
+                            <div>
+                                <button
+                                    class="toolbox-button m-auto"
+                                    type="button"
+                                    :class="{ active: showMapLibre }"
+                                    @click="toggleMapLibre"
+                                >
+                                    <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
+                                </button>
+                                <label class="text-center">MapLibre</label>
+                            </div>
+                        </div>
+                    </div>
                     <div v-if="is3dActive" class="mb-1">
                         <h5 class="text-decoration-underline">3D</h5>
                         <Toggle3DLayerButton class="align-self-center" />
                     </div>
-                    <div v-else class="mb-1">
+                    <div v-if="!is3dActive && !showMapLibre" class="mb-1">
                         <h5 class="text-decoration-underline">Layer debug</h5>
                         <div class="d-flex gap-1 justify-content-around">
                             <div>

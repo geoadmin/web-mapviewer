@@ -3,6 +3,7 @@ export default {
     state: {
         showTileDebugInfo: false,
         showLayerExtents: false,
+        showMapLibre: false,
     },
     getters: {},
     actions: {
@@ -15,11 +16,15 @@ export default {
         toggleShowLayerExtents({ commit, state }, { dispatcher }) {
             commit('setShowLayerExtents', { showLayerExtents: !state.showLayerExtents, dispatcher })
         },
+        toggleShowMapLibre({ commit, state }, { dispatcher }) {
+            commit('setShowMapLibre', { showMapLibre: !state.showMapLibre, dispatcher })
+        },
     },
     mutations: {
         setShowTileDebugInfo: (state, { showTileDebugInfo }) =>
             (state.showTileDebugInfo = showTileDebugInfo),
         setShowLayerExtents: (state, { showLayerExtents }) =>
             (state.showLayerExtents = showLayerExtents),
+        setShowMapLibre: (state, { showMapLibre }) => (state.showMapLibre = showMapLibre),
     },
 }

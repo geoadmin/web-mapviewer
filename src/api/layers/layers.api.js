@@ -253,3 +253,17 @@ export const loadLayersConfigFromBackend = (lang) => {
         }
     })
 }
+
+export function loadVectorTileStyle() {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(VECTOR_TILES_STYLE_URL)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((err) => {
+                log.error('Unable to load vector tile style', err)
+                reject(err)
+            })
+    })
+}
