@@ -7,6 +7,7 @@ import {
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { normalizeAngle } from '@/store/modules/position.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.
@@ -45,32 +46,30 @@ export default function syncCameraLonLatZoom(store) {
             store.dispatch('setZoom', { zoom, dispatcher: self })
             store.dispatch('setRotation', normalizeAngle((rotation * Math.PI) / 180))
         }
-        if (mutation.type === 'setCenter' && mutation.payload.dispatcher !== self) {
-            store.dispatch('setCameraPosition', {
-                position: {
-                    x: store.getters.centerEpsg4326[0],
-                    y: store.getters.centerEpsg4326[1],
-                    z: state.position.camera.z,
-                    heading: 0,
-                    pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
-                    roll: 0,
-                },
-                dispatcher: self,
-            })
-        }
-        if (mutation.type === 'setZoom' && mutation.payload.dispatcher !== self) {
-            const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
-            store.dispatch('setCameraPosition', {
-                position: {
-                    x: state.position.camera.x,
-                    y: state.position.camera.y,
-                    z: newHeight,
-                    heading: 0,
-                    pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
-                    roll: 0,
-                },
-                dispatcher: self,
-            })
-        }
+    })
+    // Subscribing to action to listen to zoomToExtent and selectResultEntry specifically.
+    // This way we do not have to hook ourselves to setCenter and setZoom mutation, that are triggered
+    // way more often than extent actions - supporting extent camera positioning is what we are looking for.
+    store.subscribeAction({
+        after: (action, state) => {
+            if (state.position.camera === null) {
+                return
+            }
+            if (['zoomToExtent', 'selectResultEntry'].includes(action.type)) {
+                log.debug('Adapting camera position to match zoomToExtent/selectResultEntry')
+                const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
+                store.dispatch('setCameraPosition', {
+                    position: {
+                        x: store.getters.centerEpsg4326[0],
+                        y: store.getters.centerEpsg4326[1],
+                        z: newHeight,
+                        heading: 0,
+                        pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
+                        roll: 0,
+                    },
+                    dispatcher: self,
+                })
+            }
+        },
     })
 }
