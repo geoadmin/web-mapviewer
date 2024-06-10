@@ -340,3 +340,12 @@ export const DEFAULT_FEATURE_COUNT_SINGLE_POINT = 10
  * @see https://api3.geo.admin.ch/services/sdiservices.html#id10
  */
 export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
+
+/**
+ * The width under which we no longer use floating tooltips and enforce infoboxes.
+ *
+ * Found empirically, taking the tooltip width of 350px into account
+ *
+ * @type {Number}
+ */
+export const MAX_WIDTH_SHOW_FLOATING_TOOLTIP = 400
