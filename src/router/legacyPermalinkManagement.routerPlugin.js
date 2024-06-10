@@ -12,7 +12,7 @@ import {
 } from '@/router/viewNames'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
 import {
@@ -65,14 +65,16 @@ const handleLegacyParam = (
             key = 'z'
             break
 
-        // storing coordinate parts for later conversion
+        // storing coordinate parts for later conversion (LV03 or LV95)
+        // legacy coordinates have to be saved in an array in order (y,x) for
+        // convertion to be correct using proj4.
         case 'E':
         case 'X':
-            legacyCoordinates[0] = Number(legacyValue)
+            legacyCoordinates[1] = Number(legacyValue)
             break
         case 'N':
         case 'Y':
-            legacyCoordinates[1] = Number(legacyValue)
+            legacyCoordinates[0] = Number(legacyValue)
             break
 
         case 'lon':
@@ -209,11 +211,20 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
             `[Legacy URL] lat/lon=${JSON.stringify(latlongCoordinates)} parameter changed to center=${newQuery['center']}`
         )
     } else if (legacyCoordinates.length === 2 && !newQuery['camera']) {
+        // The legacy viewer supports coordinate in LV03 and LV95 in X/Y and E/N parameter
         newCoordinates = legacyCoordinates
-        if (projection.epsg !== LV95.epsg) {
+        if (LV95.isInBounds(...legacyCoordinates) && projection.epsg !== LV95.epsg) {
             // if the current projection is not LV95, we also need to re-project x/y or N/E
-            // (the legacy viewer was always writing coordinates in LV95 in the URL)
             newCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
+            log.info(
+                `[Legacy URL] converting LV95 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
+        } else if (LV03.isInBounds(...legacyCoordinates) && projection.epsg !== LV03.epsg) {
+            // if the current projection is not LV03, we also need to re-project x/y or N/E
+            newCoordinates = proj4(LV03.epsg, projection.epsg, legacyCoordinates)
+            log.info(
+                `[Legacy URL] converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
         }
         newQuery['center'] = newCoordinates.join(',')
         log.info(
