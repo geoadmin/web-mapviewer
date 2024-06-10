@@ -26,6 +26,7 @@ const ALL_YEARS = (() => {
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
+const DEBOUNCE_INTERVAL = 500
 // dynamic internal data
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
@@ -84,8 +85,9 @@ const updateInputYear = debounce((value) => {
         isInputYearValid.value = true
         currentYear.value = parseInt(value)
         falseYear.value = null
+        setPreviewYearToLayers()
     }
-}, 500)
+}, DEBOUNCE_INTERVAL)
 
 /**
  * Used for the year in the input field Validate the input from the user. In case it's invalid, we
@@ -238,6 +240,7 @@ onMounted(() => {
         currentYear.value = previewYear.value
     }
 
+    setPreviewYearToLayers()
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
         content: timeSliderTooltipRef.value,
         hideOnClick: true,
@@ -281,7 +284,7 @@ function dispatchPreviewYearToStore() {
 
 const dispatchPreviewYearToStoreDebounced = debounce(() => {
     dispatchPreviewYearToStore()
-}, 500)
+}, DEBOUNCE_INTERVAL)
 
 function setSliderWidth() {
     // the padding of the slider container (4px each side) + the padding of the
@@ -348,6 +351,10 @@ function listenToMouseMove(event) {
 }
 
 function releaseCursor() {
+    //wait for debounce of preview year so that right features are selected
+    setTimeout(() => {
+        setPreviewYearToLayers()
+    }, DEBOUNCE_INTERVAL)
     yearCursorIsGrabbed = false
     window.removeEventListener('mousemove', listenToMouseMove)
     window.removeEventListener('touchmove', listenToMouseMove)
