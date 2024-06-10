@@ -64,6 +64,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             )
         }
         it('checks that the time slider is functional and behave correctly', () => {
+            cy.viewport(1920, 1080)
             // ----------------------------------------------------------------------------------------------------
             cy.log(': Invisible time layer given. time slider button should not appear')
             cy.goToMapView({
@@ -107,7 +108,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'contain',
                 preSelectedYear
             )
-            cy.closeMenuIfMobile()
 
             // ----------------------------------------------------------------------------------------------------
             cy.log(
@@ -116,7 +116,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
 
             const newYear = 2020
-            moveSlider(200)
+            moveSlider(1920)
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', `${newYear}`)
             // ----------------------------------------------------------------------------------------------------
             cy.log(
@@ -132,7 +132,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.openMenuIfMobile()
 
             cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', newYear)
-            cy.closeMenuIfMobile()
 
             // ------------------------------------------------------------------------------------------------
             cy.log(
@@ -143,7 +142,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', `${newYear}`)
             cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', newYear)
-            cy.closeMenuIfMobile()
 
             // ------------------------------------------------------------------------------------------------
             cy.log('When clicking on the time slider bar, we should go to that year')
@@ -158,7 +156,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'contain',
                 preSelectedYear
             )
-            cy.closeMenuIfMobile()
 
             // ------------------------------------------------------------------------------------------------
             cy.log('Afterwards, the changes in the year should also be kept in the layers')
@@ -172,7 +169,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'contain',
                 preSelectedYear
             )
-            cy.closeMenuIfMobile()
 
             // ----------------------------------------------------------------------------------------------------
             cy.log(
@@ -240,7 +236,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                         : isLightBtn(classList)
                 })
             })
-            cy.closeMenuIfMobile()
             // ---------------------------------------------------------------------------------------------------
             cy.log(
                 'When using the timeSlider with multiple layers, if there is data common to all layers, the time slider goes to the youngest year in common'
@@ -302,14 +297,13 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
         })
 
         it('behaves correctly when years are being entered in the input', () => {
+            cy.viewport(1920, 1080)
             cy.goToMapView({ layers: `${time_layer_std}@year=2019`, timeSlider: 2017 })
-            cy.openMenuIfMobile()
             cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-duplicate-layer-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-toggle-visibility-layer-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
             cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2017)
-            cy.closeMenuIfMobile()
 
             // ---------------------------------------------------------------------------------------------------
             cy.log('Check time slider year cursor text input')
@@ -367,12 +361,18 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
         it('checks that the timeslider dropdown is functional and behaves correctly', () => {
             // ----------------------------------------------------------------------------------------------------
-            cy.log('Going to the map, the time slider appears')
+            cy.log('Going to the map, the dropdown appears')
             cy.goToMapView({
                 layers: `${time_layer_std}@year=${preSelectedYear}`,
                 timeSlider: preSelectedYear,
             })
+            cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
+            cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')
+
+            cy.log('When resizing the viewport to lg screens, the slider should appear')
+            cy.viewport(1920, 1080)
             cy.get('[data-cy="time-slider-bar"]').should('be.visible')
+            cy.get('[data-cy="time-slider-dropdown"]').should('not.be.visible')
 
             cy.log('When resizing the viewport to sm screens, the dropdown should appear')
             cy.viewport(620, 568)
@@ -384,9 +384,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 .type('1999{downArrow}{enter}')
 
             cy.log(
-                'When resizing back to mobile, the chosen year from the dropdown should be correct in the time slider'
+                'When resizing back to lg screens, the chosen year from the dropdown should be correct in the time slider'
             )
-            cy.viewport(320, 568)
+            cy.viewport(1920, 1080)
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', 1999)
         })
     })
