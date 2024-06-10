@@ -6,6 +6,7 @@ import { beforeEach, describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { API_SERVICE_KML_BASE_URL } from '@/config.js'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { BLUE } from '@/utils/featureStyleUtils'
@@ -126,7 +127,10 @@ describe('Test KML utils', () => {
 
         beforeEach(() => {
             const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
-            const kmlLayer = new KMLLayer({ kmlFileUrl: '', kmlData: kml })
+            const kmlLayer = new KMLLayer({
+                kmlFileUrl: API_SERVICE_KML_BASE_URL, // so that it is not considered external
+                kmlData: kml,
+            })
             const olFeatures = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets)
             features = olFeatures.map((f) => {
                 const ef = f.get('editableFeature')
