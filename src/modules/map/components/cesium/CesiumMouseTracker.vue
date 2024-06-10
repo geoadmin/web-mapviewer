@@ -1,7 +1,7 @@
 <script setup>
 import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
-import { transform } from 'ol/proj'
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import proj4 from 'proj4'
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -38,9 +38,10 @@ onMounted(() => {
     })
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+        handler.destroy()
     }
 })
 
@@ -57,7 +58,7 @@ function setupHandler() {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            let coordinate = transform([longitude, latitude], 'EPSG:4326', projection.value)
+            let coordinate = proj4('EPSG:4326', projection.value.getCode(), [longitude, latitude])
             coordinate.push(cartographic.height)
 
             mousePosition.value.textContent = formatCoordinate(coordinate)

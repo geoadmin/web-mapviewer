@@ -207,9 +207,9 @@ export default class CoordinateSystem {
     }
 
     /**
-     * Returns the EPSG number of this coordinate system
+     * Returns the EPSG identifier of this coordinate system
      *
-     * @returns {Number}
+     * @returns {String}
      */
     getCode() {
         return `EPSG:${this.epsgNumber}`
