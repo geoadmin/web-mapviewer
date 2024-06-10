@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -28,8 +29,13 @@ const props = defineProps({
         type: CoordinateFormat,
         default: null,
     },
+    coordinateProjection: {
+        type: CoordinateSystem,
+        default: null,
+    },
 })
-const { identifier, value, extraValue, resetDelay, coordinateFormat } = toRefs(props)
+const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
+    toRefs(props)
 
 const copyButton = ref(null)
 const copied = ref(false)
@@ -37,7 +43,7 @@ const copied = ref(false)
 const i18n = useI18n()
 
 const store = useStore()
-const projection = computed(() => store.state.position.projection)
+const projection = computed(() => coordinateProjection.value ?? store.state.position.projection)
 const lang = computed(() => store.state.i18n.lang)
 
 const buttonIcon = computed(() => {

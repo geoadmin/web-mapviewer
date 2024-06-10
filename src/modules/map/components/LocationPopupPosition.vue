@@ -6,6 +6,7 @@ import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { requestHeight } from '@/api/height.api'
+import reframe from '@/api/lv03Reframe.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import {
@@ -15,7 +16,7 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV03, LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -38,6 +39,7 @@ const props = defineProps({
 })
 const { coordinate, clickInfo, projection, currentLang } = toRefs(props)
 
+const lv03Coordinate = ref(null)
 const what3Words = ref(null)
 const height = ref(null)
 
@@ -69,6 +71,7 @@ const heightInMeter = computed(() => {
 
 onMounted(() => {
     if (clickInfo.value) {
+        updateLV03Coordinate()
         updateWhat3Word()
         updateHeight()
     }
@@ -76,6 +79,7 @@ onMounted(() => {
 
 watch(clickInfo, (newClickInfo) => {
     if (newClickInfo) {
+        updateLV03Coordinate()
         updateWhat3Word()
         updateHeight()
     }
@@ -83,6 +87,16 @@ watch(clickInfo, (newClickInfo) => {
 watch(currentLang, () => {
     updateWhat3Word()
 })
+
+async function updateLV03Coordinate() {
+    try {
+        const lv95coordinate = proj4(projection.value.epsg, LV95.epsg, coordinate.value)
+        lv03Coordinate.value = await reframe(lv95coordinate)
+    } catch (error) {
+        log.error('Failed to retrieve LV03 coordinate', error)
+        lv03Coordinate.value = null
+    }
+}
 
 async function updateWhat3Word() {
     try {
@@ -119,9 +133,11 @@ async function updateHeight() {
                 </a>
             </CoordinateCopySlot>
             <CoordinateCopySlot
+                v-if="lv03Coordinate"
                 identifier="location-popup-lv03"
-                :value="coordinate"
+                :value="lv03Coordinate"
                 :coordinate-format="LV03Format"
+                :coordinate-projection="LV03"
             >
                 <a :href="i18n.t('contextpopup_lv03_url')" target="_blank">
                     {{ LV03Format.label }}
