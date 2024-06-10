@@ -50,8 +50,10 @@ describe('Test on legacy param import', () => {
         })
 
         it('reproject LV95 coordinates param to EPSG:4326', () => {
-            const E = 2660000
-            const N = 1200000
+            // NOTE on the old viewer N := correspond to x in EPSG definition
+            // NOTE on the old viewer E := correspond to y in EPSG definition
+            const N = 2660000
+            const E = 1200000
             const lv95zoom = 8
             cy.goToMapView(
                 {
@@ -72,11 +74,13 @@ describe('Test on legacy param import', () => {
                 expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
-        it('center where expected when given a X, Y coordinate', () => {
+        it('center where expected when given a X, Y coordinate in LV95', () => {
+            // NOTE on the old viewer Y := correspond to x in EPSG definition
+            // NOTE on the old viewer X := correspond to y in EPSG definition
             cy.goToMapView(
                 {
-                    X: 2660000,
-                    Y: 1200000,
+                    Y: 2660000,
+                    X: 1200000,
                 },
                 false
             )
@@ -86,6 +90,24 @@ describe('Test on legacy param import', () => {
                 // the app applies a rounding to the 6th decimal for lon/lat
                 expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
                 expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
+            })
+        })
+        it('center where expected when given a X, Y coordinate in LV03', () => {
+            // NOTE on the old viewer Y := correspond to x in EPSG definition
+            // NOTE on the old viewer X := correspond to y in EPSG definition
+            cy.goToMapView(
+                {
+                    Y: 600000,
+                    X: 200000,
+                },
+                false
+            )
+            // checking that we are reprojected to lon: 7.438632° lat: 46.9510828°
+            // (according to https://epsg.io/transform#s_srs=21781&t_srs=4326&x=600000.0000000&y=200000.0000000)
+            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                // the app applies a rounding to the 6th decimal for lon/lat
+                expect(center[0]).to.eq(WGS84.roundCoordinateValue(7.438632))
+                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9510828))
             })
         })
     })

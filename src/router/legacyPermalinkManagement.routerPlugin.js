@@ -12,7 +12,7 @@ import {
 } from '@/router/viewNames'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
 import {
@@ -65,14 +65,16 @@ const handleLegacyParam = (
             key = 'z'
             break
 
-        // storing coordinate parts for later conversion
+        // storing coordinate parts for later conversion (LV03 or LV95)
+        // legacy coordinates have to be saved in an array in order (y,x) for
+        // convertion to be correct using proj4.
         case 'E':
         case 'X':
-            legacyCoordinates[0] = Number(legacyValue)
+            legacyCoordinates[1] = Number(legacyValue)
             break
         case 'N':
         case 'Y':
-            legacyCoordinates[1] = Number(legacyValue)
+            legacyCoordinates[0] = Number(legacyValue)
             break
 
         case 'lon':
@@ -155,6 +157,9 @@ const handleLegacyParam = (
         // We decode those so that the new query won't encode encoded character
         // for example, we avoid having " " becoming %2520 in the URI
         newQuery[key] = decodeURIComponent(newValue)
+        log.info(
+            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`
+        )
     }
 }
 
@@ -163,8 +168,9 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = {}
     const { projection } = store.state.position
-    let legacyCoordinates = []
-    let latlongCoordinates = []
+    const legacyCoordinates = []
+    const latlongCoordinates = []
+    let newCoordinates = []
     let cameraPosition = [null, null, null, null, null, null]
 
     legacyParams.forEach((param_value, param_key) => {
@@ -197,21 +203,33 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
         }
     }
 
-    // Convert legacies coordinates if needed
-    if (latlongCoordinates.length === 2) {
-        legacyCoordinates = proj4(WGS84.epsg, projection.epsg, latlongCoordinates)
-    } else if (legacyCoordinates.length === 2) {
-        if (projection.epsg !== LV95.epsg) {
+    // Convert legacies coordinates if needed (only if the 3D camera isn't set too)
+    if (latlongCoordinates.length === 2 && !newQuery['camera']) {
+        newCoordinates = proj4(WGS84.epsg, projection.epsg, latlongCoordinates)
+        newQuery['center'] = newCoordinates.join(',')
+        log.info(
+            `[Legacy URL] lat/lon=${JSON.stringify(latlongCoordinates)} parameter changed to center=${newQuery['center']}`
+        )
+    } else if (legacyCoordinates.length === 2 && !newQuery['camera']) {
+        // The legacy viewer supports coordinate in LV03 and LV95 in X/Y and E/N parameter
+        newCoordinates = legacyCoordinates
+        if (LV95.isInBounds(...legacyCoordinates) && projection.epsg !== LV95.epsg) {
             // if the current projection is not LV95, we also need to re-project x/y or N/E
-            // (the legacy viewer was always writing coordinates in LV95 in the URL)
-            legacyCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
+            newCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
+            log.info(
+                `[Legacy URL] converting LV95 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
+        } else if (LV03.isInBounds(...legacyCoordinates) && projection.epsg !== LV03.epsg) {
+            // if the current projection is not LV03, we also need to re-project x/y or N/E
+            newCoordinates = proj4(LV03.epsg, projection.epsg, legacyCoordinates)
+            log.info(
+                `[Legacy URL] converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
         }
-    }
-
-    // if a legacy coordinate (x/y, N/E or lon/lat) was used, we need to build the
-    // center param from them (only if the 3D camera isn't set too)
-    if (legacyCoordinates.length === 2 && !newQuery['camera']) {
-        newQuery['center'] = legacyCoordinates.join(',')
+        newQuery['center'] = newCoordinates.join(',')
+        log.info(
+            `[Legacy URL] X/Y|E/N=${JSON.stringify(legacyCoordinates)} parameter changed to center=${newQuery['center']}`
+        )
     }
 
     handleLegacyFeaturePreSelectionParam(legacyParams, store, newQuery)
