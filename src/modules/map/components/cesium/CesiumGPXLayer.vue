@@ -10,6 +10,7 @@ import {
 } from 'cesium'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { inject } from 'vue'
+import { computed } from 'vue'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import log from '@/utils/logging'
@@ -22,10 +23,11 @@ const props = defineProps({
 })
 
 const isPresentOnMap = ref(false)
-const gpxDataSource = ref(new GpxDataSource())
 
-const opacity = ref(props.gpxLayerConfig.opacity)
-const gpxData = ref(props.gpxLayerConfig.gpxData)
+const opacity = computed(() => props.gpxLayerConfig.opacity)
+const gpxData = computed(() => props.gpxLayerConfig.gpxData)
+
+let gpxDataSource = null
 
 const getViewer = inject('getViewer')
 watch(gpxData, () => {
@@ -44,18 +46,18 @@ onMounted(() => {
 
 onUnmounted(() => {
     log.debug('Unmounted GPX layer')
-    if (gpxDataSource.value && isPresentOnMap.value) {
+    if (gpxDataSource && isPresentOnMap.value) {
         removeLayer()
     }
 
-    gpxDataSource.value = null
+    gpxDataSource = null
 })
 
 function addLayer() {
     const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
     const gpxUrl = URL.createObjectURL(gpxBlob)
-
-    gpxDataSource.value
+    gpxDataSource = new GpxDataSource()
+    gpxDataSource
         .load(gpxUrl, {
             clampToGround: true,
         })
@@ -68,15 +70,16 @@ function addLayer() {
 
 function removeLayer() {
     log.debug('Remove GPX layer')
-    if (gpxDataSource.value) {
-        getViewer().dataSources.remove(gpxDataSource.value)
-        gpxDataSource.value = null
+    if (gpxDataSource) {
+        getViewer().dataSources.remove(gpxDataSource)
+        gpxDataSource = null
         getViewer().scene.requestRender() // Request a render after removing the DataSource
     }
     isPresentOnMap.value = false
 }
 
 function updateStyle() {
+    log.debug('Update style', 'opacity', opacity.value)
     // Function to create a red circle image using a canvas
     function createRedCircleImage(radius) {
         // Create a new canvas element
@@ -113,7 +116,7 @@ function updateStyle() {
     })
     const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
 
-    const entities = gpxDataSource.value._entityCollection.values
+    const entities = gpxDataSource.entities.values
 
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
