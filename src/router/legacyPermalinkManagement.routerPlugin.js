@@ -165,7 +165,7 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
     const { projection } = store.state.position
     let legacyCoordinates = []
     let latlongCoordinates = []
-    let cameraPosition = []
+    let cameraPosition = [null, null, null, null, null, null]
 
     legacyParams.forEach((param_value, param_key) => {
         handleLegacyParam(
@@ -179,9 +179,12 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
             cameraPosition
         )
     })
-    if (cameraPosition.length >= 3) {
-        cameraPosition.push('')
-        newQuery['camera'] = cameraPosition.join(',')
+    if (cameraPosition.filter((value) => value !== null).length >= 3) {
+        // if no pitch is set, we look down to the ground instead of letting no value (0, looking at the horizon) go through
+        if (cameraPosition[3] === null) {
+            cameraPosition[3] = -90
+        }
+        newQuery['camera'] = cameraPosition.map((value) => value ?? '').join(',')
         newQuery['3d'] = true
         newQuery['sr'] = WEBMERCATOR.epsgNumber
 
@@ -206,8 +209,8 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
     }
 
     // if a legacy coordinate (x/y, N/E or lon/lat) was used, we need to build the
-    // center param from them
-    if (legacyCoordinates.length === 2) {
+    // center param from them (only if the 3D camera isn't set too)
+    if (legacyCoordinates.length === 2 && !newQuery['camera']) {
         newQuery['center'] = legacyCoordinates.join(',')
     }
 
@@ -301,7 +304,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                     // legacy params some data are required (e.g. the layer config)
                     if (mutation.type === 'setAppIsReady') {
                         log.debug(
-                            '[Legacy URL] app is ready, handle legacy params=${legacyParams.toString()}',
+                            `[Legacy URL] app is ready, handle legacy params=${legacyParams.toString()}`,
                             legacyParams
                         )
                         const newRoute = await handleLegacyParams(

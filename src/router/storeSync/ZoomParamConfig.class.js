@@ -24,6 +24,9 @@ function dispatchZoomFromUrlIntoStore(to, store, urlParamValue) {
 }
 
 function generateZoomUrlParamFromStoreValues(store) {
+    if (store.state.cesium.active) {
+        return null
+    }
     return store.state.position.zoom
 }
 

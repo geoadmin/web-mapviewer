@@ -164,6 +164,7 @@ export default {
     data() {
         return {
             viewerCreated: false,
+            cameraInitialized: false,
             popoverCoordinates: [],
         }
     },
@@ -246,13 +247,12 @@ export default {
             // see https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing
             flush: 'post',
         },
-        centerEpsg4326: {
+        cameraPosition: {
             handler() {
-                if (this.isProjectionWebMercator && this.cameraPosition) {
-                    this.flyToPosition()
-                }
+                this.flyToPosition()
             },
             flush: 'post',
+            deep: true,
         },
     },
     beforeCreate() {
@@ -400,13 +400,12 @@ export default {
             this.viewer.scene.postRender.addEventListener(
                 limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
             )
+            this.initCamera()
 
             if (this.$refs.compass) {
                 this.$refs.compass.scene = this.viewer.scene
                 this.$refs.compass.clock = this.viewer.clock
             }
-
-            this.flyToPosition()
 
             if (this.selectedFeatures.length > 0) {
                 this.highlightSelectedFeatures()
@@ -445,6 +444,50 @@ export default {
                 ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
                 : firstFeature.coordinates
         },
+        initCamera() {
+            if (this.cameraInitialized) {
+                return
+            }
+            let destination
+            let orientation
+            if (this.cameraPosition) {
+                // a camera position was already define in the URL, we use it
+                log.debug('Existing camera position found at startup, using', this.cameraPosition)
+                destination = Cartesian3.fromDegrees(
+                    this.cameraPosition.x,
+                    this.cameraPosition.y,
+                    this.cameraPosition.z
+                )
+                orientation = {
+                    heading: CesiumMath.toRadians(this.cameraPosition.heading),
+                    pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
+                    roll: CesiumMath.toRadians(this.cameraPosition.roll),
+                }
+            } else {
+                // no camera position was ever calculated, so we create one using the 2D coordinates
+                log.debug(
+                    'No camera position defined, creating one using 2D coordinates',
+                    this.centerEpsg4326
+                )
+                destination = Cartesian3.fromDegrees(
+                    this.centerEpsg4326[0],
+                    this.centerEpsg4326[1],
+                    calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+                )
+                orientation = {
+                    heading: -CesiumMath.toRadians(this.rotation),
+                    pitch: -CesiumMath.PI_OVER_TWO,
+                    roll: 0,
+                }
+            }
+
+            this.viewer.camera.flyTo({
+                destination,
+                orientation,
+                duration: 0,
+            })
+            this.cameraInitialized = true
+        },
         flyToPosition() {
             try {
                 if (this.cameraPosition) {
@@ -460,20 +503,6 @@ export default {
                             roll: CesiumMath.toRadians(this.cameraPosition.roll),
                         },
                         duration: 1,
-                    })
-                } else {
-                    this.viewer.camera.flyTo({
-                        destination: Cartesian3.fromDegrees(
-                            this.centerEpsg4326[0],
-                            this.centerEpsg4326[1],
-                            calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
-                        ),
-                        orientation: {
-                            heading: -CesiumMath.toRadians(this.rotation),
-                            pitch: -CesiumMath.PI_OVER_TWO,
-                            roll: 0,
-                        },
-                        duration: 0,
                     })
                 }
             } catch (error) {
