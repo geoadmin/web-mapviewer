@@ -558,33 +558,18 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     background: $time-slider-color-has-data;
 }
 
-// Display the dropdown instead of the time slider on small screens (tablets),
-// but not on mobile
+// Display the dropdown instead of the time slider on small screens (tablets / phones),
 .time-slider-dropdown {
+    display: block;
+}
+.time-slider-bar {
     display: none;
 }
-
-.time-slider {
-    width: 100%;
+.time-slider-play-button {
+    display: none;
 }
-
-@include respond-above(sm) {
-    // dropdown mode
-    .time-slider-dropdown {
-        display: block;
-    }
-
-    .time-slider-bar {
-        display: none;
-    }
-
-    .time-slider {
-        width: auto;
-    }
-
-    .time-slider-play-button {
-        display: none;
-    }
+.time-slider {
+    width: auto;
 }
 
 @include respond-above(lg) {
