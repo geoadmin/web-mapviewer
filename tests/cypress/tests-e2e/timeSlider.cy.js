@@ -302,12 +302,16 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-duplicate-layer-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-toggle-visibility-layer-${time_layer_std}-0"]`).click()
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2017)
             cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2017)
 
-            // ---------------------------------------------------------------------------------------------------
-            cy.log('Check time slider year cursor text input')
+            cy.log('timeslider only updates selected layers')
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').clear()
+            cy.get('[data-cy="time-slider-bar-cursor-year"]').type('2019')
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2017)
+            cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2019)
 
+            cy.log('Check time slider year cursor text input')
             cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
                 .invoke('attr', 'style')
                 .then(($barCursorPosition) => {

@@ -267,7 +267,8 @@ function setPreviewYearToLayers() {
         if (
             layer.hasMultipleTimestamps &&
             layer.timeConfig &&
-            layer.timeConfig.getTimeEntryForYear(year)
+            layer.timeConfig.getTimeEntryForYear(year) &&
+            layer.visible
         ) {
             store.dispatch('setTimedLayerCurrentYear', {
                 index,
@@ -392,6 +393,7 @@ function togglePlayYearsWithData() {
             }
         }, 1000)
     } else {
+        setPreviewYearToLayers()
         clearInterval(playYearInterval)
         playYearInterval = null
     }
