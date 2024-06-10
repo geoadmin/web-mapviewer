@@ -10,6 +10,7 @@ const mutations = {
         (state.showTileDebugInfo = showTileDebugInfo),
     setShowLayerExtents: (state, { showLayerExtents }) =>
         (state.showLayerExtents = showLayerExtents),
+    setShowMapLibre: (state, { showMapLibre }) => (state.showMapLibre = showMapLibre),
 }
 mutations[SET_HAS_URL_OVERRIDES_MUTATION_KEY] = (state, { hasOverrides }) =>
     (state.hasBaseUrlOverride = hasOverrides)
@@ -20,6 +21,7 @@ export default {
         showTileDebugInfo: false,
         showLayerExtents: false,
         hasBaseUrlOverride: false,
+        showMapLibre: true,
     },
     getters: {},
     actions: {
@@ -37,6 +39,9 @@ export default {
                 hasOverrides: !!hasOverrides,
                 dispatcher,
             })
+        },
+        toggleShowMapLibre({ commit, state }, { dispatcher }) {
+            commit('setShowMapLibre', { showMapLibre: !state.showMapLibre, dispatcher })
         },
     },
     mutations,

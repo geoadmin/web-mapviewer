@@ -13,7 +13,7 @@ import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
  * could lead to initialization errors (even when initializing the constants before importing the
  * class). Thus we declare them here, at the root class of the coordinates systems.
  */
-export const STANDARD_ZOOM_LEVEL_1_25000_MAP: number = 15.5
+export const STANDARD_ZOOM_LEVEL_1_25000_MAP: number = 8
 export const SWISS_ZOOM_LEVEL_1_25000_MAP: number = 8
 
 /**

@@ -38,6 +38,7 @@ const singleModeSections = ref([
 ])
 
 const is3dMode = computed(() => store.state.cesium.active)
+const showMapLibre = computed(() => store.state.debug.showMapLibre)
 const showImportFile = computed(() => store.state.ui.importFile)
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const mapModuleReady = computed(() => store.state.app.isMapReady)
@@ -105,7 +106,7 @@ function addRefBySectionId(el) {
             @close-menu-section="onCloseMenuSection"
         />
         <MenuPrintSection
-            v-if="!is3dMode"
+            v-if="!is3dMode && !showMapLibre"
             :ref="addRefBySectionId"
             @open-menu-section="onOpenMenuSection"
         />

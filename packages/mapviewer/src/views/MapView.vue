@@ -24,6 +24,7 @@ const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/Drawi
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
+const showMapLibre = computed(() => store.state.debug.showMapLibre)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
@@ -42,7 +43,7 @@ const loadDrawingModule = computed(() => {
                 geoloc-button
                 :full-screen-button="!isDrawingMode"
                 :toggle3d-button="!isDrawingMode"
-                compass-button
+                :compass-button="!showMapLibre"
             >
                 <TimeSliderButton v-if="!is3DActive" />
             </MapToolbox>
@@ -57,7 +58,7 @@ const loadDrawingModule = computed(() => {
                         <div class="d-flex flex-column align-items-start">
                             <BackgroundSelector class="p-2 background-selector" />
                             <OpenLayersScale
-                                v-if="!is3DActive"
+                                v-if="!is3DActive && !showMapLibre"
                                 class="p-1"
                             />
                         </div>
@@ -78,7 +79,7 @@ const loadDrawingModule = computed(() => {
                         v-if="!isPhoneMode"
                         #bottom-left
                     >
-                        <template v-if="!is3DActive">
+                        <template v-if="!is3DActive && !showMapLibre">
                             <OpenLayersScale />
                             <OpenLayersMouseTracker />
                         </template>

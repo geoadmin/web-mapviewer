@@ -10,8 +10,9 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { getApi3BaseUrl, getVectorTilesBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config/vectortiles.config.js'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 
@@ -258,5 +259,19 @@ export const loadLayersConfigFromBackend = (lang) => {
                     reject(message)
                 })
         }
+    })
+}
+
+export function loadVectorTileStyle() {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(`${getVectorTilesBaseUrl()}styles/${VECTOR_LIGHT_BASE_MAP_STYLE_ID}/style.json`)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((err) => {
+                log.error('Unable to load vector tile style', err)
+                reject(err)
+            })
     })
 }
