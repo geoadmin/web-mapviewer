@@ -18,6 +18,9 @@ describe('The infobox', () => {
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })
         it('can float or stick to the bottom', () => {
+            // the option to have a floating tooltip require the width of the viewport to be
+            // at least 400 pixels.
+            cy.viewport(400, 800)
             cy.get(mapSelector).click()
             cy.waitUntilState((_, getters) => {
                 return getters.selectedFeatures.length > 0
