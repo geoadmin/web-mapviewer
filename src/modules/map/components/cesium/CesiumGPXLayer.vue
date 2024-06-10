@@ -78,34 +78,33 @@ function removeLayer() {
     isPresentOnMap.value = false
 }
 
+// Function to create a red circle image using a canvas
+function createRedCircleImage(radius, opacity = 1) {
+    // Create a new canvas element
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+
+    // Set the canvas sizes
+    canvas.width = radius * 2
+    canvas.height = radius * 2
+
+    // Draw a red circle on the canvas
+    context.beginPath()
+    context.arc(radius, radius, radius, 0, 2 * Math.PI, false)
+
+    const color = `rgba(255, 0, 0, ${opacity})`
+    context.fillStyle = color
+    context.fill()
+
+    // Return the data URL of the canvas drawing
+    return canvas.toDataURL()
+}
+
 function updateStyle() {
-    log.debug('Update style', 'opacity', opacity.value)
-    // Function to create a red circle image using a canvas
-    function createRedCircleImage(radius) {
-        // Create a new canvas element
-        const canvas = document.createElement('canvas')
-        const context = canvas.getContext('2d')
-
-        // Set the canvas sizes
-        canvas.width = radius * 2
-        canvas.height = radius * 2
-
-        // Draw a red circle on the canvas
-        context.beginPath()
-        context.arc(radius, radius, radius, 0, 2 * Math.PI, false)
-
-        const color = `rgba(255, 0, 0, ${opacity.value})`
-        context.fillStyle = color
-        context.fill()
-
-        // Return the data URL of the canvas drawing
-        return canvas.toDataURL()
-    }
-
     // Create a red circle image with a radius of 8 pixels
     const radius = 8
     const billboardSize = radius * 2
-    const redCircleImage = createRedCircleImage(radius)
+    const redCircleImage = createRedCircleImage(radius, opacity.value)
 
     const redCircleBillboard = new BillboardGraphics({
         image: redCircleImage,
@@ -118,11 +117,10 @@ function updateStyle() {
 
     const entities = gpxDataSource.entities.values
 
-    for (let i = 0; i < entities.length; i++) {
-        const entity = entities[i]
+    entities.array.forEach((entity) => {
         if (opacity.value === 0) {
             entity.show = false
-            continue
+            return
         }
         // Hide the billboard for billboard on the lines by checking if there is a description
         // Imported GPX files from web-mapviewer have a description for the waypoints
@@ -148,7 +146,7 @@ function updateStyle() {
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
         }
-    }
+    })
     getViewer().scene.requestRender()
 }
 </script>
