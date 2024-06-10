@@ -1,6 +1,9 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
 import { computed, nextTick, ref, toRefs } from 'vue'
+import { onMounted } from 'vue'
+import { onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
@@ -30,7 +33,9 @@ const props = defineProps({
 const { name, item, showContentByDefault } = toRefs(props)
 
 const content = ref(null)
+const featureTitle = ref(null)
 const showContent = ref(!!showContentByDefault.value)
+let tippyTitle = null
 
 const canDisplayProfile = computed(() => canFeatureShowProfile(item.value))
 
@@ -74,10 +79,32 @@ function showContentAndScrollIntoView(event) {
         return false
     }
 }
+
+onMounted(() => {
+    // there is no easy way to see if a item is truncated by css, so we
+    // check if the offset width is smaller than the scroll width.
+    // when there is a truncate, the offset changes but not the scroll, which
+    // means we can use that to detect truncating.
+    // this might be a bit hacky, but it works :)
+    if (featureTitle.value.offsetWidth < featureTitle.value.scrollWidth) {
+        tippyTitle = tippy(featureTitle.value, {
+            content: name.value,
+            hideOnClick: true,
+            placement: 'top',
+            delay: [500],
+            // Show tippy on long touch for mobile device
+            touch: ['hold', 500], // 500ms delay,
+        })
+    }
+})
+onUnmounted(() => {
+    tippyTitle?.destroy()
+})
 </script>
 
 <template>
     <div
+        ref="featureTitle"
         class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer"
         :class="{ highlighted: isHighlightedFeature, 'border-bottom': !showContent }"
         data-cy="feature-item"
@@ -86,7 +113,9 @@ function showContentAndScrollIntoView(event) {
         @mouseleave.passive="clearHighlightedFeature"
     >
         <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2" />
-        <strong>{{ name }}</strong>
+        <strong>
+            {{ name }}
+        </strong>
 
         <ZoomToExtentButton
             v-if="item.extent"
@@ -114,6 +143,9 @@ function showContentAndScrollIntoView(event) {
 @import '@/scss/variables-admin.module';
 
 .feature-list-category-item-name {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
     &.highlighted {
         background-color: rgba($mocassin-to-red-1, 0.8);
     }
