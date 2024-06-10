@@ -1,79 +1,93 @@
+<script setup>
+import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
+import { computed, inject, onBeforeUnmount, onMounted, toRefs, watch } from 'vue'
+
+import KMLLayer from '@/api/layers/KMLLayer.class.js'
+
+const props = defineProps({
+    kmlLayerConfig: {
+        type: KMLLayer,
+        required: true,
+    },
+})
+
+const { kmlLayerConfig } = toRefs(props)
+
+const kmlData = computed(() => kmlLayerConfig.value.kmlData)
+
+const getViewer = inject('getViewer', () => {}, true)
+
+onMounted(addKmlLayer)
+onBeforeUnmount(removeKmlLayer)
+
+watch(kmlData, addKmlLayer)
+
+let kmlDataSource = null
+
+function removeKmlLayer() {
+    if (kmlDataSource) {
+        const viewer = getViewer()
+        viewer.dataSources.remove(kmlDataSource)
+        viewer.scene.requestRender()
+    }
+}
+
+function addKmlLayer() {
+    removeKmlLayer()
+    if (kmlData.value) {
+        new KmlDataSource.load(new Blob([kmlData.value]), { clampToGround: false }).then(
+            (dataSource) => {
+                kmlDataSource = dataSource
+                // adding some visual improvements to KML feature, depending on their type
+                kmlDataSource.entities.values.forEach((entity) => {
+                    let geometry
+                    let alphaToApply = 0.2
+                    let clampToGround = false
+                    if (entity.ellipse) {
+                        geometry = entity.ellipse
+                    }
+                    if (entity.polygon) {
+                        geometry = entity.polygon
+                    }
+                    if (entity.polyline) {
+                        geometry = entity.polyline
+                        alphaToApply = 0.5
+                        clampToGround = true
+                    }
+                    if (entity.billboard) {
+                        entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
+                        entity.billboard.verticalOrigin = VerticalOrigin.BOTTOM
+                    }
+                    if (entity.label) {
+                        const { label } = entity
+                        label.disableDepthTestDistance = Number.POSITIVE_INFINITY
+                        label.heightReference = HeightReference.CLAMP_TO_GROUND
+                        label.verticalOrigin = VerticalOrigin.CENTER
+                        label.outlineColor = Color.BLACK
+                        label.outlineWidth = 2
+                        label.style = LabelStyle.FILL_AND_OUTLINE
+                    }
+                    if (geometry) {
+                        if (clampToGround) {
+                            geometry.arcType = ArcType.GEODESIC
+                            geometry.clampToGround = true
+                        }
+                        if (geometry.material?.color) {
+                            geometry.material.color = geometry.material.color
+                                .getValue()
+                                .withAlpha(alphaToApply)
+                        }
+                    }
+                })
+                const viewer = getViewer()
+                viewer.dataSources.add(kmlDataSource)
+                viewer.scene.requestRender()
+            }
+        )
+    }
+}
+</script>
+
 <template>
     <slot />
 </template>
-
-<script>
-import VectorSource from 'ol/source/Vector'
-import { mapActions, mapState } from 'vuex'
-
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import { parseKml } from '@/utils/kmlUtils'
-
-import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
-
-const dispatcher = { dispatcher: 'CesiumKMLLayer.vue' }
-
-/** Renders a KML file to the Cesium viewer */
-export default {
-    mixins: [addPrimitiveFromOLLayerMixins],
-    props: {
-        kmlLayerConfig: {
-            type: KMLLayer,
-            required: true,
-        },
-    },
-    computed: {
-        ...mapState({
-            availableIconSets: (state) => state.drawing.iconSets,
-            projection: (state) => state.position.projection,
-        }),
-        opacity() {
-            return this.kmlLayerConfig.opacity
-        },
-        kmlData() {
-            return this.kmlLayerConfig.kmlData
-        },
-        iconsArePresent() {
-            return this.availableIconSets.length > 0
-        },
-    },
-    watch: {
-        iconsArePresent() {
-            this.loadDataInOLLayer().then(this.addPrimitive)
-        },
-        kmlData() {
-            this.loadDataInOLLayer().then(this.addPrimitive)
-        },
-    },
-    mounted() {
-        if (!this.iconsArePresent) {
-            this.loadAvailableIconSets(dispatcher)
-        }
-    },
-    methods: {
-        ...mapActions(['loadAvailableIconSets']),
-        loadDataInOLLayer() {
-            return new Promise((resolve, reject) => {
-                if (!this.kmlData) {
-                    reject(new Error('no KML data loaded yet, could not create source'))
-                }
-                if (!this.iconsArePresent) {
-                    reject(new Error('no icons loaded yet, could not create source'))
-                }
-                this.olLayer.setSource(
-                    new VectorSource({
-                        wrapX: true,
-                        projection: this.projection.epsg,
-                        features: parseKml(
-                            this.kmlLayerConfig,
-                            this.projection,
-                            this.availableIconSets
-                        ),
-                    })
-                )
-                resolve()
-            })
-        },
-    },
-}
-</script>

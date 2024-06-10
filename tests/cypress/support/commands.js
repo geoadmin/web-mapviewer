@@ -154,7 +154,7 @@ const addFeatureIdentificationIntercepts = () => {
         featureDetailTemplate = featureDetail.feature
     })
 
-    cy.intercept('**identify**', (identifyRequest) => {
+    cy.intercept('**/MapServer/identify**', (identifyRequest) => {
         lastIdentifiedFeatures = []
 
         const {
@@ -310,7 +310,11 @@ Cypress.Commands.add(
         if (!('lang' in queryParams)) {
             queryParams.lang = 'en'
         }
-        if (!('center' in queryParams) && !('3d' in queryParams)) {
+        if (
+            !['lat', 'lon', 'x', 'y', 'center', '3d'].some((unwantedKey) =>
+                Object.keys(queryParams).includes(unwantedKey)
+            )
+        ) {
             // "old" MAP_CENTER constant re-projected in LV95
             queryParams.center = '2660013.5,1185172'
         } else if ('3d' in queryParams && !('sr' in queryParams)) {

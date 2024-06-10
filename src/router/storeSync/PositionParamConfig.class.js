@@ -24,7 +24,7 @@ function dispatchCenterFromUrlIntoStore(to, store, urlParamValue) {
 }
 
 function generateCenterUrlParamFromStoreValues(store) {
-    if (store.state.position.center) {
+    if (store.state.position.center && !store.state.cesium.active) {
         return store.state.position.center
             .map((val) => store.state.position.projection.roundCoordinateValue(val))
             .join(',')

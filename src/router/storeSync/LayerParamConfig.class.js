@@ -28,12 +28,7 @@ import log from '@/utils/logging'
  */
 export function createLayerObject(parsedLayer, currentLayer) {
     const defaultOpacity = 1.0
-    if (
-        [LayerTypes.KML, LayerTypes.GPX, LayerTypes.WMTS, LayerTypes.WMS].includes(
-            parsedLayer.type
-        ) &&
-        currentLayer
-    ) {
+    if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
@@ -114,7 +109,8 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
     const featuresRequests = []
     const layers = parsedLayers.map((parsedLayer, index) => {
         // First check if we already have the layer in the active layers
-        const currentLayer = store.getters.getActiveLayerByIndex(index)
+        const layerAtIndex = store.getters.getActiveLayerByIndex(index)
+        const currentLayer = layerAtIndex?.id === parsedLayer.id ? layerAtIndex : null
         const layerObject = createLayerObject(parsedLayer, currentLayer)
         if (layerObject) {
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {

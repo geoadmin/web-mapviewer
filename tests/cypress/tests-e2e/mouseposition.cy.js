@@ -119,6 +119,9 @@ describe('Test mouse position and interactions', () => {
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
             let shortUrl = 'https://s.geo.admin.ch/0000000'
+
+            const fakeLV03Coordinate = [1234.56, 7890.12]
+            cy.intercept('**/lv95tolv03**', { coordinates: fakeLV03Coordinate }).as('reframe')
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
@@ -163,10 +166,11 @@ describe('Test mouse position and interactions', () => {
                 .then(checkXY(...centerLV95))
             cy.log('it shows coordinates, correctly re-projected into LV95, in the popup')
 
+            cy.wait('@reframe')
             cy.get('[data-cy="location-popup-lv03"]')
                 .invoke('text')
                 .then(parseLV)
-                .then(checkXY(...centerLV03))
+                .then(checkXY(...fakeLV03Coordinate))
             cy.log('it shows coordinates, correctly re-projected into LV03, in the popup')
 
             cy.get('[data-cy="location-popup-wgs84"]').contains(

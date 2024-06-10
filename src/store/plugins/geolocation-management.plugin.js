@@ -9,6 +9,8 @@ import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
+const ENABLE_HIGH_ACCURACY = true
+
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
 
@@ -96,7 +98,10 @@ const activeGeolocation = (store, state) => {
             // register a watcher
             geolocationWatcher = navigator.geolocation.watchPosition(
                 (position) => handlePositionAndDispatchToStore(position, store),
-                (error) => handlePositionError(error, store)
+                (error) => handlePositionError(error, store),
+                {
+                    enableHighAccuracy: ENABLE_HIGH_ACCURACY,
+                }
             )
 
             // handle current position
@@ -114,6 +119,7 @@ const activeGeolocation = (store, state) => {
         },
         (error) => handlePositionError(error, store),
         {
+            enableHighAccuracy: ENABLE_HIGH_ACCURACY,
             maximumAge: 5 * 60 * 1000, // 5 minutes
             timeout: 2 * 60 * 1000, // 2 minutes
         }

@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { API_SERVICE_KML_BASE_URL } from '@/config.js'
 import { formatThousand } from '@/utils/numberUtils.js'
 
 const printID = 'print-123456789'
@@ -28,6 +29,10 @@ describe('Testing print', () => {
                 delay: 200,
             })
         }).as('printRequest')
+    }
+
+    function interceptKml(fixture) {
+        cy.intercept('GET', '**/**.kml', { fixture }).as('kmlRequest')
     }
 
     function interceptPrintStatus() {
@@ -170,6 +175,32 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
+        function startPrintWithKml(kmlFixture) {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
+            interceptKml(kmlFixture)
+
+            cy.goToMapView(
+                {
+                    layers: `KML|${API_SERVICE_KML_BASE_URL}some-kml-file.kml`,
+                    z: 9,
+                },
+                true
+            )
+            cy.wait('@kmlRequest')
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+
+            cy.openMenuIfMobile()
+
+            // Print
+            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-form"]').should('be.visible')
+
+            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+        }
+
         it('should send a print request to mapfishprint (with layers added)', () => {
             interceptPrintRequest()
             interceptPrintStatus()
@@ -264,55 +295,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
-            cy.goToMapView({}, true)
-            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-            cy.openMenuIfMobile()
-            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-
-            cy.get('[data-cy="import-file-content"]').should('be.visible')
-            cy.get('[data-cy="import-file-online-content"]').should('be.visible')
-
-            const localKmlFile = 'import-tool/external-kml-file.kml'
-
-            // Test local import
-            cy.log('Switch to local import')
-            cy.get('[data-cy="import-file-local-btn"]:visible').click()
-            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
-
-            // Attach a local KML file
-            cy.log('Test add a local KML file')
-            cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
-                force: true,
-            })
-            cy.get('[data-cy="import-file-load-button"]:visible').click()
-
-            // Assertions for successful import
-            cy.get('[data-cy="file-input-text"]')
-                .should('have.class', 'is-valid')
-                .should('not.have.class', 'is-invalid')
-            cy.get('[data-cy="file-input-valid-feedback"]')
-                .should('be.visible')
-                .contains('File successfully imported')
-            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
-            cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-
-            // Close the import tool
-            cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.get('[data-cy="import-file-content"]').should('not.exist')
-
-            // Print
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+            startPrintWithKml('import-tool/external-kml-file.kml')
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -444,55 +427,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
-            cy.goToMapView({}, true)
-            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-            cy.openMenuIfMobile()
-            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-
-            cy.get('[data-cy="import-file-content"]').should('be.visible')
-            cy.get('[data-cy="import-file-online-content"]').should('be.visible')
-
-            const localKmlFile = 'print/label.kml'
-
-            // Test local import
-            cy.log('Switch to local import')
-            cy.get('[data-cy="import-file-local-btn"]:visible').click()
-            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
-
-            // Attach a local KML file
-            cy.log('Test add a local KML file')
-            cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
-                force: true,
-            })
-            cy.get('[data-cy="import-file-load-button"]:visible').click()
-
-            // Assertions for successful import
-            cy.get('[data-cy="file-input-text"]')
-                .should('have.class', 'is-valid')
-                .should('not.have.class', 'is-invalid')
-            cy.get('[data-cy="file-input-valid-feedback"]')
-                .should('be.visible')
-                .contains('File successfully imported')
-            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
-            cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-
-            // Close the import tool
-            cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.get('[data-cy="import-file-content"]').should('not.exist')
-
-            // Print
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+            startPrintWithKml('print/label.kml')
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -563,55 +498,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
-            cy.goToMapView({}, true)
-            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-            cy.openMenuIfMobile()
-            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-
-            cy.get('[data-cy="import-file-content"]').should('be.visible')
-            cy.get('[data-cy="import-file-online-content"]').should('be.visible')
-
-            const localKmlFile = 'print/old-geoadmin-label.kml'
-
-            // Test local import
-            cy.log('Switch to local import')
-            cy.get('[data-cy="import-file-local-btn"]:visible').click()
-            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
-
-            // Attach a local KML file
-            cy.log('Test add a local KML file')
-            cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
-                force: true,
-            })
-            cy.get('[data-cy="import-file-load-button"]:visible').click()
-
-            // Assertions for successful import
-            cy.get('[data-cy="file-input-text"]')
-                .should('have.class', 'is-valid')
-                .should('not.have.class', 'is-invalid')
-            cy.get('[data-cy="file-input-valid-feedback"]')
-                .should('be.visible')
-                .contains('File successfully imported')
-            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
-            cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-
-            // Close the import tool
-            cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.get('[data-cy="import-file-content"]').should('not.exist')
-
-            // Print
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+            startPrintWithKml('print/old-geoadmin-label.kml')
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
