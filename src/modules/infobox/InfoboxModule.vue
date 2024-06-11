@@ -8,6 +8,7 @@ import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
@@ -41,6 +42,22 @@ const showContainer = computed(() => {
     )
 })
 const showTooltipToggle = computed(() => showFeatureInfoInBottomPanel.value)
+const title = computed(() => {
+    if (!showDrawingOverlay.value && showElevationProfile.value) {
+        return `${i18n.t('profile_title')}: ${profileFeature.value.title}`
+    }
+    if (
+        showDrawingOverlay.value &&
+        showElevationProfile.value &&
+        !showFeatureInfoInBottomPanel.value
+    ) {
+        return i18n.t('profile_title')
+    }
+    if (showDrawingOverlay.value) {
+        return i18n.t('draw_modify_description')
+    }
+    return i18n.t('object_information')
+})
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -90,26 +107,21 @@ function onHideProfile() {
             class="infobox-header card-header d-flex justify-content-end m-0"
             data-cy="infobox-header"
         >
-            <div
-                v-if="!showDrawingOverlay && showElevationProfile"
-                class="d-flex justify-content-center align-items-center flex-grow-1"
+            <button
+                v-if="!showDrawingOverlay && showElevationProfile && showFeatureInfoInBottomPanel"
+                class="btn btn-light btn-xs align-middle text-nowrap justify-content-left"
+                @click.stop="onHideProfile"
             >
-                <button
-                    v-if="showFeatureInfoInBottomPanel"
-                    class="btn btn-light btn-xs align-middle"
-                    @click.stop="onHideProfile"
-                >
-                    <FontAwesomeIcon icon="chevron-left" class="me-1" />
-                    {{ i18n.t('hide_profile') }}
-                </button>
-                <strong class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
-                    {{ i18n.t('profile_title') }}
-                    <span class="d-none d-md-inline">&nbsp;:&nbsp;{{ profileFeature.title }}</span>
-                </strong>
+                <FontAwesomeIcon icon="chevron-left" class="me-1" />
+                {{ i18n.t('hide_profile') }}
+            </button>
+            <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
+                <TextTruncate>{{ title }}</TextTruncate>
             </div>
             <ZoomToExtentButton
                 v-if="showElevationProfile && profileFeature.extent"
                 :extent="profileFeature.extent"
+                class="zoom-to-extent-button btn-light"
             />
             <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
                 <FontAwesomeIcon icon="print" />
@@ -187,6 +199,14 @@ function onHideProfile() {
         &-edit {
             min-width: $overlay-width;
         }
+    }
+
+    .header-title {
+        overflow: hidden;
+    }
+
+    .zoom-to-extent-button {
+        min-width: 2rem;
     }
 }
 </style>
