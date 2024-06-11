@@ -40,6 +40,7 @@ describe('Testing the report problem form', () => {
 
         // Reset back to mobile view
         cy.viewport(320, 568)
+        cy.openMenuIfMobile()
 
         cy.log('It validates the report problem form properly')
 
@@ -51,6 +52,7 @@ describe('Testing the report problem form', () => {
         closeForm()
 
         cy.log('It is not possible to report a problem with a malformed email')
+        cy.openMenuIfMobile()
         openForm()
         cy.get('[data-cy="text-area-input"]').type(text)
         cy.get('[data-cy="email-input"]').type('this.is.not.a.valid@email')
@@ -60,6 +62,7 @@ describe('Testing the report problem form', () => {
         closeForm()
 
         cy.log('It validates email before enabling the user to report a problem')
+        cy.openMenuIfMobile()
         openForm()
         cy.get('[data-cy="text-area-input"]').type(text)
         cy.get('[data-cy="email-input"').type(validEmail)
@@ -67,6 +70,7 @@ describe('Testing the report problem form', () => {
         closeForm()
 
         cy.log('It is not possible to report a problem without filling the message')
+        cy.openMenuIfMobile()
         openForm()
         cy.get('[data-cy="text-area-input"').should('be.empty')
         cy.get('[data-cy="email-input"]').type(validEmail)
@@ -77,6 +81,7 @@ describe('Testing the report problem form', () => {
         closeForm()
 
         cy.log('It generates a complete request to service-feedback')
+        cy.openMenuIfMobile()
         openForm()
         interceptFeedback(true)
         cy.get('[data-cy="email-input"]').type(validEmail)
@@ -112,6 +117,7 @@ describe('Testing the report problem form', () => {
         // Form is already closed at this point
 
         cy.log('It send the correct version when the email is empty and attach a file')
+        cy.openMenuIfMobile()
         openForm()
         cy.get('[data-cy="text-area-input"]').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
@@ -149,6 +155,7 @@ describe('Testing the report problem form', () => {
         // Form is already closed at this point
 
         cy.log('It shows a text to the user to tell him something went wrong')
+        cy.openMenuIfMobile()
         openForm()
         interceptFeedback(false)
         cy.get('[data-cy="text-area-input"]').type(text)
@@ -223,6 +230,7 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-drawing-added-feedback"]').should('not.be.visible')
 
         cy.log('Draw some more features')
+        cy.get('[data-cy="report-problem-drawing-button"]').scrollIntoView()
         cy.get('[data-cy="report-problem-drawing-button"]').should('be.visible').click()
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
         cy.get('[data-cy="ol-map"]').click()
