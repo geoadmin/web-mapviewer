@@ -1,4 +1,4 @@
-import i18n, { langToLocal } from '@/modules/i18n'
+import i18n, { langToLocal, localToLang } from '@/modules/i18n'
 
 /**
  * The name of the mutation for lang changes
@@ -14,7 +14,7 @@ const state = {
      *
      * @type String
      */
-    lang: i18n.global.locale,
+    lang: localToLang(i18n.global.locale),
 }
 
 const getters = {}

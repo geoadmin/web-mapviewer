@@ -18,6 +18,9 @@ export function langToLocal(lang) {
     return ['de', 'fr', 'it', 'rm'].includes(lang) ? `${lang}-CH` : lang
 }
 
+export function localToLang(local) {
+    return local.replace('-CH', '')
+
 // detecting navigator's locale as the default language
 // (if it is a language served by this app)
 let matchedLanguage = null
