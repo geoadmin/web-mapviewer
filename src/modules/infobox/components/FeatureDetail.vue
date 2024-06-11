@@ -137,4 +137,8 @@ function getIframeHosts(value) {
 :global(td) {
     vertical-align: top;
 }
+
+:global(td.cell-left) {
+    padding-right: 10px;
+}
 </style>

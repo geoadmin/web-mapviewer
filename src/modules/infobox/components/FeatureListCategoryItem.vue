@@ -105,7 +105,7 @@ onUnmounted(() => {
 <template>
     <div
         ref="featureTitle"
-        class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer"
+        class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer text-truncate"
         :class="{ highlighted: isHighlightedFeature, 'border-bottom': !showContent }"
         data-cy="feature-item"
         @click="toggleShowContent"
@@ -143,9 +143,6 @@ onUnmounted(() => {
 @import '@/scss/variables-admin.module';
 
 .feature-list-category-item-name {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
     &.highlighted {
         background-color: rgba($mocassin-to-red-1, 0.8);
     }
