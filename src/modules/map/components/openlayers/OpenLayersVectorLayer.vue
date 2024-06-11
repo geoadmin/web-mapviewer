@@ -9,7 +9,7 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
-import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
+import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
 import { computed, inject, toRefs, watch } from 'vue'
 
