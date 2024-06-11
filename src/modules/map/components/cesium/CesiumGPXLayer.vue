@@ -55,10 +55,9 @@ onUnmounted(() => {
 
 function addLayer() {
     const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
-    const gpxUrl = URL.createObjectURL(gpxBlob)
     gpxDataSource = new GpxDataSource()
     gpxDataSource
-        .load(gpxUrl, {
+        .load(gpxBlob, {
             clampToGround: true,
         })
         .then((dataSource) => {
@@ -117,7 +116,7 @@ function updateStyle() {
 
     const entities = gpxDataSource.entities.values
 
-    entities.array.forEach((entity) => {
+    entities.forEach((entity) => {
         if (opacity.value === 0) {
             entity.show = false
             return
