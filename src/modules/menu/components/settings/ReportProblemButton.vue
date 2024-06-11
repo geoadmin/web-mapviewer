@@ -150,6 +150,9 @@ async function generateShortLink() {
 }
 
 function openForm() {
+    if (!props.showAsLink) {
+        store.dispatch('closeMenu', dispatcher)
+    }
     showReportProblemForm.value = true
     generateShortLink()
     nextTick(() => {

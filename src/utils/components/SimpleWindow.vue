@@ -1,6 +1,7 @@
 <script setup>
-import { toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 const props = defineProps({
     title: {
@@ -15,8 +16,18 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /** Add a minimize button in header that will hide/show the body */
+    hasMinimize: {
+        type: Boolean,
+        default: true,
+    },
 })
 const { title, hide } = toRefs(props)
+
+const store = useStore()
+
+const showBody = ref(true)
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
 const i18n = useI18n()
 
@@ -25,13 +36,20 @@ const emit = defineEmits(['close'])
 
 <template>
     <teleport to="#main-component">
-        <div v-show="!hide" class="simple-window card">
+        <div
+            v-show="!hide"
+            class="simple-window card"
+            :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
+        >
             <div
-                class="window-header card-header d-flex align-items-center justify-content-sm-end"
+                class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
                 <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
                 <span v-else class="me-auto" />
+                <button class="btn btn-light btn-sm me-2" @click.stop="showBody = !showBody">
+                    <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
+                </button>
                 <button
                     class="btn btn-light btn-sm"
                     data-cy="window-close"
@@ -40,7 +58,7 @@ const emit = defineEmits(['close'])
                     <FontAwesomeIcon icon="times" />
                 </button>
             </div>
-            <div class="card-body">
+            <div class="card-body" :class="{ hide: !showBody }">
                 <slot />
             </div>
         </div>
@@ -53,7 +71,7 @@ const emit = defineEmits(['close'])
 
 .simple-window {
     $top-margin: calc(2 * $header-height + 2rem);
-    z-index: $zindex-modal;
+    z-index: calc($zindex-menu - 1);
     position: fixed;
     top: $top-margin;
     right: 4rem;
@@ -64,6 +82,10 @@ const emit = defineEmits(['close'])
     max-height: calc(100vh - $top-margin);
     @include respond-below(phone) {
         $top-margin: $header-height;
+        &.dev-disclaimer-present {
+            $top-margin: calc($header-height + $dev-disclaimer-height);
+        }
+
         top: $top-margin;
         left: 50%;
         right: unset;
@@ -73,6 +95,12 @@ const emit = defineEmits(['close'])
     }
     .card-body {
         overflow-y: auto;
+
+        &.hide {
+            visibility: hidden;
+            height: 0px;
+            padding: 0px;
+        }
     }
 }
 </style>

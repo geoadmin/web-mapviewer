@@ -267,6 +267,9 @@ export default {
         toggleMenu({ commit, state }, { dispatcher }) {
             commit('setShowMenu', { show: !state.showMenu, dispatcher })
         },
+        closeMenu({ commit }, { dispatcher }) {
+            commit('setShowMenu', { show: false, dispatcher })
+        },
         toggleFullscreenMode({ commit, state }, { dispatcher }) {
             commit('setFullscreenMode', { mode: !state.fullscreenMode, dispatcher })
         },

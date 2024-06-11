@@ -12,6 +12,8 @@ import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'FeedbackButton.vue' }
+
 const props = defineProps({
     showAsLink: {
         type: Boolean,
@@ -79,6 +81,13 @@ async function sendFeedback() {
     }
 }
 
+function openForm() {
+    if (!props.showAsLink) {
+        store.dispatch('closeMenu', dispatcher)
+    }
+    showFeedbackForm.value = true
+}
+
 function closeAndCleanForm() {
     activateValidation.value = false
     showFeedbackForm.value = false
@@ -100,20 +109,10 @@ function onEmailValidate(valid) {
 </script>
 
 <template>
-    <HeaderLink
-        v-if="showAsLink"
-        primary
-        data-cy="feedback-link-button"
-        @click="showFeedbackForm = true"
-    >
+    <HeaderLink v-if="showAsLink" primary data-cy="feedback-link-button" @click="openForm">
         <strong>{{ i18n.t('test_map_give_feedback') }}</strong>
     </HeaderLink>
-    <button
-        v-else
-        class="btn btn-primary m-1"
-        data-cy="feedback-button"
-        @click="showFeedbackForm = true"
-    >
+    <button v-else class="btn btn-primary m-1" data-cy="feedback-button" @click="openForm">
         {{ i18n.t('test_map_give_feedback') }}
     </button>
     <SimpleWindow
