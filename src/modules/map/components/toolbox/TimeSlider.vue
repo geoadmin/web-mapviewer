@@ -197,6 +197,7 @@ const yearsWithData = computed(() => {
         yearsSeparate: yearsSeparate.sort((a, b) => b - a),
     }
 })
+const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
 
 watch(screenWidth, (newValue) => {
     setSliderWidth(newValue)
@@ -212,6 +213,11 @@ watch(isInputYearValid, (newValue) => {
 
 watch(lang, () => {
     updateTippyContent(tippyYearOutsideRangeContent.value)
+})
+
+watch(visibleLayersWithTimeConfig, () => {
+    console.error('watch')
+    setPreviewYearToLayers()
 })
 
 onMounted(() => {
