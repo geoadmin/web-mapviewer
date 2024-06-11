@@ -68,11 +68,11 @@ const handleLegacyParam = (
         // storing coordinate parts for later conversion (LV03 or LV95)
         // legacy coordinates have to be saved in an array in order (y,x) for
         // convertion to be correct using proj4.
-        case 'E':
+        case 'N':
         case 'X':
             legacyCoordinates[1] = Number(legacyValue)
             break
-        case 'N':
+        case 'E':
         case 'Y':
             legacyCoordinates[0] = Number(legacyValue)
             break
