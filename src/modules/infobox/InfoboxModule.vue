@@ -9,9 +9,9 @@ import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import printModal from '@/utils/components/printModal.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import promptUserToPrintHtmlContent from '@/utils/print'
 
 const dispatcher = { dispatcher: 'InfoboxModule.vue' }
 const showContent = ref(true)
@@ -81,9 +81,6 @@ function setTooltipInfoPosition() {
         ...dispatcher,
     })
 }
-function onPrint() {
-    promptUserToPrintHtmlContent(content.value)
-}
 function onClose() {
     if (showFeatureInfoInBottomPanel.value) {
         store.dispatch('clearAllSelectedFeatures', dispatcher)
@@ -126,9 +123,7 @@ function onHideProfile() {
                 :extent="profileFeature.extent"
                 class="zoom-to-extent-button btn-light"
             />
-            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
-                <FontAwesomeIcon icon="print" />
-            </button>
+            <printModal :content="content"></printModal>
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"

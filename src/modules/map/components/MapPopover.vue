@@ -20,9 +20,9 @@ import {
     cssTimeSliderBarHeight,
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
+import printModal from '@/utils/components/printModal.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
-import promptUserToPrintHtmlContent from '@/utils/print'
 
 const props = defineProps({
     authorizePrint: {
@@ -58,6 +58,7 @@ const emits = defineEmits(['close'])
 const popoverHeader = ref(null)
 const popover = ref(null)
 
+const mapPopoverContent = ref(null)
 const showContent = ref(true)
 
 const store = useStore()
@@ -117,9 +118,6 @@ onMounted(() => {
 function onClose() {
     emits('close')
 }
-function printContent() {
-    promptUserToPrintHtmlContent('mapPopoverContent')
-}
 </script>
 
 <template>
@@ -153,15 +151,10 @@ function printContent() {
                 <span class="flex-grow-1 align-self-center">
                     {{ title }}
                 </span>
-                <button
-                    v-if="authorizePrint"
-                    class="print-button btn btn-sm btn-light d-flex align-items-center"
-                    data-tippy-content="print"
-                    @click="printContent"
-                    @mousedown.stop=""
-                >
-                    <FontAwesomeIcon icon="print" />
-                </button>
+                <printModal
+                    v-if="authorizePrint && showContent"
+                    :content="mapPopoverContent"
+                ></printModal>
                 <slot name="extra-buttons"></slot>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"

@@ -85,7 +85,6 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
-import promptUserToPrintHtmlContent from '@/utils/print'
 
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
@@ -99,6 +98,10 @@ export default {
             default: null,
         },
         allowPrint: {
+            type: Boolean,
+            default: false,
+        },
+        callPrint: {
             type: Boolean,
             default: false,
         },
@@ -128,6 +131,9 @@ export default {
         },
     },
     emits: ['close'],
+    mounted() {
+        this.printAndClose()
+    },
     methods: {
         onClose(withConfirmation) {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
@@ -135,7 +141,13 @@ export default {
         },
         printModalContent() {
             if (this.$refs.modalContent) {
-                promptUserToPrintHtmlContent(this.$refs.modalContent)
+                window.print()
+            }
+        },
+        printAndClose() {
+            if (this.callPrint) {
+                this.printModalContent()
+                this.onClose(false)
             }
         },
     },
