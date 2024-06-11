@@ -102,10 +102,17 @@ function onHideProfile() {
                     <FontAwesomeIcon icon="chevron-left" class="me-1" />
                     {{ i18n.t('hide_profile') }}
                 </button>
-                <strong class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
+                <div class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
                     {{ i18n.t('profile_title') }}
                     <span class="d-none d-md-inline">&nbsp;:&nbsp;{{ profileFeature.title }}</span>
-                </strong>
+                </div>
+            </div>
+            <div v-else class="flex-grow-1 d-flex justify-content-center mt-1 text-nowrap">
+                <span>{{
+                    showDrawingOverlay
+                        ? i18n.t('draw_modify_description')
+                        : i18n.t('object_information')
+                }}</span>
             </div>
             <ZoomToExtentButton
                 v-if="showElevationProfile && profileFeature.extent"
