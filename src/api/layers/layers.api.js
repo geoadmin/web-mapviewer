@@ -54,7 +54,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             // this is not a well-formed URL, we do nothing with it
         }
         const timestamps = []
-        if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 1) {
+        if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 0) {
             timestamps.push(
                 ...layerConfig.timestamps.map((timestamp) => new LayerTimeConfigEntry(timestamp))
             )
