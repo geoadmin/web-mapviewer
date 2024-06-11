@@ -3,9 +3,9 @@ import { computed, onUnmounted, ref, toRefs, watch } from 'vue'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { createShortLink } from '@/api/shortlink.api'
+import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
-import { stringifyQuery } from '@/utils/url-router'
 
 const props = defineProps({
     kmlLayer: {
@@ -20,35 +20,29 @@ const fileUrlCopied = ref(false)
 const shareUrl = ref(' ')
 const adminShareUrl = ref(' ')
 
-const kmlAdminId = computed(() => kmlLayer.value?.adminId)
-const kmlLayerId = computed(() => kmlLayer.value?.id)
 const baseUrl = computed(() => {
-    return `${location.origin}${location.pathname}#/map`
+    return `${location.origin}/#`
 })
 const fileUrl = computed(() => {
-    if (kmlLayer.value?.id) {
-        const query = { layers: encodeLayerId(kmlLayer.value) }
-        return `${baseUrl.value}?${stringifyQuery(query)}`
-    }
-    return ''
+    return `${baseUrl.value}${router.currentRoute.value.fullPath}`
 })
 const adminUrl = computed(() => {
-    if (kmlLayer.value?.id && kmlLayer.value?.adminId) {
-        const query = {
-            layers: `${encodeLayerId(kmlLayer.value)}@adminId=${kmlLayer.value.adminId}`,
-        }
-        return `${baseUrl.value}?${stringifyQuery(query)}`
+    if (fileUrl.value && kmlLayer.value?.adminId) {
+        const encodedLayerID = encodeURI(encodeLayerId(kmlLayer.value))
+        return fileUrl.value.replace(
+            encodedLayerID,
+            `${encodedLayerID}@adminId=${kmlLayer.value.adminId}`
+        )
     }
     // if no adminID is available don't show the edit share link.
     return null
 })
 
-watch(kmlAdminId, () => {
+watch(adminUrl, () => {
     updateAdminShareUrl()
 })
-watch(kmlLayerId, () => {
+watch(fileUrl, () => {
     updateShareUrl()
-    updateAdminShareUrl()
 })
 
 updateShareUrl()
