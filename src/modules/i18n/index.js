@@ -19,15 +19,13 @@ export function langToLocal(lang) {
 }
 
 export function localToLang(local) {
-    return local.replace('-CH', '')
+    return local.split('-')[0]
+}
 
 // detecting navigator's locale as the default language
 // (if it is a language served by this app)
-let matchedLanguage = null
-if (navigator.languages) {
-    // we keep the first match we found
-    matchedLanguage = navigator.languages.find((lang) => Object.keys(locales).includes(lang))
-}
+export const defaultLocal =
+    navigator.languages?.find((local) => Object.keys(locales).includes(local)) ?? 'en'
 
 const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
     obj[key] = {
@@ -44,7 +42,7 @@ const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
 }, {})
 
 const i18n = createI18n({
-    locale: matchedLanguage || 'en', // default locale
+    locale: defaultLocal,
     messages: languages,
     legacy: false,
     datetimeFormats,
