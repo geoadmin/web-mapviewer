@@ -216,7 +216,6 @@ watch(lang, () => {
 })
 
 watch(visibleLayersWithTimeConfig, () => {
-    console.error('watch')
     setPreviewYearToLayers()
 })
 

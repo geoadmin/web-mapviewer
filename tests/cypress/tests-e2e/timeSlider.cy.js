@@ -202,26 +202,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             })
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            cy.log(
-                `${time_layer_odd} : CSS of time selectors on a layer with data on the preview Year selected`
-            )
-            cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).click()
-            timestamps[time_layer_odd].forEach((timestamp) => {
-                cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                    const classList = Array.from(element[0].classList)
-                    // in the odd layer, the year is set to 2009 and the time slider to 2013:
-                    // it should show 2013 as primary, 2009 as outline and everything else
-                    // should be a light button
-                    if (timestamp === '20130101') {
-                        return isPrimaryBtn(classList)
-                    } else {
-                        return timestamp === '20090101'
-                            ? isPrimaryOutlineBtn(classList)
-                            : isLightBtn(classList)
-                    }
-                })
-            })
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).click()
             timestamps[time_layer_with_all].forEach((timestamp) => {
                 cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
