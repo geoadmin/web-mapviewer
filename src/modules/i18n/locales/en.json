@@ -678,7 +678,7 @@
     "form_invalid": "Form is invalid",
     "file_imported_success": "File successfully imported",
     "3d_labels": "Geographic names",
-    "3d_vegetation": "Vegetations",
+    "3d_vegetation": "Vegetation",
     "3d_constructions": "Buildings and constructions",
     "webmapviewer_live_disclaimer": "Big changes are coming soon, <a target='_blank' href='https://www.swisstopo.admin.ch/en'>learn more</a>",
     "drawing_too_large": "Your drawing is too large, remove some features",
