@@ -124,6 +124,7 @@ function setBottomPanelFeatureInfoPosition() {
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
                 @click="setBottomPanelFeatureInfoPosition"
+                @mousedown.stop=""
             >
                 <FontAwesomeIcon icon="angles-down" />
             </button>
