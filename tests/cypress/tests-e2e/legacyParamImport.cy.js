@@ -50,10 +50,8 @@ describe('Test on legacy param import', () => {
         })
 
         it('reproject LV95 coordinates param to EPSG:4326', () => {
-            // NOTE on the old viewer N := correspond to x in EPSG definition
-            // NOTE on the old viewer E := correspond to y in EPSG definition
-            const N = 2660000
-            const E = 1200000
+            const E = 2660000
+            const N = 1200000
             const lv95zoom = 8
             cy.goToMapView(
                 {
