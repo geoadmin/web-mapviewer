@@ -680,7 +680,7 @@
     "3d_labels": "Nomi geografici",
     "3d_vegetation": "Vegetazione",
     "3d_constructions": "Edifici e costruzioni",
-    "webmapviewer_live_disclaimer": "Grandi cambiamenti in arrivo, <a target='_blank' href='https://www.swisstopo.admin.ch/it'>per saperne di più</a>",
+    "webmapviewer_live_disclaimer": "Il visualizzatore di mappe sarà aggiornato in breve - <a target='_blank' href='https://www.geo.admin.ch/it/go-live-visualizzatore-di-mappe'>tenetevi pronti</a>",
     "drawing_too_large": "Il tuo disegno è troppo grande, rimuovi alcune caratteristiche",
     "3d_unsupported_projection": "La mappa non può essere visualizzata in 3D perché non supporta la proiezione EPSG:4326"
 }
