@@ -45,7 +45,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         const swissimage3d = layersConfig.find(
             (layer) => layer.id === 'ch.swisstopo.swissimage-product_3d'
         )
-        if (swissimage) {
+        if (swissimage && swissimage3d) {
             swissimage3d.isBackground = true
             swissimage.idIn3d = swissimage3d.id
         }

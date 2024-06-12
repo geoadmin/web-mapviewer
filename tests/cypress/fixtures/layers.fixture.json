@@ -196,6 +196,29 @@
     },
     "test.background.layer": {
         "attribution": "attribution_background",
+        "config3d": "test.background.layer_3d",
+        "background": true,
+        "searchable": false,
+        "format": "jpeg",
+        "hasLegend": false,
+        "topics": "ech",
+        "attributionUrl": "https://api3.geo.admin.ch/",
+        "tooltip": false,
+        "timeEnabled": false,
+        "highlightable": true,
+        "chargeable": true,
+        "timestamps": ["current"],
+        "resolutions": [
+            4000.0, 3750.0, 3500.0, 3250.0, 3000.0, 2750.0, 2500.0, 2250.0, 2000.0, 1750.0, 1500.0,
+            1250.0, 1000.0, 750.0, 650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.5,
+            1.0, 0.5, 0.25
+        ],
+        "label": "Background test layer",
+        "type": "wmts",
+        "serverLayerName": "test.background.layer"
+    },
+    "test.background.layer_3d": {
+        "attribution": "attribution_background",
         "background": true,
         "searchable": false,
         "format": "jpeg",
@@ -218,6 +241,7 @@
     },
     "test.background.layer2": {
         "attribution": "attribution.test.wmts.layer",
+        "config3d": "test.background.layer2_3d",
         "searchable": false,
         "serverLayerName": "test.background.layer2",
         "format": "jpeg",
@@ -226,6 +250,28 @@
         "attributionUrl": "https://api3.geo.admin.ch/",
         "tooltip": false,
         "label": "Alternative background test layer",
+        "chargeable": true,
+        "highlightable": true,
+        "background": true,
+        "timestamps": ["current"],
+        "resolutions": [
+            4000.0, 3750.0, 3500.0, 3250.0, 3000.0, 2750.0, 2500.0, 2250.0, 2000.0, 1750.0, 1500.0,
+            1250.0, 1000.0, 750.0, 650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.5,
+            1.0, 0.5, 0.25
+        ],
+        "type": "wmts",
+        "timeEnabled": false
+    },
+    "test.background.layer2_3d": {
+        "attribution": "attribution.test.wmts.layer",
+        "searchable": false,
+        "serverLayerName": "test.background.layer2_3d",
+        "format": "jpeg",
+        "hasLegend": false,
+        "topics": "ech",
+        "attributionUrl": "https://api3.geo.admin.ch/",
+        "tooltip": false,
+        "label": "Alternative background test layer in 3D",
         "chargeable": true,
         "highlightable": true,
         "background": true,
