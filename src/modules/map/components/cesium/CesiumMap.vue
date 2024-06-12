@@ -62,7 +62,7 @@
                     @click="setBottomPanelFeatureInfoPosition()"
                     @mousedown.stop=""
                 >
-                    <FontAwesomeIcon icon="caret-down" />
+                    <FontAwesomeIcon icon="angles-down" />
                 </button>
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
