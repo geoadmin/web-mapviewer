@@ -20,9 +20,8 @@ import {
     cssTimeSliderBarHeight,
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
-import printModal from '@/utils/components/printModal.vue'
+import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
     authorizePrint: {
@@ -104,8 +103,6 @@ const popoverLimits = computed(() => {
     }
 })
 
-useTippyTooltip('.map-popover-header [data-tippy-content]')
-
 onMounted(() => {
     if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
         useMovableElement(popover.value, {
@@ -151,10 +148,10 @@ function onClose() {
                 <span class="flex-grow-1 align-self-center">
                     {{ title }}
                 </span>
-                <printModal
+                <PrintButton
                     v-if="authorizePrint && showContent"
                     :content="mapPopoverContent"
-                ></printModal>
+                ></PrintButton>
                 <slot name="extra-buttons"></slot>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"

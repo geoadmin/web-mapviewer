@@ -9,7 +9,7 @@ import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import printModal from '@/utils/components/printModal.vue'
+import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
@@ -123,7 +123,7 @@ function onHideProfile() {
                 :extent="profileFeature.extent"
                 class="zoom-to-extent-button btn-light"
             />
-            <printModal :content="content"></printModal>
+            <PrintButton :content="content"></PrintButton>
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"

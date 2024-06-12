@@ -1,7 +1,7 @@
 <script setup>
 import { ref, toRefs } from 'vue'
 
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
@@ -12,26 +12,27 @@ const props = defineProps({
 })
 const { content } = toRefs(props)
 
-useTippyTooltip('#printModaleButton [data-tippy-content]')
+useTippyTooltip('#PrintButtoneButton [data-tippy-content]')
 
 const showModal = ref(false)
 
 function printContent() {
     showModal.value = true
+    console.error(content)
 }
 </script>
 
 <template>
     <button
-        id="printModalButton"
+        id="PrintButtonButton"
         class="btn btn-light btn-sm d-flex align-items-center"
         :data-tippy-content="'print'"
-        @click.stop="printContent"
+        @click="printContent"
     >
         <FontAwesomeIcon icon="print" />
     </button>
-    <ModalWithBackdrop v-if="showModal" :call-print="true" :title="' '" @close="showModal = false">
+    <ModalPrintWithBackdrop v-if="showModal" @close="showModal = false">
         <!-- eslint-disable-next-line vue/no-v-html-->
         <div v-html="content.innerHTML"></div>
-    </ModalWithBackdrop>
+    </ModalPrintWithBackdrop>
 </template>

@@ -36,7 +36,7 @@
                                 'btn-primary': headerPrimary,
                             }"
                             data-cy="modal-print-button"
-                            @click="printModalContent"
+                            @click="PrintButtonContent"
                         >
                             <FontAwesomeIcon icon="print" />
                         </button>
@@ -101,10 +101,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        callPrint: {
-            type: Boolean,
-            default: false,
-        },
         showConfirmationButtons: {
             type: Boolean,
             default: false,
@@ -131,23 +127,14 @@ export default {
         },
     },
     emits: ['close'],
-    mounted() {
-        this.printAndClose()
-    },
     methods: {
         onClose(withConfirmation) {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
             this.$emit('close', withConfirmation)
         },
-        printModalContent() {
+        PrintButtonContent() {
             if (this.$refs.modalContent) {
-                window.print()
-            }
-        },
-        printAndClose() {
-            if (this.callPrint) {
-                this.printModalContent()
-                this.onClose(false)
+                window.print(this.$refs.modalContent.innerHTML)
             }
         },
     },
