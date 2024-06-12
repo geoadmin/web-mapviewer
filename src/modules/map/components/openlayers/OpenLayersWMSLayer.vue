@@ -12,6 +12,7 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { ALL_YEARS_WMS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import { LV95 } from '@/utils/coordinates/coordinateSystems.js'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
@@ -97,6 +98,9 @@ if (gutter.value !== -1) {
 // That means that data will not be requested if the map viewport is outside the extent.
 if (wmsLayerConfig.value.extent) {
     layer.setExtent(flattenExtent(wmsLayerConfig.value.extent))
+} else if (wmsLayerConfig.value instanceof GeoAdminWMSLayer) {
+    // do not request stuff outside our technical extent with our own layers.
+    layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
 }
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
@@ -125,6 +129,11 @@ function createSourceForProjection() {
             url: url.value,
             projection: projection.value.epsg,
             params: wmsUrlParams.value,
+            // Limiting image request to exactly the size of the map viewport.
+            // We have a couple layers that state when they have lastly been updated at the bottom
+            // of the WMS image, and without this ratio prop this label is out of the map viewport.
+            // (e.g. ch.bazl.luftfahrthindernis)
+            ratio: 1,
         })
     }
     if (projection.value instanceof CustomCoordinateSystem) {
