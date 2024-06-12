@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { nextTick } from 'vue'
+
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 /**
@@ -24,15 +26,14 @@ import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
  */
 export default {
     components: { BlackBackdrop },
-    emits: ['close'],
+    emits: ['close', 'hideParentModal'],
     mounted() {
-        this.printAndClose()
-    },
-    methods: {
-        printAndClose() {
+        this.$emit('hideParentModal', true)
+        nextTick(() => {
             window.print()
+            this.$emit('hideParentModal', false)
             this.$emit('close')
-        },
+        })
     },
 }
 </script>
