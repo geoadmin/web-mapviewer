@@ -19,6 +19,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} layerData.name The name of this layer (lang specific)
      * @param {String} layerData.id The unique ID of this layer
+     * @param {String | null} layerData.idIn3d The layer ID to be used as substitute for this layer
+     *   when we are showing the 3D map. Will be using the same layer if this is set to null.
      * @param {String} layerData.technicalName The ID/name to use when requesting the WMS backend,
      *   this might be different than id, and many layers (with different id) can in fact request
      *   the same layer, through the same technical name, in the end)
@@ -63,6 +65,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         const {
             name = null,
             id = null,
+            idIn3d = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -83,6 +86,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             name,
             type: LayerTypes.WMS,
             id,
+            idIn3d,
             technicalName,
             opacity,
             visible,

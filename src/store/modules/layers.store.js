@@ -127,10 +127,8 @@ const getters = {
      *
      * @returns {[AbstractLayer]} List of background layers.
      */
-    backgroundLayers: (state, _, rootState) =>
-        state.config.filter(
-            (layer) => layer.isBackground && rootState.cesium.active === layer.isSpecificFor3D
-        ),
+    backgroundLayers: (state, _) =>
+        state.config.filter((layer) => layer.isBackground && layer.idIn3d),
 
     /**
      * Retrieves a layer config metadata defined by its unique ID
@@ -726,10 +724,6 @@ const actions = {
 const mutations = {
     setBackground(state, { bgLayer }) {
         state.currentBackgroundLayer = bgLayer
-        // forcing its visibility (if not void layer), as 3D layers have their visible flag set to false somehow
-        if (state.currentBackgroundLayer) {
-            state.currentBackgroundLayer.visible = true
-        }
     },
     setLayerConfig(state, { config }) {
         state.config = config

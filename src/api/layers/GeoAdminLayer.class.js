@@ -18,8 +18,10 @@ export default class GeoAdminLayer extends AbstractLayer {
     /**
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData.
-     * @param {String} geoAdminLayerData.id The unique ID of this layer that will be used to
-     *   identify this layer
+     * @param {String} layerData.id The unique ID of this layer that will be used to identify this
+     *   layer
+     * @param {String | null} layerData.idIn3d The layer ID to be used as substitute for this layer
+     *   when we are showing the 3D map. Will be using the same layer if this is set to null.
      * @param {String} layerData.technicalName The ID/name to use when requesting the WMS/WMTS
      *   backend, this might be different than id, and many layers (with different id) can in fact
      *   request the same layer, through the same technical name, in the end)
@@ -69,6 +71,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             name = null,
             type = null,
             id = null,
+            idIn3d = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -119,6 +122,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.isBackground = isBackground
         this.isHighlightable = isHighlightable
         this.topics = topics
+        this.idIn3d = idIn3d
         this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
         this.searchable = searchable
     }

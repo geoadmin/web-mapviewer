@@ -8,6 +8,9 @@ import rm from './locales/rm.json'
 
 export const languages = { de, fr, it, en, rm }
 
+const OFFICIAL_SWISS_LANG = ['de', 'fr', 'it', 'rm']
+const SUPPORTED_LANG = ['en', ...OFFICIAL_SWISS_LANG]
+
 const locales = Object.entries(languages).reduce((obj, entry) => {
     const key = langToLocal(entry[0])
     obj[key] = entry[1]
@@ -15,17 +18,14 @@ const locales = Object.entries(languages).reduce((obj, entry) => {
 }, {})
 
 export function langToLocal(lang) {
-    return ['de', 'fr', 'it', 'rm'].includes(lang) ? `${lang}-CH` : lang
-}
-
-export function localToLang(local) {
-    return local.split('-')[0]
+    return OFFICIAL_SWISS_LANG.includes(lang) ? `${lang}-CH` : lang
 }
 
 // detecting navigator's locale as the default language
 // (if it is a language served by this app)
-export const defaultLocal =
-    navigator.languages?.find((local) => Object.keys(locales).includes(local)) ?? 'en'
+const defaultLocal = SUPPORTED_LANG.find((lang) =>
+    navigator.languages?.find((navigatorLang) => navigatorLang.indexOf(lang) !== -1)
+)
 
 const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
     obj[key] = {
@@ -42,7 +42,7 @@ const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
 }, {})
 
 const i18n = createI18n({
-    locale: defaultLocal,
+    locale: defaultLocal ?? SUPPORTED_LANG[0],
     messages: languages,
     legacy: false,
     datetimeFormats,

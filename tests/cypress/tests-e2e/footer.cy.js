@@ -36,7 +36,7 @@ describe('Testing the footer content / tools', () => {
             // checking that all layers flagged as backgrounds are represented in the wheel
             cy.fixture('layers.fixture').then((layers) => {
                 Object.values(layers)
-                    .filter((layer) => layer.background)
+                    .filter((layer) => layer.background && layer.idIn3d)
                     .forEach((bgLayer) => {
                         cy.get(`[data-cy="background-selector-${bgLayer.serverLayerName}"]`).click()
                         // checking that clicking on the wheel buttons changes the bgLayer of the app accordingly
