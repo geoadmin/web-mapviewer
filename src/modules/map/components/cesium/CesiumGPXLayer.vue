@@ -99,19 +99,21 @@ function createRedCircleImage(radius, opacity = 1) {
     return canvas.toDataURL()
 }
 
-function updateStyle() {
-    // Create a red circle image with a radius of 8 pixels
-    const radius = 8
+function createRedCircleBillboard(radius, opacity = 1) {
+    const redCircleImage = createRedCircleImage(radius, opacity)
     const billboardSize = radius * 2
-    const redCircleImage = createRedCircleImage(radius, opacity.value)
-
-    const redCircleBillboard = new BillboardGraphics({
+    return new BillboardGraphics({
         image: redCircleImage,
         width: billboardSize,
         height: billboardSize,
         eyeOffset: new Cartesian3(0, 0, -100), // Make sure the billboard is always seen
         heightReference: HeightReference.CLAMP_TO_TERRAIN, // Make the billboard always appear on top of the terrain
     })
+}
+
+function updateStyle() {
+    const radius = 8
+    const redCircleBillboard = createRedCircleBillboard(radius, opacity.value)
     const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
 
     const entities = gpxDataSource.entities.values
@@ -146,7 +148,15 @@ function updateStyle() {
             entity.polygon.outlineColor = Color.BLACK
         }
     })
+    forceRender()
+}
+// Helper function to force render the scene after timeout to handle scene not rendered after we update the style
+// Note (IS): 1500 ms is a sweet number (from my experiment), not too fast (scene is not rendered properly) and not too long (user does not wait too long)
+function forceRender(timeout = 1500) {
     getViewer().scene.requestRender()
+    setTimeout(() => {
+        getViewer().scene.requestRender()
+    }, timeout)
 }
 </script>
 <template>
