@@ -1,4 +1,3 @@
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import { loadTopics, parseTopics } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
@@ -43,23 +42,12 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
 
         // adding SWISSIMAGE as a possible background for 3D
         const swissimage = layersConfig.find((layer) => layer.id === 'ch.swisstopo.swissimage')
+        const swissimage3d = layersConfig.find(
+            (layer) => layer.id === 'ch.swisstopo.swissimage-product_3d'
+        )
         if (swissimage) {
-            layersConfig.push(
-                new GeoAdminWMTSLayer({
-                    name: swissimage.name,
-                    id: `${swissimage.id}_3d`,
-                    technicalName: swissimage.technicalName,
-                    visible: false,
-                    attributions: swissimage.attributions,
-                    format: swissimage.format,
-                    timeConfig: swissimage.timeConfig,
-                    isBackground: true,
-                    baseUrl: swissimage.baseUrl,
-                    hasTooltip: false,
-                    isHighlightable: false,
-                    topics: swissimage.topics,
-                })
-            )
+            swissimage3d.isBackground = true
+            swissimage.idIn3d = swissimage3d.id
         }
 
         store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })

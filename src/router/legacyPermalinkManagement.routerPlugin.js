@@ -11,7 +11,6 @@ import {
     MAP_VIEWS,
 } from '@/router/viewNames'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
@@ -193,14 +192,6 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
         newQuery['camera'] = cameraPosition.map((value) => value ?? '').join(',')
         newQuery['3d'] = true
         newQuery['sr'] = WEBMERCATOR.epsgNumber
-
-        // Handle different background layer from legacy 3D parameter
-        if (newQuery['bgLayer']) {
-            const newBackgroundLayer = backgroundMatriceBetweenLegacyAndNew[newQuery['bgLayer']]
-            if (newBackgroundLayer) {
-                newQuery['bgLayer'] = newBackgroundLayer
-            }
-        }
     }
 
     // Convert legacies coordinates if needed (only if the 3D camera isn't set too)
