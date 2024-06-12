@@ -19,6 +19,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} layerData.name Layer name (internationalized)
      * @param {String} layerData.id Unique layer ID
+     * @param {String | null} layerData.idIn3d The layer ID to be used as substitute for this layer
+     *   when we are showing the 3D map. Will be using the same layer if this is set to null.
      * @param {String} layerData.technicalName ID to be used in our backend (can be different from
      *   the id)
      * @param {Number} [layerData.opacity=1.0] Opacity value between 0.0 (transparent) and 1.0
@@ -59,6 +61,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         const {
             name = null,
             id = null,
+            idIn3d = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -84,6 +87,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             name,
             type: LayerTypes.WMTS,
             id,
+            idIn3d,
             technicalName,
             opacity,
             visible,
