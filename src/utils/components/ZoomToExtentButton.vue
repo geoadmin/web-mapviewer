@@ -48,7 +48,7 @@ function zoomToFeatureExtent() {
 <template>
     <button
         :id="uniqueId"
-        class="zoom-to-extent-button btn btn-xs text-secondary"
+        class="zoom-to-extent-button btn btn-xs"
         data-tippy-content="offline_zoom_extent"
         data-cy="zoom-to-feature-extent"
         @click="zoomToFeatureExtent"

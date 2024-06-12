@@ -106,6 +106,18 @@ export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
+ * Base part of the URL to be using service-proxy
+ *
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
+ *
+ * @type {String}
+ */
+export const API_SERVICE_PROXY_BASE_URL = enforceEndingSlashInUrl(
+    import.meta.env.VITE_APP_SERVICE_PROXY_BASE_URL
+)
+
+/**
  * Base part of the URL to communicate with service-shortlink backend
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST

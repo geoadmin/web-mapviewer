@@ -1,4 +1,4 @@
-import { ref, toValue } from 'vue'
+import { onMounted, ref, toValue } from 'vue'
 
 const defaultPadding = 4 // px
 
@@ -9,7 +9,7 @@ const defaultPadding = 4 // px
  * It is possible to specify custom offset with screen border, in order to avoid some part of the
  * app (such as the header) to be accessible to the movable element
  *
- * @param element
+ * @param element Reference to a DOM element
  * @param options Options such as described below
  * @param {HTMLElement} [options.grabElement] HTML element on which the user has to grab to start
  *   moving the element. If not given, any part of the element will be considered a grab spot.
@@ -17,8 +17,8 @@ const defaultPadding = 4 // px
  *   pixels with the border of the screen to constrain element movements. A default padding of 4
  *   pixel will be applied if no offset is given.
  */
-export function useMovableElement(element, options) {
-    const { grabElement, offset } = options
+export function useMovableElement(element, options = {}) {
+    const { grabElement = null, offset = null } = options
 
     const padding = ref({
         top: toValue(offset)?.top ?? defaultPadding,
@@ -43,12 +43,27 @@ export function useMovableElement(element, options) {
         left: 0,
     }
 
-    if (toValue(grabElement)) {
-        // if present, the grab element is where you move the element from:
-        toValue(grabElement).onmousedown = dragMouseDown
+    if (toValue(element)) {
+        // if we already have an element initialize
+        initialize()
     } else {
-        // otherwise, move the element from anywhere inside the DIV:
-        toValue(element).onmousedown = dragMouseDown
+        // the element is not yet mounted postpone the init on the onMounted hook
+        onMounted(() => {
+            initialize()
+        })
+    }
+
+    function initialize() {
+        if (toValue(grabElement)) {
+            // if present, the grab element is where you move the element from:
+            toValue(grabElement).onmousedown = dragMouseDown
+            toValue(grabElement).style.cursor = 'move'
+        } else {
+            // otherwise, move the element from anywhere inside the DIV:
+            toValue(element).onmousedown = dragMouseDown
+            toValue(element).style.cursor = 'move'
+        }
+        constrainsElementWithinViewport()
     }
 
     function dragMouseDown(e) {
@@ -159,6 +174,4 @@ export function useMovableElement(element, options) {
             placeElementAt(positionConstrainedByNewLimits.top, positionConstrainedByNewLimits.left)
         }
     }
-
-    constrainsElementWithinViewport()
 }

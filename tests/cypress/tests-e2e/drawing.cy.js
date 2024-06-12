@@ -859,7 +859,7 @@ describe('Drawing module tests', () => {
             }).as('get-legacy-kml')
 
             // opening up the app and centering it directly on the single marker feature from the fixture
-            cy.goToMapView({ adminId: kmlFileAdminId, N: center[0], E: center[1] }, false)
+            cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
             cy.wait('@get-kml-metadata-by-admin-id')
             cy.wait('@get-legacy-kml')
             cy.waitUntilState((state) => state.drawing.iconSets.length > 0)

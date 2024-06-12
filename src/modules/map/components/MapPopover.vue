@@ -158,6 +158,7 @@ function printContent() {
                     class="print-button btn btn-sm btn-light d-flex align-items-center"
                     data-tippy-content="print"
                     @click="printContent"
+                    @mousedown.stop=""
                 >
                     <FontAwesomeIcon icon="print" />
                 </button>
@@ -166,6 +167,7 @@ function printContent() {
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="map-popover-close-button"
                     @click="showContent = !showContent"
+                    @mousedown.stop=""
                 >
                     <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
                 </button>
@@ -173,6 +175,7 @@ function printContent() {
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="map-popover-close-button"
                     @click="onClose"
+                    @mousedown.stop=""
                 >
                     <FontAwesomeIcon icon="times" />
                 </button>

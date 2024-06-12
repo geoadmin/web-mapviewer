@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import getFileThroughProxy from '@/api/file-proxy.api'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import TextInput from '@/utils/components/TextInput.vue'
@@ -81,7 +82,17 @@ async function loadFile() {
     let response
 
     try {
-        response = await axios.get(fileUrl.value, { timeout: REQUEST_TIMEOUT })
+        // catching locally the first error, so that we may decide to use service-proxy if the error was network related
+        try {
+            response = await axios.get(fileUrl.value, { timeout: REQUEST_TIMEOUT })
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                log.debug('Failed to retrieve file directly, trying to go through service-proxy')
+                response = await getFileThroughProxy(fileUrl.value, { timeout: REQUEST_TIMEOUT })
+            } else {
+                throw error
+            }
+        }
         if (response.status !== 200) {
             throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
         }
