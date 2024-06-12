@@ -60,7 +60,13 @@ export default {
             const bgLayers = []
             const backgroundLayer = rootState.layers.currentBackgroundLayer
             if (backgroundLayer) {
-                bgLayers.push(backgroundLayer)
+                if (backgroundLayer.idIn3d) {
+                    bgLayers.push(
+                        rootState.layers.config.find((layer) => layer.id === backgroundLayer.idIn3d)
+                    )
+                } else {
+                    bgLayers.push(backgroundLayer)
+                }
             }
             if (state.showLabels) {
                 // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯

@@ -179,6 +179,7 @@ export default {
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
             isTimeSliderActive: (state) => state.ui.isTimeSliderActive,
+            layersConfig: (state) => state.layers.config,
         }),
         ...mapGetters([
             'selectedFeatures',
@@ -196,13 +197,23 @@ export default {
             return this.uiMode === UIModes.DESKTOP
         },
         visibleImageryLayers() {
-            return this.visibleLayers.filter(
-                (l) =>
-                    l instanceof GeoAdminWMTSLayer ||
-                    l instanceof GeoAdminWMSLayer ||
-                    l instanceof GeoAdminAggregateLayer ||
-                    l instanceof ExternalLayer
-            )
+            return this.visibleLayers
+                .filter(
+                    (l) =>
+                        l instanceof GeoAdminWMTSLayer ||
+                        l instanceof GeoAdminWMSLayer ||
+                        l instanceof GeoAdminAggregateLayer ||
+                        l instanceof ExternalLayer
+                )
+                .map((visibleLayer) => {
+                    if (visibleLayer.idIn3d) {
+                        return (
+                            this.layersConfig.find((layer) => layer.id === visibleLayer.idIn3d) ??
+                            visibleLayer
+                        )
+                    }
+                    return visibleLayer
+                })
         },
         isFeatureInfoInTooltip() {
             return this.showFeatureInfoInTooltip
