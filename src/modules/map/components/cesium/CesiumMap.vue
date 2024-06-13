@@ -321,6 +321,7 @@ export default {
             'setFeatureInfoPosition',
             'setCenter',
             'mapModuleReady',
+            'setViewerReady',
         ]),
         toggleTooltip() {
             this.toggleFloatingTooltip(dispatcher)
@@ -429,6 +430,10 @@ export default {
                 globe.maximumScreenSpaceError = 30
             }
             this.mapModuleReady(dispatcher)
+            this.setViewerReady({
+                isViewerReady: true,
+                ...dispatcher,
+            })
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
