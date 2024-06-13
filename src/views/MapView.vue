@@ -78,12 +78,12 @@ onMounted(() => {
                     <template #middle>
                         <InfoboxModule />
                     </template>
-                    <template #bottom-left>
-                        <template v-if="!is3DActive && !isPhoneMode">
+                    <template v-if="!isPhoneMode" #bottom-left>
+                        <template v-if="!is3DActive">
                             <OpenLayersScale />
                             <OpenLayersMouseTracker />
                         </template>
-                        <template v-if="is3DActive && !isPhoneMode">
+                        <template v-if="is3DActive">
                             <CesiumMouseTracker />
                         </template>
                     </template>
