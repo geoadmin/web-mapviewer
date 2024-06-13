@@ -40,17 +40,25 @@ watch(opacity, () => {
 onMounted(() => {
     log.debug('Mounted GPX layer')
     // TODO: Delete this debug
-    getViewer().scene.postRender.addEventListener(postRenderEventListener)
+    getViewer().scene.preRender.addEventListener(preRenderEventListener)
+    // getViewer().scene.postRender.addEventListener(postRenderEventListener)
     addLayer()
 })
 
 onUnmounted(() => {
     log.debug('Unmounted GPX layer')
     removeLayer()
-    getViewer().scene.postRender.removeEventListener(postRenderEventListener)
+    getViewer().scene.preRender.removeEventListener(preRenderEventListener)
+    // getViewer().scene.postRender.removeEventListener(postRenderEventListener)
 
     gpxDataSource = null
 })
+
+const preRenderEventListener = function () {
+    const firstEntityOpacity =
+        gpxDataSource?.entities?.values[0]?.polyline?.material?.color?.getValue()['alpha']
+    log.info(`Prerender, opacity should be ${opacity.value}, entity opacity: ${firstEntityOpacity}`)
+}
 
 const postRenderEventListener = function () {
     const firstEntityOpacity =
