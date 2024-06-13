@@ -86,6 +86,16 @@ const handleLegacyParam = (
             break
 
         case 'layers':
+            // if the "legacy" value already contains our new separators, it means the app was accessed
+            // without using the hash slash approach, but we still shouldn't be parsing as legacy
+            if (
+                ['@feature', '@year', ';'].some(
+                    (newSeparator) => legacyValue.indexOf(newSeparator) !== -1
+                )
+            ) {
+                newValue = legacyValue
+                break
+            }
             // for legacy layers param, we need to give the layers visibility, opacity and timestamps,
             // as they are combined into one value with the layer in the current 'layers' parameter
             // implementation
