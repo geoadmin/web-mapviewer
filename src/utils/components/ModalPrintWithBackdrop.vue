@@ -1,3 +1,42 @@
+<script setup>
+/** Utility component that will wrap modal content and hide everything else to make a clean print */
+import { nextTick, onMounted, ref } from 'vue'
+
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
+
+const emits = defineEmits(['close', 'hideParentModal'])
+
+const modalContent = ref(null)
+
+onMounted(() => {
+    emits('hideParentModal', true)
+    const iframeList = modalContent.value.querySelectorAll('iframe')
+    if (iframeList.length) {
+        let pendingIframeCount = iframeList.length
+        //wait for each iframe to be loaded before printing
+        iframeList.forEach((iFrame) => {
+            iFrame.onload = () => {
+                pendingIframeCount--
+                if (pendingIframeCount === 0) {
+                    // wait for a short time for elements within the iframes to properly load
+                    setTimeout(() => {
+                        window.print()
+                        emits('hideParentModal', false)
+                        emits('close')
+                    }, 500)
+                }
+            }
+        })
+    } else {
+        nextTick(() => {
+            window.print()
+            emits('hideParentModal', false)
+            emits('close')
+        })
+    }
+})
+</script>
+
 <template>
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
@@ -14,48 +53,6 @@
         </div>
     </teleport>
 </template>
-
-<script>
-import { nextTick } from 'vue'
-
-import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
-
-/**
- * Utility component that will wrap your modal content and make sure it is above the overlay of the
- * map
- */
-export default {
-    components: { BlackBackdrop },
-    emits: ['close', 'hideParentModal'],
-    mounted() {
-        this.$emit('hideParentModal', true)
-        const iframeList = this.$refs.modalContent.querySelectorAll('iframe')
-        if (iframeList.length) {
-            let pendingIframeCount = iframeList.length
-            //wait for each iframe to be loaded before printing
-            iframeList.forEach((iFrame) => {
-                iFrame.onload = () => {
-                    pendingIframeCount--
-                    if (pendingIframeCount === 0) {
-                        // wait for a short time for elements within the iframes to properly load
-                        setTimeout(() => {
-                            window.print()
-                            this.$emit('hideParentModal', false)
-                            this.$emit('close')
-                        }, 500)
-                    }
-                }
-            })
-        } else {
-            nextTick(() => {
-                window.print()
-                this.$emit('hideParentModal', false)
-                this.$emit('close')
-            })
-        }
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/variables.module';
