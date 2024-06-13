@@ -13,7 +13,6 @@ import { inject } from 'vue'
 import { computed } from 'vue'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import log from '@/utils/logging'
 
 const props = defineProps({
     gpxLayerConfig: {
@@ -22,30 +21,18 @@ const props = defineProps({
     },
 })
 
-const opacity = computed(() => props.gpxLayerConfig.opacity)
 const gpxData = computed(() => props.gpxLayerConfig.gpxData)
 
 let gpxDataSource = null
 
 const getViewer = inject('getViewer')
-watch(gpxData, () => {
-    addLayer()
-})
 
-watch(opacity, () => {
-    addLayer()
-})
+watch(gpxData, addLayer)
 
-onMounted(() => {
-    addLayer()
-})
-
-onBeforeUnmount(() => {
-    removeLayer()
-})
+onMounted(addLayer)
+onBeforeUnmount(removeLayer)
 
 function addLayer() {
-    log.debug('Add GPX layer')
     removeLayer()
     const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
     gpxDataSource = new GpxDataSource()
@@ -61,7 +48,6 @@ function addLayer() {
 }
 
 function removeLayer() {
-    log.debug('Remove GPX layer')
     if (gpxDataSource) {
         getViewer().dataSources.remove(gpxDataSource)
         gpxDataSource = null
@@ -104,18 +90,12 @@ function createRedCircleBillboard(radius, opacity = 1) {
 }
 
 function updateStyle() {
-    log.debug('Update GPX style')
     const radius = 8
-    const redCircleBillboard = createRedCircleBillboard(radius, opacity.value)
-    const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
+    const redCircleBillboard = createRedCircleBillboard(radius)
+    const redColorMaterial = new ColorMaterialProperty(Color.RED)
 
     const entities = gpxDataSource.entities.values
-
     entities.forEach((entity) => {
-        if (opacity.value === 0) {
-            entity.show = false
-            return
-        }
         // Hide the billboard for billboard on the lines by checking if there is a description
         // Imported GPX files from web-mapviewer have a description for the waypoints
         // This might be not working for generic GPX files
@@ -129,13 +109,11 @@ function updateStyle() {
         }
 
         if (cesiumDefined(entity.polyline)) {
-            entity.show = true
             entity.polyline.material = redColorMaterial
             entity.polyline.width = 1.5
         }
 
         if (cesiumDefined(entity.polygon)) {
-            entity.show = true
             entity.polygon.material = redColorMaterial
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
