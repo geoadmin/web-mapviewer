@@ -8,7 +8,7 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { inject } from 'vue'
 import { computed } from 'vue'
 
@@ -21,8 +21,6 @@ const props = defineProps({
         required: true,
     },
 })
-
-const isPresentOnMap = ref(false)
 
 const opacity = computed(() => props.gpxLayerConfig.opacity)
 const gpxData = computed(() => props.gpxLayerConfig.gpxData)
@@ -41,17 +39,26 @@ watch(opacity, () => {
 
 onMounted(() => {
     log.debug('Mounted GPX layer')
+    // TODO: Delete this debug
+    getViewer().scene.postRender.addEventListener(postRenderEventListener)
     addLayer()
 })
 
 onUnmounted(() => {
     log.debug('Unmounted GPX layer')
-    if (gpxDataSource && isPresentOnMap.value) {
-        removeLayer()
-    }
+    removeLayer()
+    getViewer().scene.postRender.removeEventListener(postRenderEventListener)
 
     gpxDataSource = null
 })
+
+const postRenderEventListener = function () {
+    const firstEntityOpacity =
+        gpxDataSource?.entities?.values[0]?.polyline?.material?.color?.getValue()['alpha']
+    log.info(
+        `Scene rendered again!, opacity should be ${opacity.value}, entity opacity: ${firstEntityOpacity}`
+    )
+}
 
 function addLayer() {
     const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
@@ -61,8 +68,9 @@ function addLayer() {
             clampToGround: true,
         })
         .then((dataSource) => {
-            getViewer().dataSources.add(dataSource)
-            isPresentOnMap.value = true
+            const viewer = getViewer()
+            viewer.dataSources.add(dataSource)
+            forceRender()
         })
         .then(updateStyle)
 }
@@ -72,9 +80,8 @@ function removeLayer() {
     if (gpxDataSource) {
         getViewer().dataSources.remove(gpxDataSource)
         gpxDataSource = null
-        getViewer().scene.requestRender() // Request a render after removing the DataSource
+        forceRender()
     }
-    isPresentOnMap.value = false
 }
 
 // Function to create a red circle image using a canvas
@@ -112,6 +119,7 @@ function createRedCircleBillboard(radius, opacity = 1) {
 }
 
 function updateStyle() {
+    log.info('update style for opacity: ', opacity.value)
     const radius = 8
     const redCircleBillboard = createRedCircleBillboard(radius, opacity.value)
     const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
@@ -119,10 +127,6 @@ function updateStyle() {
     const entities = gpxDataSource.entities.values
 
     entities.forEach((entity) => {
-        if (opacity.value === 0) {
-            entity.show = false
-            return
-        }
         // Hide the billboard for billboard on the lines by checking if there is a description
         // Imported GPX files from web-mapviewer have a description for the waypoints
         // This might be not working for generic GPX files
@@ -130,19 +134,18 @@ function updateStyle() {
             if (!entity.description) {
                 entity.show = false
             } else {
-                entity.show = true
                 entity.billboard = redCircleBillboard
             }
         }
 
         if (cesiumDefined(entity.polyline)) {
-            entity.show = true
+            log.info('entity initial opacity: ', entity.polyline.material.color.getValue()['alpha'])
             entity.polyline.material = redColorMaterial
             entity.polyline.width = 1.5
+            log.info('entity final opacity: ', entity.polyline.material.color.getValue()['alpha'])
         }
 
         if (cesiumDefined(entity.polygon)) {
-            entity.show = true
             entity.polygon.material = redColorMaterial
             entity.polygon.outline = true
             entity.polygon.outlineColor = Color.BLACK
@@ -153,10 +156,15 @@ function updateStyle() {
 // Helper function to force render the scene after timeout to handle scene not rendered after we update the style
 // Note (IS): 1500 ms is a sweet number (from my experiment), not too fast (scene is not rendered properly) and not too long (user does not wait too long)
 function forceRender(timeout = 1500) {
-    getViewer().scene.requestRender()
-    setTimeout(() => {
-        getViewer().scene.requestRender()
-    }, timeout)
+    log.info('requestRender is called')
+    const viewer = getViewer()
+    viewer.scene.requestRender()
+    if (window.useDirtyHack) {
+        log.info('requestRender is called with timeout: ', timeout)
+        setTimeout(() => {
+            viewer.scene.requestRender()
+        }, timeout)
+    }
 }
 </script>
 <template>

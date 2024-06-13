@@ -421,6 +421,7 @@ export default {
                 globe.maximumScreenSpaceError = 30
             }
             this.mapModuleReady(dispatcher)
+            window.cesiumViewer = this.viewer
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
