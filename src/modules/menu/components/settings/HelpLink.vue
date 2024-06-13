@@ -10,9 +10,22 @@ const i18n = useI18n()
 
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const lang = computed(() => store.state.i18n.lang)
+const helpPage = computed(() => {
+    if (lang.value === 'de') {
+        return `de/kartenviewer-hilfe`
+    }
+    if (lang.value === 'fr') {
+        return 'fr/visualiseur-de-cartes-aide'
+    }
+    if (lang.value === 'it') {
+        return 'it/visualizzatore-di-mappe-aiuto'
+    }
+    // Fallback to english for the rest (en and rm)
+    return 'en/map-viewer-help'
+})
 
 function openCmsLink() {
-    window.open(`https://help.geo.admin.ch?lang=${lang.value}`, '_blank', 'noreferrer')
+    window.open(`https://www.geo.admin.ch/${helpPage.value}`, '_blank', 'noreferrer')
 }
 </script>
 
