@@ -33,13 +33,9 @@ export default function usePrintAreaRenderer(map) {
     })
 
     function activatePrintArea() {
-        // layers in openlayers array are not sorted by zIndex by default !
-        const sortedMapsByZIndex = map
-            .getAllLayers()
-            .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
         deregister = [
-            sortedMapsByZIndex[0].on('prerender', handlePreRender),
-            sortedMapsByZIndex[0].on('postrender', handlePostRender),
+            map.getAllLayers()[0].on('prerender', handlePreRender),
+            map.getAllLayers()[0].on('postrender', handlePostRender),
             watch(printLayoutSize, async () => {
                 await store.dispatch('setSelectedScale', {
                     scale: getOptimalScale(),
