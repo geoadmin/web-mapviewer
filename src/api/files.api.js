@@ -1,7 +1,8 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import FormData from 'form-data'
 import pako from 'pako'
 
+import getFileThroughProxy from '@/api/file-proxy.api.js'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 
@@ -323,9 +324,19 @@ export function loadKmlData(kmlLayer) {
                 }
             })
             .catch((error) => {
-                const msg = `Failed to load KML data: ${error}`
-                log.error(msg)
-                reject(new Error(msg))
+                if (error instanceof AxiosError) {
+                    getFileThroughProxy(kmlLayer.kmlFileUrl)
+                        .then((response) => {
+                            resolve(response.data)
+                        })
+                        .catch((error) => {
+                            reject(error)
+                        })
+                } else {
+                    const msg = `Failed to load KML data: ${error}`
+                    log.error(msg)
+                    reject(new Error(msg))
+                }
             })
     })
 }
