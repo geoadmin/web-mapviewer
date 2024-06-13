@@ -8,7 +8,7 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, watch } from 'vue'
 import { inject } from 'vue'
 import { computed } from 'vue'
 
@@ -22,8 +22,6 @@ const props = defineProps({
     },
 })
 
-const isPresentOnMap = ref(false)
-
 const opacity = computed(() => props.gpxLayerConfig.opacity)
 const gpxData = computed(() => props.gpxLayerConfig.gpxData)
 
@@ -31,29 +29,24 @@ let gpxDataSource = null
 
 const getViewer = inject('getViewer')
 watch(gpxData, () => {
-    removeLayer()
     addLayer()
 })
 
 watch(opacity, () => {
-    updateStyle()
-})
-
-onMounted(() => {
-    log.debug('Mounted GPX layer')
     addLayer()
 })
 
-onUnmounted(() => {
-    log.debug('Unmounted GPX layer')
-    if (gpxDataSource && isPresentOnMap.value) {
-        removeLayer()
-    }
+onMounted(() => {
+    addLayer()
+})
 
-    gpxDataSource = null
+onBeforeUnmount(() => {
+    removeLayer()
 })
 
 function addLayer() {
+    log.debug('Add GPX layer')
+    removeLayer()
     const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
     gpxDataSource = new GpxDataSource()
     gpxDataSource
@@ -61,10 +54,10 @@ function addLayer() {
             clampToGround: true,
         })
         .then((dataSource) => {
+            updateStyle()
             getViewer().dataSources.add(dataSource)
-            isPresentOnMap.value = true
+            getViewer().scene.requestRender()
         })
-        .then(updateStyle)
 }
 
 function removeLayer() {
@@ -72,9 +65,8 @@ function removeLayer() {
     if (gpxDataSource) {
         getViewer().dataSources.remove(gpxDataSource)
         gpxDataSource = null
-        getViewer().scene.requestRender() // Request a render after removing the DataSource
+        getViewer().scene.requestRender()
     }
-    isPresentOnMap.value = false
 }
 
 // Function to create a red circle image using a canvas
@@ -112,6 +104,7 @@ function createRedCircleBillboard(radius, opacity = 1) {
 }
 
 function updateStyle() {
+    log.debug('Update GPX style')
     const radius = 8
     const redCircleBillboard = createRedCircleBillboard(radius, opacity.value)
     const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
@@ -148,15 +141,7 @@ function updateStyle() {
             entity.polygon.outlineColor = Color.BLACK
         }
     })
-    forceRender()
-}
-// Helper function to force render the scene after timeout to handle scene not rendered after we update the style
-// Note (IS): 1500 ms is a sweet number (from my experiment), not too fast (scene is not rendered properly) and not too long (user does not wait too long)
-function forceRender(timeout = 1500) {
     getViewer().scene.requestRender()
-    setTimeout(() => {
-        getViewer().scene.requestRender()
-    }, timeout)
 }
 </script>
 <template>
