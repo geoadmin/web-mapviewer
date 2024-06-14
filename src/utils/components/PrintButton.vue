@@ -6,15 +6,15 @@ import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
     content: {
-        type: HTMLDivElement,
-        default: 0,
+        type: [HTMLDivElement, null],
+        default: null,
     },
 })
 const { content } = toRefs(props)
 
 const emits = defineEmits(['hideParentModal'])
 
-useTippyTooltip('#PrintButtoneButton [data-tippy-content]')
+useTippyTooltip('.print-button[data-tippy-content]')
 
 const showModal = ref(false)
 
@@ -28,9 +28,8 @@ function onHideParentModal(hide) {
 
 <template>
     <button
-        id="PrintButton"
-        class="btn btn-light btn-sm d-flex align-items-center"
-        :data-tippy-content="'print'"
+        class="print-button btn btn-light btn-sm d-flex align-items-center"
+        data-tippy-content="print"
         @click="printContent"
     >
         <FontAwesomeIcon icon="print" />
