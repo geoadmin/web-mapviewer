@@ -54,6 +54,12 @@ export default {
          * @type Boolean
          */
         showLabels: true,
+        /**
+         * Flag telling if the 3D viewer is ready or not
+         *
+         * @type Boolean
+         */
+        isViewerReady: false,
     },
     getters: {
         backgroundLayersFor3D(state, _, rootState) {
@@ -118,6 +124,9 @@ export default {
         setShowLabels({ commit }, { showLabels, dispatcher }) {
             commit('setShowLabels', { showLabels, dispatcher })
         },
+        setViewerReady({ commit }, { isViewerReady, dispatcher }) {
+            commit('setViewerReady', { isViewerReady, dispatcher })
+        },
     },
     mutations: {
         set3dActive: (state, { active }) => (state.active = active),
@@ -130,5 +139,6 @@ export default {
             state.showConstructions = showConstructionsBuildings
         },
         setShowLabels: (state, { showLabels }) => (state.showLabels = showLabels),
+        setViewerReady: (state, { isViewerReady }) => (state.isViewerReady = isViewerReady),
     },
 }
