@@ -881,15 +881,22 @@ describe('Test of layer handling', () => {
 
                 //---------------------------------------------------------------------------------
                 cy.log('keep timestamp configuration when the language changes')
-                cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
-                cy.get('[data-cy="menu-lang-en"]').should('have.class', 'btn-primary')
-                cy.get('[data-cy="menu-lang-fr"]').should('be.visible').click()
-                cy.get('[data-cy="menu-lang-fr"]').should('have.class', 'btn-primary')
-                cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-                cy.get('[data-cy="time-selector-test.timeenabled.wmts.layer-2"]').contains('2016')
-                cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
-                cy.get('[data-cy="menu-lang-en"]').should('be.visible').click()
-                cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+                cy.get('[data-cy="menu-settings-section"]:visible').should('be.visible').click()
+                cy.get('[data-cy="menu-lang-en"]:visible').should('have.class', 'btn-primary')
+                cy.get('[data-cy="menu-lang-fr"]:visible').should('be.visible').click()
+                cy.get('[data-cy="menu-lang-fr"]:visible').should('have.class', 'btn-primary')
+                cy.get('[data-cy="menu-active-layers"]:visible').should('be.visible').click()
+                cy.get('[data-cy="time-selector-test.timeenabled.wmts.layer-2"]:visible').contains(
+                    '2016'
+                )
+                cy.get('[data-cy="menu-settings-section"] [data-cy="menu-section-header"]:visible')
+                    .should('be.visible')
+                    .click()
+                cy.get('[data-cy="menu-lang-en"]:visible').should('be.visible').click()
+                cy.get('[data-cy="menu-active-layers"]:visible').should('be.visible').click()
+                cy.get('[data-cy="menu-settings-section"] [data-cy="menu-section-body"]').should(
+                    'not.be.visible'
+                )
 
                 //---------------------------------------------------------------------------------
                 cy.log(`duplicate time layer`)
