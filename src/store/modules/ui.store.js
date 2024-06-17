@@ -1,6 +1,7 @@
 import {
     BREAKPOINT_TABLET,
     GIVE_FEEDBACK_HOSTNAMES,
+    MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
     NO_WARNING_BANNER_HOSTNAMES,
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
@@ -257,12 +258,24 @@ export default {
         },
     },
     actions: {
-        setSize({ commit }, { width, height, dispatcher }) {
+        setSize({ commit, state }, { width, height, dispatcher }) {
             commit('setSize', {
                 height,
                 width,
                 dispatcher,
             })
+            // on resize with a very narrow width, the tooltip would overlap with the right side menu
+            // we enforce the features information to be set into an infobox when we want to show them
+            // in this situation
+            if (
+                state.featureInfoPosition !== FeatureInfoPositions.NONE &&
+                width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+            ) {
+                commit('setFeatureInfoPosition', {
+                    position: FeatureInfoPositions.BOTTOMPANEL,
+                    dispatcher,
+                })
+            }
         },
         toggleMenu({ commit, state }, { dispatcher }) {
             commit('setShowMenu', { show: !state.showMenu, dispatcher })
@@ -324,19 +337,28 @@ export default {
             commit('setCompareSliderActive', args)
         },
         setFeatureInfoPosition({ commit, state }, { position, dispatcher }) {
-            const upCasePos = position?.toUpperCase()
-            if (!FeatureInfoPositions[upCasePos]) {
+            let featurePosition = FeatureInfoPositions[position?.toUpperCase()]
+            if (!featurePosition) {
                 log.error(
-                    `invalid feature Info Position given as parameter. ${upCasePos} is not a valid key`
+                    `invalid feature Info Position given as parameter. ${position} is not a valid key`
                 )
                 return
             }
-            if (state.featureInfoPosition === FeatureInfoPositions[upCasePos]) {
+            // when the viewport width is too small, the layout of the floating infobox will be
+            // partially under the menu, making it hard to use. In those conditions, the option to
+            // set it as a floating tooltip is disabled.
+            if (
+                featurePosition !== FeatureInfoPositions.NONE &&
+                state.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+            ) {
+                featurePosition = FeatureInfoPositions.BOTTOMPANEL
+            }
+            if (state.featureInfoPosition === featurePosition) {
                 // no need to commit anything if we're trying to switch to the current value
                 return
             }
             commit('setFeatureInfoPosition', {
-                position: FeatureInfoPositions[upCasePos],
+                position: featurePosition,
                 dispatcher: dispatcher,
             })
         },

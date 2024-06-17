@@ -1,5 +1,5 @@
 import GeoJSON from 'ol/format/GeoJSON'
-import { defaults as getDefaultInteractions, DragPan, MouseWheelZoom } from 'ol/interaction'
+import { DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -28,17 +28,16 @@ export default function useMapInteractions(map) {
 
     // Make it possible to select by dragging the map with ctrl down
     const { dragBoxSelect } = useDragBoxSelect()
+    map.addInteraction(dragBoxSelect)
 
-    const interactions = getDefaultInteractions().extend([
-        dragBoxSelect,
-        // Add middle mouse button for panning
+    // Add interaction to drag the map using the middle mouse button
+    map.addInteraction(
         new DragPan({
             condition: function (event) {
                 return event.originalEvent.buttons === 4
             },
-        }),
-    ])
-    interactions.forEach((interaction) => map.addInteraction(interaction))
+        })
+    )
 
     watch(isCurrentlyDrawing, (newValue) => {
         // We iterate through the map "interaction" classes, to enable/disable the "double click zoom" interaction

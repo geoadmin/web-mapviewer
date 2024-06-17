@@ -242,7 +242,9 @@ const actions = {
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
                 if (layer.timeConfig) {
-                    clone.timeConfig.currentYear = layer.timeConfig.currentYear
+                    clone.timeConfig.updateCurrentTimeEntry(
+                        clone.timeConfig.getTimeEntryForYear(layer.timeConfig.currentYear)
+                    )
                 }
                 return clone
             } else {

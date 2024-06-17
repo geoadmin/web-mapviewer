@@ -14,15 +14,16 @@ export default function usePrintAreaRenderer(map) {
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
     const UNITS_RATIO = 39.37 // inches per meter
-    let printRectangle = []
 
     const isActive = computed(() => store.state.print.printSectionShown)
     const printLayoutSize = computed(() => store.getters.printLayoutSize)
     const selectedScale = computed(() => store.state.print.selectedScale)
     // For simplicity we use the screen size for the map size
     const mapWidth = computed(() => store.state.ui.width)
-    // Same here for simplicity we take the screen size minus the header size for the map size
-    const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight)
+    // Same here for simplicity we take the screen size minus the header size for the map size (map
+    // is under the header). We take the header size twice as the overlay is then centered on the
+    // whole map (not only the part below the header)
+    const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight * 2)
 
     watch(isActive, (newValue) => {
         if (newValue) {
@@ -45,21 +46,20 @@ export default function usePrintAreaRenderer(map) {
                     scale: getOptimalScale(),
                     ...dispatcher,
                 })
-                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
             }),
             watch(selectedScale, () => {
-                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
+                updatePrintOverlay()
             }),
             map.on('change:size', () => {
-                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
+                updatePrintOverlay()
             }),
             map.getView().on('propertychange', () => {
-                updatePrintRectanglePixels(selectedScale.value, printLayoutSize.value)
+                updatePrintOverlay()
             }),
         ]
         const scale = getOptimalScale()
         store.dispatch('setSelectedScale', { scale, ...dispatcher })
-        updatePrintRectanglePixels(scale, printLayoutSize.value)
+        updatePrintOverlay()
     }
 
     function deactivatePrintArea() {
@@ -74,34 +74,32 @@ export default function usePrintAreaRenderer(map) {
         map.render()
     }
 
-    function updatePrintRectanglePixels(scale, size) {
+    function updatePrintOverlay() {
         if (isActive.value) {
-            printRectangle = calculatePageBoundsPixels(scale, size)
             map.render()
         }
     }
 
     function calculatePageBoundsPixels(scale, size) {
-        log.debug(`Calculate page bounds pixels for scale ${scale}`)
+        log.debug(`Calculate page bounds pixels for scale ${scale} size=${JSON.stringify(size)}`)
         const s = parseFloat(scale)
         const view = map.getView()
         const resolution = view.getResolution()
-        const w =
-            (((((size.width / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution) *
-            olHas.DEVICE_PIXEL_RATIO
-        const h =
-            (((((size.height / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution) *
-            olHas.DEVICE_PIXEL_RATIO
+        const w = ((((size.width / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution
+        const h = ((((size.height / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution
         const mapSize = map.getSize()
-        const center = [
-            (mapSize[0] * olHas.DEVICE_PIXEL_RATIO) / 2,
-            (mapSize[1] * olHas.DEVICE_PIXEL_RATIO) / 2,
-        ]
+        const center = [mapSize[0] / 2, mapSize[1] / 2]
 
         const minx = center[0] - w / 2
         const miny = center[1] - h / 2
         const maxx = center[0] + w / 2
         const maxy = center[1] + h / 2
+
+        log.debug(`resolution=${resolution} ratio=${olHas.DEVICE_PIXEL_RATIO} w=${w} h=${h} `)
+        log.debug(`mapSize=${JSON.stringify(mapSize)} center=${JSON.stringify(center)}`)
+        log.debug(
+            `Calculated page bounds pixels for scale ${scale}: [${minx}, ${miny}, ${maxx}, ${maxy}]`
+        )
         return [minx, miny, maxx, maxy]
     }
 
@@ -115,8 +113,10 @@ export default function usePrintAreaRenderer(map) {
         const context = event.context
         const size = map.getSize()
 
-        const height = size[1] * olHas.DEVICE_PIXEL_RATIO
-        const width = size[0] * olHas.DEVICE_PIXEL_RATIO
+        const height = size[1]
+        const width = size[0]
+
+        const printRectangle = calculatePageBoundsPixels(selectedScale.value, printLayoutSize.value)
 
         const minx = printRectangle[0]
         const miny = printRectangle[1]
@@ -170,6 +170,6 @@ export default function usePrintAreaRenderer(map) {
             selectedLayoutScales
         )
         // Find the first scale that is smaller than the testScale in descending order
-        return selectedLayoutScales.find((scale) => scale < testScale) ?? selectedLayoutScales[0]
+        return selectedLayoutScales.find((scale) => scale <= testScale) ?? selectedLayoutScales[0]
     }
 }

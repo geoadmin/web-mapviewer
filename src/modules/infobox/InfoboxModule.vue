@@ -4,6 +4,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -23,7 +24,7 @@ const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-
+const width = computed(() => store.state.ui.width)
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
 const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
@@ -41,7 +42,9 @@ const showContainer = computed(() => {
             (showElevationProfile.value && showFeatureInfoInTooltip.value))
     )
 })
-const showTooltipToggle = computed(() => showFeatureInfoInBottomPanel.value)
+const showTooltipToggle = computed(
+    () => showFeatureInfoInBottomPanel.value && width.value >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+)
 const title = computed(() => {
     if (!showDrawingOverlay.value && showElevationProfile.value) {
         return `${i18n.t('profile_title')}: ${profileFeature.value.title}`

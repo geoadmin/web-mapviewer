@@ -38,12 +38,11 @@ const vectorLayer = new VectorLayer({
 watch(selectionPolygon, () => updateLayer())
 
 function updateLayer() {
+    map.removeLayer(vectorLayer)
     vectorLayer.getSource().clear()
     if (selectionPolygon.value) {
         vectorLayer.getSource().addFeature(selectionPolygon.value)
         map.addLayer(vectorLayer)
-    } else {
-        map.removeLayer(vectorLayer)
     }
 }
 </script>
