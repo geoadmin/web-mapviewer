@@ -337,25 +337,28 @@ export default {
             commit('setCompareSliderActive', args)
         },
         setFeatureInfoPosition({ commit, state }, { position, dispatcher }) {
-            let upCasePos = position?.toUpperCase()
-            if (!FeatureInfoPositions[upCasePos]) {
+            let featurePosition = FeatureInfoPositions[position?.toUpperCase()]
+            if (!featurePosition) {
                 log.error(
-                    `invalid feature Info Position given as parameter. ${upCasePos} is not a valid key`
+                    `invalid feature Info Position given as parameter. ${position} is not a valid key`
                 )
                 return
             }
             // when the viewport width is too small, the layout of the floating infobox will be
             // partially under the menu, making it hard to use. In those conditions, the option to
             // set it as a floating tooltip is disabled.
-            if (upCasePos !== 'NONE' && state.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP) {
-                upCasePos = 'BOTTOMPANEL'
+            if (
+                featurePosition !== FeatureInfoPositions.NONE &&
+                state.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+            ) {
+                featurePosition = FeatureInfoPositions.BOTTOMPANEL
             }
-            if (state.featureInfoPosition === FeatureInfoPositions[upCasePos]) {
+            if (state.featureInfoPosition === featurePosition) {
                 // no need to commit anything if we're trying to switch to the current value
                 return
             }
             commit('setFeatureInfoPosition', {
-                position: FeatureInfoPositions[upCasePos],
+                position: featurePosition,
                 dispatcher: dispatcher,
             })
         },
