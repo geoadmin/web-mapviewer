@@ -20,8 +20,10 @@ export default function usePrintAreaRenderer(map) {
     const selectedScale = computed(() => store.state.print.selectedScale)
     // For simplicity we use the screen size for the map size
     const mapWidth = computed(() => store.state.ui.width)
-    // Same here for simplicity we take the screen size minus the header size for the map size
-    const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight)
+    // Same here for simplicity we take the screen size minus the header size for the map size (map
+    // is under the header). We take the header size twice as the overlay is then centered on the
+    // whole map (not only the part below the header)
+    const mapHeight = computed(() => store.state.ui.height - store.state.ui.headerHeight * 2)
 
     watch(isActive, (newValue) => {
         if (newValue) {
@@ -168,6 +170,6 @@ export default function usePrintAreaRenderer(map) {
             selectedLayoutScales
         )
         // Find the first scale that is smaller than the testScale in descending order
-        return selectedLayoutScales.find((scale) => scale < testScale) ?? selectedLayoutScales[0]
+        return selectedLayoutScales.find((scale) => scale <= testScale) ?? selectedLayoutScales[0]
     }
 }

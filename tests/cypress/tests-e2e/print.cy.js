@@ -76,7 +76,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="print-scale-selector"]').find('option').should('have.length', 15)
             cy.get('[data-cy="print-scale-selector"]')
                 .find('option:selected')
-                .should('have.text', `1:${formatThousand(2500000)}`)
+                .should('have.text', `1:${formatThousand(1500000)}`)
         })
     })
 
@@ -120,7 +120,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['scale']).to.equals(1500000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -271,7 +271,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['scale']).to.equals(1500000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -312,7 +312,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['scale']).to.equals(5000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -444,7 +444,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['scale']).to.equals(5000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -515,7 +515,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['scale']).to.equals(5000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
