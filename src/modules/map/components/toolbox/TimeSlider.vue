@@ -68,26 +68,6 @@ const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
 )
 
 /**
- * Debounce the input year a bit
- *
- * With this, the error won't be shown immediately while the user is still typing a year, but rather
- * only when they have finished typing
- */
-const updateInputYear = debounce((value) => {
-    value = parseInt(value)
-    // only if the year is valid we write this to the property
-    // otherwise we show errors
-    if (!allYears.value.includes(value)) {
-        isInputYearValid.value = false
-        falseYear.value = value || ''
-    } else {
-        isInputYearValid.value = true
-        currentYear.value = parseInt(value)
-        falseYear.value = null
-    }
-}, 500)
-
-/**
  * Used for the year in the input field Validate the input from the user. In case it's invalid, we
  * don't propagate the value to the state, but instead save it to an intermediate state variable to
  * be displayed along with an error message. This is important so that the cursor doesn't jump
@@ -101,7 +81,17 @@ const inputYear = computed({
         return currentYear.value
     },
     set(value) {
-        updateInputYear(value)
+        value = parseInt(value)
+        // only if the year is valid we write this to the property
+        // otherwise we show errors
+        if (!allYears.value.includes(value)) {
+            isInputYearValid.value = false
+            falseYear.value = value || ''
+        } else {
+            isInputYearValid.value = true
+            currentYear.value = parseInt(value)
+            falseYear.value = null
+        }
     },
 })
 
@@ -123,11 +113,7 @@ const currentYear = computed({
         falseYear.value = null
         isInputYearValid.value = true
 
-        if (yearCursorIsGrabbed) {
-            dispatchPreviewYearToStoreDebounced()
-        } else {
-            dispatchPreviewYearToStore()
-        }
+        dispatchPreviewYearToStoreDebounced()
     },
 })
 
@@ -249,9 +235,12 @@ onMounted(() => {
         // Show tippy on long touch for mobile device
         touch: ['hold', 500], // 500ms delay,
     })
+
+    window.addEventListener('keydown', handleKeyDownEvent)
 })
 
 onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDownEvent)
     setPreviewYearToLayers()
 
     tippyTimeSliderInfo?.destroy()
@@ -281,7 +270,7 @@ function dispatchPreviewYearToStore() {
 
 const dispatchPreviewYearToStoreDebounced = debounce(() => {
     dispatchPreviewYearToStore()
-}, 500)
+}, 100)
 
 function setSliderWidth() {
     // the padding of the slider container (4px each side) + the padding of the
@@ -389,6 +378,22 @@ function togglePlayYearsWithData() {
         playYearInterval = null
     }
 }
+
+function handleKeyDownEvent(event) {
+    if (['mainBody', 'timeSliderButton', 'timeSliderPlayButton'].includes(event.srcElement?.id)) {
+        if (event.key === 'ArrowLeft') {
+            const value = currentYear.value - 1
+            if (allYears.value.includes(value)) {
+                currentYear.value = value
+            }
+        } else if (event.key === 'ArrowRight') {
+            const value = currentYear.value + 1
+            if (allYears.value.includes(value)) {
+                currentYear.value = value
+            }
+        }
+    }
+}
 </script>
 
 <template>
@@ -424,6 +429,7 @@ function togglePlayYearsWithData() {
                         maxlength="4"
                         type="text"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                        @keypress.enter="yearCursorInput.blur()"
                     />
                     <div
                         class="px-2 border-start d-flex align-items-center"
@@ -485,6 +491,7 @@ function togglePlayYearsWithData() {
 
             <div class="time-slider-play-button">
                 <button
+                    id="timeSliderPlayButton"
                     ref="playButton"
                     data-cy="time-slider-play-button"
                     class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
