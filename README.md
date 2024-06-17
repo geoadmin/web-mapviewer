@@ -3,19 +3,17 @@
 <!-- prettier-ignore -->
 | Branch  | CI Status  | E2E Tests | Deployed version |
 | ------- | ---------- | --------- | ---------------- |
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/develop&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.dev.bgdi.ch/> |
-| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/master&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.int.bgdi.ch/> |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiZVJxNnZVc2ZLdkw0cFA2bkI3VWpFQ2QxY3N0U3ZBa2tWZUh1SmZkQUY5QkNiQkhpL1VkS3YrZjVpa2E0eGNOVTgwM01LeUlYTjZiamdXRUdZd25nUXhZPSIsIml2UGFyYW1ldGVyU3BlYyI6ImhXQWxHWjBuRXU3RjVwczIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/develop&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.dev.bgdi.ch/> |
+| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiZVJxNnZVc2ZLdkw0cFA2bkI3VWpFQ2QxY3N0U3ZBa2tWZUh1SmZkQUY5QkNiQkhpL1VkS3YrZjVpa2E0eGNOVTgwM01LeUlYTjZiamdXRUdZd25nUXhZPSIsIml2UGFyYW1ldGVyU3BlYyI6ImhXQWxHWjBuRXU3RjVwczIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/master&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.int.bgdi.ch/> |
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Project structure](#project-structure)
   - [Best practices](#best-practices)
-  - [Architectural decisions](#architectural-decisions)
   - [Vue Composition API](#vue-composition-api)
   - [Store module](#store-module)
   - [Testing](#testing)
@@ -30,10 +28,6 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
   - [Automatic deploy](#automatic-deploy)
   - [Manual deploy](#manual-deploy)
 - [Check External Layer Provider list](#check-external-layer-provider-list)
-
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md)
 
 ## Contributing
 
@@ -53,9 +47,6 @@ Store plugins can be used to react to store changes. See the [store read-me](src
 Here's a sample of what project folder structure looks like :
 
 ```text
-├── adr
-│   └── all architectural decisions made over the course of this project
-│
 ├── tests
 │   └── all test files
 │
@@ -87,10 +78,6 @@ Here's a sample of what project folder structure looks like :
 - Avoid using javascript getter and setter in class that are used in reactive data
 
 See also [Store Best Practices](./src/store/README.md#best-practices)
-
-### Architectural decisions
-
-All project related architectural decision will be described in the folder [`/adr`](adr/) (ADR stands for "Architectural Decision Report"). For all more macro decisions (like the CI we use or other broad subjects), please refer to [the `/adr` folder on the project doc-guidelines](https://github.com/geoadmin/doc-guidelines/tree/master/adr).
 
 ### Vue Composition API
 
@@ -176,7 +163,7 @@ See [README.md](./tests/README.md) for more documentation on testing in this pro
 The followings programs/tools are required in order to develop on `web-mapviewer`
 
 - Nodejs 18
-- npm 9
+- npm 10
 
 ### Install
 
@@ -253,7 +240,7 @@ The application is deployed on three targets : `dev|int|prod`
 
 ### Automatic deploy
 
-After every successful build, a version of `develop` and `master` are deployed
+After every successful build triggered by a merge into `develop`, a version is automatically deployed in DEV staging. After every successful build triggered by a a merge into `master`, a version is automatically deployed on INT and PROD staging.
 automatically.
 
 | environment | hostname             | path                   | branch         |
@@ -263,13 +250,13 @@ automatically.
 | int         | sys-map.int.bgdi.ch  | /                      | master         |
 | prod        | sys-map.prod.bgdi.ch | /                      | master         |
 
-On the `dev` and `int` targets, deployment is done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#ci-for-web-mapviewer).
+The deployments are done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/codebuild_projects/web_mapviewer#ci-for-web-mapviewer).
 
-A [test link](https://github.com/geoadmin/web-mapviewer/blob/bug_update_doc_regarding_deploy/.github/workflows/add-testlink-to-pr.yml) is also added to the description of every PR.
+A test link is also added to the description of every PR automatically using [github workflow](https://github.com/geoadmin/web-mapviewer/blob/develop/.github/workflows/add-testlink-to-pr.yml).
 
 ### Manual deploy
 
-A bash script [deploy.sh](https://github.com/geoadmin/infra-terraform-bgdi-builder/blob/master/projects/web_mapviewer/scripts/deploy.sh)
+A bash script [deploy.sh](https://github.com/geoadmin/infra-terraform-bgdi-builder/blob/master/codebuild_projects/web_mapviewer/scripts/deploy.sh)
 is used for manual deploy, either from a local directory or a bucket from the CI.
 
 ```bash
@@ -285,7 +272,7 @@ OPTIONS:
   -v|--version VERSION    Version to deploy.
 ```
 
-On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#deploy-on-prod) and use the script from within `infra-terraform-bgdi-builder/projects/web_mapviewer` to deploy **manually**.
+On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/codebuild_projects/web_mapviewer#deploy-on-prod) and use the script from within `infra-terraform-bgdi-builder/projects/web_mapviewer` to deploy **manually**.
 
 > **_NOTE:_**  
 > If deploying manually to `prod`, wait until the CI has finished building the project, as the deploy script only copy files.
