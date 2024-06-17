@@ -642,14 +642,17 @@ export default {
             const { state, commit, getters, rootState } = store
             const featuresPromises = []
             getters.selectedLayerFeatures.forEach((feature) => {
-                featuresPromises.push(
-                    getFeature(
-                        feature.layer,
-                        feature.id,
-                        rootState.position.projection,
-                        rootState.i18n.lang
+                // we avoid requesting the drawings and external layers, they're not handled here
+                if (rootState.layers.config.find((layer) => layer.id === feature.layer.id)) {
+                    featuresPromises.push(
+                        getFeature(
+                            feature.layer,
+                            feature.id,
+                            rootState.position.projection,
+                            rootState.i18n.lang
+                        )
                     )
-                )
+                }
             })
             if (featuresPromises.length > 0) {
                 try {
@@ -661,12 +664,16 @@ export default {
                         const updatedFeaturesByLayerId = state.selectedFeaturesByLayerId.reduce(
                             (updated_array, layer) => {
                                 const rawLayer = toRaw(layer)
+                                const rawLayerFeatures = rawLayer.features
                                 rawLayer.features = features.reduce((features_array, feature) => {
-                                    if (feature.layer.id === layer.layerId) {
+                                    if (feature.layer.id === rawLayer.layerId) {
                                         features_array.push(feature)
                                     }
                                     return features_array
                                 }, [])
+                                if (rawLayer.features.length === 0) {
+                                    rawLayer.features = rawLayerFeatures
+                                }
                                 updated_array.push(rawLayer)
                                 return updated_array
                             },
