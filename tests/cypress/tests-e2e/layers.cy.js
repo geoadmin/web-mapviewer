@@ -880,6 +880,18 @@ describe('Test of layer handling', () => {
                 })
 
                 //---------------------------------------------------------------------------------
+                cy.log('keep timestamp configuration when the language changes')
+                cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
+                cy.get('[data-cy="menu-lang-en"]').should('have.class', 'btn-primary')
+                cy.get('[data-cy="menu-lang-fr"]').should('be.visible').click()
+                cy.get('[data-cy="menu-lang-fr"]').should('have.class', 'btn-primary')
+                cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+                cy.get('[data-cy="time-selector-test.timeenabled.wmts.layer-2"]').contains('2016')
+                cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
+                cy.get('[data-cy="menu-lang-en"]').should('be.visible').click()
+                cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+
+                //---------------------------------------------------------------------------------
                 cy.log(`duplicate time layer`)
                 cy.get(`[data-cy^="button-open-visible-layer-settings-${timedLayerId}-2"]`)
                     .should('be.visible')
