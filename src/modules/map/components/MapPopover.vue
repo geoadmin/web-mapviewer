@@ -241,7 +241,7 @@ function printContent() {
         pointer-events: auto;
     }
     .map-popover-content {
-        max-height: 350px;
+        max-height: min(60vh, 350px);
         overflow-y: auto;
     }
     .card-body {

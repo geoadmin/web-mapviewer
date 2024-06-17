@@ -1161,7 +1161,8 @@ describe('Drawing module tests', () => {
         it('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()
             // to avoid overlaping with the map footer and the floating tooltip, increase the vertical size.
-            cy.viewport(320, 1024)
+            // if the width of the viewport is less than 400px, we can't switch the edit popup position.
+            cy.viewport(400, 1024)
 
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')

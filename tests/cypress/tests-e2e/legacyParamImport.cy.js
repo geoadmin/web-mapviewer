@@ -510,8 +510,29 @@ describe('Test on legacy param import', () => {
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
                 // ---------------------------------------------------------------------------------
-                cy.log('When showTooltip is true, featureInfo should be none ')
+                cy.log(
+                    'When showTooltip is true, featureInfo should be bottom panel on devices with width < 400 px '
+                )
 
+                cy.goToMapView(
+                    {
+                        'ch.babs.kulturgueter': featuresIds.join(','),
+                        showTooltip: 'true',
+                    },
+                    false
+                )
+                checkFeatures(featuresIds)
+                cy.readStoreValue('state.ui.featureInfoPosition').should(
+                    'be.equal',
+                    FeatureInfoPositions.BOTTOMPANEL
+                )
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('be.visible')
+                // ---------------------------------------------------------------------------------
+                cy.log(
+                    'When showTooltip is true, featureInfo should be default on devices with width >= 400 px '
+                )
+                cy.viewport(400, 800)
                 cy.goToMapView(
                     {
                         'ch.babs.kulturgueter': featuresIds.join(','),
