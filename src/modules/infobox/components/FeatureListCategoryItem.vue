@@ -81,7 +81,7 @@ function showContentAndScrollIntoView(event) {
 <template>
     <div
         ref="featureTitle"
-        class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer"
+        class="feature-list-category-item-name p-2 position-relative cursor-pointer"
         :class="{
             highlighted: isHighlightedFeature,
             'border-bottom': !showContent,
@@ -128,6 +128,8 @@ function showContentAndScrollIntoView(event) {
 @import '@/scss/variables-admin.module';
 @import '@/scss/webmapviewer-bootstrap-theme';
 
+$margin-top-to-align-with-glass: 3px;
+
 .feature-list-category-item-name {
     display: table;
     width: 100%;
@@ -142,12 +144,14 @@ function showContentAndScrollIntoView(event) {
 }
 .column {
     float: left;
+    margin-top: $margin-top-to-align-with-glass + 2;
 }
 // floating tooltips have a fixed width, so we can truncate at the same 'spot'
 // every time.
 .column-truncate {
     float: left;
     width: 250px;
+    margin-top: $margin-top-to-align-with-glass;
     &.infobox-active {
         // infobox take the whole width of the screen. We truncate somewhere different
         // depending on how wide the screen is.
