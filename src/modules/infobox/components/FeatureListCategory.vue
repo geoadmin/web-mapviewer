@@ -37,12 +37,12 @@ const { t } = useI18n()
 <template>
     <div class="feature-list-category border-start">
         <div
-            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex cursor-pointer"
+            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />
             <strong class="flex-grow-1">{{ name }}</strong>
-            <small class="text-muted align-self-center">
+            <small class="text-muted">
                 {{ children.length }}<span v-if="canLoadMore">+</span>
             </small>
         </div>
