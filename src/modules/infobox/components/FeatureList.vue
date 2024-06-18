@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -29,6 +29,7 @@ const layerFeatureCategories = ref([])
 const i18n = useI18n()
 const store = useStore()
 const activeLayers = computed(() => store.state.layers.activeLayers)
+const lang = computed(() => store.state.i18n.lang)
 const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
@@ -44,6 +45,10 @@ const canLoadMore = computed(() => (layerId) => {
             (featuresForLayer) => featuresForLayer.layerId === layerId
         )?.featureCountForMoreData > 0
     )
+})
+
+watch(lang, () => {
+    store.dispatch('updateFeatures', dispatcher)
 })
 
 function getLayerName(layerId) {
