@@ -42,6 +42,7 @@ const storeSyncConfig = [
     // to the default projection EPSG number
     new PositionParamConfig(),
     new CameraParamConfig(),
+    new LayerParamConfig(),
     new ZoomParamConfig(),
     new SimpleUrlParamConfig({
         urlParamName: '3d',
@@ -100,7 +101,6 @@ const storeSyncConfig = [
     }),
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
-    new LayerParamConfig(),
     new SimpleUrlParamConfig({
         urlParamName: 'featureInfo',
         mutationsToWatch: ['setFeatureInfoPosition'],
