@@ -4,8 +4,8 @@
         :id="`source-${sourceId}`"
         :href="sourceUrl"
         :target="sourceUrl ? '_blank' : null"
-        class="map-footer-attribution-source"
-        :class="{ 'text-primary': hasDataDisclaimer }"
+        class="map-footer-attribution-source clear-no-ios-long-press"
+        :class="{ 'text-primary': hasDataDisclaimer, 'is-link': sourceUrl || hasDataDisclaimer }"
         :data-cy="`layer-copyright-${sourceName}`"
     >
         {{ `${sourceName}${isLast ? '' : ','}` }}
@@ -45,11 +45,13 @@ export default {
 .map-footer-attribution-source {
     margin-left: 2px;
     color: $black;
-    text-decoration: none;
 
-    &:hover {
-        text-decoration: underline;
-        cursor: pointer;
+    &.is-link {
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
     }
 }
 </style>
