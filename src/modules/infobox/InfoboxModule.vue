@@ -112,10 +112,14 @@ function onHideProfile() {
                 class="zoom-to-extent-button btn-light"
             />
             <PrintButton>
-                <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
-                    <TextTruncate>{{ title }}</TextTruncate>
+                <div class="card rounded">
+                    <div
+                        class="header-title d-flex flex-grow-1 justify-content-center p-2 border-bottom"
+                    >
+                        <TextTruncate>{{ title }}</TextTruncate>
+                    </div>
+                    <InfoboxContent :animation="false" />
                 </div>
-                <InfoboxContent :animation="false" />
             </PrintButton>
             <button
                 v-if="showTooltipToggle"
