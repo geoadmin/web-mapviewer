@@ -5,17 +5,16 @@
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
-        <div class="chart-container position-relative w-100">
-            <LineChart
-                ref="chart"
-                :data="chartJsData"
-                :options="chartJsOptions"
-                class="profile-graph-container"
-                data-cy="profile-graph"
-                @mouseleave="clearHoverPosition"
-                @contextmenu.prevent="resetZoom"
-            />
-        </div>
+        <!-- Here below we need to set the w-100 in order to have proper PDF print of the Chart -->
+        <LineChart
+            ref="chart"
+            :data="chartJsData"
+            :options="chartJsOptions"
+            class="profile-graph-container w-100"
+            data-cy="profile-graph"
+            @mouseleave="clearHoverPosition"
+            @contextmenu.prevent="resetZoom"
+        />
         <div
             v-show="pointBeingHovered && track"
             ref="profileTooltip"
@@ -370,6 +369,14 @@ export default {
             }
         },
     },
+    mounted() {
+        window.addEventListener('beforeprint', this.resizeChartForPrint)
+        window.addEventListener('afterprint', this.resizeChart)
+    },
+    unmounted() {
+        window.removeEventListener('beforeprint', this.resizeChartForPrint)
+        window.removeEventListener('afterprint', this.resizeChart)
+    },
     methods: {
         startPositionTracking() {
             this.track = true
@@ -382,6 +389,15 @@ export default {
         },
         resetZoom() {
             resetZoom(this.$refs.chart.chart, 'none')
+        },
+        resizeChartForPrint() {
+            // Here in order to have a nice PDF print of the profile we need to resize it to a fix
+            // size somehow. If we don't do this then the print is a bit deformed and pixelized.
+            // The resize to 1024x1024 is a choice that provide a nice output
+            this.$refs.chart.chart.resize(1024, 1024)
+        },
+        resizeChart() {
+            this.$refs.chart.chart.resize()
         },
     },
 }

@@ -1,6 +1,6 @@
 <script setup>
 /** Utility component that will wrap modal content and hide everything else to make a clean print */
-import { nextTick, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
@@ -28,11 +28,14 @@ onMounted(() => {
             }
         })
     } else {
-        nextTick(() => {
+        // Here in order to have the profile chart to be printed we need to have some timeout
+        // otherwise the chart js doesn't have time to fully draw (using nextTick would result of having
+        // a slightly blurry profile)
+        setTimeout(() => {
             window.print()
             emits('hideParentModal', false)
             emits('close')
-        })
+        }, 100)
     }
 })
 </script>
