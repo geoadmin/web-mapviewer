@@ -40,6 +40,7 @@ function toggleTimeSlider() {
 <template>
     <div v-if="visibleLayersWithTimeConfig.length > 0" id="timeSlider">
         <button
+            id="timeSliderButton"
             class="toolbox-button d-print-none mb-1"
             data-cy="time-slider-button"
             :class="{ active: isTimeSliderActive }"
