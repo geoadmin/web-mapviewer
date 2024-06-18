@@ -109,6 +109,7 @@ import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import {
@@ -220,7 +221,10 @@ export default {
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
-                (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer
+                (l) =>
+                    l instanceof GeoAdminGeoJsonLayer ||
+                    l instanceof KMLLayer ||
+                    l instanceof GPXLayer
             )
         },
         showFeaturesPopover() {

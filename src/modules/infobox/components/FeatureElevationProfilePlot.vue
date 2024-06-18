@@ -5,15 +5,17 @@
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
-        <LineChart
-            ref="chart"
-            :data="chartJsData"
-            :options="chartJsOptions"
-            class="profile-graph-container flex-grow-1"
-            data-cy="profile-graph"
-            @mouseleave="clearHoverPosition"
-            @contextmenu.prevent="resetZoom"
-        />
+        <div class="chart-container position-relative w-100">
+            <LineChart
+                ref="chart"
+                :data="chartJsData"
+                :options="chartJsOptions"
+                class="profile-graph-container"
+                data-cy="profile-graph"
+                @mouseleave="clearHoverPosition"
+                @contextmenu.prevent="resetZoom"
+            />
+        </div>
         <div
             v-show="pointBeingHovered && track"
             ref="profileTooltip"
@@ -345,6 +347,7 @@ export default {
             return {
                 animation: true,
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     zoom: this.chartJsZoomOptions,
                     legend: {

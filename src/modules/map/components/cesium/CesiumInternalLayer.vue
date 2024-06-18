@@ -52,6 +52,7 @@
         :projection="projection"
     />
     <CesiumKMLLayer v-if="layerConfig.type === LayerTypes.KML" :kml-layer-config="layerConfig" />
+    <CesiumGPXLayer v-if="layerConfig.type === LayerTypes.GPX" :gpx-layer-config="layerConfig" />
     <slot />
 </template>
 
@@ -64,6 +65,7 @@ import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
+import CesiumGPXLayer from './CesiumGPXLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
 import CesiumWMSLayer from './CesiumWMSLayer.vue'
 import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
@@ -76,6 +78,7 @@ export default {
     name: 'CesiumInternalLayer',
     components: {
         CesiumVectorLayer,
+        CesiumGPXLayer,
         CesiumKMLLayer,
         CesiumGeoJSONLayer,
         CesiumWMTSLayer,
