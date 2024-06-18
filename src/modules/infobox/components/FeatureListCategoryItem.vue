@@ -126,6 +126,7 @@ function showContentAndScrollIntoView(event) {
 
 <style lang="scss" scoped>
 @import '@/scss/variables-admin.module';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 .feature-list-category-item-name {
     display: table;
@@ -152,10 +153,5 @@ function showContentAndScrollIntoView(event) {
         // depending on how wide the screen is.
         width: 80vw;
     }
-}
-
-.font-weight-bold {
-    // this is a boostrap class, we need to use the bootstrap one
-    font-weight: bold;
 }
 </style>
