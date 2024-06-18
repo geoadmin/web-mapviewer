@@ -370,12 +370,18 @@ export default {
         },
     },
     mounted() {
-        window.addEventListener('beforeprint', this.resizeChartForPrint)
-        window.addEventListener('afterprint', this.resizeChart)
+        // TODO: Here we make sure to do the resize only for the render of the print (currently when animation is disable)
+        // we should in future use a dedicated variable for this.
+        if (!this.animation) {
+            window.addEventListener('beforeprint', this.resizeChartForPrint)
+            window.addEventListener('afterprint', this.resizeChart)
+        }
     },
     unmounted() {
-        window.removeEventListener('beforeprint', this.resizeChartForPrint)
-        window.removeEventListener('afterprint', this.resizeChart)
+        if (!this.animation) {
+            window.removeEventListener('beforeprint', this.resizeChartForPrint)
+            window.removeEventListener('afterprint', this.resizeChart)
+        }
     },
     methods: {
         startPositionTracking() {
