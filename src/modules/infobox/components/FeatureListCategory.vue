@@ -57,7 +57,7 @@ const { t } = useI18n()
             <div class="d-flex p-1">
                 <button
                     v-if="canLoadMore"
-                    class="btn btn-sm btn-secondary flex-grow-1"
+                    class="btn btn-sm btn-secondary flex-grow-1 no-print"
                     data-cy="feature-list-load-more"
                     @click="emits('loadMoreResults')"
                 >

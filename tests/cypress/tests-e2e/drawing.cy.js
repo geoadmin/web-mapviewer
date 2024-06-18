@@ -240,7 +240,7 @@ describe('Drawing module tests', () => {
 
                         readCoordinateClipboard(
                             'feature-style-edit-coordinate-copy',
-                            "2'682'013.50, 1'210'172.00"
+                            "2'680'013.50, 1'210'172.00"
                         )
                     })
                 })
@@ -269,7 +269,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(200, 234)
                 readCoordinateClipboard(
                     'feature-detail-coordinate-copy',
-                    "2'682'013.50, 1'210'172.00"
+                    "2'680'013.50, 1'210'172.00"
                 )
 
                 cy.log('Can generate and display media links')

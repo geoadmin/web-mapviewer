@@ -44,7 +44,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="map-view">
+    <div id="map-view" class="no-print">
         <LoadingBar v-show="showLoadingBar" />
         <MapModule>
             <MenuModule />

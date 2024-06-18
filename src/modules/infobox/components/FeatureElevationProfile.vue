@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -13,6 +13,9 @@ import { RED } from '@/utils/featureStyleUtils'
 import { generateFilename } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'FeatureElevationProfile.vue' }
+
+const props = defineProps({ animation: { type: Boolean, default: true } })
+const { animation } = toRefs(props)
 
 const i18n = useI18n()
 const store = useStore()
@@ -84,11 +87,12 @@ function onCSVDownload() {
             v-if="hasData"
             :elevation-profile="profileData"
             :tracking-point-color="RED"
+            :animation="animation"
             class="flex-grow-1"
         />
         <FeatureElevationProfileInformation v-if="hasData" :profile="profileData">
             <button
-                class="btn btn-light d-flex align-items-center mx-1"
+                class="btn btn-light d-flex align-items-center mx-1 no-print"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
             >
@@ -96,7 +100,7 @@ function onCSVDownload() {
             </button>
             <button
                 v-if="isFeatureEditable"
-                class="btn btn-light d-flex align-items-center"
+                class="btn btn-light d-flex align-items-center no-print"
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
             >
