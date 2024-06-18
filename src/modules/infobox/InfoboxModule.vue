@@ -115,7 +115,7 @@ function onHideProfile() {
                 <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
                     <TextTruncate>{{ title }}</TextTruncate>
                 </div>
-                <InfoboxContent />
+                <InfoboxContent :animation="false" />
             </PrintButton>
             <button
                 v-if="showTooltipToggle"

@@ -1,10 +1,16 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+
+const props = defineProps({
+    animation: { type: Boolean, default: true },
+})
+const { animation } = toRefs(props)
+
 const content = ref(null)
 
 const store = useStore()
@@ -42,7 +48,11 @@ watch(selectedFeatures, (features) => {
                 class="drawing-feature-edit p-3"
                 :class="{ 'flex-grow-1': !showElevationProfile }"
             />
-            <FeatureElevationProfile v-if="showElevationProfile" class="flex-grow-1" />
+            <FeatureElevationProfile
+                v-if="showElevationProfile"
+                class="flex-grow-1"
+                :animation="animation"
+            />
         </div>
         <div v-else class="d-flex flex-column h-100 overflow-y-auto">
             <div
@@ -50,7 +60,10 @@ watch(selectedFeatures, (features) => {
                 key="profile-detail"
                 class="h-100 d-flex flex-column flex-md-row align-content-stretch"
             >
-                <FeatureElevationProfile class="flex-grow-1 profile-with-feature" />
+                <FeatureElevationProfile
+                    class="flex-grow-1 profile-with-feature"
+                    :animation="animation"
+                />
             </div>
             <FeatureList v-if="showFeatureInfoInBottomPanel" v-show="!showElevationProfile" />
         </div>

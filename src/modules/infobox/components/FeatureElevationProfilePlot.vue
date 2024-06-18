@@ -107,6 +107,7 @@ export default {
             type: FeatureStyleColor,
             required: true,
         },
+        animation: { type: Boolean, default: true },
     },
     data() {
         return {
@@ -345,7 +346,7 @@ export default {
         },
         chartJsOptions() {
             return {
-                animation: true,
+                animation: this.animation,
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
