@@ -40,7 +40,6 @@ const store = useStore()
 const isHighlightedFeature = computed(
     () => store.state.features.highlightedFeatureId === item.value.id
 )
-const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: feature?.id,
@@ -81,7 +80,7 @@ function showContentAndScrollIntoView(event) {
 <template>
     <div
         ref="featureTitle"
-        class="feature-list-category-item-name p-2 position-relative cursor-pointer"
+        class="feature-list-category-item-name p-1 d-flex align-items-center cursor-pointer"
         :class="{
             highlighted: isHighlightedFeature,
             'border-bottom': !showContent,
@@ -91,21 +90,14 @@ function showContentAndScrollIntoView(event) {
         @mouseenter.passive="highlightFeature(item)"
         @mouseleave.passive="clearHighlightedFeature"
     >
-        <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2 column" />
-        <TextTruncate
-            :text="name"
-            class="column-truncate"
-            :class="{
-                'infobox-active': showFeatureInfoInBottomPanel,
-            }"
-        >
+        <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2" />
+        <TextTruncate :text="name" class="flex-grow-1">
             <strong>{{ name }}</strong>
         </TextTruncate>
 
         <ZoomToExtentButton
             v-if="item.extent"
             :extent="item.extent"
-            class="float-end"
             @click="showContentAndScrollIntoView"
         />
     </div>
@@ -128,11 +120,7 @@ function showContentAndScrollIntoView(event) {
 @import '@/scss/variables-admin.module';
 @import '@/scss/webmapviewer-bootstrap-theme';
 
-$margin-top-to-align-with-glass: 3px;
-
 .feature-list-category-item-name {
-    display: table;
-    width: 100%;
     &.highlighted {
         background-color: rgba($mocassin-to-red-1, 0.8);
     }
@@ -140,22 +128,6 @@ $margin-top-to-align-with-glass: 3px;
 .feature-list-category-item-content {
     &.highlighted {
         box-shadow: inset 0 0 0 2px rgba($mocassin-to-red-1, 0.8);
-    }
-}
-.column {
-    float: left;
-    margin-top: $margin-top-to-align-with-glass + 2;
-}
-// floating tooltips have a fixed width, so we can truncate at the same 'spot'
-// every time.
-.column-truncate {
-    float: left;
-    width: 250px;
-    margin-top: $margin-top-to-align-with-glass;
-    &.infobox-active {
-        // infobox take the whole width of the screen. We truncate somewhere different
-        // depending on how wide the screen is.
-        width: 80vw;
     }
 }
 </style>
