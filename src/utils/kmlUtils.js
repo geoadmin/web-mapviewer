@@ -13,6 +13,7 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import { DrawingIcon } from '@/api/icon.api'
+import { API_SERVICE_PROXY_BASE_URL, API_SERVICES_BASE_URL } from '@/config.js'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
@@ -486,6 +487,67 @@ export function parseKml(kmlLayer, projection, iconSets) {
     }
 
     return features
+}
+
+/**
+ * The goal of this function is to transform internal KML's URLs into service-proxy equivalents.
+ * This is done for backward compatibility, and is heavily influcend/copied from mf-geoadmin3 code
+ * found here :
+ * https://github.com/geoadmin/mf-geoadmin3/blob/6a7b99a2cc9980eec27b394ee709305a239549f1/src/components/map/KmlService.js#L60-L106
+ *
+ * @param kmlData
+ * @returns {String} The kmlData, with URLs/HREFs transformed if needed
+ */
+export function proxifyKmlData(kmlData) {
+    // Replace space-only ids
+    let transformedKml = kmlData.replace(/id=(["'])\s*(["'])/g, '')
+
+    // Add ids for the link with 3d object
+    let id = Date.now()
+    transformedKml = transformedKml.replace(/<Placemark\s*>/g, function () {
+        return `<Placemark id="${id++}">`
+    })
+
+    // Replace all hrefs to prevent errors if image doesn't have
+    // CORS headers. Exception for *.geo.admin.ch, *.bgdi.ch and google
+    // markers icons (only https)
+    // to keep the OL magic for anchor origin.
+    // Test regex here: http://regex101.com/r/tF3vM0/9
+    // List of Google icons: http://www.lass.it/Web/viewer.aspx?id=4
+    transformedKml = transformedKml.replace(
+        /<href>http(?!(s:\/\/maps\.(google|gstatic)\.com[a-zA-Z\d.\-/_]*\.png|s?:\/\/[a-z\d.-]*(bgdi|geo.admin)\.ch))/g,
+        `<href>${API_SERVICE_PROXY_BASE_URL}http`
+    )
+
+    // We still need to convert <href>https://proxy.admin.ch/https:// to
+    // <href>https://proxy.admin.ch/https/
+    transformedKml = transformedKml
+        .replace(
+            new RegExp(`<href>${API_SERVICE_PROXY_BASE_URL}http://`, 'g'),
+            `<href>${API_SERVICE_PROXY_BASE_URL}http/`
+        )
+        .replace(
+            new RegExp(`<href>${API_SERVICE_PROXY_BASE_URL}https://`, 'g'),
+            `<href>${API_SERVICE_PROXY_BASE_URL}https/`
+        )
+
+    // Replace all http hrefs from *.geo.admin.ch or *.bgdi.ch by https
+    // Test regex here: http://regex101.com/r/fY7wB3/5
+    transformedKml = transformedKml.replace(
+        /<href>http(?=s{0}:\/\/[a-z\d.-]*(bgdi|admin)\.ch)/g,
+        '<href>https'
+    )
+
+    // Replace all old maki urls image by the color service url
+    // Test regex here: https://regex101.com/r/rF2tA1/4
+    transformedKml = transformedKml.replace(
+        /<href>https?:\/\/[a-z\d.-]*(bgdi|geo.admin)\.ch[a-zA-Z\d\-_/]*img\/maki\/([a-z\-0-9]*-24@2x\.png)/g,
+        `<href>${API_SERVICES_BASE_URL}color/255,0,0/$2`
+    )
+
+    log.debug('KML utils] transformed KML data from', kmlData, 'to', transformedKml)
+
+    return transformedKml
 }
 
 export class EmptyKMLError extends Error {}

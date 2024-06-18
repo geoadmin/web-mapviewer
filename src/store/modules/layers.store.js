@@ -2,7 +2,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { getGpxExtent } from '@/utils/gpxUtils.js'
-import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
+import { getKmlExtent, parseKmlName, proxifyKmlData } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const getActiveLayersById = (state, layerId) =>
@@ -669,7 +669,7 @@ const actions = {
                 let extent
                 if (clone.type === LayerTypes.KML) {
                     clone.name = parseKmlName(data) || 'KML'
-                    clone.kmlData = data
+                    clone.kmlData = proxifyKmlData(data)
                     extent = getKmlExtent(data)
                 } else if (clone.type === LayerTypes.GPX) {
                     // The name of the GPX is derived from the metadata below
