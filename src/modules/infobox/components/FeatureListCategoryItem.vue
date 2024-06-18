@@ -99,7 +99,7 @@ function showContentAndScrollIntoView(event) {
                 'infobox-active': showFeatureInfoInBottomPanel,
             }"
         >
-            <span class="font-weight-bold">{{ name }}</span>
+            <strong>{{ name }}</strong>
         </TextTruncate>
 
         <ZoomToExtentButton
