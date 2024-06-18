@@ -88,7 +88,7 @@ function onCSVDownload() {
         />
         <FeatureElevationProfileInformation v-if="hasData" :profile="profileData">
             <button
-                class="btn btn-light d-flex align-items-center mx-1"
+                class="btn btn-light d-flex align-items-center mx-1 no-print"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
             >
@@ -96,7 +96,7 @@ function onCSVDownload() {
             </button>
             <button
                 v-if="isFeatureEditable"
-                class="btn btn-light d-flex align-items-center"
+                class="btn btn-light d-flex align-items-center no-print"
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
             >

@@ -40,7 +40,13 @@ function onHideParentModal(hide) {
         @hide-parent-modal="onHideParentModal"
     >
         <!-- without the fluid class the infobox content gets cut off in the print -->
-        <!-- eslint-disable-next-line vue/no-v-html-->
-        <div v-html="content.innerHTML.replace('feature-list ', 'feature-list fluid ')"></div>
+        <!-- eslint-disable vue/no-v-html -->
+        <div
+            v-if="content"
+            class="card"
+            v-html="content.innerHTML.replace('feature-list ', 'feature-list fluid ')"
+        />
+        <!-- eslint-enable vue/no-v-html -->
+        <slot></slot>
     </ModalPrintWithBackdrop>
 </template>

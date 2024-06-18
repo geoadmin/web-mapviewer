@@ -1,13 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config'
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
-import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
-import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
@@ -15,7 +13,6 @@ import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'InfoboxModule.vue' }
 const showContent = ref(true)
-const content = ref(null)
 
 const i18n = useI18n()
 const store = useStore()
@@ -25,12 +22,6 @@ const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInf
 const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const width = computed(() => store.state.ui.width)
-const selectedFeature = computed(() => selectedFeatures.value[0])
-
-const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
-const isEditingDrawingFeature = computed(
-    () => showDrawingOverlay.value && isSelectedFeatureEditable.value
-)
 
 const profileFeature = computed(() => store.state.features.profileFeature)
 const showElevationProfile = computed(() => profileFeature.value !== null)
@@ -67,9 +58,6 @@ watch(selectedFeatures, (features) => {
         return
     }
     showContent.value = true
-    nextTick(() => {
-        content.value?.scrollTo(0, 0)
-    })
 })
 
 function onToggleContent() {
@@ -123,7 +111,12 @@ function onHideProfile() {
                 :extent="profileFeature.extent"
                 class="zoom-to-extent-button btn-light"
             />
-            <PrintButton :content="content"></PrintButton>
+            <PrintButton>
+                <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
+                    <TextTruncate>{{ title }}</TextTruncate>
+                </div>
+                <InfoboxContent />
+            </PrintButton>
             <button
                 v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
@@ -150,36 +143,7 @@ function onHideProfile() {
         </div>
 
         <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
-        <div
-            v-show="showContent"
-            ref="content"
-            class="infobox-content flex-column"
-            :class="{ 'd-flex': showContent }"
-            data-cy="infobox-content"
-        >
-            <div
-                v-if="isEditingDrawingFeature"
-                class="drawing-feature d-flex flex-column flex-md-row"
-            >
-                <FeatureEdit
-                    v-if="showFeatureInfoInBottomPanel"
-                    :feature="selectedFeature"
-                    class="drawing-feature-edit p-3"
-                    :class="{ 'flex-grow-1': !showElevationProfile }"
-                />
-                <FeatureElevationProfile v-if="showElevationProfile" class="flex-grow-1" />
-            </div>
-            <div v-else class="d-flex flex-column h-100 overflow-y-auto">
-                <div
-                    v-if="showElevationProfile"
-                    key="profile-detail"
-                    class="h-100 d-flex flex-column flex-md-row align-content-stretch"
-                >
-                    <FeatureElevationProfile class="flex-grow-1 profile-with-feature" />
-                </div>
-                <FeatureList v-if="showFeatureInfoInBottomPanel" v-show="!showElevationProfile" />
-            </div>
-        </div>
+        <InfoboxContent v-show="showContent" />
     </div>
 </template>
 
