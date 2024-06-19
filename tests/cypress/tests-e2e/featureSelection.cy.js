@@ -339,16 +339,13 @@ describe('Testing the feature selection', () => {
             cy.intercept('**identify**', {
                 fixture: 'features/features.fixture',
             }).as('identifySingleFeature')
-            cy.intercept('**/MapServer/**/**?sr=**&geometryFormat=geojson', {
-                fixture: 'features/featureDetail.fixture',
-            }).as('detailSingleFeature')
 
             drawRectangleOnMap({
                 x: 30,
                 y: -80,
             })
             cy.wait('@identifySingleFeature')
-            cy.wait('@detailSingleFeature')
+            cy.wait('@featureDetail')
 
             cy.get('@highlightedFeatures').should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)

@@ -214,34 +214,67 @@ const addFeatureIdentificationIntercepts = () => {
         })
     }).as('identify')
 
-    // generating an intercept for each feature detail
-    cy.intercept(`**/MapServer/**/**?sr=**&geometryFormat=geojson`, (featureDetailRequest) => {
-        const featureId = parseInt(featureDetailRequest.url.split('/').pop().split('?')[0].trim())
-        const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
-        featureDetail.featureId = featureId
-        featureDetail.id = featureId
-        featureDetail.properties.name = `Feature ${featureId} name`
-        featureDetail.properties.label = `Feature ${featureId} label`
+    // generating an intercept for each feature(s) detail
+    cy.intercept(
+        /.*\/rest\/services\/\w+\/MapServer\/[^/]+\/[^?]+\?.*\bgeometryFormat=geojson.*/,
+        (req) => {
+            const url = req.url.match(
+                /.*\/rest\/services\/(?<topic>\w+)\/MapServer\/(?<layerId>.+)\/(?<features>[^?]+)/
+            )
 
-        const matchingFeature = lastIdentifiedFeatures.find((feature) => feature.id === featureId)
-        if (matchingFeature) {
-            const coordinate = matchingFeature.geometry.coordinates[0]
-            featureDetail.bbox = [...coordinate, ...coordinate]
-            featureDetail.geometry.coordinates = [coordinate]
-        } else {
-            const randomCoordinate = [
-                Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
-                Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
-            ]
-            featureDetail.bbox = [...randomCoordinate, ...randomCoordinate]
-            featureDetail.geometry.coordinates = [randomCoordinate]
+            if (!url) {
+                req.reply(404)
+                return
+            }
+
+            const generateFeature = (featureId) => {
+                const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
+                featureDetail.featureId = featureId
+                featureDetail.id = featureId
+                featureDetail.properties.name = `Feature ${featureId} name`
+                featureDetail.properties.label = `Feature ${featureId} label`
+
+                if (featureDetail.layerBodId !== url.groups.layerId) {
+                    featureDetail.layerBodId = url.groups.layerId
+                    featureDetail.layerName = `Name of ${url.groups.layerId}`
+                }
+
+                const matchingFeature = lastIdentifiedFeatures.find(
+                    (feature) => feature.id === featureId
+                )
+
+                if (matchingFeature) {
+                    const coordinate = matchingFeature.geometry.coordinates[0]
+                    featureDetail.bbox = [...coordinate, ...coordinate]
+                    featureDetail.geometry.coordinates = [coordinate]
+                } else {
+                    const randomCoordinate = [
+                        Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
+                        Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
+                    ]
+                    featureDetail.bbox = [...randomCoordinate, ...randomCoordinate]
+                    featureDetail.geometry.coordinates = [randomCoordinate]
+                }
+                return featureDetail
+            }
+
+            const features = url.groups.features.split(',')
+            if (features.length > 1) {
+                req.reply({
+                    type: 'FeatureCollection',
+                    features: features.map((featureId) => generateFeature(featureId)),
+                })
+            } else {
+                const featureId = features[0]
+                const featureDetail = generateFeature(featureId)
+
+                req.alias = `featureDetail_${featureId}`
+                req.reply({
+                    feature: featureDetail,
+                })
+            }
         }
-
-        featureDetailRequest.alias = `featureDetail_${featureId}`
-        featureDetailRequest.reply({
-            feature: featureDetail,
-        })
-    }).as('featureDetail')
+    ).as('featureDetail')
 }
 
 export function getDefaultFixturesAndIntercepts() {
