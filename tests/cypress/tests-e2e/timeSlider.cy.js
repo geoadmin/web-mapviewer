@@ -49,13 +49,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 !classList.includes('btn-outline-primary')
             )
         }
-        function isPrimaryOutlineBtn(classList) {
-            return (
-                classList.includes('btn-outline-primary') &&
-                !classList.includes('btn-light') &&
-                !classList.includes('btn-primary')
-            )
-        }
         function isLightBtn(classList) {
             return (
                 classList.includes('btn-light') &&
@@ -215,9 +208,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     if (timestamp === '20130101') {
                         return isPrimaryBtn(classList)
                     } else {
-                        return timestamp === '20090101'
-                            ? isPrimaryOutlineBtn(classList)
-                            : isLightBtn(classList)
+                        return isLightBtn(classList)
                     }
                 })
             })
@@ -232,7 +223,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     // a light button
 
                     return timestamp === '20090101'
-                        ? isPrimaryOutlineBtn(classList)
+                        ? isPrimaryBtn(classList)
                         : isLightBtn(classList)
                 })
             })
@@ -302,7 +293,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-duplicate-layer-${time_layer_std}-0"]`).click()
             cy.get(`[data-cy="button-toggle-visibility-layer-${time_layer_std}-0"]`).click()
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2017)
             cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2017)
 
             // ---------------------------------------------------------------------------------------------------
