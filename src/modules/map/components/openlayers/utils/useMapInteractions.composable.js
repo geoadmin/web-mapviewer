@@ -122,7 +122,11 @@ export default function useMapInteractions(map) {
                                     new LayerFeature({
                                         layer: vectorLayer,
                                         id: olFeature.getId(),
-                                        name: olFeature.getId(),
+                                        name:
+                                            olFeature.get('label') ??
+                                            // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+                                            olFeature.get('station_name') ??
+                                            olFeature.getId(),
                                         data: {
                                             title: olFeature.get('name'),
                                             description: olFeature.get('description'),

@@ -114,7 +114,7 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
             return new LayerFeature({
                 layer: geoJsonLayer,
                 id: feature.id,
-                name: feature.properties.station_name || feature.id,
+                name: feature.properties.station_name ?? feature.properties.label ?? feature.id,
                 data: {
                     title: feature.properties.name,
                     description: feature.properties.description,

@@ -582,9 +582,11 @@ const getFeature = (layer, featureID, outputProjection, options = {}) => {
                 }
                 let featureName = featureID
                 if (featureMetadata.properties) {
-                    const { name = null, title = null } = featureMetadata.properties
+                    const { name = null, title = null, label = null } = featureMetadata.properties
                     const titleInCurrentLang = featureMetadata.properties[`title_${lang}`]
-                    if (name) {
+                    if (label) {
+                        featureName = label
+                    } else if (name) {
                         featureName = name
                     } else if (title) {
                         featureName = title
