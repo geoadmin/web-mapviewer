@@ -114,6 +114,10 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
             return new LayerFeature({
                 layer: geoJsonLayer,
                 id: feature.id,
+                // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+                // some of their layers are
+                // - ch.meteoschweiz.messwerte-niederschlag-10min
+                // - ch.meteoschweiz.messwerte-lufttemperatur-10min
                 name: feature.properties.station_name ?? feature.properties.label ?? feature.id,
                 data: {
                     title: feature.properties.name,

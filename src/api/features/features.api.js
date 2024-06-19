@@ -408,10 +408,19 @@ async function identifyOnExternalWmsLayer(config) {
                     coordinates: [...coordinate],
                 }
             }
+            const {
+                id = null,
+                identifier = null,
+                title = null,
+                name = null,
+                label = null,
+            } = feature.properties ?? {}
+            const featureId = feature.id ?? id ?? identifier ?? title ?? name ?? label
+            const featureName = label ?? name ?? title ?? identifier ?? id
             return new LayerFeature({
                 layer,
-                id: feature.id,
-                name: feature.title ?? feature.name ?? feature.id,
+                id: featureId,
+                name: featureName,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,

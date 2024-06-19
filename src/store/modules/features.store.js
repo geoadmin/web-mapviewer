@@ -114,10 +114,13 @@ const runIdentify = (config) => {
         Promise.allSettled(pendingRequests)
             .then((responses) => {
                 responses.forEach((response) => {
-                    if (response.status === 'fulfilled') {
+                    if (response.status === 'fulfilled' && response.value) {
                         allFeatures.push(...response.value)
                     } else {
-                        log.error('Error while identifying features', response.reason?.message)
+                        log.error(
+                            'Error while identifying features on external layer, response is',
+                            response
+                        )
                         // no reject, so that we may see at least the result of requests that have been fulfilled
                     }
                 })
