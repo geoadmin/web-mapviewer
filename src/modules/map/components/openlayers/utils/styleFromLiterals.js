@@ -275,7 +275,7 @@ OlStyleForPropertyValue.prototype.setOlRotation_ = function (
 
 OlStyleForPropertyValue.prototype.getOlStyle_ = function (feature, resolution, properties) {
     // Use default value if key is not found in properties
-    const value = properties[this.key] !== undefined ? properties[this.key] : this.defaultVal
+    const value = properties[this.key] ?? this.defaultVal
     const geomType = getGeomTypeFromGeometry(feature.getGeometry())
 
     let olStyles = null
