@@ -136,6 +136,7 @@ export async function identifyOnGeomAdminLayer({
     if (lang === null) {
         throw new GetFeatureInfoError('A lang is required to build a getFeatureInfo request')
     }
+    const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
         `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
@@ -145,7 +146,7 @@ export async function identifyOnGeomAdminLayer({
                 sr: projection.epsgNumber,
                 geometry: coordinate.join(','),
                 mapExtent: mapExtent.join(','),
-                imageDisplay: `${screenWidth},${screenHeight},96`,
+                imageDisplay,
                 geometryFormat: 'geojson',
                 geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
                 limit: featureCount,
@@ -162,7 +163,14 @@ export async function identifyOnGeomAdminLayer({
     if (identifyResponse.data?.results?.length > 0) {
         // for each feature that has been identified, we will now load their metadata and tooltip content
         identifyResponse.data.results.forEach((feature) => {
-            featureRequests.push(getFeature(layer, feature.id, projection, lang))
+            featureRequests.push(
+                getFeature(layer, feature.id, projection, {
+                    lang,
+                    coordinates: coordinate.join(','),
+                    mapExtent: mapExtent.join(','),
+                    imageDisplay,
+                })
+            )
         })
     }
     // waiting on the result of all parallel getFeature requests
@@ -525,7 +533,8 @@ export const identify = (config) => {
  * @param {String} lang The language for the HTML popup
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
+const getFeature = (layer, featureID, outputProjection, options = {}) => {
+    const { lang = 'en', coordinates = null, imageDisplay = null, mapExtent = null } = options
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
             reject('Needs a valid layer with an ID')
@@ -536,19 +545,29 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
         // combining the two requests in one promise
         const topic = layer.getTopicForIdentifyAndTooltipRequests()
         const featureUrl = `${API_BASE_URL}rest/services/${topic}/MapServer/${layer.id}/${featureID}`
+        const params = {
+            sr: LV95.epsgNumber,
+            lang: lang,
+        }
+        if (coordinates) {
+            params.coord = coordinates
+        }
+        if (imageDisplay) {
+            params.imageDisplay = imageDisplay
+        }
+        if (mapExtent) {
+            params.mapExtent = mapExtent
+        }
         axios
             .all([
                 axios.get(featureUrl, {
                     params: {
-                        sr: LV95.epsgNumber,
                         geometryFormat: 'geojson',
+                        ...params,
                     },
                 }),
                 axios.get(`${featureUrl}/htmlPopup`, {
-                    params: {
-                        sr: LV95.epsgNumber,
-                        lang: lang,
-                    },
+                    params,
                 }),
             ])
             .then((responses) => {
