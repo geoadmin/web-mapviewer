@@ -25,7 +25,11 @@ function showProfile() {
 </script>
 
 <template>
-    <button class="btn btn-xs btn-outline-secondary" data-cy="show-profile" @click="showProfile">
+    <button
+        class="btn btn-xs btn-outline-secondary no-print"
+        data-cy="show-profile"
+        @click="showProfile"
+    >
         <FontAwesomeIcon icon="fa-chart-area" class="me-1" />
         <span>{{ i18n.t('display_profile') }}</span>
     </button>

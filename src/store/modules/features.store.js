@@ -1,7 +1,8 @@
 import { containsCoordinate } from 'ol/extent'
+import { toRaw } from 'vue'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
+import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { sendFeatureInformationToIFrameParent } from '@/api/iframeFeatureEvent.api'
 import getProfile from '@/api/profile/profile.api'
@@ -113,10 +114,13 @@ const runIdentify = (config) => {
         Promise.allSettled(pendingRequests)
             .then((responses) => {
                 responses.forEach((response) => {
-                    if (response.status === 'fulfilled') {
+                    if (response.status === 'fulfilled' && response.value) {
                         allFeatures.push(...response.value)
                     } else {
-                        log.error('Error while identifying features', response.reason?.message)
+                        log.error(
+                            'Error while identifying features on external layer, response is',
+                            response
+                        )
                         // no reject, so that we may see at least the result of requests that have been fulfilled
                     }
                 })
@@ -626,6 +630,69 @@ export default {
                 }
             } else {
                 log.warn('Geometry type not supported to show a profile, ignoring', feature)
+            }
+        },
+        /**
+         * The goal of this function is to refresh the selected features according to changes that
+         * happened in the store, but outside feature selection. For example, when we change the
+         * language, we need to update the selected features otherwise we keep them in the old
+         * language until new features are selected.
+         *
+         * @param {Store} store The vue store
+         * @param {Object} dispatcher The dispatcher
+         */
+        async updateFeatures(store, { dispatcher }) {
+            const { state, commit, getters, rootState } = store
+            const featuresPromises = []
+            getters.selectedLayerFeatures.forEach((feature) => {
+                // we avoid requesting the drawings and external layers, they're not handled here
+                if (rootState.layers.config.find((layer) => layer.id === feature.layer.id)) {
+                    featuresPromises.push(
+                        getFeature(
+                            feature.layer,
+                            feature.id,
+                            rootState.position.projection,
+                            rootState.i18n.lang
+                        )
+                    )
+                }
+            })
+            if (featuresPromises.length > 0) {
+                try {
+                    const responses = await Promise.allSettled(featuresPromises)
+                    const features = responses
+                        .filter((response) => response.status === 'fulfilled')
+                        .map((response) => response.value)
+                    if (features.length > 0) {
+                        const updatedFeaturesByLayerId = state.selectedFeaturesByLayerId.reduce(
+                            (updated_array, layer) => {
+                                const rawLayer = toRaw(layer)
+                                const rawLayerFeatures = rawLayer.features
+                                rawLayer.features = features.reduce((features_array, feature) => {
+                                    if (feature.layer.id === rawLayer.layerId) {
+                                        features_array.push(feature)
+                                    }
+                                    return features_array
+                                }, [])
+                                if (rawLayer.features.length === 0) {
+                                    rawLayer.features = rawLayerFeatures
+                                }
+                                updated_array.push(rawLayer)
+                                return updated_array
+                            },
+                            []
+                        )
+                        await commit('setSelectedFeatures', {
+                            layerFeaturesByLayerId: updatedFeaturesByLayerId,
+                            drawingFeatures: state.selectedEditableFeatures,
+                            ...dispatcher,
+                        })
+                    }
+                } catch (error) {
+                    log.error(
+                        `Error while attempting to update already selected features. error is ${error}`
+                    )
+                }
             }
         },
     },

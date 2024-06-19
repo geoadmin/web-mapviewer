@@ -20,9 +20,8 @@ import {
     cssTimeSliderBarHeight,
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
+import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
-import promptUserToPrintHtmlContent from '@/utils/print'
 
 const props = defineProps({
     authorizePrint: {
@@ -58,6 +57,7 @@ const emits = defineEmits(['close'])
 const popoverHeader = ref(null)
 const popover = ref(null)
 
+const mapPopoverContent = ref(null)
 const showContent = ref(true)
 
 const store = useStore()
@@ -103,8 +103,6 @@ const popoverLimits = computed(() => {
     }
 })
 
-useTippyTooltip('.map-popover-header [data-tippy-content]')
-
 onMounted(() => {
     if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
         useMovableElement(popover.value, {
@@ -116,9 +114,6 @@ onMounted(() => {
 
 function onClose() {
     emits('close')
-}
-function printContent() {
-    promptUserToPrintHtmlContent('mapPopoverContent')
 }
 </script>
 
@@ -153,15 +148,10 @@ function printContent() {
                 <span class="flex-grow-1 align-self-center">
                     {{ title }}
                 </span>
-                <button
-                    v-if="authorizePrint"
-                    class="print-button btn btn-sm btn-light d-flex align-items-center"
-                    data-tippy-content="print"
-                    @click="printContent"
-                    @mousedown.stop=""
-                >
-                    <FontAwesomeIcon icon="print" />
-                </button>
+                <PrintButton
+                    v-if="authorizePrint && showContent"
+                    :content="mapPopoverContent"
+                ></PrintButton>
                 <slot name="extra-buttons"></slot>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"

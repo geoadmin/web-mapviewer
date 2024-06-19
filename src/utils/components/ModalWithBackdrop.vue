@@ -2,7 +2,7 @@
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
-        <div v-show="!hide" data-cy="modal-with-backdrop">
+        <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div
                 class="modal-popup position-fixed start-50"
@@ -28,20 +28,13 @@
                             data-cy="modal-with-backdrop-title"
                             >{{ title }}</span
                         >
-                        <button
+                        <PrintButton
                             v-if="allowPrint"
-                            class="btn btn-sm"
-                            :class="{
-                                'btn-light': !headerPrimary,
-                                'btn-primary': headerPrimary,
-                            }"
-                            data-cy="modal-print-button"
-                            @click="printModalContent"
-                        >
-                            <FontAwesomeIcon icon="print" />
-                        </button>
+                            :content="$refs.modalContent"
+                            @hide-parent-modal="onHideParentModal"
+                        ></PrintButton>
                         <button
-                            class="btn btn-sm"
+                            class="btn btn-sm d-flex align-items-center"
                             :class="{
                                 'btn-light': !headerPrimary,
                                 'btn-primary': headerPrimary,
@@ -85,14 +78,14 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
-import promptUserToPrintHtmlContent from '@/utils/print'
+import PrintButton from '@/utils/components/PrintButton.vue'
 
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
  * map
  */
 export default {
-    components: { FontAwesomeIcon, BlackBackdrop },
+    components: { FontAwesomeIcon, BlackBackdrop, PrintButton },
     props: {
         title: {
             type: String,
@@ -128,15 +121,18 @@ export default {
         },
     },
     emits: ['close'],
+    data() {
+        return {
+            hideForPrint: false,
+        }
+    },
     methods: {
         onClose(withConfirmation) {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
             this.$emit('close', withConfirmation)
         },
-        printModalContent() {
-            if (this.$refs.modalContent) {
-                promptUserToPrintHtmlContent(this.$refs.modalContent)
-            }
+        onHideParentModal(hide) {
+            this.hideForPrint = hide
         },
     },
 }

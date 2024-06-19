@@ -9,6 +9,8 @@ import { computed, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class.js'
+import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
@@ -70,6 +72,11 @@ const attributionName = computed(() =>
 const showLayerDescriptionIcon = computed(() => layer.value.hasDescription)
 const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const is3dActive = computed(() => store.state.cesium.active)
+
+const isLayerKmlOrGpx = computed(
+    () => layer.value instanceof KMLLayer || layer.value instanceof GPXLayer
+)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -217,6 +224,7 @@ function duplicateLayer() {
             <input
                 :id="`transparency-${id}`"
                 ref="transparencySlider"
+                :disabled="isLayerKmlOrGpx && is3dActive"
                 class="menu-layer-transparency-slider ms-2 me-4"
                 type="range"
                 min="0.0"

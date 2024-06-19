@@ -8,6 +8,7 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import { canFeatureShowProfile } from '@/store/modules/features.store'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
@@ -30,6 +31,7 @@ const props = defineProps({
 const { name, item, showContentByDefault } = toRefs(props)
 
 const content = ref(null)
+const featureTitle = ref(null)
 const showContent = ref(!!showContentByDefault.value)
 
 const canDisplayProfile = computed(() => canFeatureShowProfile(item.value))
@@ -38,7 +40,6 @@ const store = useStore()
 const isHighlightedFeature = computed(
     () => store.state.features.highlightedFeatureId === item.value.id
 )
-
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: feature?.id,
@@ -78,20 +79,25 @@ function showContentAndScrollIntoView(event) {
 
 <template>
     <div
-        class="feature-list-category-item-name p-2 align-middle position-relative cursor-pointer"
-        :class="{ highlighted: isHighlightedFeature, 'border-bottom': !showContent }"
+        ref="featureTitle"
+        class="feature-list-category-item-name p-1 d-flex align-items-center cursor-pointer"
+        :class="{
+            highlighted: isHighlightedFeature,
+            'border-bottom': !showContent,
+        }"
         data-cy="feature-item"
         @click="toggleShowContent"
         @mouseenter.passive="highlightFeature(item)"
         @mouseleave.passive="clearHighlightedFeature"
     >
         <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2" />
-        <strong>{{ name }}</strong>
+        <TextTruncate :text="name" class="flex-grow-1">
+            <strong>{{ name }}</strong>
+        </TextTruncate>
 
         <ZoomToExtentButton
             v-if="item.extent"
             :extent="item.extent"
-            class="float-end"
             @click="showContentAndScrollIntoView"
         />
     </div>
@@ -112,6 +118,7 @@ function showContentAndScrollIntoView(event) {
 
 <style lang="scss" scoped>
 @import '@/scss/variables-admin.module';
+@import '@/scss/webmapviewer-bootstrap-theme';
 
 .feature-list-category-item-name {
     &.highlighted {

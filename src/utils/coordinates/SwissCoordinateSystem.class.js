@@ -12,9 +12,10 @@ export const STANDARD_ZOOM_LEVEL_1_25000_MAP = 15.5
  * Resolutions for each LV95 zoom level, from 0 to 14
  *
  * @type {number[]}
+ * @see https://api3.geo.admin.ch/services/sdiservices.html#gettile
  */
 export const LV95_RESOLUTIONS = [
-    650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.25, 0.1,
+    650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.0, 0.5, 0.25, 0.1,
 ]
 
 /**
@@ -44,7 +45,12 @@ export const TILEGRID_RESOLUTIONS = [
     1250.0,
     1000.0,
     750.0,
-    ...LV95_RESOLUTIONS,
+    ...LV95_RESOLUTIONS.slice(0, 10),
+    // see table https://api3.geo.admin.ch/services/sdiservices.html#gettile
+    // LV95 doesn't support zoom level 10 at 1.5 resolution, so we need to split
+    // the resolution and add it here
+    1.5,
+    ...LV95_RESOLUTIONS.slice(10),
 ]
 
 /**

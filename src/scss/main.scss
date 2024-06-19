@@ -54,3 +54,10 @@ li {
 .cursor-pointer {
     cursor: pointer;
 }
+
+
+@media print {
+    .no-print {
+        display: none;
+    }
+}

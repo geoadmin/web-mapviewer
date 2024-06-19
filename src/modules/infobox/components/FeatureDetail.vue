@@ -134,4 +134,11 @@ function getIframeHosts(value) {
 :global(.htmlpopup-content) {
     padding: 7px;
 }
+td {
+    vertical-align: top;
+}
+
+td.cell-left {
+    padding-right: 10px;
+}
 </style>

@@ -28,7 +28,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="map-view">
+    <div id="map-view" class="no-print">
         <OpenFullAppLink />
         <MapModule>
             <MapToolbox :has-header="false" toggle3d-button />
