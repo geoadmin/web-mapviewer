@@ -82,14 +82,26 @@ const state = {
 
 const getters = {
     /**
-     * Filter all the active layers and gives only those who have the flag `visible` to `true`
+     * Filter all the active layers and gives only those who are visible on the map.
+     *
+     * This includes system layers and the preview layer. When the time slider is enabled, the time
+     * enabled layer with non matching preview year are filtered out.
      *
      * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
      * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
-    visibleLayers: (state) => {
-        const visibleLayers = state.activeLayers.filter((layer) => layer.visible)
+    visibleLayers: (state, getters, rootState) => {
+        const visibleLayers = state.activeLayers.filter((layer) => {
+            if (
+                rootState.ui.isTimeSliderActive &&
+                layer.timeConfig &&
+                layer.timeConfig.getTimeEntryForYear(state.previewYear) === null
+            ) {
+                return false
+            }
+            return layer.visible
+        })
         if (state.previewLayer !== null) {
             visibleLayers.push(state.previewLayer)
         }
@@ -177,12 +189,13 @@ const getters = {
     },
 
     /**
-     * Get visiblelayers with time config. (Preview and system layer are filtered)
+     * Get visiblelayers with time config. (Preview layers and system layers are filtered)
      *
      * @returns {GeoAdminLayer[]} List of layers with time config
      */
     visibleLayersWithTimeConfig: (state) =>
-        // Here we cannot take the getter visibleLayers as it also contain the preview and system layers
+        // Here we cannot take the getter visibleLayers as it also contain the preview and system
+        // layers as well as the layer without matching previewYear are filtered out
         state.activeLayers.filter((layer) => layer.visible && layer.hasMultipleTimestamps),
 
     /**
