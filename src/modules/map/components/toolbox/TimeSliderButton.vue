@@ -30,6 +30,12 @@ watch(visibleLayersWithTimeConfig, () =>
 )
 
 function toggleTimeSlider() {
+    if (isTimeSliderActive.value) {
+        // when closing the timeslider we reset the preview year to nul so that next time
+        // we reopen it we use the correct year from the layer current configurations and not reuse
+        // the last preview.
+        store.dispatch('setPreviewYear', { year: null, ...dispatcher })
+    }
     store.dispatch('setTimeSliderActive', {
         timeSliderActive: !isTimeSliderActive.value,
         ...dispatcher,
