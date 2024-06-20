@@ -74,8 +74,8 @@ export function createLayerObject(parsedLayer, currentLayer) {
         return new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
-            opacity: parsedLayer.opacity,
-            visible: parsedLayer.visible ?? defaultOpacity,
+            opacity: parsedLayer.opacity ?? defaultOpacity,
+            visible: parsedLayer.visible,
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,
         })
@@ -88,8 +88,8 @@ export function createLayerObject(parsedLayer, currentLayer) {
         return new ExternalWMSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
-            opacity: parsedLayer.opacity,
-            visible: parsedLayer.visible ?? defaultOpacity,
+            opacity: parsedLayer.opacity ?? defaultOpacity,
+            visible: parsedLayer.visible,
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,
         })
