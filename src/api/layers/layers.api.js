@@ -58,7 +58,10 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 (timestamp) => new LayerTimeConfigEntry(timestamp)
             )
         }
-        const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
+        const timeConfig =
+            timestamps.length > 0
+                ? new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
+                : null
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         const attributions = []
         if (attributionName) {

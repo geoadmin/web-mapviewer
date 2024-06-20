@@ -147,17 +147,22 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    // Here we set the @year only if we have a valid year.
-    // NOTE: external layers might have invalid timestamps, in this case they won't have the time
-    // selector buttons and the application will use the default timestamp and we don't add any @year param
-    if (layer.timeConfig && layer.timeConfig.currentYear !== null) {
-        layerUrlString += `@year=${layer.timeConfig.currentYear}`
-    } else if (layer.timeConfig && layer.timeConfig.currentTimeEntry === null) {
-        // The layer is a time enabled layer, but the user asked for a timestamp that don't exists for
-        // this layer (e.g. using TimeSlider), in this case we don't have a current time entry which
-        // is translated to @year=none and the layer won't be visible
-        layerUrlString += `@year=none`
+    if (layer.hasMultipleTimestamps) {
+        // If the layer has more than 1 timestamps we need to add the `@year` attribute
+        if (layer.timeConfig.currentYear !== null) {
+            // Always add the `@year` if we have a valid currentYear
+            layerUrlString += `@year=${layer.timeConfig.currentYear}`
+        } else if (layer.timeConfig.currentTimeEntry === null) {
+            // Rhe currentTimeEntry is null, this means that a user entered via the timeSlider
+            // a non matching year for this layer (year set by timeSlider don't match any available
+            // timestamps for this layer). In this case we set the `@year=none` and the layer won't
+            // be visible.
+            layerUrlString += `@year=none`
+        }
+        // In all other cases we don't set the @year attribute and let the application to use the
+        // default timestamp. This can happen for External layer using a non ISO timestamp.
     }
+
     if (featuresIds) {
         layerUrlString += `@features=${featuresIds.join(':')}`
     }
