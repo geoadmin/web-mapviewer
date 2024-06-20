@@ -40,6 +40,11 @@ const timeSelectorButton = ref(null)
 const timeSelectorModal = ref(null)
 
 const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
+const hasValidTimestamps = computed(() =>
+    // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
+    timeConfig.value.timeEntries.every((entry) => entry.year !== null)
+)
+const hasTimeSelector = computed(() => hasMultipleTimestamps.value && hasValidTimestamps.value)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 const humanReadableCurrentTimestamp = computed(() => {
@@ -49,7 +54,7 @@ const humanReadableCurrentTimestamp = computed(() => {
 let popover = null
 
 onMounted(() => {
-    if (hasMultipleTimestamps.value) {
+    if (hasTimeSelector.value) {
         popover = tippy(timeSelectorButton.value, {
             theme: 'popover-button light-border',
             content: timeSelectorModal.value,
@@ -82,9 +87,6 @@ function renderHumanReadableTimestamp(timeEntry) {
     if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
         return i18n.t('time_all')
     }
-    if (timeEntry.year === null) {
-        return timeEntry.timestamp
-    }
     return `${timeEntry.year}`
 }
 
@@ -107,44 +109,40 @@ function isSelected(timeEntry) {
 </script>
 
 <template>
-    <button
-        v-if="hasMultipleTimestamps"
-        ref="timeSelectorButton"
-        class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
-        :class="{
-            'btn-sm': compact,
-            'btn-timestamp-selector-compact': compact,
-        }"
-        :data-cy="`time-selector-${layerId}-${layerIndex}`"
-    >
-        <TextTruncate>{{ humanReadableCurrentTimestamp }}</TextTruncate>
-    </button>
-    <div
-        v-if="hasMultipleTimestamps"
-        ref="timeSelectorModal"
-        class="card border-0"
-        @click="hidePopover"
-    >
-        <div class="card-header d-flex align-items-center justify-content-between">
-            {{ $t('time_select_year') }}
-        </div>
-        <div
-            class="card-body rounded-bottom p-2 timestamps-popover-content"
-            data-cy="time-selection-popup"
+    <div v-if="hasTimeSelector">
+        <button
+            ref="timeSelectorButton"
+            class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
+            :class="{
+                'btn-sm': compact,
+                'btn-timestamp-selector-compact': compact,
+            }"
+            :data-cy="`time-selector-${layerId}-${layerIndex}`"
         >
-            <button
-                v-for="timeEntry in timeConfig.timeEntries"
-                :key="timeEntry.timestamp"
-                class="btn mb-1 me-1 btn-timestamp-selection-popup"
-                :class="{
-                    'btn-primary': isSelected(timeEntry),
-                    'btn-light': !isSelected(timeEntry),
-                }"
-                :data-cy="`time-select-${timeEntry.timestamp}`"
-                @click="handleClickOnTimestamp(timeEntry.year)"
+            <TextTruncate>{{ humanReadableCurrentTimestamp }}</TextTruncate>
+        </button>
+        <div ref="timeSelectorModal" class="card border-0" @click="hidePopover">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                {{ $t('time_select_year') }}
+            </div>
+            <div
+                class="card-body rounded-bottom p-2 timestamps-popover-content"
+                data-cy="time-selection-popup"
             >
-                <TextTruncate>{{ renderHumanReadableTimestamp(timeEntry) }}</TextTruncate>
-            </button>
+                <button
+                    v-for="timeEntry in timeConfig.timeEntries"
+                    :key="timeEntry.timestamp"
+                    class="btn mb-1 me-1 btn-timestamp-selection-popup"
+                    :class="{
+                        'btn-primary': isSelected(timeEntry),
+                        'btn-light': !isSelected(timeEntry),
+                    }"
+                    :data-cy="`time-select-${timeEntry.timestamp}`"
+                    @click="handleClickOnTimestamp(timeEntry.year)"
+                >
+                    <TextTruncate>{{ renderHumanReadableTimestamp(timeEntry) }}</TextTruncate>
+                </button>
+            </div>
         </div>
     </div>
 </template>
