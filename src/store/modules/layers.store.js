@@ -93,9 +93,12 @@ const getters = {
      */
     visibleLayers: (state, getters, rootState) => {
         const visibleLayers = state.activeLayers.filter((layer) => {
+            // timeslider is not used on layer having only one timestamp as it doesn't make sense
+            // there.
             if (
                 rootState.ui.isTimeSliderActive &&
                 layer.timeConfig &&
+                layer.hasMultipleTimestamps &&
                 layer.timeConfig.getTimeEntryForYear(state.previewYear) === null
             ) {
                 return false
