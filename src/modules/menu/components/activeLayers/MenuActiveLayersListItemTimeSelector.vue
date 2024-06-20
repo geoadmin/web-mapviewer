@@ -9,6 +9,7 @@ import {
     CURRENT_YEAR_WMTS_TIMESTAMP,
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/api/layers/LayerTimeConfigEntry.class'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
 
@@ -119,14 +120,14 @@ function isSelected(timeEntry) {
     <button
         v-if="hasMultipleTimestamps"
         ref="timeSelectorButton"
-        class="btn btn-secondary me-2 btn-timestamp"
+        class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
         :class="{
             'btn-sm': compact,
-            'w-13': compact,
+            'btn-timestamp-selector-compact': compact,
         }"
         :data-cy="`time-selector-${layerId}-${layerIndex}`"
     >
-        {{ humanReadableCurrentTimestamp }}
+        <TextTruncate>{{ humanReadableCurrentTimestamp }}</TextTruncate>
     </button>
     <div
         v-if="hasMultipleTimestamps"
@@ -144,7 +145,7 @@ function isSelected(timeEntry) {
             <button
                 v-for="timeEntry in timeConfig.timeEntries"
                 :key="timeEntry.timestamp"
-                class="btn mb-1 me-1 btn-timestamp"
+                class="btn mb-1 me-1 btn-timestamp-selection-popup"
                 :class="{
                     'btn-primary': isSelected(timeEntry),
                     'btn-light': !isSelected(timeEntry),
@@ -152,7 +153,7 @@ function isSelected(timeEntry) {
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"
             >
-                {{ renderHumanReadableTimestamp(timeEntry) }}
+                <TextTruncate>{{ renderHumanReadableTimestamp(timeEntry) }}</TextTruncate>
             </button>
         </div>
     </div>
@@ -166,7 +167,22 @@ function isSelected(timeEntry) {
     background: white;
     grid-template-columns: 1fr 1fr 1fr;
 }
-.btn-timestamp {
-    white-space: nowrap;
+.btn-timestamp-selection-popup {
+    max-width: 100px;
+}
+.btn-timestamp-selector {
+    font-size: small;
+    $btn-width: 68px; // 68px allow the word "Actual" in all languages without being truncated
+    // Here we need to use min/max-width otherwise the size is not always identical over all layers
+    min-width: $btn-width;
+    max-width: $btn-width;
+
+    &-compact {
+        $btn-width: 60px; // 60px allow the word "Actual" in all languages without being truncated
+        min-width: $btn-width;
+        max-width: $btn-width;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
 }
 </style>
