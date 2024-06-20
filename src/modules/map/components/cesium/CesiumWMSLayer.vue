@@ -24,10 +24,6 @@ export default {
             type: [GeoAdminWMSLayer, ExternalWMSLayer],
             required: true,
         },
-        previewYear: {
-            type: Number,
-            default: null,
-        },
         projection: {
             type: CoordinateSystem,
             required: true,
@@ -65,11 +61,7 @@ export default {
             return this.wmsLayerConfig.baseUrl
         },
         timestamp() {
-            return getTimestampFromConfig(
-                this.wmsLayerConfig,
-                this.previewYear,
-                this.isTimeSliderActive
-            )
+            return getTimestampFromConfig(this.wmsLayerConfig)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. Passes as parameters to

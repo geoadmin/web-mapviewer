@@ -31,8 +31,6 @@ const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const previewYear = computed(() => store.state.layers.previewYear)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => externalWmtsLayerConfig.value.id)
@@ -48,14 +46,7 @@ const options = computed(() => {
     return _options
 })
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
-const timestamp = computed(
-    () =>
-        getTimestampFromConfig(
-            externalWmtsLayerConfig.value,
-            previewYear.value,
-            isTimeSliderActive.value
-        ) ?? 'current'
-)
+const timestamp = computed(() => getTimestampFromConfig(externalWmtsLayerConfig.value))
 const dimensions = computed(() => {
     if (!options.value) {
         return null

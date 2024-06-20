@@ -35,7 +35,6 @@ const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
-const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
 const currentLang = computed(() => store.state.i18n.lang)
 
@@ -46,10 +45,7 @@ const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
 const url = computed(() => wmsLayerConfig.value.baseUrl)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
-const timestamp = computed(() =>
-    getTimestampFromConfig(wmsLayerConfig.value, previewYear.value, isTimeSliderActive.value)
-)
+const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
 
 /**
  * Definition of all relevant URL param for our WMS backends. This is because both
