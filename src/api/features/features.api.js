@@ -158,23 +158,19 @@ export async function identifyOnGeomAdminLayer({
             },
         }
     )
-    // firing a getFeature (async/parallel) on each identified feature
-    const featureRequests = []
+    // firing a getHtmlPopup (async/parallel) on each identified feature
+    const features = []
     if (identifyResponse.data?.results?.length > 0) {
-        // for each feature that has been identified, we will now load their metadata and tooltip content
-        identifyResponse.data.results.forEach((feature) => {
-            featureRequests.push(
-                getFeature(layer, feature.id, projection, {
+        for (const feature of identifyResponse.data.results) {
+            const featureData = await getFeatureHtmlPopup(layer, feature.id, lang)
+            features.push(
+                parseGeomAdminFeature(layer, feature, featureData, projection, {
                     lang,
-                    coordinates: coordinate.join(','),
-                    mapExtent: mapExtent.join(','),
-                    imageDisplay,
                 })
             )
-        })
+        }
     }
-    // waiting on the result of all parallel getFeature requests
-    return await Promise.all(featureRequests)
+    return features
 }
 
 /**
@@ -530,107 +526,160 @@ export const identify = (config) => {
 }
 
 /**
+ * @param {GeoAdminLayer} layer The layer from which the feature is part of
+ * @param {String | Number} featureId The feature ID in the BGDI
+ * @returns {string}
+ */
+function generateFeatureUrl(layer, featureId) {
+    return `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
+}
+
+/**
+ * @param {GeoAdminLayer} layer The layer to which this feature belongs to
+ * @param {Object} featureMetadata The backend response (either identify, or feature-resource) for
+ *   this feature
+ * @param featureHtmlPopup The backend response for the getHtmlPopup endpoint for this feature
+ * @param {CoordinateSystem} outputProjection In which projection the feature should be in.
+ * @param {Object} [options]
+ * @param {String} [options.lang] The lang the title of the feature should be look up. Some features
+ *   do provide a title per lang, instead of a all-purpose title. In this case we need the lang ISO
+ *   code to be able to decide which title the feature will have. Default is `en`
+ * @returns {LayerFeature}
+ */
+function parseGeomAdminFeature(
+    layer,
+    featureMetadata,
+    featureHtmlPopup,
+    outputProjection,
+    options = {}
+) {
+    const { lang = 'en' } = options
+    const featureGeoJSONGeometry = featureMetadata.geometry
+    let featureExtent = []
+    if (featureMetadata.bbox) {
+        featureExtent.push(...featureMetadata.bbox)
+    }
+    let featureName = featureMetadata.id
+    if (featureMetadata.properties) {
+        const { name = null, title = null, label = null } = featureMetadata.properties
+        const titleInCurrentLang = featureMetadata.properties[`title_${lang}`]
+        if (label) {
+            featureName = label
+        } else if (name) {
+            featureName = name
+        } else if (title) {
+            featureName = title
+        } else if (titleInCurrentLang) {
+            featureName = titleInCurrentLang
+        }
+    }
+
+    if (outputProjection.epsg !== LV95.epsg) {
+        if (featureExtent.length === 4) {
+            featureExtent = projExtent(LV95, outputProjection, featureExtent)
+        }
+    }
+
+    return new LayerFeature({
+        layer,
+        id: featureMetadata.id,
+        name: featureName,
+        data: featureHtmlPopup,
+        coordinates: getGeoJsonFeatureCoordinates(featureGeoJSONGeometry, LV95, outputProjection),
+        extent: featureExtent,
+        geometry: featureGeoJSONGeometry,
+    })
+}
+
+/**
  * Loads a feature metadata and tooltip content from this two endpoint of the backend
  *
- * - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
+ * - https://api3.geo.admin.ch/services/sdiservices.html#feature-resource
  * - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
  *
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
- * @param {String | Number} featureID The feature ID in the BGDI
+ * @param {String | Number} featureId The feature ID in the BGDI
  * @param {CoordinateSystem} outputProjection Projection in which the coordinates (and possible
  *   extent) of the features should be expressed
- * @param {String} lang The language for the HTML popup
+ * @param {String} lang The language for the HTML popup. Default is `en`.
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, outputProjection, options = {}) => {
-    const { lang = 'en', coordinates = null, imageDisplay = null, mapExtent = null } = options
+const getFeature = (layer, featureId, outputProjection, lang = 'en') => {
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
             reject('Needs a valid layer with an ID')
         }
-        if (!featureID) {
+        if (!featureId) {
             reject('Needs a valid feature ID')
         }
-        // combining the two requests in one promise
-        const topic = layer.getTopicForIdentifyAndTooltipRequests()
-        const featureUrl = `${API_BASE_URL}rest/services/${topic}/MapServer/${layer.id}/${featureID}`
-        const params = {
-            sr: LV95.epsgNumber,
-            lang: lang,
-        }
-        if (coordinates) {
-            params.coord = coordinates
-        }
-        if (imageDisplay) {
-            params.imageDisplay = imageDisplay
-        }
-        if (mapExtent) {
-            params.mapExtent = mapExtent
+        if (!outputProjection) {
+            reject('An output projection is required')
         }
         axios
             .all([
-                axios.get(featureUrl, {
+                axios.get(generateFeatureUrl(layer, featureId), {
                     params: {
                         geometryFormat: 'geojson',
-                        ...params,
+                        sr: LV95.epsgNumber,
+                        lang,
                     },
                 }),
-                axios.get(`${featureUrl}/htmlPopup`, {
-                    params,
-                }),
+                getFeatureHtmlPopup(layer, featureId, lang),
             ])
-            .then((responses) => {
-                const featureMetadata = responses[0].data.feature
-                    ? responses[0].data.feature
-                    : responses[0].data
-                const featureHtmlPopup = responses[1].data
-                const featureGeoJSONGeometry = featureMetadata.geometry
-                let featureExtent = []
-                if (featureMetadata.bbox) {
-                    featureExtent.push(...featureMetadata.bbox)
-                }
-                let featureName = featureID
-                if (featureMetadata.properties) {
-                    const { name = null, title = null, label = null } = featureMetadata.properties
-                    const titleInCurrentLang = featureMetadata.properties[`title_${lang}`]
-                    if (label) {
-                        featureName = label
-                    } else if (name) {
-                        featureName = name
-                    } else if (title) {
-                        featureName = title
-                    } else if (titleInCurrentLang) {
-                        featureName = titleInCurrentLang
-                    }
-                }
-
-                if (outputProjection.epsg !== LV95.epsg) {
-                    if (featureExtent.length === 4) {
-                        featureExtent = projExtent(LV95, outputProjection, featureExtent)
-                    }
-                }
-
+            .then(([getFeatureResponse, featureHtmlPopup]) => {
+                const featureMetadata = getFeatureResponse.data.feature ?? getFeatureResponse.data
                 resolve(
-                    new LayerFeature({
+                    parseGeomAdminFeature(
                         layer,
-                        id: featureID,
-                        name: featureName,
-                        data: featureHtmlPopup,
-                        coordinates: getGeoJsonFeatureCoordinates(
-                            featureGeoJSONGeometry,
-                            LV95,
-                            outputProjection
-                        ),
-                        extent: featureExtent,
-                        geometry: featureGeoJSONGeometry,
-                    })
+                        featureMetadata,
+                        featureHtmlPopup,
+                        outputProjection,
+                        {
+                            lang,
+                        }
+                    )
                 )
             })
             .catch((error) => {
                 log.error(
                     'Error while requesting a feature to the backend',
                     layer,
-                    featureID,
+                    featureId,
+                    error
+                )
+                reject(error)
+            })
+    })
+}
+
+/**
+ * @param {GeoAdminLayer} layer
+ * @param {String} featureId
+ * @param {String} lang
+ * @returns {Promise<String>}
+ */
+export function getFeatureHtmlPopup(layer, featureId, lang = 'en') {
+    return new Promise((resolve, reject) => {
+        if (!layer?.id) {
+            reject('Needs a valid layer with an ID')
+        }
+        if (!featureId) {
+            reject('Needs a valid feature ID')
+        }
+        axios
+            .get(`${generateFeatureUrl(layer, featureId)}/htmlPopup`, {
+                params: {
+                    lang,
+                },
+            })
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                log.error(
+                    'Error while requesting a the HTML popup of a feature to the backend',
+                    layer,
+                    featureId,
                     error
                 )
                 reject(error)

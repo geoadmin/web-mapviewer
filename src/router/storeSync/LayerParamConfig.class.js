@@ -132,7 +132,7 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
                                 store.getters.getLayerConfigById(parsedLayer.id),
                                 featureId,
                                 store.state.position.projection,
-                                { lang: store.state.i18n.lang }
+                                store.state.i18n.lang
                             )
                         )
                     })
