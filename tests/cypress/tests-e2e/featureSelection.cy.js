@@ -128,7 +128,7 @@ describe('Testing the feature selection', () => {
 
             cy.get(mapSelector).click()
             cy.wait(`@${standardLayer}_identify`)
-            cy.wait(`@featureDetail_${expectedFeatureIds[0]}`)
+            cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
                 // the viewport is smaller than 400 px, 'bottompanel' is the only possible option for
@@ -156,7 +156,7 @@ describe('Testing the feature selection', () => {
 
             cy.get(mapSelector).click(100, 100)
             cy.wait(`@${standardLayer}_identify`)
-            cy.wait(`@featureDetail_${expectedFeatureIds[1]}`)
+            cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
@@ -203,7 +203,7 @@ describe('Testing the feature selection', () => {
 
             cy.get(mapSelector).click()
             cy.wait(`@${timeLayer}_identify`)
-            cy.wait(`@featureDetail_${expectedFeatureIds[0]}`)
+            cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
@@ -284,11 +284,11 @@ describe('Testing the feature selection', () => {
             // waiting for each feature detail to be loaded (can take a while with the stubbing, so it can lead to timeouts
             // with further selectors if not properly waited)
             for (
-                let featureId = 1;
-                featureId <= DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
-                featureId++
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
             ) {
-                cy.wait(`@featureDetail_${featureId}`)
+                cy.wait(`@htmlPopup`)
             }
 
             cy.log('scrolling down at the bottom of the list')
@@ -312,11 +312,11 @@ describe('Testing the feature selection', () => {
 
             // same as above, waiting for each feature deatil to be loaded
             for (
-                let featureId = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1;
-                featureId <= 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
-                featureId++
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
             ) {
-                cy.wait(`@featureDetail_${featureId}`)
+                cy.wait(`@htmlPopup`)
             }
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
@@ -345,7 +345,7 @@ describe('Testing the feature selection', () => {
                 y: -80,
             })
             cy.wait('@identifySingleFeature')
-            cy.wait('@featureDetail')
+            cy.wait(`@htmlPopup`)
 
             cy.get('@highlightedFeatures').should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)

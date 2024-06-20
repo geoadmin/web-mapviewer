@@ -12,6 +12,7 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -132,7 +133,12 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
                                 store.getters.getLayerConfigById(parsedLayer.id),
                                 featureId,
                                 store.state.position.projection,
-                                { lang: store.state.i18n.lang }
+                                {
+                                    lang: store.state.i18n.lang,
+                                    screenWidth: store.state.ui.width,
+                                    screenHeight: store.state.ui.height,
+                                    mapExtent: flattenExtent(store.getters.extent),
+                                }
                             )
                         )
                     })

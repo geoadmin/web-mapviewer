@@ -648,12 +648,12 @@ export default {
                 // we avoid requesting the drawings and external layers, they're not handled here
                 if (rootState.layers.config.find((layer) => layer.id === feature.layer.id)) {
                     featuresPromises.push(
-                        getFeature(
-                            feature.layer,
-                            feature.id,
-                            rootState.position.projection,
-                            rootState.i18n.lang
-                        )
+                        getFeature(feature.layer, feature.id, rootState.position.projection, {
+                            lang: rootState.i18n.lang,
+                            screenWidth: rootState.ui.width,
+                            screenHeight: rootState.ui.height,
+                            mapExtent: flattenExtent(rootState.getters.mapExtent),
+                        })
                     )
                 }
             })
