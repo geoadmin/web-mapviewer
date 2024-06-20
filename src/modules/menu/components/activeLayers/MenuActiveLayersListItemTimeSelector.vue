@@ -6,8 +6,8 @@ import { useStore } from 'vuex'
 
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import {
-    CURRENT_YEAR_WMTS_TIMESTAMP,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+    ALL_YEARS_TIMESTAMP,
+    CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
@@ -39,22 +39,12 @@ const i18n = useI18n()
 const timeSelectorButton = ref(null)
 const timeSelectorModal = ref(null)
 
-const previewYear = computed(() => store.state.layers.previewYear)
-const hasMultipleTimestamps = computed(
-    () => timeConfig.value.timeEntries.length > 1 && hasValidTimestamp.value
-)
+const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
-const isLayerVisible = computed(() => store.state.layers.activeLayers[layerIndex.value].visible)
 const humanReadableCurrentTimestamp = computed(() => {
-    if (isLayerVisible.value && isTimeSliderActive.value) {
-        return timeConfig.value.years.includes(previewYear.value) ? previewYear.value : '-'
-    }
     return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
 })
-// Some external layers might have a time dimension with invalid timestamps, in this case we
-// use the default timestamp as dimension and don't display the time selector.
-const hasValidTimestamp = computed(() => !!timeConfig.value?.currentTimeEntry?.year)
 
 let popover = null
 
@@ -86,10 +76,10 @@ function renderHumanReadableTimestamp(timeEntry) {
     if (!timeEntry) {
         return '-'
     }
-    if (timeEntry.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP) {
+    if (timeEntry.year === CURRENT_YEAR_TIMESTAMP) {
         return i18n.t(`time_current`)
     }
-    if (timeEntry.year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
+    if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
         return i18n.t('time_all')
     }
     if (timeEntry.year === null) {

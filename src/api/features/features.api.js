@@ -7,7 +7,10 @@ import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
+import {
+    ALL_YEARS_TIMESTAMP,
+    CURRENT_YEAR_TIMESTAMP,
+} from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
@@ -33,7 +36,7 @@ function getApi3TimeInstantParam(layer) {
     // timestamp therefore we need to set it to null in this case.
     if (
         layer.timeConfig?.currentYear &&
-        layer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+        ![ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(layer.timeConfig.currentYear)
     ) {
         return layer.timeConfig.currentYear
     }
@@ -384,7 +387,8 @@ async function identifyOnExternalWmsLayer(config) {
         // there might exist more implementation of WMS, but I stopped there looking for more
         // (please add more if you think one of our customer/external layer providers uses another flavor of WMS)
     }
-    if (layer.timeConfig?.currentYear) {
+    // In WMS "all" years mean no TIME parameter
+    if (layer.timeConfig?.currentYear && layer.timeConfig.currentYear !== ALL_YEARS_TIMESTAMP) {
         params.TIME = layer.timeConfig.currentYear
     }
     // WMS 1.3.0 uses i,j to describe pixel coordinate where we want feature info

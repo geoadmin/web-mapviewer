@@ -9,7 +9,7 @@ import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_WMS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { LV95 } from '@/utils/coordinates/coordinateSystems.js'
@@ -72,7 +72,7 @@ const wmsUrlParams = computed(() => {
         CRS: projection.value.epsg,
         TIME: timestamp.value,
     }
-    if (timestamp.value === ALL_YEARS_WMS_TIMESTAMP) {
+    if (timestamp.value === ALL_YEARS_TIMESTAMP) {
         // To request all timestamp we need to set the TIME to null which will force openlayer
         // to send a request without TIME param, otherwise openlayer takes the previous TIME param.
         params.TIME = null

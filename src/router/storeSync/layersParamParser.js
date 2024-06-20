@@ -116,6 +116,8 @@ export function parseLayersParam(queryValue) {
                         parsedValue = 'true' === value
                     } else if (isNumber(value)) {
                         parsedValue = Number(value)
+                    } else if (key === 'year' && value.toLowerCase() === 'none') {
+                        parsedValue = null
                     } else {
                         parsedValue = value
                     }
@@ -145,8 +147,14 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    if (layer.timeConfig?.timeEntries.length > 1) {
-        layerUrlString += `@year=${layer.timeConfig.currentYear}`
+    if (layer.timeConfig && layer.timeConfig.currentTimeEntry !== null) {
+        // here some external layer might not have a proper year so we need to use the timestamp instead
+        layerUrlString += `@year=${layer.timeConfig.currentYear ?? layer.timeConfig.currentTimestamp}`
+    } else if (layer.timeConfig && layer.timeConfig.currentTimeEntry === null) {
+        // The layer is a time enabled layer, but the user asked for a timestamp that don't exists for
+        // this layer (e.g. using TimeSlider), in this case we don't have a current time entry which
+        // is translated to @year=none and the layer won't be visible
+        layerUrlString += `@year=none`
     }
     if (featuresIds) {
         layerUrlString += `@features=${featuresIds.join(':')}`

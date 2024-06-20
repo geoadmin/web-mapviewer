@@ -15,6 +15,26 @@ import LayerTypes from '@/api/layers/LayerTypes.enum.js'
  *   default opacity for the layer.
  * @property {String} [baseUrl] The base URL of this layer, if applicable (only for external layers)
  * @property {Object} [customAttributes] Other attributes relevant for this layer, such as time
+ * @property {String | Number | null | undefined} [customAttributes.year=undefined] Selected year of
+ *   the time enabled layer. Can be one of the following values:
+ *
+ *   - Undefined := either the layer has no timeConfig or we use the default year defined in
+ *       layerConfig.timeBehaviour
+ *   - 'none' := no year is selected, which means that the layer won't be visible. This happens when
+ *       using the TimeSlider where a user can select a year that has no data for this layer.
+ *   - 'all' := load all years for this layer (for WMS this means that no TIME param is added and for
+ *       WMTS we use the geoadmin definition YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA as timestamp)
+ *   - 'current' := load current year, only valid for WMTS layer where 'current' is a valid timestamp.
+ *   - YYYY := any valid year entry for this layer, this will load the data only for this year.
+ *
+ *   This attribute has only effect on timeEnabled layer and External WMS/WMTS layer with timestamp.
+ *   Default is `undefined`
+ * @property {Number | undefined} [customAttributes.updateDelay=undefined] Automatic refresh time in
+ *   millisecondes of the layer. Has only effect on GeoAdminGeoJsonLayer. Default is `undefined`
+ * @property {String | undefined} [customAttributes.features=undefined] Colon separated list of
+ *   feature IDs to select. Default is `undefined`
+ * @property {String | undefined} [customAttributes.adminId=undefined] KML admin ID required to edit
+ *   a KML drawing. Default is `undefined`
  */
 
 /**

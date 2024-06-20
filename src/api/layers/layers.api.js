@@ -13,7 +13,6 @@ import { API_BASE_URL, DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } fro
 import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
-// TODO : implement loading of a cached CloudFront version for MVP
 
 /**
  * Transform the backend metadata JSON object into instances of {@link GeoAdminLayer}, instantiating
@@ -53,10 +52,10 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         } catch (_) {
             // this is not a well-formed URL, we do nothing with it
         }
-        const timestamps = []
+        let timestamps = []
         if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 0) {
-            timestamps.push(
-                ...layerConfig.timestamps.map((timestamp) => new LayerTimeConfigEntry(timestamp))
+            timestamps = layerConfig.timestamps.map(
+                (timestamp) => new LayerTimeConfigEntry(timestamp)
             )
         }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
