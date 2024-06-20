@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import TextTruncate from '@/utils/components/TextTruncate.vue'
+
 const model = defineModel({ type: Boolean })
 const emits = defineEmits(['click'])
 const i18n = useI18n()
@@ -39,7 +41,9 @@ function onClick(ev) {
             >
                 <FontAwesomeIcon :icon="`far fa-${model ? 'check-' : ''}square`" />
             </button>
-            <label v-if="label" class="ms-2 menu-check-box-item-name">{{ i18n.t(label) }}</label>
+            <label v-if="label" class="ms-2 menu-check-box-item-name"
+                ><TextTruncate>{{ i18n.t(label) }}</TextTruncate></label
+            >
         </div>
     </div>
 </template>
