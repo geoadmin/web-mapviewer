@@ -34,7 +34,7 @@ describe('Testing the embed view', () => {
             .should(
                 'have.attr',
                 'href',
-                `#/map?lang=en&center=2660000,1190000&layers=&z=1&bgLayer=test.background.layer2&topic=ech`
+                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
             )
             .should('have.attr', 'target', '_blank')
 
@@ -127,7 +127,7 @@ describe('Testing the embed view', () => {
             .should(
                 'have.attr',
                 'href',
-                `#/map?lang=en&center=2660000,1190000&layers=&z=1&bgLayer=test.background.layer2&topic=ech`
+                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
             )
             .should('have.attr', 'target', '_blank')
 
@@ -188,7 +188,7 @@ describe('Testing the embed view', () => {
             .should(
                 'have.attr',
                 'href',
-                `#/map?lang=en&center=2660000,1190000&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1&z=1&bgLayer=test.background.layer2&topic=ech`
+                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1`
             )
             .should('have.attr', 'target', '_blank')
     })

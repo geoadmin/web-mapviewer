@@ -13,7 +13,6 @@ import {
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -207,7 +206,7 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
             if (!query.z) {
                 await store.dispatch('zoomToExtent', {
                     extent: extent,
-                    maxZoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
+                    maxZoom: store.state.position.projection.get1_25000ZoomLevel(),
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             } else {
