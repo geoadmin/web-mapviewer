@@ -143,7 +143,7 @@ export function getLayersFromLegacyUrlParams(
                 layer.opacity = layerOpacities[index]
             }
             // checking if a timestamp is defined for this layer
-            if (layerTimestamps.length > index && layerTimestamps[index]) {
+            if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
                 layer.timeConfig.updateCurrentTimeEntry(layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
