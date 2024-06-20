@@ -297,6 +297,10 @@ export function featureStyleFunction(feature, resolution) {
                           color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
                       }),
                 zIndex: 0,
+                stroke: new Stroke({
+                    color: editableFeature.fillColor.fill,
+                    width: 3,
+                }),
             })
         )
     }
