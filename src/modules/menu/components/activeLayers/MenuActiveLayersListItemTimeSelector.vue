@@ -110,20 +110,8 @@ function hidePopover() {
     popover?.hide()
 }
 
-// for CSS : isSelected refers to either the current year, or the preview year if the time slider is active and the layer is visible
 function isSelected(timeEntry) {
-    return isTimeSliderActive.value && isLayerVisible.value
-        ? previewYear.value === timeEntry?.year
-        : timeConfig.value.currentTimestamp === timeEntry?.timestamp
-}
-// for CSS : baseYear refer to the year to which the timestamp will return to when the time slider is unmounted.
-function baseYear(timeEntry) {
-    return (
-        isTimeSliderActive.value &&
-        isLayerVisible.value &&
-        timeConfig.value.currentTimestamp === timeEntry?.timestamp &&
-        timeEntry?.year !== previewYear.value
-    )
+    return timeConfig.value.currentTimestamp === timeEntry?.timestamp
 }
 </script>
 
@@ -159,8 +147,7 @@ function baseYear(timeEntry) {
                 class="btn mb-1 me-1 btn-timestamp"
                 :class="{
                     'btn-primary': isSelected(timeEntry),
-                    'btn-outline-primary': baseYear(timeEntry),
-                    'btn-light': !isSelected(timeEntry) && !baseYear(timeEntry),
+                    'btn-light': !isSelected(timeEntry),
                 }"
                 :data-cy="`time-select-${timeEntry.timestamp}`"
                 @click="handleClickOnTimestamp(timeEntry.year)"

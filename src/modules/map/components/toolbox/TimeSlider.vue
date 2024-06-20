@@ -50,9 +50,7 @@ const yearCursorInput = ref(null)
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
-const layersWithTimestamps = computed(() =>
-    store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps)
-)
+const layersWithTimestamps = computed(() => store.getters.visibleLayersWithTimeConfig)
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const previewYear = computed(() => store.state.layers.previewYear)
 
@@ -241,7 +239,6 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyDownEvent)
-    setPreviewYearToLayers()
 
     tippyTimeSliderInfo?.destroy()
 })
@@ -251,6 +248,7 @@ function setPreviewYearToLayers() {
     activeLayers.value.forEach((layer, index) => {
         const year = previewYear.value
         if (
+            layer.visible &&
             layer.hasMultipleTimestamps &&
             layer.timeConfig &&
             layer.timeConfig.getTimeEntryForYear(year)
@@ -266,6 +264,7 @@ function setPreviewYearToLayers() {
 
 function dispatchPreviewYearToStore() {
     store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
+    setPreviewYearToLayers()
 }
 
 const dispatchPreviewYearToStoreDebounced = debounce(() => {
