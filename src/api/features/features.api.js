@@ -162,7 +162,12 @@ export async function identifyOnGeomAdminLayer({
     const features = []
     if (identifyResponse.data?.results?.length > 0) {
         for (const feature of identifyResponse.data.results) {
-            const featureData = await getFeatureHtmlPopup(layer, feature.id, lang)
+            const featureData = await getFeatureHtmlPopup(layer, feature.id, {
+                lang,
+                screenWidth,
+                screenHeight,
+                mapExtent,
+            })
             features.push(
                 parseGeomAdminFeature(layer, feature, featureData, projection, {
                     lang,
@@ -535,6 +540,31 @@ function generateFeatureUrl(layer, featureId) {
 }
 
 /**
+ * Generates parameters used to request endpoint to get a single feature's data and endpoint to get
+ * a single feature's HTML popup. As some layers have a resolution dependent answer, we have to give
+ * the map extent and the current screen size with each request.
+ *
+ * @param {Object} [options]
+ * @param {String} [options.lang='en'] ISO code of the current lang. Default is `'en'`
+ * @param {Number} [options.screenWidth] Current screen width in pixels
+ * @param {Number} [options.screenHeight] Current screen height in pixels
+ * @param {[Number, Number, Number, Number]} [options.mapExtent]
+ */
+function generateFeatureParams(options = {}) {
+    const { lang = 'en', screenWidth = null, screenHeight = null, mapExtent = null } = options
+    let imageDisplay = null
+    if (screenWidth && screenHeight) {
+        imageDisplay = `${screenWidth},${screenHeight},96`
+    }
+    return {
+        sr: LV95.epsgNumber,
+        lang,
+        imageDisplay,
+        mapExtent: mapExtent?.join(',') ?? null,
+    }
+}
+
+/**
  * @param {GeoAdminLayer} layer The layer to which this feature belongs to
  * @param {Object} featureMetadata The backend response (either identify, or feature-resource) for
  *   this feature
@@ -542,7 +572,7 @@ function generateFeatureUrl(layer, featureId) {
  * @param {CoordinateSystem} outputProjection In which projection the feature should be in.
  * @param {Object} [options]
  * @param {String} [options.lang] The lang the title of the feature should be look up. Some features
- *   do provide a title per lang, instead of a all-purpose title. In this case we need the lang ISO
+ *   do provide a title per lang, instead of an all-purpose title. In this case we need the lang ISO
  *   code to be able to decide which title the feature will have. Default is `en`
  * @returns {LayerFeature}
  */
@@ -601,10 +631,15 @@ function parseGeomAdminFeature(
  * @param {String | Number} featureId The feature ID in the BGDI
  * @param {CoordinateSystem} outputProjection Projection in which the coordinates (and possible
  *   extent) of the features should be expressed
- * @param {String} lang The language for the HTML popup. Default is `en`.
+ * @param {Object} [options]
+ * @param {String} [options.lang] The language for the HTML popup. Default is `en`.
+ * @param {Number} [options.screenWidth] Width of the screen in pixels
+ * @param {Number} [options.screenHeight] Height of the screen in pixels
+ * @param {[Number, Number, Number, Number]} [options.mapExtent] Current extent of the map,
+ *   described in LV95.
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureId, outputProjection, lang = 'en') => {
+const getFeature = (layer, featureId, outputProjection, options = {}) => {
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
             reject('Needs a valid layer with an ID')
@@ -620,11 +655,10 @@ const getFeature = (layer, featureId, outputProjection, lang = 'en') => {
                 axios.get(generateFeatureUrl(layer, featureId), {
                     params: {
                         geometryFormat: 'geojson',
-                        sr: LV95.epsgNumber,
-                        lang,
+                        ...generateFeatureParams(options),
                     },
                 }),
-                getFeatureHtmlPopup(layer, featureId, lang),
+                getFeatureHtmlPopup(layer, featureId, options),
             ])
             .then(([getFeatureResponse, featureHtmlPopup]) => {
                 const featureMetadata = getFeatureResponse.data.feature ?? getFeatureResponse.data
@@ -634,9 +668,7 @@ const getFeature = (layer, featureId, outputProjection, lang = 'en') => {
                         featureMetadata,
                         featureHtmlPopup,
                         outputProjection,
-                        {
-                            lang,
-                        }
+                        options
                     )
                 )
             })
@@ -653,12 +685,22 @@ const getFeature = (layer, featureId, outputProjection, lang = 'en') => {
 }
 
 /**
+ * Retrieves the HTML popup of a feature (the backend builds it for us).
+ *
+ * As the request's outcome is dependent on the resolution, we have to give the screen size and map
+ * extent with the request.
+ *
  * @param {GeoAdminLayer} layer
  * @param {String} featureId
- * @param {String} lang
+ * @param {Object} options
+ * @param {String} [options.lang] The language for the HTML popup. Default is `en`.
+ * @param {Number} [options.screenWidth] Width of the screen in pixels
+ * @param {Number} [options.screenHeight] Height of the screen in pixels
+ * @param {[Number, Number, Number, Number]} [options.mapExtent] Current extent of the map,
+ *   described in LV95.
  * @returns {Promise<String>}
  */
-export function getFeatureHtmlPopup(layer, featureId, lang = 'en') {
+export function getFeatureHtmlPopup(layer, featureId, options) {
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
             reject('Needs a valid layer with an ID')
@@ -668,9 +710,7 @@ export function getFeatureHtmlPopup(layer, featureId, lang = 'en') {
         }
         axios
             .get(`${generateFeatureUrl(layer, featureId)}/htmlPopup`, {
-                params: {
-                    lang,
-                },
+                params: generateFeatureParams(options),
             })
             .then((response) => {
                 resolve(response.data)
