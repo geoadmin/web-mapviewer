@@ -56,9 +56,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 !classList.includes('btn-outline-primary')
             )
         }
-        it('checks that the time slider is functional and behave correctly', () => {
+        it('checks that the time slider is functional and behave correctly part 1', () => {
             cy.viewport(1920, 1080)
-            // ----------------------------------------------------------------------------------------------------
+            //----------------------------------------------------------------------------------------------------
             cy.log(': Invisible time layer given. time slider button should not appear')
             cy.goToMapView({
                 layers: `${time_layer_std},f`,
@@ -162,7 +162,8 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'contain',
                 preSelectedYear
             )
-
+        })
+        it('checks that the time slider is functional and behave correctly with the timeSlider param at startup', () => {
             // ----------------------------------------------------------------------------------------------------
             cy.log(
                 'With a visible time Layer and a TS parameter, the Time slider should appear at the correct year'
@@ -177,10 +178,8 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log('shows that the CSS is correct for all time enable layers')
             cy.log(' time selector years shown ')
             cy.openMenuIfMobile()
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
-            cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).should('contain', 2013)
-            cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).should('contain', '-')
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
             cy.log(`${time_layer_std} : CSS of time selectors on an invisible layer`)
             cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).click()
             timestamps[time_layer_std].forEach((timestamp) => {
@@ -198,6 +197,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(
                 `${time_layer_odd} : CSS of time selectors on a layer with data on the preview Year selected`
             )
+            cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).should('contain', 2013)
             cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).click()
             timestamps[time_layer_odd].forEach((timestamp) => {
                 cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
@@ -213,18 +213,12 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 })
             })
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).should('contain', '-')
             cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).click()
             timestamps[time_layer_with_all].forEach((timestamp) => {
                 cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
                     const classList = Array.from(element[0].classList)
-                    // in the 'all' layer, the time slider is over a non existing value,
-                    // which means there is no primary button, and that the base value of
-                    // the layer (2009) should be an outline. Everything else should be
-                    // a light button
-
-                    return timestamp === '20090101'
-                        ? isPrimaryBtn(classList)
-                        : isLightBtn(classList)
+                    return isLightBtn(classList)
                 })
             })
             // ---------------------------------------------------------------------------------------------------
@@ -256,7 +250,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             )
 
             cy.get('[data-cy="menu-swiss-flag"').click()
-            cy.goToMapView({ layers: `${time_layer_std};${time_layer_odd};${time_layer_with_all}` })
+            cy.goToMapView({
+                layers: `${time_layer_std};${time_layer_odd};${time_layer_with_all}`,
+            })
             cy.get('[data-cy="time-slider-button"]').click()
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '2023')
             cy.url().should((url) => url.includes('timeSlider=2023'))
