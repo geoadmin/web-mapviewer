@@ -3,6 +3,7 @@ import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
@@ -261,6 +262,27 @@ async function identifyOnExternalLayer(config) {
             tolerance,
             outputProjection: projection,
         })
+    } else if (layer instanceof ExternalGroupOfLayers) {
+        // firing one request per sub-layer
+        const allRequests = [
+            layer.layers.map((subLayer) =>
+                identifyOnExternalLayer({
+                    ...config,
+                    layer: subLayer,
+                })
+            ),
+        ]
+        const allResponses = await Promise.allSettled(allRequests)
+        // logging any error
+        allResponses
+            .filter((response) => response.status !== 'fulfilled')
+            .forEach((failedResponse) => {
+                log.error('Error while identify an external sub-layer', failedResponse)
+            })
+        return allResponses
+            .filter((response) => response.status === 'fulfilled' && response.value)
+            .map((response) => response.value)
+            .flat()
     } else {
         throw new GetFeatureInfoError(
             `Unsupported external layer type to build getFeatureInfo request: ${layer.type}`
