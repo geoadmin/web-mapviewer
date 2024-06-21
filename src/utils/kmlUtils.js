@@ -190,7 +190,7 @@ class IconArgs {
  * - /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
  *
  * @param {string} url URL string
- * @returns {IconArgs | null} Returns the parsed URL or nul in case of invalid non recognize url
+ * @returns {IconArgs | null} Returns the parsed URL or null in case of invalid non recognize url
  */
 export function parseIconUrl(url) {
     // legacy icon urls pattern
@@ -275,7 +275,7 @@ function generateIconFromStyle(iconStyle, iconArgs) {
  * @param {IconArgs} iconArgs Geoadmin icon arguments
  * @param {IconStyle | null} iconStyle Ol icon style
  * @param {DrawingIconSet[] | null} availableIconSets
- * @returns {DrawingIcon | null} Return the drawing icon or nul in case of non geoadmin icon
+ * @returns {DrawingIcon | null} Return the drawing icon or null in case of non geoadmin icon
  */
 export function getIcon(iconArgs, iconStyle, availableIconSets) {
     if (!iconArgs) {

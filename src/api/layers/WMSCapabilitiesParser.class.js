@@ -115,7 +115,7 @@ export default class WMSCapabilitiesParser {
      *   is `null`
      * @param {boolean} [ignoreError=true] Don't throw exception in case of error, but return a
      *   default value or null. Default is `true`
-     * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or nul in case of error
+     * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or null in case of error
      */
     getExternalLayerObject(
         layerId,

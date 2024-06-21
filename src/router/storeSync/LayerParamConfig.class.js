@@ -95,51 +95,52 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             currentYear: year,
         })
     } else {
+        const { year } = parsedLayer.customAttributes
         // Finally check if this is a Geoadmin layer
         layer = store.getters.getLayerConfigById(parsedLayer.id)?.clone()
-
         if (layer) {
-            const { year, updateDelay, features } = parsedLayer.customAttributes
-
             layer.visible = parsedLayer.visible
-
             if (parsedLayer.opacity !== undefined) {
                 layer.opacity = parsedLayer.opacity
             }
-
             if (year !== undefined && layer.timeConfig) {
                 layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
             }
-
-            if (updateDelay !== undefined) {
-                layer.updateDelay = updateDelay
-            }
-
-            if (features !== undefined) {
-                features
-                    .toString()
-                    .split(':')
-                    .forEach((featureId) => {
-                        featuresRequests.push(
-                            getFeature(
-                                store.getters.getLayerConfigById(parsedLayer.id),
-                                featureId,
-                                store.state.position.projection,
-                                {
-                                    lang: store.state.i18n.lang,
-                                    screenWidth: store.state.ui.width,
-                                    screenHeight: store.state.ui.height,
-                                    mapExtent: flattenExtent(store.getters.extent),
-                                }
-                            )
-                        )
-                    })
-            }
-        } else {
-            log.error(
-                `Invalid layer ${parsedLayer.id} parsed from the URL, layer is not found in layer config and is not external`
-            )
         }
+    }
+
+    // If we have a layer parse extra parameters
+    if (layer) {
+        const { updateDelay, features } = parsedLayer.customAttributes
+
+        if (updateDelay !== undefined) {
+            layer.updateDelay = updateDelay
+        }
+
+        if (features !== undefined) {
+            features
+                .toString()
+                .split(':')
+                .forEach((featureId) => {
+                    featuresRequests.push(
+                        getFeature(
+                            store.getters.getLayerConfigById(parsedLayer.id),
+                            featureId,
+                            store.state.position.projection,
+                            {
+                                lang: store.state.i18n.lang,
+                                screenWidth: store.state.ui.width,
+                                screenHeight: store.state.ui.height,
+                                mapExtent: flattenExtent(store.getters.extent),
+                            }
+                        )
+                    )
+                })
+        }
+    } else {
+        log.error(
+            `Invalid layer ${parsedLayer.id} parsed from the URL, layer is not found in layer config and is not external`
+        )
     }
 
     return layer

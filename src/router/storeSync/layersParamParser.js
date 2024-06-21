@@ -153,7 +153,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
             // Always add the `@year` if we have a valid currentYear
             layerUrlString += `@year=${layer.timeConfig.currentYear}`
         } else if (layer.timeConfig.currentTimeEntry === null) {
-            // Rhe currentTimeEntry is null, this means that a user entered via the timeSlider
+            // The currentTimeEntry is null, this means that a user entered via the timeSlider
             // a non matching year for this layer (year set by timeSlider don't match any available
             // timestamps for this layer). In this case we set the `@year=none` and the layer won't
             // be visible.
