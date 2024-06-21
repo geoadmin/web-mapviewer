@@ -36,10 +36,6 @@ export default {
             type: [GeoAdminWMTSLayer, ExternalWMTSLayer],
             required: true,
         },
-        previewYear: {
-            type: Number,
-            default: null,
-        },
         projection: {
             type: CoordinateSystem,
             required: true,
@@ -67,8 +63,6 @@ export default {
         url() {
             return getWmtsXyzUrl(this.wmtsLayerConfig, this.projection, {
                 addTimestamp: true,
-                previewYear: this.previewYear,
-                isTimeSliderActive: this.isTimeSliderActive,
             })
         },
         tileMatrixSet() {
@@ -102,12 +96,7 @@ export default {
             }, dimensions)
             if (this.wmtsLayerConfig.hasMultipleTimestamps) {
                 // if we have a time config use it as dimension
-                const timestamp =
-                    getTimestampFromConfig(
-                        this.wmtsLayerConfig,
-                        this.previewYear,
-                        this.isTimeSliderActive
-                    ) ?? 'current'
+                const timestamp = getTimestampFromConfig(this.wmtsLayerConfig)
                 // overwrite any Time, TIME or time dimension
                 const timeDimension = Object.entries(dimensions).find(
                     (e) => e[0].toLowerCase() === 'time'

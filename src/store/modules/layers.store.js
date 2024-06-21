@@ -84,22 +84,21 @@ const getters = {
     /**
      * Filter all the active layers and gives only those who are visible on the map.
      *
-     * This includes system layers and the preview layer. When the time slider is enabled, the time
-     * enabled layer with non matching preview year are filtered out.
+     * This includes system layers and the preview layer. The time enabled layer with invalid year
+     * are filtered out.
      *
      * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
      * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
-    visibleLayers: (state, getters, rootState) => {
+    visibleLayers: (state) => {
         const visibleLayers = state.activeLayers.filter((layer) => {
             // timeslider is not used on layer having only one timestamp as it doesn't make sense
             // there.
             if (
-                rootState.ui.isTimeSliderActive &&
                 layer.timeConfig &&
                 layer.hasMultipleTimestamps &&
-                layer.timeConfig.getTimeEntryForYear(state.previewYear) === null
+                layer.timeConfig.currentTimeEntry === null
             ) {
                 return false
             }
@@ -198,7 +197,7 @@ const getters = {
      */
     visibleLayersWithTimeConfig: (state) =>
         // Here we cannot take the getter visibleLayers as it also contain the preview and system
-        // layers as well as the layer without matching previewYear are filtered out
+        // layers as well as the layer without valid current timeEntry are filtered out
         state.activeLayers.filter((layer) => layer.visible && layer.hasMultipleTimestamps),
 
     /**
@@ -463,7 +462,7 @@ const actions = {
      * Set layer current year
      *
      * @param {number} index Index of the layer to set
-     * @param {number} year Year to set as current
+     * @param {number | null} year Year to set as current, or null
      * @param {string} dispatcher Action dispatcher name
      */
     setTimedLayerCurrentYear({ commit, getters }, { index, year, dispatcher }) {
@@ -475,11 +474,6 @@ const actions = {
         if (!layer.timeConfig) {
             throw new Error(
                 `Failed to setTimedLayerCurrentYear: layer at index ${index} is not a timed layer`
-            )
-        }
-        if (!layer.timeConfig.getTimeEntryForYear(year)) {
-            throw new Error(
-                `Failed to setTimedLayerCurrentYear: year ${year} is not valid for layer at index ${index}`
             )
         }
         commit('setLayerYear', {

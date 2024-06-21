@@ -1,7 +1,4 @@
-import LayerTimeConfigEntry, {
-    ALL_YEARS_WMS_TIMESTAMP,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
-} from '@/api/layers/LayerTimeConfigEntry.class'
+import LayerTimeConfigEntry, { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 
 /**
  * @class
@@ -25,8 +22,8 @@ export default class LayerTimeConfig {
         this.behaviour = behaviour
         /** @type {LayerTimeConfigEntry[]} */
         this.timeEntries = [...timeEntries]
-        if (this.behaviour === ALL_YEARS_WMS_TIMESTAMP) {
-            this.timeEntries.splice(0, 0, new LayerTimeConfigEntry(ALL_YEARS_WMS_TIMESTAMP))
+        if (this.behaviour === ALL_YEARS_TIMESTAMP) {
+            this.timeEntries.splice(0, 0, new LayerTimeConfigEntry(ALL_YEARS_TIMESTAMP))
         }
         /*
          * Here we will define what is the first "currentTimeEntry" for this configuration.
@@ -57,9 +54,7 @@ export default class LayerTimeConfig {
             this.updateCurrentTimeEntry(behaviour)
         }
 
-        this.years = this.timeEntries
-            .map((entry) => entry.year)
-            .filter((year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA)
+        this.years = this.timeEntries.map((entry) => entry.year)
     }
 
     /**

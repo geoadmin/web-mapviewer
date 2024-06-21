@@ -22,29 +22,32 @@ import log from '@/utils/logging'
  *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
+ * @param {Store} store Vuex store
+ * @param {[Promise<LayerFeature>]} featuresRequests Array of getFeature() promises
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig} Will return
  *   an instance of the corresponding layer if the given layer is an external one, returns null if
  *   this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local file) or
  *   will return the untouched ActiveLayerConfig for other layer types
  */
-export function createLayerObject(parsedLayer, currentLayer) {
+export function createLayerObject(parsedLayer, currentLayer, store, featuresRequests) {
+    const { year, updateDelay, features } = parsedLayer.customAttributes ?? {}
     const defaultOpacity = 1.0
+    let layer = null
     if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        const layer = currentLayer.clone()
+        layer = currentLayer.clone()
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? defaultOpacity
         if (parsedLayer.customAttributes?.adminId) {
             layer.adminId = parsedLayer.customAttributes.adminId
         }
-        return layer
     } else if (parsedLayer.type === LayerTypes.KML) {
         // format is KML|FILE_URL
         if (parsedLayer.baseUrl.startsWith('http')) {
-            return new KMLLayer({
+            layer = new KMLLayer({
                 kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
@@ -53,26 +56,23 @@ export function createLayerObject(parsedLayer, currentLayer) {
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.
-            return null
         }
     }
     // format is GPX|FILE_URL
     else if (parsedLayer.type === LayerTypes.GPX) {
         if (parsedLayer.baseUrl.startsWith('http')) {
-            return new GPXLayer({
+            layer = new GPXLayer({
                 gpxFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
-            return null
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMTS) {
-        const { year = null } = parsedLayer.customAttributes ?? {}
-        return new ExternalWMTSLayer({
+        layer = new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
             opacity: parsedLayer.opacity ?? defaultOpacity,
@@ -83,10 +83,9 @@ export function createLayerObject(parsedLayer, currentLayer) {
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMS) {
-        const { year = null } = parsedLayer.customAttributes ?? {}
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
-        return new ExternalWMSLayer({
+        layer = new ExternalWMSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
             opacity: parsedLayer.opacity ?? defaultOpacity,
@@ -94,9 +93,53 @@ export function createLayerObject(parsedLayer, currentLayer) {
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,
         })
+    } else {
+        // Finally check if this is a Geoadmin layer
+        layer = store.getters.getLayerConfigById(parsedLayer.id)?.clone()
+        if (layer) {
+            layer.visible = parsedLayer.visible
+            if (parsedLayer.opacity !== undefined) {
+                layer.opacity = parsedLayer.opacity
+            }
+            if (year !== undefined && layer.timeConfig) {
+                layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+            }
+        }
     }
-    // this is no external layer that needs further parsing, we let it go through to be looked up in the layers config
-    return parsedLayer
+
+    // If we have a layer parse extra parameters that could be used by any type of layer
+    if (layer) {
+        if (updateDelay !== undefined) {
+            layer.updateDelay = updateDelay
+        }
+
+        if (features !== undefined) {
+            features
+                .toString()
+                .split(':')
+                .forEach((featureId) => {
+                    featuresRequests.push(
+                        getFeature(
+                            store.getters.getLayerConfigById(parsedLayer.id),
+                            featureId,
+                            store.state.position.projection,
+                            {
+                                lang: store.state.i18n.lang,
+                                screenWidth: store.state.ui.width,
+                                screenHeight: store.state.ui.height,
+                                mapExtent: flattenExtent(store.getters.extent),
+                            }
+                        )
+                    )
+                })
+        }
+    } else {
+        log.error(
+            `Invalid layer ${parsedLayer.id} parsed from the URL, layer is not found in layer config and is not external`
+        )
+    }
+
+    return layer
 }
 
 function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
@@ -108,44 +151,31 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
         parsedLayers
     )
     const featuresRequests = []
-    const layers = parsedLayers.map((parsedLayer, index) => {
-        // First check if we already have the layer in the active layers
-        const layerAtIndex = store.getters.getActiveLayerByIndex(index)
-        const currentLayer = layerAtIndex?.id === parsedLayer.id ? layerAtIndex : null
-        const layerObject = createLayerObject(parsedLayer, currentLayer)
-        if (layerObject) {
-            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
-                promisesForAllDispatch.push(
-                    store.dispatch('setShowDrawingOverlay', {
-                        show: true,
-                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                    })
-                )
+    const layers = parsedLayers
+        .map((parsedLayer, index) => {
+            // First check if we already have the layer in the active layers
+            const layerAtIndex = store.getters.getActiveLayerByIndex(index)
+            const currentLayer = layerAtIndex?.id === parsedLayer.id ? layerAtIndex : null
+            const layerObject = createLayerObject(
+                parsedLayer,
+                currentLayer,
+                store,
+                featuresRequests
+            )
+            if (layerObject) {
+                if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
+                    promisesForAllDispatch.push(
+                        store.dispatch('setShowDrawingOverlay', {
+                            show: true,
+                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                        })
+                    )
+                }
+                log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
             }
-            log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
-            if (layerObject.customAttributes?.features) {
-                layerObject.customAttributes.features
-                    .toString()
-                    .split(':')
-                    .forEach((featureId) => {
-                        featuresRequests.push(
-                            getFeature(
-                                store.getters.getLayerConfigById(parsedLayer.id),
-                                featureId,
-                                store.state.position.projection,
-                                {
-                                    lang: store.state.i18n.lang,
-                                    screenWidth: store.state.ui.width,
-                                    screenHeight: store.state.ui.height,
-                                    mapExtent: flattenExtent(store.getters.extent),
-                                }
-                            )
-                        )
-                    })
-            }
-        }
-        return layerObject
-    })
+            return layerObject
+        })
+        .filter((layer) => !!layer)
 
     promisesForAllDispatch.push(
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })

@@ -8,7 +8,7 @@ import { mapState } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_WMS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
@@ -23,10 +23,6 @@ export default {
         wmsLayerConfig: {
             type: [GeoAdminWMSLayer, ExternalWMSLayer],
             required: true,
-        },
-        previewYear: {
-            type: Number,
-            default: null,
         },
         projection: {
             type: CoordinateSystem,
@@ -65,11 +61,7 @@ export default {
             return this.wmsLayerConfig.baseUrl
         },
         timestamp() {
-            return getTimestampFromConfig(
-                this.wmsLayerConfig,
-                this.previewYear,
-                this.isTimeSliderActive
-            )
+            return getTimestampFromConfig(this.wmsLayerConfig)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. Passes as parameters to
@@ -91,7 +83,7 @@ export default {
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,
             }
-            if (this.timestamp && this.timestamp !== ALL_YEARS_WMS_TIMESTAMP) {
+            if (this.timestamp && this.timestamp !== ALL_YEARS_TIMESTAMP) {
                 params.TIME = this.timestamp
             }
             return params

@@ -9,7 +9,7 @@ import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_WMS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { LV95 } from '@/utils/coordinates/coordinateSystems.js'
@@ -35,7 +35,6 @@ const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
-const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
 const currentLang = computed(() => store.state.i18n.lang)
 
@@ -46,10 +45,7 @@ const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
 const url = computed(() => wmsLayerConfig.value.baseUrl)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
-const timestamp = computed(() =>
-    getTimestampFromConfig(wmsLayerConfig.value, previewYear.value, isTimeSliderActive.value)
-)
+const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
 
 /**
  * Definition of all relevant URL param for our WMS backends. This is because both
@@ -72,7 +68,7 @@ const wmsUrlParams = computed(() => {
         CRS: projection.value.epsg,
         TIME: timestamp.value,
     }
-    if (timestamp.value === ALL_YEARS_WMS_TIMESTAMP) {
+    if (timestamp.value === ALL_YEARS_TIMESTAMP) {
         // To request all timestamp we need to set the TIME to null which will force openlayer
         // to send a request without TIME param, otherwise openlayer takes the previous TIME param.
         params.TIME = null

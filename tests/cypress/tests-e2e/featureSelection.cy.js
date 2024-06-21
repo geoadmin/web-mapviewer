@@ -142,11 +142,12 @@ describe('Testing the feature selection', () => {
                     .get('layers')
                     .split(';')
                     .forEach((layerParam) => {
-                        const layerAndFeatures = layerParam.split('@features=')
-                        if (layerAndFeatures[0] === standardLayer) {
-                            expect(layerAndFeatures[1]).to.eq(`${expectedFeatureIds[0]}`)
-                        } else {
-                            expect(layerAndFeatures.length).to.eq(1)
+                        const layerAndAttributes = layerParam.split('@')
+                        if (layerAndAttributes[0] === standardLayer) {
+                            const featureAttribute = layerAndAttributes
+                                .find((attribute) => attribute.startsWith('features'))
+                                ?.split('=')
+                            expect(featureAttribute[1]).to.eq(`${expectedFeatureIds[0]}`)
                         }
                     })
             })
