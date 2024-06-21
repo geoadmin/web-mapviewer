@@ -232,6 +232,10 @@ onMounted(() => {
 
         dispatchPreviewYearToStoreDebounced()
     })
+
+    watch(layersWithTimestamps, () => {
+        dispatchPreviewYearToStoreDebounced()
+    })
 })
 
 onUnmounted(() => {
@@ -244,7 +248,12 @@ onUnmounted(() => {
 function setPreviewYearToLayers() {
     activeLayers.value.forEach((layer, index) => {
         const year = previewYear.value
-        if (layer.visible && layer.hasMultipleTimestamps && layer.timeConfig) {
+        if (
+            layer.visible &&
+            layer.hasMultipleTimestamps &&
+            layer.timeConfig &&
+            layer.timeConfig.currentYear !== year
+        ) {
             // if there is not timeEntry for the given year we need to set the year to
             // null which will result to setting the currentTimeEntry to null as well
             store.dispatch('setTimedLayerCurrentYear', {
