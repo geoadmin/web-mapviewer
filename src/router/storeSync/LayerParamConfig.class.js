@@ -206,7 +206,7 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
             if (!query.z) {
                 await store.dispatch('zoomToExtent', {
                     extent: extent,
-                    maxZoom: 8,
+                    maxZoom: store.state.position.projection.get1_25000ZoomLevel(),
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             } else {

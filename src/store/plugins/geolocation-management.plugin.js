@@ -2,9 +2,9 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }

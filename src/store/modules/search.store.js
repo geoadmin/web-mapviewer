@@ -1,8 +1,8 @@
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import log from '@/utils/logging'
 
 const state = {

@@ -5,6 +5,19 @@ import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.c
 import { round } from '@/utils/numberUtils'
 
 /**
+ * These are the zoom levels, for each projection, which give us a 1:25'000 ratio map.
+ *
+ * These variables are declared here, as the config.js import the LV95 coordinate system, and it
+ * could lead to initialization errors (even when initializing the constants before importing the
+ * class). Thus we declare them here, at the root class of the coordinates systems.
+ *
+ * @type {Number}
+ */
+
+export const STANDARD_ZOOM_LEVEL_1_25000_MAP = 15.5
+export const SWISS_ZOOM_LEVEL_1_25000_MAP = 8
+
+/**
  * Representation of a coordinate system (or also called projection system) in the context of this
  * application.
  *
@@ -91,6 +104,14 @@ export default class CoordinateSystem {
     }
 
     /**
+     * @abstract The Index in the resolution list where the 1:25000 zoom level is
+     * @returns {Number}
+     */
+    get1_25000ZoomLevel() {
+        throw new Error('Not yet implemented')
+    }
+
+    /**
      * @abstract
      * @returns {Number} The default zoom to use when starting the map in this coordinate system (if
      *   none are set so far)
@@ -155,7 +176,6 @@ export default class CoordinateSystem {
     roundCoordinateValue(_value) {
         throw Error('Not yet implemented')
     }
-
     /**
      * A (descending) list of all the available resolutions for this coordinate system. If this is
      * not the behavior you want, you have to override this function.
