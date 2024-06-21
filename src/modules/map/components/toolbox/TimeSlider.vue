@@ -177,7 +177,7 @@ watch(lang, () => {
 })
 
 onMounted(() => {
-    log.debug(`Activing time slider, previewYear=${previewYear.value}`)
+    log.debug(`Activating time slider, previewYear=${previewYear.value}`)
     setSliderWidth()
 
     /*
