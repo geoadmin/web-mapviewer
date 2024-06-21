@@ -28,22 +28,13 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
-const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
 const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
 const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
-const timestamp = computed(
-    () =>
-        getTimestampFromConfig(
-            wmtsLayerConfig.value,
-            previewYear.value,
-            isTimeSliderActive.value
-        ) ?? 'current'
-)
+const timestamp = computed(() => getTimestampFromConfig(wmtsLayerConfig.value))
 const wmtsSourceConfig = computed(() => {
     return {
         // No local cache, so that our CloudFront cache is always used. Was creating an issue on mf-geoadmin3, see :

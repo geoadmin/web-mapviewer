@@ -8,7 +8,8 @@ import { useStore } from 'vuex'
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
-import { round } from '@/utils/numberUtils'
+import log from '@/utils/logging'
+import { isNumber, round } from '@/utils/numberUtils'
 
 import { useRangeTippy } from './useRangeTippy'
 
@@ -29,7 +30,7 @@ const PLAY_BUTTON_SIZE = 54
 // dynamic internal data
 const sliderWidth = ref(0)
 const allYears = ref(ALL_YEARS)
-const _currentYear = ref(YOUNGEST_YEAR)
+const currentYear = ref(YOUNGEST_YEAR)
 // used to hold the value in case the entered year is invalid
 const falseYear = ref(null)
 let cursorX = 0
@@ -94,28 +95,6 @@ const inputYear = computed({
 })
 
 /**
- * The currently selected year
- *
- * We can't use the store value directly, as sometimes we want to update the current year displayed
- * without updating the store too much
- */
-const currentYear = computed({
-    get() {
-        return _currentYear.value
-    },
-    set(value) {
-        _currentYear.value = value
-
-        // we need to reset those here, otherwise, when the error is shown and the users drags
-        // the cursor to a correct year, the error won't go away
-        falseYear.value = null
-        isInputYearValid.value = true
-
-        dispatchPreviewYearToStoreDebounced()
-    },
-})
-
-/**
  * Filtering of all years to only give ones that will need to be shown in the label section of the
  * time selector. Depending on the selector's width, we will show all 10s or 25s or 50s years.
  */
@@ -174,9 +153,10 @@ const yearsWithData = computed(() => {
         })
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
+    // Here below we need to filter out non valid number years (e.g. 'current' and/or 'all')
     return {
-        yearsJoint: yearsJoint.sort((a, b) => b - a),
-        yearsSeparate: yearsSeparate.sort((a, b) => b - a),
+        yearsJoint: yearsJoint.sort((a, b) => b - a).filter((year) => isNumber(year)),
+        yearsSeparate: yearsSeparate.sort((a, b) => b - a).filter((year) => isNumber(year)),
     }
 })
 
@@ -197,6 +177,7 @@ watch(lang, () => {
 })
 
 onMounted(() => {
+    log.debug(`Activating time slider, previewYear=${previewYear.value}`)
     setSliderWidth()
 
     /*
@@ -206,7 +187,7 @@ onMounted(() => {
         - if there is joint data (when there is only one layer, all data is joint data), we go to the most recent joint data
         - else, we set it to the most recent year with data
     */
-    if (!previewYear.value) {
+    if (previewYear.value === null) {
         // initialize the current year from the timeConfig layers
         if (
             layersWithTimestamps.value.length === 1 &&
@@ -218,9 +199,16 @@ onMounted(() => {
         } else {
             currentYear.value = yearsWithData.value.yearsSeparate[0]
         }
+
+        // dispatch current year to the preview year
+        dispatchPreviewYearToStore()
     } else {
         currentYear.value = previewYear.value
+        // make sure that all layers uses the preview year
+        setPreviewYearToLayers()
     }
+
+    log.debug(`Time slider activated, currentYear=${currentYear.value}`)
 
     tippyTimeSliderInfo = tippy(timeSliderBar.value, {
         content: timeSliderTooltipRef.value,
@@ -235,6 +223,19 @@ onMounted(() => {
     })
 
     window.addEventListener('keydown', handleKeyDownEvent)
+
+    watch(currentYear, () => {
+        // we need to reset those here, otherwise, when the error is shown and the users drags
+        // the cursor to a correct year, the error won't go away
+        falseYear.value = null
+        isInputYearValid.value = true
+
+        dispatchPreviewYearToStoreDebounced()
+    })
+
+    watch(layersWithTimestamps, () => {
+        dispatchPreviewYearToStoreDebounced()
+    })
 })
 
 onUnmounted(() => {
@@ -251,11 +252,13 @@ function setPreviewYearToLayers() {
             layer.visible &&
             layer.hasMultipleTimestamps &&
             layer.timeConfig &&
-            layer.timeConfig.getTimeEntryForYear(year)
+            layer.timeConfig.currentYear !== year
         ) {
+            // if there is not timeEntry for the given year we need to set the year to
+            // null which will result to setting the currentTimeEntry to null as well
             store.dispatch('setTimedLayerCurrentYear', {
                 index,
-                year,
+                year: year,
                 ...dispatcher,
             })
         }

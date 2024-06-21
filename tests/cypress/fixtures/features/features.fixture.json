@@ -2,11 +2,11 @@
   "results": [
     {
       "geometry": {
-        "type": "Point",
-        "coordinates": [
+        "type": "MultiPoint",
+        "coordinates": [[
           2600000.0,
           1200000.0
-        ]
+        ]]
       },
       "layerBodId": "test.wms.layer",
       "bbox": [

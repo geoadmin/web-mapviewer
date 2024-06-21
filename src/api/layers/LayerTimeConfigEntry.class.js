@@ -17,7 +17,7 @@ export const YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA = 9999
  *
  * @type {string}
  */
-export const ALL_YEARS_WMS_TIMESTAMP = 'all'
+export const ALL_YEARS_TIMESTAMP = 'all'
 /**
  * Timestamp to describe "current" or latest available data for a time enabled WMTS layer (and also
  * is the default value to give any WMTS layer that is not time enabled, as this timestamp is
@@ -25,7 +25,7 @@ export const ALL_YEARS_WMS_TIMESTAMP = 'all'
  *
  * @type {string}
  */
-export const CURRENT_YEAR_WMTS_TIMESTAMP = 'current'
+export const CURRENT_YEAR_TIMESTAMP = 'current'
 
 /**
  * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
@@ -40,11 +40,18 @@ export default class LayerTimeConfigEntry {
     /** @param {String} timestamp A full timestamp as YYYYYMMDD or ISO 8601 format */
     constructor(timestamp) {
         this.timestamp = timestamp
-        if (
-            this.timestamp === ALL_YEARS_WMS_TIMESTAMP ||
-            this.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP
-        ) {
-            this.year = YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+        if (this.timestamp === ALL_YEARS_TIMESTAMP || this.timestamp === CURRENT_YEAR_TIMESTAMP) {
+            // for "all" and "current" timestamps we use it as well as year to be added in the UI selection
+            // as well as in the URL year attribute of layers param.
+            this.year = this.timestamp
+        } else if (this.timestamp.startsWith('9999')) {
+            // TODO PB-680 clean up "all" hack
+            // Currently the backends (mf-chsdi3 for layerConfig and WMTS) are using a hack to describe "all"
+            // by using a timestamp with the year 9999 (we have in my knowledge three type of "all" WMTS timestmaps
+            //  1. 9999      (e.g. ch.swisstopo.lubis-terrestrische_aufnahmen)
+            //  2. 99990101  (e.g. ch.astra.unfaelle-personenschaeden_alle)
+            //  3. 99991231  (e.g. ch.swisstopo.lubis-luftbilder-dritte-firmen)
+            this.year = ALL_YEARS_TIMESTAMP
         } else {
             if (isTimestampYYYYMMDD(timestamp)) {
                 this.year = parseInt(timestamp.substring(0, 4))

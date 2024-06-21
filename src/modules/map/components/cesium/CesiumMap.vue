@@ -34,7 +34,6 @@
                 v-for="(layer, index) in visibleImageryLayers"
                 :key="layer.id"
                 :layer-config="layer"
-                :preview-year="previewYear"
                 :projection="projection"
                 :z-index="index + startingZIndexForImageryLayers"
                 :is-time-slider-active="isTimeSliderActive"
@@ -43,7 +42,6 @@
                 v-for="layer in visiblePrimitiveLayers"
                 :key="layer.id"
                 :layer-config="layer"
-                :preview-year="previewYear"
                 :projection="projection"
             />
         </div>
@@ -176,7 +174,6 @@ export default {
             rotation: (state) => state.position.rotation,
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
-            previewYear: (state) => state.layers.previewYear,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
             isTimeSliderActive: (state) => state.ui.isTimeSliderActive,

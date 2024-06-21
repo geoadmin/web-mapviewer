@@ -3,7 +3,6 @@
     <CesiumWMTSLayer
         v-if="layerConfig.type === LayerTypes.WMTS"
         :wmts-layer-config="layerConfig"
-        :preview-year="previewYear"
         :projection="projection"
         :parent-layer-opacity="parentLayerOpacity"
         :z-index="zIndex"
@@ -12,7 +11,6 @@
     <CesiumWMSLayer
         v-if="layerConfig.type === LayerTypes.WMS"
         :wms-layer-config="layerConfig"
-        :preview-year="previewYear"
         :projection="projection"
         :z-index="zIndex"
         :is-time-slider-active="isTimeSliderActive"
@@ -22,7 +20,6 @@
             v-for="(layer, index) in layerConfig.layers"
             :key="`${layer.id}-${index}`"
             :wms-layer-config="layer"
-            :preview-year="previewYear"
             :projection="projection"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex + index"
@@ -36,7 +33,6 @@
                 v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                 :layer-config="aggregateSubLayer.layer"
                 :parent-layer-opacity="layerConfig.opacity"
-                :preview-year="previewYear"
                 :projection="projection"
                 :is-time-slider-active="isTimeSliderActive"
                 :z-index="zIndex"
@@ -92,10 +88,6 @@ export default {
         zIndex: {
             type: Number,
             default: -1,
-        },
-        previewYear: {
-            type: Number,
-            default: null,
         },
         projection: {
             type: CoordinateSystem,

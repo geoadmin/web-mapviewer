@@ -386,6 +386,7 @@ describe('Testing layersParamParser', () => {
                             new LayerTimeConfigEntry('20000101'),
                             new LayerTimeConfigEntry('19500101'),
                         ])
+                        layer.hasMultipleTimestamps = true
                         layer.timeConfig.currentTimeEntry = wantedTimeEntry
                         expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
                             `${expectedLayerUrlId}@year=2050`

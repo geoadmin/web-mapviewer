@@ -116,6 +116,8 @@ export function parseLayersParam(queryValue) {
                         parsedValue = 'true' === value
                     } else if (isNumber(value)) {
                         parsedValue = Number(value)
+                    } else if (key === 'year' && value.toLowerCase() === 'none') {
+                        parsedValue = null
                     } else {
                         parsedValue = value
                     }
@@ -145,9 +147,22 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    if (layer.timeConfig?.timeEntries.length > 1) {
-        layerUrlString += `@year=${layer.timeConfig.currentYear}`
+    if (layer.hasMultipleTimestamps) {
+        // If the layer has more than 1 timestamps we need to add the `@year` attribute
+        if (layer.timeConfig.currentYear !== null) {
+            // Always add the `@year` if we have a valid currentYear
+            layerUrlString += `@year=${layer.timeConfig.currentYear}`
+        } else if (layer.timeConfig.currentTimeEntry === null) {
+            // The currentTimeEntry is null, this means that a user entered via the timeSlider
+            // a non matching year for this layer (year set by timeSlider don't match any available
+            // timestamps for this layer). In this case we set the `@year=none` and the layer won't
+            // be visible.
+            layerUrlString += `@year=none`
+        }
+        // In all other cases we don't set the @year attribute and let the application to use the
+        // default timestamp. This can happen for External layer using a non ISO timestamp.
     }
+
     if (featuresIds) {
         layerUrlString += `@features=${featuresIds.join(':')}`
     }
