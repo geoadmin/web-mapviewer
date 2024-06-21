@@ -30,6 +30,7 @@ import log from '@/utils/logging'
  *   will return the untouched ActiveLayerConfig for other layer types
  */
 export function createLayerObject(parsedLayer, currentLayer, store, featuresRequests) {
+    const { year, updateDelay, features } = parsedLayer.customAttributes ?? {}
     const defaultOpacity = 1.0
     let layer = null
     if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
@@ -71,7 +72,6 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMTS) {
-        const { year = null } = parsedLayer.customAttributes ?? {}
         layer = new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
@@ -83,7 +83,6 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.type === LayerTypes.WMS) {
-        const { year = null } = parsedLayer.customAttributes ?? {}
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer({
@@ -95,7 +94,6 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             currentYear: year,
         })
     } else {
-        const { year } = parsedLayer.customAttributes
         // Finally check if this is a Geoadmin layer
         layer = store.getters.getLayerConfigById(parsedLayer.id)?.clone()
         if (layer) {
@@ -109,10 +107,8 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         }
     }
 
-    // If we have a layer parse extra parameters
+    // If we have a layer parse extra parameters that could be used by any type of layer
     if (layer) {
-        const { updateDelay, features } = parsedLayer.customAttributes
-
         if (updateDelay !== undefined) {
             layer.updateDelay = updateDelay
         }
