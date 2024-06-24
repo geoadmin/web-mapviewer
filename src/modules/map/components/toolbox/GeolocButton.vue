@@ -28,7 +28,7 @@ function toggleGeolocation() {
 </script>
 
 <template>
-    <!-- Here belowe we need to set the tippy to an external div instead of directely to the button,
+    <!-- Here below we need to set the tippy to an external div instead of directly to the button,
      otherwise the tippy won't work when the button is disabled -->
     <div class="geoloc-button-div" :data-tippy-content="tippyContent">
         <button

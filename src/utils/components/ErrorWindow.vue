@@ -21,7 +21,6 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
-    /** Set to true if this is and */
 })
 const { title, hide } = toRefs(props)
 

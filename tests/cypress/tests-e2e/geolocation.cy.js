@@ -11,8 +11,8 @@ function getGeolocationButtonAndClickIt() {
     cy.get(geolocationButtonSelector).should('be.visible').click()
 }
 
-// TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
-// working and the goelocation is always allowed, this needs to be reworked and probably need to
+// PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
+// working and the geolocation is always allowed, this needs to be reworked and probably need to
 // use another plugin.
 
 describe('Geolocation cypress', () => {
