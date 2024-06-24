@@ -1,13 +1,9 @@
+import {
+    STANDARD_ZOOM_LEVEL_1_25000_MAP,
+    SWISS_ZOOM_LEVEL_1_25000_MAP,
+} from '@/utils/coordinates/CoordinateSystem.class'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { closest, round } from '@/utils/numberUtils'
-
-/**
- * WebMercator zoom level corresponding to the resolution of the 1:25'000 map we provide
- *
- * @type {Number}
- */
-export const STANDARD_ZOOM_LEVEL_1_25000_MAP = 15.5
-
 /**
  * Resolutions for each LV95 zoom level, from 0 to 14
  *
@@ -97,6 +93,15 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
         return TILEGRID_RESOLUTIONS
     }
 
+    /**
+     * The index in the resolution list where the 1:25000 zoom level is
+     *
+     * @returns {Number}
+     */
+    get1_25000ZoomLevel() {
+        return SWISS_ZOOM_LEVEL_1_25000_MAP
+    }
+
     getDefaultZoom() {
         return 1
     }
@@ -117,7 +122,7 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
             return 14
         }
         // if no matching zoom level was found, we return the one for the 1:25'000 map
-        return 8
+        return this.get1_25000ZoomLevel()
     }
 
     /**

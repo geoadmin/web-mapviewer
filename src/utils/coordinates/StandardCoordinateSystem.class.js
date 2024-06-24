@@ -1,5 +1,5 @@
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 
 /**
  * Equatorial radius of the Earth, in meters
@@ -39,6 +39,15 @@ export const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LE
  * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
  */
 export default class StandardCoordinateSystem extends CoordinateSystem {
+    /**
+     * The index in the resolution list where the 1:25000 zoom level is
+     *
+     * @returns {Number}
+     */
+    get1_25000ZoomLevel() {
+        return STANDARD_ZOOM_LEVEL_1_25000_MAP
+    }
+
     getDefaultZoom() {
         return STANDARD_ZOOM_LEVEL_1_25000_MAP
     }
