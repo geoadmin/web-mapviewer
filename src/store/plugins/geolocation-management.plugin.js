@@ -55,6 +55,9 @@ const handlePositionError = (error, store) => {
             })
             alert(i18n.global.t('geoloc_permission_denied'))
             break
+        case error.TIMEOUT:
+            alert(i18n.global.t('geoloc_time_out'))
+            break
         default:
             if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
                 // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
