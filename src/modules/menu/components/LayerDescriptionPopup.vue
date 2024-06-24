@@ -35,8 +35,11 @@ const body = computed(() => layer.value?.abstract ?? '')
 const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
 const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
 const isExternal = computed(() => layer.value?.isExternal ?? false)
-const legends = computed(() => layer.value?.legends ?? [])
+const isPortraitPhone = computed(
+    () => store.getters.isPhoneMode && store.state.ui.width < store.state.ui.height
+)
 
+const legends = computed(() => layer.value?.legends ?? [])
 watch(layer, async (newLayer) => {
     if (!isExternal.value && layer.value) {
         htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
@@ -60,7 +63,11 @@ onMounted(async () => {
 
 <template>
     <ModalWithBackdrop :title="title" :allow-print="true" @close="emit('close', layerId)">
-        <div class="layer-description" data-cy="layer-description-popup">
+        <div
+            class="layer-description"
+            :class="{ isPortraitPhone }"
+            data-cy="layer-description-popup"
+        >
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
@@ -145,8 +152,14 @@ $spacing: 8px;
     }
     table {
         font-size: 100%;
-        width: 100%;
+        width: 50%;
         border: 0;
+    }
+}
+
+.isPortraitPhone {
+    table {
+        width: 100%;
     }
 }
 </style>
