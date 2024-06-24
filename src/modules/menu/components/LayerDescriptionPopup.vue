@@ -35,8 +35,8 @@ const body = computed(() => layer.value?.abstract ?? '')
 const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
 const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
 const isExternal = computed(() => layer.value?.isExternal ?? false)
-const legends = computed(() => layer.value?.legends ?? [])
 
+const legends = computed(() => layer.value?.legends ?? [])
 watch(layer, async (newLayer) => {
     if (!isExternal.value && layer.value) {
         htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
@@ -145,8 +145,11 @@ $spacing: 8px;
     }
     table {
         font-size: 100%;
-        width: 100%;
+        width: fit-content;
         border: 0;
+    }
+    td {
+        padding-right: 2rem;
     }
 }
 </style>
