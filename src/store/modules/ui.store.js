@@ -151,6 +151,15 @@ export default {
          * @type Boolean
          */
         showDisclaimer: true,
+
+        /**
+         * Text to display in the error window
+         *
+         * When this text is set the error window will be displayed
+         *
+         * @type String
+         */
+        errorText: null,
     },
     getters: {
         showLoadingBar(state) {
@@ -368,6 +377,9 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
+        setErrorText({ commit }, { errorText, dispatcher }) {
+            commit('setErrorText', { errorText, dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -427,5 +439,6 @@ export default {
             state.featureInfoPosition = position
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
+        setErrorText: (state, { errorText }) => (state.errorText = errorText),
     },
 }

@@ -1,7 +1,6 @@
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import i18n from '@/modules/i18n'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
@@ -53,17 +52,20 @@ const handlePositionError = (error, store) => {
                 denied: true,
                 ...dispatcher,
             })
-            alert(i18n.global.t('geoloc_permission_denied'))
+            store.dispatch('setErrorText', { errorText: 'geoloc_permission_denied', ...dispatcher })
+            break
+        case error.TIMEOUT:
+            store.dispatch('setErrorText', { errorText: 'geoloc_time_out', ...dispatcher })
             break
         default:
             if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
                 // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
-                // we don't raise an alert as it's "normal" in Electron to have this error raised (this API doesn't work
+                // we don't raise an error as it's "normal" in Electron to have this error raised (this API doesn't work
                 // on Electron embedded in Cypress : no Geolocation hardware detected, etc...)
                 // the position will be returned by a mocked up function by Cypress we can ignore this error
                 // we do nothing...
             } else {
-                alert(i18n.global.t('geoloc_unknown'))
+                store.dispatch('setErrorText', { errorText: 'geoloc_unknown', ...dispatcher })
             }
     }
 }
