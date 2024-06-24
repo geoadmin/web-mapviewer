@@ -8,10 +8,19 @@ const dispatcher = { dispatcher: 'GeolocButton.vue' }
 
 const store = useStore()
 
-useTippyTooltip('.geoloc-button[data-tippy-content]', { placement: 'left' })
+useTippyTooltip('.geoloc-button-div[data-tippy-content]', { placement: 'left' })
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)
+const tippyContent = computed(() => {
+    if (isDenied.value) {
+        return 'geoloc_permission_denied'
+    }
+    if (isActive.value) {
+        return 'geoloc_stop_tracking'
+    }
+    return 'geoloc_start_tracking'
+})
 
 function toggleGeolocation() {
     store.dispatch('toggleGeolocation', dispatcher)
@@ -19,18 +28,22 @@ function toggleGeolocation() {
 </script>
 
 <template>
-    <button
-        class="toolbox-button geoloc-button"
-        type="button"
-        :class="{ active: isActive, disabled: isDenied }"
-        :data-tippy-content="isActive ? 'geoloc_stop_tracking' : 'geoloc_start_tracking'"
-        data-cy="geolocation-button"
-        @click="toggleGeolocation"
-    >
-        <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
-            <ellipse class="geoloc-button-inner-circle" />
-        </svg>
-    </button>
+    <!-- Here belowe we need to set the tippy to an external div instead of directely to the button,
+     otherwise the tippy won't work when the button is disabled -->
+    <div class="geoloc-button-div" :data-tippy-content="tippyContent">
+        <button
+            class="toolbox-button geoloc-button"
+            type="button"
+            :disabled="isDenied"
+            :class="{ active: isActive, disabled: isDenied }"
+            data-cy="geolocation-button"
+            @click="toggleGeolocation"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
+                <ellipse class="geoloc-button-inner-circle" />
+            </svg>
+        </button>
+    </div>
 </template>
 
 <style lang="scss" scoped>
