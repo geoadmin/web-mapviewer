@@ -28,6 +28,7 @@
         "build:int": "npm run build -- --mode integration",
         "build:prod": "npm run build -- --mode production",
         "update:translations": "node scripts/generate-i18n-files.js",
+	"check:translations": "node scripts/check-translations.js",
         "check:external": "npx vite-node scripts/check-external-layers-providers.js",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true"
