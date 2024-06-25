@@ -2,7 +2,7 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
@@ -14,7 +14,11 @@ let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
 
 function setCenterIfInBounds(store, center) {
-    if (LV95.isInBounds(center[0], center[1])) {
+    if (
+        store.state.cesium.active
+            ? LV95.getBoundsAs(WEBMERCATOR).isInBounds(center[0], center[1])
+            : LV95.isInBounds(center[0], center[1])
+    ) {
         store.dispatch('setCenter', {
             center: center,
             ...dispatcher,
