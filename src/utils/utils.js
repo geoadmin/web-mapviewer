@@ -219,9 +219,7 @@ export function parseUrlHashQuery(url) {
  */
 export function transformUrlMapToEmbed(url) {
     const { urlObj, hash, query } = parseUrlHashQuery(url)
-    if (urlObj.pathname !== '/') {
-        return url
-    }
+    log.debug(`Transform url from map to embed hash=${hash}`, urlObj)
     if (hash === '#/map') {
         urlObj.hash = `#/embed${query}`
     }

@@ -47,6 +47,9 @@ describe('utils', () => {
 
     describe('transformUrlMapToEmbed', () => {
         it('transform #/map to #/embed', () => {
+            expect(transformUrlMapToEmbed('https://map.geo.admin.ch/index.html#/map')).to.equal(
+                'https://map.geo.admin.ch/index.html#/embed'
+            )
             expect(transformUrlMapToEmbed('https://map.geo.admin.ch/#/map')).to.equal(
                 'https://map.geo.admin.ch/#/embed'
             )
@@ -73,9 +76,6 @@ describe('utils', () => {
                 'https://map.geo.admin.ch/#/map/view',
                 'https://map.geo.admin.ch/#/hello',
                 'https://map.geo.admin.ch/#/hello?lang=de',
-                'https://map.geo.admin.ch/map',
-                'https://map.geo.admin.ch/map?de',
-                'https://map.geo.admin.ch/test#/map',
             ]
             urls.forEach((url) => expect(transformUrlMapToEmbed(url)).to.equal(url))
         })
