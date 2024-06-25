@@ -481,6 +481,13 @@ const actions = {
             year: year,
             dispatcher,
         })
+        // if this layer has a 3D counterpart, we also update its timestamp (keep it in sync)
+        if (layer.idIn3d) {
+            const layerIn3d = getters.getLayerConfigById(layer.idIn3d)
+            if (layerIn3d?.timeConfig) {
+                commit('setLayerYear', { layer: layerIn3d, year, dispatcher })
+            }
+        }
     },
 
     /**
