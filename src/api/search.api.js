@@ -163,6 +163,10 @@ function parseLocationResult(result, outputProjection) {
             extent.push(bottomLeft, topRight)
         }
     }
+    // when no zoom and no extent are given, we go 1:25'000 map by default
+    if (!zoom && extent.length === 0) {
+        zoom = outputProjection.get1_25000ZoomLevel()
+    }
     return {
         resultType: SearchResultTypes.LOCATION,
         id: featureId,
@@ -248,7 +252,7 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
             resultWithAttrs.map((layerFeature) => {
                 const layerContent = parseLayerResult(layerFeature)
                 const locationContent = parseLocationResult(layerFeature, outputProjection)
-                const title = `<strong>${layer.name}</strong><br/>${layerContent.title}&nbsp;<small>${layerContent.description}</small>`
+                const title = `<strong>${layer.name}</strong><br/>${layerContent.title}`
                 return {
                     ...layerContent,
                     ...locationContent,

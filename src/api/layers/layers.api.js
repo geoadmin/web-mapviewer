@@ -187,6 +187,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     topics,
                     subLayers,
                     hasLegend: !!hasLegend,
+                    searchable,
                 })
 
                 break
