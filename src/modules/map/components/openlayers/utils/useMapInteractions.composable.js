@@ -8,6 +8,7 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
+import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
@@ -57,10 +58,12 @@ export default function useMapInteractions(map) {
     })
 
     registerPointerEvents()
+    registerDragAndDropEvent()
     map.addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()
+        unregisterDragAndDropEvent()
     })
 
     /*
@@ -201,5 +204,67 @@ export default function useMapInteractions(map) {
             }
             mapHasMoved = false
         }, 500)
+    }
+
+    function registerDragAndDropEvent() {
+        log.debug(`Register drag and drop events`)
+        const mapElement = map.getTargetElement()
+        mapElement.addEventListener('dragover', onDragOver)
+        mapElement.addEventListener('drop', onDrop)
+    }
+
+    function unregisterDragAndDropEvent() {
+        log.debug(`Unregister drag and drop events`)
+        const mapElement = map.getTargetElement()
+        mapElement.removeEventListener('dragover', onDragOver)
+        mapElement.removeEventListener('drop', onDrop)
+    }
+
+    function readFileContent(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = (event) => resolve(event.target.result)
+            reader.onerror = (error) => reject(error)
+            reader.readAsText(file)
+        })
+    }
+
+    function handleFile(file) {
+        try {
+            readFileContent(file)
+                .then((content) => {
+                    handleFileContent(store, content, file.name)
+                })
+                .catch((error) => {
+                    log.error(`Error reading file`, file.name, error)
+                })
+        } catch (error) {
+            log.error(`Error loading file`, file.name, error)
+        }
+    }
+
+    function onDragOver(event) {
+        event.preventDefault()
+    }
+
+    function onDrop(event) {
+        event.preventDefault()
+
+        if (event.dataTransfer.items) {
+            // Use DataTransferItemList interface to access the file(s)
+            for (let i = 0; i < event.dataTransfer.items.length; i++) {
+                // If dropped items aren't files, reject them
+                if (event.dataTransfer.items[i].kind === 'file') {
+                    const file = event.dataTransfer.items[i].getAsFile()
+                    handleFile(file)
+                }
+            }
+        } else {
+            // Use DataTransfer interface to access the file(s)
+            for (let i = 0; i < event.dataTransfer.files.length; i++) {
+                const file = event.dataTransfer.files[i]
+                handleFile(file)
+            }
+        }
     }
 }
