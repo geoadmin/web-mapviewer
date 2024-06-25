@@ -129,16 +129,6 @@ const handleLegacyParam = (
             // they're not called multiple times for nothing
             break
 
-        case '3d':
-            // if the 3d flag is given without being placed behind the hash (meaning at startup),
-            // we need to make sure the projection is set to Mercator, otherwise the startup sequence
-            // ends up not working properly and center the view wrongly
-            if ((typeof legacyValue === 'string' && legacyValue === 'true') || legacyValue) {
-                newQuery['sr'] = WEBMERCATOR.epsgNumber
-            }
-            newValue = legacyValue
-            break
-
         case 'elevation':
             cameraPosition[2] = Number(legacyValue)
             break
