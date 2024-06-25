@@ -35,11 +35,7 @@ const clickOnMapManagementPlugin = (store) => {
                         ...dispatcher,
                     })
                     .then(() => {
-                        // while embedded, we do not change the way the feature tooltip is shown after
-                        // app initialization, this way the user that embed our app can choose to disable
-                        // tooltip entirely (and manage feature selection through the postMessage API)
                         if (
-                            !state.ui.embed &&
                             store.getters.noFeatureInfo &&
                             state.features.selectedFeaturesByLayerId.length > 0
                         ) {
