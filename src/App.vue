@@ -54,12 +54,14 @@ function refreshPageTitle() {
         @pointerdown="withOutline = false"
     >
         <router-view />
-        <ErrorWindow
-            v-if="errorText"
-            title="error"
-            @close="store.dispatch('setErrorText', { errorText: null, ...dispatcher })"
-            ><div>{{ i18n.t(errorText) }}</div></ErrorWindow
-        >
+        <div>
+            <ErrorWindow
+                v-if="errorText"
+                title="error"
+                @close="store.dispatch('setErrorText', { errorText: null, ...dispatcher })"
+                ><div>{{ i18n.t(errorText) }}</div></ErrorWindow
+            >
+        </div>
     </div>
 </template>
 
