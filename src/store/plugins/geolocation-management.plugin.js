@@ -2,7 +2,7 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
@@ -12,6 +12,21 @@ const ENABLE_HIGH_ACCURACY = true
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
+
+function setCenterIfInBounds(store, center) {
+    if (LV95.isInBounds(center[0], center[1])) {
+        store.dispatch('setCenter', {
+            center: center,
+            ...dispatcher,
+        })
+    } else {
+        log.warn('current geolocation is out of bounds')
+        store.dispatch('setErrorText', {
+            errorText: 'geoloc_out_of_bounds',
+            ...dispatcher,
+        })
+    }
+}
 
 const readPosition = (position, projection) => {
     const { coords } = position
@@ -31,10 +46,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
     })
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
-        store.dispatch('setCenter', {
-            center: positionProjected,
-            ...dispatcher,
-        })
+        setCenterIfInBounds(store, positionProjected)
     }
 }
 
@@ -74,10 +86,7 @@ const activeGeolocation = (store, state) => {
     if (store.state.geolocation.position[0] !== 0 && store.state.geolocation.position[1] !== 0) {
         // if we have a previous position use it first to be more reactive but set a
         // bad accuracy as we don't know how exact it is.
-        store.dispatch('setCenter', {
-            center: store.state.geolocation.position,
-            ...dispatcher,
-        })
+        setCenterIfInBounds(store, store.state.geolocation.position)
         store.dispatch('setGeolocationAccuracy', {
             accuracy: 50 * 1000, // 50 km
             ...dispatcher,

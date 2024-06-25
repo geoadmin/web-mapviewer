@@ -76,7 +76,7 @@
     "connect": "Verbinden",
     "contact_us": "Kontakt",
     "contextpopup_lv03_url": "https://www.swisstopo.admin.ch/de/landestriangulation-lv03",
-    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/de/landesvermessung-lv95",
+    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/de/schweizer-koordinatensystem",
     "coordinates_label": "Koordinaten (m)",
     "copy_success": "Link kopiert!",
     "copy_url": "Link kopieren",
@@ -607,7 +607,7 @@
     "obstacle_started_last_4_days": "Aktivierte Hindernisse letzte 4 Tage",
     "obstacle_deleted_last_4_days": "Gelöschte Hindernisse der letzten 4 Tage",
     "draw_button_delete_last_point": "Letzten Punkt löschen",
-    "elevation_href": "https://www.swisstopo.admin.ch/de/landesnivellementnetz-ln02",
+    "elevation_href": "https://www.swisstopo.admin.ch/de/schweizerische-bezugssysteme",
     "copy_cta": "Kopieren",
     "copy_done": "Kopiert!",
     "test_map_give_feedback": "Feedback geben",
@@ -682,5 +682,6 @@
     "3d_constructions": "Gebäude und Konstruktionen",
     "webmapviewer_live_disclaimer": "Der Kartenviewer wird bald aktualisiert - <a target='_blank' href='https://www.geo.admin.ch/de/go-live-kartenviewer'>mach dich startklar</a>",
     "drawing_too_large": "Ihre Zeichnung ist zu gross, entfernen Sie einige Details.",
-    "3d_unsupported_projection": "Dieser Datensatz (externe Quelle) kann wegen fehlender Unterstützung der Projektion EPSG:4326 nicht in 3D dargestellt werden"
+    "3d_unsupported_projection": "Dieser Datensatz (externe Quelle) kann wegen fehlender Unterstützung der Projektion EPSG:4326 nicht in 3D dargestellt werden",
+    "geoloc_out_of_bounds": "Ihre aktuelle Position liegt ausserhalb der Schweiz und kann deshalb nicht angezeigt werden"
 }

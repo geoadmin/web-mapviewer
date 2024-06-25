@@ -76,7 +76,7 @@
     "connect": "Connecter",
     "contact_us": "Contact",
     "contextpopup_lv03_url": "https://www.swisstopo.admin.ch/fr/mensuration-nationale-mn03",
-    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/fr/mensuration-nationale-mn95",
+    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/fr/le-systeme-de-coordonnees-suisse",
     "coordinates_label": "Coordonnées (m)",
     "copy_success": "Lien copié !",
     "copy_url": "Copier le lien",
@@ -607,7 +607,7 @@
     "obstacle_started_last_4_days": "Obstacles activés ces 4 derniers jours",
     "obstacle_deleted_last_4_days": "Obstacles supprimés ces 4 derniers jours",
     "draw_button_delete_last_point": "Effacer le dernier point",
-    "elevation_href": "https://www.swisstopo.admin.ch/fr/reseau-du-nivellement-federal-suisse-nf02",
+    "elevation_href": "https://www.swisstopo.admin.ch/fr/systemes-de-reference-suisses",
     "copy_cta": "Copier",
     "copy_done": "Copié!",
     "test_map_give_feedback": "Donner un avis",
@@ -682,5 +682,6 @@
     "3d_constructions": "Bâtiments et constructions",
     "webmapviewer_live_disclaimer": "Le visualiseur de cartes sera bientôt mis à jour - <a target='_blank' href='https://www.geo.admin.ch/fr/go-live-visualiseur-de-cartes'>comment se préparer</a>",
     "drawing_too_large": "Ton dessin est trop grand, enlève quelques éléments",
-    "3d_unsupported_projection": "La carte ne peut pas être affichées en 3d parce qu'elle ne supporte pas la projection EPSG:4326"
+    "3d_unsupported_projection": "La carte ne peut pas être affichées en 3d parce qu'elle ne supporte pas la projection EPSG:4326",
+    "geoloc_out_of_bounds": "Votre emplacement actuel est en dehors de la Suisse et ne peut pas être affiché"
 }
