@@ -24,6 +24,6 @@ const isProd = computed(() => store.getters.isProductionSite)
 }
 
 .app-version-prod {
-    visibility: hidden;
+    color: $gray-500;
 }
 </style>
