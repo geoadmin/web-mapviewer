@@ -1,6 +1,6 @@
 import proj4 from 'proj4'
 
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 
@@ -22,6 +22,8 @@ const REGEX_METRIC_COORDINATES =
 
 // Military Grid Reference System (MGRS)
 const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i
+
+const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
 
 const numericalExtractor = (regexMatches) => {
     // removing thousand separators
@@ -96,8 +98,13 @@ const webmercatorExtractor = (regexMatches) => {
                 break
         }
     }
-    if (lon && lat && WGS84.isInBounds(lon, lat)) {
-        return [lon, lat]
+    if (lon && lat) {
+        if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
+            return [lon, lat]
+        }
+        if (LV95_BOUNDS_IN_WGS84.isInBounds(lat, lon)) {
+            return [lat, lon]
+        }
     }
     return null
 }
