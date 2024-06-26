@@ -1,16 +1,9 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 const autoRotate = ref(false)
 const store = useStore()
-
-onMounted(() => {
-    window.addEventListener('deviceorientation', handleOrientation)
-})
-onUnmounted(() => {
-    window.removeEventListener('deviceorientation', handleOrientation)
-})
 
 function handleOrientation(event) {
     console.error(autoRotate.value, event.alpha, (event.alpha / 180) * Math.PI)
@@ -21,6 +14,17 @@ function handleOrientation(event) {
 
 function rotate() {
     autoRotate.value = !autoRotate.value
+    if (autoRotate.value) {
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then(() => {
+                window.addEventListener('deviceorientation', handleOrientation)
+            })
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation)
+        }
+    } else {
+        window.removeEventListener('deviceorientation', handleOrientation)
+    }
 }
 </script>
 
