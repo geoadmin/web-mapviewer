@@ -1,24 +1,21 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import debounce from '@/utils/debounce'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 
 const autoRotate = ref(false)
 const store = useStore()
+const currentRotation = computed(() => store.state.position.rotation)
 
 const handleOrientation = function (event) {
-    const rotation = (event.alpha / 180) * Math.PI
-    log.debug('New device rotation value received', rotation)
-    publishNewRotation(rotation)
-}
-
-const publishNewRotation = debounce((rotation) => {
-    if (autoRotate.value) {
+    const rotation = round((event.alpha / 180) * Math.PI, 2)
+    if (autoRotate.value && rotation !== currentRotation.value) {
+        log.debug('New device rotation value received', rotation)
         store.dispatch('setRotation', rotation)
     }
-}, 100)
+}
 
 function rotate() {
     autoRotate.value = !autoRotate.value
