@@ -8,9 +8,13 @@ import log from '@/utils/logging'
 const autoRotate = ref(false)
 const store = useStore()
 
-const handleOrientation = debounce((event) => {
+const handleOrientation = function (event) {
     const rotation = (event.alpha / 180) * Math.PI
     log.debug('New device rotation value received', rotation)
+    publishNewRotation(rotation)
+}
+
+const publishNewRotation = debounce((rotation) => {
     if (autoRotate.value) {
         store.dispatch('setRotation', rotation)
     }
@@ -21,10 +25,10 @@ function rotate() {
     if (autoRotate.value) {
         if (typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(() => {
-                window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+                window.addEventListener('deviceorientation', handleOrientation)
             })
         } else {
-            window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+            window.addEventListener('deviceorientation', handleOrientation)
         }
     } else {
         window.removeEventListener('deviceorientation', handleOrientation)
