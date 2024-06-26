@@ -8,6 +8,7 @@ import {
     usePrint,
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import ProgressBar from '@/utils/components/ProgressBar.vue'
 import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils'
 
@@ -27,6 +28,8 @@ const store = useStore()
 const availablePrintLayouts = computed(() => store.state.print.layouts)
 const selectedLayout = computed(() => store.state.print.selectedLayout)
 const scales = computed(() => selectedLayout.value?.scales || [])
+// approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
+const printDuration = computed(() => 8 * (store.getters.visibleLayers.length + 1))
 
 const selectedLayoutName = computed({
     get() {
@@ -198,6 +201,12 @@ defineExpose({
                 <div class="valid-feedback">{{ i18n.t('operation_successful') }}</div>
             </div>
             <div class="full-width justify-content-center">
+                <ProgressBar
+                    v-if="printStatus === PrintStatus.PRINTING"
+                    :duration="printDuration"
+                    bar-class="bg-danger"
+                    class="mb-2"
+                />
                 <button
                     v-if="printStatus === PrintStatus.PRINTING"
                     type="button"
@@ -206,7 +215,6 @@ defineExpose({
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
-                    <font-awesome-icon spin :icon="['fa', 'spinner']" class="ms-2" />
                 </button>
                 <button
                     v-else
