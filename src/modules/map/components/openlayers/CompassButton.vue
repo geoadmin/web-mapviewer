@@ -2,14 +2,18 @@
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
+import debounce from '@/utils/debounce.js'
+
 const autoRotate = ref(false)
 const store = useStore()
 
 function handleOrientation(event) {
-    console.error(autoRotate.value, event.alpha, (event.alpha / 180) * Math.PI)
-    if (autoRotate.value) {
-        store.dispatch('setRotation', (event.alpha / 180) * Math.PI)
-    }
+    debounce(() => {
+        console.error(autoRotate.value, event.alpha, (event.alpha / 180) * Math.PI)
+        if (autoRotate.value) {
+            store.dispatch('setRotation', (event.alpha / 180) * Math.PI)
+        }
+    }, 500)
 }
 
 function rotate() {
