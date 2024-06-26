@@ -1,5 +1,7 @@
 import { createI18n } from 'vue-i18n'
 
+import log from '@/utils/logging'
+
 import de from './locales/de.json'
 import en from './locales/en.json'
 import fr from './locales/fr.json'
@@ -23,8 +25,15 @@ export function langToLocal(lang) {
 
 // detecting navigator's locale as the default language
 // (if it is a language served by this app)
-const defaultLocal = SUPPORTED_LANG.find((lang) =>
-    navigator.languages?.find((navigatorLang) => navigatorLang.indexOf(lang) !== -1)
+const defaultLocal =
+    navigator.languages
+        ?.find((navigatorLang) => SUPPORTED_LANG.find((lang) => navigatorLang.startsWith(lang)))
+        ?.split('-')[0] ?? SUPPORTED_LANG[0]
+log.info(
+    `Default local set to ${defaultLocal}, navigator langagues`,
+    navigator.languages,
+    `supported language`,
+    SUPPORTED_LANG
 )
 
 const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
@@ -42,7 +51,7 @@ const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
 }, {})
 
 const i18n = createI18n({
-    locale: defaultLocal ?? SUPPORTED_LANG[0],
+    locale: defaultLocal,
     messages: languages,
     legacy: false,
     datetimeFormats,
