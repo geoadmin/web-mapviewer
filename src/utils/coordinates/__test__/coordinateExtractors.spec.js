@@ -346,7 +346,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     acceptableDelta
                 )
             })
-            it('Returns coordinate with DMS format with cardinal point information in the south west hemisphere', () => {
+            // To be reactivated when supporting world-wide coverage (in the meantime the extractor will only output coordinate
+            // that are in Switzerland, inverting x/y -> y/x if necessary)
+            it.skip('Returns coordinate with DMS format with cardinal point information in the south west hemisphere', () => {
                 const pointInSouthAmericaInEPSG3857 = [-6504867, -4110554]
                 const pointInSouthAmericaInEPSG4326 = ['34°36\'23.937"S', '58°26\'3.172"W']
                 checkXY(
@@ -366,7 +368,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     acceptableDelta
                 )
             })
-            it('Returns coordinate with DMS format with cardinal point information in the north west hemisphere', () => {
+            // To be reactivated when supporting world-wide coverage (in the meantime the extractor will only output coordinate
+            // that are in Switzerland, inverting x/y -> y/x if necessary)
+            it.skip('Returns coordinate with DMS format with cardinal point information in the north west hemisphere', () => {
                 const pointInNorthAmericaInEPSG3857 = [-9457276, 4961988]
                 const pointInNorthAmericaInEPSG4326 = ['40°39\'27.846"N', '84°57\'22.161"W']
                 checkXY(
@@ -386,7 +390,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     acceptableDelta
                 )
             })
-            it('Returns coordinate with DMS format with cardinal point information in the south east hemisphere', () => {
+            // To be reactivated when supporting world-wide coverage (in the meantime the extractor will only output coordinate
+            // that are in Switzerland, inverting x/y -> y/x if necessary)
+            it.skip('Returns coordinate with DMS format with cardinal point information in the south east hemisphere', () => {
                 const pointInOceaniaInEPSG3857 = [12894439, -3757563]
                 const pointInOceaniaInEPSG4326 = ['31°57\'22.332"S', '115°49\'57.779"E']
                 checkXY(
