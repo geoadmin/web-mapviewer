@@ -8,6 +8,7 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import CompassButton from '@/modules/map/components/openlayers/CompassButton.vue'
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
@@ -54,6 +55,7 @@ const is3dActive = computed(() => store.state.cesium.active)
         <ZoomButtons />
         <Toggle3dButton v-if="toggle3dButton" />
         <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
+        <CompassButton />
         <slot />
     </div>
 </template>
