@@ -10,7 +10,9 @@ import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyGPXError } from '@/utils/gpxUtils'
+import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
@@ -231,15 +233,19 @@ export default function useMapInteractions(map) {
 
     function handleFile(file) {
         try {
-            readFileContent(file)
-                .then((content) => {
-                    handleFileContent(store, content, file.name)
-                })
-                .catch((error) => {
-                    log.error(`Error reading file`, file.name, error)
-                })
+            readFileContent(file).then((content) => {
+                handleFileContent(store, content, file.name)
+            })
         } catch (error) {
             log.error(`Error loading file`, file.name, error)
+            if (error instanceof OutOfBoundsError) {
+                log.error('kml_gpx_file_out_of_bounds')
+            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
+                log.error('kml_gpx_file_empty')
+            } else {
+                log.error('invalid_kml_gpx_file_error')
+                log.error(`Failed to load file`, error)
+            }
         }
     }
 
