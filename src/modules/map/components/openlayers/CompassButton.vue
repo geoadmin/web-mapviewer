@@ -14,7 +14,7 @@ const handleOrientation = debounce((event) => {
     if (autoRotate.value) {
         store.dispatch('setRotation', rotation)
     }
-}, 500)
+}, 100)
 
 function rotate() {
     autoRotate.value = !autoRotate.value
