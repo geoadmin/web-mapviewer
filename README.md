@@ -8,6 +8,8 @@
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
+Test codebuild
+
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
