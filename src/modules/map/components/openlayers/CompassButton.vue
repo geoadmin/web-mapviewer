@@ -2,16 +2,18 @@
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
-import debounce from '@/utils/debounce.js'
+import debounce from '@/utils/debounce'
+import log from '@/utils/logging'
 
 const autoRotate = ref(false)
 const store = useStore()
 
 function handleOrientation(event) {
+    const rotation = (event.alpha / 180) * Math.PI
     debounce(() => {
-        console.error(autoRotate.value, event.alpha, (event.alpha / 180) * Math.PI)
+        log.debug('New device rotation value received', rotation)
         if (autoRotate.value) {
-            store.dispatch('setRotation', (event.alpha / 180) * Math.PI)
+            store.dispatch('setRotation', rotation)
         }
     }, 500)
 }
@@ -21,10 +23,10 @@ function rotate() {
     if (autoRotate.value) {
         if (typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(() => {
-                window.addEventListener('deviceorientation', handleOrientation)
+                window.addEventListener('deviceorientation', handleOrientation, { passive: true })
             })
         } else {
-            window.addEventListener('deviceorientation', handleOrientation)
+            window.addEventListener('deviceorientation', handleOrientation, { passive: true })
         }
     } else {
         window.removeEventListener('deviceorientation', handleOrientation)
