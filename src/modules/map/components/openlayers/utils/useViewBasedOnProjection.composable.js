@@ -18,8 +18,9 @@ if (IS_TESTING_WITH_CYPRESS) {
 export default function useViewBasedOnProjection(map) {
     const northwardRotation = ref(0)
     const deviceOrientationInputAverage = ref(0)
-    let deviceOrientationInputCount = 0
-    let deviceOrientationInputSum = 0
+    let count = 0
+    let sumSin = 0
+    let sumCos = 0
     let dampingInterval = null
 
     const store = useStore()
@@ -95,8 +96,9 @@ export default function useViewBasedOnProjection(map) {
 
     const handleOrientation = function (event) {
         northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
-        deviceOrientationInputCount = deviceOrientationInputCount + 1
-        deviceOrientationInputSum = deviceOrientationInputSum + northwardRotation.value
+        count = count + 1
+        sumSin = sumSin + Math.sin(northwardRotation.value)
+        sumCos = sumCos + Math.cos(northwardRotation.value)
         console.error('New device rotation value received', northwardRotation.value)
     }
 
@@ -121,18 +123,19 @@ export default function useViewBasedOnProjection(map) {
     function toggleAutoRotateDamping() {
         if (autoRotation.value) {
             dampingInterval = setInterval(() => {
-                if (deviceOrientationInputCount) {
-                    deviceOrientationInputAverage.value =
-                        deviceOrientationInputSum / deviceOrientationInputCount
+                if (count) {
+                    deviceOrientationInputAverage.value = Math.atan2(sumSin, sumCos)
                 }
                 console.error(
                     'calculating average device orientation from inputs: ',
                     deviceOrientationInputAverage.value,
-                    deviceOrientationInputSum,
-                    deviceOrientationInputCount
+                    sumSin,
+                    sumCos,
+                    count
                 )
-                deviceOrientationInputCount = 0
-                deviceOrientationInputSum = 0
+                count = 0
+                sumSin = 0
+                sumCos = 0
                 viewsForProjection[projection.value.epsg].animate({
                     rotation: deviceOrientationInputAverage.value,
                     duration: animationDuration,
