@@ -62,9 +62,12 @@ const readTopicTreeRecursive = (node, availableLayers) => {
         })
         return new GeoAdminGroupOfLayers({ id: `${node.id}`, name: node.label, layers: children })
     } else if (node.category === 'layer') {
-        const matchingLayer = availableLayers.find(
-            (layer) => layer.technicalName === node.layerBodId || layer.id === node.layerBodId
-        )
+        // we have to match IDs first, some layers have the same technicalNames (when 3D counterpart config exist for instance), and
+        // matching both together will result sometimes in the 3D config being displayed in the topic instead of the correct layer
+        let matchingLayer = availableLayers.find((layer) => layer.id === node.layerBodId)
+        if (!matchingLayer) {
+            matchingLayer = availableLayers.find((layer) => layer.technicalName === node.layerBodId)
+        }
         if (matchingLayer) {
             return matchingLayer
         }
