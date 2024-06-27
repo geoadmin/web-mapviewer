@@ -83,7 +83,7 @@ const state = {
     autoRotation: false,
 
     /**
-     * Flag which indicates if map rotations should get reset by openlayers
+     * Flag which indicates if map rotation should get reset by openlayers
      *
      * @type Boolean
      */

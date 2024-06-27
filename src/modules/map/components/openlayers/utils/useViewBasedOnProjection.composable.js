@@ -17,10 +17,10 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 export default function useViewBasedOnProjection(map) {
     const northwardRotation = ref(0)
-    const deviceInputsAverage = ref(0)
-    let deviceInputsCount = 0
-    let deviceInputsSum = 0
-    let orientationInterval = null
+    const deviceOrientationInputAverage = ref(0)
+    let deviceOrientationInputCount = 0
+    let deviceOrientationInputSum = 0
+    let dampingInterval = null
 
     const store = useStore()
     const center = computed(() => store.state.position.center)
@@ -74,7 +74,7 @@ export default function useViewBasedOnProjection(map) {
 
     watch(autoRotation, () => {
         toggleAutoRotateListener()
-        toggleAutoRotateDamper()
+        toggleAutoRotateDamping()
     })
 
     watch(resetRotation, () => {
@@ -95,10 +95,9 @@ export default function useViewBasedOnProjection(map) {
 
     const handleOrientation = function (event) {
         northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
-        deviceInputsCount = deviceInputsCount + 1
-        console.error('deviceInputsCount: ', deviceInputsCount)
-        deviceInputsSum = deviceInputsSum + northwardRotation.value
-        //console.error('New device rotation value received', northwardRotation.value)
+        deviceOrientationInputCount = deviceOrientationInputCount + 1
+        deviceOrientationInputSum = deviceOrientationInputSum + northwardRotation.value
+        console.error('New device rotation value received', northwardRotation.value)
     }
 
     function toggleAutoRotateListener() {
@@ -118,23 +117,30 @@ export default function useViewBasedOnProjection(map) {
         }
     }
 
-    function toggleAutoRotateDamper() {
+    // we have to sync the update interval with the animation duration so that rotating the map does not look choppy
+    function toggleAutoRotateDamping() {
         if (autoRotation.value) {
-            orientationInterval = setInterval(() => {
-                if (deviceInputsCount) {
-                    deviceInputsAverage.value = deviceInputsSum / deviceInputsCount
+            dampingInterval = setInterval(() => {
+                if (deviceOrientationInputCount) {
+                    deviceOrientationInputAverage.value =
+                        deviceOrientationInputSum / deviceOrientationInputCount
                 }
-                console.error(deviceInputsAverage.value, deviceInputsSum, deviceInputsCount)
-                deviceInputsCount = 0
-                deviceInputsSum = 0
+                console.error(
+                    'calculating average device orientation from inputs: ',
+                    deviceOrientationInputAverage.value,
+                    deviceOrientationInputSum,
+                    deviceOrientationInputCount
+                )
+                deviceOrientationInputCount = 0
+                deviceOrientationInputSum = 0
                 viewsForProjection[projection.value.epsg].animate({
-                    rotation: deviceInputsAverage.value,
+                    rotation: deviceOrientationInputAverage.value,
                     duration: animationDuration,
                 })
             }, animationDuration)
         } else {
-            clearInterval(orientationInterval)
-            orientationInterval = null
+            clearInterval(dampingInterval)
+            dampingInterval = null
         }
     }
 
