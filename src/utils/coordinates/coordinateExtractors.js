@@ -3,12 +3,24 @@ import proj4 from 'proj4'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
+import { isNumber } from '@/utils/numberUtils.js'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
+// 47.5N 7.5E
+const REGEX_WEB_MERCATOR_WITH_CARDINALS =
+    /^\s*([\d]{1,3}[.\d]+)\s*([NSEW]?)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*([NSEW]?)\s*$/i
+const REGEX_WEB_MERCATOR_WITH_PRE_FIXED_CARDINALS =
+    /^\s*([NSEW]?)\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([NSEW]?)\s*([\d]{1,3}[.\d]+)\s*$/i
 // 47°31.8' 7°31.8'
 const REGEX_MERCATOR_WITH_DEGREES =
     /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)['′]?\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)['′]?\s*$/i
+// 47°31.8'N 7°31.8'E
+const REGEX_MERCATOR_WITH_DEGREES_WITH_CARDINALS =
+    /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)['′]?\s*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)['′]?\s*([NSEW]?)\s*$/i
+// N47°31.8' E7°31.8'
+const REGEX_MERCATOR_WITH_DEGREES_WITH_PRE_FIXED_CARDINALS =
+    /^\s*([NSEW]?)\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)['′]?\s*[,/]?\s*([NSEW]?)\s*([\d]{1,3})[° ]+([\d.,]+)['′]?\s*$/i
 // 47°38'48'' 7°38'48'' or 47°38'48" 7°38'48"
 const REGEX_MERCATOR_WITH_DEGREES_MINUTES =
     /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['′"″]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)['′ ]+([\d.]+)['′"″]{0,2}\s*$/i
@@ -40,36 +52,71 @@ const webmercatorExtractor = (regexMatches) => {
         // 2 matches + global match i.e. : (45.12), (7.12)
         return numericalExtractor(regexMatches)
     }
-    let lon, lat
+    let firstNumber, secondNumber
+    let firstCardinal, secondCardinal
     if (regexMatches.length === 5) {
-        // 4 matches + global match, i.e. : (47)°(5.123)', (8)°(4.154)'
-        lon = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0
-        lat = Number(regexMatches[3]) + Number(regexMatches[4]) / 60.0
+        // 4 matches + global match, 3 possibilities
+        // (47)°(5.123)', (8)°(4.154)'
+        // (45.12)(N), (7.12)(E)
+        // (N)(45.12), (E)(7.12)
+        if (isNumber(regexMatches[1]) && isNumber(regexMatches[2])) {
+            firstNumber = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0
+            secondNumber = Number(regexMatches[3]) + Number(regexMatches[4]) / 60.0
+        } else if (isNumber(regexMatches[1])) {
+            firstNumber = Number(regexMatches[1])
+            firstCardinal = regexMatches[2]
+            secondNumber = Number(regexMatches[3])
+            secondCardinal = regexMatches[4]
+        } else {
+            firstCardinal = regexMatches[1]
+            firstNumber = Number(regexMatches[2])
+            secondCardinal = regexMatches[3]
+            secondNumber = Number(regexMatches[4])
+        }
     }
     if (regexMatches.length === 7) {
-        // 6 matches + global match, i.e. : (47)°(5)'(41.61)", (8)°(4)'(6.32)"
-        lon =
-            Number(regexMatches[1]) +
-            Number(regexMatches[2]) / 60.0 +
-            Number(regexMatches[3]) / 3600.0
-        lat =
-            Number(regexMatches[4]) +
-            Number(regexMatches[5]) / 60.0 +
-            Number(regexMatches[6]) / 3600.0
+        // 6 matches + global match, 3 possibilities
+        // (47)°(5)'(41.61)", (8)°(4)'(6.32)"
+        // (47)°(5.123)'(N), (8)°(4.154)'(E)
+        // (N)(47)°(5.123)', (E)(8)°(4.154)'
+        if (isNumber(regexMatches[1]) && isNumber(regexMatches[3])) {
+            firstNumber =
+                Number(regexMatches[1]) +
+                Number(regexMatches[2]) / 60.0 +
+                Number(regexMatches[3]) / 3600.0
+            secondNumber =
+                Number(regexMatches[4]) +
+                Number(regexMatches[5]) / 60.0 +
+                Number(regexMatches[6]) / 3600.0
+        } else if (isNumber(regexMatches[1])) {
+            firstNumber = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0
+            firstCardinal = regexMatches[3]
+            secondNumber = Number(regexMatches[4]) + Number(regexMatches[5]) / 60.0
+            secondCardinal = regexMatches[6]
+        } else {
+            firstCardinal = regexMatches[1]
+            firstNumber = Number(regexMatches[2]) + Number(regexMatches[3]) / 60.0
+            secondCardinal = regexMatches[4]
+            secondNumber = Number(regexMatches[5]) + Number(regexMatches[6]) / 60.0
+        }
     }
     if (regexMatches.length === 9) {
         // 8 matches + global match, i.e. (47)°(5)'(41.61)"(N), (8)°(4)'(6.32)"(E)
-        const firstNumber =
+        firstNumber =
             Number(regexMatches[1]) +
             Number(regexMatches[2]) / 60.0 +
             Number(regexMatches[3]) / 3600.0
-        const firstCardinal = regexMatches[4]
-        const secondNumber =
+        firstCardinal = regexMatches[4]
+        secondNumber =
             Number(regexMatches[5]) +
             Number(regexMatches[6]) / 60.0 +
             Number(regexMatches[7]) / 3600.0
-        const secondCardinal = regexMatches[8]
-        switch (firstCardinal.toUpperCase()) {
+        secondCardinal = regexMatches[8]
+    }
+    if (firstNumber && secondNumber) {
+        let lon = firstNumber,
+            lat = secondNumber
+        switch (firstCardinal?.toUpperCase()) {
             case 'N':
                 lat = firstNumber
                 break
@@ -83,7 +130,7 @@ const webmercatorExtractor = (regexMatches) => {
                 lon = -firstNumber
                 break
         }
-        switch (secondCardinal.toUpperCase()) {
+        switch (secondCardinal?.toUpperCase()) {
             case 'N':
                 lat = secondNumber
                 break
@@ -97,8 +144,6 @@ const webmercatorExtractor = (regexMatches) => {
                 lon = -secondNumber
                 break
         }
-    }
-    if (lon && lat) {
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
             return [lon, lat]
         }
@@ -192,8 +237,15 @@ const coordinateFromString = (text, toProjection) => {
     // and the corresponding extractor when this regex matches the input
     return [
         { regex: REGEX_WEB_MERCATOR, extractor: webmercatorExtractor },
+        { regex: REGEX_WEB_MERCATOR_WITH_CARDINALS, extractor: webmercatorExtractor },
+        { regex: REGEX_WEB_MERCATOR_WITH_PRE_FIXED_CARDINALS, extractor: webmercatorExtractor },
         { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
         { regex: REGEX_MERCATOR_WITH_DEGREES, extractor: webmercatorExtractor },
+        { regex: REGEX_MERCATOR_WITH_DEGREES_WITH_CARDINALS, extractor: webmercatorExtractor },
+        {
+            regex: REGEX_MERCATOR_WITH_DEGREES_WITH_PRE_FIXED_CARDINALS,
+            extractor: webmercatorExtractor,
+        },
         {
             regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES,
             extractor: webmercatorExtractor,
