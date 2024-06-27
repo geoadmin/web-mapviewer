@@ -8,6 +8,7 @@ import { round } from '@/utils/numberUtils'
 const autoRotate = ref(false)
 const store = useStore()
 const currentRotation = computed(() => store.state.position.rotation)
+const currentAutoRotate = computed(() => store.state.position.autoRotation)
 
 const handleOrientation = function (event) {
     const rotation = round((event.alpha / 180) * Math.PI, 2)
@@ -19,6 +20,8 @@ const handleOrientation = function (event) {
 
 function rotate() {
     autoRotate.value = !autoRotate.value
+    store.dispatch('setAutoRotation', autoRotate.value)
+    console.error(store.state.position.autoRotation)
     if (autoRotate.value) {
         if (typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(() => {
@@ -38,5 +41,6 @@ function rotate() {
         <button class="p-0" @click="rotate">
             {{ autoRotate ? 'AUTO-ROTATE ENABLED' : 'AUTO-ROTATE DISABLED' }}
         </button>
+        <button>{{ currentAutoRotate }}</button>
     </div>
 </template>

@@ -52,12 +52,12 @@ export default function useViewBasedOnProjection(map) {
             duration: animationDuration,
         })
     )
-    watch(rotation, (newRotation) =>
+    watch(rotation, (newRotation) => {
         viewsForProjection[projection.value.epsg].animate({
             rotation: newRotation,
             duration: animationDuration,
         })
-    )
+    })
 
     onMounted(() => {
         setViewAccordingToProjection()
