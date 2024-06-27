@@ -682,5 +682,6 @@
     "3d_constructions": "Gebäude und Konstruktionen",
     "webmapviewer_live_disclaimer": "Der Kartenviewer wird bald aktualisiert - <a target='_blank' href='https://www.geo.admin.ch/de/go-live-kartenviewer'>mach dich startklar</a>",
     "drawing_too_large": "Ihre Zeichnung ist zu gross, entfernen Sie einige Details.",
-    "3d_unsupported_projection": "Dieser Datensatz (externe Quelle) kann wegen fehlender Unterstützung der Projektion EPSG:4326 nicht in 3D dargestellt werden"
+    "3d_unsupported_projection": "Dieser Datensatz (externe Quelle) kann wegen fehlender Unterstützung der Projektion EPSG:4326 nicht in 3D dargestellt werden",
+    "geoloc_out_of_bounds": "Ihre aktuelle Position liegt ausserhalb der Schweiz und kann deshalb nicht angezeigt werden"
 }

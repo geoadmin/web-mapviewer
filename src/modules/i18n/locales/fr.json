@@ -682,5 +682,6 @@
     "3d_constructions": "Bâtiments et constructions",
     "webmapviewer_live_disclaimer": "Le visualiseur de cartes sera bientôt mis à jour - <a target='_blank' href='https://www.geo.admin.ch/fr/go-live-visualiseur-de-cartes'>comment se préparer</a>",
     "drawing_too_large": "Ton dessin est trop grand, enlève quelques éléments",
-    "3d_unsupported_projection": "La carte ne peut pas être affichées en 3d parce qu'elle ne supporte pas la projection EPSG:4326"
+    "3d_unsupported_projection": "La carte ne peut pas être affichées en 3d parce qu'elle ne supporte pas la projection EPSG:4326",
+    "geoloc_out_of_bounds": "Votre emplacement actuel est en dehors de la Suisse et ne peut pas être affiché"
 }

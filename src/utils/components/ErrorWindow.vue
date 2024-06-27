@@ -35,38 +35,36 @@ const emit = defineEmits(['close'])
 </script>
 
 <template>
-    <teleport to="#main-component">
+    <div
+        v-show="!hide"
+        class="simple-window card bg-danger text-white fw-bold"
+        :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
+        data-cy="error-window"
+    >
         <div
-            v-show="!hide"
-            class="simple-window card bg-danger text-white fw-bold"
-            :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
-            data-cy="error-window"
+            class="card-header d-flex align-items-center justify-content-sm-end"
+            data-cy="window-header"
         >
-            <div
-                class="card-header d-flex align-items-center justify-content-sm-end"
-                data-cy="window-header"
+            <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
+            <span v-else class="me-auto" />
+            <button
+                class="btn btn-light btn-sm btn-outline-danger me-2"
+                @click.stop="showBody = !showBody"
             >
-                <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
-                <span v-else class="me-auto" />
-                <button
-                    class="btn btn-light btn-sm btn-outline-danger me-2"
-                    @click.stop="showBody = !showBody"
-                >
-                    <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
-                </button>
-                <button
-                    class="btn btn-light btn-sm btn-outline-danger"
-                    data-cy="error-window-close"
-                    @click.stop="emit('close')"
-                >
-                    <FontAwesomeIcon icon="times" />
-                </button>
-            </div>
-            <div class="card-body" :class="{ hide: !showBody }" data-cy="error-window-body">
-                <slot />
-            </div>
+                <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
+            </button>
+            <button
+                class="btn btn-light btn-sm btn-outline-danger"
+                data-cy="error-window-close"
+                @click.stop="emit('close')"
+            >
+                <FontAwesomeIcon icon="times" />
+            </button>
         </div>
-    </teleport>
+        <div class="card-body" :class="{ hide: !showBody }" data-cy="error-window-body">
+            <slot />
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>

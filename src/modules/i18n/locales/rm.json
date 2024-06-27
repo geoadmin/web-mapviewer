@@ -680,5 +680,6 @@
     "3d_constructions": "Edifizis ed installaziuns",
     "webmapviewer_live_disclaimer": "Il visualisader da chartas vegn actualisà proximamain - <a target='_blank' href='https://www.geo.admin.ch/de/go-live-kartenviewer'>stai pronts</a>",
     "drawing_too_large": "Tes dissegn è memia grond, stizza intgins detagls",
-    "3d_unsupported_projection": "La carta na po betg vegnir mussada en 3D perquai ch'ella na sustegna betg la projecziun EPSG:4326"
+    "3d_unsupported_projection": "La carta na po betg vegnir mussada en 3D perquai ch'ella na sustegna betg la projecziun EPSG:4326",
+    "geoloc_out_of_bounds": "Voss lieu actual sa chatta ordaifer la Svizra e na po betg vegnir mussà"
 }
