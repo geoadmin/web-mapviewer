@@ -17,6 +17,10 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 export default function useViewBasedOnProjection(map) {
     const northwardRotation = ref(0)
+    const deviceInputsAverage = ref(0)
+    let deviceInputsCount = 0
+    let deviceInputsSum = 0
+    let orientationInterval = null
 
     const store = useStore()
     const center = computed(() => store.state.position.center)
@@ -44,18 +48,21 @@ export default function useViewBasedOnProjection(map) {
     })
 
     watch(projection, setViewAccordingToProjection)
+
     watch(center, (newCenter) =>
         viewsForProjection[projection.value.epsg].animate({
             center: newCenter,
             duration: animationDuration,
         })
     )
+
     watch(zoom, (newZoom) =>
         viewsForProjection[projection.value.epsg].animate({
             zoom: newZoom,
             duration: animationDuration,
         })
     )
+
     watch(rotation, (newRotation) => {
         if (!autoRotation.value) {
             viewsForProjection[projection.value.epsg].animate({
@@ -64,15 +71,12 @@ export default function useViewBasedOnProjection(map) {
             })
         }
     })
-    watch(northwardRotation, (newRotation) => {
-        viewsForProjection[projection.value.epsg].animate({
-            rotation: newRotation,
-            duration: animationDuration,
-        })
-    })
+
     watch(autoRotation, () => {
-        rotate()
+        toggleAutoRotateListener()
+        toggleAutoRotateDamper()
     })
+
     watch(resetRotation, () => {
         viewsForProjection[projection.value.epsg].animate({
             rotation: 0,
@@ -91,10 +95,13 @@ export default function useViewBasedOnProjection(map) {
 
     const handleOrientation = function (event) {
         northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
-        console.error('New device rotation value received', northwardRotation.value)
+        deviceInputsCount = deviceInputsCount + 1
+        console.error('deviceInputsCount: ', deviceInputsCount)
+        deviceInputsSum = deviceInputsSum + northwardRotation.value
+        //console.error('New device rotation value received', northwardRotation.value)
     }
 
-    function rotate() {
+    function toggleAutoRotateListener() {
         if (autoRotation.value) {
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission().then(() => {
@@ -108,6 +115,26 @@ export default function useViewBasedOnProjection(map) {
                 store.dispatch('setRotation', northwardRotation.value)
             }
             window.removeEventListener('deviceorientation', handleOrientation)
+        }
+    }
+
+    function toggleAutoRotateDamper() {
+        if (autoRotation.value) {
+            orientationInterval = setInterval(() => {
+                if (deviceInputsCount) {
+                    deviceInputsAverage.value = deviceInputsSum / deviceInputsCount
+                }
+                console.error(deviceInputsAverage.value, deviceInputsSum, deviceInputsCount)
+                deviceInputsCount = 0
+                deviceInputsSum = 0
+                viewsForProjection[projection.value.epsg].animate({
+                    rotation: deviceInputsAverage.value,
+                    duration: animationDuration,
+                })
+            }, animationDuration)
+        } else {
+            clearInterval(orientationInterval)
+            orientationInterval = null
         }
     }
 
