@@ -99,7 +99,7 @@ describe('Testing 3D navigation', () => {
             center: '0,0',
         })
         cy.log('check if center is moved to out of bounds location')
-        cy.readStoreValue('state.position').then((positionStore) => {
+        cy.readStoreValue('state.position').should((positionStore) => {
             expect(positionStore.center).to.deep.equal([2660000, 1190000])
         })
     })
@@ -110,7 +110,7 @@ describe('Testing 3D navigation', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.log('check if camera is moved to out of bounds location')
-        cy.readStoreValue('state.position').then((positionStore) => {
+        cy.readStoreValue('state.position').should((positionStore) => {
             expect(positionStore.camera.x).to.deep.equal(8.225457)
             expect(positionStore.camera.y).to.deep.equal(46.858429)
         })
