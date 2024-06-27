@@ -76,6 +76,13 @@ const state = {
     rotation: 0,
 
     /**
+     * Flag which indicates if openlayers map rotates to align with true / magnetic north
+     *
+     * @type Boolean
+     */
+    autoRotation: false,
+
+    /**
      * Center of the view expressed with the current projection
      *
      * @type Array<Number>
@@ -199,6 +206,10 @@ const actions = {
         }
         rotation = normalizeAngle(rotation)
         commit('setRotation', rotation)
+    },
+    setAutoRotation({ commit }, autoRotation) {
+        console.error('sadsadas', autoRotation)
+        commit('setAutoRotation', autoRotation)
     },
     /**
      * @param commit
@@ -420,6 +431,7 @@ const mutations = {
         (state.displayedFormatId = displayedFormatId),
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
+    setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>
