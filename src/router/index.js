@@ -17,8 +17,6 @@ import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
 
-import parametersPreProcessRouterPlugin from './parametersPreProcess.routerPlugin'
-
 const history = createWebHashHistory()
 
 /**
@@ -78,7 +76,6 @@ router.onError((error) => {
 
 appLoadingManagementRouterPlugin(router, store)
 legacyPermalinkManagementRouterPlugin(router, store)
-parametersPreProcessRouterPlugin(router, store)
 storeSyncRouterPlugin(router, store)
 
 // exposing the router to Cypress, so that we may change URL param on the fly (without app reload),
