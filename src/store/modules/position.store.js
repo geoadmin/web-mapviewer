@@ -208,12 +208,10 @@ const actions = {
         commit('setZoom', { zoom: state.projection.roundZoomLevel(zoom), dispatcher })
     },
     setRotation({ commit }, rotation) {
-        console.error('rotate: ', rotation)
         if (typeof rotation !== 'number') {
             return
         }
         rotation = normalizeAngle(rotation)
-        console.error('commit rotate: ', rotation)
         commit('setRotation', rotation)
     },
     setAutoRotation({ commit }, autoRotation) {
