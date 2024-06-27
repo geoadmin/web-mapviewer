@@ -83,6 +83,13 @@ const state = {
     autoRotation: false,
 
     /**
+     * Flag which indicates if map rotations should get reset by openlayers
+     *
+     * @type Boolean
+     */
+    resetRotation: false,
+
+    /**
      * Center of the view expressed with the current projection
      *
      * @type Array<Number>
@@ -201,15 +208,19 @@ const actions = {
         commit('setZoom', { zoom: state.projection.roundZoomLevel(zoom), dispatcher })
     },
     setRotation({ commit }, rotation) {
+        console.error('rotate: ', rotation)
         if (typeof rotation !== 'number') {
             return
         }
         rotation = normalizeAngle(rotation)
+        console.error('commit rotate: ', rotation)
         commit('setRotation', rotation)
     },
     setAutoRotation({ commit }, autoRotation) {
-        console.error('sadsadas', autoRotation)
         commit('setAutoRotation', autoRotation)
+    },
+    setResetRotation({ commit }, resetRotation) {
+        commit('setResetRotation', resetRotation)
     },
     /**
      * @param commit
@@ -432,6 +443,7 @@ const mutations = {
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
     setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
+    setResetRotation: (state, resetRotation) => (state.resetRotation = resetRotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>

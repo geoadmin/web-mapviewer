@@ -54,8 +54,8 @@ const is3dActive = computed(() => store.state.cesium.active)
         <GeolocButton v-if="geolocButton && !isFullscreenMode" />
         <ZoomButtons v-if="!isFullscreenMode" />
         <Toggle3dButton v-if="toggle3dButton && !isFullscreenMode" />
-        <OpenLayersCompassButton v-if="compassButton && !is3dActive && !isFullscreenMode" />
         <CompassButton />
+        <OpenLayersCompassButton v-if="compassButton && !is3dActive && !isFullscreenMode" />
         <slot />
     </div>
 </template>
