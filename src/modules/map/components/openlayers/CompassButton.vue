@@ -13,8 +13,9 @@ function rotate() {
 
 <template>
     <div>
-        <button class="toolbox-button" @click="rotate">
-            <FontAwesomeIcon :icon="autoRotation ? 'far fa-trash-alt' : 'arrow-up'" />
+        <button class="toolbox-button" :class="{ active: autoRotation }" @click="rotate">
+            <FontAwesomeIcon style="position: absolute" icon="arrow-up" />
+            <FontAwesomeIcon :icon="['fas', 'n']" />
         </button>
     </div>
 </template>
