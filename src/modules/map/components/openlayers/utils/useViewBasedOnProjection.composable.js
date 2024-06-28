@@ -17,7 +17,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 export default function useViewBasedOnProjection(map) {
     const northwardRotation = ref(0)
-    const deviceOrientationInputAverage = ref(0)
+    const circularAverage = ref(0)
     let count = 0
     let sumSin = 0
     let sumCos = 0
@@ -123,23 +123,33 @@ export default function useViewBasedOnProjection(map) {
     function toggleAutoRotateDamping() {
         if (autoRotation.value) {
             dampingInterval = setInterval(() => {
-                if (count) {
-                    deviceOrientationInputAverage.value = Math.atan2(sumSin, sumCos)
+                if (!count) {
+                    return
                 }
+
+                const newCircularAverage = Math.atan2(sumSin, sumCos)
                 console.error(
                     'calculating average device orientation from inputs: ',
-                    deviceOrientationInputAverage.value,
+                    newCircularAverage,
+                    circularAverage.value,
                     sumSin,
                     sumCos,
                     count
                 )
+
+                const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
+                const deltaThreshold =
+                    Math.abs(circularAverage.value - newCircularAverage) > Math.PI / 90
+                if (certaintyThreshold && deltaThreshold) {
+                    viewsForProjection[projection.value.epsg].animate({
+                        rotation: newCircularAverage,
+                        duration: animationDuration,
+                    })
+                    circularAverage.value = newCircularAverage
+                }
                 count = 0
                 sumSin = 0
                 sumCos = 0
-                viewsForProjection[projection.value.epsg].animate({
-                    rotation: deviceOrientationInputAverage.value,
-                    duration: animationDuration,
-                })
             }, animationDuration)
         } else {
             clearInterval(dampingInterval)
