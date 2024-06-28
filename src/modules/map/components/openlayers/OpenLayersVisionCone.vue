@@ -3,6 +3,7 @@
 
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
+import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import { toRadians } from 'ol/math'
 import VectorSource from 'ol/source/Vector'
@@ -38,7 +39,7 @@ rotateConeOnCompassHeading()
 const visionConeFeature = new Feature({
     geometry: visionConeGeometry,
 })
-const coneSize = 50 // px
+const coneSize = 50 * DEVICE_PIXEL_RATIO // px
 visionConeFeature.setStyle(
     new Style({
         renderer(coordinates, state) {
