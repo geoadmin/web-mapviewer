@@ -72,17 +72,9 @@ watch(showEmbedSharing, () => {
         updateShareLink()
     }
 })
-watch(
-    () => route.query,
-    (newQuery, oldQuery) => {
-        //Cannot watch language and zoom directly due to the delayed url update
-        if (showEmbedSharing.value) {
-            if (oldQuery['lang'] != newQuery['lang']) {
-                updateShareLink()
-            }
-        }
-    }
-)
+watch(() => route.query, updateShareLink, {
+    deep: true,
+})
 
 onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
