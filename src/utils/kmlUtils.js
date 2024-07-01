@@ -11,8 +11,8 @@ import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
-import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import { DrawingIcon } from '@/api/icon.api'
+import { proxifyUrl } from '@/api/file-proxy.api.js'
+import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
 import { API_SERVICE_PROXY_BASE_URL, API_SERVICES_BASE_URL } from '@/config.js'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -338,7 +338,7 @@ function getIconSize(iconStyle) {
  *
  * @param {Style} style
  * @param {ol/geom/Type} geometryType
- * @param {IconArg} iconArgs
+ * @param {IconArgs} iconArgs
  * @returns {FeatureStyleColor} Returns fill color (default RED if not found in style)
  */
 export function getFillColor(style, geometryType, iconArgs) {
@@ -354,45 +354,47 @@ export function getFillColor(style, geometryType, iconArgs) {
     }
 }
 
-/**
- * Get the geoadmin editable feature for the given open layer KML feature
- *
- * @param {Feature} kmlFeature Open layer KML feature
- * @param {kmlLayer} kmlLayer Open layer KML layer
- * @param {DrawingIconSet[]} availableIconSets
- * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
- *   feature
- */
-export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
+export function applyDefaultKmlStyle(kmlFeature, kmlLayer, availableIconSets) {
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
-        return null
-    }
-    const featureType = getFeatureType(kmlFeature)
-    if (!featureType) {
-        log.debug('External KML detected, cannot modify it to an EditableFeature')
-        return null
+        return
     }
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
     // We will now analyse this style to retrieve all information we need to generate the editable feature.
     const style = getStyle(kmlFeature)
     if (!style) {
         log.error('Parsing error: Could not get the style from the ol Feature', kmlFeature)
-        return null
+        return
     }
-    const featureId = kmlFeature.getId()
-
-    // facultative on marker, never present on measure and linepolygon
-    const title = kmlFeature.get('name') ?? ''
-    const textScale = getTextScale(style)
-    const textSize = getTextSize(textScale)
-    const textColor = getTextColor(style)
-    const textOffset = kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
-
-    const description = kmlFeature.get('description') ?? ''
-
     const iconStyle = getIconStyle(style)
     const iconArgs = iconStyle ? parseIconUrl(iconStyle.getSrc()) : null
+
+    const featureType = getFeatureType(kmlFeature)
+    if (!featureType) {
+        log.debug(
+            'External KML detected, cannot modify it to an EditableFeature, proxifying any icon'
+        )
+        if (iconStyle) {
+            style.setImage(
+                new IconStyle({
+                    opacity: iconStyle.getOpacity(),
+                    rotation: iconStyle.getRotation(),
+                    scale: iconStyle.getScale(),
+                    rotateWithView: iconStyle.getRotateWithView(),
+                    displacement: iconStyle.getDisplacement(),
+                    declutterMode: iconStyle.getDeclutterMode(),
+                    anchor: iconStyle.getAnchor(),
+                    anchorOrigin: iconStyle.anchorOrigin,
+                    anchorXUnits: iconStyle.anchorXUnits,
+                    anchorYUnits: iconStyle.anchorYUnits,
+                    src: proxifyUrl(iconStyle.getSrc()),
+                })
+            )
+            kmlFeature.setStyle(style)
+        }
+        return
+    }
+
     if (iconArgs?.isLegacy) {
         // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
         // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
@@ -403,11 +405,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
         iconStyle.setScale(iconStyle.getScale() * LEGACY_ICON_XML_SCALE_FACTOR)
     }
     const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null
-    const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
-
-    const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
-    const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
@@ -433,27 +431,59 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
         })
         style.setImage(newIconStyle)
     }
+}
+
+/**
+ * Get the geoadmin editable feature for the given open layer KML feature
+ *
+ * @param {Feature} kmlFeature Open layer KML feature
+ * @param {KMLLayer} kmlLayer Open layer KML layer
+ * @param {DrawingIconSet[]} availableIconSets
+ * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
+ *   feature
+ */
+export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
+    applyDefaultKmlStyle()
+    if (!(kmlFeature instanceof Feature)) {
+        log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
+        return null
+    }
+    const featureType = getFeatureType(kmlFeature)
+    if (!featureType) {
+        log.debug('External KML detected, cannot modify it to an EditableFeature')
+        return null
+    }
+    // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
+    // We will now analyse this style to retrieve all information we need to generate the editable feature.
+    const style = getStyle(kmlFeature)
+    if (!style) {
+        log.error('Parsing error: Could not get the style from the ol Feature', kmlFeature)
+        return null
+    }
+    const iconStyle = getIconStyle(style)
+    const iconArgs = iconStyle ? parseIconUrl(iconStyle.getSrc()) : null
 
     return new EditableFeature({
-        id: featureId,
+        id: kmlFeature.getId(),
         featureType: featureType,
-        title,
-        description: description,
-        coordinates,
-        geometry,
-        textOffset,
-        textColor,
-        textSize,
-        fillColor,
-        icon,
-        iconSize,
+        // title/name is facultative on marker, never present on measure and linepolygon
+        title: kmlFeature.get('name') ?? '',
+        description: kmlFeature.get('description') ?? '',
+        coordinates: extractOlFeatureCoordinates(kmlFeature),
+        geometry: new GeoJSON().writeGeometryObject(kmlFeature.getGeometry()),
+        textOffset: kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET,
+        textColor: getTextColor(style),
+        textSize: getTextSize(getTextScale(style)),
+        fillColor: getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs),
+        icon: iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null,
+        iconSize: iconStyle ? getIconSize(iconStyle) : null,
     })
 }
 
 /**
  * Parses a KML's data into OL Features
  *
- * @param {kmlLayer} kmlLayer KML layer to parse
+ * @param {KMLLayer} kmlLayer KML layer to parse
  * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
@@ -464,9 +494,12 @@ export function parseKml(kmlLayer, projection, iconSets) {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    // we do not force our DrawingModule styling (especially colors) to external/non-drawing KMLs
-    if (!kmlLayer.isExternal) {
-        features.forEach((olFeature) => {
+
+    features.forEach((olFeature) => {
+        // we do not force our DrawingModule styling (especially colors) to external/non-drawing KMLs
+        if (kmlLayer.isExternal) {
+            applyDefaultKmlStyle(olFeature, kmlLayer, iconSets)
+        } else {
             const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
 
             if (editableFeature) {
@@ -477,14 +510,14 @@ export function parseKml(kmlLayer, projection, iconSets) {
 
                 if (editableFeature.isLineOrMeasure()) {
                     /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                    if present. The lines connecting the vertices of the geometry will appear
-                    geodesic (follow the shortest path) in this case instead of linear (be straight on
-                    the screen)  */
+                        if present. The lines connecting the vertices of the geometry will appear
+                        geodesic (follow the shortest path) in this case instead of linear (be straight on
+                        the screen)  */
                     olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
                 }
             }
-        })
-    }
+        }
+    })
 
     return features
 }
@@ -545,7 +578,7 @@ export function proxifyKmlData(kmlData) {
         `<href>${API_SERVICES_BASE_URL}color/255,0,0/$2`
     )
 
-    log.debug('KML utils] transformed KML data from', kmlData, 'to', transformedKml)
+    log.debug('[KML utils] proxyfication of image URLs done')
 
     return transformedKml
 }

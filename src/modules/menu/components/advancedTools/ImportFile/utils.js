@@ -5,7 +5,7 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
-import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
+import { EmptyKMLError, getKmlExtent, proxifyKmlData } from '@/utils/kmlUtils'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
 
@@ -47,7 +47,7 @@ export function handleFileContent(store, content, source) {
             visible: true,
             opacity: 1.0,
             adminId: null,
-            kmlData: content,
+            kmlData: proxifyKmlData(content),
         })
         const extent = getKmlExtent(content)
         if (!extent) {
