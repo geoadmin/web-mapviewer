@@ -4,6 +4,7 @@
 
 <script>
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
+import { cloneDeep } from 'lodash'
 import { mapState } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -63,6 +64,9 @@ export default {
         timestamp() {
             return getTimestampFromConfig(this.wmsLayerConfig)
         },
+        customAttributes() {
+            return cloneDeep(this.wmsLayerConfig.customAttributes)
+        },
         /**
          * Definition of all relevant URL param for our WMS backends. Passes as parameters to
          * https://cesium.com/learn/cesiumjs/ref-doc/WebMapServiceImageryProvider.html#.ConstructorOptions
@@ -74,7 +78,7 @@ export default {
          * @returns Object
          */
         wmsUrlParams() {
-            const params = {
+            let params = {
                 SERVICE: 'WMS',
                 REQUEST: 'GetMap',
                 TRANSPARENT: true,
@@ -85,6 +89,9 @@ export default {
             }
             if (this.timestamp && this.timestamp !== ALL_YEARS_TIMESTAMP) {
                 params.TIME = this.timestamp
+            }
+            if (this.customAttributes) {
+                params = { ...params, ...this.customAttributes }
             }
             return params
         },

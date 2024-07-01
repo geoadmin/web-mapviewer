@@ -1,6 +1,7 @@
 <script setup>
 /** Renders a WMS layer on the map */
 
+import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
@@ -16,7 +17,6 @@ import { LV95 } from '@/utils/coordinates/coordinateSystems.js'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
-
 const props = defineProps({
     wmsLayerConfig: {
         type: [GeoAdminWMSLayer, ExternalWMSLayer],
@@ -46,6 +46,7 @@ const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
 const url = computed(() => wmsLayerConfig.value.baseUrl)
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
+const urlParams = computed(() => cloneDeep(wmsLayerConfig.value.customAttributes) ?? null)
 
 /**
  * Definition of all relevant URL param for our WMS backends. This is because both
@@ -57,7 +58,7 @@ const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
  * most of our wanted params will be doubled, resulting in longer and more difficult to read URLs
  */
 const wmsUrlParams = computed(() => {
-    const params = {
+    let params = {
         SERVICE: 'WMS',
         REQUEST: 'GetMap',
         TRANSPARENT: format.value === 'png',
@@ -72,6 +73,9 @@ const wmsUrlParams = computed(() => {
         // To request all timestamp we need to set the TIME to null which will force openlayer
         // to send a request without TIME param, otherwise openlayer takes the previous TIME param.
         params.TIME = null
+    }
+    if (urlParams.value !== null) {
+        params = { ...params, ...urlParams.value }
     }
     return params
 })
