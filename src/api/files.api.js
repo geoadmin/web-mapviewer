@@ -4,6 +4,7 @@ import pako from 'pako'
 
 import getFileThroughProxy from '@/api/file-proxy.api.js'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
+import { proxifyKmlData } from '@/utils/kmlUtils.js'
 import log from '@/utils/logging'
 
 /**
@@ -316,7 +317,7 @@ export function loadKmlData(kmlLayer) {
             .get(kmlLayer.kmlFileUrl)
             .then((response) => {
                 if (response.status === 200 && response.data) {
-                    resolve(response.data)
+                    resolve(proxifyKmlData(response.data))
                 } else {
                     const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.id}`
                     log.error(msg, response)

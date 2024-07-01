@@ -4,6 +4,10 @@ import { isString } from 'lodash'
 import { API_SERVICE_PROXY_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 
+export function proxifyUrl(url) {
+    return `${API_SERVICE_PROXY_BASE_URL}${transformFileUrl(url)}`
+}
+
 /**
  * Transform our file URL into a path, compatible with a call to service-proxy
  *
@@ -42,7 +46,7 @@ export default function getFileThroughProxy(fileUrl, options = {}) {
         }
         axios({
             method: 'get',
-            url: `${API_SERVICE_PROXY_BASE_URL}${fileAsPath}`,
+            url: proxifyUrl(fileUrl),
             timeout,
         })
             .then((response) => {
