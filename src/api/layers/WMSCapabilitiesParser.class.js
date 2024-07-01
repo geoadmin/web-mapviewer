@@ -113,6 +113,7 @@ export default class WMSCapabilitiesParser {
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
+     * @param {Object | null} [params=null] URL parameters to pass to WMS server. Default is `null`
      * @param {boolean} [ignoreError=true] Don't throw exception in case of error, but return a
      *   default value or null. Default is `true`
      * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or null in case of error
@@ -123,6 +124,7 @@ export default class WMSCapabilitiesParser {
         opacity = 1,
         visible = true,
         currentYear = null,
+        params = null,
         ignoreError = true
     ) {
         const { layer, parents } = this.findLayer(layerId)
@@ -141,6 +143,7 @@ export default class WMSCapabilitiesParser {
             opacity,
             visible,
             currentYear,
+            params,
             ignoreError
         )
     }
@@ -154,6 +157,7 @@ export default class WMSCapabilitiesParser {
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
+     * @param {Object | null} [params=null] URL parameters to pass to WMS server. Default is `null`
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
      * @returns {[ExternalWMSLayer | ExternalGroupOfLayers]} List of
@@ -164,6 +168,7 @@ export default class WMSCapabilitiesParser {
         opacity = 1,
         visible = true,
         currentYear = null,
+        params = null,
         ignoreError = true
     ) {
         return this.Capability.Layer.Layer.map((layer) =>
@@ -174,6 +179,7 @@ export default class WMSCapabilitiesParser {
                 opacity,
                 visible,
                 currentYear,
+                params,
                 ignoreError
             )
         ).filter((layer) => !!layer)
@@ -186,6 +192,7 @@ export default class WMSCapabilitiesParser {
         opacity,
         visible,
         currentYear,
+        params,
         ignoreError
     ) {
         const {
@@ -216,6 +223,8 @@ export default class WMSCapabilitiesParser {
                     projection,
                     opacity,
                     visible,
+                    currentYear,
+                    params,
                     ignoreError
                 )
             ).filter((layer) => !!layer)
@@ -253,6 +262,7 @@ export default class WMSCapabilitiesParser {
             hasTooltip: queryable,
             getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
             currentYear,
+            customAttributes: params,
             dimensions: dimensions,
             timeConfig: this._getTimeConfig(layerId, dimensions),
         })

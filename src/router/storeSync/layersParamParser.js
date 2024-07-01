@@ -163,9 +163,11 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         // default timestamp. This can happen for External layer using a non ISO timestamp.
     }
 
+    // Add features ID attributes
     if (featuresIds) {
         layerUrlString += `@features=${featuresIds.join(':')}`
     }
+
     // Storing the update delay if different from the default config (or if no default config is present and there's an update delay)
     // this currently only applies to GeoJSON layer
     if (
@@ -174,6 +176,15 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
     ) {
         layerUrlString += `@updateDelay=${layer.updateDelay}`
     }
+
+    // Add custom attributes if any
+    if (layer.customAttributes !== null) {
+        for (const [key, value] of Object.entries(layer.customAttributes)) {
+            layerUrlString += `@${key}${value ? '=' + encodeLayerParam(value) : ''}`
+        }
+    }
+
+    // Add visibility flag
     if (!layer.visible) {
         layerUrlString += `,f`
     }

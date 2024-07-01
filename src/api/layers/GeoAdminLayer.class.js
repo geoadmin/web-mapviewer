@@ -61,6 +61,9 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
+     * @param {Object | null} [layerData.customAttributes=null] The custom attributes (except the
+     *   well known updateDelays, adminId, features and year) passed with the layer id in url.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -87,6 +90,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             hasDescription = true,
             hasLegend = false,
             searchable = false,
+            customAttributes = null,
         } = layerData
         if (id === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
@@ -117,6 +121,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             hasDescription,
             hasLegend,
             timeConfig,
+            customAttributes,
         })
         this.technicalName = technicalName
         this.isBackground = isBackground
