@@ -63,10 +63,17 @@ export default function useMapInteractions(map) {
         unregisterPointerEvents()
     })
 
+    let longClick = false
+    let longClickTimeout
+
     function registerPointerEvents() {
         log.debug(`Register map pointer events`)
         map.on('singleclick', onMapLeftClick)
         map.on('contextmenu', onMapRightClick)
+        map.on('pointermove', onMapMove)
+
+        map.getTargetElement().addEventListener('pointerdown', onMapPointerDown)
+
         if (IS_TESTING_WITH_CYPRESS) {
             window.mapPointerEventReady = true
         }
@@ -77,11 +84,18 @@ export default function useMapInteractions(map) {
         if (IS_TESTING_WITH_CYPRESS) {
             window.mapPointerEventReady = false
         }
+
+        map.getTargetElement().removeEventListener('pointerdown', onMapPointerDown)
+
+        map.un('pointermove', onMapMove)
         map.un('singleclick', onMapLeftClick)
         map.un('contextmenu', onMapRightClick)
     }
 
     function onMapLeftClick(event) {
+        if (longClick) {
+            return onMapRightClick(event)
+        }
         const { coordinate, pixel } = event
         const features = []
         activeVectorLayers.value.forEach((vectorLayer) => {
@@ -148,5 +162,17 @@ export default function useMapInteractions(map) {
                 clickType: ClickType.CONTEXTMENU,
             }),
         })
+    }
+
+    function onMapMove() {
+        longClick = false
+        clearTimeout(longClickTimeout)
+    }
+
+    function onMapPointerDown() {
+        clearTimeout(longClickTimeout)
+        // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
+        // LocationPopup by touching the same-ish spot for 500ms
+        longClickTimeout = setTimeout(() => (longClick = true), 500)
     }
 }

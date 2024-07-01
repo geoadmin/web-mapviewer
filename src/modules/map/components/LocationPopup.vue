@@ -72,9 +72,17 @@ watch(showEmbedSharing, () => {
         updateShareLink()
     }
 })
-watch(() => route.query, updateShareLink, {
-    deep: true,
-})
+watch(
+    () => route.query,
+    () => {
+        if (showEmbedSharing.value) {
+            updateShareLink()
+        }
+    },
+    {
+        deep: true,
+    }
+)
 
 onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
