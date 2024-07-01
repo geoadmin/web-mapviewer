@@ -44,6 +44,13 @@ const handlePositionAndDispatchToStore = (position, store) => {
         position: positionProjected,
         ...dispatcher,
     })
+    let heading = position.coords.heading
+    if (heading) {
+        store.dispatch('setGeolocationHeading', {
+            heading: heading,
+            ...dispatcher,
+        })
+    }
     store.dispatch('setGeolocationAccuracy', {
         accuracy: position.coords.accuracy,
         ...dispatcher,
