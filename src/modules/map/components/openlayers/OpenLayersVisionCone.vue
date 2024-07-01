@@ -22,13 +22,22 @@ const { zIndex } = toRefs(props)
 
 const store = useStore()
 const geolocationPosition = computed(() => store.state.geolocation.position)
-const geolocationHeading = ref(0) // TODO : get the real heading and remove the randomizer
+const geolocationHeading = computed(() => store.state.geolocation.heading)
+const positionHeading = computed(() => store.state.position.heading)
+const headingOffset = ref(0)
+const effectiveHeading = ref(0) // TODO : get the real heading and remove the randomizer
 setInterval(() => {
-    geolocationHeading.value = store.state.position.heading - Math.PI / 2
+    if (geolocationHeading.value) {
+        console.error('geolocationHeading has value: ', geolocationHeading.value)
+        headingOffset.value = geolocationHeading.value - positionHeading.value
+    } else {
+        console.error('geolocationHeading has no value: ', geolocationHeading.value)
+    }
+    effectiveHeading.value = positionHeading.value + headingOffset.value - Math.PI / 2
 }, 500)
 
 function rotateConeOnCompassHeading() {
-    visionConeGeometry.rotate(geolocationHeading.value, geolocationPosition.value)
+    visionConeGeometry.rotate(effectiveHeading.value, geolocationPosition.value)
 }
 
 const visionConeGeometry = new Point(geolocationPosition.value)
@@ -56,7 +65,7 @@ visionConeFeature.setStyle(
             ctx.beginPath()
             ctx.moveTo(x, y)
             ctx.lineTo(x, y)
-            ctx.arc(x, y, coneSize, geolocationHeading.value - 1, geolocationHeading.value + 1)
+            ctx.arc(x, y, coneSize, effectiveHeading.value - 1, effectiveHeading.value + 1)
             ctx.lineTo(x, y)
             ctx.fillStyle = gradient
             ctx.fill()
@@ -75,7 +84,7 @@ const olMap = inject('olMap', null)
 useAddLayerToMap(layer, olMap, zIndex)
 
 watch(geolocationPosition, () => visionConeGeometry.setCoordinates(geolocationPosition.value))
-watch(geolocationHeading, rotateConeOnCompassHeading)
+watch(effectiveHeading, rotateConeOnCompassHeading)
 </script>
 
 <template>
