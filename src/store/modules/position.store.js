@@ -228,7 +228,6 @@ const actions = {
         commit('setResetRotation', resetRotation)
     },
     setHeading({ commit }, heading) {
-        console.error('heading', heading)
         if (typeof heading !== 'number') {
             return
         }

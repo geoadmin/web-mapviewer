@@ -62,7 +62,6 @@ const actions = {
         }
     },
     setGeolocationPosition: ({ commit }, { position, dispatcher }) => {
-        console.error('setGeolocationPosition: ', position)
         if (Array.isArray(position) && position.length === 2) {
             commit('setGeolocationPosition', { position, dispatcher })
         } else {
@@ -70,7 +69,6 @@ const actions = {
         }
     },
     setGeolocationHeading: ({ commit }, { heading, dispatcher }) => {
-        console.error('setGeolocationHeading: ', heading)
         commit('setGeolocationHeading', { heading, dispatcher })
         log.debug('No geolocation heading received, ignoring', heading)
     },

@@ -105,7 +105,6 @@ export default function useViewBasedOnProjection(map) {
         count = count + 1
         sumSin = sumSin + Math.sin(northwardRotation.value)
         sumCos = sumCos + Math.cos(northwardRotation.value)
-        console.error('New device rotation value received', northwardRotation.value)
     }
 
     function toggleAutoRotateListener() {
@@ -134,15 +133,6 @@ export default function useViewBasedOnProjection(map) {
                 }
 
                 const newCircularAverage = Math.atan2(sumSin, sumCos)
-                console.error(
-                    'calculating average device orientation from inputs: ',
-                    newCircularAverage,
-                    circularAverage.value,
-                    sumSin,
-                    sumCos,
-                    count
-                )
-
                 const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
                 const deltaThreshold =
                     Math.abs(circularAverage.value - newCircularAverage) > Math.PI / 90

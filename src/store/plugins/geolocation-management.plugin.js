@@ -1,3 +1,4 @@
+import { toRadians } from 'ol/math'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
@@ -44,13 +45,11 @@ const handlePositionAndDispatchToStore = (position, store) => {
         position: positionProjected,
         ...dispatcher,
     })
-    let heading = position.coords.heading
-    if (heading) {
-        store.dispatch('setGeolocationHeading', {
-            heading: heading,
-            ...dispatcher,
-        })
-    }
+    console.error('setGeolocationHeading: ', position.coords.heading)
+    store.dispatch('setGeolocationHeading', {
+        heading: toRadians(position.coords.heading),
+        ...dispatcher,
+    })
     store.dispatch('setGeolocationAccuracy', {
         accuracy: position.coords.accuracy,
         ...dispatcher,
