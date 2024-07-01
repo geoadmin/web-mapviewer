@@ -63,7 +63,16 @@ export default function useMapInteractions(map) {
         unregisterPointerEvents()
     })
 
-    let longClick = false
+    /*
+     * Many ways of dealing with click explained as below :
+     *
+     *  - Mouse down -> less than 500ms -> Mouse up => OL fires a singleclick event, we handle it in onMapLeftClick
+     *  - Mouse down -> Mouse move -> Mouse up (time doesn't matter) => We do nothing, the map has moved
+     *  - Mouse down -> 500ms (no map move) -> we detect a long press and trigger a right click (singleclick needs then to be muted in this case)
+     *
+     */
+    let mapHasMoved = false
+    let longClickTriggered = false
     let longClickTimeout
 
     function registerPointerEvents() {
@@ -93,8 +102,11 @@ export default function useMapInteractions(map) {
     }
 
     function onMapLeftClick(event) {
-        if (longClick) {
-            return onMapRightClick(event)
+        clearTimeout(longClickTimeout)
+        if (longClickTriggered) {
+            // click was already processed, ignoring (will otherwise select features at the same time as the right click has been triggered)
+            longClickTriggered = false
+            return
         }
         const { coordinate, pixel } = event
         const features = []
@@ -154,6 +166,7 @@ export default function useMapInteractions(map) {
     }
 
     function onMapRightClick(event) {
+        clearTimeout(longClickTimeout)
         store.dispatch('click', {
             clickInfo: new ClickInfo({
                 coordinate: event.coordinate,
@@ -165,14 +178,28 @@ export default function useMapInteractions(map) {
     }
 
     function onMapMove() {
-        longClick = false
+        mapHasMoved = true
         clearTimeout(longClickTimeout)
     }
 
-    function onMapPointerDown() {
+    function onMapPointerDown(event) {
         clearTimeout(longClickTimeout)
+        mapHasMoved = false
         // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
         // LocationPopup by touching the same-ish spot for 500ms
-        longClickTimeout = setTimeout(() => (longClick = true), 500)
+        longClickTimeout = setTimeout(() => {
+            if (!mapHasMoved) {
+                longClickTriggered = true
+                // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
+                const pixel = map.getEventPixel(event)
+                const coordinate = map.getCoordinateFromPixel(pixel)
+                onMapRightClick({
+                    ...event,
+                    pixel,
+                    coordinate,
+                })
+            }
+            mapHasMoved = false
+        }, 500)
     }
 }
