@@ -30,6 +30,7 @@ export default function useViewBasedOnProjection(map) {
     const rotation = computed(() => store.state.position.rotation)
     const autoRotation = computed(() => store.state.position.autoRotation)
     const resetRotation = computed(() => store.state.position.resetRotation)
+    const geolocationIsActive = computed(() => store.state.geolocation.active)
 
     const viewsForProjection = {}
     viewsForProjection[LV95.epsg] = new View({
@@ -78,6 +79,11 @@ export default function useViewBasedOnProjection(map) {
         toggleAutoRotateDamping()
     })
 
+    watch(geolocationIsActive, () => {
+        toggleAutoRotateListener()
+        toggleAutoRotateDamping()
+    })
+
     watch(resetRotation, () => {
         viewsForProjection[projection.value.epsg].animate({
             rotation: 0,
@@ -103,7 +109,7 @@ export default function useViewBasedOnProjection(map) {
     }
 
     function toggleAutoRotateListener() {
-        if (autoRotation.value) {
+        if (autoRotation.value || geolocationIsActive) {
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission().then(() => {
                     window.addEventListener('deviceorientation', handleOrientation)
@@ -121,7 +127,7 @@ export default function useViewBasedOnProjection(map) {
 
     // we have to sync the update interval with the animation duration so that rotating the map does not look choppy
     function toggleAutoRotateDamping() {
-        if (autoRotation.value) {
+        if (autoRotation.value || geolocationIsActive.value) {
             dampingInterval = setInterval(() => {
                 if (!count) {
                     return
@@ -140,12 +146,15 @@ export default function useViewBasedOnProjection(map) {
                 const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
                 const deltaThreshold =
                     Math.abs(circularAverage.value - newCircularAverage) > Math.PI / 90
-                if (certaintyThreshold && deltaThreshold) {
+                if (autoRotation.value && certaintyThreshold && deltaThreshold) {
                     viewsForProjection[projection.value.epsg].animate({
                         rotation: newCircularAverage,
                         duration: animationDuration,
                     })
                     circularAverage.value = newCircularAverage
+                }
+                if (geolocationIsActive.value) {
+                    store.dispatch('setHeading', newCircularAverage)
                 }
                 count = 0
                 sumSin = 0

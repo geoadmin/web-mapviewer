@@ -90,6 +90,13 @@ const state = {
     resetRotation: false,
 
     /**
+     * The heading of the vision cone
+     *
+     * @type Number
+     */
+    heading: 0,
+
+    /**
      * Center of the view expressed with the current projection
      *
      * @type Array<Number>
@@ -219,6 +226,14 @@ const actions = {
     },
     setResetRotation({ commit }, resetRotation) {
         commit('setResetRotation', resetRotation)
+    },
+    setHeading({ commit }, heading) {
+        console.error('heading', heading)
+        if (typeof heading !== 'number') {
+            return
+        }
+        heading = normalizeAngle(heading)
+        commit('setHeading', heading)
     },
     /**
      * @param commit
@@ -442,6 +457,7 @@ const mutations = {
     setRotation: (state, rotation) => (state.rotation = rotation),
     setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
     setResetRotation: (state, resetRotation) => (state.resetRotation = resetRotation),
+    setHeading: (state, heading) => (state.heading = heading),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>
