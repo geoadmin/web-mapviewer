@@ -5,14 +5,12 @@ import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
-import { toRadians } from 'ol/math'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
 import { computed, inject, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { randomIntBetween } from '@/utils/numberUtils'
 
 const props = defineProps({
     zIndex: {
@@ -26,11 +24,11 @@ const store = useStore()
 const geolocationPosition = computed(() => store.state.geolocation.position)
 const geolocationHeading = ref(0) // TODO : get the real heading and remove the randomizer
 setInterval(() => {
-    geolocationHeading.value = randomIntBetween(0, 359)
+    geolocationHeading.value = store.state.position.heading - Math.PI / 2
 }, 500)
 
 function rotateConeOnCompassHeading() {
-    visionConeGeometry.rotate(toRadians(geolocationHeading.value), geolocationPosition.value)
+    visionConeGeometry.rotate(geolocationHeading.value, geolocationPosition.value)
 }
 
 const visionConeGeometry = new Point(geolocationPosition.value)
@@ -58,13 +56,7 @@ visionConeFeature.setStyle(
             ctx.beginPath()
             ctx.moveTo(x, y)
             ctx.lineTo(x, y)
-            ctx.arc(
-                x,
-                y,
-                coneSize,
-                toRadians(geolocationHeading.value - 25),
-                toRadians(geolocationHeading.value + 25)
-            )
+            ctx.arc(x, y, coneSize, geolocationHeading.value - 1, geolocationHeading.value + 1)
             ctx.lineTo(x, y)
             ctx.fillStyle = gradient
             ctx.fill()
