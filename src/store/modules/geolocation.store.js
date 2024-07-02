@@ -27,6 +27,12 @@ const state = {
      */
     position: [0, 0],
     /**
+     * Heading of device calculated by speed and location change
+     *
+     * @type Number
+     */
+    heading: null,
+    /**
      * Accuracy of the geolocation position, in meters
      *
      * @type Number
@@ -62,6 +68,10 @@ const actions = {
             log.debug('Invalid geolocation position received, ignoring', position)
         }
     },
+    setGeolocationHeading: ({ commit }, { heading, dispatcher }) => {
+        commit('setGeolocationHeading', { heading, dispatcher })
+        log.debug('No geolocation heading received, ignoring', heading)
+    },
     setGeolocationAccuracy: ({ commit }, { accuracy, dispatcher }) => {
         if (isNumber(accuracy)) {
             commit('setGeolocationAccuracy', { accuracy: Number(accuracy), dispatcher })
@@ -77,6 +87,7 @@ const mutations = {
     setGeolocationTracking: (state, { tracking }) => (state.tracking = tracking),
     setGeolocationAccuracy: (state, { accuracy }) => (state.accuracy = accuracy),
     setGeolocationPosition: (state, { position }) => (state.position = position),
+    setGeolocationHeading: (state, { heading }) => (state.heading = heading),
 }
 
 export default {

@@ -8,6 +8,7 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import CompassButton from '@/modules/map/components/openlayers/CompassButton.vue'
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
@@ -37,6 +38,7 @@ const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
+const geolocationHeading = computed(() => store.state.geolocation.heading)
 </script>
 
 <template>
@@ -53,7 +55,9 @@ const is3dActive = computed(() => store.state.cesium.active)
         <GeolocButton v-if="geolocButton && !isFullscreenMode" />
         <ZoomButtons v-if="!isFullscreenMode" />
         <Toggle3dButton v-if="toggle3dButton && !isFullscreenMode" />
+        <CompassButton v-if="!isFullscreenMode" />
         <OpenLayersCompassButton v-if="compassButton && !is3dActive && !isFullscreenMode" />
+        {{ geolocationHeading ? geolocationHeading : 'null' }}
         <slot />
     </div>
 </template>

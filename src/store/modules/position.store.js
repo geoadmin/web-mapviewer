@@ -76,6 +76,27 @@ const state = {
     rotation: 0,
 
     /**
+     * Flag which indicates if openlayers map rotates to align with true / magnetic north
+     *
+     * @type Boolean
+     */
+    autoRotation: false,
+
+    /**
+     * Flag which indicates if map rotation should get reset by openlayers
+     *
+     * @type Boolean
+     */
+    resetRotation: false,
+
+    /**
+     * The heading of the vision cone
+     *
+     * @type Number
+     */
+    heading: 0,
+
+    /**
      * Center of the view expressed with the current projection
      *
      * @type Array<Number>
@@ -199,6 +220,19 @@ const actions = {
         }
         rotation = normalizeAngle(rotation)
         commit('setRotation', rotation)
+    },
+    setAutoRotation({ commit }, autoRotation) {
+        commit('setAutoRotation', autoRotation)
+    },
+    setResetRotation({ commit }, resetRotation) {
+        commit('setResetRotation', resetRotation)
+    },
+    setHeading({ commit }, heading) {
+        if (typeof heading !== 'number') {
+            return
+        }
+        heading = normalizeAngle(heading)
+        commit('setHeading', heading)
     },
     /**
      * @param commit
@@ -420,6 +454,9 @@ const mutations = {
         (state.displayedFormatId = displayedFormatId),
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
+    setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
+    setResetRotation: (state, resetRotation) => (state.resetRotation = resetRotation),
+    setHeading: (state, heading) => (state.heading = heading),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>

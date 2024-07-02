@@ -1,5 +1,5 @@
 import { View } from 'ol'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
@@ -16,11 +16,21 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 export default function useViewBasedOnProjection(map) {
+    const northwardRotation = ref(0)
+    const circularAverage = ref(0)
+    let count = 0
+    let sumSin = 0
+    let sumCos = 0
+    let dampingInterval = null
+
     const store = useStore()
     const center = computed(() => store.state.position.center)
     const projection = computed(() => store.state.position.projection)
     const zoom = computed(() => store.state.position.zoom)
     const rotation = computed(() => store.state.position.rotation)
+    const autoRotation = computed(() => store.state.position.autoRotation)
+    const resetRotation = computed(() => store.state.position.resetRotation)
+    const geolocationIsActive = computed(() => store.state.geolocation.active)
 
     const viewsForProjection = {}
     viewsForProjection[LV95.epsg] = new View({
@@ -40,24 +50,47 @@ export default function useViewBasedOnProjection(map) {
     })
 
     watch(projection, setViewAccordingToProjection)
+
     watch(center, (newCenter) =>
         viewsForProjection[projection.value.epsg].animate({
             center: newCenter,
             duration: animationDuration,
         })
     )
+
     watch(zoom, (newZoom) =>
         viewsForProjection[projection.value.epsg].animate({
             zoom: newZoom,
             duration: animationDuration,
         })
     )
-    watch(rotation, (newRotation) =>
+
+    watch(rotation, (newRotation) => {
+        if (!autoRotation.value) {
+            viewsForProjection[projection.value.epsg].animate({
+                rotation: newRotation,
+                duration: animationDuration,
+            })
+        }
+    })
+
+    watch(autoRotation, () => {
+        toggleAutoRotateListener()
+        toggleAutoRotateDamping()
+    })
+
+    watch(geolocationIsActive, () => {
+        toggleAutoRotateListener()
+        toggleAutoRotateDamping()
+    })
+
+    watch(resetRotation, () => {
         viewsForProjection[projection.value.epsg].animate({
-            rotation: newRotation,
+            rotation: 0,
             duration: animationDuration,
         })
-    )
+        store.dispatch('setResetRotation', false)
+    })
 
     onMounted(() => {
         setViewAccordingToProjection()
@@ -66,6 +99,62 @@ export default function useViewBasedOnProjection(map) {
     onBeforeUnmount(() => {
         map.un('moveend', updateCenterInStore)
     })
+
+    const handleOrientation = function (event) {
+        northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
+        count = count + 1
+        sumSin = sumSin + Math.sin(northwardRotation.value)
+        sumCos = sumCos + Math.cos(northwardRotation.value)
+    }
+
+    function toggleAutoRotateListener() {
+        if (autoRotation.value || geolocationIsActive) {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(() => {
+                    window.addEventListener('deviceorientation', handleOrientation)
+                })
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation)
+            }
+        } else {
+            if (!store.state.position.resetRotation) {
+                store.dispatch('setRotation', northwardRotation.value)
+            }
+            window.removeEventListener('deviceorientation', handleOrientation)
+        }
+    }
+
+    // we have to sync the update interval with the animation duration so that rotating the map does not look choppy
+    function toggleAutoRotateDamping() {
+        if (autoRotation.value || geolocationIsActive.value) {
+            dampingInterval = setInterval(() => {
+                if (!count) {
+                    return
+                }
+
+                const newCircularAverage = Math.atan2(sumSin, sumCos)
+                const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
+                const deltaThreshold =
+                    Math.abs(circularAverage.value - newCircularAverage) > Math.PI / 90
+                if (autoRotation.value && certaintyThreshold && deltaThreshold) {
+                    viewsForProjection[projection.value.epsg].animate({
+                        rotation: newCircularAverage,
+                        duration: animationDuration,
+                    })
+                    circularAverage.value = newCircularAverage
+                }
+                if (geolocationIsActive.value) {
+                    store.dispatch('setHeading', newCircularAverage)
+                }
+                count = 0
+                sumSin = 0
+                sumCos = 0
+            }, animationDuration)
+        } else {
+            clearInterval(dampingInterval)
+            dampingInterval = null
+        }
+    }
 
     function setViewAccordingToProjection() {
         const viewForProjection = viewsForProjection[projection.value.epsg]
