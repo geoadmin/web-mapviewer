@@ -15,6 +15,10 @@ import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
+const dispatcher = {
+    dispatcher: 'useMapInteractions.composable',
+}
+
 export default function useMapInteractions(map) {
     const store = useStore()
 
@@ -213,6 +217,7 @@ export default function useMapInteractions(map) {
         const mapElement = map.getTargetElement()
         mapElement.addEventListener('dragover', onDragOver)
         mapElement.addEventListener('drop', onDrop)
+        mapElement.addEventListener('dragleave', onDragLeave)
     }
 
     function unregisterDragAndDropEvent() {
@@ -220,6 +225,7 @@ export default function useMapInteractions(map) {
         const mapElement = map.getTargetElement()
         mapElement.removeEventListener('dragover', onDragOver)
         mapElement.removeEventListener('drop', onDrop)
+        mapElement.removeEventListener('dragleave', onDragLeave)
     }
 
     function readFileContent(file) {
@@ -231,30 +237,36 @@ export default function useMapInteractions(map) {
         })
     }
 
-    function handleFile(file) {
+    async function handleFile(file) {
         try {
-            readFileContent(file).then((content) => {
-                handleFileContent(store, content, file.name)
-            })
+            const fileContent = await readFileContent(file)
+            handleFileContent(store, fileContent, file.name)
         } catch (error) {
+            let errorKey
             log.error(`Error loading file`, file.name, error)
             if (error instanceof OutOfBoundsError) {
-                log.error('kml_gpx_file_out_of_bounds')
+                errorKey = 'kml_gpx_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                log.error('kml_gpx_file_empty')
+                errorKey = 'kml_gpx_file_empty'
             } else {
-                log.error('invalid_kml_gpx_file_error')
+                errorKey = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
+            store.dispatch('setErrorText', { errorText: errorKey, ...dispatcher })
         }
     }
 
     function onDragOver(event) {
         event.preventDefault()
+        store.dispatch('setShowDragAndDropOverlay', { showDragAndDropOverlay: true, ...dispatcher })
     }
 
     function onDrop(event) {
         event.preventDefault()
+        store.dispatch('setShowDragAndDropOverlay', {
+            showDragAndDropOverlay: false,
+            ...dispatcher,
+        })
 
         if (event.dataTransfer.items) {
             // Use DataTransferItemList interface to access the file(s)
@@ -272,5 +284,12 @@ export default function useMapInteractions(map) {
                 handleFile(file)
             }
         }
+    }
+
+    function onDragLeave() {
+        store.dispatch('setShowDragAndDropOverlay', {
+            showDragAndDropOverlay: false,
+            ...dispatcher,
+        })
     }
 }
