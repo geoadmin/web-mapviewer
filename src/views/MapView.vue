@@ -17,6 +17,7 @@ import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import { UIModes } from '@/store/modules/ui.store'
+import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import log from '@/utils/logging'
 
@@ -29,6 +30,7 @@ const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
+const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
 
 const loadDrawingModule = computed(() => {
     return (
@@ -95,6 +97,7 @@ onMounted(() => {
             </template>
         </MapModule>
         <I18nModule />
+        <DragDropOverlay v-if="showDragAndDropOverlay" />
     </div>
 </template>
 

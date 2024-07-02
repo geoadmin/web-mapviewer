@@ -8,9 +8,16 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
+import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyGPXError } from '@/utils/gpxUtils'
+import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+
+const dispatcher = {
+    dispatcher: 'useMapInteractions.composable',
+}
 
 export default function useMapInteractions(map) {
     const store = useStore()
@@ -57,10 +64,12 @@ export default function useMapInteractions(map) {
     })
 
     registerPointerEvents()
+    registerDragAndDropEvent()
     map.addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()
+        unregisterDragAndDropEvent()
     })
 
     /*
@@ -201,5 +210,86 @@ export default function useMapInteractions(map) {
             }
             mapHasMoved = false
         }, 500)
+    }
+
+    function registerDragAndDropEvent() {
+        log.debug(`Register drag and drop events`)
+        const mapElement = map.getTargetElement()
+        mapElement.addEventListener('dragover', onDragOver)
+        mapElement.addEventListener('drop', onDrop)
+        mapElement.addEventListener('dragleave', onDragLeave)
+    }
+
+    function unregisterDragAndDropEvent() {
+        log.debug(`Unregister drag and drop events`)
+        const mapElement = map.getTargetElement()
+        mapElement.removeEventListener('dragover', onDragOver)
+        mapElement.removeEventListener('drop', onDrop)
+        mapElement.removeEventListener('dragleave', onDragLeave)
+    }
+
+    function readFileContent(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = (event) => resolve(event.target.result)
+            reader.onerror = (error) => reject(error)
+            reader.readAsText(file)
+        })
+    }
+
+    async function handleFile(file) {
+        try {
+            const fileContent = await readFileContent(file)
+            handleFileContent(store, fileContent, file.name)
+        } catch (error) {
+            let errorKey
+            log.error(`Error loading file`, file.name, error)
+            if (error instanceof OutOfBoundsError) {
+                errorKey = 'kml_gpx_file_out_of_bounds'
+            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
+                errorKey = 'kml_gpx_file_empty'
+            } else {
+                errorKey = 'invalid_kml_gpx_file_error'
+                log.error(`Failed to load file`, error)
+            }
+            store.dispatch('setErrorText', { errorText: errorKey, ...dispatcher })
+        }
+    }
+
+    function onDragOver(event) {
+        event.preventDefault()
+        store.dispatch('setShowDragAndDropOverlay', { showDragAndDropOverlay: true, ...dispatcher })
+    }
+
+    function onDrop(event) {
+        event.preventDefault()
+        store.dispatch('setShowDragAndDropOverlay', {
+            showDragAndDropOverlay: false,
+            ...dispatcher,
+        })
+
+        if (event.dataTransfer.items) {
+            // Use DataTransferItemList interface to access the file(s)
+            for (let i = 0; i < event.dataTransfer.items.length; i++) {
+                // If dropped items aren't files, reject them
+                if (event.dataTransfer.items[i].kind === 'file') {
+                    const file = event.dataTransfer.items[i].getAsFile()
+                    handleFile(file)
+                }
+            }
+        } else {
+            // Use DataTransfer interface to access the file(s)
+            for (let i = 0; i < event.dataTransfer.files.length; i++) {
+                const file = event.dataTransfer.files[i]
+                handleFile(file)
+            }
+        }
+    }
+
+    function onDragLeave() {
+        store.dispatch('setShowDragAndDropOverlay', {
+            showDragAndDropOverlay: false,
+            ...dispatcher,
+        })
     }
 }
