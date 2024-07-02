@@ -7,7 +7,7 @@ import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
-import { computed, inject, ref, toRefs, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -26,15 +26,23 @@ const geolocationHeading = computed(() => store.state.geolocation.heading)
 const positionHeading = computed(() => store.state.position.heading)
 const headingOffset = ref(0)
 const effectiveHeading = ref(0) // TODO : get the real heading and remove the randomizer
-setInterval(() => {
-    if (geolocationHeading.value) {
-        console.error('geolocationHeading has value: ', geolocationHeading.value)
-        headingOffset.value = geolocationHeading.value - positionHeading.value
-    } else {
-        console.error('geolocationHeading has no value: ', geolocationHeading.value)
-    }
-    effectiveHeading.value = positionHeading.value + headingOffset.value - Math.PI / 2
-}, 500)
+let visionInterval = null
+
+onMounted(() => {
+    visionInterval = setInterval(() => {
+        if (geolocationHeading.value) {
+            console.error('geolocationHeading has value: ', geolocationHeading.value)
+            headingOffset.value = geolocationHeading.value - positionHeading.value
+        } else {
+            console.error('geolocationHeading has no value: ', geolocationHeading.value)
+        }
+        effectiveHeading.value = positionHeading.value + headingOffset.value - Math.PI / 2
+    }, 500)
+})
+
+onUnmounted(() => {
+    clearInterval(visionInterval)
+})
 
 function rotateConeOnCompassHeading() {
     visionConeGeometry.rotate(effectiveHeading.value, geolocationPosition.value)
