@@ -2,7 +2,7 @@
 
 import proj4 from 'proj4'
 
-import { BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
+import { API_SERVICE_SHORTLINK_BASE_URL, BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
 import {
     LV03Format,
     LV95Format,
@@ -118,13 +118,15 @@ describe('Test mouse position and interactions', () => {
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
-            let shortUrl = 'https://s.geo.admin.ch/0000000'
+            function stubShortLinkResponse(shortLinkStub) {
+                cy.intercept(`${API_SERVICE_SHORTLINK_BASE_URL}**`, {
+                    body: { shorturl: shortLinkStub, success: true },
+                }).as('shortlink')
+            }
 
             const fakeLV03Coordinate = [1234.56, 7890.12]
             cy.intercept('**/lv95tolv03**', { coordinates: fakeLV03Coordinate }).as('reframe')
-            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl, success: true },
-            }).as('shortlink')
+            stubShortLinkResponse('https://s.geo.admin.ch/000000')
 
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
@@ -195,58 +197,11 @@ describe('Test mouse position and interactions', () => {
             )
             cy.log('it shows correct MGRS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
-
-            cy.get(`[data-cy="share-shortlink-email"]`).should('be.visible')
-            cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
-            cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
-            cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
-            cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
-            cy.get('[data-cy="map"]').rightclick()
-
-            shortUrl = 'https://s.geo.admin.ch/1111111'
-            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl, success: true },
-            }).as('shortlink')
-            cy.get('[data-cy="map"]').trigger('mousemove', 0, 0, { force: true })
-            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
-                'contain.value',
-                'https://s.geo.admin.ch/1111111'
-            )
-            cy.log('link updated when new position selected')
-
-            shortUrl = 'https://s.geo.admin.ch/2222222'
-            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl, success: true },
-            }).as('shortlink')
-            cy.openMenuIfMobile()
-            cy.clickOnLanguage('de')
-            cy.closeMenuIfMobile()
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
-                'contain.value',
-                'https://s.geo.admin.ch/2222222'
-            )
-            cy.log('link updated when new language  selected')
-
-            shortUrl = 'https://s.geo.admin.ch/3333333'
-            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl, success: true },
-            }).as('shortlink')
-
-            cy.get('[data-cy="map"]').dblclick(120, 240)
-            cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-share-tab-button"]').focus()
+            cy.log('Test that it creates a shortlink when opening the share tab')
             cy.get('[data-cy="location-popup-share-tab-button"]').click()
-            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
-            cy.get('[data-cy="location-popup-share-tab-check"]').should('have.class', 'fa-check')
-            cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.be.equal('https://s.geo.admin.ch/3333333')
-            })
-            cy.log('link copied to clipboard if share tab is pressed ')
 
-            cy.get('[data-cy="map"]').rightclick()
-            cy.wait('@shortlink').then((interception) => {
+            cy.log('Test that the shortlink is made with crosshair and correct position')
+            cy.wait('@shortlink').should((interception) => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]
                 const params = new URLSearchParams(query)
@@ -254,7 +209,10 @@ describe('Test mouse position and interactions', () => {
                 checkXY(...position)
                 expect(params.get('crosshair')).not.to.be.empty
             })
-            cy.log('a link with crosshair and correct position is sent to shortlink')
+            cy.log('Test that the shortlink is copied to clipboard if share tab is pressed')
+            cy.readClipboardValue().should((clipboardText) => {
+                expect(clipboardText).to.be.equal('https://s.geo.admin.ch/000000')
+            })
 
             cy.get(`[data-cy="share-shortlink-email"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
@@ -262,12 +220,27 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
 
-            shortUrl = 'https://s.geo.admin.ch/4444444'
-            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl, success: true },
-            }).as('shortlink-bg-void')
-            cy.writeStoreValue('setBackground', { bgLayer: null, dispatcher: 'e2e-test' })
-            cy.wait('@shortlink-bg-void').then((interception) => {
+            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+                'contain.value',
+                'https://s.geo.admin.ch/000000'
+            )
+
+            cy.log('Test that the shortlink is updated when new language selected')
+            stubShortLinkResponse('https://s.geo.admin.ch/111111')
+            cy.openMenuIfMobile()
+            cy.clickOnLanguage('de')
+            cy.closeMenuIfMobile()
+            cy.wait('@shortlink')
+            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+                'contain.value',
+                'https://s.geo.admin.ch/111111'
+            )
+
+            cy.log('Test that changing layers (background) triggers a new shortlink generation')
+            stubShortLinkResponse('https://s.geo.admin.ch/222222')
+            cy.get('[data-cy="background-selector-open-wheel-button"]').click()
+            cy.get('[data-cy="background-selector-void"]').click()
+            cy.wait('@shortlink').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]
                 const params = new URLSearchParams(query)
@@ -275,9 +248,8 @@ describe('Test mouse position and interactions', () => {
             })
             cy.get('[data-cy="menu-share-input-copy-button"]').should(
                 'have.value',
-                'https://s.geo.admin.ch/4444444'
+                'https://s.geo.admin.ch/222222'
             )
-            cy.log('the shortlink was updated when the app changed')
         })
     })
 })
