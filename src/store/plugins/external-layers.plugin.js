@@ -104,6 +104,7 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             layer.opacity,
             layer.visible,
             layer.currentYear,
+            layer.customAttributes,
             false /* throw Error in case of  error */
         )
         updated.isLoading = false

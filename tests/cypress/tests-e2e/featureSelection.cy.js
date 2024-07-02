@@ -358,7 +358,7 @@ describe('Testing the feature selection', () => {
                     results: [],
                 })
             }).as('emptyIdentify')
-            cy.get('@olMap').click(20, 100)
+            cy.get('@olMap').realClick(25, 100)
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
         })

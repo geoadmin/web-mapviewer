@@ -94,9 +94,12 @@ export default class ExternalLayer extends AbstractLayer {
      *   Default is `null`
      * @param {LayerTimeConfig | null} [externalLayerData.timeConfig=null] Time series config (if
      *   available). Default is `null`
-     * @param {Number} [externalWmtsData.currentYear=null] Current year of the time series config to
-     *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
-     *   yet available and parse later on from the GetCapabilities. Default is `null`
+     * @param {Number} [externalLayerData.currentYear=null] Current year of the time series config
+     *   to use. This parameter is needed as it is set in the URL while the timeConfig parameter is
+     *   not yet available and parse later on from the GetCapabilities. Default is `null`
+     * @param {Object | null} [externalLayerData.customAttributes=null] The custom attributes
+     *   (except the well known updateDelays, adminId, features and year) passed with the layer id
+     *   in url. Default is `null`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -120,6 +123,7 @@ export default class ExternalLayer extends AbstractLayer {
             getFeatureInfoCapability = null,
             timeConfig = null,
             currentYear = null,
+            customAttributes,
         } = externalLayerData
         // keeping this checks, even though it will be checked again by the super constructor, because we use the baseUrl
         // to build our call to the super constructor (with a URL construction, which could raise an error if baseUrl is
@@ -141,6 +145,7 @@ export default class ExternalLayer extends AbstractLayer {
             hasDescription: abstract?.length > 0 || legends?.length > 0,
             hasLegend: legends?.length > 0,
             timeConfig,
+            customAttributes,
         })
         this.abstract = abstract
         this.extent = extent

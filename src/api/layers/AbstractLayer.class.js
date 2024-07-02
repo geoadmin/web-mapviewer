@@ -73,6 +73,9 @@ export default class AbstractLayer {
      *   metadata) are still loading. Default is `false`
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
      *   available). Default is `null`
+     * @param {Object | null} [layerData.customAttributes=null] The custom attributes (except the
+     *   well known updateDelays, adminId, features and year) passed with the layer id in url.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
@@ -95,6 +98,7 @@ export default class AbstractLayer {
             isExternal = false,
             isLoading = false,
             timeConfig = null,
+            customAttributes = null,
         } = layerData
         if (name === null) {
             throw new InvalidLayerDataError('Missing layer name', layerData)
@@ -127,6 +131,7 @@ export default class AbstractLayer {
         this.hasError = false
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        this.setCustomAttributes(customAttributes)
     }
 
     hasErrorKey(key) {
@@ -150,6 +155,33 @@ export default class AbstractLayer {
     clearErrorKeys() {
         this.errorKeys.clear()
         this.hasError = false
+    }
+
+    setCustomAttributes(customAttributes) {
+        if (customAttributes !== null) {
+            if (typeof customAttributes !== 'object') {
+                throw new Error(
+                    `Invalid layer ${this.id} customAttributes ${customAttributes}: not an object`
+                )
+            }
+            for (const [key, value] of Object.entries(customAttributes)) {
+                if (typeof key !== 'string') {
+                    throw new Error(
+                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid key`
+                    )
+                }
+                if (typeof value !== 'string') {
+                    throw new Error(
+                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid value`
+                    )
+                }
+            }
+        }
+        if (customAttributes && Object.keys(customAttributes).length > 0) {
+            this.customAttributes = customAttributes
+        } else {
+            this.customAttributes = null
+        }
     }
 
     clone() {
