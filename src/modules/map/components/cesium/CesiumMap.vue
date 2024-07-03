@@ -69,7 +69,7 @@
         <CesiumGeolocationFeedback v-if="viewerCreated" />
 
         <cesium-compass
-            v-show="isDesktopMode && !isFullScreenMode"
+            v-show="isDesktopMode"
             ref="compass"
             class="position-absolute start-50 translate-middle-x cesium-compass"
         />
