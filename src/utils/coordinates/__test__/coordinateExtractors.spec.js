@@ -165,6 +165,10 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     undefined,
                     'must not accept text after the coordinates'
                 )
+                expect(coordinateFromString('47.0.3, 7.4,0')).to.eq(
+                    undefined,
+                    'must not accept text after the coordinates'
+                )
                 expect(coordinateFromString('test47.0, 7.4')).to.eq(
                     undefined,
                     'must not accept text before the coordinates'

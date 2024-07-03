@@ -31,6 +31,7 @@ describe('Testing coordinates typing in search bar', () => {
     )
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
+        cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
         cy.readStoreValue('state.position.center').should((center) => {
             expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
             expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
@@ -143,9 +144,9 @@ describe('Testing coordinates typing in search bar', () => {
     it('Paste MGRS input', () => {
         // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
         const acceptableDeltaForMGRS = 1
-        cy.get(searchbarSelector).paste(
-            latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
-        )
+        const mgrsCoordinates = latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
+        cy.log(`Enter MGRS ${mgrsCoordinates} in search bar`)
+        cy.get(searchbarSelector).paste(mgrsCoordinates)
         checkCenterInStore(acceptableDeltaForMGRS)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)
