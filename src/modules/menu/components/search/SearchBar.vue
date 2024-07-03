@@ -38,6 +38,7 @@ watch(searchQuery, (newQuery) => {
 
 onMounted(() => {
     searchValue.value = searchQuery.value
+    searchInput.value.focus()
 })
 
 let debounceSearch = null
