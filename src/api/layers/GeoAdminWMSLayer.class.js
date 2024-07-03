@@ -56,6 +56,9 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
+     * @param {Object | null} [layerData.customAttributes=null] The custom attributes (except the
+     *   well known updateDelays, adminId, features and year) passed with the layer id in url.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -81,6 +84,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             topics = [],
             hasLegend = false,
             searchable = false,
+            customAttributes = null,
         } = layerData
         super({
             name,
@@ -100,6 +104,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             timeConfig,
             hasLegend,
             searchable,
+            customAttributes,
         })
         this.format = format
         this.lang = lang

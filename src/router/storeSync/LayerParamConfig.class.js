@@ -1,6 +1,7 @@
 import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -30,9 +31,11 @@ import log from '@/utils/logging'
  *   will return the untouched ActiveLayerConfig for other layer types
  */
 export function createLayerObject(parsedLayer, currentLayer, store, featuresRequests) {
-    const { year, updateDelay, features } = parsedLayer.customAttributes ?? {}
+    const { year, updateDelay, features, adminId, ...customAttributes } =
+        parsedLayer.customAttributes ?? {}
     const defaultOpacity = 1.0
     let layer = null
+
     if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
@@ -41,8 +44,8 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? defaultOpacity
-        if (parsedLayer.customAttributes?.adminId) {
-            layer.adminId = parsedLayer.customAttributes.adminId
+        if (adminId) {
+            layer.adminId = adminId
         }
     } else if (parsedLayer.type === LayerTypes.KML) {
         // format is KML|FILE_URL
@@ -51,7 +54,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
                 kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
-                adminId: parsedLayer.customAttributes?.adminId,
+                adminId: adminId,
             })
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
@@ -92,6 +95,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             visible: parsedLayer.visible,
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,
+            customAttributes,
         })
     } else {
         // Finally check if this is a Geoadmin layer
@@ -103,6 +107,11 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             }
             if (year !== undefined && layer.timeConfig) {
                 layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+            }
+
+            // If we have a WMS layer add extra params from custom attributes
+            if (layer instanceof GeoAdminWMSLayer) {
+                layer.setCustomAttributes(customAttributes)
             }
         }
     }
