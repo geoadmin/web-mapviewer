@@ -21,14 +21,19 @@ const props = defineProps({
 const { zIndex } = toRefs(props)
 
 const store = useStore()
+
+const headingOffset = ref(0)
+const effectiveHeading = ref(0)
+let headingIsAbsolute = false
+let visionInterval = null
+
 const geolocationPosition = computed(() => store.state.geolocation.position)
 const geolocationHeading = computed(() => store.state.geolocation.heading)
 const positionHeading = computed(() => store.state.position.heading)
-const headingOffset = ref(0)
-const effectiveHeading = ref(0) // TODO : get the real heading and remove the randomizer
-let visionInterval = null
+const showVisionCone = computed(() => headingIsAbsolute || geolocationHeading.value)
 
 onMounted(() => {
+    window.addEventListener('deviceorientation', getIfOrientationAbsolute)
     visionInterval = setInterval(() => {
         if (geolocationHeading.value) {
             console.error('geolocationHeading has value: ', geolocationHeading.value)
@@ -36,13 +41,18 @@ onMounted(() => {
         } else {
             console.error('geolocationHeading has no value: ', geolocationHeading.value)
         }
-        effectiveHeading.value = positionHeading.value + headingOffset.value - Math.PI / 2
+        effectiveHeading.value = -positionHeading.value - headingOffset.value - Math.PI / 2
     }, 500)
 })
 
 onUnmounted(() => {
     clearInterval(visionInterval)
 })
+
+const getIfOrientationAbsolute = function (event) {
+    headingIsAbsolute = event.absolute
+    window.removeEventListener('deviceorientation', getIfOrientationAbsolute)
+}
 
 function rotateConeOnCompassHeading() {
     visionConeGeometry.rotate(effectiveHeading.value, geolocationPosition.value)
