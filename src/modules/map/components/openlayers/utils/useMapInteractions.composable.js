@@ -196,24 +196,31 @@ export default function useMapInteractions(map) {
     }
 
     function onMapPointerDown(event) {
-        clearTimeout(longClickTimeout)
-        mapHasMoved = false
-        // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
-        // LocationPopup by touching the same-ish spot for 500ms
-        longClickTimeout = setTimeout(() => {
-            if (!mapHasMoved) {
-                longClickTriggered = true
-                // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
-                const pixel = map.getEventPixel(event)
-                const coordinate = map.getCoordinateFromPixel(pixel)
-                onMapRightClick({
-                    ...event,
-                    pixel,
-                    coordinate,
-                })
-            }
+        const { target } = event
+        // only reacting to pointer down on the map itself (on canvas, each layer being a canvas)
+        // without this check, clicking into the map popover triggers a mousedown event, which will
+        // then show the location popup and hide any feature info that was there (impossible to interact
+        // with feature info)
+        if (target.nodeName?.toLowerCase() === 'canvas') {
+            clearTimeout(longClickTimeout)
             mapHasMoved = false
-        }, 500)
+            // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
+            // LocationPopup by touching the same-ish spot for 500ms
+            longClickTimeout = setTimeout(() => {
+                if (!mapHasMoved) {
+                    longClickTriggered = true
+                    // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
+                    const pixel = map.getEventPixel(event)
+                    const coordinate = map.getCoordinateFromPixel(pixel)
+                    onMapRightClick({
+                        ...event,
+                        pixel,
+                        coordinate,
+                    })
+                }
+                mapHasMoved = false
+            }, 500)
+        }
     }
 
     function registerDragAndDropEvent() {
