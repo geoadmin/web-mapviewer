@@ -160,6 +160,13 @@ export default {
          * @type String
          */
         errorText: null,
+
+        /**
+         * Flag telling if the "Drop file here" overlay will be displayed on top of the map.
+         *
+         * @type Boolean
+         */
+        showDragAndDropOverlay: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -380,6 +387,9 @@ export default {
         setErrorText({ commit }, { errorText, dispatcher }) {
             commit('setErrorText', { errorText, dispatcher })
         },
+        setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
+            commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -440,5 +450,7 @@ export default {
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
         setErrorText: (state, { errorText }) => (state.errorText = errorText),
+        setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
+            (state.showDragAndDropOverlay = showDragAndDropOverlay),
     },
 }

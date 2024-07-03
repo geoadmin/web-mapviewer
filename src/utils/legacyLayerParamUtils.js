@@ -122,11 +122,24 @@ export function getLayersFromLegacyUrlParams(
             const [_layerType, name, url, id, version] = layerId.split('||')
             // we only decode if we have enough material
             if (url && id) {
+                const customAttributes = {}
+                try {
+                    const parsedUrl = new URL(url)
+                    for (const [key, value] of parsedUrl.searchParams) {
+                        // ignore well known params to avoid conflict with the service
+                        if (!['SERVICE', 'REQUEST', 'VERSION'].includes(key.toUpperCase())) {
+                            customAttributes[key] = value
+                        }
+                    }
+                } catch (error) {
+                    log.error(`Invalid URL ${url}`)
+                }
                 layer = new ExternalWMSLayer({
                     id,
                     name: name ? name : id,
                     baseUrl: url,
                     wmsVersion: version,
+                    customAttributes,
                 })
             }
         }
