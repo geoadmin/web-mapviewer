@@ -31,7 +31,7 @@ const state = {
      *
      * @type Number
      */
-    heading: null,
+    heading: 0,
     /**
      * Accuracy of the geolocation position, in meters
      *

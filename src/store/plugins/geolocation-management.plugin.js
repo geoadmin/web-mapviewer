@@ -46,10 +46,12 @@ const handlePositionAndDispatchToStore = (position, store) => {
         ...dispatcher,
     })
     console.error('setGeolocationHeading: ', position.coords.heading)
-    store.dispatch('setGeolocationHeading', {
-        heading: toRadians(position.coords.heading),
-        ...dispatcher,
-    })
+    if (position.coords.heading != null && position.coords.speed >= 1) {
+        store.dispatch('setGeolocationHeading', {
+            heading: toRadians(position.coords.heading),
+            ...dispatcher,
+        })
+    }
     store.dispatch('setGeolocationAccuracy', {
         accuracy: position.coords.accuracy,
         ...dispatcher,
