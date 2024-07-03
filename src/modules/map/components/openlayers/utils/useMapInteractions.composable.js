@@ -89,6 +89,9 @@ export default function useMapInteractions(map) {
         map.on('singleclick', onMapLeftClick)
         map.on('contextmenu', onMapRightClick)
         map.on('pointermove', onMapMove)
+        // also registering double click as a map move, so that location popup (right click)
+        // isn't triggered when zooming by double-click
+        map.on('dblclick', onMapMove)
 
         map.getTargetElement().addEventListener('pointerdown', onMapPointerDown)
 
@@ -105,6 +108,7 @@ export default function useMapInteractions(map) {
 
         map.getTargetElement().removeEventListener('pointerdown', onMapPointerDown)
 
+        map.un('dblclick', onMapMove)
         map.un('pointermove', onMapMove)
         map.un('singleclick', onMapLeftClick)
         map.un('contextmenu', onMapRightClick)
