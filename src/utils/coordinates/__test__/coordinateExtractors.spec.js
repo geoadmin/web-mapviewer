@@ -54,26 +54,36 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          * @param {Number} yExpectedValue What coordinateFromString is expected to output as Y
          * @param {CoordinateSystem} projection The output projection of the parsing
          * @param {Object} options
-         * @param {Number} [options.acceptableDelta] If a delta with the expected result is
-         *   acceptable (default is zero)
-         * @param {Boolean} [options.testInverted] If the X and Y should also be tested inverted in
-         *   the test string. Default is true.
+         * @param {Number} [options.acceptableDelta=0] If a delta with the expected result is
+         *   acceptable. Default is `0`
+         * @param {Boolean} [options.testInverted=true] If the X and Y should also be tested
+         *   inverted in. Default is `true`
+         * @param {Boolean} [options.thousandSpaceSeparator=false] If the X and Y are using space as
+         *   thousand separator. Default is `false`
          */
         const checkXY = (x, y, xExpectedValue, yExpectedValue, projection, options = {}) => {
-            const { acceptableDelta = 0, testInverted = true } = options
-            const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xExpectedValue}, expected y: ${yExpectedValue}`
-            // checking with simple space and tab
-            checkText(
-                `${x} ${y}`,
-                [xExpectedValue, yExpectedValue],
-                'fails with space in between\n' + valueOutputInCaseOfErr,
-                acceptableDelta,
-                projection
-            )
+            const {
+                acceptableDelta = 0,
+                testInverted = true,
+                thousandSpaceSeparator = false,
+            } = options
+            const expectedOutput = `Expected: x=${xExpectedValue}, y=${yExpectedValue}`
+            if (!thousandSpaceSeparator) {
+                // NOTE: if the coordinates uses space as thousand separator we cannot use space
+                // as well as coordinates separator
+                // checking with simple space and tab
+                checkText(
+                    `${x} ${y}`,
+                    [xExpectedValue, yExpectedValue],
+                    `fails with space as coordinate separator\nInput: ${x} ${y}\n${expectedOutput}`,
+                    acceptableDelta,
+                    projection
+                )
+            }
             checkText(
                 `${x}\t${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with tabs\n' + valueOutputInCaseOfErr,
+                `fails with tabs as coordinate separator\nInput: ${x}\\t${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
@@ -81,56 +91,56 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             checkText(
                 `${x},${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with coma\n' + valueOutputInCaseOfErr,
-                acceptableDelta,
-                projection
-            )
-            checkText(
-                `${x} ,${y}`,
-                [xExpectedValue, yExpectedValue],
-                'fails with space and coma\n' + valueOutputInCaseOfErr,
+                `fails with coma as coordinate separator\nInput: ${x},${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x}, ${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with coma and space\n' + valueOutputInCaseOfErr,
+                `fails with coma and space as coordinate separator\nInput: ${x}, ${y}\n${expectedOutput}`,
+                acceptableDelta,
+                projection
+            )
+            checkText(
+                `${x} ,${y}`,
+                [xExpectedValue, yExpectedValue],
+                `fails with coma and space as coordinate separator\nInput: ${x} ,${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x} , ${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with space, coma and space\n' + valueOutputInCaseOfErr,
+                `fails with coma and space as coordinate separator\nInput: ${x} , ${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x}/${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with slash\n' + valueOutputInCaseOfErr,
+                `fails with slash as coordinate separator\nInput: ${x}/${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x} /${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with space and slash\n' + valueOutputInCaseOfErr,
+                `fails with slash and space as coordinate separator\nInput: ${x} /${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x}/ ${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with slash and space\n' + valueOutputInCaseOfErr,
+                `fails with slash and space as coordinate separator\nInput: ${x}/ ${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
             checkText(
                 `${x} / ${y}`,
                 [xExpectedValue, yExpectedValue],
-                'fails with space, slash and space\n' + valueOutputInCaseOfErr,
+                `fails with slash and space as coordinate separator\nInput: ${x} / ${y}\n${expectedOutput}`,
                 acceptableDelta,
                 projection
             )
@@ -138,6 +148,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(y, x, xExpectedValue, yExpectedValue, projection, {
                     acceptableDelta,
                     testInverted: false,
+                    thousandSpaceSeparator,
                 })
             }
         }
@@ -488,7 +499,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     expectedCenterLV95[0],
                     expectedCenterLV95[1],
                     LV95,
-                    { acceptableDelta, testInverted: true }
+                    { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
             it("Returns coordinates when there's thousands separator and input is entered backward", () => {
@@ -506,7 +517,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     expectedCenterLV95[0],
                     expectedCenterLV95[1],
                     LV95,
-                    { acceptableDelta, testInverted: true }
+                    { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
         }
