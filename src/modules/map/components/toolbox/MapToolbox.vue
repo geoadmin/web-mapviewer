@@ -38,6 +38,7 @@ const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
+const geolocationHeading = computed(() => store.state.geolocation.heading)
 </script>
 
 <template>
@@ -56,6 +57,7 @@ const is3dActive = computed(() => store.state.cesium.active)
         <Toggle3dButton v-if="toggle3dButton" />
         <CompassButton />
         <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
+        {{ geolocationHeading ? geolocationHeading : 'null' }}
         <slot />
     </div>
 </template>
