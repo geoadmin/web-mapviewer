@@ -223,6 +223,7 @@ function mediaTypes() {
                     :class="{
                         'form-control-plaintext': readOnly,
                     }"
+                    rows="2"
                 ></textarea>
             </div>
         </div>
@@ -303,8 +304,5 @@ function mediaTypes() {
 <style lang="scss" scoped>
 .feature-title {
     height: 1rem;
-}
-.feature-description {
-    height: 2rem;
 }
 </style>
