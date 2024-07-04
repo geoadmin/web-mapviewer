@@ -85,6 +85,7 @@ function onDeleteLastPoint() {
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
+                :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <div class="card-body position-relative container">
                     <div
