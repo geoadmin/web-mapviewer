@@ -9,12 +9,13 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import { computed, nextTick, ref, toRefs } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import log from '@/utils/logging'
+import { transformUrlMapToEmbed } from '@/utils/utils'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -45,14 +46,6 @@ const EmbedSizes = {
 
 useTippyTooltip('.menu-share-embed [data-tippy-content]')
 
-const props = defineProps({
-    shortLink: {
-        type: String,
-        default: null,
-    },
-})
-const { shortLink } = toRefs(props)
-
 const embedInput = ref(null)
 const showEmbedSharing = ref(false)
 const showPreviewModal = ref(false)
@@ -64,6 +57,7 @@ const customSize = ref({
 })
 const copied = ref(false)
 
+const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const embedPreviewModalWidth = computed(() => {
     // Uses the iframe's width as maximal width for the entire modal window
     let style = { 'max-width': iFrameWidth.value }
@@ -96,7 +90,7 @@ const iFrameStyle = computed(
 )
 const iFrameLink = computed(
     () =>
-        `<iframe src="${shortLink.value}" style="${iFrameStyle.value}" allow="geolocation"></iframe>`
+        `<iframe src="${embedSource.value}" style="${iFrameStyle.value}" allow="geolocation"></iframe>`
 )
 const buttonIcon = computed(() => {
     if (copied.value) {
@@ -270,7 +264,7 @@ async function copyValue() {
                     <iframe
                         ref="iFramePreview"
                         :title="$t('embed_map')"
-                        :src="shortLink"
+                        :src="embedSource"
                         :style="iFrameStyle"
                         allow="geolocation"
                     ></iframe>
