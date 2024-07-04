@@ -12,6 +12,8 @@ useTippyTooltip('.geoloc-button-div[data-tippy-content]', { placement: 'left' })
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)
+const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute)
+const autoRotation = computed(() => store.state.position.autoRotation)
 const tippyContent = computed(() => {
     if (isDenied.value) {
         return 'geoloc_permission_denied'
@@ -23,7 +25,18 @@ const tippyContent = computed(() => {
 })
 
 function toggleGeolocation() {
-    store.dispatch('toggleGeolocation', dispatcher)
+    if (!headingIsAbsolute.value) {
+        store.dispatch('toggleGeolocation', dispatcher)
+    } else {
+        if (!isActive.value) {
+            store.dispatch('toggleGeolocation', dispatcher)
+        } else if (isActive.value && !autoRotation.value) {
+            store.dispatch('setAutoRotation', !autoRotation.value)
+        } else {
+            store.dispatch('toggleGeolocation', dispatcher)
+            store.dispatch('setAutoRotation', !autoRotation.value)
+        }
+    }
 }
 </script>
 
@@ -32,16 +45,20 @@ function toggleGeolocation() {
      otherwise the tippy won't work when the button is disabled -->
     <div class="geoloc-button-div" :data-tippy-content="tippyContent">
         <button
-            class="toolbox-button geoloc-button"
+            class="toolbox-button"
             type="button"
             :disabled="isDenied"
-            :class="{ active: isActive, disabled: isDenied }"
+            :class="{ 'geoloc-button': !autoRotation, active: isActive, disabled: isDenied }"
             data-cy="geolocation-button"
             @click="toggleGeolocation"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
+            <svg v-if="!autoRotation" xmlns="http://www.w3.org/2000/svg" y="0" x="0">
                 <ellipse class="geoloc-button-inner-circle" />
             </svg>
+            <span v-else>
+                <FontAwesomeIcon style="position: absolute" icon="arrow-up" />
+                <FontAwesomeIcon :icon="['fas', 'n']" />
+            </span>
         </button>
     </div>
 </template>

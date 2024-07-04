@@ -14,8 +14,10 @@ function rotate() {
 <template>
     <div>
         <button class="toolbox-button" :class="{ active: autoRotation }" @click="rotate">
-            <FontAwesomeIcon style="position: absolute" icon="arrow-up" />
-            <FontAwesomeIcon :icon="['fas', 'n']" />
+            <span>
+                <FontAwesomeIcon style="position: absolute" icon="arrow-up" />
+                <FontAwesomeIcon :icon="['fas', 'n']" />
+            </span>
         </button>
     </div>
 </template>

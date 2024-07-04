@@ -97,6 +97,13 @@ const state = {
     heading: 0,
 
     /**
+     * Flag that indicates whether heading is northened or not
+     *
+     * @type Boolean
+     */
+    headingIsAbsolute: false,
+
+    /**
      * Center of the view expressed with the current projection
      *
      * @type Array<Number>
@@ -233,6 +240,9 @@ const actions = {
         }
         heading = normalizeAngle(heading)
         commit('setHeading', heading)
+    },
+    setHeadingIsAbsolute({ commit }, headingIsAbsolute) {
+        commit('setHeadingIsAbsolute', headingIsAbsolute)
     },
     /**
      * @param commit
@@ -457,6 +467,8 @@ const mutations = {
     setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
     setResetRotation: (state, resetRotation) => (state.resetRotation = resetRotation),
     setHeading: (state, heading) => (state.heading = heading),
+    setHeadingIsAbsolute: (state, headingIsAbsolute) =>
+        (state.headingIsAbsolute = headingIsAbsolute),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>

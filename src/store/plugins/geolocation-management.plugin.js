@@ -45,7 +45,6 @@ const handlePositionAndDispatchToStore = (position, store) => {
         position: positionProjected,
         ...dispatcher,
     })
-    console.error('setGeolocationHeading: ', position.coords.heading)
     if (position.coords.heading != null && position.coords.speed >= 1) {
         store.dispatch('setGeolocationHeading', {
             heading: toRadians(position.coords.heading),

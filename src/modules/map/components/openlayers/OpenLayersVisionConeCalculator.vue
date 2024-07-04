@@ -18,35 +18,33 @@ const store = useStore()
 
 const headingOffset = ref(0)
 const effectiveHeading = ref(0)
-let headingIsAbsolute = false
 let visionInterval = null
 let updatedGeolocation = 0
 
 const geolocationHeading = computed(() => store.state.geolocation.heading)
 const positionHeading = computed(() => store.state.position.heading)
+const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute)
+const mapRotation = computed(() => store.state.position.rotation)
 
 onMounted(() => {
-    window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
     if (geolocationHeading.value) {
         updatedGeolocation = geolocationHeading.value
     }
     visionInterval = setInterval(() => {
-        if (updatedGeolocation && !headingIsAbsolute) {
+        if (updatedGeolocation && !headingIsAbsolute.value) {
             headingOffset.value = updatedGeolocation - positionHeading.value
             updatedGeolocation = 0
         }
-        effectiveHeading.value = -positionHeading.value - headingOffset.value - Math.PI / 2
+        effectiveHeading.value = positionHeading.value + headingOffset.value + Math.PI / 2
+        if (store.state.position.autoRotation) {
+            effectiveHeading.value = mapRotation.value + Math.PI / 2
+        }
     }, 200)
 })
 
 onUnmounted(() => {
     clearInterval(visionInterval)
 })
-
-const checkIfOrientationIsAbsolute = function (event) {
-    headingIsAbsolute = event.absolute
-    window.removeEventListener('deviceorientation', checkIfOrientationIsAbsolute)
-}
 
 watch(geolocationHeading, () => {
     if (geolocationHeading.value) {
@@ -59,7 +57,7 @@ watch(geolocationHeading, () => {
     <OpenLayersVisionCone
         v-if="headingIsAbsolute || geolocationHeading"
         :z-index="zIndex"
-        :effective-heading="effectiveHeading"
+        :effective-heading="-effectiveHeading"
     />
     <slot />
 </template>

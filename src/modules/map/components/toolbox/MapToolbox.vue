@@ -5,10 +5,9 @@
  *
  * By default the toolbox only contains the zoom in/out buttons
  */
-import { computed, toRefs } from 'vue'
+import { computed, onMounted, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-import CompassButton from '@/modules/map/components/openlayers/CompassButton.vue'
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
@@ -38,7 +37,15 @@ const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
-const geolocationHeading = computed(() => store.state.geolocation.heading)
+
+onMounted(() => {
+    window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
+})
+
+const checkIfOrientationIsAbsolute = function (event) {
+    store.dispatch('setHeadingIsAbsolute', event.absolute)
+    window.removeEventListener('deviceorientation', checkIfOrientationIsAbsolute)
+}
 </script>
 
 <template>
@@ -55,9 +62,7 @@ const geolocationHeading = computed(() => store.state.geolocation.heading)
         <GeolocButton v-if="geolocButton" />
         <ZoomButtons />
         <Toggle3dButton v-if="toggle3dButton" />
-        <CompassButton />
         <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
-        {{ geolocationHeading ? geolocationHeading : 'null' }}
         <slot />
     </div>
 </template>
