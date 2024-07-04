@@ -48,7 +48,7 @@ const emit = defineEmits(['close'])
                 <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
                 <span v-else class="me-auto" />
                 <button class="btn btn-light btn-sm me-2" @click.stop="showBody = !showBody">
-                    <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
+                    <FontAwesomeIcon :icon="`caret-${showBody ? 'up' : 'down'}`" />
                 </button>
                 <button
                     class="btn btn-light btn-sm"
