@@ -16,9 +16,20 @@ export function transformFileUrl(fileUrl) {
     }
     // copy from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/UrlUtilsService.js#L59-L69
     const parts = /^(http|https)(:\/\/)(.+)/.exec(fileUrl)
+    if (parts?.length < 4) {
+        return null
+    }
     const protocol = parts[1]
     const resource = parts[3]
     return `${protocol}/${encodeURIComponent(resource)}`
+}
+
+export function proxifyUrl(url) {
+    const fileAsPath = transformFileUrl(url)
+    if (!fileAsPath) {
+        throw new Error(`Malformed URL: ${url}, can't proxify`)
+    }
+    return `${API_SERVICE_PROXY_BASE_URL}${fileAsPath}`
 }
 
 /**
@@ -35,22 +46,25 @@ export function transformFileUrl(fileUrl) {
 export default function getFileThroughProxy(fileUrl, options = {}) {
     const { timeout = null } = options
     return new Promise((resolve, reject) => {
-        const fileAsPath = transformFileUrl(fileUrl)
-        if (!fileAsPath) {
-            reject(new Error(`Malformed file URL: ${fileUrl}`))
-            return
+        try {
+            axios({
+                method: 'get',
+                url: proxifyUrl(fileUrl),
+                timeout,
+            })
+                .then((response) => {
+                    resolve(response)
+                })
+                .catch((error) => {
+                    log.error(
+                        'Error while accessing file URL through service-proxy',
+                        fileUrl,
+                        error
+                    )
+                    reject(error)
+                })
+        } catch (error) {
+            reject(error)
         }
-        axios({
-            method: 'get',
-            url: `${API_SERVICE_PROXY_BASE_URL}${fileAsPath}`,
-            timeout,
-        })
-            .then((response) => {
-                resolve(response)
-            })
-            .catch((error) => {
-                log.error('Error while accessing file URL through service-proxy', fileUrl, error)
-                reject(error)
-            })
     })
 }

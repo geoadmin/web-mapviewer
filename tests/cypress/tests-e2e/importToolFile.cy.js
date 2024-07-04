@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { proxifyUrl } from '@/api/file-proxy.api.js'
+
 describe('The Import File Tool', () => {
     it('Import KML file', () => {
         cy.goToMapView({}, true)
@@ -501,7 +503,7 @@ describe('The Import File Tool', () => {
         cy.log('Test online import')
         const validOnlineUrl = 'http://example.com/valid-gpx-file.gpx'
         const gpxOnlineLayerId = `GPX|${validOnlineUrl}`
-        cy.intercept('GET', validOnlineUrl, {
+        cy.intercept('GET', proxifyUrl(validOnlineUrl), {
             fixture: gpxFileFixture,
         }).as('getGpxFile')
 
