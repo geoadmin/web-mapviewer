@@ -3,11 +3,13 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
+import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'SearchBar' }
 
 const store = useStore()
 
+const isPristine = ref(true)
 const showResults = ref(false)
 const searchInput = ref(null)
 const searchValue = ref('')
@@ -20,8 +22,11 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 watch(hasResults, (newValue) => {
     // if an entry has been selected from the list, do not show the list again
-    // because the list has been hidden by onEntrySelected
-    if (!selectedEntry.value) {
+    // because the list has been hidden by onEntrySelected. Also if the search bar is pristine (not
+    // yet modified by the user) we don't want to show the result (e.g. at startup with a swisssearch
+    // query param)
+    if (!selectedEntry.value && !isPristine.value) {
+        log.debug(`Search has result changed to ${newValue}, change the show result to ${newValue}`)
         showResults.value = newValue
     }
 })
@@ -43,6 +48,7 @@ onMounted(() => {
 
 let debounceSearch = null
 const updateSearchQuery = (event) => {
+    isPristine.value = false
     selectedEntry.value = null
     searchValue.value = event.target.value
 
