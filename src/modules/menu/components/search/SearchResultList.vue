@@ -165,7 +165,8 @@ defineExpose({ focusFirstEntry })
 
 .search-results-container {
     position: fixed;
-    z-index: $zindex-menu-header;
+    // here we need -1 in order to have the focus highlight of the search on top of the result
+    z-index: calc($zindex-menu-header - 1);
     top: $header-height;
     // 45vh (so that previews are visible), but on small screen min 20rem (ca. 3 lines per category)
     height: min(calc(100vh - $header-height), max(20rem, 45vh));

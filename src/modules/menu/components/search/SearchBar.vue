@@ -52,17 +52,8 @@ const updateSearchQuery = (event) => {
     }, 100)
 }
 
-const onSearchInputFocus = (event) => {
-    // When the focus event is due to a programatic focus event, the relatedTarget is not null
-    // and in this case we don't want to show the result. For example when selecting a result value
-    // we want to close the result and focus on the input, so that the user can directly change
-    // the search.
-    if (!event.relatedTarget && hasResults.value) {
-        showResults.value = true
-    }
-}
-
 const clearSearchQuery = () => {
+    hasResults.value = false
     showResults.value = false
     selectedEntry.value = null
     searchValue.value = ''
@@ -138,12 +129,22 @@ const toggleResults = () => {
             :value="searchValue"
             data-cy="searchbar"
             tabindex="0"
+            @click="toggleResults"
             @input="updateSearchQuery"
-            @focus="onSearchInputFocus"
             @keydown.down.prevent="goToFirstResult"
-            @keydown.esc.prevent="toggleResults"
+            @keydown.esc.prevent="clearSearchQuery"
             @keyup.enter.stop.prevent="goToFirstResult"
         />
+        <button
+            v-if="hasResults && !isPhoneMode"
+            class="btn btn-outline-group"
+            type="button"
+            tabindex="0"
+            data-cy="searchbar-toggle-result"
+            @click="toggleResults"
+        >
+            <FontAwesomeIcon :icon="showResults ? 'caret-down' : 'caret-up'" />
+        </button>
         <button
             v-show="searchValue"
             id="clearSearchButton"
