@@ -1,6 +1,7 @@
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
@@ -111,6 +112,10 @@ export function getLayersFromLegacyUrlParams(
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
             layer = new KMLLayer({ kmlFileUrl: url, visible: true })
+        }
+        if (layerId.startsWith('GPX||')) {
+            const [_layerType, url] = layerId.split('||')
+            layer = new GPXLayer({ gpxFileUrl: url, visible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
