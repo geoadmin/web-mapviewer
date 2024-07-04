@@ -50,10 +50,10 @@ const is3dActive = computed(() => store.state.cesium.active)
         data-cy="toolbox-right"
     >
         <FullScreenButton v-if="fullScreenButton" />
-        <GeolocButton v-if="geolocButton && !isFullscreenMode" />
-        <ZoomButtons v-if="!isFullscreenMode" />
-        <Toggle3dButton v-if="toggle3dButton && !isFullscreenMode" />
-        <OpenLayersCompassButton v-if="compassButton && !is3dActive && !isFullscreenMode" />
+        <GeolocButton v-if="geolocButton" />
+        <ZoomButtons />
+        <Toggle3dButton v-if="toggle3dButton" />
+        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
         <slot />
     </div>
 </template>
