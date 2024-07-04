@@ -183,7 +183,7 @@ function onDeleteLastPoint() {
                     @click="drawMenuOpen = !drawMenuOpen"
                 >
                     <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
-                    <span class="ms-1">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
+                    <span class="ms-2">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
                 </button>
             </div>
         </div>
