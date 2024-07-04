@@ -189,10 +189,10 @@ function mediaTypes() {
         </div>
 
         <div v-if="!isFeatureText" class="form-group mb-2">
-            <label class="form-label" for="drawing-style-feature-description">
-                {{ $t('modify_description') }}
-            </label>
-            <div>
+            <div class="d-flex justify-content-between">
+                <label class="form-label" for="drawing-style-feature-description">
+                    {{ $t('modify_description') }}
+                </label>
                 <div class="d-flex justify-content-end align-items-center">
                     <div v-for="(media, index) in mediaTypes()" :key="media.type">
                         <DrawingStylePopoverButton
@@ -212,6 +212,8 @@ function mediaTypes() {
                         </DrawingStylePopoverButton>
                     </div>
                 </div>
+            </div>
+            <div>
                 <textarea
                     id="drawing-style-feature-description"
                     v-model="description"
