@@ -1,5 +1,5 @@
 import { View } from 'ol'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
@@ -16,11 +16,15 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 export default function useViewBasedOnProjection(map) {
+    const northwardRotation = ref(0)
+
     const store = useStore()
     const center = computed(() => store.state.position.center)
     const projection = computed(() => store.state.position.projection)
     const zoom = computed(() => store.state.position.zoom)
     const rotation = computed(() => store.state.position.rotation)
+    const autoRotation = computed(() => store.state.position.autoRotation)
+    const resetRotation = computed(() => store.state.position.resetRotation)
 
     const viewsForProjection = {}
     viewsForProjection[LV95.epsg] = new View({
@@ -53,10 +57,28 @@ export default function useViewBasedOnProjection(map) {
         })
     )
     watch(rotation, (newRotation) => {
+        if (!autoRotation.value) {
+            viewsForProjection[projection.value.epsg].animate({
+                rotation: newRotation,
+                duration: animationDuration,
+            })
+        }
+    })
+    watch(northwardRotation, (newRotation) => {
         viewsForProjection[projection.value.epsg].animate({
             rotation: newRotation,
             duration: animationDuration,
         })
+    })
+    watch(autoRotation, () => {
+        rotate()
+    })
+    watch(resetRotation, () => {
+        viewsForProjection[projection.value.epsg].animate({
+            rotation: 0,
+            duration: animationDuration,
+        })
+        store.dispatch('setResetRotation', false)
     })
 
     onMounted(() => {
@@ -66,6 +88,28 @@ export default function useViewBasedOnProjection(map) {
     onBeforeUnmount(() => {
         map.un('moveend', updateCenterInStore)
     })
+
+    const handleOrientation = function (event) {
+        northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
+        console.error('New device rotation value received', northwardRotation.value)
+    }
+
+    function rotate() {
+        if (autoRotation.value) {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(() => {
+                    window.addEventListener('deviceorientation', handleOrientation)
+                })
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation)
+            }
+        } else {
+            if (!store.state.position.resetRotation) {
+                store.dispatch('setRotation', northwardRotation.value)
+            }
+            window.removeEventListener('deviceorientation', handleOrientation)
+        }
+    }
 
     function setViewAccordingToProjection() {
         const viewForProjection = viewsForProjection[projection.value.epsg]

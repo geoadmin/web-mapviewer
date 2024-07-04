@@ -54,8 +54,8 @@ const is3dActive = computed(() => store.state.cesium.active)
         <GeolocButton v-if="geolocButton" />
         <ZoomButtons />
         <Toggle3dButton v-if="toggle3dButton" />
-        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
         <CompassButton />
+        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
         <slot />
     </div>
 </template>

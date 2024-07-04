@@ -42,9 +42,10 @@ export default {
         this.getMap().un('postrender', this.onRotate)
     },
     methods: {
-        ...mapActions(['setRotation']),
+        ...mapActions(['setAutoRotation', 'setResetRotation']),
         resetRotation() {
-            this.setRotation(0)
+            this.setAutoRotation(false)
+            this.setResetRotation(true)
         },
         onRotate(mapEvent) {
             const newRotation = mapEvent.frameState.viewState.rotation
