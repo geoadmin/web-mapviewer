@@ -1,3 +1,4 @@
+import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class.js'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import { loadTopics, parseTopics } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
@@ -49,6 +50,36 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
             swissimage3d.isBackground = true
             swissimage.idIn3d = swissimage3d.id
         }
+
+        // adding all BG counterpart for VectorTiles
+        const pixelKarteFarbe = layersConfig.find(
+            (layer) => layer.id === 'ch.swisstopo.pixelkarte-farbe'
+        )
+        const pixelKarteGrau = layersConfig.find(
+            (layer) => layer.id === 'ch.swisstopo.pixelkarte-grau'
+        )
+
+        layersConfig.push(
+            new GeoAdminVectorLayer({
+                id: `${pixelKarteFarbe.id}_vt`,
+                vectorStyleId: 'ch.swisstopo.basemap.vt',
+            })
+        )
+        pixelKarteFarbe.idInVectorTile = `${pixelKarteFarbe.id}_vt`
+        layersConfig.push(
+            new GeoAdminVectorLayer({
+                id: `${pixelKarteGrau.id}_vt`,
+                vectorStyleId: 'ch.swisstopo.lightbasemap.vt',
+            })
+        )
+        pixelKarteGrau.idInVectorTile = `${pixelKarteGrau.id}_vt`
+        layersConfig.push(
+            new GeoAdminVectorLayer({
+                id: `${swissimage.id}_vt`,
+                vectorStyleId: 'ch.swisstopo.imagerybasemap.vt',
+            })
+        )
+        swissimage.idInVectorTile = `${swissimage.id}_vt`
 
         store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
         store.dispatch('setTopics', { topics, dispatcher })

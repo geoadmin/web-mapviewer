@@ -69,7 +69,7 @@
         "jquery": "^3.7.1",
         "liang-barsky": "^1.0.5",
         "lodash": "^4.17.21",
-        "maplibre-gl": "^4.3.2",
+        "maplibre-gl": "^4.5.0",
         "ol": "^9.2.4",
         "pako": "^2.1.0",
         "print-js": "^1.6.0",

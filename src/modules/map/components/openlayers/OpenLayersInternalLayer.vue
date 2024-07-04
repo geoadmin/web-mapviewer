@@ -16,7 +16,6 @@ import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKM
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from '@/modules/map/components/openlayers/OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersWMTSLayer.vue'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const props = defineProps({
     layerConfig: {
@@ -35,7 +34,6 @@ const props = defineProps({
 const { layerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const store = useStore()
-const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 
 function shouldAggregateSubLayerBeVisible(subLayer) {
@@ -56,7 +54,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             (see OpenLayersMap main component)
         -->
         <OpenLayersVectorLayer
-            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
+            v-if="layerConfig.type === LayerTypes.VECTOR"
             :vector-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

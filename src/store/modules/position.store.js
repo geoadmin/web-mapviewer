@@ -217,7 +217,7 @@ const actions = {
             return
         }
         if (Array.isArray(center)) {
-            if (state.projection.epsg != LV95.epsg || LV95.isInBounds(center[0], center[1])) {
+            if (state.projection.epsg !== LV95.epsg || LV95.isInBounds(center[0], center[1])) {
                 commit('setCenter', {
                     x: center[0],
                     y: center[1],
@@ -227,7 +227,7 @@ const actions = {
                 log.warn('center received is out of bounds, ignoring')
             }
         } else {
-            if (state.projection.epsg != LV95.epsg || LV95.isInBounds(center.x, center.y)) {
+            if (state.projection.epsg !== LV95.epsg || LV95.isInBounds(center.x, center.y)) {
                 const { x, y } = center
                 commit('setCenter', { x, y, dispatcher })
             } else {

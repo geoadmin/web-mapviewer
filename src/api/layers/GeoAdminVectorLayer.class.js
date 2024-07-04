@@ -16,17 +16,19 @@ import { VECTOR_TILE_BASE_URL } from '@/config'
  */
 export default class GeoAdminVectorLayer extends GeoAdminLayer {
     /**
-     * @param {string} layerId The ID of this layer
-     * @param {LayerAttribution[]} extraAttributions Extra attribution in case this vector layer is
-     *   a mix of many sources
+     * @param {string} vtLayerConfig.id The ID of this layer
+     * @param {string} vtLayerConfig.vectorStyleId The ID of the style in the VT backend
+     * @param {LayerAttribution[]} vtLayerConfig.extraAttributions Extra attribution in case this
+     *   vector layer is a mix of many sources
      */
-    constructor(layerId, extraAttributions = []) {
+    constructor(vtLayerConfig = {}) {
+        const { id, vectorStyleId = null, extraAttributions = [] } = vtLayerConfig
         super({
-            name: layerId,
+            id,
+            name: id,
             type: LayerTypes.VECTOR,
             baseUrl: VECTOR_TILE_BASE_URL,
-            id: layerId,
-            technicalName: layerId,
+            technicalName: vectorStyleId,
             attributions: [
                 ...extraAttributions,
                 new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),
@@ -34,5 +36,6 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
             isBackground: true,
             hasLegend: false,
         })
+        this.vectorStyleId = vectorStyleId
     }
 }

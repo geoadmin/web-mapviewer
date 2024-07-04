@@ -1,6 +1,6 @@
 // loading and exporting all values from the .env file as ES6 importable variables
 
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 /**
  * Enum that tells for which (deployment) environment the app has been built.
@@ -32,7 +32,7 @@ export const APP_VERSION = __APP_VERSION__
  *
  * @type {CoordinateSystem}
  */
-export const DEFAULT_PROJECTION = LV95
+export const DEFAULT_PROJECTION = WEBMERCATOR
 
 /**
  * Adds a slash at the end of the URL if there is none
