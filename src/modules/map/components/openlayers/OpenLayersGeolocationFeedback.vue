@@ -5,7 +5,7 @@ import { useStore } from 'vuex'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersAccuracyCircle from '@/modules/map/components/openlayers/OpenLayersAccuracyCircle.vue'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
-import OpenLayersVisionCone from '@/modules/map/components/openlayers/OpenLayersVisionCone.vue'
+import OpenLayersVisionConeCalculator from '@/modules/map/components/openlayers/OpenLayersVisionConeCalculator.vue'
 import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 
 const store = useStore()
@@ -18,7 +18,9 @@ const { zIndexGeolocation } = useLayerZIndexCalculation()
 <template>
     <!-- Adding marker and accuracy circle for Geolocation -->
     <OpenLayersAccuracyCircle v-if="geolocationActive" :z-index="zIndexGeolocation" />
-    <OpenLayersVisionCone v-if="geolocationActive" :z-index="zIndexGeolocation + 1" />
+    <div v-if="geolocationActive">
+        <OpenLayersVisionConeCalculator :z-index="zIndexGeolocation + 1" />
+    </div>
     <OpenLayersMarker
         v-if="geolocationActive"
         :position="geolocationPosition"

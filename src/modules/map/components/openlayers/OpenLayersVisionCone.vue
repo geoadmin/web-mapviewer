@@ -7,7 +7,7 @@ import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
-import { computed, inject, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -17,48 +17,21 @@ const props = defineProps({
         type: Number,
         default: -1,
     },
+    effectiveHeading: {
+        type: Number,
+        default: null,
+    },
 })
-const { zIndex } = toRefs(props)
-
+const { zIndex, effectiveHeading } = toRefs(props)
 const store = useStore()
 
-const headingOffset = ref(0)
-const effectiveHeading = ref(0)
-let headingIsAbsolute = false
-let visionInterval = null
-
 const geolocationPosition = computed(() => store.state.geolocation.position)
-const geolocationHeading = computed(() => store.state.geolocation.heading)
-const positionHeading = computed(() => store.state.position.heading)
-const showVisionCone = computed(() => headingIsAbsolute || geolocationHeading.value)
-
-onMounted(() => {
-    window.addEventListener('deviceorientation', getIfOrientationAbsolute)
-    visionInterval = setInterval(() => {
-        if (geolocationHeading.value) {
-            console.error('geolocationHeading has value: ', geolocationHeading.value)
-            headingOffset.value = geolocationHeading.value - positionHeading.value
-        } else {
-            console.error('geolocationHeading has no value: ', geolocationHeading.value)
-        }
-        effectiveHeading.value = -positionHeading.value - headingOffset.value - Math.PI / 2
-    }, 500)
-})
-
-onUnmounted(() => {
-    clearInterval(visionInterval)
-})
-
-const getIfOrientationAbsolute = function (event) {
-    headingIsAbsolute = event.absolute
-    window.removeEventListener('deviceorientation', getIfOrientationAbsolute)
-}
 
 function rotateConeOnCompassHeading() {
     visionConeGeometry.rotate(effectiveHeading.value, geolocationPosition.value)
 }
 
-const visionConeGeometry = new Point(geolocationPosition.value)
+let visionConeGeometry = new Point(geolocationPosition.value)
 rotateConeOnCompassHeading()
 
 const visionConeFeature = new Feature({
