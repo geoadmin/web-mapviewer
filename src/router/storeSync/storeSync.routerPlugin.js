@@ -183,6 +183,13 @@ function urlQueryWatcher(store, to, from) {
     return undefined
 }
 
+function initialUrlQueryWatcher(to, store, router) {
+    const newRoute = urlQueryWatcher(store, to)
+    if (newRoute) {
+        router.push(newRoute)
+    }
+}
+
 /**
  * Plugin that syncs what is in the URL with what is in the store (and vice-versa). It also reacts
  * to on-the-fly changes in the URL and commit the changes to the store.
@@ -197,8 +204,9 @@ function urlQueryWatcher(store, to, from) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
+        const logPrefix = '[Router store plugin/beforeEach] '
         log.debug(
-            `[Router store plugin] Entering the store sync plugin with the following 'from' and 'to': `,
+            `${logPrefix}Entering the store sync plugin with the following 'from' and 'to': `,
             from,
             to
         )
@@ -206,23 +214,34 @@ const storeSyncRouterPlugin = (router, store) => {
         let retVal = undefined
 
         if (!MAP_VIEWS.includes(to.name)) {
+            log.debug(`${logPrefix}leaving the map view`, from, to)
             // leaving MapView make sure to unsubscribe the store mutation
             if (unsubscribeStoreMutation) {
-                log.info(
-                    `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
-                )
+                log.info(`${logPrefix}Leaving ${to.name}, unregister store mutation watcher`)
 
                 unsubscribeStoreMutation()
                 retVal = undefined
             }
-        }
-        if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
+        } else if (store.state.app.isReady) {
+            log.debug(`${logPrefix}URL change while app is ready, process new url`, from, to)
             // Synchronize the store with the url query only on MapView and when the application
             // is ready
             retVal = urlQueryWatcher(store, to, from)
+        } else {
+            log.info(
+                `${logPrefix}URL change while app is not ready, do not process new url`,
+                from,
+                to
+            )
         }
 
-        log.debug('[Router store plugin] exiting navigation guard with the following value', retVal)
+        log.debug(
+            `${logPrefix}exiting navigation guard`,
+            from,
+            to,
+            `with the following value`,
+            retVal
+        )
         // Note we return undefined to validate the route, see Vue Router documentation
         return retVal
     })
@@ -232,22 +251,31 @@ const storeSyncRouterPlugin = (router, store) => {
     // which was LEGACY. By moving this subscription to the after Each loop, we ensure the 'currentRoute'
     // is always set to MAPVIEW, avoiding a lock of the viewer.
     router.afterEach((to) => {
+        const logPrefix = '[Router store plugin/afterEach]'
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
-            log.info('[Router store plugin] Entering MapView, register store mutation watcher')
+            log.info(`${logPrefix}MapView entered, register store mutation watcher`)
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) => {
                 if (mutation.type === 'setAppIsReady') {
-                    log.info(
-                        '[Router store plugin] app is ready, trigger initial URL query watcher'
-                    )
-                    const newRoute = urlQueryWatcher(store, to)
-                    if (newRoute) {
-                        router.push(newRoute)
-                    }
+                    // If the app was not yet ready after entering the map view, we need to
+                    // trigger the initial urlQuery watcher otherwise we have a blank application.
+                    log.info(`[store sync router] App is ready, trigger initial URL query watcher`)
+                    initialUrlQueryWatcher(to, store, router)
                 } else if (store.state.app.isReady) {
                     storeMutationWatcher(store, mutation, router)
                 }
             })
+
+            if (store.state.app.isReady) {
+                // After entering for the first time the map view, if the app is already ready that
+                // mean that the initial URL query watcher was not run yet and we need to do it
+                // otherwise the query parameter will not have any effect on the application leaving
+                // it blank until a reload or a user action (e.g. adding a layer)
+                log.warn(
+                    `${logPrefix}MapView entered, while app was already ready ! Trigger initial URL query watcher`
+                )
+                initialUrlQueryWatcher(to, store, router)
+            }
         }
     })
 }
