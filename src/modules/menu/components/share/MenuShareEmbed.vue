@@ -117,6 +117,18 @@ function toggleEmbedSharing() {
 
 function togglePreviewModal() {
     showPreviewModal.value = !showPreviewModal.value
+    if (showPreviewModal.value) {
+        window.addEventListener('message', onPreviewChange)
+    } else {
+        window.removeEventListener('message', onPreviewChange)
+    }
+}
+
+function onPreviewChange(e) {
+    if (e?.data?.type === 'gaChange') {
+        // see iframeFeatureEvent.api.js -> sendChangeEventToParent
+        embedSource.value = e.data.payload.newUrl
+    }
 }
 
 async function copyValue() {

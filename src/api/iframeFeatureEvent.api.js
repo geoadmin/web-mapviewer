@@ -1,5 +1,7 @@
 import log from '@/utils/logging.js'
 
+const targetWindow = parent ?? window.parent ?? window.opener ?? window.top
+
 /**
  * Sends information to the iFrame's parent about features, through the use of the postMessage
  * HTML/Javascript API.
@@ -7,9 +9,9 @@ import log from '@/utils/logging.js'
  * @param {LayerFeature[]} features List of features for which we want to send information to the
  *   iFrame's parent
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+ * @see https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
  */
 export function sendFeatureInformationToIFrameParent(features) {
-    const targetWindow = parent ?? window.parent ?? window.opener ?? window.top
     if (!targetWindow) {
         log.debug(
             'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'
@@ -42,4 +44,30 @@ export function sendFeatureInformationToIFrameParent(features) {
         // suggest that this was already to accommodate some legacy support, and was supposed to be removed "soon"
         // so let's not implement this format in the new viewer and see what happens.
     })
+}
+
+/**
+ * Is used to notify the parent the state of the app has changed. While embedding with VueJS, it's
+ * not possible to watch the iFrame src attribute, so an event is required to be notified of a
+ * children change.
+ *
+ * This is mainly used so that the iframe generator (menu share -> embed) can change the iframe
+ * snippet if the user decide to move / zoom the map while looking at the preview
+ */
+export function sendChangeEventToParent() {
+    if (!targetWindow) {
+        log.debug(
+            'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'
+        )
+        return
+    }
+    targetWindow.postMessage(
+        {
+            type: 'gaChange',
+            payload: {
+                newUrl: window.location.href,
+            },
+        },
+        '*'
+    )
 }
