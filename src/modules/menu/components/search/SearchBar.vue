@@ -164,7 +164,7 @@ const onInputClicked = () => {
             data-cy="searchbar-toggle-result"
             @click="toggleResults"
         >
-            <FontAwesomeIcon :icon="showResults ? 'caret-down' : 'caret-up'" />
+            <FontAwesomeIcon :icon="showResults ? 'caret-up' : 'caret-down'" />
         </button>
         <button
             v-show="searchValue"
