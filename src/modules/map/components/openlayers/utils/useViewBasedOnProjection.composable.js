@@ -16,7 +16,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 export default function useViewBasedOnProjection(map) {
-    const northwardRotation = ref(0)
+    const deviceOrientation = ref(0)
     const circularAverage = ref(0)
     let count = 0
     let sumSin = 0
@@ -74,11 +74,6 @@ export default function useViewBasedOnProjection(map) {
         }
     })
 
-    watch(autoRotation, () => {
-        toggleAutoRotateListener()
-        toggleAutoRotateDamping()
-    })
-
     watch(geolocationIsActive, () => {
         toggleAutoRotateListener()
         toggleAutoRotateDamping()
@@ -101,24 +96,31 @@ export default function useViewBasedOnProjection(map) {
     })
 
     const handleOrientation = function (event) {
-        northwardRotation.value = round((event.alpha / 180) * Math.PI, 2)
+        deviceOrientation.value = round((event.alpha / 180) * Math.PI, 2)
         count = count + 1
-        sumSin = sumSin + Math.sin(northwardRotation.value)
-        sumCos = sumCos + Math.cos(northwardRotation.value)
+        sumSin = sumSin + Math.sin(deviceOrientation.value)
+        sumCos = sumCos + Math.cos(deviceOrientation.value)
+    }
+
+    const checkIfOrientationIsAbsolute = function (event) {
+        store.dispatch('setHeadingIsAbsolute', event.absolute)
+        window.removeEventListener('deviceorientation', checkIfOrientationIsAbsolute)
     }
 
     function toggleAutoRotateListener() {
-        if (autoRotation.value || geolocationIsActive) {
+        if (geolocationIsActive.value) {
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission().then(() => {
+                    window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
                     window.addEventListener('deviceorientation', handleOrientation)
                 })
             } else {
+                window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
                 window.addEventListener('deviceorientation', handleOrientation)
             }
         } else {
-            if (!store.state.position.resetRotation) {
-                store.dispatch('setRotation', northwardRotation.value)
+            if (!store.state.position.resetRotation && autoRotation.value) {
+                store.dispatch('setRotation', deviceOrientation.value)
             }
             window.removeEventListener('deviceorientation', handleOrientation)
         }
@@ -126,7 +128,7 @@ export default function useViewBasedOnProjection(map) {
 
     // we have to sync the update interval with the animation duration so that rotating the map does not look choppy
     function toggleAutoRotateDamping() {
-        if (autoRotation.value || geolocationIsActive.value) {
+        if (geolocationIsActive.value) {
             dampingInterval = setInterval(() => {
                 if (!count) {
                     return
@@ -135,7 +137,7 @@ export default function useViewBasedOnProjection(map) {
                 const newCircularAverage = Math.atan2(sumSin, sumCos)
                 const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
                 const deltaThreshold =
-                    Math.abs(circularAverage.value - newCircularAverage) > Math.PI / 90
+                    Math.abs(circularAverage.value - newCircularAverage) > (2 * Math.PI) / 180
                 if (autoRotation.value && certaintyThreshold && deltaThreshold) {
                     viewsForProjection[projection.value.epsg].animate({
                         rotation: newCircularAverage,

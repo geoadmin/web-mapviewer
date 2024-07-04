@@ -24,20 +24,21 @@ let updatedGeolocation = 0
 const geolocationHeading = computed(() => store.state.geolocation.heading)
 const positionHeading = computed(() => store.state.position.heading)
 const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute)
-const mapRotation = computed(() => store.state.position.rotation)
 
 onMounted(() => {
     if (geolocationHeading.value) {
         updatedGeolocation = geolocationHeading.value
     }
     visionInterval = setInterval(() => {
-        if (updatedGeolocation && !headingIsAbsolute.value) {
-            headingOffset.value = updatedGeolocation - positionHeading.value
-            updatedGeolocation = 0
-        }
-        effectiveHeading.value = positionHeading.value + headingOffset.value + Math.PI / 2
         if (store.state.position.autoRotation) {
-            effectiveHeading.value = mapRotation.value + Math.PI / 2
+            effectiveHeading.value = Math.PI / 2
+        } else {
+            //take heading of geolocation as reference for relative device orientation
+            if (updatedGeolocation && !headingIsAbsolute.value) {
+                headingOffset.value = updatedGeolocation - positionHeading.value
+                updatedGeolocation = 0
+            }
+            effectiveHeading.value = positionHeading.value + headingOffset.value + Math.PI / 2
         }
     }, 200)
 })

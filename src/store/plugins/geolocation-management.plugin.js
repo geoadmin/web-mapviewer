@@ -45,7 +45,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
         position: positionProjected,
         ...dispatcher,
     })
-    if (position.coords.heading != null && position.coords.speed >= 1) {
+    if (position.coords.heading != null && position.coords.speed >= 0.5) {
         store.dispatch('setGeolocationHeading', {
             heading: toRadians(position.coords.heading),
             ...dispatcher,

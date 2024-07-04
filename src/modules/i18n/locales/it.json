@@ -683,5 +683,6 @@
     "webmapviewer_live_disclaimer": "Il visualizzatore di mappe sarà aggiornato in breve - <a target='_blank' href='https://www.geo.admin.ch/it/go-live-visualizzatore-di-mappe'>tenetevi pronti</a>",
     "drawing_too_large": "Il suo disegno è troppo grande, rimuova alcuni elementi",
     "3d_unsupported_projection": "La mappa non può essere visualizzata in 3D perché non supporta la proiezione EPSG:4326",
-    "geoloc_out_of_bounds": "La Sua posizione attuale è al di fuori della Svizzera e non può essere mostrata."
+    "geoloc_out_of_bounds": "La Sua posizione attuale è al di fuori della Svizzera e non può essere mostrata.",
+    "orient_map_north": "Orientare la mappa"
 }

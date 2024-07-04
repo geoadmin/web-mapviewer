@@ -18,6 +18,9 @@ const tippyContent = computed(() => {
     if (isDenied.value) {
         return 'geoloc_permission_denied'
     }
+    if (isActive.value && headingIsAbsolute.value && !autoRotation.value) {
+        return 'orient_map_north'
+    }
     if (isActive.value) {
         return 'geoloc_stop_tracking'
     }

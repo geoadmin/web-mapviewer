@@ -75,6 +75,14 @@ const state = {
      */
     rotation: 0,
 
+
+    /**
+     * The heading reported by the device
+     *
+     * @type Number
+     */
+    heading: 0,
+
     /**
      * Flag which indicates if openlayers map rotates to align with true / magnetic north
      *
@@ -88,13 +96,6 @@ const state = {
      * @type Boolean
      */
     resetRotation: false,
-
-    /**
-     * The heading of the vision cone
-     *
-     * @type Number
-     */
-    heading: 0,
 
     /**
      * Flag that indicates whether heading is northened or not
@@ -228,18 +229,18 @@ const actions = {
         rotation = normalizeAngle(rotation)
         commit('setRotation', rotation)
     },
-    setAutoRotation({ commit }, autoRotation) {
-        commit('setAutoRotation', autoRotation)
-    },
-    setResetRotation({ commit }, resetRotation) {
-        commit('setResetRotation', resetRotation)
-    },
     setHeading({ commit }, heading) {
         if (typeof heading !== 'number') {
             return
         }
         heading = normalizeAngle(heading)
         commit('setHeading', heading)
+    },
+    setAutoRotation({ commit }, autoRotation) {
+        commit('setAutoRotation', autoRotation)
+    },
+    setResetRotation({ commit }, resetRotation) {
+        commit('setResetRotation', resetRotation)
     },
     setHeadingIsAbsolute({ commit }, headingIsAbsolute) {
         commit('setHeadingIsAbsolute', headingIsAbsolute)
@@ -464,9 +465,9 @@ const mutations = {
         (state.displayedFormatId = displayedFormatId),
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
+    setHeading: (state, heading) => (state.heading = heading),
     setAutoRotation: (state, autoRotation) => (state.autoRotation = autoRotation),
     setResetRotation: (state, resetRotation) => (state.resetRotation = resetRotation),
-    setHeading: (state, heading) => (state.heading = heading),
     setHeadingIsAbsolute: (state, headingIsAbsolute) =>
         (state.headingIsAbsolute = headingIsAbsolute),
     setCenter: (state, { x, y }) => (state.center = [x, y]),

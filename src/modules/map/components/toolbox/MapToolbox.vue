@@ -38,14 +38,6 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
 
-onMounted(() => {
-    window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
-})
-
-const checkIfOrientationIsAbsolute = function (event) {
-    store.dispatch('setHeadingIsAbsolute', event.absolute)
-    window.removeEventListener('deviceorientation', checkIfOrientationIsAbsolute)
-}
 </script>
 
 <template>
