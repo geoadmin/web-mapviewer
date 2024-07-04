@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, nextTick, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -56,6 +57,8 @@ const customSize = ref({
     fullWidth: false,
 })
 const copied = ref(false)
+
+const { t } = useI18n()
 
 const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const embedPreviewModalWidth = computed(() => {
@@ -143,7 +146,7 @@ async function copyValue() {
                 :class="{ 'text-primary': showEmbedSharing }"
                 :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`"
             />
-            <span class="px-1">{{ $t('share_more') }}</span>
+            <span class="px-1">{{ t('share_more') }}</span>
         </a>
         <CollapseTransition :duration="200">
             <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">
@@ -176,17 +179,17 @@ async function copyValue() {
                         data-cy="menu-share-embed-preview-button"
                         @click="togglePreviewModal"
                     >
-                        {{ $t('show_more_options') }}
+                        {{ t('show_more_options') }}
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="py-2" v-html="$t('share_disclaimer')"></div>
+                <div class="py-2" v-html="t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
         <ModalWithBackdrop
             v-if="showPreviewModal"
-            :title="$t('embed_map')"
+            :title="t('embed_map')"
             fluid
             @close="togglePreviewModal"
         >
@@ -204,7 +207,7 @@ async function copyValue() {
                             class="embed-preview-modal-size-selector-option"
                             :data-cy="`menu-share-embed-iframe-size-${size.i18nKey.toLowerCase()}`"
                         >
-                            {{ $t(size.i18nKey) }}
+                            {{ t(size.i18nKey) }}
                         </option>
                     </select>
                     <div v-if="isPreviewSizeCustom" class="d-flex flex-row ms-2">
@@ -243,7 +246,7 @@ async function copyValue() {
                                     data-cy="menu-share-embed-iframe-full-width"
                                 />
                                 <label class="form-check-label" for="fullWidthCheckbox">
-                                    {{ $t('full_width') }}
+                                    {{ t('full_width') }}
                                 </label>
                             </div>
                         </div>
@@ -262,15 +265,14 @@ async function copyValue() {
                 <!-- so I've opted to keep this piece of code for a better user experience -->
                 <div class="d-flex justify-content-center mb-2">
                     <iframe
-                        ref="iFramePreview"
-                        :title="$t('embed_map')"
+                        :title="t('embed_map')"
                         :src="embedSource"
                         :style="iFrameStyle"
                         allow="geolocation"
                     ></iframe>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="small text-wrap text-center" v-html="$t('share_disclaimer')"></div>
+                <div class="small text-wrap text-center" v-html="t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
