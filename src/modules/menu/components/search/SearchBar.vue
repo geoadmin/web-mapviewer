@@ -46,6 +46,11 @@ const updateSearchQuery = (event) => {
     selectedEntry.value = null
     searchValue.value = event.target.value
 
+    if (hasResults.value) {
+        // we already have a result make sure to display it as soon as the user is typing
+        showResults.value = true
+    }
+
     clearTimeout(debounceSearch)
     debounceSearch = setTimeout(() => {
         store.dispatch('setSearchQuery', { query: event.target.value, ...dispatcher })
@@ -102,6 +107,16 @@ const toggleResults = () => {
         showResults.value = !showResults.value
     }
 }
+
+const onInputClicked = () => {
+    if (hasResults.value) {
+        if (isPhoneMode.value) {
+            showResults.value = !showResults.value
+        } else {
+            showResults.value = true
+        }
+    }
+}
 </script>
 
 <template>
@@ -129,7 +144,7 @@ const toggleResults = () => {
             :value="searchValue"
             data-cy="searchbar"
             tabindex="0"
-            @click="toggleResults"
+            @click="onInputClicked"
             @input="updateSearchQuery"
             @keydown.down.prevent="goToFirstResult"
             @keydown.esc.prevent="clearSearchQuery"
