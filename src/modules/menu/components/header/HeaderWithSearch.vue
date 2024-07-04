@@ -17,7 +17,7 @@
                 />
             </div>
             <div
-                class="search-bar-section d-flex-column flex-grow-1"
+                class="search-bar-section d-flex-column flex-grow-1 me-2"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
                 <SearchBar />
