@@ -135,11 +135,11 @@ defineExpose({ focusFirstEntry })
             class="shadow-lg search-results bg-light"
             :class="{
                 'border-top border-bottom': isPhoneMode,
-                'border rounded-bottom': !isPhoneMode,
+                'rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
         >
-            <div class="search-results-inner">
+            <div class="search-results-inner" :class="{ 'rounded-bottom': !isPhoneMode }">
                 <SearchResultCategory
                     v-for="(category, index) in categories"
                     v-show="category.results.length > 0"
