@@ -1,6 +1,13 @@
 <script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
+import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVersion.vue'
 import LinksToolbar from '@/modules/menu/components/settings/LinksToolbar.vue'
+
+const store = useStore()
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 </script>
 
 <template>
@@ -11,5 +18,6 @@ import LinksToolbar from '@/modules/menu/components/settings/LinksToolbar.vue'
         <div id="menu-links">
             <LinksToolbar />
         </div>
+        <MapFooterAppVersion v-if="isPhoneMode" />
     </div>
 </template>
