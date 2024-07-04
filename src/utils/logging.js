@@ -25,7 +25,11 @@ export const LogLevel = {
  */
 const log = (level, ...message) => {
     // In production we don't log debug level and info level
-    if (ENVIRONMENT === 'production' && ![LogLevel.ERROR, LogLevel.WARNING].includes(level)) {
+    // TODO PB-747: remove info and debug level once we found the blank screen issue
+    if (
+        ENVIRONMENT === 'production' &&
+        ![LogLevel.ERROR, LogLevel.WARNING, LogLevel.INFO, LogLevel.DEBUG].includes(level)
+    ) {
         return
     }
 
