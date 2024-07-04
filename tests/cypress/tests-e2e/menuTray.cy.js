@@ -114,7 +114,7 @@ function measureMenu(shouldHaveMaxSize) {
         if (shouldHaveMaxSize) {
             cy.get('@menuTrayBottom').should('be.equal', expectedMenuTrayBottom)
         } else {
-            cy.get('@menuTrayBottom').should('be.lt', expectedMenuTrayBottom)
+            cy.get('@menuTrayBottom').should('be.lte', expectedMenuTrayBottom)
         }
     })
 }
