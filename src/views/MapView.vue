@@ -51,12 +51,12 @@ onMounted(() => {
         <MapModule>
             <MenuModule />
             <MapToolbox
-                :geoloc-button="!isDrawingMode"
+                geoloc-button
                 :full-screen-button="!isDrawingMode"
                 :toggle3d-button="!isDrawingMode"
                 compass-button
             >
-                <TimeSliderButton v-if="!isDrawingMode && !is3DActive" />
+                <TimeSliderButton v-if="!is3DActive" />
             </MapToolbox>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule v-if="loadDrawingModule" />
