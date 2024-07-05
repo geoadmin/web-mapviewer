@@ -11,7 +11,7 @@ import MapPopover, { MapPopoverMode } from '@/modules/map/components/MapPopover.
 const props = defineProps({
     coordinates: {
         type: Array,
-        required: true,
+        default: null,
     },
     authorizePrint: {
         type: Boolean,
@@ -38,17 +38,20 @@ const popoverAnchor = ref(null)
 
 const olMap = inject('olMap')
 
-watch(coordinates, getPixelForCoordinateFromMap)
+watch(coordinates, calculateAnchorPosition)
 
 onMounted(() => {
-    getPixelForCoordinateFromMap()
-    olMap.on('postrender', getPixelForCoordinateFromMap)
+    calculateAnchorPosition()
+    olMap.on('postrender', calculateAnchorPosition)
 })
 onUnmounted(() => {
-    olMap.un('postrender', getPixelForCoordinateFromMap)
+    olMap.un('postrender', calculateAnchorPosition)
 })
 
-function getPixelForCoordinateFromMap() {
+function calculateAnchorPosition() {
+    if (!coordinates.value) {
+        return
+    }
     const computedPixel = olMap.getPixelFromCoordinate(coordinates.value)
     // when switching back from Cesium (or any other map framework), there can be a very small
     // period where the map isn't yet able to process a pixel, this if is there to defend against that

@@ -17,10 +17,11 @@ import log from '@/utils/logging'
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
     return (
-        (feature?.geometry?.type && ['LineString', 'Polygon'].includes(feature.geometry.type)) ||
-        // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
-        (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
-            feature.geometry.coordinates.length === 1)
+        feature?.geometry?.type &&
+        (['LineString', 'Polygon'].includes(feature.geometry.type) ||
+            // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
+            (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
+                feature.geometry.coordinates.length === 1))
     )
 }
 
@@ -653,6 +654,7 @@ export default {
                             screenWidth: rootState.ui.width,
                             screenHeight: rootState.ui.height,
                             mapExtent: flattenExtent(rootState.getters.mapExtent),
+                            coordinate: rootState.map.clickInfo?.coordinate,
                         })
                     )
                 }

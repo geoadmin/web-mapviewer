@@ -122,23 +122,20 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             layer.updateDelay = updateDelay
         }
 
-        if (features !== undefined) {
+        // only highlightable feature will output something, for the others a click coordinate is required
+        // (and we don't have it if we are here, as we are dealing with pre-selected feature in the URL at app startup)
+        if (layer.isHighlightable && features !== undefined) {
             features
                 .toString()
                 .split(':')
                 .forEach((featureId) => {
                     featuresRequests.push(
-                        getFeature(
-                            store.getters.getLayerConfigById(parsedLayer.id),
-                            featureId,
-                            store.state.position.projection,
-                            {
-                                lang: store.state.i18n.lang,
-                                screenWidth: store.state.ui.width,
-                                screenHeight: store.state.ui.height,
-                                mapExtent: flattenExtent(store.getters.extent),
-                            }
-                        )
+                        getFeature(layer, featureId, store.state.position.projection, {
+                            lang: store.state.i18n.lang,
+                            screenWidth: store.state.ui.width,
+                            screenHeight: store.state.ui.height,
+                            mapExtent: flattenExtent(store.getters.extent),
+                        })
                     )
                 })
         }

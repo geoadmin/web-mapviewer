@@ -155,7 +155,7 @@ export async function identifyOnGeomAdminLayer({
                 geometryType: `esriGeometry${coordinate.length === 2 ? 'Point' : 'Envelope'}`,
                 limit: featureCount,
                 tolerance: DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
-                returnGeometry: true,
+                returnGeometry: layer.isHighlightable,
                 timeInstant: getApi3TimeInstantParam(layer),
                 lang: lang,
                 offset,
@@ -171,10 +171,12 @@ export async function identifyOnGeomAdminLayer({
                 screenWidth,
                 screenHeight,
                 mapExtent,
+                coordinate,
             })
             features.push(
                 parseGeomAdminFeature(layer, feature, featureData, projection, {
                     lang,
+                    coordinate,
                 })
             )
         }
@@ -575,9 +577,16 @@ function generateFeatureUrl(layer, featureId) {
  * @param {Number} [options.screenWidth] Current screen width in pixels
  * @param {Number} [options.screenHeight] Current screen height in pixels
  * @param {[Number, Number, Number, Number]} [options.mapExtent]
+ * @param {[Number, Number]} [options.coordinate]
  */
 function generateFeatureParams(options = {}) {
-    const { lang = 'en', screenWidth = null, screenHeight = null, mapExtent = null } = options
+    const {
+        lang = 'en',
+        screenWidth = null,
+        screenHeight = null,
+        mapExtent = null,
+        coordinate = null,
+    } = options
     let imageDisplay = null
     if (screenWidth && screenHeight) {
         imageDisplay = `${screenWidth},${screenHeight},96`
@@ -587,6 +596,7 @@ function generateFeatureParams(options = {}) {
         lang,
         imageDisplay,
         mapExtent: mapExtent?.join(',') ?? null,
+        coord: coordinate?.join(',') ?? null,
     }
 }
 
@@ -600,6 +610,8 @@ function generateFeatureParams(options = {}) {
  * @param {String} [options.lang] The lang the title of the feature should be look up. Some features
  *   do provide a title per lang, instead of an all-purpose title. In this case we need the lang ISO
  *   code to be able to decide which title the feature will have. Default is `en`
+ * @param {[Number, Number]} [options.coordinate] Where the identify took place, will be used if no
+ *   geometry was requested (if the layer isn't highlightable) to place the anchor of the tooltip
  * @returns {LayerFeature}
  */
 function parseGeomAdminFeature(
@@ -609,11 +621,10 @@ function parseGeomAdminFeature(
     outputProjection,
     options = {}
 ) {
-    const { lang = 'en' } = options
-    const featureGeoJSONGeometry = featureMetadata.geometry
-    let featureExtent = []
+    const { lang = 'en', coordinate = null } = options
+    let featureExtent = null
     if (featureMetadata.bbox) {
-        featureExtent.push(...featureMetadata.bbox)
+        featureExtent = [...featureMetadata.bbox]
     }
     let featureName = featureMetadata.id
     if (featureMetadata.properties) {
@@ -630,10 +641,22 @@ function parseGeomAdminFeature(
         }
     }
 
-    if (outputProjection.epsg !== LV95.epsg) {
-        if (featureExtent.length === 4) {
-            featureExtent = projExtent(LV95, outputProjection, featureExtent)
+    if (outputProjection.epsg !== LV95.epsg && featureExtent?.length === 4) {
+        featureExtent = projExtent(LV95, outputProjection, featureExtent)
+    }
+
+    let featureGeoJSONGeometry = null
+    if (layer.isHighlightable) {
+        featureGeoJSONGeometry = featureMetadata.geometry
+    } else if (coordinate) {
+        featureGeoJSONGeometry = {
+            type: 'MultiPoint',
+            coordinates: [coordinate],
         }
+    }
+    let coordinates = null
+    if (featureGeoJSONGeometry) {
+        coordinates = getGeoJsonFeatureCoordinates(featureGeoJSONGeometry, LV95, outputProjection)
     }
 
     return new LayerFeature({
@@ -641,7 +664,7 @@ function parseGeomAdminFeature(
         id: featureMetadata.id,
         name: featureName,
         data: featureHtmlPopup,
-        coordinates: getGeoJsonFeatureCoordinates(featureGeoJSONGeometry, LV95, outputProjection),
+        coordinates,
         extent: featureExtent,
         geometry: featureGeoJSONGeometry,
     })
@@ -724,6 +747,8 @@ const getFeature = (layer, featureId, outputProjection, options = {}) => {
  * @param {Number} [options.screenHeight] Height of the screen in pixels
  * @param {[Number, Number, Number, Number]} [options.mapExtent] Current extent of the map,
  *   described in LV95.
+ * @param {[Number, Number]} [options.coordinate] Coordinate of the click/identify, will be used by
+ *   some layer to gather more information in the HTML popup
  * @returns {Promise<String>}
  */
 export function getFeatureHtmlPopup(layer, featureId, options) {

@@ -15,7 +15,7 @@ const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
 
 const props = defineProps({
     name: {
-        type: String,
+        type: [String, Number],
         required: true,
     },
     item: {
@@ -91,7 +91,7 @@ function showContentAndScrollIntoView(event) {
         @mouseleave.passive="clearHighlightedFeature"
     >
         <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="mx-2" />
-        <TextTruncate :text="name" class="flex-grow-1">
+        <TextTruncate :text="`${name}`" class="flex-grow-1">
             <strong>{{ name }}</strong>
         </TextTruncate>
 
