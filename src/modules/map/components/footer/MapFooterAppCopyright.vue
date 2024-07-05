@@ -1,13 +1,16 @@
 <template>
-    <a
-        v-for="(link, index) in links"
-        :key="index"
-        :href="link.url"
-        target="_blank"
-        :data-cy="`app-copyright-${index}`"
-    >
-        {{ $t(link.label) }}
-    </a>
+    <div class="app-copyright">
+        <a
+            v-for="(link, index) in links"
+            :key="index"
+            :href="link.url"
+            target="_blank"
+            class="app-copyright-link"
+            :data-cy="`app-copyright-${index}`"
+        >
+            {{ $t(link.label) }}
+        </a>
+    </div>
 </template>
 
 <script>
@@ -36,12 +39,16 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/scss/variables-admin.module';
-a {
-    color: $black;
-    text-decoration: initial;
-}
-a:hover,
-a:focus {
-    text-decoration: underline;
+.app-copyright {
+    display: flex;
+    gap: 5px;
+    &-link {
+        color: $black;
+        text-decoration: initial;
+    }
+    &-link:hover,
+    &-link:focus {
+        text-decoration: underline;
+    }
 }
 </style>

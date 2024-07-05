@@ -46,11 +46,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="map-view" class="no-print">
-        <LoadingBar v-show="showLoadingBar" />
+    <div id="map-view">
+        <LoadingBar v-show="showLoadingBar" class="no-print" />
         <MapModule>
-            <MenuModule />
+            <MenuModule class="no-print" />
             <MapToolbox
+                class="no-print"
                 geoloc-button
                 :full-screen-button="!isDrawingMode"
                 :toggle3d-button="!isDrawingMode"
@@ -59,9 +60,9 @@ onMounted(() => {
                 <TimeSliderButton v-if="!is3DActive" />
             </MapToolbox>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
-            <DrawingModule v-if="loadDrawingModule" />
+            <DrawingModule v-if="loadDrawingModule" class="no-print" />
             <template #footer>
-                <MapFooter>
+                <MapFooter class="no-print">
                     <template v-if="isPhoneMode" #top-left>
                         <div class="d-flex flex-column align-items-start">
                             <BackgroundSelector class="p-2 background-selector" />
@@ -94,6 +95,10 @@ onMounted(() => {
                         <MapFooterAppCopyright />
                     </template>
                 </MapFooter>
+                <div class="printing-footer">
+                    <OpenLayersScale />
+                    <MapFooterAttributionList />
+                </div>
             </template>
         </MapModule>
         <I18nModule />
@@ -102,9 +107,30 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/webmapviewer-bootstrap-theme';
 #map-view {
     .background-selector {
         pointer-events: all;
+    }
+
+    .printing-footer {
+        display: none;
+    }
+}
+
+@media print {
+    #map-view {
+        .printing-footer {
+            display: flex;
+            justify-content: space-between;
+            z-index: $zindex-footer;
+            padding: $screen-padding-for-ui-elements;
+
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
     }
 }
 </style>

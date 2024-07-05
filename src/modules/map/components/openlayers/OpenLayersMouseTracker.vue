@@ -64,29 +64,39 @@ function setDisplayedFormatWithId() {
 </script>
 
 <template>
-    <select
-        v-model="displayedFormatId"
-        class="map-projection form-control-xs"
-        data-cy="mouse-position-select"
-        @change="setDisplayedFormatWithId"
-    >
-        <option v-for="format in allFormats" :key="format.id" :value="format.id">
-            {{ format.label }}
-        </option>
-    </select>
-    <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
+    <div class="mouse-tracker">
+        <select
+            v-model="displayedFormatId"
+            class="mouse-tracker-projection form-control-xs"
+            data-cy="mouse-position-select"
+            @change="setDisplayedFormatWithId"
+        >
+            <option v-for="format in allFormats" :key="format.id" :value="format.id">
+                {{ format.label }}
+            </option>
+        </select>
+        <div ref="mousePosition" class="mouse-tracker-position" data-cy="mouse-position"></div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
-.mouse-position {
-    display: none;
-    min-width: 10em;
-    text-align: left;
-    white-space: nowrap;
+.mouse-tracker {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-items: center;
+    gap: 5px;
+    &-position {
+        display: none;
+        text-align: left;
+        white-space: nowrap;
+    }
 }
 @media (any-hover: hover) {
-    .mouse-position {
-        display: block;
+    .mouse-tracker {
+        &-position {
+            display: block;
+        }
     }
 }
 </style>

@@ -65,3 +65,9 @@ $nav-tabs-link-active-bg: $primary;
 .w-13 {
     width: 13%;
 }
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
