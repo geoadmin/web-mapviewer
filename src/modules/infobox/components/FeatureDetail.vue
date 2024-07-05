@@ -134,6 +134,10 @@ function getIframeHosts(value) {
 :global(.htmlpopup-content) {
     padding: 7px;
 }
+// fix for layer HTML containing table, such as ch.bafu.gefahren-aktuelle_erdbeben
+:global(.t_list) {
+    width: 100%;
+}
 td {
     vertical-align: top;
 }

@@ -67,6 +67,7 @@ const popoverCoordinate = computed(() => {
     // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
     // selected features. We will find the most southern coordinate present in all features and use it as anchor.
     const mostSouthernFeature = selectedFeatures.value
+        .filter((feature) => feature.geometry !== null)
         .map((feature) => feature.geometry)
         .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
         .map((turfGeom) => explode(turfGeom))
