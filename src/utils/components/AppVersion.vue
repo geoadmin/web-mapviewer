@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { APP_VERSION } from '@/config'
+import { APP_VERSION } from '@/config.js'
 
 const store = useStore()
 const appVersion = ref(APP_VERSION)
