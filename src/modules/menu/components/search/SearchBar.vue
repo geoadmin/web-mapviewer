@@ -137,7 +137,7 @@ const onInputClicked = () => {
         </span>
         <input
             ref="searchInput"
-            type="text"
+            type="search"
             class="form-control text-truncate"
             :class="{
                 'rounded-bottom-0': showResults,
@@ -145,6 +145,9 @@ const onInputClicked = () => {
                 'rounded-end': !searchValue,
             }"
             :placeholder="$t('search_placeholder')"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
             aria-label="Search"
             aria-describedby="searchIconText clearSearchButton"
             :value="searchValue"
@@ -190,4 +193,11 @@ const onInputClicked = () => {
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
+
+// Prevent clear icon of search input on certain browser like chrome, the clear icon is added
+// manually using bootstrap see template above.
+input[type='search']::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
 </style>
