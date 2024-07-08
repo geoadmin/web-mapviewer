@@ -85,6 +85,7 @@ function onDeleteLastPoint() {
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
+                :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <div class="card-body position-relative container">
                     <div
@@ -183,7 +184,7 @@ function onDeleteLastPoint() {
                     @click="drawMenuOpen = !drawMenuOpen"
                 >
                     <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
-                    <span class="ms-1">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
+                    <span class="ms-2">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
                 </button>
             </div>
         </div>

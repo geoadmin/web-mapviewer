@@ -159,7 +159,7 @@ function onClose() {
                     @click="showContent = !showContent"
                     @mousedown.stop=""
                 >
-                    <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" />
+                    <FontAwesomeIcon :icon="`caret-${showContent ? 'up' : 'down'}`" />
                 </button>
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"

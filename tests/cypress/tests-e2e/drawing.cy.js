@@ -954,6 +954,7 @@ describe('Drawing module tests', () => {
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
+            cy.get('[data-cy="infobox-close"]').should('be.visible').click()
 
             // it exports KML when clicking on the export button (without choosing format)
             cy.get(

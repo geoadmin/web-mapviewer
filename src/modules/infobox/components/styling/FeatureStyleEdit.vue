@@ -101,6 +101,7 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
+const showInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -189,10 +190,10 @@ function mediaTypes() {
         </div>
 
         <div v-if="!isFeatureText" class="form-group mb-2">
-            <label class="form-label" for="drawing-style-feature-description">
-                {{ $t('modify_description') }}
-            </label>
-            <div>
+            <div class="d-flex justify-content-between">
+                <label class="form-label" for="drawing-style-feature-description">
+                    {{ $t('modify_description') }}
+                </label>
                 <div class="d-flex justify-content-end align-items-center">
                     <div v-for="(media, index) in mediaTypes()" :key="media.type">
                         <DrawingStylePopoverButton
@@ -212,6 +213,8 @@ function mediaTypes() {
                         </DrawingStylePopoverButton>
                     </div>
                 </div>
+            </div>
+            <div>
                 <textarea
                     id="drawing-style-feature-description"
                     v-model="description"
@@ -221,6 +224,7 @@ function mediaTypes() {
                     :class="{
                         'form-control-plaintext': readOnly,
                     }"
+                    rows="2"
                 ></textarea>
             </div>
         </div>
@@ -262,6 +266,7 @@ function mediaTypes() {
                     v-if="isFeatureMarker"
                     data-cy="drawing-style-marker-button"
                     icon="fas fa-map-marker-alt"
+                    :placement="showInBottomPanel ? 'top' : 'auto'"
                 >
                     <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
@@ -301,8 +306,5 @@ function mediaTypes() {
 <style lang="scss" scoped>
 .feature-title {
     height: 1rem;
-}
-.feature-description {
-    height: 2rem;
 }
 </style>
