@@ -103,13 +103,6 @@ const activeGeolocation = (store, state) => {
                 position,
                 `firstTimeActivatingGeolocation=${firstTimeActivatingGeolocation}`
             )
-            // if geoloc was previously denied, we clear the flag
-            if (state.geolocation.denied) {
-                store.dispatch('setGeolocationDenied', {
-                    denied: false,
-                    ...dispatcher,
-                })
-            }
             // register a watcher
             geolocationWatcher = navigator.geolocation.watchPosition(
                 (position) => handlePositionAndDispatchToStore(position, store),
