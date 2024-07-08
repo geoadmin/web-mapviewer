@@ -1,5 +1,4 @@
 import Feature from 'ol/Feature'
-import { GPX } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
@@ -9,6 +8,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+import GPX from '@/utils/ol/format/GPX'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML from '@/utils/ol/format/KML'
 
