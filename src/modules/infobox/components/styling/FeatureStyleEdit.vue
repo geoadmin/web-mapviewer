@@ -73,7 +73,7 @@ const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 function updateFeatureTitle() {
     store.dispatch('changeFeatureTitle', {
         feature: feature.value,
-        title: title.value,
+        title: title.value.trim(),
         ...dispatcher,
     })
 }
@@ -186,6 +186,7 @@ function mediaTypes() {
                 :class="{
                     'form-control-plaintext': readOnly,
                 }"
+                rows="1"
             ></textarea>
         </div>
 
@@ -302,9 +303,3 @@ function mediaTypes() {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.feature-title {
-    height: 1rem;
-}
-</style>
