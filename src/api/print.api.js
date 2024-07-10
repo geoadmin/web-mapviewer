@@ -362,7 +362,9 @@ async function transformOlMapToPrintParams(olMap, config) {
                 styles: [''],
                 customParams: {
                     TRANSPARENT: true,
-                    MAP_RESOLUTION: dpi,
+                    // Notes(IS): The coordinate grid is cutted off if we use the same resolution as the DPI.
+                    // This value is a bit smaller than the DPI to avoid this issue.
+                    MAP_RESOLUTION: Math.floor(dpi * 0.85),
                 },
             })
         }
