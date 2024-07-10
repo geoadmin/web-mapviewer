@@ -16,7 +16,6 @@ import log from '@/utils/logging'
  * @param {CoordinateSystem[]} projections
  */
 const setupProj4 = (projections = [WEBMERCATOR, LV95, LV03]) => {
-    console.error('setupProj4: ', LV95.proj4transformationMatrix)
     // adding projection defining a transformation matrix to proj4 (these projection matrices can be found on the epsg.io website)
     projections
         .filter((projection) => projection.proj4transformationMatrix)

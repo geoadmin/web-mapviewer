@@ -1,10 +1,10 @@
 import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
 import bbox from '@turf/bbox'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
+import GPX from 'ol/format/GPX'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import GPX from '@/utils/ol/format/GPX'
 import { gpxStyles } from '@/utils/styleUtils'
 
 /**
@@ -36,16 +36,15 @@ export function parseGpx(gpxData, projection) {
     if (!gpxData?.length || !(projection instanceof CoordinateSystem)) {
         return null
     }
-    console.error(JSON.stringify(gpxData, null, 2))
-    console.error('projections: ', WGS84.epsg, projection.epsg)
+    // currently points which contain a timestamp are displayed with an offset due to a bug
+    // therefore they are removed here as they are not needed for displaying (see PB-785)
+    gpxData = gpxData.replace(/(<time>.*?<\/time>)/g, '')
     const features = new GPX().readFeatures(gpxData, {
         dataProjection: WGS84.epsg, // GPX files should always be in WGS84
         featureProjection: projection.epsg,
     })
     features.forEach((feature) => {
         feature.setStyle(gpxStyles[feature.getGeometry().getType()])
-        console.error(feature.getGeometry())
-        console.error(feature.getGeometry().getType())
     })
     return features
 }
