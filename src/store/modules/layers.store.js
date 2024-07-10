@@ -132,8 +132,9 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) =>
-        state.activeLayers.find((layer) => layer.type === LayerTypes.KML && !layer.isExternal) ??
-        null,
+        state.activeLayers.findLast(
+            (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
+        ) ?? null,
 
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
