@@ -12,6 +12,7 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -125,7 +126,7 @@ function togglePreviewModal() {
 }
 
 function onPreviewChange(e) {
-    if (e?.data?.type === 'gaChange') {
+    if (e?.data?.type === IFRAME_EVENTS.CHANGE) {
         // see iframeFeatureEvent.api.js -> sendChangeEventToParent
         embedSource.value = e.data.payload.newUrl
     }

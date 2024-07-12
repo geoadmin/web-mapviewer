@@ -1,6 +1,27 @@
-import log from '@/utils/logging.js'
+import log from '@/utils/logging'
 
 const targetWindow = parent ?? window.parent ?? window.opener ?? window.top
+
+/**
+ * All events fired by the iFrame postMessage implementation.
+ *
+ * @enum
+ */
+export const IFRAME_EVENTS = {
+    /**
+     * Event raised whenever the app changes its state (the URL changed).
+     *
+     * Payload of this event : a String with the new URL of the viewer
+     */
+    CHANGE: 'gaChange',
+    /**
+     * Event raised when a feature has been selected. Will fire as many events as there are feature
+     * selected on the map (won't bundle all features into one event)
+     *
+     * Payload of this event : a JSON containing the layerId and featureId of the selected feature
+     */
+    FEATURE_SELECTION: 'gaFeatureSelection',
+}
 
 /**
  * Sends information to the iFrame's parent about features, through the use of the postMessage
@@ -28,7 +49,7 @@ export function sendFeatureInformationToIFrameParent(features) {
         targetWindow.postMessage(
             {
                 // see codepen above, for backward compatibility reasons we need to use the same type as mf-geoadmin3
-                type: 'gaFeatureSelection',
+                type: IFRAME_EVENTS.FEATURE_SELECTION,
                 payload: {
                     layerId: feature.layer.id,
                     featureId: feature.id,
@@ -63,7 +84,7 @@ export function sendChangeEventToParent() {
     }
     targetWindow.postMessage(
         {
-            type: 'gaChange',
+            type: IFRAME_EVENTS.CHANGE,
             payload: {
                 newUrl: window.location.href,
             },
