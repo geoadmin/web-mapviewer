@@ -120,7 +120,7 @@ const handlePositionError = (error, store, state, options = {}) => {
 }
 
 const activeGeolocation = (store, state, options = {}) => {
-    const { useInitial = false } = options
+    const { useInitial = true } = options
     if (
         useInitial &&
         store.state.geolocation.position[0] !== 0 &&
