@@ -1,7 +1,9 @@
 <script setup>
-import { computed, onBeforeMount, onMounted } from 'vue'
+import { computed, onBeforeMount, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
+import { sendChangeEventToParent } from '@/api/iframeFeatureEvent.api'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
@@ -15,6 +17,7 @@ import log from '@/utils/logging'
 const dispatcher = { dispatcher: 'EmbedView.vue' }
 
 const store = useStore()
+const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
@@ -25,6 +28,8 @@ onBeforeMount(() => {
 onMounted(() => {
     log.info(`Embedded map view mounted`)
 })
+
+watch(() => route.query, sendChangeEventToParent)
 </script>
 
 <template>

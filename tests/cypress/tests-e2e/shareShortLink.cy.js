@@ -171,14 +171,8 @@ describe('Testing the share menu', () => {
                 cy.get('[data-cy="menu-share-section"]').click()
                 cy.get('[data-cy="menu-share-embed-button"]').click()
             })
-            it('uses the embedded shortlink url to generate the iFrame code snippet', () => {
-                cy.get('[data-cy="menu-share-embed-simple-iframe-snippet"]')
-                    .should('contain.value', dummyEmbeddedShortLink)
-                    .should('not.contain.value', dummyShortLink)
-            })
             it('enables the user to choose pre-made sizes for the generated iframe code snippet', () => {
                 cy.get('[data-cy="menu-share-embed-preview-button"]').click()
-                cy.wait('@dummyShortLinkAccess')
                 // checking that the iframe code snippet is set to the Small size by default
                 checkIFrameSnippetSize(400, 300)
                 // Checking that the name of the size is displayed in the selector, then switching to the Medium size
@@ -195,7 +189,6 @@ describe('Testing the share menu', () => {
             })
             it('enables the user to customize the size of the generated iframe code snippet', () => {
                 cy.get('[data-cy="menu-share-embed-preview-button"]').click()
-                cy.wait('@dummyShortLinkAccess')
                 cy.get('[data-cy="menu-share-embed-iframe-custom-width"]').should('not.exist')
                 cy.get('[data-cy="menu-share-embed-iframe-custom-height"]').should('not.exist')
                 cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').select('Custom size')
@@ -217,7 +210,6 @@ describe('Testing the share menu', () => {
             })
             it('enables the user to create a full width iframe code snippet', () => {
                 cy.get('[data-cy="menu-share-embed-preview-button"]').click()
-                cy.wait('@dummyShortLinkAccess')
                 cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').select('Custom size')
                 cy.get('[data-cy="menu-share-embed-iframe-custom-width"]')
                     .should('be.visible')

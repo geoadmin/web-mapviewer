@@ -19,7 +19,7 @@
                 :small="compact"
             />
         </div>
-        <MenuShareEmbed :short-link="embeddedShortLink" class="menu-share-embed border-top" />
+        <MenuShareEmbed class="menu-share-embed border-top" />
     </MenuSection>
 </template>
 
@@ -55,7 +55,6 @@ export default {
     computed: {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
-            embeddedShortLink: (state) => state.share.embeddedShortLink,
             isSectionShown: (state) => state.share.isMenuSectionShown,
             isTrackingGeolocation: (state) =>
                 state.geolocation.active && state.geolocation.tracking,

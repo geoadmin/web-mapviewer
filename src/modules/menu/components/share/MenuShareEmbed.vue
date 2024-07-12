@@ -9,12 +9,16 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import { computed, nextTick, ref, toRefs } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
+import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import log from '@/utils/logging'
+import { transformUrlMapToEmbed } from '@/utils/utils'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -45,14 +49,6 @@ const EmbedSizes = {
 
 useTippyTooltip('.menu-share-embed [data-tippy-content]')
 
-const props = defineProps({
-    shortLink: {
-        type: String,
-        default: null,
-    },
-})
-const { shortLink } = toRefs(props)
-
 const embedInput = ref(null)
 const showEmbedSharing = ref(false)
 const showPreviewModal = ref(false)
@@ -64,6 +60,10 @@ const customSize = ref({
 })
 const copied = ref(false)
 
+const { t } = useI18n()
+const route = useRoute()
+
+const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const embedPreviewModalWidth = computed(() => {
     // Uses the iframe's width as maximal width for the entire modal window
     let style = { 'max-width': iFrameWidth.value }
@@ -96,7 +96,7 @@ const iFrameStyle = computed(
 )
 const iFrameLink = computed(
     () =>
-        `<iframe src="${shortLink.value}" style="${iFrameStyle.value}" allow="geolocation"></iframe>`
+        `<iframe src="${embedSource.value}" style="${iFrameStyle.value}" allow="geolocation"></iframe>`
 )
 const buttonIcon = computed(() => {
     if (copied.value) {
@@ -120,6 +120,18 @@ function toggleEmbedSharing() {
 
 function togglePreviewModal() {
     showPreviewModal.value = !showPreviewModal.value
+    if (showPreviewModal.value) {
+        window.addEventListener('message', onPreviewChange)
+    } else {
+        window.removeEventListener('message', onPreviewChange)
+    }
+}
+
+function onPreviewChange(e) {
+    if (e?.data?.type === IFRAME_EVENTS.CHANGE) {
+        // see iframeFeatureEvent.api.js -> sendChangeEventToParent
+        embedSource.value = e.data.payload.newUrl
+    }
 }
 
 async function copyValue() {
@@ -134,6 +146,13 @@ async function copyValue() {
         log.error(`Failed to copy to clipboard:`, error)
     }
 }
+
+watch(
+    () => route.query,
+    () => {
+        embedSource.value = transformUrlMapToEmbed(window.location.href)
+    }
+)
 </script>
 
 <template>
@@ -149,7 +168,7 @@ async function copyValue() {
                 :class="{ 'text-primary': showEmbedSharing }"
                 :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`"
             />
-            <span class="px-1">{{ $t('share_more') }}</span>
+            <span class="px-1">{{ t('share_more') }}</span>
         </a>
         <CollapseTransition :duration="200">
             <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">
@@ -182,17 +201,17 @@ async function copyValue() {
                         data-cy="menu-share-embed-preview-button"
                         @click="togglePreviewModal"
                     >
-                        {{ $t('show_more_options') }}
+                        {{ t('show_more_options') }}
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="py-2" v-html="$t('share_disclaimer')"></div>
+                <div class="py-2" v-html="t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
         <ModalWithBackdrop
             v-if="showPreviewModal"
-            :title="$t('embed_map')"
+            :title="t('embed_map')"
             fluid
             @close="togglePreviewModal"
         >
@@ -210,7 +229,7 @@ async function copyValue() {
                             class="embed-preview-modal-size-selector-option"
                             :data-cy="`menu-share-embed-iframe-size-${size.i18nKey.toLowerCase()}`"
                         >
-                            {{ $t(size.i18nKey) }}
+                            {{ t(size.i18nKey) }}
                         </option>
                     </select>
                     <div v-if="isPreviewSizeCustom" class="d-flex flex-row ms-2">
@@ -249,7 +268,7 @@ async function copyValue() {
                                     data-cy="menu-share-embed-iframe-full-width"
                                 />
                                 <label class="form-check-label" for="fullWidthCheckbox">
-                                    {{ $t('full_width') }}
+                                    {{ t('full_width') }}
                                 </label>
                             </div>
                         </div>
@@ -268,15 +287,14 @@ async function copyValue() {
                 <!-- so I've opted to keep this piece of code for a better user experience -->
                 <div class="d-flex justify-content-center mb-2">
                     <iframe
-                        ref="iFramePreview"
-                        :title="$t('embed_map')"
-                        :src="shortLink"
+                        :title="t('embed_map')"
+                        :src="embedSource"
                         :style="iFrameStyle"
                         allow="geolocation"
                     ></iframe>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="small text-wrap text-center" v-html="$t('share_disclaimer')"></div>
+                <div class="small text-wrap text-center" v-html="t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
