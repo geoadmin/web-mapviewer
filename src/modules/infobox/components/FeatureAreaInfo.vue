@@ -6,7 +6,6 @@ import { useStore } from 'vuex'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
-import { round } from '@/utils/numberUtils'
 
 const props = defineProps({
     geometry: {
@@ -40,10 +39,10 @@ const humanReadableArea = computed(() => {
 
         const value = calculatedArea < unitThreshold ? calculatedArea : calculatedArea / divider
         result += parseFloat(value.toPrecision(precision))
-        if (calculatedArea >= unitThreshold) {
-            result += ' km'
-        } else {
+        if (calculatedArea < unitThreshold) {
             result += ' m'
+        } else {
+            result += ' km'
         }
     }
     return result
