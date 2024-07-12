@@ -36,6 +36,9 @@ export function parseGpx(gpxData, projection) {
     if (!gpxData?.length || !(projection instanceof CoordinateSystem)) {
         return null
     }
+    // currently points which contain a timestamp are displayed with an offset due to a bug
+    // therefore they are removed here as they are not needed for displaying (see PB-785)
+    gpxData = gpxData.replace(/<time>.*?<\/time>/g, '')
     const features = new GPX().readFeatures(gpxData, {
         dataProjection: WGS84.epsg, // GPX files should always be in WGS84
         featureProjection: projection.epsg,
