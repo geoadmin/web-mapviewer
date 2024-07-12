@@ -55,9 +55,22 @@ const handlePositionAndDispatchToStore = (position, store) => {
         accuracy: position.coords.accuracy,
         ...dispatcher,
     })
-    // if tracking is active, we center the view of the map on the position received
+    // if tracking is active, we center the view of the map on the position received and change
+    // to the proper zoom
     if (store.state.geolocation.tracking) {
         setCenterIfInBounds(store, positionProjected)
+        // set zoom level if needed
+        let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
+        if (store.state.position.projection instanceof CustomCoordinateSystem) {
+            zoomLevel =
+                store.state.position.projection.transformStandardZoomLevelToCustom(zoomLevel)
+        }
+        if (store.state.position.zoom != zoomLevel) {
+            store.dispatch('setZoom', {
+                zoom: zoomLevel,
+                ...dispatcher,
+            })
+        }
     }
 }
 
@@ -152,16 +165,6 @@ const activeGeolocation = (store, state, options = {}) => {
 
             // handle current position
             handlePositionAndDispatchToStore(position, store)
-
-            // set zoom level
-            let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
-            if (state.position.projection instanceof CustomCoordinateSystem) {
-                zoomLevel = state.position.projection.transformStandardZoomLevelToCustom(zoomLevel)
-            }
-            store.dispatch('setZoom', {
-                zoom: zoomLevel,
-                ...dispatcher,
-            })
         },
         (error) => handlePositionError(error, store, state, { reactivate: true }),
         {
