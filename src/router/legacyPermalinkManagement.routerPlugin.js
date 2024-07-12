@@ -147,18 +147,23 @@ const handleLegacyParam = (
             break
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
+            // NOTE: legacyValue is parsed using URLSearchParams which don't make any difference
+            // between &foo and &foo=
             newValue = legacyValue
             break
     }
 
-    if (newValue) {
+    if (newValue !== undefined) {
         // When receiving a query, the application will encode the URI components
         // We decode those so that the new query won't encode encoded character
         // for example, we avoid having " " becoming %2520 in the URI
         newQuery[key] = decodeURIComponent(newValue)
         log.info(
-            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`
+            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`,
+            newQuery
         )
+    } else {
+        log.error(`[Legacy URL] ${param}=${legacyValue} parameter not processed`)
     }
 }
 

@@ -80,7 +80,7 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                 })
                 expect(testInstance.readValueFromQuery({ test: 'true' })).to.be.true
                 expect(testInstance.readValueFromQuery({ test: 'false' })).to.be.false
-                expect(testInstance.readValueFromQuery({ test: '' })).to.be.false
+                expect(testInstance.readValueFromQuery({ test: '' })).to.be.true
                 // null value means the param without value, we want it to be true
                 expect(testInstance.readValueFromQuery({ test: null })).to.be.true
                 expect(testInstance.readValueFromQuery({})).to.be.undefined
@@ -135,7 +135,7 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                 })
                 expect(testInstance.readValueFromQuery({ test: 'true' })).to.be.true
                 expect(testInstance.readValueFromQuery({ test: 'false' })).to.be.false
-                expect(testInstance.readValueFromQuery({ test: '' })).to.be.false
+                expect(testInstance.readValueFromQuery({ test: '' })).to.be.true
                 // null value means the param without value, we want it to be true
                 expect(testInstance.readValueFromQuery({ test: null })).to.be.true
                 expect(testInstance.readValueFromQuery({})).to.be.true
