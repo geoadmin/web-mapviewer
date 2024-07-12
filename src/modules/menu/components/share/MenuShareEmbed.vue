@@ -9,8 +9,9 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
@@ -60,6 +61,7 @@ const customSize = ref({
 const copied = ref(false)
 
 const { t } = useI18n()
+const route = useRoute()
 
 const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const embedPreviewModalWidth = computed(() => {
@@ -144,6 +146,13 @@ async function copyValue() {
         log.error(`Failed to copy to clipboard:`, error)
     }
 }
+
+watch(
+    () => route.query,
+    () => {
+        embedSource.value = transformUrlMapToEmbed(window.location.href)
+    }
+)
 </script>
 
 <template>
