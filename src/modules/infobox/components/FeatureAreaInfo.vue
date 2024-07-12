@@ -34,8 +34,13 @@ const humanReadableArea = computed(() => {
     const calculatedArea = area(transformIntoTurfEquivalent(geometryWgs84.value))
     let result = ''
     if (calculatedArea) {
-        result += roundValueIfGreaterThan(calculatedArea, 1000, 1000000)
-        if (calculatedArea > 10000) {
+        const unitThreshold = 1e5
+        const divider = 1e6
+        const precision = 5
+
+        const value = calculatedArea < unitThreshold ? calculatedArea : calculatedArea / divider
+        result += parseFloat(value.toPrecision(precision))
+        if (calculatedArea >= unitThreshold) {
             result += ' km'
         } else {
             result += ' m'
@@ -43,13 +48,6 @@ const humanReadableArea = computed(() => {
     }
     return result
 })
-
-function roundValueIfGreaterThan(value, threshold, divider) {
-    if (value > threshold) {
-        return `${round(value / divider, 2)}`
-    }
-    return `${round(value, 2)}`
-}
 </script>
 
 <template>

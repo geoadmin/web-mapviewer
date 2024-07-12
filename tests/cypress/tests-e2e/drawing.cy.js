@@ -588,7 +588,7 @@ describe('Drawing module tests', () => {
                 })
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
-                .contains('187.22 km')
+                .contains('187.224 km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()
