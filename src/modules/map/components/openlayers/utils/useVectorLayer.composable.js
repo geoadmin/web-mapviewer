@@ -11,7 +11,8 @@ export default function useVectorLayer(
     map,
     features,
     zIndex = -1,
-    styleFunction = highlightFeatureStyle
+    styleFunction = highlightFeatureStyle,
+    onFeatureSelectCallback = () => {} // Add onFeatureSelect parameter with a default no-op function
 ) {
     const layer = new VectorLayer({
         id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -31,10 +32,8 @@ export default function useVectorLayer(
 
     // Listen for feature selection (click events)
     selectInteraction.on('select', function (event) {
-        // event.selected contains the selected features
         event.selected.forEach((feature) => {
-            console.log('Feature selected:', feature)
-            // Handle the feature click event here
+            onFeatureSelectCallback(feature)
         })
     })
 

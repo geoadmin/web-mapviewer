@@ -18,6 +18,11 @@ const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
         :position="pinnedLocation"
         marker-style="balloon"
         :z-index="zIndexDroppedPin"
+        :select-feature-callback="
+            (feature) => {
+                console.log('Custom callback feature selected:', feature)
+            }
+        "
     />
     <OpenLayersMarker
         v-if="previewedPinnedLocation"
