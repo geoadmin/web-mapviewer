@@ -21,12 +21,11 @@ onUpdated(() => {
 </script>
 
 <template>
-    <div
-        class="map-footer"
-        :class="{ 'map-footer-fullscreen': isFullscreenMode }"
-        data-cy="app-footer"
-    >
-        <div v-if="hasTopLeftFooter || hasTopRightFooter" class="map-footer-top">
+    <div class="map-footer" data-cy="app-footer">
+        <div
+            v-if="(hasTopLeftFooter || hasTopRightFooter) && !isFullscreenMode"
+            class="map-footer-top"
+        >
             <slot name="top-left" />
             <span v-if="hasTopRightFooter" class="map-footer-top-spacer" />
             <slot name="top-right" />
@@ -34,7 +33,10 @@ onUpdated(() => {
         <div class="map-footer-middle">
             <slot name="middle" />
         </div>
-        <div v-if="hasBottomLeftFooter || hasBottomRightFooter" class="map-footer-bottom">
+        <div
+            v-if="(hasBottomLeftFooter || hasBottomRightFooter) && !isFullscreenMode"
+            class="map-footer-bottom"
+        >
             <slot name="bottom-left" @vue:updated="handleSlotChange" />
             <span v-if="hasBottomRightFooter" class="map-footer-bottom-spacer" />
             <slot name="bottom-right" />
@@ -104,15 +106,6 @@ $flex-gap: 1em;
         &-spacer {
             flex-grow: 1;
         }
-    }
-}
-
-.map-footer-fullscreen {
-    transform: translateY(100%);
-
-    .map-footer-top-left {
-        // Translation is needed if the background selection wheel is open.
-        transform: translateX(-100%);
     }
 }
 </style>
