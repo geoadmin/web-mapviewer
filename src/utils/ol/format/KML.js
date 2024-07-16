@@ -1,3 +1,5 @@
+// NOTE: This file can be removed and we can use the ol/format/KML.js once the PR
+// https://github.com/openlayers/openlayers/pull/15964 has been merged and released.
 /* eslint-disable */
 // @ts-nocheck
 
