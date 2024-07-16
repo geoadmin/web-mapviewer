@@ -586,9 +586,6 @@ describe('Drawing module tests', () => {
                     const [polygonCoordinates] = polygon.getGeometry().getCoordinates()
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
-            cy.get('[data-cy="feature-area-information"]')
-                .should('be.visible')
-                .contains('187.22 km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()
@@ -628,6 +625,35 @@ describe('Drawing module tests', () => {
                     const line = features[1]
                     expect(line.getGeometry().getCoordinates().length).to.eq(2)
                 })
+
+            cy.goToMapView(
+                {
+                    zoom: 6,
+                },
+                false
+            )
+
+            cy.log('Feature Area Info should be in meters below unit threshold')
+            cy.goToDrawing()
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+
+            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74802 m2')
+
+            cy.log('Feature Area Info should be in kilometers above unit threshold')
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+
+            cy.get('[data-cy="ol-map"]').click(200, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 300)
+            cy.get('[data-cy="ol-map"]').click(200, 200)
+
+            cy.get('[data-cy="feature-area-information"]')
+                .should('be.visible')
+                .contains('0.24935 km2')
         })
     })
     context('KML management', () => {
