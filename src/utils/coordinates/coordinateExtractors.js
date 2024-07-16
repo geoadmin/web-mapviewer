@@ -6,9 +6,9 @@ import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 
 const RE_DEGREE_IDENTIFIER = '\\s*°\\s*'
 const RE_DEGREE = `\\d{1,3}(\\.\\d+)?`
-const RE_MIN_IDENTIFIER = "\\s*['`´]\\s*"
+const RE_MIN_IDENTIFIER = "\\s*['‘’‛′]\\s*"
 const RE_MIN = `\\d{1,2}(\\.\\d+)?`
-const RE_SEC_IDENTIFIER = '\\s*("|[\'`´]{2})\\s*'
+const RE_SEC_IDENTIFIER = '\\s*(["“”‟″]|[\'‘’‛′]{2})\\s*'
 const RE_SEC = `\\d{1,2}(\\.\\d+)?`
 const RE_CARD = '[NSEW]'
 const RE_SEPARATOR = '\\s*?[ \\t,/]\\s*'
