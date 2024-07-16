@@ -75,7 +75,6 @@ const state = {
      */
     rotation: 0,
 
-
     /**
      * The heading reported by the device
      *

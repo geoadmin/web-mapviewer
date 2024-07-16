@@ -1,5 +1,5 @@
 import { View } from 'ol'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
@@ -16,8 +16,8 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 export default function useViewBasedOnProjection(map) {
-    const deviceOrientation = ref(0)
-    const circularAverage = ref(0)
+    let deviceOrientation = 0
+    let circularAverage = 0
     let count = 0
     let sumSin = 0
     let sumCos = 0
@@ -96,31 +96,32 @@ export default function useViewBasedOnProjection(map) {
     })
 
     const handleOrientation = function (event) {
-        deviceOrientation.value = round((event.alpha / 180) * Math.PI, 2)
+        if (store.state.position.headingIsAbsolute != event.absolute) {
+            log.debug('Absolutism of device heading is set to ', event.absolute)
+            store.dispatch('setHeadingIsAbsolute', event.absolute)
+        }
+        deviceOrientation = round((event.alpha / 180) * Math.PI, 2)
         count = count + 1
-        sumSin = sumSin + Math.sin(deviceOrientation.value)
-        sumCos = sumCos + Math.cos(deviceOrientation.value)
-    }
-
-    const checkIfOrientationIsAbsolute = function (event) {
-        store.dispatch('setHeadingIsAbsolute', event.absolute)
-        window.removeEventListener('deviceorientation', checkIfOrientationIsAbsolute)
+        sumSin = sumSin + Math.sin(deviceOrientation)
+        sumCos = sumCos + Math.cos(deviceOrientation)
+        if (count === 1) {
+            console.debug('Read device orientation alpha value: ', event.alpha)
+        }
     }
 
     function toggleAutoRotateListener() {
         if (geolocationIsActive.value) {
+            // request permissions if IOS
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission().then(() => {
-                    window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
                     window.addEventListener('deviceorientation', handleOrientation)
                 })
             } else {
-                window.addEventListener('deviceorientation', checkIfOrientationIsAbsolute)
                 window.addEventListener('deviceorientation', handleOrientation)
             }
         } else {
             if (!store.state.position.resetRotation && autoRotation.value) {
-                store.dispatch('setRotation', deviceOrientation.value)
+                store.dispatch('setRotation', deviceOrientation)
             }
             window.removeEventListener('deviceorientation', handleOrientation)
         }
@@ -137,13 +138,13 @@ export default function useViewBasedOnProjection(map) {
                 const newCircularAverage = Math.atan2(sumSin, sumCos)
                 const certaintyThreshold = (sumSin / count) ** 2 + (sumCos / count) ** 2 > 0.9
                 const deltaThreshold =
-                    Math.abs(circularAverage.value - newCircularAverage) > (2 * Math.PI) / 180
+                    Math.abs(circularAverage - newCircularAverage) > (2 * Math.PI) / 180
                 if (autoRotation.value && certaintyThreshold && deltaThreshold) {
                     viewsForProjection[projection.value.epsg].animate({
                         rotation: newCircularAverage,
                         duration: animationDuration,
                     })
-                    circularAverage.value = newCircularAverage
+                    circularAverage = newCircularAverage
                 }
                 if (geolocationIsActive.value) {
                     store.dispatch('setHeading', newCircularAverage)

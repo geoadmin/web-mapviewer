@@ -5,7 +5,7 @@
  *
  * By default the toolbox only contains the zoom in/out buttons
  */
-import { computed, onMounted, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
@@ -37,7 +37,6 @@ const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
 const is3dActive = computed(() => store.state.cesium.active)
-
 </script>
 
 <template>
