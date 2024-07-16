@@ -97,7 +97,6 @@ export default function useViewBasedOnProjection(map) {
 
     const handleOrientation = function (event) {
         if (store.state.position.headingIsAbsolute != event.absolute) {
-            log.debug('Absolutism of device heading is set to ', event.absolute)
             store.dispatch('setHeadingIsAbsolute', event.absolute)
         }
         deviceOrientation = round((event.alpha / 180) * Math.PI, 2)
@@ -105,7 +104,12 @@ export default function useViewBasedOnProjection(map) {
         sumSin = sumSin + Math.sin(deviceOrientation)
         sumCos = sumCos + Math.cos(deviceOrientation)
         if (count === 1) {
-            console.debug('Read device orientation alpha value: ', event.alpha)
+            log.debug(
+                'Read device orientation alpha value: ',
+                event.alpha,
+                '  absolute value: ',
+                event.absolute
+            )
         }
     }
 
@@ -127,7 +131,6 @@ export default function useViewBasedOnProjection(map) {
         }
     }
 
-    // we have to sync the update interval with the animation duration so that rotating the map does not look choppy
     function toggleAutoRotateDamping() {
         if (geolocationIsActive.value) {
             dampingInterval = setInterval(() => {

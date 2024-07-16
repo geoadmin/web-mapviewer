@@ -1,5 +1,5 @@
 <script setup>
-/** Component managing the rendering of a vision cone, in the direction the device is pointing at */
+/** Component managing the computation of the vision cone, in the direction the device is pointing at */
 
 import { computed, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -16,29 +16,20 @@ const { zIndex } = toRefs(props)
 
 const store = useStore()
 
-const headingOffset = ref(0)
 const effectiveHeading = ref(0)
+let headingOffset = 0
 let visionInterval = null
-let updatedGeolocation = 0
 
 const geolocationHeading = computed(() => store.state.geolocation.heading)
 const positionHeading = computed(() => store.state.position.heading)
 const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute)
 
 onMounted(() => {
-    if (geolocationHeading.value) {
-        updatedGeolocation = geolocationHeading.value
-    }
     visionInterval = setInterval(() => {
-        if (store.state.position.autoRotation) {
-            effectiveHeading.value = Math.PI / 2
+        if (headingIsAbsolute.value) {
+            effectiveHeading.value = positionHeading.value + Math.PI / 2
         } else {
-            //take heading of geolocation as reference for relative device orientation
-            if (updatedGeolocation && !headingIsAbsolute.value) {
-                headingOffset.value = updatedGeolocation - positionHeading.value
-                updatedGeolocation = 0
-            }
-            effectiveHeading.value = positionHeading.value + headingOffset.value + Math.PI / 2
+            effectiveHeading.value = positionHeading.value + headingOffset + Math.PI / 2
         }
     }, 200)
 })
@@ -48,8 +39,9 @@ onUnmounted(() => {
 })
 
 watch(geolocationHeading, () => {
+    //take heading of geolocation as reference for relative device orientation
     if (geolocationHeading.value) {
-        updatedGeolocation = geolocationHeading.value
+        headingOffset = geolocationHeading.value - positionHeading.value
     }
 })
 </script>
