@@ -56,7 +56,7 @@ watch(geolocationHeading, () => {
 
 <template>
     <OpenLayersVisionCone
-        v-if="headingIsAbsolute || geolocationHeading"
+        v-if="headingIsAbsolute || geolocationHeading || true"
         :z-index="zIndex"
         :effective-heading="-effectiveHeading"
     />

@@ -12,7 +12,7 @@ useTippyTooltip('.geoloc-button-div[data-tippy-content]', { placement: 'left' })
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)
-const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute)
+const headingIsAbsolute = computed(() => store.state.position.headingIsAbsolute || true)
 const autoRotation = computed(() => store.state.position.autoRotation)
 const tippyContent = computed(() => {
     if (isDenied.value) {
