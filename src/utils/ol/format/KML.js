@@ -1,3 +1,5 @@
+// NOTE: This file can be removed and we can use the ol/format/KML.js once the PR
+// https://github.com/openlayers/openlayers/pull/15964 has been merged and released.
 /* eslint-disable */
 // @ts-nocheck
 
@@ -983,7 +985,7 @@ function createNameStyleFunction(foundStyle, name) {
         // Note that kml does not support many text options that OpenLayers does (rotation, textBaseline).
         textStyle = textStyle.clone()
         textStyle.setFont(textStyle.getFont() || DEFAULT_TEXT_STYLE.getFont())
-        textStyle.setScale(textStyle.getScale() || DEFAULT_TEXT_STYLE.getScale())
+        textStyle.setScale(textStyle.getScale() ?? DEFAULT_TEXT_STYLE.getScale())
         textStyle.setFill(textStyle.getFill() || DEFAULT_TEXT_STYLE.getFill())
         textStyle.setStroke(textStyle.getStroke() || DEFAULT_TEXT_STROKE_STYLE)
     } else {
