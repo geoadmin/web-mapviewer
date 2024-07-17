@@ -683,5 +683,8 @@
     "webmapviewer_live_disclaimer": "The new map viewer is coming soon - <a target='_blank' href='https://www.geo.admin.ch/en/go-live-map-viewer'>get ready</a>",
     "drawing_too_large": "Your drawing is too large, remove some features",
     "3d_unsupported_projection": "This map provided by external source can't be displayed in 3d because it doesn't support the projection EPSG:4326",
-    "geoloc_out_of_bounds": "Your current location is outside of Switzerland and cannot be shown"
+    "geoloc_out_of_bounds": "Your current location is outside of Switzerland and cannot be shown",
+    "orient_map_north": "Orient the map",
+    "kml_icon_url_cors_issue": "The KML \"{layerName}\" contains icon(s) with URL {url} that doesn't support CORS! Please contact the administrator of this URL to add support for CORS.",
+    "warning": "Warning"
 }

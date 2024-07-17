@@ -7,6 +7,7 @@ import {
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
@@ -160,6 +161,13 @@ export default {
          * @type String
          */
         errorText: null,
+
+        /**
+         * Set of warnings to display. Each warning must be an object WarningMessage
+         *
+         * @type Set(WarningMessage)
+         */
+        warnings: new Set(),
 
         /**
          * Flag telling if the "Drop file here" overlay will be displayed on top of the map.
@@ -387,6 +395,26 @@ export default {
         setErrorText({ commit }, { errorText, dispatcher }) {
             commit('setErrorText', { errorText, dispatcher })
         },
+        addWarning({ commit, state }, { warning, dispatcher }) {
+            if (!(warning instanceof WarningMessage)) {
+                throw new Error(
+                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+                )
+            }
+            if (!state.warnings.has(warning)) {
+                commit('addWarning', { warning, dispatcher })
+            }
+        },
+        removeWarning({ commit, state }, { warning, dispatcher }) {
+            if (!(warning instanceof WarningMessage)) {
+                throw new Error(
+                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+                )
+            }
+            if (state.warnings.has(warning)) {
+                commit('removeWarning', { warning, dispatcher })
+            }
+        },
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
@@ -450,6 +478,8 @@ export default {
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
         setErrorText: (state, { errorText }) => (state.errorText = errorText),
+        addWarning: (state, { warning }) => state.warnings.add(warning),
+        removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
     },

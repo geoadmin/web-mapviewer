@@ -9,8 +9,9 @@ import { useStore } from 'vuex'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { parseKml } from '@/utils/kmlUtils'
+import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
@@ -39,6 +40,7 @@ const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => kmlLayerConfig.value.id)
+const layerName = computed(() => kmlLayerConfig.value.name)
 const opacity = computed(() => parentLayerOpacity.value ?? kmlLayerConfig.value.opacity)
 const url = computed(() => kmlLayerConfig.value.baseUrl)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
@@ -81,6 +83,18 @@ onUnmounted(() => {
     }
 })
 
+function iconUrlProxy(url) {
+    return iconUrlProxyFy(url, (url) => {
+        store.dispatch('addWarning', {
+            warning: new WarningMessage('kml_icon_url_cors_issue', {
+                layerName: layerName.value,
+                url: url,
+            }),
+            dispatcher: 'kmlUtils.js',
+        })
+    })
+}
+
 function createSourceForProjection() {
     if (!kmlData.value) {
         log.debug('no KML data loaded yet, could not create source')
@@ -94,7 +108,12 @@ function createSourceForProjection() {
         new VectorSource({
             wrapX: true,
             projection: projection.value.epsg,
-            features: parseKml(kmlLayerConfig.value, projection.value, availableIconSets.value),
+            features: parseKml(
+                kmlLayerConfig.value,
+                projection.value,
+                availableIconSets.value,
+                iconUrlProxy
+            ),
         })
     )
     log.debug('Openlayer KML layer source created')

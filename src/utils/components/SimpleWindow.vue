@@ -16,11 +16,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    /** Add a minimize button in header that will hide/show the body */
-    hasMinimize: {
-        type: Boolean,
-        default: true,
-    },
 })
 const { title, hide } = toRefs(props)
 
