@@ -7,6 +7,7 @@ import {
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
@@ -162,9 +163,9 @@ export default {
         errorText: null,
 
         /**
-         * List of warnings to display
+         * Set of warnings to display. Each warning must be an object WarningMessage
          *
-         * @type Set
+         * @type Set(WarningMessage)
          */
         warnings: new Set(),
 
@@ -395,11 +396,21 @@ export default {
             commit('setErrorText', { errorText, dispatcher })
         },
         addWarning({ commit, state }, { warning, dispatcher }) {
+            if (!(warning instanceof WarningMessage)) {
+                throw new Error(
+                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+                )
+            }
             if (!state.warnings.has(warning)) {
                 commit('addWarning', { warning, dispatcher })
             }
         },
         removeWarning({ commit, state }, { warning, dispatcher }) {
+            if (!(warning instanceof WarningMessage)) {
+                throw new Error(
+                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+                )
+            }
             if (state.warnings.has(warning)) {
                 commit('removeWarning', { warning, dispatcher })
             }

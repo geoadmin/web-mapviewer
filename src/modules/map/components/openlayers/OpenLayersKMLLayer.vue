@@ -4,7 +4,6 @@
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -12,6 +11,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
@@ -30,8 +30,6 @@ const props = defineProps({
     },
 })
 const { kmlLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
-
-const i18n = useI18n()
 
 // mapping relevant store values
 const store = useStore()
@@ -88,7 +86,7 @@ onUnmounted(() => {
 function iconUrlProxy(url) {
     return iconUrlProxyFy(url, (url) => {
         store.dispatch('addWarning', {
-            warning: i18n.t('kml_icon_url_cors_issue', {
+            warning: new WarningMessage('kml_icon_url_cors_issue', {
                 layerName: layerName.value,
                 url: url,
             }),

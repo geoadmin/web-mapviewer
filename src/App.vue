@@ -73,7 +73,7 @@ function refreshPageTitle() {
             title="warning"
             @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
         >
-            <div>{{ warning }}</div>
+            <div>{{ i18n.t(warning.msg, warning.params) }}</div>
         </WarningWindow>
     </div>
 </template>
