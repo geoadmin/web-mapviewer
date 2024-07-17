@@ -162,6 +162,13 @@ export default {
         errorText: null,
 
         /**
+         * List of warnings to display
+         *
+         * @type Set
+         */
+        warnings: new Set(),
+
+        /**
          * Flag telling if the "Drop file here" overlay will be displayed on top of the map.
          *
          * @type Boolean
@@ -387,6 +394,16 @@ export default {
         setErrorText({ commit }, { errorText, dispatcher }) {
             commit('setErrorText', { errorText, dispatcher })
         },
+        addWarning({ commit, state }, { warning, dispatcher }) {
+            if (!state.warnings.has(warning)) {
+                commit('addWarning', { warning, dispatcher })
+            }
+        },
+        removeWarning({ commit, state }, { warning, dispatcher }) {
+            if (state.warnings.has(warning)) {
+                commit('removeWarning', { warning, dispatcher })
+            }
+        },
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
@@ -450,6 +467,8 @@ export default {
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
         setErrorText: (state, { errorText }) => (state.errorText = errorText),
+        addWarning: (state, { warning }) => state.warnings.add(warning),
+        removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
     },

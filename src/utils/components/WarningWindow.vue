@@ -37,9 +37,9 @@ const emit = defineEmits(['close'])
 <template>
     <div
         v-show="!hide"
-        class="simple-window card bg-danger text-white fw-bold"
+        class="simple-window card bg-warning fw-bold"
         :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
-        data-cy="error-window"
+        data-cy="warning-window"
     >
         <div
             class="card-header d-flex align-items-center justify-content-sm-end"
@@ -47,21 +47,18 @@ const emit = defineEmits(['close'])
         >
             <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
             <span v-else class="me-auto" />
-            <button
-                class="btn btn-light btn-sm btn-outline-danger me-2"
-                @click.stop="showBody = !showBody"
-            >
+            <button class="btn btn-sm btn-light me-2" @click.stop="showBody = !showBody">
                 <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
             </button>
             <button
-                class="btn btn-light btn-sm btn-outline-danger"
-                data-cy="error-window-close"
+                class="btn btn-light btn-sm"
+                data-cy="warning-window-close"
                 @click.stop="emit('close')"
             >
                 <FontAwesomeIcon icon="times" />
             </button>
         </div>
-        <div class="card-body" :class="{ hide: !showBody }" data-cy="error-window-body">
+        <div class="card-body" :class="{ hide: !showBody }" data-cy="warning-window-body">
             <slot />
         </div>
     </div>

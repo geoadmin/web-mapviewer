@@ -1,5 +1,13 @@
 # Internationalization (i18n) module
 
+- [Quick guide](#quick-guide)
+- [Formatting messages](#formatting-messages)
+- [update translations](#update-translations)
+- [State properties](#state-properties)
+  - [Noteworthy mutation](#noteworthy-mutation)
+
+## Quick guide
+
 Responsible for loading and serving `vue-i18n`. This utils can be accessed by linking the result of `useI18n()`
 to a local ref (in Composition API) or in-place with the Option API. As we've deactivated the legacy support,
 it's not possible to use `this.$i18n` anymore, we must now go through the `useI18n()` function to
@@ -38,6 +46,12 @@ useI18n().t('a_translation_key')
 ```
 
 Or if you have multiple call to `t(...)`, you can store the reference given by `useI18n()` at some point (do not store it in `data()`)
+
+## Formatting messages
+
+Some message might require some formatting from the application to do so you can use the `{placeholder}` notation in the translation key and then use `i18n.t('my_formatted_key', {placeholder: 'my placeholder'})`
+
+See [i18n guide](https://kazupon.github.io/vue-i18n/guide/formatting.html)
 
 ## update translations
 

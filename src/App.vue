@@ -10,6 +10,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import ErrorWindow from '@/utils/components/ErrorWindow.vue'
+import WarningWindow from '@/utils/components/WarningWindow.vue'
 import debounce from '@/utils/debounce'
 
 const withOutline = ref(false)
@@ -22,6 +23,7 @@ const dispatcher = { dispatcher: 'App.vue' }
 let debouncedOnResize
 
 const errorText = computed(() => store.state.ui.errorText)
+const warnings = computed(() => store.state.ui.warnings)
 
 onMounted(() => {
     // reading size
@@ -58,8 +60,17 @@ function refreshPageTitle() {
             v-if="errorText"
             title="error"
             @close="store.dispatch('setErrorText', { errorText: null, ...dispatcher })"
-            ><div>{{ i18n.t(errorText) }}</div></ErrorWindow
         >
+            <div>{{ i18n.t(errorText) }}</div>
+        </ErrorWindow>
+        <WarningWindow
+            v-for="warning in warnings.values()"
+            :key="warning"
+            title="warning"
+            @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
+        >
+            <div>{{ warning }}</div>
+        </WarningWindow>
     </div>
 </template>
 
