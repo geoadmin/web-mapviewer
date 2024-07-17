@@ -23,7 +23,12 @@ const dispatcher = { dispatcher: 'App.vue' }
 let debouncedOnResize
 
 const errorText = computed(() => store.state.ui.errorText)
-const warnings = computed(() => store.state.ui.warnings)
+const warning = computed(() => {
+    if (store.state.ui.warnings.size > 0) {
+        return store.state.ui.warnings.values().next().value
+    }
+    return null
+})
 
 onMounted(() => {
     // reading size
@@ -64,8 +69,7 @@ function refreshPageTitle() {
             <div>{{ i18n.t(errorText) }}</div>
         </ErrorWindow>
         <WarningWindow
-            v-for="warning in warnings.values()"
-            :key="warning"
+            v-if="warning"
             title="warning"
             @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
         >
