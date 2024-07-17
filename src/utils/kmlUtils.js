@@ -454,7 +454,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
 const nonGeoadminIconUrls = new Set()
 export function iconUrlProxyFy(url, corsIssueCallback = null) {
     // We only proxyfy URL that are not from our backend.
-    if (!/https:\/\/(\w+\.)+(bgdi\.ch|geo\.admin\.ch)/.test(url)) {
+    if (!/https:\/\/([\w-_]+\.)+(bgdi\.ch|geo\.admin\.ch)/.test(url)) {
         const proxyUrl = proxifyUrl(url)
         // Only perform the CORS check if we have a callback and it has not yet been done
         if (!nonGeoadminIconUrls.has(url) && corsIssueCallback) {
