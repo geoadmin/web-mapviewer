@@ -185,24 +185,17 @@ For more information about loading environment variables see [Vue - Modes and En
 ### Tooling for translation update
 
 Our translation master is hosted in a Google Spreadsheet, thus if you want to update translations you will need a valid Google API Key.
-One can be found in our `gopass` store `infra-gopass-bgdi`.
+One can be found in our AWS SSM store in `swisstopo-bgdi-builder` account.
 
-For this purpose you will need to install [gopass](https://github.com/gopasspw/gopass), and to be more efficient use it with [summon](https://github.com/cyberark/summon).
-
-In order for them to function together, they need to be linked with
-
-```bash
-mkdir /usr/local/lib/summon
-ln -s $(which gopass) /usr/local/lib/summon/gopass
-```
+In order to easily access the google API key stored in AWS SSM we use [summon](https://github.com/cyberark/summon) as follow:
 
 Translations can then be updated with
 
 ```bash
-summon -p gopass npm run update:translations
+summon -p ssm npm run update:translations
 ```
 
-The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
+The file `secrets.yml` will tell `summon` which keys to get from AWS SSM.
 
 ### List of npm scripts
 
