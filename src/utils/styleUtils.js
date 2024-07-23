@@ -161,7 +161,8 @@ export function adjustWidth(width, dpi) {
     if (!width) {
         return
     }
-    // 90 is choosen to compensate the difference DPI between the WMTS or WMS and the print DPI used.
-    // The number is from the old geoadmin (see the link above)
-    return (width * 90) / dpi
+    // 90 Was the old mapviewer magic number set to compensate for the DPI difference between the
+    // mapviewer and the service print. Currently, 150 seems to be giving better results at keeping
+    // the same scale overall.
+    return (width * 150) / dpi
 }
