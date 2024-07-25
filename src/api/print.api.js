@@ -17,6 +17,7 @@ const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of 
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
 const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
+const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
@@ -468,11 +469,18 @@ export async function createPrintJob(map, config) {
             outputFilename,
             dpi,
         })
+        if (!isPrintingSpecSizeValid(printingSpec)) {
+            throw new PrintError('Printing spec is too large', 'print_request_too_large')
+        }
         log.debug('Starting print for spec', printingSpec)
         return await requestReport(SERVICE_PRINT_URL, printingSpec)
     } catch (error) {
         log.error('Error while creating print job', error)
-        throw new PrintError(`Error while creating print job: ${error}`)
+        if (error instanceof PrintError) {
+            throw error
+        } else {
+            throw new PrintError(`Error while creating print job: ${error}`)
+        }
     }
 }
 
@@ -503,4 +511,16 @@ export async function abortPrintJob(printJobReference) {
         log.error('Could not abort print job', error)
         throw new PrintError('Could not abort print job')
     }
+}
+/**
+ * Check if the size of the printing spec is not bigger than MAX_PRINT_SPEC_SIZE
+ *
+ * @param {Object} printingSpec
+ * @returns {boolean} True if not bigger than MAX_PRINT_SPEC_SIZE, false otherwise
+ */
+function isPrintingSpecSizeValid(printingSpec) {
+    const jsonString = JSON.stringify(printingSpec)
+    const byteLength = new TextEncoder().encode(jsonString).length
+
+    return byteLength <= MAX_PRINT_SPEC_SIZE
 }
