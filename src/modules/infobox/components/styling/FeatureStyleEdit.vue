@@ -38,6 +38,12 @@ const title = ref(feature.value.title)
 const description = ref(feature.value.description)
 const mediaPopovers = ref(null)
 
+const isEditingText = computed(() => {
+    const titleElement = document.getElementById('drawing-style-feature-title')
+    const descriptionElement = document.getElementById('drawing-style-feature-description')
+    return document.activeElement === titleElement || document.activeElement === descriptionElement
+})
+
 // Update the UI when the feature changes
 watch(
     () => feature.value.title,
@@ -79,7 +85,7 @@ const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
 const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 
 function handleKeydown(event) {
-    if (event.key === 'Delete') {
+    if (event.key === 'Delete' && !isEditingText.value) {
         onDelete()
     }
 }
