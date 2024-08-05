@@ -44,7 +44,11 @@ export function parseGpx(gpxData, projection) {
         featureProjection: projection.epsg,
     })
     features.forEach((feature) => {
-        feature.setStyle(gpxStyles[feature.getGeometry().getType()])
+        const geom = feature.getGeometry()
+        // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
+        // 12.5 meters is what was used in the old viewer, see https://github.com/geoadmin/mf-geoadmin3/blob/ce24a27b0ca8192a0f78f7b8cc07f4e231031304/src/components/GeomUtilsService.js#L207
+        feature.setGeometry(geom.simplify(12.5))
+        feature.setStyle(gpxStyles[geom.getType()])
     })
     return features
 }
