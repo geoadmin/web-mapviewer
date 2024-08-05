@@ -5,12 +5,12 @@ import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfi
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
+import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 
 import TimeSliderParamConfig from './TimeSliderParamConfig.class'
-import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and

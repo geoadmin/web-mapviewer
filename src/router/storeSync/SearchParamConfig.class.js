@@ -13,7 +13,7 @@ import AbstractParamConfig, {
 function dispatchSearchFromUrl(to, store, urlParamValue) {
     store.dispatch('setSearchQuery', {
         query: urlParamValue,
-        shouldCenter: to.query.crosshair && to.query.center,
+        shouldCenter: !(to.query.crosshair && to.query.center),
         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
     })
 }
