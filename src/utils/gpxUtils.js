@@ -3,6 +3,7 @@ import bbox from '@turf/bbox'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'
 
+import { GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { gpxStyles } from '@/utils/styleUtils'
@@ -46,8 +47,7 @@ export function parseGpx(gpxData, projection) {
     features.forEach((feature) => {
         const geom = feature.getGeometry()
         // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
-        // 12.5 meters is what was used in the old viewer, see https://github.com/geoadmin/mf-geoadmin3/blob/ce24a27b0ca8192a0f78f7b8cc07f4e231031304/src/components/GeomUtilsService.js#L207
-        feature.setGeometry(geom.simplify(12.5))
+        feature.setGeometry(geom.simplify(GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE))
         feature.setStyle(gpxStyles[geom.getType()])
     })
     return features
