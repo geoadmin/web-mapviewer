@@ -10,6 +10,7 @@ import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 
 import TimeSliderParamConfig from './TimeSliderParamConfig.class'
+import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -89,16 +90,7 @@ const storeSyncConfig = [
         valueType: String,
         defaultValue: null,
     }),
-    new SimpleUrlParamConfig({
-        urlParamName: 'swisssearch',
-        mutationsToWatch: ['setSearchQuery'],
-        dispatchName: 'setSearchQuery',
-        dispatchValueName: 'query',
-        extractValueFromStore: (store) => store.state.search.query,
-        keepInUrlWhenDefault: false,
-        valueType: String,
-        defaultValue: '',
-    }),
+    new SearchParamConfig(),
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
