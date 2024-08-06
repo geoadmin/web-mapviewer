@@ -351,6 +351,15 @@ async function transformOlMapToPrintParams(olMap, config) {
             dpi: dpi,
             customizer: customizer,
         })
+        // Note (IS): This is a dirty fix to handle empty text annotation. See PB-790
+        // It should be removed once the issue is fixed in the mapfishprint library
+        encodedMap.layers.forEach((layer) => {
+            layer.geoJson?.features?.forEach((feature) => {
+                // Delete the editableFeature property because it will cause an error in the mapfishprint
+                // Should be handled inside GeoAdminCustomizer.feature but it skip the feature with empty text
+                delete feature.properties?.editableFeature
+            })
+        })
         if (printGrid) {
             encodedMap.layers.unshift({
                 baseURL: WMS_BASE_URL,
