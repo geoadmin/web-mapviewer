@@ -157,9 +157,9 @@ export default {
          *   have a LineString or Polygon feature
          */
         profileFeature: null,
-        /** @type {ElevationProfile | null} Profile Data for the profile geometry */
+        /** @type {LayerFeature | null} Profile Data for the profile geometry */
         profileData: null,
-        /** @type {ProfileError | null} */
+        /** @type {ElevationProfile | null} */
         profileRequestError: null,
     },
     getters: {
