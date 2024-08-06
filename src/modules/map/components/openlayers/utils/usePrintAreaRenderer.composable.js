@@ -46,6 +46,7 @@ export default function usePrintAreaRenderer(map) {
                     scale: getOptimalScale(),
                     ...dispatcher,
                 })
+                updatePrintOverlay()
             }),
             watch(selectedScale, () => {
                 updatePrintOverlay()
