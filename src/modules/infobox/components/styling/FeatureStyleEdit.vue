@@ -2,7 +2,7 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
@@ -38,6 +38,12 @@ const title = ref(feature.value.title)
 const description = ref(feature.value.description)
 const mediaPopovers = ref(null)
 
+const isEditingText = computed(() => {
+    const titleElement = document.getElementById('drawing-style-feature-title')
+    const descriptionElement = document.getElementById('drawing-style-feature-description')
+    return document.activeElement === titleElement || document.activeElement === descriptionElement
+})
+
 // Update the UI when the feature changes
 watch(
     () => feature.value.title,
@@ -63,12 +69,26 @@ watch(description, () => {
     debounceDescriptionUpdate(store)
 })
 
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown)
+})
+
 // Here we need to declare the debounce method globally otherwise it does not work (it is based
 // on closure which will not work if the debounce method is defined in a watcher)
 // The title debounce needs to be quick in order to be displayed on the map
 const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
 // The description don't need a quick debounce as it is not displayed on the map
 const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
+
+function handleKeydown(event) {
+    if (event.key === 'Delete' && !isEditingText.value) {
+        onDelete()
+    }
+}
 
 function updateFeatureTitle() {
     store.dispatch('changeFeatureTitle', {
