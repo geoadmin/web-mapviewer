@@ -143,6 +143,8 @@ export default function useMapInteractions(map) {
                                         // - ch.meteoschweiz.messwerte-niederschlag-10min
                                         // - ch.meteoschweiz.messwerte-lufttemperatur-10min
                                         olFeature.get('station_name') ??
+                                        // GPX track feature don't have an ID but have a name !
+                                        olFeature.get('name') ??
                                         olFeature.getId(),
                                     data: {
                                         title: olFeature.get('name'),

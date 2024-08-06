@@ -117,7 +117,12 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 // some of their layers are
                 // - ch.meteoschweiz.messwerte-niederschlag-10min
                 // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-                name: feature.properties.station_name ?? feature.properties.label ?? feature.id,
+                name:
+                    feature.properties.label ??
+                    feature.properties.station_name ??
+                    // GPX track feature don't have an ID but have a name !
+                    feature.properties.name ??
+                    feature.id,
                 data: {
                     title: feature.properties.name,
                     description: feature.properties.description,
