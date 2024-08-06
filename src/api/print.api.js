@@ -47,20 +47,6 @@ class GeoAdminCustomizer extends BaseCustomizer {
     }
 
     /**
-     * Remove the "editableFeature" adn "geodesic" property from the feature as it is not needed and
-     * can cause issues with mapfishprint
-     *
-     * @param {State} layerState
-     * @param {GeoJSONFeature} feature Manipulated feature
-     */
-    feature(layerState, feature) {
-        // cause circular reference issues
-        delete feature.properties?.geodesic
-        // unnecessary properties for printing and cause mapfishprint to throw an error
-        delete feature.properties?.editableFeature
-    }
-
-    /**
      * Manipulate the symbolizer of a line feature before printing it. In this case replace the
      * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
      *
@@ -466,7 +452,20 @@ export async function createPrintJob(map, config) {
             throw new PrintError('Printing spec is too large', 'print_request_too_large')
         }
         log.debug('Starting print for spec', printingSpec)
-        return await requestReport(SERVICE_PRINT_URL, printingSpec)
+
+        function replacer(key, value) {
+            // Remove the "bad" property from the feature
+            const badKeys = [
+                'editableFeature', // unnecessary properties for printing but cause mapfishprint to throw an error
+                'geodesic', // cause circular reference issues on JSON.stringify
+            ]
+            if (badKeys.includes(key)) {
+                return undefined
+            }
+            return value
+        }
+
+        return await requestReport(SERVICE_PRINT_URL, printingSpec, replacer)
     } catch (error) {
         log.error('Error while creating print job', error)
         if (error instanceof PrintError) {
