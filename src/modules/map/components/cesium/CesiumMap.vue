@@ -559,7 +559,7 @@ export default {
                     features.push(
                         ...identifyGeoJSONFeatureAt(
                             geoJSonLayer,
-                            event.position,
+                            [event.position.x, event.position.y],
                             this.projection,
                             this.resolution
                         )

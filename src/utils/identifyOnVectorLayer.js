@@ -1,4 +1,3 @@
-import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import distance from '@turf/distance'
 import { point } from '@turf/helpers'
@@ -118,7 +117,12 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 // some of their layers are
                 // - ch.meteoschweiz.messwerte-niederschlag-10min
                 // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-                name: feature.properties.station_name ?? feature.properties.label ?? feature.id,
+                name:
+                    feature.properties.label ??
+                    feature.properties.station_name ??
+                    // GPX track feature don't have an ID but have a name !
+                    feature.properties.name ??
+                    feature.id,
                 data: {
                     title: feature.properties.name,
                     description: feature.properties.description,
@@ -128,76 +132,4 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
             })
         }
     )
-}
-
-/**
- * Finds and returns all features, from the given KML layer, that are under or close to the given
- * coordinate (we require the map resolution as input, so that we may calculate a 10-pixels
- * tolerance for feature identification)
- *
- * This means we do not require OpenLayers to perform this search anymore, and that this code can be
- * used in any mapping framework.
- *
- * @param {KMLLayer} kmlLayer The KML layer in which we want to find feature at the given
- *   coordinate. This layer must have its kmlData loaded in order for this identification of feature
- *   to work properly (this function will not load the data if it is missing)
- * @param {[Number, Number]} coordinate Where we want to find features ([x, y])
- * @param {CoordinateSystem} projection The projection used to describe the coordinate where we want
- *   to search for feature
- * @param {Number} resolution The current map resolution, in meters/pixel. Used to calculate a
- *   tolerance of 10 pixels around the given coordinate.
- * @returns {SelectableFeature[]} The feature found at the coordinate, or an empty array if none
- *   were found
- */
-export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolution) {
-    if (kmlLayer?.kmlData) {
-        const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
-        const convertedKml = kmlToGeoJSON(parseKml)
-        return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
-            (feature) => {
-                return new LayerFeature({
-                    layer: kmlLayer,
-                    id: feature.id,
-                    name: kmlLayer.name,
-                    data: {
-                        title: feature.properties.name,
-                        description: feature.properties.description,
-                    },
-                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
-                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
-                })
-            }
-        )
-    }
-    return []
-}
-
-/**
- * @param {GPXLayer} gpxLayer
- * @param {[Number, Number]} coordinate Where we want to find features ([x, y])
- * @param {CoordinateSystem} projection The projection used to describe the coordinate where we want
- *   to search for feature
- * @param {Number} resolution The current map resolution, in meters/pixel. Used to calculate a
- *   tolerance of 10 pixels around the given coordinate.
- * @returns {SelectableFeature[]} The feature found at the coordinate, or an empty array if none
- *   were found
- */
-export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolution) {
-    if (gpxLayer?.gpxData) {
-        const parseGpx = new DOMParser().parseFromString(gpxLayer.gpxData, 'text/xml')
-        const convertedGpx = gpxToGeoJSON(parseGpx)
-        return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
-            (feature) => {
-                return new LayerFeature({
-                    layer: gpxLayer,
-                    id: `${gpxLayer.name}-${feature.properties?.name}`,
-                    name: feature.properties?.name,
-                    data: { ...feature.properties },
-                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
-                    geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
-                })
-            }
-        )
-    }
-    return []
 }
