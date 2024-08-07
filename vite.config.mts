@@ -1,3 +1,4 @@
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
 import { dirname, resolve } from 'path'
@@ -50,6 +51,17 @@ export default defineConfig(({ mode }) => {
             },
         },
         plugins: [
+            {
+                ...basicSsl({
+                    /** Name of certification */
+                    name: 'localhost',
+                    /** Custom trust domains */
+                    domains: ['localhost', '192.168.*.*'],
+                    /** Custom certification directory */
+                    certDir: './devServer/cert',
+                }),
+                apply: 'serve',
+            },
             vue({
                 isProduction: mode === 'production',
                 template: {
