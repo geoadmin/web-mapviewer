@@ -65,11 +65,12 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
      * @param {Stroke} stroke Stroke style of the line feature
      */
     // eslint-disable-next-line no-unused-vars
-    line(layerState, symbolizer, stroke) {
+    line(layerState, geojsonFeature, symbolizer, stroke) {
         if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
         }
@@ -82,11 +83,12 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * Manipulate the symbolizer of a text style of a feature before printing it.
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
      * @param {Text} text Text style of the feature
      */
     // eslint-disable-next-line no-unused-vars
-    text(layerState, symbolizer, text) {
+    text(layerState, geojsonFeature, symbolizer, text) {
         symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
@@ -107,11 +109,12 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * manipulate the width and offset of the image to match the old geoadmin
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerPoint} symbolizer Interface for the symbolizer of a text feature
      * @param {Image} image Image style of the feature
      */
     // eslint-disable-next-line no-unused-vars
-    point(layerState, symbolizer, image) {
+    point(layerState, geojsonFeature, symbolizer, image) {
         const scale = image.getScaleArray()[0]
         let size = null
         let anchor = null
