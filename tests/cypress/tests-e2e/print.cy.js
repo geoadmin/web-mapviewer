@@ -486,8 +486,8 @@ describe('Testing print', () => {
                 const textSymbolAttributes = {
                     type: 'text',
                     label: 'Sample Label',
-                    fontFamily: 'HELVETICA',
-                    fontSize: 16,
+                    fontFamily: 'Helvetica',
+                    fontSize: '16px',
                     fontWeight: 'normal',
                     labelYOffset: 44.75,
                 }
@@ -557,8 +557,8 @@ describe('Testing print', () => {
                 const textSymbolAttributes = {
                     type: 'text',
                     label: 'Old Label',
-                    fontFamily: 'HELVETICA',
-                    fontSize: 16,
+                    fontFamily: 'Helvetica',
+                    fontSize: '16px',
                     fontWeight: 'normal',
                     labelYOffset: 0,
                 }
