@@ -113,6 +113,8 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
  * @param {Number} [offset] Offset of how many items the identification should start after. This
  *   enables us to do some "pagination" or "load more" (if you already have 10 features, set an
  *   offset of 10 to get the 10 next, 20 in total).
+ * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
+ *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<LayerFeature[]>}
  */
 export async function identifyOnGeomAdminLayer({
@@ -125,6 +127,7 @@ export async function identifyOnGeomAdminLayer({
     lang,
     featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     offset = null,
+    api3UrlOverride = null,
 }) {
     if (!layer) {
         throw new GetFeatureInfoError('Missing layer')
@@ -142,7 +145,7 @@ export async function identifyOnGeomAdminLayer({
     }
     const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
-        `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
+        `${api3UrlOverride ?? API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
             // params described as https://api3.geo.admin.ch/services/sdiservices.html#identify-features
             params: {
@@ -484,6 +487,8 @@ async function identifyOnExternalWmsLayer(config) {
  *   offset of 10 to get the 10 next, 20 in total). This only works with GeoAdmin backends
  * @param {CoordinateSystem} config.projection Projection in which the coordinates of the features
  *   should be expressed
+ * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
+ *   none is given, the default from config.js will be used. Default is `null`
  * @returns {Promise<LayerFeature[]>}
  */
 export const identify = (config) => {
@@ -498,6 +503,7 @@ export const identify = (config) => {
         projection = null,
         featureCount = DEFAULT_FEATURE_COUNT_SINGLE_POINT,
         offset = null,
+        api3UrlOverride = null,
     } = config
     return new Promise((resolve, reject) => {
         if (!layer?.id) {
@@ -531,6 +537,7 @@ export const identify = (config) => {
                 lang,
                 featureCount,
                 offset,
+                api3UrlOverride,
             })
                 .then(resolve)
                 .catch((error) => {
@@ -561,10 +568,12 @@ export const identify = (config) => {
 /**
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureId The feature ID in the BGDI
+ * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
+ *   given, the default from config.js will be used. Default is `null`
  * @returns {string}
  */
-function generateFeatureUrl(layer, featureId) {
-    return `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
+function generateFeatureUrl(layer, featureId, api3UrlOverride = null) {
+    return `${api3UrlOverride ?? API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
 }
 
 /**

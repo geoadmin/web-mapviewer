@@ -86,7 +86,8 @@ const topicChangeManagementPlugin = (store) => {
             loadTopicTreeForTopic(
                 store.state.i18n.lang,
                 currentTopic.id,
-                store.state.layers.config
+                store.state.layers.config,
+                store.state.debug.baseUrlOverride.api3
             ).then((topicTree) => {
                 store.dispatch('setTopicTree', {
                     layers: topicTree.layers,

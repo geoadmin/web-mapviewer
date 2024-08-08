@@ -52,6 +52,8 @@ function getFeatureCountForCoordinate(coordinate) {
  * @param {CoordinateSystem} config.projection Wanted projection with which to request the backend
  * @param {Number} [config.featureCount] How many features should be requested. If not given, will
  *   default to 10 for single coordinate, or 50 for extents.
+ * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
+ *   none is given, the default from config.js will be used. Default is `null`
  * @returns {Promise<LayerFeature[]>} A promise that will contain all feature identified by the
  *   different requests (won't be grouped by layer)
  */
@@ -66,6 +68,7 @@ const runIdentify = (config) => {
         lang,
         projection,
         featureCount,
+        api3UrlOverride = null,
     } = config
     return new Promise((resolve, reject) => {
         const allFeatures = []
@@ -79,6 +82,7 @@ const runIdentify = (config) => {
             lang,
             projection,
             featureCount,
+            api3UrlOverride,
         }
         // for each layer we run a backend request
         // NOTE: in theory for the Geoadmin layers we could run one single backend request to API3 instead of one per layer, however
@@ -275,6 +279,7 @@ export default {
                     lang: rootState.i18n.lang,
                     projection: rootState.position.projection,
                     featureCount,
+                    api3UrlOverride: rootState.debug.baseUrlOverride.api3,
                 })),
             ]
             if (features.length > 0) {
@@ -322,6 +327,7 @@ export default {
                     projection: rootState.position.projection,
                     offset: featuresAlreadyLoaded.features.length,
                     featureCount: featuresAlreadyLoaded.featureCountForMoreData,
+                    api3UrlOverride: rootState.debug.baseUrlOverride.api3,
                 }).then((moreFeatures) => {
                     const featuresForLayer = state.selectedFeaturesByLayerId.find(
                         (featureForLayer) => featureForLayer.layerId === layer.id

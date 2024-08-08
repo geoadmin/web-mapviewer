@@ -29,6 +29,7 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
+const debugWmtsBaseUrlOverride = computed(() => store.state.debug.baseUrlOverride.wmts)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
 const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
@@ -75,7 +76,9 @@ watch(wmtsTimeConfig, () => {
 })
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value)
+    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, {
+        baseUrlOverride: debugWmtsBaseUrlOverride.value,
+    })
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')

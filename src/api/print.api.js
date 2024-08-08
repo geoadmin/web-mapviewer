@@ -280,6 +280,10 @@ export class PrintError extends Error {
  * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
+ * @param {String | null} [config.wmsUrlOverride=null] The base URL to access service-wms. If none
+ *   is given, the default from config.js will be used. Default is `null`
+ * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
+ *   none is given, the default from config.js will be used. Default is `null`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -295,6 +299,8 @@ async function transformOlMapToPrintParams(olMap, config) {
         excludedLayerIDs = [],
         dpi = null,
         outputFilename = null,
+        wmsUrlOverride = null,
+        api3UrlOverride = null,
     } = config
 
     if (!qrCodeUrl) {
@@ -342,7 +348,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         })
         if (printGrid) {
             encodedMap.layers.unshift({
-                baseURL: WMS_BASE_URL,
+                baseURL: wmsUrlOverride ?? WMS_BASE_URL,
                 opacity: 1,
                 singleTile: true,
                 type: 'WMS',
@@ -377,7 +383,9 @@ async function transformOlMapToPrintParams(olMap, config) {
                 classes: layersWithLegends.map((layer) => {
                     return {
                         name: layer.name,
-                        icons: [`${API_BASE_URL}static/images/legends/${layer.id}_${lang}.png`],
+                        icons: [
+                            `${api3UrlOverride ?? API_BASE_URL}static/images/legends/${layer.id}_${lang}.png`,
+                        ],
                     }
                 }),
             }
@@ -433,6 +441,10 @@ function printSpecReplacer(key, value) {
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
  * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
+ * @param {String | null} [config.wmsUrlOverride=null] The base URL to access service-wms. If none
+ *   is given, the default from config.js will be used. Default is `null`
+ * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
+ *   none is given, the default from config.js will be used. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -450,6 +462,8 @@ export async function createPrintJob(map, config) {
         excludedLayerIDs = [],
         outputFilename = null,
         dpi = null,
+        wmsUrlOverride = null,
+        api3UrlOverride = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -465,6 +479,8 @@ export async function createPrintJob(map, config) {
             excludedLayerIDs,
             outputFilename,
             dpi,
+            wmsUrlOverride,
+            api3UrlOverride,
         })
         if (!isPrintingSpecSizeValid(printingSpec)) {
             throw new PrintError('Printing spec is too large', 'print_request_too_large')

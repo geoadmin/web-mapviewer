@@ -37,6 +37,7 @@ const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const currentLang = computed(() => store.state.i18n.lang)
+const debugWmsBaseUrlOverride = computed(() => store.state.debug.baseUrlOverride.wms)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmsLayerConfig.value.technicalName || wmsLayerConfig.value.id)
@@ -44,7 +45,7 @@ const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
-const url = computed(() => wmsLayerConfig.value.baseUrl)
+const url = computed(() => debugWmsBaseUrlOverride.value ?? wmsLayerConfig.value.baseUrl)
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
 const urlParams = computed(() => cloneDeep(wmsLayerConfig.value.customAttributes) ?? null)
 

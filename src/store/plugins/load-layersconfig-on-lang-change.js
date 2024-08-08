@@ -20,11 +20,13 @@ const layersConfigByLang = {}
  * If the same language is asked another time later on, the cached version will be given.
  *
  * @param lang {String} ISO code for a language
+ * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
+ *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<GeoAdminLayer[]>}
  */
-async function loadLayersConfig(lang) {
+async function loadLayersConfig(lang, api3UrlOverride = null) {
     if (!layersConfigByLang[lang]) {
-        const layersConfig = await loadLayersConfigFromBackend(lang)
+        const layersConfig = await loadLayersConfigFromBackend(lang, api3UrlOverride)
         layersConfigByLang[lang] = layersConfig
         return layersConfig
     } else {
@@ -37,7 +39,11 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         log.debug(
             `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher}`
         )
-        const [layersConfig, rawTopics] = await Promise.all([loadLayersConfig(lang), loadTopics()])
+        const [layersConfig, rawTopics] = await Promise.all([
+            loadLayersConfig(lang, store.state.debug.baseUrlOverride.api3),
+            loadTopics(store.state.debug.baseUrlOverride.api3),
+            store.state.debug.baseUrlOverride.api3,
+        ])
         const topics = parseTopics(layersConfig, rawTopics)
 
         // adding SWISSIMAGE as a possible background for 3D
@@ -65,7 +71,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
  */
 const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
-        if (mutation.type === SET_LANG_MUTATION_KEY) {
+        if ([SET_LANG_MUTATION_KEY, 'setApi3BaseUrlOverride'].includes(mutation.type)) {
             loadLayersAndTopicsConfigAndDispatchToStore(
                 store,
                 mutation.payload.lang,
