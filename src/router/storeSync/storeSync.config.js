@@ -126,6 +126,36 @@ const storeSyncConfig = [
         defaultValue: '',
     }),
     new TimeSliderParamConfig(),
+    new SimpleUrlParamConfig({
+        urlParamName: 'wms_url',
+        mutationsToWatch: ['setWmsBaseUrlOverride'],
+        dispatchName: 'setWmsBaseUrlOverride',
+        dispatchValueName: 'baseUrl',
+        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.wms,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: null,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'wmts_url',
+        mutationsToWatch: ['setWtmsBaseUrlOverride'],
+        dispatchName: 'setWtmsBaseUrlOverride',
+        dispatchValueName: 'baseUrl',
+        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.wtms,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: null,
+    }),
+    new SimpleUrlParamConfig({
+        urlParamName: 'api_url',
+        mutationsToWatch: ['setApi3BaseUrlOverride'],
+        dispatchName: 'setApi3BaseUrlOverride',
+        dispatchValueName: 'baseUrl',
+        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.api3,
+        keepInUrlWhenDefault: false,
+        valueType: String,
+        defaultValue: null,
+    }),
 ]
 
 export default storeSyncConfig
