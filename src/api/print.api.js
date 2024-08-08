@@ -85,27 +85,26 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.conflictResolution = false
         symbolizer.fontSize =
             Math.ceil(2 * adjustWidth(parseInt(symbolizer.fontSize), this.printResolution)) + 'px'
-        /*
+
         // Ideally this should be done in the geoblocks/mapfishprint
         // but it's quite complex to handle all the cases
+
+        // we try to adapt the font size and offsets to have roughly the same
+        // scales on print than on the viewer.
         try {
-            const fontFamily = symbolizer.fontFamily.split(' ')
-            symbolizer.fontWeight = fontFamily[0]
-            // we need to apply the scale and the resolution to the font size too
-            // To be fair, we're not adjusting width here, but the scaling would be the same
-            symbolizer.fontSize = adjustWidth(
-                parseInt(fontFamily[1]) * text.getScale(),
+            symbolizer.labelYOffset = symbolizer.labelYOffset
+                ? adjustWidth(symbolizer.labelYOffset, this.printResolution)
+                : 0
+            symbolizer.labelXOffset = symbolizer.labelXOffset
+                ? adjustWidth(symbolizer.labelXOffset, this.printResolution)
+                : 0
+            symbolizer.fontSize = `${adjustWidth(
+                parseInt(symbolizer.fontSize) * text.getScale(),
                 this.printResolution
-            )
-            symbolizer.fontFamily = fontFamily[2].toUpperCase()
-            // we need to adjust the offsets, when a text is coupled with a feature, to ensure
-            // the text is displayed at the correct place.
-            symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
-            symbolizer.labelXOffset = adjustWidth(symbolizer.labelXOffset, this.printResolution)
+            )}px`
         } catch (error) {
             // Keep the font family as it is
         }
-        */
     }
 
     /**
