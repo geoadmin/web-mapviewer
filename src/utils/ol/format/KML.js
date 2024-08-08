@@ -960,7 +960,7 @@ class KML extends XMLFeature {
 function createNameStyleFunction(foundStyle, name) {
     const textOffset = [0, 0]
     /** @type {CanvasTextAlign} */
-    let textAlign = 'start'
+    let textAlign = 'center'
     const imageStyle = foundStyle.getImage()
     if (imageStyle) {
         const imageSize = imageStyle.getSize()
