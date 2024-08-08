@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
+import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
 import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
@@ -11,6 +12,7 @@ const dispatcher = { dispatcher: 'DebugToolbar.vue' }
 const store = useStore()
 
 const showDebugTool = ref(false)
+const showBaseUrlOverride = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
@@ -36,6 +38,9 @@ function toggleShowTileDebugInfo() {
 }
 function toggleShowLayerExtents() {
     store.dispatch('toggleShowLayerExtents', dispatcher)
+}
+function toggleShowBaseUrlOverride() {
+    showBaseUrlOverride.value = !showBaseUrlOverride.value
 }
 </script>
 
@@ -100,9 +105,21 @@ function toggleShowLayerExtents() {
                             </div>
                         </div>
                     </div>
+                    <div>
+                        <button
+                            class="toolbox-button m-auto"
+                            type="button"
+                            :class="{ active: showBaseUrlOverride }"
+                            @click="toggleShowBaseUrlOverride"
+                        >
+                            <FontAwesomeIcon icon="cog" />
+                        </button>
+                        <label class="text-center w-100">Set base URL</label>
+                    </div>
                 </div>
             </div>
         </div>
+        <BaseUrlOverrideModal v-if="showBaseUrlOverride" @close="toggleShowBaseUrlOverride" />
     </div>
 </template>
 
