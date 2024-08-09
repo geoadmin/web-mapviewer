@@ -1,0 +1,67 @@
+// loosely copied from https://raw.githubusercontent.com/geoadmin/mf-geoadmin3/master/src/style/diemo.less
+// and adapted to SCSS (plus have a CSS grid in evse-data)
+
+/* DIEMO */
+
+$diemo_green: rgb(49,169,80);
+$diemo_red: rgb(245,6,58);
+$diemo_yellow: rgb(233,188,114);
+$diemo_grey: rgb(130,131,133);
+$diemo_lightgrey: #efefef;
+
+.evse-data {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-bottom: 1rem;
+  width: 100%;
+}
+
+.htmlpopup-container .htmlpopup-content {
+  .evse-overview {
+    margin: 0.25rem;
+
+    td, th {
+      border: 2px solid $diemo_grey;
+      padding: 0.25rem;
+      text-align: center;
+    }
+    th {
+      background-color:$diemo_grey;
+      color: white;
+      min-height: 30px;
+    }
+    &.status-occupied {
+      th {
+        background-color:$diemo_red;
+      }
+      th, td {
+        border-color : $diemo_red;
+      }
+    }
+    &.status-reserved {
+      th {
+        background-color:$diemo_yellow;
+      }
+      th, td {
+        border-color: $diemo_yellow;
+      }
+    }
+    &.status-available {
+      th {
+        background-color: $diemo_green;
+      }
+      th, td {
+        border-color: $diemo_green;
+      }
+    }
+    &.status-unknown {
+      th {
+        background-color: $diemo_lightgrey;
+        color: black;
+      }
+      th, td {
+        border-color: $diemo_lightgrey;
+      }
+    }
+  }
+}
