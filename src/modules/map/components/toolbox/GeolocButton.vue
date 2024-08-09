@@ -12,9 +12,18 @@ useTippyTooltip('.geoloc-button-div[data-tippy-content]', { placement: 'left' })
 
 const isActive = computed(() => store.state.geolocation.active)
 const isDenied = computed(() => store.state.geolocation.denied)
+const isTracking = computed(() => store.state.geolocation.tracking)
+const autoRotation = computed(() => store.state.position.autoRotation)
+const hasOrientation = computed(() => store.state.position.hasOrientation)
 const tippyContent = computed(() => {
     if (isDenied.value) {
         return 'geoloc_permission_denied'
+    }
+    if (isActive.value && !isTracking.value) {
+        return 're_center_map'
+    }
+    if (isActive.value && !autoRotation.value) {
+        return 'orient_map_north'
     }
     if (isActive.value) {
         return 'geoloc_stop_tracking'
@@ -23,7 +32,18 @@ const tippyContent = computed(() => {
 })
 
 function toggleGeolocation() {
-    store.dispatch('toggleGeolocation', dispatcher)
+    if (!isActive.value) {
+        store.dispatch('toggleGeolocation', dispatcher)
+    } else {
+        if (!isTracking.value) {
+            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+        } else if (!autoRotation.value && hasOrientation.value) {
+            store.dispatch('setAutoRotation', { autoRotation: true, ...dispatcher })
+        } else {
+            store.dispatch('toggleGeolocation', dispatcher)
+            store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
+        }
+    }
 }
 </script>
 
@@ -32,16 +52,19 @@ function toggleGeolocation() {
      otherwise the tippy won't work when the button is disabled -->
     <div class="geoloc-button-div" :data-tippy-content="tippyContent">
         <button
-            class="toolbox-button geoloc-button"
+            class="toolbox-button d-print-none"
             type="button"
             :disabled="isDenied"
             :class="{ active: isActive, disabled: isDenied }"
             data-cy="geolocation-button"
             @click="toggleGeolocation"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
-                <ellipse class="geoloc-button-inner-circle" />
-            </svg>
+            <FontAwesomeIcon
+                :style="autoRotation ? { transform: 'rotate(-45deg)' } : ''"
+                icon="location-arrow"
+                class="orientation-arrow"
+                :class="{ 'orientation-arrow-rotate': autoRotation }"
+            />
         </button>
     </div>
 </template>
@@ -49,34 +72,11 @@ function toggleGeolocation() {
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
 
-$normal-color: $map-button-border-color;
-$stroke-width: 9px;
-$radius-circle: calc(($map-button-inner-icon-diameter / 2) - ($stroke-width / 2));
-.geoloc-button {
-    svg {
-        overflow: initial;
-        position: relative;
-        top: $map-button-diameter * 0.5;
-        left: $map-button-diameter * 0.5;
-        height: $map-button-diameter;
-    }
-    .geoloc-button-inner-circle {
-        stroke: $white;
-        fill: $normal-color;
-        stroke-width: $stroke-width;
-        rx: $radius-circle;
-        ry: $radius-circle;
-    }
-    &.active {
-        .geoloc-button-inner-circle {
-            fill: $primary;
-        }
-    }
-    &.disabled {
-        opacity: 0.8;
-        .geoloc-button-inner-circle {
-            stroke: $gray-300;
-        }
+.orientation-arrow {
+    margin-top: 2px;
+
+    &-rotate {
+        margin-top: 3px;
     }
 }
 </style>

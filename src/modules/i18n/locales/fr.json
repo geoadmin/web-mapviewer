@@ -218,6 +218,7 @@
     "geoloc_stop_tracking": "Arréter le suivi de votre position",
     "geoloc_time_out": "La durée maximale d'acquisition de la position a été dépassé avant d'avoir reçu l'information. Réessayez plus tard.",
     "geoloc_unknown": "Désolé, pour une raison inconnue le service de géolocalisation ne fonctionne pas. Vérifiez les paramètres de ce service concernant le mode privé et le firewall.",
+    "re_center_map": "Centrer la carte sur la position",
     "geolocation": "Géolocalisation",
     "geothermie": "Géothermie",
     "geothermie_service_link_href": "http://www.geologieportal.ch/internet/geologieportal/fr/home/topics/energy/geothermalenergy/shortdesc.html",

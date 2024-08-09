@@ -1,3 +1,35 @@
+<script setup>
+import { inject, onMounted, onUnmounted, ref } from 'vue'
+import { useStore } from 'vuex'
+
+const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
+
+const olMap = inject('olMap')
+const store = useStore()
+
+const rotation = ref(0)
+
+onMounted(() => {
+    olMap.on('postrender', onRotate)
+})
+
+onUnmounted(() => {
+    olMap.un('postrender', onRotate)
+})
+
+function resetRotation() {
+    store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
+    store.dispatch('setRotation', { rotation: 0, ...dispatcher })
+}
+
+const onRotate = (mapEvent) => {
+    const newRotation = mapEvent.frameState.viewState.rotation
+    if (newRotation !== rotation.value) {
+        rotation.value = newRotation
+    }
+}
+</script>
+
 <template>
     <!-- The rotation constraint of the openlayers view by default snaps to zero. This means that
     even if the angle is not normalized, it will automatically be set to zero if pointing to the
@@ -23,38 +55,6 @@
         </svg>
     </button>
 </template>
-
-<script>
-import { mapActions } from 'vuex'
-
-export default {
-    inject: ['getMap'],
-
-    data() {
-        return {
-            rotation: 0,
-        }
-    },
-    mounted() {
-        this.getMap().on('postrender', this.onRotate)
-    },
-    unmounted() {
-        this.getMap().un('postrender', this.onRotate)
-    },
-    methods: {
-        ...mapActions(['setRotation']),
-        resetRotation() {
-            this.setRotation(0)
-        },
-        onRotate(mapEvent) {
-            const newRotation = mapEvent.frameState.viewState.rotation
-            if (newRotation !== this.rotation) {
-                this.rotation = newRotation
-            }
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';

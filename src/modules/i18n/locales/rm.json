@@ -216,6 +216,7 @@
     "geoloc_stop_tracking": "Deactivar il posiziunament",
     "geoloc_time_out": "n timeout da Voss apparat tar la fixaziun da la posiziun è vegnì cuntanschì. Empruvai per plaschair pli tard.",
     "geoloc_unknown": "Pervia d'in sbagl nunenconuschent n'ha la fixaziun da la posiziun betg gì success. Controllai la configuraziun da localisaziun, da sfera privata ed il firewall da Voss apparat.",
+    "re_center_map": "Centrar la charta sin la posiziun",
     "geolocation": "Geolocation",
     "geothermie": "Geotermia",
     "geothermie_service_link_href": "http://www.geologieportal.ch/internet/geologieportal/de/home/topics/energy/geothermalenergy/shortdesc.html",

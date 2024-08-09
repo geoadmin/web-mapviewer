@@ -218,6 +218,7 @@
     "geoloc_stop_tracking": "Schalte Positionierung aus",
     "geoloc_time_out": "Bei der Positionsbestimmung ist auf ihrem Gerät ein Timeout-Fehler aufgetreten. Bitte versuchen Sie es später nochmals.",
     "geoloc_unknown": "Aufgrund eines unbekannten Fehlers war die Positionsbestimmung nicht erfolgreich. Prüfen Sie die Einstellungen für Lokalisierung, Privatsphäre und Firewall Ihres Gerätes.",
+    "re_center_map": "Karte auf Position zentrieren",
     "geolocation": "Geolocation",
     "geothermie": "Geothermie",
     "geothermie_service_link_href": "http://www.geologieportal.ch/internet/geologieportal/de/home/topics/energy/geothermalenergy/shortdesc.html",

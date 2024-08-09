@@ -22,6 +22,7 @@ export default function useViewBasedOnProjection(map) {
     const projection = computed(() => store.state.position.projection)
     const zoom = computed(() => store.state.position.zoom)
     const rotation = computed(() => store.state.position.rotation)
+    const autoRotation = computed(() => store.state.position.autoRotation)
 
     const viewsForProjection = {}
     viewsForProjection[LV95.epsg] = new View({
@@ -41,18 +42,21 @@ export default function useViewBasedOnProjection(map) {
     })
 
     watch(projection, setViewAccordingToProjection)
+
     watch(center, (newCenter) =>
         viewsForProjection[projection.value.epsg].animate({
             center: newCenter,
             duration: animationDuration,
         })
     )
+
     watch(zoom, (newZoom) =>
         viewsForProjection[projection.value.epsg].animate({
             zoom: newZoom,
             duration: animationDuration,
         })
     )
+
     watch(rotation, (newRotation) =>
         viewsForProjection[projection.value.epsg].animate({
             rotation: newRotation,
@@ -62,10 +66,11 @@ export default function useViewBasedOnProjection(map) {
 
     onMounted(() => {
         setViewAccordingToProjection()
-        map.on('moveend', updateCenterInStore)
+        map.on('moveend', updateMapPositionInStore)
     })
+
     onBeforeUnmount(() => {
-        map.un('moveend', updateCenterInStore)
+        map.un('moveend', updateMapPositionInStore)
     })
 
     function setViewAccordingToProjection() {
@@ -78,7 +83,8 @@ export default function useViewBasedOnProjection(map) {
             log.error('View for projection was not found', projection.value)
         }
     }
-    function updateCenterInStore() {
+
+    function updateMapPositionInStore() {
         const currentView = viewsForProjection[projection.value.epsg]
         if (currentView) {
             const [x, y] = currentView.getCenter()
@@ -90,8 +96,10 @@ export default function useViewBasedOnProjection(map) {
                 store.dispatch('setZoom', { zoom: currentZoom, ...dispatcher })
             }
             const currentRotation = currentView.getRotation()
-            if (currentRotation !== rotation.value) {
-                store.dispatch('setRotation', currentRotation)
+            if (currentRotation !== rotation.value && !autoRotation.value) {
+                // Don't update the rotation in store when autorotation is enabled, this
+                // is not needed as auto rotation is managed by the device orientation composable
+                store.dispatch('setRotation', { rotation: currentRotation, ...dispatcher })
             }
         }
     }

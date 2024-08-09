@@ -44,7 +44,10 @@ export default function syncCameraLonLatZoom(store) {
                 dispatcher: self,
             })
             store.dispatch('setZoom', { zoom, dispatcher: self })
-            store.dispatch('setRotation', normalizeAngle((rotation * Math.PI) / 180))
+            store.dispatch('setRotation', {
+                rotation: normalizeAngle((rotation * Math.PI) / 180),
+                dispatcher: self,
+            })
         }
     })
     // Subscribing to action to listen to zoomToExtent and selectResultEntry specifically.

@@ -43,7 +43,10 @@ describe('Rotation is set correctly in the store', () => {
         expect(store.state.position.rotation).to.be.equal(0)
     })
     it('setAngle normalizes the angle', async () => {
-        await store.dispatch('setRotation', 3 * Math.PI + Math.PI / 2)
+        await store.dispatch('setRotation', {
+            rotation: 3 * Math.PI + Math.PI / 2,
+            dispatcher: 'unit-test',
+        })
         expect(store.state.position.rotation).to.be.closeTo(-(Math.PI / 2), 1e-9)
     })
 })
