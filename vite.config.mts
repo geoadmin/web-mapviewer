@@ -52,14 +52,16 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             {
-                ...basicSsl({
-                    /** Name of certification */
-                    name: 'localhost',
-                    /** Custom trust domains */
-                    domains: ['localhost', '192.168.*.*'],
-                    /** Custom certification directory */
-                    certDir: './devServer/cert',
-                }),
+                ...(process.env.USE_HTTPS
+                    ? basicSsl({
+                          /** Name of certification */
+                          name: 'localhost',
+                          /** Custom trust domains */
+                          domains: ['localhost', '192.168.*.*'],
+                          /** Custom certification directory */
+                          certDir: './devServer/cert',
+                      })
+                    : {}),
                 apply: 'serve',
             },
             vue({
