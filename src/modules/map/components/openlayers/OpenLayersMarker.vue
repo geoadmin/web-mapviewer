@@ -16,7 +16,6 @@ import { randomIntBetween } from '@/utils/numberUtils'
 const props = defineProps({
     position: {
         type: Array,
-        default: () => [0, 0],
         required: true,
     },
     markerStyle: {
