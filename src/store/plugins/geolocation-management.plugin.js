@@ -2,9 +2,7 @@ import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 
@@ -17,11 +15,7 @@ let firstTimeActivatingGeolocation = true
 let errorCount = 0
 
 function setCenterIfInBounds(store, center) {
-    if (
-        store.state.cesium.active
-            ? LV95.getBoundsAs(WEBMERCATOR).isInBounds(center[0], center[1])
-            : LV95.isInBounds(center[0], center[1])
-    ) {
+    if (LV95.getBoundsAs(store.state.position.projection).isInBounds(center[0], center[1])) {
         if (!isEqual(store.state.position.center, center)) {
             store.dispatch('setCenter', {
                 center: center,
@@ -29,7 +23,7 @@ function setCenterIfInBounds(store, center) {
             })
         }
     } else {
-        log.warn('current geolocation is out of bounds')
+        log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
         store.dispatch('setErrorText', {
             errorText: 'geoloc_out_of_bounds',
             ...dispatcher,
@@ -44,17 +38,6 @@ const readPosition = (position, projection) => {
 
 const centerMapOnPosition = (positionProjected, store) => {
     setCenterIfInBounds(store, positionProjected)
-    // set zoom level if needed
-    let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
-    if (store.state.position.projection instanceof CustomCoordinateSystem) {
-        zoomLevel = store.state.position.projection.transformStandardZoomLevelToCustom(zoomLevel)
-    }
-    if (store.state.position.zoom != zoomLevel) {
-        store.dispatch('setZoom', {
-            zoom: zoomLevel,
-            ...dispatcher,
-        })
-    }
 }
 
 const handlePositionAndDispatchToStore = (position, store) => {
