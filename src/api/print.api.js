@@ -86,9 +86,6 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.fontSize =
             Math.ceil(2 * adjustWidth(parseInt(symbolizer.fontSize), this.printResolution)) + 'px'
 
-        // Ideally this should be done in the geoblocks/mapfishprint
-        // but it's quite complex to handle all the cases
-
         // we try to adapt the font size and offsets to have roughly the same
         // scales on print than on the viewer.
         try {

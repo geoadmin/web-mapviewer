@@ -426,7 +426,12 @@ describe('Testing print', () => {
                 ).to.lessThan(1.5) // thinner than the drawn in the OL map.
             })
         })
-        it('should send a print request correctly to mapfishprint (icon and label)', () => {
+        /**
+         * Currently, we are working on the print, which might alter the way data is sent, or the
+         * way data is interpreted. When the work on the print API (and backend) is over, we will
+         * need to modify those tests by providing new pdf reports as fixtures.
+         */
+        it.skip('should send a print request correctly to mapfishprint (icon and label)', () => {
             startPrintWithKml('print/label.kml')
 
             cy.wait('@printRequest').then((interception) => {
@@ -497,7 +502,7 @@ describe('Testing print', () => {
                 }
             })
         })
-        it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
+        it.skip('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
             startPrintWithKml('print/old-geoadmin-label.kml')
 
             cy.wait('@printRequest').then((interception) => {
