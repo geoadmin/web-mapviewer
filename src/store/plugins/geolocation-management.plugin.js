@@ -129,10 +129,13 @@ const handlePositionError = (error, store, state, options = {}) => {
 
 const activeGeolocation = (store, state, options = {}) => {
     const { useInitial = true } = options
-    if (useInitial && store.state.geolocation.position !== null) {
+    if (useInitial && state.geolocation.position !== null) {
         // if we have a previous position use it first to be more reactive but set a
         // bad accuracy as we don't know how exact it is.
-        setCenterIfInBounds(store, store.state.geolocation.position)
+        if (state.geolocation.tracking) {
+            // only center if tracking (e.g. in 3D mode we don't center)
+            setCenterIfInBounds(store, store.state.geolocation.position)
+        }
         store.dispatch('setGeolocationAccuracy', {
             accuracy: 50 * 1000, // 50 km
             ...dispatcher,

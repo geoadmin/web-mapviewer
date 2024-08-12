@@ -45,11 +45,7 @@ const actions = {
         commit('setGeolocationActive', args)
     },
     toggleGeolocation: ({ commit, state }, { dispatcher }) => {
-        const willBeActive = !state.active
-        if (willBeActive) {
-            commit('setGeolocationTracking', { tracking: true, dispatcher })
-        }
-        commit('setGeolocationActive', { active: willBeActive, dispatcher })
+        commit('setGeolocationActive', { active: !state.active, dispatcher })
     },
     setGeolocationTracking: ({ commit }, args) => commit('setGeolocationTracking', args),
     setGeolocationDenied: ({ commit }, { denied, dispatcher }) => {

@@ -15,14 +15,19 @@ const isDenied = computed(() => store.state.geolocation.denied)
 const isTracking = computed(() => store.state.geolocation.tracking)
 const autoRotation = computed(() => store.state.position.autoRotation)
 const hasOrientation = computed(() => store.state.position.hasOrientation)
+const is3dActive = computed(() => store.state.cesium.active)
+const hasTrackingFeedback = computed(() => isActive.value && !is3dActive.value && !isTracking.value)
+const hastAutoRotationFeedback = computed(
+    () => isActive.value && !is3dActive.value && hasOrientation.value && !autoRotation.value
+)
 const tippyContent = computed(() => {
     if (isDenied.value) {
         return 'geoloc_permission_denied'
     }
-    if (isActive.value && !isTracking.value) {
+    if (hasTrackingFeedback.value) {
         return 're_center_map'
     }
-    if (isActive.value && !autoRotation.value) {
+    if (hastAutoRotationFeedback.value) {
         return 'orient_map_north'
     }
     if (isActive.value) {
@@ -34,14 +39,18 @@ const tippyContent = computed(() => {
 function toggleGeolocation() {
     if (!isActive.value) {
         store.dispatch('toggleGeolocation', dispatcher)
-    } else {
-        if (!isTracking.value) {
+        if (hasTrackingFeedback.value) {
             store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
-        } else if (!autoRotation.value && hasOrientation.value) {
+        }
+    } else {
+        if (hasTrackingFeedback.value) {
+            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+        } else if (hastAutoRotationFeedback.value) {
             store.dispatch('setAutoRotation', { autoRotation: true, ...dispatcher })
         } else {
             store.dispatch('toggleGeolocation', dispatcher)
             store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
+            store.dispatch('setGeolocationTracking', { tracking: false, ...dispatcher })
         }
     }
 }
@@ -60,10 +69,9 @@ function toggleGeolocation() {
             @click="toggleGeolocation"
         >
             <FontAwesomeIcon
-                v-if="(!isTracking && isActive) || true"
+                v-if="hasTrackingFeedback"
                 icon="circle"
                 class="orientation-arrow-dot"
-                :class="{ hide: isTracking || !isActive }"
             />
             <FontAwesomeIcon
                 :style="autoRotation ? { transform: 'rotate(-45deg)' } : ''"
@@ -80,9 +88,5 @@ function toggleGeolocation() {
     width: 5px;
     height: 5px !important;
     margin-bottom: 3px;
-}
-
-.hide {
-    display: none;
 }
 </style>
