@@ -191,7 +191,8 @@ const geolocationManagementPlugin = (store) => {
             }
         } else if (
             mutation.type === 'setCenter' &&
-            mutation.payload?.dispatcher !== dispatcher.dispatcher
+            mutation.payload?.dispatcher !== dispatcher.dispatcher &&
+            store.state.geolocation.tracking
         ) {
             // if we moved the map we disabled the tracking (unless the tracking moved the map)
             store.dispatch('setGeolocationTracking', {

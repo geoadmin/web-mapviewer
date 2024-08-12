@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -8,13 +8,17 @@ import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMark
 import OpenLayersVisionCone from '@/modules/map/components/openlayers/OpenLayersVisionCone.vue'
 import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useDeviceOrientation from '@/modules/map/components/openlayers/utils/useDeviceOrientation.composable'
-import { isNumber } from '@/utils/numberUtils'
-import { round } from '@/utils/numberUtils'
+import log from '@/utils/logging'
+import { isNumber, round } from '@/utils/numberUtils'
 
 const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(
     () =>
         import('@/modules/map/components/openlayers/debug/OpenLayersDeviceOrientationDebugInfo.vue')
 )
+
+const dispatcher = { dispatcher: 'OpenLayersGeolocationFeedback.vue' }
+
+const olMap = inject('olMap')
 
 const store = useStore()
 const { zIndexGeolocation } = useLayerZIndexCalculation()
@@ -22,6 +26,7 @@ const { heading, headingDegree, orientation, orientationSampled } = useDeviceOri
 
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const geolocationPosition = computed(() => store.state.geolocation.position)
+const isTracking = computed(() => store.state.geolocation.tracking)
 const hasOrientation = computed(() => store.state.position.hasOrientation)
 
 const orientationParameters = computed(() => {
@@ -69,7 +74,24 @@ const orientationParameters = computed(() => {
     ]
 })
 
+// To avoid re-centering the map on the position, we need to listen to movestart event, because
+// the center in store is set during the moveend event, so this means that if we disable tracking
+// by using the store event, it can lead to race condition when moving the map between the
+// moveend event and the geolocation event.
+onBeforeMount(() => olMap.on('pointerdrag', disableTracking))
+onBeforeUnmount(() => olMap.un('pointerdrag', disableTracking))
+
 const roundIfNumber = (v, d) => (isNumber(v) ? round(v, d) : `${v}`)
+
+function disableTracking(event) {
+    if (isTracking.value) {
+        log.debug(`Map started moving, disabled geolocation tracking`, event)
+        store.dispatch('setGeolocationTracking', {
+            tracking: false,
+            ...dispatcher,
+        })
+    }
+}
 </script>
 
 <template>
