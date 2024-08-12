@@ -96,6 +96,7 @@ import {
     ShadowMode,
     Viewer,
 } from 'cesium'
+import { isEqual } from 'lodash'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -139,6 +140,7 @@ import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
+import { wrapDegrees } from '@/utils/numberUtils.js'
 
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
 export default {
@@ -491,6 +493,9 @@ export default {
         flyToPosition() {
             try {
                 if (this.cameraPosition) {
+                    log.debug(
+                        `Fly to camera position ${this.cameraPosition.x}, ${this.cameraPosition.y}, ${this.cameraPosition.z}`
+                    )
                     this.viewer.camera.flyTo({
                         destination: Cartesian3.fromDegrees(
                             this.cameraPosition.x,
@@ -512,17 +517,22 @@ export default {
         onCameraMoveEnd() {
             const camera = this.viewer.camera
             const position = camera.positionCartographic
-            this.setCameraPosition({
-                position: {
-                    x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
-                    y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
-                    z: parseFloat(position.height.toFixed(1)),
-                    heading: parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0)),
-                    pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
-                    roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
-                },
-                ...dispatcher,
-            })
+            const cameraPosition = {
+                x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
+                y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
+                z: parseFloat(position.height.toFixed(1)),
+                // Wrap degrees, cesium might return 360, which is internally wrapped to 0 in
+                // store.
+                heading: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0))),
+                pitch: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0))),
+                roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
+            }
+            if (!isEqual(cameraPosition, this.cameraPosition)) {
+                this.setCameraPosition({
+                    position: cameraPosition,
+                    ...dispatcher,
+                })
+            }
         },
         getCoordinateAtScreenCoordinate(x, y) {
             const cartesian = this.viewer?.scene.pickPosition(new Cartesian2(x, y))
