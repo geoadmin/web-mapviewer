@@ -52,7 +52,7 @@ function toggleGeolocation() {
      otherwise the tippy won't work when the button is disabled -->
     <div class="geoloc-button-div" :data-tippy-content="tippyContent">
         <button
-            class="toolbox-button d-print-none"
+            class="toolbox-button d-print-none d-flex flex-column align-items-center justify-content-center"
             type="button"
             :disabled="isDenied"
             :class="{ active: isActive, disabled: isDenied }"
@@ -60,10 +60,14 @@ function toggleGeolocation() {
             @click="toggleGeolocation"
         >
             <FontAwesomeIcon
+                v-if="(!isTracking && isActive) || true"
+                icon="circle"
+                class="orientation-arrow-dot"
+                :class="{ hide: isTracking || !isActive }"
+            />
+            <FontAwesomeIcon
                 :style="autoRotation ? { transform: 'rotate(-45deg)' } : ''"
                 icon="location-arrow"
-                class="orientation-arrow"
-                :class="{ 'orientation-arrow-rotate': autoRotation }"
             />
         </button>
     </div>
@@ -72,11 +76,13 @@ function toggleGeolocation() {
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
 
-.orientation-arrow {
-    margin-top: 2px;
+.orientation-arrow-dot {
+    width: 5px;
+    height: 5px !important;
+    margin-bottom: 3px;
+}
 
-    &-rotate {
-        margin-top: 3px;
-    }
+.hide {
+    display: none;
 }
 </style>
