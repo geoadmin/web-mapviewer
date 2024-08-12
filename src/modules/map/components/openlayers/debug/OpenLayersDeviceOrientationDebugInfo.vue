@@ -66,8 +66,13 @@ function toggleToast() {
                 ></button>
             </div>
             <div class="toast-body">
-                <div v-for="parameter in parameters" :key="parameter.key">
-                    {{ parameter.key }}: {{ parameter.value }}
+                <div v-for="parameter in parameters" :key="parameter.title">
+                    <div class="text-decoration-underline fw-bold">{{ parameter.title }}:</div>
+                    <div>
+                        <div v-for="subParam in parameter.parameters" :key="subParam.key">
+                            {{ subParam.key ? `${subParam.key}: ` : '' }}{{ subParam.value }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -18,28 +18,58 @@ const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(
 
 const store = useStore()
 const { zIndexGeolocation } = useLayerZIndexCalculation()
-const { heading, headingDegree, orientation, orientationSampled, listener } = useDeviceOrientation()
+const { heading, headingDegree, orientation, orientationSampled } = useDeviceOrientation()
 
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const geolocationPosition = computed(() => store.state.geolocation.position)
 const hasOrientation = computed(() => store.state.position.hasOrientation)
 
 const orientationParameters = computed(() => {
-    const roundIfNumber = (v, d) => (isNumber(v) ? round(v, d) : `${v}`)
-
     return [
-        { key: 'Listener', value: `${listener.value}` },
-        { key: 'Absolute', value: `${orientation.value.absolute}` },
-        { key: 'Alpha', value: roundIfNumber(orientation.value.degree, 2) },
-        { key: 'Alpha Sampled', value: roundIfNumber(orientationSampled.value.degree, 0) },
         {
-            key: 'webkitCompassHeading Sampled',
-            value: roundIfNumber(orientationSampled.value.compassHeading, 0),
+            title: 'Default listener',
+            parameters: [
+                { key: 'Absolute', value: `${orientation.value.default.absolute}` },
+                { key: 'Alpha', value: roundIfNumber(orientation.value.default.degree, 2) },
+                {
+                    key: 'Alpha Sampled',
+                    value: roundIfNumber(orientationSampled.value.default.degree, 0),
+                },
+                {
+                    key: 'webkitCompassHeading Sampled',
+                    value: roundIfNumber(orientationSampled.value.default.compassHeading, 0),
+                },
+            ],
         },
-        { key: 'Heading degree', value: roundIfNumber(headingDegree.value, 0) },
-        { key: 'Heading radian', value: roundIfNumber(heading.value, 6) },
+        {
+            title: 'Absolute listener',
+            parameters: [
+                { key: 'Alpha', value: roundIfNumber(orientation.value.absolute.degree, 2) },
+                {
+                    key: 'Alpha Sampled',
+                    value: roundIfNumber(orientationSampled.value.absolute.degree, 0),
+                },
+                {
+                    key: 'webkitCompassHeading Sampled',
+                    value: roundIfNumber(orientationSampled.value.absolute.compassHeading, 0),
+                },
+            ],
+        },
+        {
+            title: 'Heading',
+            parameters: [
+                { key: 'Heading degree', value: roundIfNumber(headingDegree.value, 0) },
+                { key: 'Heading radian', value: roundIfNumber(heading.value, 6) },
+            ],
+        },
+        {
+            title: 'User Agent',
+            parameters: [{ value: navigator.userAgent }],
+        },
     ]
 })
+
+const roundIfNumber = (v, d) => (isNumber(v) ? round(v, d) : `${v}`)
 </script>
 
 <template>
