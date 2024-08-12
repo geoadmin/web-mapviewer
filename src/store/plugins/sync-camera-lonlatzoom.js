@@ -17,11 +17,11 @@ import log from '@/utils/logging'
 export default function syncCameraLonLatZoom(store) {
     const self = 'sync-camera-lonlatzoom.plugin'
     store.subscribe((mutation, state) => {
-        // only reacting to mutation when the camera is set (when 3D is active and loaded)
-        if (state.position.camera === null) {
+        if (mutation.payload.dispatcher === self) {
+            log.debug(`[${self}] ignore mutation triggered by this plugin`, mutation)
             return
         }
-        if (mutation.type === 'setCameraPosition' && mutation.payload.dispatcher !== self) {
+        if (mutation.type === 'setCameraPosition') {
             const lon = state.position.camera.x
             const lat = state.position.camera.y
             const height = state.position.camera.z
@@ -46,6 +46,23 @@ export default function syncCameraLonLatZoom(store) {
             store.dispatch('setZoom', { zoom, dispatcher: self })
             store.dispatch('setRotation', {
                 rotation: normalizeAngle((rotation * Math.PI) / 180),
+                dispatcher: self,
+            })
+        } else if (mutation.type === 'setCenter' && state.cesium?.active && state.position.camera) {
+            // transform the center to camera
+            const centerWgs84 = proj4(state.position.projection.epsg, WGS84.epsg, [
+                mutation.payload.x,
+                mutation.payload.y,
+            ])
+            store.dispatch('setCameraPosition', {
+                position: {
+                    x: centerWgs84[0],
+                    y: centerWgs84[1],
+                    z: state.position.camera.z,
+                    roll: state.position.camera.roll,
+                    pitch: state.position.camera.pitch,
+                    heading: state.position.camera.heading,
+                },
                 dispatcher: self,
             })
         }
