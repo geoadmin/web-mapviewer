@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -5,6 +6,7 @@ import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateS
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
@@ -20,10 +22,12 @@ function setCenterIfInBounds(store, center) {
             ? LV95.getBoundsAs(WEBMERCATOR).isInBounds(center[0], center[1])
             : LV95.isInBounds(center[0], center[1])
     ) {
-        store.dispatch('setCenter', {
-            center: center,
-            ...dispatcher,
-        })
+        if (!isEqual(store.state.position.center, center)) {
+            store.dispatch('setCenter', {
+                center: center,
+                ...dispatcher,
+            })
+        }
     } else {
         log.warn('current geolocation is out of bounds')
         store.dispatch('setErrorText', {
@@ -62,11 +66,19 @@ const handlePositionAndDispatchToStore = (position, store) => {
     )
     errorCount = 0 // reset the error count on each successfull position
     const positionProjected = readPosition(position, store.state.position.projection)
-    store.dispatch('setGeolocationData', {
-        position: positionProjected,
-        accuracy: position.coords.accuracy,
-        ...dispatcher,
-    })
+    // Accuracy in in meter, so we don't need the decimal part and avoid dispatching event
+    // if the accuracy did not change more than one metter
+    const accuracy = round(position.coords.accuracy, 0)
+    if (
+        !isEqual(store.state.geolocation.position, positionProjected) ||
+        store.state.geolocation.accuracy !== accuracy
+    ) {
+        store.dispatch('setGeolocationData', {
+            position: positionProjected,
+            accuracy: accuracy,
+            ...dispatcher,
+        })
+    }
     // if tracking is active, we center the view of the map on the position received and change
     // to the proper zoom
     if (store.state.geolocation.tracking) {
