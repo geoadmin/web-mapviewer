@@ -3,9 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { API_BASE_URL, WMS_BASE_URL, WMTS_BASE_URL } from '@/config'
+import { API_BASE_URL, enforceEndingSlashInUrl, WMS_BASE_URL, WMTS_BASE_URL } from '@/config'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { enforceEndingSlashInUrl } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'BaseUrlOverrideModal.vue' }
 

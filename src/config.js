@@ -1,7 +1,19 @@
 // loading and exporting all values from the .env file as ES6 importable variables
 
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
-import { enforceEndingSlashInUrl } from '@/utils/utils'
+
+/**
+ * Adds a slash at the end of the URL if there is none
+ *
+ * @param {String} url
+ * @returns {String} The URL with a trailing slash
+ */
+export function enforceEndingSlashInUrl(url) {
+    if (url && !url.endsWith('/')) {
+        return `${url}/`
+    }
+    return url
+}
 
 /**
  * Enum that tells for which (deployment) environment the app has been built.
