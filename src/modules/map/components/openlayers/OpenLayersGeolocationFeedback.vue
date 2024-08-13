@@ -69,7 +69,7 @@ const orientationParameters = computed(() => {
         },
         {
             title: 'User Agent',
-            parameters: [{ value: navigator.userAgent }],
+            parameters: [{ value: navigator.userAgent, hasCopyBtn: true }],
         },
     ]
 })
