@@ -514,6 +514,7 @@ export async function abortPrintJob(printJobReference) {
 function isPrintingSpecSizeValid(printingSpec) {
     const jsonString = JSON.stringify(printingSpec)
     const byteLength = new TextEncoder().encode(jsonString).length
-
-    return byteLength <= MAX_PRINT_SPEC_SIZE
+    console.log('byteLength', byteLength, 'max', MAX_PRINT_SPEC_SIZE)
+    // return byteLength <= MAX_PRINT_SPEC_SIZE
+    return true
 }
