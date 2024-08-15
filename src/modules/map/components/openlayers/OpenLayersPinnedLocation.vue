@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -8,18 +8,18 @@ import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMark
 const store = useStore()
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
+const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
 
 const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
 
-const pinnedLocationSelected = ref(false)
-function selectFeatureCallback(feature) {
-    console.log('Custom callback feature selected:', feature)
-    pinnedLocationSelected.value = true
+const dispatcher = { dispatcher: 'OpenLayersPinnedLocation.vue' }
+
+function selectFeatureCallback() {
+    store.dispatch('setPinnedLocationSelected', { selected: true, ...dispatcher })
 }
 
 function deselectFeatureCallback() {
-    console.log('Deselect callback')
-    pinnedLocationSelected.value = false
+    store.dispatch('setPinnedLocationSelected', { selected: false, ...dispatcher })
 }
 </script>
 
