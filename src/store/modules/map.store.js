@@ -66,6 +66,12 @@ export default {
          * @type Array<Number>
          */
         locationPopupCoordinates: null,
+        /**
+         * Flags telling if pinnedLocation is selected by the user
+         *
+         * @type Boolean
+         */
+        pinnedLocationSelected: false,
     },
     actions: {
         /**
@@ -123,6 +129,9 @@ export default {
                 commit('setLocationPopupCoordinates', { coordinates: null, dispatcher })
             }
         },
+        setPinnedLocationSelected({ commit }, { selected, dispatcher }) {
+            commit('setPinnedLocationSelected', { selected, dispatcher })
+        },
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -131,5 +140,7 @@ export default {
             (state.previewedPinnedLocation = coordinates),
         setLocationPopupCoordinates: (state, { coordinates }) =>
             (state.locationPopupCoordinates = coordinates),
+        setPinnedLocationSelected: (state, { selected }) =>
+            (state.pinnedLocationSelected = selected),
     },
 }

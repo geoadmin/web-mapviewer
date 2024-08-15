@@ -40,6 +40,8 @@ const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.sho
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
+const pinnedLocation = computed(() => store.state.map.pinnedLocation)
+const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
 
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
@@ -112,7 +114,10 @@ function setBottomPanelFeatureInfoPosition() {
 
 <template>
     <OpenLayersPopover
-        v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
+        v-if="
+            (tooltipFeatureInfo && selectedFeatures.length > 0) ||
+            (pinnedLocation && pinnedLocationSelected)
+        "
         :coordinates="popoverCoordinate"
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
@@ -137,5 +142,6 @@ function setBottomPanelFeatureInfoPosition() {
             :feature="feature"
         />
         <FeatureList fluid />
+        <div>Pinned Location: {{ pinnedLocation }}</div>
     </OpenLayersPopover>
 </template>
