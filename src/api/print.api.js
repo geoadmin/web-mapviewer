@@ -392,6 +392,24 @@ async function transformOlMapToPrintParams(olMap, config) {
 }
 
 /**
+ * Replacer function to manipulate some properties from the printing spec before sending it to the
+ * printing service. It is used as a parameter for JSON.stringify in the requestReport function. See
+ * more
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
+ */
+function printSpecReplacer(key, value) {
+    // Remove the "bad" property from the feature
+    const badKeys = [
+        'editableFeature', // unnecessary properties for printing but cause mapfishprint to throw an error
+        'geodesic', // cause circular reference issues on JSON.stringify
+    ]
+    if (badKeys.includes(key)) {
+        return undefined
+    }
+    return value
+}
+
+/**
  * Lauches a print job on our backend with the given configuration. This job then needs to be polled
  * by {@link waitForPrintJobCompletion}
  *
@@ -453,19 +471,7 @@ export async function createPrintJob(map, config) {
         }
         log.debug('Starting print for spec', printingSpec)
 
-        function replacer(key, value) {
-            // Remove the "bad" property from the feature
-            const badKeys = [
-                'editableFeature', // unnecessary properties for printing but cause mapfishprint to throw an error
-                'geodesic', // cause circular reference issues on JSON.stringify
-            ]
-            if (badKeys.includes(key)) {
-                return undefined
-            }
-            return value
-        }
-
-        return await requestReport(SERVICE_PRINT_URL, printingSpec, replacer)
+        return await requestReport(SERVICE_PRINT_URL, printingSpec, printSpecReplacer)
     } catch (error) {
         log.error('Error while creating print job', error)
         if (error instanceof PrintError) {
