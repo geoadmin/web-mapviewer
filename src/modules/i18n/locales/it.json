@@ -686,5 +686,7 @@
     "geoloc_out_of_bounds": "La Sua posizione attuale è al di fuori della Svizzera e non può essere mostrata.",
     "orient_map_north": "Orientare la mappa",
     "kml_icon_url_cors_issue": "Il KML “{layerName}” contiene icone con l'URL {url} che non supporta CORS! Contattare l'amministratore di questo URL per aggiungere il supporto per CORS.",
-    "warning": "Avvertenza"
+    "warning": "Avvertenza",
+    "legal_notice": "Informazioni legali",
+    "legal_notice_url": "https://www.geo.admin.ch/it/colophon-responsabilita-e-contatti"
 }

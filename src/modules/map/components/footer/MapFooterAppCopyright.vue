@@ -28,6 +28,10 @@ export default {
                     label: 'copyright_label',
                     url: this.$t('copyright_url'),
                 },
+                {
+                    label: 'legal_notice',
+                    url: this.$t('legal_notice_url'),
+                },
             ]
         },
     },
