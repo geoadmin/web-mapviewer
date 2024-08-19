@@ -32,12 +32,11 @@ function deselectFeatureCallback() {
         :select-feature-callback="selectFeatureCallback"
         :deselect-feature-callback="deselectFeatureCallback"
     />
-    <!-- For highlighting the pinned location -->
-    <!-- TODO: do a better way to highlighting it -->
+    <!-- For highlighting when the pinned location is selected-->
     <OpenLayersMarker
         v-if="pinnedLocation && pinnedLocationSelected"
         :position="pinnedLocation"
-        :marker-style="'circle'"
+        :marker-style="'feature'"
         :z-index="zIndexDroppedPin"
     />
     <OpenLayersMarker
