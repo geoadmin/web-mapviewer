@@ -1,4 +1,5 @@
 <script setup>
+import { defaults as defaultInteractions, DragAndDrop } from 'ol/interaction.js'
 import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, ref } from 'vue'
@@ -20,6 +21,8 @@ import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/useP
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
+import KML from '@/utils/ol/format/KML'
+import KMZ from '@/utils/ol/format/KMZ'
 
 const dispatcher = { dispatcher: 'OpenLayersMap.vue' }
 
@@ -38,8 +41,20 @@ const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
-const map = new Map({ controls: [] })
+const dragAndDropInteraction = new DragAndDrop({
+    formatConstructors: [KMZ],
+})
+
+const map = new Map({
+    interactions: defaultInteractions().extend([dragAndDropInteraction]),
+    controls: [],
+})
+
 useViewBasedOnProjection(map)
+
+//dragAndDropInteraction.on('addfeatures', function (event) {
+//    console.error('addfeatures: ', event, event.features)
+//})
 
 provide('olMap', map)
 provide('getMap', () => map)

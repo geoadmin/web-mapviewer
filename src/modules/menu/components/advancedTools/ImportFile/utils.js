@@ -6,6 +6,7 @@ import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
+import KMZ, { getKMLData, getKMLImage } from '@/utils/ol/format/KMZ'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
 
@@ -41,7 +42,7 @@ export function isGpx(fileContent) {
  */
 export function handleFileContent(store, content, source) {
     let layer = null
-    if (isKml(content)) {
+    if (!isKml(content)) {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,
