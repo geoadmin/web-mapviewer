@@ -80,11 +80,12 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) => {
-            commit('setClickInfo', { clickInfo, dispatcher })
-        },
+        click: ({ commit }, { clickInfo, dispatcher }) =>
+            commit('setClickInfo', { clickInfo, dispatcher }),
+
         clearClick: ({ commit }, { dispatcher }) => {
             commit('setClickInfo', { clickInfo: null, dispatcher })
+            commit('setPinnedLocationSelected', { selected: false, dispatcher })
         },
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
