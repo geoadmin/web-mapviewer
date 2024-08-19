@@ -9,11 +9,11 @@ import allFormats from '@/utils/coordinates/coordinateFormat'
 const { t } = useI18n()
 
 const store = useStore()
-const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
+const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 </script>
 
 <template>

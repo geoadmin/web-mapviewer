@@ -6,9 +6,10 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 
 const store = useStore()
+
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
-const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
 const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
+const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
 
 const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
 
