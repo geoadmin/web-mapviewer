@@ -17,6 +17,7 @@ import { useStore } from 'vuex'
 
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import PinnedLocationInfo from '@/modules/infobox/components/PinnedLocation.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -42,6 +43,8 @@ const highlightedFeatureId = computed(() => store.state.features.highlightedFeat
 const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
+
+const showPinnedLocationInfo = computed(() => pinnedLocation.value && pinnedLocationSelected.value)
 
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
@@ -114,10 +117,7 @@ function setBottomPanelFeatureInfoPosition() {
 
 <template>
     <OpenLayersPopover
-        v-if="
-            (tooltipFeatureInfo && selectedFeatures.length > 0) ||
-            (pinnedLocation && pinnedLocationSelected)
-        "
+        v-if="(tooltipFeatureInfo && selectedFeatures.length > 0) || showPinnedLocationInfo"
         :coordinates="popoverCoordinate"
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
@@ -142,6 +142,6 @@ function setBottomPanelFeatureInfoPosition() {
             :feature="feature"
         />
         <FeatureList fluid />
-        <div>Pinned Location: {{ pinnedLocation }}</div>
+        <PinnedLocationInfo v-if="showPinnedLocationInfo" />
     </OpenLayersPopover>
 </template>
