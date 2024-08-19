@@ -43,7 +43,6 @@ const highlightedFeatureId = computed(() => store.state.features.highlightedFeat
 const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
-
 const showPinnedLocationInfo = computed(() => pinnedLocation.value && pinnedLocationSelected.value)
 
 const featureTransformedAsOlFeatures = computed(() => {

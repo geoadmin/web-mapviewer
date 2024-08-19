@@ -8,13 +8,25 @@ import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { randomIntBetween } from '@/utils/numberUtils'
 
+/**
+ * Add a vector layer to the map, and will update its source whenever the feature reference changes.
+ *
+ * Caveat: it will not update the style!
+ *
+ * @param {Map} map
+ * @param {Readonly<Ref<Number>>} zIndex
+ * @param {Readonly<Ref<Feature[]>>} features
+ * @param {Function} styleFunction
+ * @param {Function} onFeatureSelectCallback
+ * @param {Function} onFeatureDeselectCallback
+ */
 export default function useVectorLayer(
     map,
     features,
     zIndex = -1,
     styleFunction = highlightFeatureStyle,
-    onFeatureSelectCallback = () => {}, // Add onFeatureSelect parameter with a default no-op function,
-    onFeatureDeselectCallback = () => {} // Optional: Callback for when features are deselected
+    onFeatureSelectCallback = () => {},
+    onFeatureDeselectCallback = () => {}
 ) {
     const layer = new VectorLayer({
         id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -39,7 +51,7 @@ export default function useVectorLayer(
                 onFeatureSelectCallback(feature)
             })
         } else if (event.deselected.length > 0) {
-            onFeatureDeselectCallback() // Call the deselect callback
+            onFeatureDeselectCallback()
         }
     })
 
@@ -52,7 +64,7 @@ export default function useVectorLayer(
         if (!feature) {
             // If no feature is clicked, clear the selection
             selectInteraction.getFeatures().clear()
-            onFeatureDeselectCallback() // Call the deselect callback
+            onFeatureDeselectCallback()
         }
     })
 
@@ -64,7 +76,7 @@ export default function useVectorLayer(
     // Clean up: remove the interaction when the composable is unmounted
     onUnmounted(() => {
         map.removeInteraction(selectInteraction)
-        unByKey(mapClickListener) // Remove the click listener from the map
+        unByKey(mapClickListener)
     })
 
     return {
