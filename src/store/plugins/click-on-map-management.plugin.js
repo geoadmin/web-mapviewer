@@ -25,7 +25,6 @@ const clickOnMapManagementPlugin = (store) => {
             const clickInfo = mutation.payload.clickInfo
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-
             if (isLeftSingleClick) {
                 store
                     .dispatch('identifyFeatureAt', {
@@ -49,10 +48,7 @@ const clickOnMapManagementPlugin = (store) => {
                     })
             }
             if (isContextMenuClick) {
-                store.dispatch('clearAllSelectedFeatures', dispatcher)
                 store.dispatch('displayLocationPopup', dispatcher)
-            } else {
-                store.dispatch('hideLocationPopup', dispatcher)
             }
         }
     })
