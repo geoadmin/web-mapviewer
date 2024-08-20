@@ -5,7 +5,7 @@ import KML from '@/utils/ol/format/KML'
 // Create functions to extract KML and icons from KMZ array buffer,
 // which must be done synchronously.
 
-const zip = new JSZip();
+const zip = new JSZip()
 
 export function getKMLData(buffer) {
     console.error('buffer: ', buffer)
@@ -21,6 +21,7 @@ export function getKMLData(buffer) {
 }
 
 export function getKMLImage(href) {
+    console.error('href: ', href)
     const index = window.location.href.lastIndexOf('/')
     if (index !== -1) {
         const kmlFile = zip.file(href.slice(index + 1))
@@ -49,6 +50,7 @@ class KMZ extends KML {
     }
 
     readFeatures(source, options) {
+        console.error('source: ', source)
         const kmlData = getKMLData(source)
         return super.readFeatures(kmlData, options)
     }

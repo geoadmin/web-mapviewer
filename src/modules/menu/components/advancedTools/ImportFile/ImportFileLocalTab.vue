@@ -10,7 +10,7 @@ import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const acceptedFileTypes = ['.kml', '.KML', '.gpx', '.GPX']
+const acceptedFileTypes = ['.kml', '.KML', '.kmz', '.KMZ', '.gpx', '.GPX']
 
 const store = useStore()
 
@@ -38,10 +38,14 @@ async function loadFile() {
     errorFileLoadingMessage.value = ''
     activateValidation.value = true
     loadingFile.value = true
-
     if (isFormValid.value && selectedFile.value) {
         try {
-            const content = await selectedFile.value.text()
+            let content = null
+            if (selectedFile.value.name.endsWith('.kmz')) {
+                content = selectedFile.value
+            } else {
+                content = await selectedFile.value.text()
+            }
             handleFileContent(store, content, selectedFile.value.name)
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {

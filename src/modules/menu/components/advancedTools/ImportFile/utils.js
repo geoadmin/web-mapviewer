@@ -1,3 +1,4 @@
+import JSZip from 'jszip'
 import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
@@ -6,6 +7,7 @@ import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
+import KML from '@/utils/ol/format/KML'
 import KMZ, { getKMLData, getKMLImage } from '@/utils/ol/format/KMZ'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
@@ -20,6 +22,15 @@ export function isKml(fileContent) {
     return /^\s*(<\?xml\b[^>]*\?>)?\s*(<!--(.*?)-->\s*)*<(kml:)?kml\b[^>]*>[\s\S.]*<\/(kml:)?kml\s*>/g.test(
         fileContent
     )
+}
+
+function readFileContent(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (event) => resolve(event.target.result)
+        reader.onerror = (error) => reject(error)
+        reader.readAsArrayBuffer(file)
+    })
 }
 
 /**
@@ -40,9 +51,16 @@ export function isGpx(fileContent) {
  * @param {string} source Source of the file (either URL or file path)
  * @returns {ExternalLayer} External layer object
  */
-export function handleFileContent(store, content, source) {
+export async function handleFileContent(store, content, source) {
+    console.error('content: ', content)
+    if (content.name && content.name.endsWith('.kmz')) {
+        content = await readFileContent(content)
+        content = getKMLData(content)
+    }
+    let images = getKMLImage(content)
+    console.error(images)
     let layer = null
-    if (!isKml(content)) {
+    if (isKml(content)) {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,
