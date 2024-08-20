@@ -54,6 +54,12 @@ map.once('rendercomplete', () => {
     store.dispatch('mapModuleReady', dispatcher)
     log.info('Openlayer map rendered')
 })
+map.once('loadend', () => {
+    const span = document.createElement('span')
+    span.id = 'openlayer_complete'
+    document.body.appendChild(span)
+    log.info('openlayer complete')
+})
 
 onMounted(() => {
     map.setTarget(mapElement.value)
