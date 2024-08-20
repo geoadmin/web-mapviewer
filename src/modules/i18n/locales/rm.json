@@ -684,5 +684,7 @@
     "geoloc_out_of_bounds": "Voss lieu actual sa chatta ordaifer la Svizra e na po betg vegnir mussà",
     "orient_map_north": "Orientar la carta",
     "kml_icon_url_cors_issue": "Il KML \"{layerName}\" cuntegna icona(s) cun URL {url} che na po nagin sustegnair CORS! As drizzai p.pl. a l'administratura da quella URL per agiuntar il sustegn dal CORS.",
-    "warning": "Avertiment"
+    "warning": "Avertiment",
+    "legal_notice": "Dapli infurmaziuns",
+    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte"
 }

@@ -686,5 +686,7 @@
     "geoloc_out_of_bounds": "Your current location is outside of Switzerland and cannot be shown",
     "orient_map_north": "Orient the map",
     "kml_icon_url_cors_issue": "The KML \"{layerName}\" contains icon(s) with URL {url} that doesn't support CORS! Please contact the administrator of this URL to add support for CORS.",
-    "warning": "Warning"
+    "warning": "Warning",
+    "legal_notice": "Legal Notice",
+    "legal_notice_url": "https://www.geo.admin.ch/en/impressum-responsibilities-and-contacts"
 }

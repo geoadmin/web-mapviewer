@@ -686,5 +686,7 @@
     "geoloc_out_of_bounds": "Ihre aktuelle Position liegt ausserhalb der Schweiz und kann deshalb nicht angezeigt werden",
     "orient_map_north": "Karte einnorden",
     "kml_icon_url_cors_issue": "Die KML-Datei „{layerName}“ enthält Symbol(e) mit der URL {url}, die keine CORS-Unterstützung bietet! Bitte wenden Sie sich an den Administrator dieser URL, um die Unterstützung für CORS hinzuzufügen.",
-    "warning": "Warnung"
+    "warning": "Warnung",
+    "legal_notice": "Impressum",
+    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte"
 }
