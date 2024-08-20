@@ -48,6 +48,13 @@ const layer = new MapLibreLayer({
         attribution: [vectorLayerConfig.value.attribution],
     }),
 })
+layer.once('load', () => {
+    const span = document.createElement('span')
+    span.id = 'maplibre_complete'
+    document.body.appendChild(span)
+
+    console.log('maplibre complete')
+})
 
 const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
