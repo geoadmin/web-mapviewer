@@ -45,6 +45,13 @@ const layer = new MapLibreLayer({
     id: layerId.value,
     opacity: opacity.value,
 })
+layer.once('load', () => {
+    const span = document.createElement('span')
+    span.id = 'maplibre_complete'
+    document.body.appendChild(span)
+
+    console.log('maplibre complete')
+})
 setMapLibreStyle(styleUrl.value)
 
 const olMap = inject('olMap')
