@@ -47,20 +47,6 @@ class GeoAdminCustomizer extends BaseCustomizer {
     }
 
     /**
-     * Remove the "editableFeature" adn "geodesic" property from the feature as it is not needed and
-     * can cause issues with mapfishprint
-     *
-     * @param {State} layerState
-     * @param {GeoJSONFeature} feature Manipulated feature
-     */
-    feature(layerState, feature) {
-        // cause circular reference issues
-        delete feature.properties?.geodesic
-        // unnecessary properties for printing and cause mapfishprint to throw an error
-        delete feature.properties?.editableFeature
-    }
-
-    /**
      * Manipulate the symbolizer of a line feature before printing it. In this case replace the
      * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
      *
@@ -406,6 +392,24 @@ async function transformOlMapToPrintParams(olMap, config) {
 }
 
 /**
+ * Replacer function to manipulate some properties from the printing spec before sending it to the
+ * printing service. It is used as a parameter for JSON.stringify in the requestReport function. See
+ * more
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
+ */
+function printSpecReplacer(key, value) {
+    // Remove the "bad" property from the feature
+    const badKeys = [
+        'editableFeature', // unnecessary properties for printing but cause mapfishprint to throw an error
+        'geodesic', // cause circular reference issues on JSON.stringify
+    ]
+    if (badKeys.includes(key)) {
+        return undefined
+    }
+    return value
+}
+
+/**
  * Lauches a print job on our backend with the given configuration. This job then needs to be polled
  * by {@link waitForPrintJobCompletion}
  *
@@ -466,7 +470,8 @@ export async function createPrintJob(map, config) {
             throw new PrintError('Printing spec is too large', 'print_request_too_large')
         }
         log.debug('Starting print for spec', printingSpec)
-        return await requestReport(SERVICE_PRINT_URL, printingSpec)
+
+        return await requestReport(SERVICE_PRINT_URL, printingSpec, printSpecReplacer)
     } catch (error) {
         log.error('Error while creating print job', error)
         if (error instanceof PrintError) {

@@ -45,7 +45,7 @@
         "@fortawesome/free-solid-svg-icons": "^6.6.0",
         "@fortawesome/vue-fontawesome": "^3.0.8",
         "@geoblocks/cesium-compass": "^0.5.0",
-        "@geoblocks/mapfishprint": "^0.2.15",
+        "@geoblocks/mapfishprint": "^0.2.16",
         "@geoblocks/ol-maplibre-layer": "^1.0.0",
         "@ivanv/vue-collapse-transition": "^1.0.2",
         "@mapbox/togeojson": "^0.16.2",
