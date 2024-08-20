@@ -1,14 +1,13 @@
-import JSZip from 'jszip'
 import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
-import KML from '@/utils/ol/format/KML'
-import KMZ, { getKMLData, getKMLImage } from '@/utils/ol/format/KMZ'
+import KMZ from '@/utils/ol/format/KMZ'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
 
@@ -53,14 +52,26 @@ export function isGpx(fileContent) {
  */
 export async function handleFileContent(store, content, source) {
     console.error('content: ', content)
+    let filetype = null
     if (content.name && content.name.endsWith('.kmz')) {
-        content = await readFileContent(content)
-        content = getKMLData(content)
+        filetype = 'kmz'
     }
-    let images = getKMLImage(content)
-    console.error(images)
+    if (filetype == 'kmz') {
+        content = await readFileContent(content)
+        const kmz = new KMZ({})
+        const features = kmz.readFeatures(content, {
+            dataProjection: WGS84.epsg, // KML files should always be in WGS84
+            featureProjection: WGS84.epsg,
+        })
+
+        content = kmz.kmlData
+        console.error('content: ', content)
+        console.error('features: ', features)
+        console.error('kmlData: ', kmz.kmlData)
+    }
+
     let layer = null
-    if (isKml(content)) {
+    if (isKml(content) || filetype == 'kmz') {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,

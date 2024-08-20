@@ -8,11 +8,10 @@ import KML from '@/utils/ol/format/KML'
 const zip = new JSZip()
 
 export function getKMLData(buffer) {
-    console.error('buffer: ', buffer)
-
     let kmlData
     zip.load(buffer)
     const kmlFile = zip.file(/\.kml$/i)[0]
+    console.error('kmlFile: ', kmlFile)
     if (kmlFile) {
         kmlData = kmlFile.asText()
     }
@@ -22,9 +21,10 @@ export function getKMLData(buffer) {
 
 export function getKMLImage(href) {
     console.error('href: ', href)
-    const index = window.location.href.lastIndexOf('/')
+    const index = window.location.href.lastIndexOf('/') - 2
     if (index !== -1) {
         const kmlFile = zip.file(href.slice(index + 1))
+        console.error('kmlFile: ', kmlFile)
         if (kmlFile) {
             return URL.createObjectURL(new Blob([kmlFile.asArrayBuffer()]))
         }
@@ -38,6 +38,7 @@ class KMZ extends KML {
         const options = opt_options || {}
         options.iconUrlFunction = getKMLImage
         super(options)
+        this.kmlData = null
     }
 
     getType() {
@@ -46,12 +47,14 @@ class KMZ extends KML {
 
     readFeature(source, options) {
         const kmlData = getKMLData(source)
+        this.kmlData = kmlData
         return super.readFeature(kmlData, options)
     }
 
     readFeatures(source, options) {
         console.error('source: ', source)
         const kmlData = getKMLData(source)
+        this.kmlData = kmlData
         return super.readFeatures(kmlData, options)
     }
 }
