@@ -54,7 +54,7 @@ import {
 } from 'cesium'
 import type VectorLayer from 'ol/layer/Vector'
 import type ImageLayer from 'ol/layer/Image'
-import type { View } from 'ol'
+import type { Feature, View } from 'ol'
 import type Text from 'ol/style/Text'
 import type { ColorLike as OLColorLike, PatternDescriptor } from 'ol/colorlike'
 import type { Color as OLColor } from 'ol/color'
@@ -1374,7 +1374,7 @@ export default class FeatureConverter {
      * @api
      */
     olVectorLayerToCesium(
-        olLayer: VectorLayer<FeatureLike>,
+        olLayer: VectorLayer<VectorSource<Feature>>,
         olView: View,
         featurePrimitiveMap: Record<number, PrimitiveCollection>
     ): VectorLayerCounterpart {
