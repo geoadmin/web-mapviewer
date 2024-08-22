@@ -337,11 +337,11 @@ function containsLayer(layers, searchText) {
     &-title {
         @extend .menu-title;
         cursor: pointer;
+        border-bottom-width: 1px;
+        border-bottom-color: $gray-400;
         &.active {
             color: $primary;
         }
-        border-bottom-width: 1px;
-        border-bottom-color: $gray-400;
         &.group {
             border-bottom-style: solid;
         }

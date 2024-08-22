@@ -248,10 +248,10 @@ $zindex-drawing-toolbox: -1;
             transition: opacity $animation-time;
         }
         &-closed {
+            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
             .drawing-toolbox-content {
                 opacity: 0;
             }
-            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
         &-disclaimer {
             display: block;
