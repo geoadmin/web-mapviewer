@@ -42,6 +42,7 @@ export default class KMLLayer extends AbstractLayer {
             adminId = null,
             kmlData = null,
             kmlMetadata = null,
+            iconUrlFunction = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -79,6 +80,7 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
+        this.iconUrlFunction = iconUrlFunction
     }
 
     /**

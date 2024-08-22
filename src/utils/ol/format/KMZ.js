@@ -11,11 +11,11 @@ export function getKMLData(buffer) {
     let kmlData
     zip.load(buffer)
     const kmlFile = zip.file(/\.kml$/i)[0]
-    console.error('kmlFile: ', kmlFile)
+    //console.error('kmlFile: ', kmlFile)
     if (kmlFile) {
         kmlData = kmlFile.asText()
     }
-    console.error('kmlData: ', kmlData)
+    //console.error('kmlData: ', kmlData)
     return kmlData
 }
 
@@ -24,7 +24,7 @@ export function getKMLImage(href) {
     const index = window.location.href.lastIndexOf('/') - 2
     if (index !== -1) {
         const kmlFile = zip.file(href.slice(index + 1))
-        console.error('kmlFile: ', kmlFile)
+        //console.error('kmlFile: ', kmlFile)
         if (kmlFile) {
             return URL.createObjectURL(new Blob([kmlFile.asArrayBuffer()]))
         }
@@ -39,6 +39,7 @@ class KMZ extends KML {
         options.iconUrlFunction = getKMLImage
         super(options)
         this.kmlData = null
+        this.iconUrlFunction = options.iconUrlFunction
     }
 
     getType() {
@@ -52,7 +53,6 @@ class KMZ extends KML {
     }
 
     readFeatures(source, options) {
-        console.error('source: ', source)
         const kmlData = getKMLData(source)
         this.kmlData = kmlData
         return super.readFeatures(kmlData, options)

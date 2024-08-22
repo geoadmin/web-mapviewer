@@ -494,6 +494,9 @@ export function iconUrlProxyFy(url, corsIssueCallback = null) {
  */
 export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
     const kmlData = kmlLayer.kmlData
+    if (kmlLayer.iconUrlFunction) {
+        iconUrlProxy = kmlLayer.iconUrlFunction
+    }
     const features = new KML({ iconUrlFunction: iconUrlProxy }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,

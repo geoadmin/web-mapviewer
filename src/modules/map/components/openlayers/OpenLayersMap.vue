@@ -38,9 +38,7 @@ const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
-const map = new Map({
-    controls: [],
-})
+const map = new Map({ controls: [] })
 
 useViewBasedOnProjection(map)
 
