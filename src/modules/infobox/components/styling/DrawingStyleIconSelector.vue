@@ -200,18 +200,17 @@ export default {
 .marker-icon-select-box {
     max-height: 10rem;
     overflow-y: scroll;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    transition: max-height 0.3s linear;
     &.one-line {
         max-height: 2rem;
         overflow-y: hidden;
     }
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    transition: max-height 0.3s linear;
     .marker-icon-image {
         width: 2rem;
         height: 2rem;
     }
-
     button {
         --bs-btn-padding-x: 0.25rem;
     }

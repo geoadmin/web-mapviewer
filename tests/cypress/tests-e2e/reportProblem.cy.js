@@ -72,7 +72,7 @@ describe('Testing the report problem form', () => {
         cy.log('It is not possible to report a problem without filling the message')
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="text-area-input"').should('be.empty')
+        cy.get('[data-cy="text-area-input"]').should('be.empty')
         cy.get('[data-cy="email-input"]').type(validEmail)
         cy.get('[data-cy="submit-button"]:visible').click()
         cy.get('[data-cy="email-input"]').should('have.class', 'is-valid')

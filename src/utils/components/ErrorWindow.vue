@@ -73,23 +73,22 @@ const emit = defineEmits(['close'])
     position: fixed;
     top: $top-margin;
     right: 4rem;
-
     width: max-content;
     max-width: 400px;
-
     max-height: calc(100vh - $top-margin);
+
     @include respond-below(phone) {
         $top-margin: $header-height;
-        &.dev-disclaimer-present {
-            $top-margin: calc($header-height + $dev-disclaimer-height);
-        }
-
         top: $top-margin;
         left: 50%;
         right: unset;
         transform: translate(-50%, 0%);
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
+
+        &.dev-disclaimer-present {
+            $top-margin: calc($header-height + $dev-disclaimer-height);
+        }
     }
     .card-body {
         // Allow text selection

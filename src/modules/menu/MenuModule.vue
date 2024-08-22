@@ -143,16 +143,16 @@ $openCloseButtonHeight: 2.5rem;
             pointer-events: all;
         }
         &.desktop-mode {
+            max-width: $menu-tray-width;
             .menu-tray-content {
                 transition: opacity $animation-time;
             }
-            max-width: $menu-tray-width;
         }
         &.desktop-menu-closed {
+            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
             .menu-tray-content {
                 opacity: 0;
             }
-            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
         .button-open-close-desktop-menu {
             pointer-events: all;

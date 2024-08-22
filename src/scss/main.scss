@@ -8,10 +8,10 @@
 @import '@/scss/tippy-theme';
 
 body {
-    // preventing a long press to select the entire window/app, and all element of the UI in the process
-    @extend .no-ios-long-press-select;
     // disabling double tap = zoom the UI on iOS
     touch-action: manipulation;
+    // preventing a long press to select the entire window/app, and all element of the UI in the process
+    @extend .no-ios-long-press-select;
 }
 input,
 p,
