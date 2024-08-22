@@ -252,7 +252,10 @@ export default function useMapInteractions(map) {
 
     async function handleFile(file) {
         try {
-            const fileContent = await readFileContent(file)
+            let fileContent = file
+            if (!file.name.endsWith('.kmz')) {
+                fileContent = await readFileContent(file)
+            }
             handleFileContent(store, fileContent, file.name)
         } catch (error) {
             let errorKey
