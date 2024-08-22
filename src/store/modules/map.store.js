@@ -61,12 +61,11 @@ export default {
          */
         previewedPinnedLocation: null,
         /**
-         * Flags telling if the location popup (information about a set of coordinates) must be
-         * shown at the location of the last click (using clickInfo above).
+         * Coordinate of the locationPop on the map. If null, locationPopup will not be shown.
          *
-         * @type Boolean
+         * @type Array<Number>
          */
-        displayLocationPopup: false,
+        locationPopupCoordinates: null,
     },
     actions: {
         /**
@@ -75,10 +74,12 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) =>
-            commit('setClickInfo', { clickInfo, dispatcher }),
-        clearClick: ({ commit }, { dispatcher }) =>
-            commit('setClickInfo', { clickInfo: null, dispatcher }),
+        click: ({ commit }, { clickInfo, dispatcher }) => {
+            commit('setClickInfo', { clickInfo, dispatcher })
+        },
+        clearClick: ({ commit }, { dispatcher }) => {
+            commit('setClickInfo', { clickInfo: null, dispatcher })
+        },
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
          *
@@ -106,11 +107,21 @@ export default {
         clearPinnedLocation({ commit }, { dispatcher }) {
             commit('setPinnedLocation', { coordinates: null, dispatcher })
         },
-        displayLocationPopup({ commit }, { dispatcher }) {
-            commit('setDisplayLocationPopup', { display: true, dispatcher })
+        clearLocationPopupCoordinates({ commit }, { dispatcher }) {
+            commit('setLocationPopupCoordinates', { coordinates: null, dispatcher })
         },
-        hideLocationPopup({ commit }, { dispatcher }) {
-            commit('setDisplayLocationPopup', { display: false, dispatcher })
+        /**
+         * Sets the locationPopup on the map, if coordinates are null the locationPopup is removed
+         *
+         * @param commit
+         * @param {Number[]} coordinates Location expressed in EPSG:3857
+         */
+        setLocationPopupCoordinates: ({ commit }, { coordinates, dispatcher }) => {
+            if (Array.isArray(coordinates) && coordinates.length === 2) {
+                commit('setLocationPopupCoordinates', { coordinates, dispatcher })
+            } else {
+                commit('setLocationPopupCoordinates', { coordinates: null, dispatcher })
+            }
         },
     },
     mutations: {
@@ -118,6 +129,7 @@ export default {
         setPinnedLocation: (state, { coordinates }) => (state.pinnedLocation = coordinates),
         setPreviewedPinnedLocation: (state, { coordinates }) =>
             (state.previewedPinnedLocation = coordinates),
-        setDisplayLocationPopup: (state, { display }) => (state.displayLocationPopup = display),
+        setLocationPopupCoordinates: (state, { coordinates }) =>
+            (state.locationPopupCoordinates = coordinates),
     },
 }

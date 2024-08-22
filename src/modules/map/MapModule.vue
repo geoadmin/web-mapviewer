@@ -15,7 +15,7 @@ const store = useStore()
 const is3DActive = computed(() => store.state.cesium.active)
 
 const displayLocationPopup = computed(
-    () => store.state.map.displayLocationPopup && !store.state.ui.embed
+    () => store.state.map.locationPopupCoordinates && !store.state.ui.embed
 )
 const isCompareSliderActive = computed(() => {
     return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
