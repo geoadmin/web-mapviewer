@@ -39,7 +39,6 @@ const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
 const map = new Map({ controls: [] })
-
 useViewBasedOnProjection(map)
 
 provide('olMap', map)

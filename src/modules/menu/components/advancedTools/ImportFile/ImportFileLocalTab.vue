@@ -38,8 +38,8 @@ async function loadFile() {
     errorFileLoadingMessage.value = ''
     activateValidation.value = true
     loadingFile.value = true
-    if (isFormValid.value && selectedFile.value) {
 
+    if (isFormValid.value && selectedFile.value) {
         try {
             let content = null
             if (selectedFile.value.name.endsWith('.kmz')) {

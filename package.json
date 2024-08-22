@@ -73,7 +73,7 @@
         "geographiclib-geodesic": "^2.0.0",
         "hammerjs": "^2.0.8",
         "jquery": "^3.7.1",
-        "jszip": "2.5.0",
+        "jszip": "2.7.0",
         "liang-barsky": "^1.0.5",
         "lodash": "^4.17.21",
         "maplibre-gl": "^4.5.1",

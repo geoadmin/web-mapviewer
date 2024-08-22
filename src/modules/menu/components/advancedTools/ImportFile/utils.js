@@ -51,25 +51,26 @@ export function isGpx(fileContent) {
  * @returns {ExternalLayer} External layer object
  */
 export async function handleFileContent(store, content, source) {
-    let kmz = null
+    let iconUrlFunction = null
     if (content.name && content.name.endsWith('.kmz')) {
         content = await readFileContent(content)
-        kmz = new KMZ({})
+        const kmz = new KMZ({})
         kmz.readFeatures(content, {
             dataProjection: WGS84.epsg, // KML files should always be in WGS84
             featureProjection: WGS84.epsg,
         })
         content = kmz.kmlData
+        iconUrlFunction = kmz.iconUrlFunction
     }
     let layer = null
-    if (isKml(content) || kmz) {
+    if (isKml(content) || iconUrlFunction) {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,
             opacity: 1.0,
             adminId: null,
             kmlData: content,
-            iconUrlFunction: kmz ? kmz.iconUrlFunction : null,
+            iconUrlFunction: iconUrlFunction,
         })
         const extent = getKmlExtent(content)
         if (!extent) {
