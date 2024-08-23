@@ -23,6 +23,12 @@ export function isKml(fileContent) {
     )
 }
 
+/**
+ * Transform file to arraybuffer to synchronously deal with the zipped kml and icons
+ *
+ * @param {string} fileContent
+ * @returns {ArrayBuffer}
+ */
 function readFileContent(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()

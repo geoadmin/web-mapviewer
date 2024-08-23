@@ -29,6 +29,8 @@ export default class KMLLayer extends AbstractLayer {
      *   Default is `null`
      * @param {KmlMetadata | null} [kmlLayerData.kmlMetadata=null] Metadata of the KML drawing. This
      *   object contains all the metadata returned by the backend. Default is `null`
+     * @param {iconUrlFunction | null} [kmlLayerData.iconUrlFunction=null] Provided the unzipped
+     *   icons if the kml layer was created from a kmz file. Default is `null`
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {

@@ -1,3 +1,6 @@
+//Taken from an example on the openlayers website about kmz drag and drop
+//https://openlayers.org/en/latest/examples/drag-and-drop-custom-kmz.html
+
 import JSZip from 'jszip'
 
 import KML from '@/utils/ol/format/KML'
