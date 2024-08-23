@@ -114,8 +114,6 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
  * @param {Number} [offset] Offset of how many items the identification should start after. This
  *   enables us to do some "pagination" or "load more" (if you already have 10 features, set an
  *   offset of 10 to get the 10 next, 20 in total).
- * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
- *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<LayerFeature[]>}
  */
 export async function identifyOnGeomAdminLayer({

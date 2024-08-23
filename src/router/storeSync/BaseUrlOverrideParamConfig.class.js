@@ -1,9 +1,9 @@
-import { baseUrlOverrides } from '@/config/baseUrl.config'
+import { baseUrlOverrides, enforceEndingSlashInUrl } from '@/config/baseUrl.config'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 
 export default function createBaseUrlOverrideParamConfig({ urlParamName, baseUrlPropertyName }) {
     function dispatchBaseUrlOverride(to, store, urlParamValue) {
-        baseUrlOverrides[baseUrlPropertyName] = urlParamValue
+        baseUrlOverrides[baseUrlPropertyName] = enforceEndingSlashInUrl(urlParamValue)
         store.dispatch('setHasBaseUrlOverrides', { hasBaseUrlOverrides: !!urlParamValue })
     }
 
