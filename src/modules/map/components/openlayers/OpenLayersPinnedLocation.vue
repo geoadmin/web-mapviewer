@@ -16,10 +16,16 @@ const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
 const dispatcher = { dispatcher: 'OpenLayersPinnedLocation.vue' }
 
 function selectFeatureCallback() {
+    console.log('selectFeatureCallback')
+    // store.dispatch('setLocationPopupCoordinates', {
+    //     coordinates: pinnedLocation.value,
+    //     dispatcher,
+    // })
     store.dispatch('setPinnedLocationSelected', { selected: true, ...dispatcher })
 }
 
 function deselectFeatureCallback() {
+    console.log('deselectFeatureCallback')
     store.dispatch('setPinnedLocationSelected', { selected: false, ...dispatcher })
 }
 </script>

@@ -26,6 +26,7 @@ const clickOnMapManagementPlugin = (store) => {
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
             if (isLeftSingleClick) {
+                console.log('isLeftSingleClick', isLeftSingleClick)
                 store
                     .dispatch('identifyFeatureAt', {
                         layers: store.getters.visibleLayers.filter((layer) => layer.hasTooltip),
@@ -46,8 +47,15 @@ const clickOnMapManagementPlugin = (store) => {
                             })
                         }
                     })
+                if (store.state.map.pinnedLocation) {
+                    store.dispatch('setLocationPopupCoordinates', {
+                        coordinates: clickInfo.coordinate,
+                        dispatcher,
+                    })
+                }
             }
             if (isContextMenuClick) {
+                console.log('isContextMenuClick', isContextMenuClick)
                 store.dispatch('setLocationPopupCoordinates', {
                     coordinates: clickInfo.coordinate,
                     dispatcher,
