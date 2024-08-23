@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config'
+import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config/responsive.config'
 
 const backdropSelector = '[data-cy="black-backdrop"]'
 const menuButtonSelector = '[data-cy="menu-button"]'

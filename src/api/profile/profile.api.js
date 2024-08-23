@@ -3,7 +3,7 @@ import proj4 from 'proj4'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
@@ -85,7 +85,7 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
     if (chunk.isWithinBounds) {
         try {
             const dataForChunk = await axios({
-                url: `${API_SERVICE_ALTI_BASE_URL}rest/services/profile.json`,
+                url: `${getServiceAltiBaseUrl()}rest/services/profile.json`,
                 method: 'POST',
                 params: {
                     offset: 0,

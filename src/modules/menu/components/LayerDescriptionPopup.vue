@@ -36,42 +36,24 @@ const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
 const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
 const isExternal = computed(() => layer.value?.isExternal ?? false)
 
-const api3UrlOverride = computed(() => store.state.debug.baseUrlOverride.api3)
-
 const legends = computed(() => layer.value?.legends ?? [])
 watch(layer, async (newLayer) => {
     if (!isExternal.value && layer.value) {
-        htmlContent.value = await getLayerDescription(
-            currentLang.value,
-            newLayer.id,
-            api3UrlOverride.value
-        )
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
     }
 })
 
 watch(layerId, async (newLayerId) => {
     if (!isExternal.value && layerId.value) {
-        htmlContent.value = await getLayerDescription(
-            currentLang.value,
-            newLayerId,
-            api3UrlOverride.value
-        )
+        htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
     }
 })
 
 onMounted(async () => {
     if (!isExternal.value && layer.value) {
-        htmlContent.value = await getLayerDescription(
-            currentLang.value,
-            layer.value.id,
-            api3UrlOverride.value
-        )
+        htmlContent.value = await getLayerDescription(currentLang.value, layer.value.id)
     } else if (!isExternal.value && layerId.value) {
-        htmlContent.value = await getLayerDescription(
-            currentLang.value,
-            layerId.value,
-            api3UrlOverride.value
-        )
+        htmlContent.value = await getLayerDescription(currentLang.value, layerId.value)
     }
 })
 </script>

@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 import { getKmlFromUrl } from '@/api/files.api'
-import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
+import { APP_VERSION } from '@/config/staging.config'
 import log from '@/utils/logging'
 
 /** Maximum size allowed by the backend, can be used to do validation up front */
@@ -48,7 +49,7 @@ export default async function sendFeedback(subject, text, options) {
             attachment,
         }
         log.debug('sending feedback with', data)
-        const response = await axios.post(`${API_SERVICES_BASE_URL}feedback`, data, {
+        const response = await axios.post(`${getViewerDedicatedServicesBaseUrl()}feedback`, data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

@@ -1,11 +1,10 @@
+import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import {
-    BREAKPOINT_TABLET,
     GIVE_FEEDBACK_HOSTNAMES,
-    MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
     NO_WARNING_BANNER_HOSTNAMES,
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
-} from '@/config'
+} from '@/config/staging.config'
 import log from '@/utils/logging'
 import WarningMessage from '@/utils/WarningMessage.class'
 

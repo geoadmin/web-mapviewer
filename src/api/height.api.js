@@ -1,7 +1,7 @@
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -34,7 +34,7 @@ export const requestHeight = (coordinates, projection) => {
             // we are giving it LV95 coordinates
             const lv95coords = proj4(projection.epsg, LV95.epsg, coordinates)
             axios
-                .get(`${API_SERVICE_ALTI_BASE_URL}rest/services/height`, {
+                .get(`${getServiceAltiBaseUrl()}rest/services/height`, {
                     params: {
                         easting: lv95coords[0],
                         northing: lv95coords[1],

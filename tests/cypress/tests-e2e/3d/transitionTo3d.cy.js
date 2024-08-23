@@ -3,7 +3,7 @@
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing transitioning between 2D and 3D', () => {

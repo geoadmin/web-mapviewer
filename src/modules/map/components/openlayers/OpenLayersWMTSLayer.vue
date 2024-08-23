@@ -6,6 +6,7 @@ import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import { baseUrlOverrides } from '@/config/baseUrl.config.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -29,7 +30,6 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const debugWmtsBaseUrlOverride = computed(() => store.state.debug.baseUrlOverride.wmts)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.technicalName)
 const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
@@ -77,7 +77,7 @@ watch(wmtsTimeConfig, () => {
 
 function getTransformedXYZUrl() {
     return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, {
-        baseUrlOverride: debugWmtsBaseUrlOverride.value,
+        baseUrlOverride: baseUrlOverrides.wmts,
     })
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')

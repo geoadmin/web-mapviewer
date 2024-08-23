@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { isString } from 'lodash'
 
-import { API_SERVICE_PROXY_BASE_URL } from '@/config'
+import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
 
 /**
@@ -29,7 +29,7 @@ export function proxifyUrl(url) {
     if (!fileAsPath) {
         throw new Error(`Malformed URL: ${url}, can't proxify`)
     }
-    return `${API_SERVICE_PROXY_BASE_URL}${fileAsPath}`
+    return `${getServiceProxyBaseUrl()}${fileAsPath}`
 }
 
 /**

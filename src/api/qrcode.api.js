@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { API_SERVICES_BASE_URL } from '@/config'
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
 
 /**
@@ -11,7 +11,7 @@ import log from '@/utils/logging'
  */
 export function getGenerateQRCodeUrl(url) {
     const encodedUrl = encodeURIComponent(url)
-    return `${API_SERVICES_BASE_URL}qrcode/generate?url=${encodedUrl}`
+    return `${getViewerDedicatedServicesBaseUrl()}qrcode/generate?url=${encodedUrl}`
 }
 
 /**

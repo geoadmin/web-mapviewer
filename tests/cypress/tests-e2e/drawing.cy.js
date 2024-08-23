@@ -13,7 +13,8 @@ import {
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL, DEFAULT_PROJECTION } from '@/config'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingColors,
@@ -77,7 +78,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = `${API_SERVICE_KML_BASE_URL}api/kml/files/${interception.response.body.id}`
+                const kmlId = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 // it should show the default icon set by default with the red color in the icon style popup
@@ -718,7 +719,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -736,7 +737,7 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -753,7 +754,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -795,10 +796,10 @@ describe('Drawing module tests', () => {
                         `Check that the old kml has been removed from the active layer and that the new one has been added`
                     )
                     cy.get(
-                        `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}-"]`
+                        `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
                     ).should('not.exist')
                     cy.get(
-                        `[data-cy^="active-layer-name-${API_SERVICE_KML_BASE_URL}api/kml/files/${newKmlId}-"]`
+                        `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${newKmlId}-"]`
                     )
                         .should('be.visible')
                         .contains('Drawing')
@@ -817,7 +818,7 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
 
             // opening up the app and centering it directly on the single marker feature from the fixture
@@ -857,8 +858,8 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlFileId}`
-            const kmlAdminUrl = `${API_SERVICE_KML_BASE_URL}api/kml/admin/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
+            const kmlAdminUrl = `${getServiceKmlBaseUrl()}api/kml/admin/${kmlFileId}`
             const kmlMetadata = {
                 admin_id: kmlFileAdminId,
                 author: 'mf-geoadmin3',
@@ -1092,7 +1093,7 @@ describe('Drawing module tests', () => {
             // checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
@@ -1101,7 +1102,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)
             })

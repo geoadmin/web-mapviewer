@@ -2,7 +2,8 @@
 
 import proj4 from 'proj4'
 
-import { BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 const searchbarSelector = '[data-cy="searchbar"]'

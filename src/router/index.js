@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'

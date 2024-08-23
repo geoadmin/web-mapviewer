@@ -8,7 +8,11 @@ import {
 import axios from 'axios'
 import { Circle } from 'ol/style'
 
-import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import {
+    getApi3BaseUrl,
+    getViewerDedicatedServicesBaseUrl,
+    getWmsBaseUrl,
+} from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
 import { adjustWidth } from '@/utils/styleUtils'
@@ -16,7 +20,7 @@ import { adjustWidth } from '@/utils/styleUtils'
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
-const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
+const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
 class GeoAdminCustomizer extends BaseCustomizer {
@@ -280,10 +284,6 @@ export class PrintError extends Error {
  * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
- * @param {String | null} [config.wmsUrlOverride=null] The base URL to access service-wms. If none
- *   is given, the default from config.js will be used. Default is `null`
- * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
- *   none is given, the default from config.js will be used. Default is `null`
  */
 async function transformOlMapToPrintParams(olMap, config) {
     const {
@@ -299,8 +299,6 @@ async function transformOlMapToPrintParams(olMap, config) {
         excludedLayerIDs = [],
         dpi = null,
         outputFilename = null,
-        wmsUrlOverride = null,
-        api3UrlOverride = null,
     } = config
 
     if (!qrCodeUrl) {
@@ -348,7 +346,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         })
         if (printGrid) {
             encodedMap.layers.unshift({
-                baseURL: wmsUrlOverride ?? WMS_BASE_URL,
+                baseURL: getWmsBaseUrl(),
                 opacity: 1,
                 singleTile: true,
                 type: 'WMS',
@@ -383,9 +381,7 @@ async function transformOlMapToPrintParams(olMap, config) {
                 classes: layersWithLegends.map((layer) => {
                     return {
                         name: layer.name,
-                        icons: [
-                            `${api3UrlOverride ?? API_BASE_URL}static/images/legends/${layer.id}_${lang}.png`,
-                        ],
+                        icons: [`${getApi3BaseUrl()}static/images/legends/${layer.id}_${lang}.png`],
                     }
                 }),
             }
@@ -441,10 +437,6 @@ function printSpecReplacer(key, value) {
  * @param {String | null} [config.outputFilename=null] Output file name, without extension. When
  *   null, let the server decide. Default is `null`
  * @param {String | null} [config.dpi=null] The DPI of the printed map. Default is `null`
- * @param {String | null} [config.wmsUrlOverride=null] The base URL to access service-wms. If none
- *   is given, the default from config.js will be used. Default is `null`
- * @param {String | null} [config.api3UrlOverride=null] The base URL to access API3 services. If
- *   none is given, the default from config.js will be used. Default is `null`
  * @returns {Promise<MFPReportResponse>} A job running on our printing backend (needs to be polled
  *   using {@link waitForPrintJobCompletion} to wait until its completion)
  */
@@ -462,8 +454,6 @@ export async function createPrintJob(map, config) {
         excludedLayerIDs = [],
         outputFilename = null,
         dpi = null,
-        wmsUrlOverride = null,
-        api3UrlOverride = null,
     } = config
     try {
         const printingSpec = await transformOlMapToPrintParams(map, {
@@ -479,8 +469,6 @@ export async function createPrintJob(map, config) {
             excludedLayerIDs,
             outputFilename,
             dpi,
-            wmsUrlOverride,
-            api3UrlOverride,
         })
         if (!isPrintingSpecSizeValid(printingSpec)) {
             throw new PrintError('Printing spec is too large', 'print_request_too_large')

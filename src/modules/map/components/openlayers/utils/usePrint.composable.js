@@ -82,8 +82,6 @@ export function usePrint(map) {
                 printGrid: printGrid,
                 projection: store.state.position.projection,
                 dpi: store.getters.selectedDPI,
-                wmsUrlOverride: store.state.debug.baseUrlOverride.wms,
-                api3UrlOverride: store.state.debug.baseUrlOverride.api3,
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)

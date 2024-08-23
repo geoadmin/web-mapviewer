@@ -9,7 +9,8 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { API_BASE_URL, DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } from '@/config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
 import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
@@ -83,7 +84,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     format,
                     timeConfig,
                     isBackground: !!isBackground,
-                    baseUrl: WMTS_BASE_URL,
                     isHighlightable,
                     hasTooltip,
                     topics,
@@ -204,16 +204,12 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
  *
  * @param {String} lang The language in which the legend should be rendered
  * @param {String} layerId The unique layer ID used in our backends
- * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
- *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<String>} HTML content of the layer's legend
  */
-export const getLayerDescription = (lang, layerId, api3UrlOverride = null) => {
+export const getLayerDescription = (lang, layerId) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(
-                `${api3UrlOverride ?? API_BASE_URL}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
-            )
+            .get(`${getApi3BaseUrl()}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
             .then((response) => resolve(response.data))
             .catch((error) => {
                 log.error('Error while retrieving the legend for the layer', layerId, error)
@@ -226,21 +222,17 @@ export const getLayerDescription = (lang, layerId, api3UrlOverride = null) => {
  * Loads the layer config from the backend and transforms it in classes defined in this API file
  *
  * @param {String} lang The ISO code for the lang in which the config should be loaded (required)
- * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
- *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<GeoAdminLayer[]>}
  */
-export const loadLayersConfigFromBackend = (lang, api3UrlOverride = null) => {
+export const loadLayersConfigFromBackend = (lang) => {
     return new Promise((resolve, reject) => {
-        if (!api3UrlOverride && !API_BASE_URL) {
+        if (!getApi3BaseUrl()) {
             // this could happen if we are testing the app in unit tests, we simply reject and do nothing
             reject('API base URL is undefined')
         } else {
             const layersConfig = []
             axios
-                .get(
-                    `${api3UrlOverride ?? API_BASE_URL}rest/services/all/MapServer/layersConfig?lang=${lang}`
-                )
+                .get(`${getApi3BaseUrl()}rest/services/all/MapServer/layersConfig?lang=${lang}`)
                 .then(({ data: rawLayersConfig }) => {
                     if (Object.keys(rawLayersConfig).length > 0) {
                         Object.keys(rawLayersConfig).forEach((rawLayerId) => {

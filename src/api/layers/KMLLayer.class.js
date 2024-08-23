@@ -1,7 +1,7 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL } from '@/config'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
 
 /**
@@ -48,7 +48,7 @@ export default class KMLLayer extends AbstractLayer {
         }
         const isLocalFile = !kmlFileUrl.startsWith('http')
         const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
-        const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
+        const isExternal = kmlFileUrl.indexOf(getServiceKmlBaseUrl()) === -1
         super({
             name: 'KML',
             id: kmlFileUrl,

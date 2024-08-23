@@ -1,4 +1,5 @@
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
@@ -126,36 +127,9 @@ const storeSyncConfig = [
         defaultValue: '',
     }),
     new TimeSliderParamConfig(),
-    new SimpleUrlParamConfig({
-        urlParamName: 'wms_url',
-        mutationsToWatch: ['setWmsBaseUrlOverride'],
-        dispatchName: 'setWmsBaseUrlOverride',
-        dispatchValueName: 'baseUrl',
-        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.wms,
-        keepInUrlWhenDefault: false,
-        valueType: String,
-        defaultValue: null,
-    }),
-    new SimpleUrlParamConfig({
-        urlParamName: 'wmts_url',
-        mutationsToWatch: ['setWtmsBaseUrlOverride'],
-        dispatchName: 'setWtmsBaseUrlOverride',
-        dispatchValueName: 'baseUrl',
-        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.wtms,
-        keepInUrlWhenDefault: false,
-        valueType: String,
-        defaultValue: null,
-    }),
-    new SimpleUrlParamConfig({
-        urlParamName: 'api_url',
-        mutationsToWatch: ['setApi3BaseUrlOverride'],
-        dispatchName: 'setApi3BaseUrlOverride',
-        dispatchValueName: 'baseUrl',
-        extractValueFromStore: (store) => store.state.debug.baseUrlOverride.api3,
-        keepInUrlWhenDefault: false,
-        valueType: String,
-        defaultValue: null,
-    }),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'wms_url', baseUrlPropertyName: 'wms' }),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'wmts_url', baseUrlPropertyName: 'wmts' }),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'api_url', baseUrlPropertyName: 'api3' }),
 ]
 
 export default storeSyncConfig

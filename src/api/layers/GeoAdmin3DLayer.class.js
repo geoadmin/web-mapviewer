@@ -1,7 +1,7 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { BASE_URL_3D_TILES } from '@/config'
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 
 /**
  * Metadata for a 3D tile layer (Cesium layer) served by our backend
@@ -29,7 +29,7 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
             type: LayerTypes.VECTOR,
             technicalName: layerId,
             id: layerId,
-            baseUrl: BASE_URL_3D_TILES,
+            baseUrl: get3dTilesBaseUrl(),
             ensureTrailingSlashInBaseUrl: true,
             opacity: 1.0,
             visible: true,

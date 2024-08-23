@@ -1,4 +1,4 @@
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
+import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
 
 /// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {

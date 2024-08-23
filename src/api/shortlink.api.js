@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { API_SERVICE_SHORTLINK_BASE_URL } from '@/config'
+import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
 
 /**
@@ -26,7 +26,7 @@ export function createShortLink(url, withCrosshair = false) {
             reject(errorMessage)
         }
         axios
-            .post(API_SERVICE_SHORTLINK_BASE_URL, {
+            .post(getServiceShortLinkBaseUrl(), {
                 url: sanitizedUrl,
             })
             .then((response) => {

@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
-import { API_BASE_URL, ENVIRONMENT } from '@/config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { ENVIRONMENT } from '@/config/staging.config'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
@@ -82,16 +83,12 @@ const readTopicTreeRecursive = (node, availableLayers) => {
  * @param {String} lang The lang in which to load the topic tree
  * @param {String} topicId The topic we want to load the topic tree
  * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
- * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
- *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<{ layers: GeoAdminLayer[]; itemIdToOpen: String[] }>} A list of topic's layers
  */
-export const loadTopicTreeForTopic = (lang, topicId, layersConfig, api3UrlOverride = null) => {
+export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(
-                `${api3UrlOverride ?? API_BASE_URL}rest/services/${topicId}/CatalogServer?lang=${lang}`
-            )
+            .get(`${getApi3BaseUrl()}rest/services/${topicId}/CatalogServer?lang=${lang}`)
             .then((response) => {
                 const treeItems = []
                 const topicRoot = response.data.results.root
@@ -114,13 +111,11 @@ export const loadTopicTreeForTopic = (lang, topicId, layersConfig, api3UrlOverri
 /**
  * Loads all topics (without their tree) from the backend.
  *
- * @param {String | null} [api3UrlOverride=null] The base URL to access API3 services. If none is
- *   given, the default from config.js will be used. Default is `null`
  * @returns {Promise<{ topics: [] }>} Raw topics from backend
  */
-export async function loadTopics(api3UrlOverride = null) {
+export async function loadTopics() {
     try {
-        const response = await axios.get(`${api3UrlOverride ?? API_BASE_URL}rest/services`)
+        const response = await axios.get(`${getApi3BaseUrl()}rest/services`)
         return response.data
     } catch (error) {
         log.error(`Failed to load topics from backend`, error)
