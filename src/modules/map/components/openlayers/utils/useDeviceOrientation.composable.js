@@ -13,6 +13,13 @@ const DOWN_SAMPLING_INTERVAL_MS = 50
 const ANIMATION_DURATION_MS = 200
 let downSamplingDescriptor = null
 
+// Unfortunately some mobile devices (like samsung) does not work well with device orientation
+// they provide a bad absolute device orientation, while testing different devices I could not find
+// a good pattern to differentiate between android devices that works well to the one that don't
+// work. Therefore to avoid bad user experience for android devices we only allow device orientation
+// on iphone where it works well and it can be detected from the user agent
+const supportDeviceOrientation = /iphone/i.test(navigator.userAgent)
+
 export default function useDeviceOrientation() {
     const olMap = inject('olMap')
     const store = useStore()
@@ -45,7 +52,9 @@ export default function useDeviceOrientation() {
     const headingDegree = ref(null)
 
     const autoRotation = computed(() => store.state.position.autoRotation)
-    const hasOrientation = computed(() => store.state.position.hasOrientation)
+    const hasOrientation = computed(
+        () => supportDeviceOrientation && store.state.position.hasOrientation
+    )
 
     onBeforeMount(() => {
         startDeviceOrientationListener()
@@ -177,6 +186,13 @@ export default function useDeviceOrientation() {
             )
             stopDeviceOrientationListener()
             stopOrientationDownSampling()
+        } else if (
+            orientation.value.default.absolute === false &&
+            orientation.value.default.compassHeading === null
+        ) {
+            // the default listener only provide relative orientation that cannot be used therefore
+            // remove the listener
+            window.removeEventListener(orientation.value.default.listener, handleOrientation)
         }
     }
 
@@ -184,6 +200,17 @@ export default function useDeviceOrientation() {
         // absolute listener
         orientation.value.absolute.degree = event.alpha ?? null
         orientation.value.absolute.compassHeading = event.webkitCompassHeading ?? null
+
+        if (
+            orientation.value.absolute.degree === null &&
+            orientation.value.absolute.compassHeading === null
+        ) {
+            // the absolute listener don't provide any orientation, therefore remove the listener
+            window.removeEventListener(
+                orientation.value.absolute.listener,
+                handleOrientationAbsolute
+            )
+        }
     }
 
     function startOrientationDownSampling() {
