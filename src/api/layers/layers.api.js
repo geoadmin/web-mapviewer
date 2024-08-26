@@ -101,7 +101,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     idIn3d: layerConfig.config3d ?? null,
                     technicalName: Array.isArray(layerConfig.wmsLayers)
                         ? layerConfig.wmsLayers.join(',')
-                        : layerConfig.wmsLayers ?? serverLayerName,
+                        : (layerConfig.wmsLayers ?? serverLayerName),
                     opacity,
                     visible: false,
                     attributions,
@@ -187,6 +187,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     topics,
                     subLayers,
                     hasLegend: !!hasLegend,
+                    searchable,
                 })
 
                 break

@@ -79,7 +79,8 @@ export default class AbstractParamConfig {
             // is present in the query (without a boolean value attached)
             return (
                 queryValue === null ||
-                (typeof queryValue === 'string' && queryValue === 'true') ||
+                queryValue === 'true' ||
+                queryValue === '' ||
                 (typeof queryValue === 'boolean' && !!queryValue)
             )
         } else if (queryValue === null) {

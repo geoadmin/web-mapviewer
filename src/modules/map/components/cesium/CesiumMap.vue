@@ -69,7 +69,7 @@
         <CesiumGeolocationFeedback v-if="viewerCreated" />
 
         <cesium-compass
-            v-show="isDesktopMode && !isFullScreenMode"
+            v-show="isDesktopMode"
             ref="compass"
             class="position-absolute start-50 translate-middle-x cesium-compass"
         />
@@ -94,7 +94,6 @@ import {
     RequestScheduler,
     ScreenSpaceEventType,
     ShadowMode,
-    SkyBox,
     Viewer,
 } from 'cesium'
 import { LineString, Point, Polygon } from 'ol/geom'
@@ -349,19 +348,6 @@ export default {
                 shadows: false,
                 // no casting of buildings shadow on the terrain
                 terrainShadows: ShadowMode.DISABLED,
-                // skybox/stars visible if sufficiently zoomed out and looking at the horizon
-                skyBox: new SkyBox({
-                    sources: {
-                        positiveX: new URL('./assets/starbox_px.jpg', import.meta.url).href,
-                        negativeX: new URL('./assets/starbox_mx.jpg', import.meta.url).href,
-                        positiveY: new URL('./assets/starbox_py.jpg', import.meta.url).href,
-                        negativeY: new URL('./assets/starbox_my.jpg', import.meta.url).href,
-                        positiveZ: new URL('./assets/starbox_pz.jpg', import.meta.url).href,
-                        negativeZ: new URL('./assets/starbox_mz.jpg', import.meta.url).href,
-                    },
-                }),
-                // we want to see the stars!
-                skyAtmosphere: false,
                 baseLayer: false,
                 useBrowserRecommendedResolution: true,
                 terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
@@ -573,7 +559,7 @@ export default {
                     features.push(
                         ...identifyGeoJSONFeatureAt(
                             geoJSonLayer,
-                            event.position,
+                            [event.position.x, event.position.y],
                             this.projection,
                             this.resolution
                         )

@@ -132,8 +132,9 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) =>
-        state.activeLayers.find((layer) => layer.type === LayerTypes.KML && !layer.isExternal) ??
-        null,
+        state.activeLayers.findLast(
+            (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
+        ) ?? null,
 
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -481,6 +482,13 @@ const actions = {
             year: year,
             dispatcher,
         })
+        // if this layer has a 3D counterpart, we also update its timestamp (keep it in sync)
+        if (layer.idIn3d) {
+            const layerIn3d = getters.getLayerConfigById(layer.idIn3d)
+            if (layerIn3d?.timeConfig) {
+                commit('setLayerYear', { layer: layerIn3d, year, dispatcher })
+            }
+        }
     },
 
     /**

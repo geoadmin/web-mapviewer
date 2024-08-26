@@ -16,11 +16,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    /** Add a minimize button in header that will hide/show the body */
-    hasMinimize: {
-        type: Boolean,
-        default: true,
-    },
 })
 const { title, hide } = toRefs(props)
 
@@ -48,7 +43,7 @@ const emit = defineEmits(['close'])
                 <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
                 <span v-else class="me-auto" />
                 <button class="btn btn-light btn-sm me-2" @click.stop="showBody = !showBody">
-                    <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
+                    <FontAwesomeIcon :icon="`caret-${showBody ? 'up' : 'down'}`" />
                 </button>
                 <button
                     class="btn btn-light btn-sm"
@@ -75,16 +70,12 @@ const emit = defineEmits(['close'])
     position: fixed;
     top: $top-margin;
     right: 4rem;
-
     width: max-content;
     max-width: 400px;
-
     max-height: calc(100vh - $top-margin);
+
     @include respond-below(phone) {
         $top-margin: $header-height;
-        &.dev-disclaimer-present {
-            $top-margin: calc($header-height + $dev-disclaimer-height);
-        }
 
         top: $top-margin;
         left: 50%;
@@ -92,6 +83,10 @@ const emit = defineEmits(['close'])
         transform: translate(-50%, 0%);
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
+
+        &.dev-disclaimer-present {
+            top: calc($top-margin + $dev-disclaimer-height);
+        }
     }
     .card-body {
         overflow-y: auto;

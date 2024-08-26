@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 import { getKmlFromUrl } from '@/api/files.api'
-import { createShortLink } from '@/api/shortlink.api'
 import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
 import log from '@/utils/logging'
 
@@ -22,18 +21,6 @@ export default async function sendFeedback(subject, text, options) {
     const { kmlFileUrl = null, kml = null, email = null, attachment = null } = options
 
     try {
-        let shortLink = null
-        try {
-            shortLink = await createShortLink(window.location.href)
-        } catch (err) {
-            log.error(
-                'could not generate a short link, will send the full URL to service feedback',
-                err
-            )
-            // fallback to full URL
-            shortLink = window.location.href
-        }
-
         let kmlData = null
         if (kmlFileUrl) {
             try {
@@ -55,7 +42,7 @@ export default async function sendFeedback(subject, text, options) {
             feedback: text,
             version: APP_VERSION,
             ua: navigator.userAgent,
-            permalink: shortLink,
+            permalink: window.location.href,
             kml: kmlData,
             email,
             attachment,

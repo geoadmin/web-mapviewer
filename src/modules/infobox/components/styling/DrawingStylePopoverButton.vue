@@ -53,13 +53,22 @@ export default {
             type: String,
             default: null,
         },
+        placement: {
+            type: String,
+            default: 'auto',
+        },
+    },
+    watch: {
+        placement(newValue) {
+            this.popover.setProps({ placement: newValue })
+        },
     },
     mounted() {
         this.popover = tippy(this.$refs.popoverButton, {
             theme: 'popover-button light-border',
             content: this.$refs.popoverContent,
             allowHTML: true,
-            placement: 'top',
+            placement: this.placement,
             interactive: true,
             arrow: true,
             trigger: 'click',

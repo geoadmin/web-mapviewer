@@ -1,6 +1,5 @@
 import { createShortLink } from '@/api/shortlink.api'
 import log from '@/utils/logging'
-import { transformUrlMapToEmbed } from '@/utils/utils'
 
 export default {
     state: {
@@ -12,11 +11,6 @@ export default {
          * @type String
          */
         shortLink: null,
-        /**
-         * Same thing as shortLink, but with the flag embed=true send to the backend before
-         * shortening
-         */
-        embeddedShortLink: null,
         /**
          * The state of the shortlink share menu section. As we need to be able to change this
          * whenever the user moves the map, and it should only be done within mutations.
@@ -37,16 +31,6 @@ export default {
                 log.error('Error while creating short link for', window.location.href, err)
                 commit('setShortLink', { shortLink: window.location.href, dispatcher })
             }
-            const embedUrl = transformUrlMapToEmbed(window.location.href)
-            try {
-                const embeddedShortLink = await createShortLink(embedUrl)
-                if (embeddedShortLink) {
-                    commit('setEmbeddedShortLink', { shortLink: embeddedShortLink, dispatcher })
-                }
-            } catch (err) {
-                log.error('Error while creating embedded short link for', embedUrl, err)
-                commit('setEmbeddedShortLink', { shortLink: embedUrl, dispatcher })
-            }
         },
         closeShareMenuAndRemoveShortLinks({ commit, dispatch }, { dispatcher }) {
             commit('setIsMenuSectionShown', { show: false, dispatcher })
@@ -57,15 +41,11 @@ export default {
         },
         clearShortLinks({ commit }, { dispatcher }) {
             commit('setShortLink', { shortLink: null, dispatcher })
-            commit('setEmbeddedShortLink', { shortLink: null, dispatcher })
         },
     },
     mutations: {
         setShortLink(state, { shortLink }) {
             state.shortLink = shortLink
-        },
-        setEmbeddedShortLink(state, { shortLink }) {
-            state.embeddedShortLink = shortLink
         },
         setIsMenuSectionShown(state, { show }) {
             state.isMenuSectionShown = show

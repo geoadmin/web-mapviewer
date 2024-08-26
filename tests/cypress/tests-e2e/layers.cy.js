@@ -24,15 +24,45 @@ describe('Test of layer handling', () => {
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
         })
         it('adds a layers with config to the map when opening the app layers URL param', () => {
+            cy.intercept(
+                {
+                    method: 'GET',
+                    hostname: /(wms\d*\.geo\.admin\.ch|sys-wms\d*\.\w+\.bgdi\.ch)/,
+                    query: { REQUEST: 'GetMap', LAYERS: 'test-1.wms.layer' },
+                    middleware: true, // overwrite intercept set by goToMapView
+                },
+                (request) => request.reply({ fixture: '256.png' })
+            ).as('layer-1-getMap')
+            cy.intercept(
+                {
+                    method: 'GET',
+                    hostname: /(wms\d*\.geo\.admin\.ch|sys-wms\d*\.\w+\.bgdi\.ch)/,
+                    query: { REQUEST: 'GetMap', LAYERS: 'test-2.wms.layer' },
+                    middleware: true, // overwrite intercept set by goToMapView
+                },
+                (request) => request.reply({ fixture: '256.png' })
+            ).as('layer-2-getMap')
+            cy.intercept(
+                {
+                    method: 'GET',
+                    hostname: /(wms\d*\.geo\.admin\.ch|sys-wms\d*\.\w+\.bgdi\.ch)/,
+                    query: { REQUEST: 'GetMap', LAYERS: 'test-4.wms.layer' },
+                    middleware: true, // overwrite intercept set by goToMapView
+                },
+                (request) => request.reply({ fixture: '256.png' })
+            ).as('layer-4-getMap')
             cy.goToMapView({
                 layers: [
                     'test-1.wms.layer',
-                    'test-2.wms.layer,,',
+                    'test-2.wms.layer@param=value,,',
                     'test-3.wms.layer,f',
                     'test-4.wms.layer,,0.4',
                     'test.wmts.layer,f,0.5',
                 ].join(';'),
             })
+
+            //-----------------------------------------------------------------
+            cy.log(`Check layers in store`)
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(3)
                 expect(layers[0].id).to.eq('test-1.wms.layer')
@@ -50,6 +80,22 @@ describe('Test of layer handling', () => {
                 expect(layers[4].id).to.eq('test.wmts.layer')
                 expect(layers[4].opacity).to.eq(0.5)
             })
+
+            //-----------------------------------------------------------------
+            cy.log('Check layers in OL')
+            cy.checkOlLayer([
+                bgLayer,
+                { id: 'test-1.wms.layer', opacity: 0.75 },
+                { id: 'test-2.wms.layer', opacity: 0.75 },
+                { id: 'test-4.wms.layer', opacity: 0.4 },
+            ])
+
+            //-----------------------------------------------------------------
+            cy.log(`Check wms layer custom attributes being passed to wms server`)
+            cy.wait('@layer-1-getMap').its('request.query').should('not.have.property', 'param')
+            cy.wait('@layer-2-getMap')
+                .its('request.query')
+                .should('have.property', 'param', 'value')
         })
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
             const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
@@ -104,7 +150,7 @@ describe('Test of layer handling', () => {
             const fakeWmsLayerName4 = 'Verfügbarkeit des ÖREB-Katasters 2'
 
             // format is WMS|BASE_URL|LAYER_IDS
-            const fakeWmsLayerUrlId1 = `WMS|${fakeWmsBaseUrl1}|${fakeWmsLayerId1}`
+            const fakeWmsLayerUrlId1 = `WMS|${fakeWmsBaseUrl1}|${fakeWmsLayerId1}@item=MyItem`
             const fakeWmsLayerUrlId2 = `WMS|${fakeWmsBaseUrl1}|${encodeExternalLayerParam(fakeWmsLayerId2)}`
             const fakeWmsLayerUrlId3 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId3}`
             const fakeWmsLayerUrlId4 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId4}`
@@ -129,11 +175,23 @@ describe('Test of layer handling', () => {
             beforeEach(() => {
                 // WMS intercept URL 1
                 cy.intercept(
-                    { url: `${fakeWmsBaseUrl1}**`, query: { REQUEST: 'GetMap' } },
+                    {
+                        url: `${fakeWmsBaseUrl1}**`,
+                        query: { REQUEST: 'GetMap', LAYERS: fakeWmsLayerId1 },
+                    },
                     {
                         fixture: '256.png',
                     }
-                ).as('externalWMSGetMap-1')
+                ).as('externalWMSGetMap-1-layer-1')
+                cy.intercept(
+                    {
+                        url: `${fakeWmsBaseUrl1}**`,
+                        query: { REQUEST: 'GetMap', LAYERS: fakeWmsLayerId2 },
+                    },
+                    {
+                        fixture: '256.png',
+                    }
+                ).as('externalWMSGetMap-1-layer-2')
                 cy.intercept(
                     { url: `${fakeWmsBaseUrl1}**`, query: { REQUEST: 'GetCapabilities' } },
                     { fixture: 'external-wms-getcap-1.fixture.xml' }
@@ -184,7 +242,15 @@ describe('Test of layer handling', () => {
                 ].join(';')
                 cy.goToMapView({ layers })
 
+                cy.log(`Verify that extra custom attributes are passed along to the WMS server`)
+                cy.wait('@externalWMSGetMap-1-layer-1')
+                    .its('request.query')
+                    .should('have.property', 'item', 'MyItem')
+
+                cy.log(`Verify that the Get capabilities of both server are called`)
                 cy.wait(['@externalWMSGetCap-1', '@externalWMSGetCap-2'])
+
+                cy.log(`Verify that the active layers store match the url input`)
                 cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                     expect(layers).to.be.lengthOf(4)
 
@@ -255,8 +321,21 @@ describe('Test of layer handling', () => {
 
                 // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
                 // So we start by defining intercepts for these two requests
-                cy.intercept(`${fakeWmsBaseUrl1}**`, { features: [] }).as('getFeatureInfoLayer1')
-                cy.intercept(`${fakeWmsBaseUrl2}**`, { features: [] }).as('getFeatureInfoLayer2')
+                cy.intercept(
+                    {
+                        url: `${fakeWmsBaseUrl1}**`,
+                        query: { REQUEST: 'GetFeatureInfo' },
+                    },
+
+                    { features: [] }
+                ).as('getFeatureInfoLayer1')
+                cy.intercept(
+                    {
+                        url: `${fakeWmsBaseUrl2}**`,
+                        query: { REQUEST: 'GetFeatureInfo' },
+                    },
+                    { features: [] }
+                ).as('getFeatureInfoLayer2')
                 cy.closeMenuIfMobile()
                 cy.get('[data-cy="ol-map"]').click()
                 cy.wait('@getFeatureInfoLayer1').then((intercept) => {
@@ -1193,7 +1272,7 @@ describe('Test of layer handling', () => {
             })
 
             // CHECK before
-            cy.readStoreValue('state').then((state) => {
+            cy.readStoreValue('state').should((state) => {
                 // Check the language before the switch.
                 expect(state.i18n.lang).to.eq(langBefore)
                 state.layers.activeLayers
@@ -1216,7 +1295,7 @@ describe('Test of layer handling', () => {
             })
 
             // CHECK after
-            cy.readStoreValue('state').then((state) => {
+            cy.readStoreValue('state').should((state) => {
                 // Check the language after the switch.
                 expect(state.i18n.lang).to.eq(langAfter)
                 state.layers.activeLayers

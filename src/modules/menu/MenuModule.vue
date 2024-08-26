@@ -36,6 +36,8 @@ function toggleMenu() {
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
+        <!-- NOTE: Below we need to use v-show and not v-if otherwise when the user toggle the full-screen while
+         editing a Report a problem window he will loose his content -->
         <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
@@ -141,16 +143,16 @@ $openCloseButtonHeight: 2.5rem;
             pointer-events: all;
         }
         &.desktop-mode {
+            max-width: $menu-tray-width;
             .menu-tray-content {
                 transition: opacity $animation-time;
             }
-            max-width: $menu-tray-width;
         }
         &.desktop-menu-closed {
+            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
             .menu-tray-content {
                 opacity: 0;
             }
-            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
         .button-open-close-desktop-menu {
             pointer-events: all;

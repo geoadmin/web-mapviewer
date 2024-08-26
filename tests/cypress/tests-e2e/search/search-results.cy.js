@@ -171,8 +171,11 @@ describe('Test the search bar result handling', () => {
             'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
         )
         cy.reload()
+        cy.waitMapIsReady()
         cy.wait(['@search-locations', '@search-layers'])
         cy.readStoreValue('state.search.query').should('eq', 'test')
+        cy.get('@locationSearchResults').should('not.be.visible')
+        cy.get(searchbarSelector).click()
         cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('Checking that it displays layer results with info-buttons')
@@ -211,11 +214,20 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
 
-        cy.log('Toggling the search result with ESC')
+        cy.log('Clearing the search result with ESC')
         cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
         cy.get('[data-cy="search-results"]').should('not.be.visible')
-        cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
+        cy.get(searchbarSelector).should('have.value', '')
+
+        cy.log('Toggling the search result with caret button')
+        cy.viewport(600, 600)
+        cy.get(searchbarSelector).paste('test')
+        cy.wait(`@search-locations`)
+        cy.get('[data-cy="searchbar-toggle-result"]').should('be.visible').click()
+        cy.get('[data-cy="search-results"]').should('not.be.visible')
+        cy.get('[data-cy="searchbar-toggle-result"]').should('be.visible').click()
         cy.get('[data-cy="search-results"]').should('be.visible')
+        cy.viewport('iphone-se2')
 
         cy.log('Navigating with arrow UP/DOWN')
         cy.get(searchbarSelector).trigger('keydown', { key: 'ArrowDown' })

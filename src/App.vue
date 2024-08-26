@@ -5,10 +5,12 @@
  * Will listen for screen size changes and commit this changes to the store
  */
 
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import ErrorWindow from '@/utils/components/ErrorWindow.vue'
+import WarningWindow from '@/utils/components/WarningWindow.vue'
 import debounce from '@/utils/debounce'
 
 const withOutline = ref(false)
@@ -19,6 +21,14 @@ const i18n = useI18n()
 const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
+
+const errorText = computed(() => store.state.ui.errorText)
+const warning = computed(() => {
+    if (store.state.ui.warnings.size > 0) {
+        return store.state.ui.warnings.values().next().value
+    }
+    return null
+})
 
 onMounted(() => {
     // reading size
@@ -51,6 +61,20 @@ function refreshPageTitle() {
         @pointerdown="withOutline = false"
     >
         <router-view />
+        <ErrorWindow
+            v-if="errorText"
+            title="error"
+            @close="store.dispatch('setErrorText', { errorText: null, ...dispatcher })"
+        >
+            <div>{{ i18n.t(errorText) }}</div>
+        </ErrorWindow>
+        <WarningWindow
+            v-if="warning"
+            title="warning"
+            @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
+        >
+            <div>{{ i18n.t(warning.msg, warning.params) }}</div>
+        </WarningWindow>
     </div>
 </template>
 

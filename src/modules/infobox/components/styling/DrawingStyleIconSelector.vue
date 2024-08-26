@@ -33,13 +33,15 @@
             :class="{ 'transparent-bottom': !showAllSymbols }"
         >
             <div
-                class="rounded d-flex align-content-center p-2"
+                class="rounded d-flex align-items-center p-2"
                 data-cy="drawing-style-toggle-all-icons-button"
                 @click="showAllSymbols = !showAllSymbols"
             >
-                {{ $t('modify_icon_label') }}
-                &nbsp;
-                <font-awesome-icon :icon="['fas', showAllSymbols ? 'caret-down' : 'caret-right']" />
+                <div>{{ $t('modify_icon_label') }}</div>
+                <font-awesome-icon
+                    :icon="['fas', showAllSymbols ? 'caret-down' : 'caret-right']"
+                    class="ms-2"
+                />
             </div>
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
                 <button
@@ -196,20 +198,19 @@ export default {
     }
 }
 .marker-icon-select-box {
-    max-height: 15rem;
+    max-height: 10rem;
     overflow-y: scroll;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    transition: max-height 0.3s linear;
     &.one-line {
         max-height: 2rem;
         overflow-y: hidden;
     }
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    transition: max-height 0.3s linear;
     .marker-icon-image {
         width: 2rem;
         height: 2rem;
     }
-
     button {
         --bs-btn-padding-x: 0.25rem;
     }

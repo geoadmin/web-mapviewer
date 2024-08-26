@@ -76,7 +76,7 @@
     "connect": "Connessione",
     "contact_us": "Contatto",
     "contextpopup_lv03_url": "https://www.swisstopo.admin.ch/it/triangolazione-nazionale-mn03",
-    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/it/misurazione-nazionale-mn95",
+    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/it/il-sistema-di-coordinate-svizzero",
     "coordinates_label": "Coordinate (m)",
     "copy_success": "Link copiato!",
     "copy_url": "Copia link",
@@ -682,5 +682,11 @@
     "3d_constructions": "Edifici e costruzioni",
     "webmapviewer_live_disclaimer": "Il visualizzatore di mappe sarà aggiornato in breve - <a target='_blank' href='https://www.geo.admin.ch/it/go-live-visualizzatore-di-mappe'>tenetevi pronti</a>",
     "drawing_too_large": "Il suo disegno è troppo grande, rimuova alcuni elementi",
-    "3d_unsupported_projection": "La mappa non può essere visualizzata in 3D perché non supporta la proiezione EPSG:4326"
+    "3d_unsupported_projection": "La mappa non può essere visualizzata in 3D perché non supporta la proiezione EPSG:4326",
+    "geoloc_out_of_bounds": "La Sua posizione attuale è al di fuori della Svizzera e non può essere mostrata.",
+    "orient_map_north": "Orientare la mappa",
+    "kml_icon_url_cors_issue": "Il KML “{layerName}” contiene icone con l'URL {url} che non supporta CORS! Contattare l'amministratore di questo URL per aggiungere il supporto per CORS.",
+    "warning": "Avvertenza",
+    "legal_notice": "Informazioni legali",
+    "legal_notice_url": "https://www.geo.admin.ch/it/colophon-responsabilita-e-contatti"
 }

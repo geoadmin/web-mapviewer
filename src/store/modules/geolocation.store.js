@@ -19,7 +19,7 @@ const state = {
      *
      * @type Boolean
      */
-    tracking: false,
+    tracking: true,
     /**
      * Device position in the current application projection [x, y]
      *

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import {
     createEmpty as emptyExtent,
     extend as extendExtent,
@@ -5,14 +6,13 @@ import {
 } from 'ol/extent'
 import Feature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
-import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
-import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import { DrawingIcon } from '@/api/icon.api'
+import { proxifyUrl } from '@/api/file-proxy.api'
+import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
@@ -26,6 +26,8 @@ import {
 } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
+// FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
+import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { parseRGBColor } from '@/utils/utils'
 
 export const EMPTY_KML_DATA = '<kml></kml>'
@@ -46,7 +48,7 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
  * @returns {string} Return KML name
  */
 export function parseKmlName(content) {
-    const kml = new KML({ extractStyles: false })
+    const kml = new KML({ extractStyles: false, iconUrlFunction: iconUrlProxyFy })
 
     return kml.readName(content)
 }
@@ -58,7 +60,7 @@ export function parseKmlName(content) {
  * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
  */
 export function getKmlExtent(content) {
-    const kml = new KML({ extractStyles: false })
+    const kml = new KML({ extractStyles: false, iconUrlFunction: iconUrlProxyFy })
     const features = kml.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -449,6 +451,39 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
     })
 }
 
+const nonGeoadminIconUrls = new Set()
+export function iconUrlProxyFy(url, corsIssueCallback = null) {
+    // We only proxyfy URL that are not from our backend.
+    if (!/^(https:\/\/[^/]*(bgdi\.ch|geo\.admin\.ch)|http:\/\/localhost)/.test(url)) {
+        const proxyUrl = proxifyUrl(url)
+        // Only perform the CORS check if we have a callback and it has not yet been done
+        if (!nonGeoadminIconUrls.has(url) && corsIssueCallback) {
+            nonGeoadminIconUrls.add(url)
+            log.warn(`Non geoadmin KML Icon url detected, checking CORS: ${url}`)
+            // Detected non geoadmin URL, in this case always use the proxy to avoid CORS errors as
+            // this method is synchrone.
+            // but still check for CORS support asynchronously to set a user warning if needed.
+            axios
+                .head(url, {
+                    timeout: 10 * 1000,
+                })
+                .then((response) => {
+                    log.debug(`KML Icon url ${url} support CORS:`, response)
+                })
+                .catch((error) => {
+                    log.warn(`KML Icon url ${url} do not support CORS`, error)
+                    if (corsIssueCallback) {
+                        corsIssueCallback(url, error)
+                    }
+                })
+        }
+
+        log.debug(`KML icon change url from ${url} to ${proxyUrl}`)
+        return proxyUrl
+    }
+    return url
+}
+
 /**
  * Parses a KML's data into OL Features
  *
@@ -457,9 +492,9 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
-export function parseKml(kmlLayer, projection, iconSets) {
+export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
     const kmlData = kmlLayer.kmlData
-    const features = new KML().readFeatures(kmlData, {
+    const features = new KML({ iconUrlFunction: iconUrlProxy }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })

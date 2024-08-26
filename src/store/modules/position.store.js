@@ -217,14 +217,22 @@ const actions = {
             return
         }
         if (Array.isArray(center)) {
-            commit('setCenter', {
-                x: center[0],
-                y: center[1],
-                dispatcher,
-            })
+            if (state.projection.epsg != LV95.epsg || LV95.isInBounds(center[0], center[1])) {
+                commit('setCenter', {
+                    x: center[0],
+                    y: center[1],
+                    dispatcher,
+                })
+            } else {
+                log.warn('center received is out of bounds, ignoring')
+            }
         } else {
-            const { x, y } = center
-            commit('setCenter', { x, y, dispatcher })
+            if (state.projection.epsg != LV95.epsg || LV95.isInBounds(center.x, center.y)) {
+                const { x, y } = center
+                commit('setCenter', { x, y, dispatcher })
+            } else {
+                log.warn('center received is out of bounds, ignoring')
+            }
         }
     },
     zoomToExtent: ({ commit, state, rootState }, { extent, maxZoom, dispatcher }) => {

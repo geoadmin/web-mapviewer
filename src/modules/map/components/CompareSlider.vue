@@ -14,6 +14,7 @@ const olMap = inject('olMap')
 const preRenderKey = ref(null)
 const postRenderKey = ref(null)
 const compareSliderOffset = ref(0)
+const showLayerName = ref(false)
 
 const compareRatio = ref(-0.5)
 const store = useStore()
@@ -138,22 +139,28 @@ function releaseSlider() {
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
+        @mouseenter="showLayerName = true"
+        @mouseleave="showLayerName = false"
     >
         <FontAwesomeIcon
             class="compare-slider-caret-left bg-primary text-white rounded-start"
             :icon="['fas', 'caret-left']"
         />
         <div class="compare-slider-line"></div>
-
         <FontAwesomeIcon
             class="compare-slider-caret-right bg-primary text-white rounded-end"
             :icon="['fas', 'caret-right']"
         />
+        <div v-if="showLayerName" class="compare-slider-layer-name">
+            <FontAwesomeIcon icon="arrow-left" class="me-1" />
+            <strong>{{ visibleLayerOnTop.name }}</strong>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/media-query.mixin';
 
 .compare-slider {
     width: 40px;
@@ -164,10 +171,7 @@ function releaseSlider() {
         position: inherit;
         top: 50%;
         z-index: inherit;
-        padding-left: 6px;
-        padding-right: 6px;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        padding: 2px 6px;
     }
     &-caret-right {
         translate: 20px;
@@ -179,6 +183,24 @@ function releaseSlider() {
         height: 100%;
         background: $primary;
         z-index: inherit;
+    }
+    &-layer-name {
+        position: absolute;
+        width: 120px;
+        z-index: $zindex-compare-slider;
+        bottom: $screen-padding-for-ui-elements;
+        background: $white;
+        right: 30px;
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+}
+
+@include respond-above(phone) {
+    .compare-slider {
+        &-layer-name {
+            bottom: calc($screen-padding-for-ui-elements + $footer-height);
+        }
     }
 }
 </style>

@@ -1,6 +1,7 @@
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
@@ -112,6 +113,10 @@ export function getLayersFromLegacyUrlParams(
             const [_layerType, url] = layerId.split('||')
             layer = new KMLLayer({ kmlFileUrl: url, visible: true })
         }
+        if (layerId.startsWith('GPX||')) {
+            const [_layerType, url] = layerId.split('||')
+            layer = new GPXLayer({ gpxFileUrl: url, visible: true })
+        }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
@@ -122,11 +127,24 @@ export function getLayersFromLegacyUrlParams(
             const [_layerType, name, url, id, version] = layerId.split('||')
             // we only decode if we have enough material
             if (url && id) {
+                const customAttributes = {}
+                try {
+                    const parsedUrl = new URL(url)
+                    for (const [key, value] of parsedUrl.searchParams) {
+                        // ignore well known params to avoid conflict with the service
+                        if (!['SERVICE', 'REQUEST', 'VERSION'].includes(key.toUpperCase())) {
+                            customAttributes[key] = value
+                        }
+                    }
+                } catch (error) {
+                    log.error(`Invalid URL ${url}`)
+                }
                 layer = new ExternalWMSLayer({
                     id,
                     name: name ? name : id,
                     baseUrl: url,
                     wmsVersion: version,
+                    customAttributes,
                 })
             }
         }

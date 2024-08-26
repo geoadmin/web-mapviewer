@@ -151,6 +151,12 @@ export default {
     .card {
         width: max-content;
         max-width: 100vw;
+        // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
+        // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
+        // is older, 90vh will normally be used, which is a bit less clean but good enough.
+        max-height: 90vh;
+        max-height: 100dvh;
+
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;
@@ -160,11 +166,6 @@ export default {
                 border-radius: unset;
             }
         }
-        // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
-        // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
-        // is older, 90vh will normally be used, which is a bit less clean but good enough.
-        max-height: 90vh;
-        max-height: 100dvh;
         @include respond-above(phone) {
             // But for desktop we let the size be dynamic with max to 90% of the view
             max-width: 80vw;

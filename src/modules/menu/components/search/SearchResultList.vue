@@ -135,11 +135,11 @@ defineExpose({ focusFirstEntry })
             class="shadow-lg search-results bg-light"
             :class="{
                 'border-top border-bottom': isPhoneMode,
-                'border rounded-bottom': !isPhoneMode,
+                'rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
         >
-            <div class="search-results-inner">
+            <div class="search-results-inner" :class="{ 'rounded-bottom': !isPhoneMode }">
                 <SearchResultCategory
                     v-for="(category, index) in categories"
                     v-show="category.results.length > 0"
@@ -165,7 +165,8 @@ defineExpose({ focusFirstEntry })
 
 .search-results-container {
     position: fixed;
-    z-index: $zindex-menu-header;
+    // here we need -1 in order to have the focus highlight of the search on top of the result
+    z-index: calc($zindex-menu-header - 1);
     top: $header-height;
     // 45vh (so that previews are visible), but on small screen min 20rem (ca. 3 lines per category)
     height: min(calc(100vh - $header-height), max(20rem, 45vh));

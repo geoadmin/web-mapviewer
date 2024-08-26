@@ -75,6 +75,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {Number} [externalWmsData.currentYear=null] Current year of the time series config to
      *   use. This parameter is needed as it is set in the URL while the timeConfig parameter is not
      *   yet available and parse later on from the GetCapabilities. Default is `null`
+     * @param {Object | null} [externalWmsData.customAttributes=null] The custom attributes (except
+     *   the well known updateDelays, adminId, features and year) passed with the layer id in url.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
     constructor(externalWmsData) {
@@ -100,6 +103,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             dimensions = [],
             timeConfig = null,
             currentYear = null,
+            customAttributes = null,
         } = externalWmsData
         super({
             name,
@@ -118,6 +122,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             getFeatureInfoCapability,
             timeConfig,
             currentYear,
+            customAttributes,
         })
         this.wmsVersion = wmsVersion
         this.format = format

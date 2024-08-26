@@ -93,4 +93,26 @@ describe('Testing 3D navigation', () => {
             })
         })
     })
+
+    it('2d camera does not go out of bounds if url parameter is out of bounds', () => {
+        cy.goToMapView({
+            center: '0,0',
+        })
+        cy.log('check if center is moved to out of bounds location')
+        cy.readStoreValue('state.position').should((positionStore) => {
+            expect(positionStore.center).to.deep.equal([2660000, 1190000])
+        })
+    })
+    it('3d camera does not go out of bounds if url parameter is out of bounds', () => {
+        cy.goToMapView({
+            '3d': true,
+            camera: '0,0',
+        })
+        cy.waitUntilCesiumTilesLoaded()
+        cy.log('check if camera is moved to out of bounds location')
+        cy.readStoreValue('state.position').should((positionStore) => {
+            expect(positionStore.camera.x).to.deep.equal(8.225457)
+            expect(positionStore.camera.y).to.deep.equal(46.858429)
+        })
+    })
 })

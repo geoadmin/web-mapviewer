@@ -86,9 +86,9 @@ function createTileGridForProjection() {
     const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
     let resolutions = projection.value.getResolutions()
     let matrixIds = projection.value.getMatrixIds()
-    if (resolutions.length - 1 > maxResolutionIndex) {
-        resolutions = resolutions.slice(0, maxResolutionIndex)
-        matrixIds = matrixIds.slice(0, maxResolutionIndex)
+    if (resolutions.length > maxResolutionIndex) {
+        resolutions = resolutions.slice(0, maxResolutionIndex + 1)
+        matrixIds = matrixIds.slice(0, maxResolutionIndex + 1)
     }
     return new WMTSTileGrid({
         resolutions,

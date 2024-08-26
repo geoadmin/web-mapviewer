@@ -96,6 +96,8 @@ $square-button-radius: 8px;
         $opened-width: calc($square-button-width / 2.5);
         $cropper-opened-width: calc($opened-width - 2 * $bg-selector-button-border);
         border-radius: $square-button-radius;
+        transition: width $bg-selector-transition-duration;
+        $inner-radius: calc($square-button-radius - $bg-selector-button-border);
         &.opened {
             width: $opened-width;
         }
@@ -108,8 +110,6 @@ $square-button-radius: 8px;
                 width: $cropper-opened-width;
             }
         }
-        transition: width $bg-selector-transition-duration;
-        $inner-radius: calc($square-button-radius - $bg-selector-button-border);
         &-image-cropper {
             border-radius: $inner-radius;
             transition: all $bg-selector-transition-duration;

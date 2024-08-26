@@ -129,16 +129,6 @@ const handleLegacyParam = (
             // they're not called multiple times for nothing
             break
 
-        case '3d':
-            // if the 3d flag is given without being placed behind the hash (meaning at startup),
-            // we need to make sure the projection is set to Mercator, otherwise the startup sequence
-            // ends up not working properly and center the view wrongly
-            if ((typeof legacyValue === 'string' && legacyValue === 'true') || legacyValue) {
-                newQuery['sr'] = WEBMERCATOR.epsgNumber
-            }
-            newValue = legacyValue
-            break
-
         case 'elevation':
             cameraPosition[2] = Number(legacyValue)
             break
@@ -157,18 +147,23 @@ const handleLegacyParam = (
             break
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
+            // NOTE: legacyValue is parsed using URLSearchParams which don't make any difference
+            // between &foo and &foo=
             newValue = legacyValue
             break
     }
 
-    if (newValue) {
+    if (newValue !== undefined) {
         // When receiving a query, the application will encode the URI components
         // We decode those so that the new query won't encode encoded character
         // for example, we avoid having " " becoming %2520 in the URI
         newQuery[key] = decodeURIComponent(newValue)
         log.info(
-            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`
+            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`,
+            newQuery
         )
+    } else {
+        log.error(`[Legacy URL] ${param}=${legacyValue} parameter not processed`)
     }
 }
 

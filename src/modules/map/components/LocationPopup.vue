@@ -27,6 +27,7 @@ const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const currentLang = computed(() => store.state.i18n.lang)
 const showEmbedSharing = computed(() => selectedTab.value === 'share')
+const coordinate = computed(() => store.state.map.locationPopupCoordinates)
 
 const selectedTab = ref('position')
 const shareTabButton = ref(null)
@@ -43,9 +44,7 @@ const mappingFrameworkSpecificPopup = computed(() => {
     }
     return OpenLayersPopover
 })
-const coordinate = computed(() => {
-    return clickInfo.value?.coordinate
-})
+
 const copyButtonIcon = computed(() => {
     if (shareLinkCopied.value) {
         return 'check'
@@ -74,13 +73,13 @@ watch(showEmbedSharing, () => {
 })
 watch(
     () => route.query,
-    (newQuery, oldQuery) => {
-        //Cannot watch language and zoom directly due to the delayed url update
+    () => {
         if (showEmbedSharing.value) {
-            if (oldQuery['lang'] != newQuery['lang']) {
-                updateShareLink()
-            }
+            updateShareLink()
         }
+    },
+    {
+        deep: true,
     }
 )
 
@@ -151,7 +150,7 @@ async function copyShareLink() {
 }
 
 function clearClick() {
-    store.dispatch('clearClick', dispatcher)
+    store.dispatch('clearLocationPopupCoordinates', dispatcher)
     requestClipboard.value = false
 }
 </script>

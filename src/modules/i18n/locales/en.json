@@ -76,7 +76,7 @@
     "connect": "Connect",
     "contact_us": "Contact",
     "contextpopup_lv03_url": "https://www.swisstopo.admin.ch/en/national-triangulation-network-lv03",
-    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/en/national-survey-lv95",
+    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/en/the-swiss-coordinates-system",
     "coordinates_label": "Coordinates (m)",
     "copy_success": "Link copied!",
     "copy_url": "Copy the link",
@@ -607,7 +607,7 @@
     "obstacle_started_last_4_days": "Activated obstacles of last 4 days",
     "obstacle_deleted_last_4_days": "Deleted obstacles of last 4 days",
     "draw_button_delete_last_point": "Delete the last point",
-    "elevation_href": "https://www.swisstopo.admin.ch/en/swiss-national-levelling-network-ln02",
+    "elevation_href": "https://www.swisstopo.admin.ch/en/swiss-reference-systems",
     "copy_cta": "Copy",
     "copy_done": "Copied!",
     "test_map_give_feedback": "Give feedback",
@@ -682,5 +682,11 @@
     "3d_constructions": "Buildings and constructions",
     "webmapviewer_live_disclaimer": "The new map viewer is coming soon - <a target='_blank' href='https://www.geo.admin.ch/en/go-live-map-viewer'>get ready</a>",
     "drawing_too_large": "Your drawing is too large, remove some features",
-    "3d_unsupported_projection": "This map provided by external source can't be displayed in 3d because it doesn't support the projection EPSG:4326"
+    "3d_unsupported_projection": "This map provided by external source can't be displayed in 3d because it doesn't support the projection EPSG:4326",
+    "geoloc_out_of_bounds": "Your current location is outside of Switzerland and cannot be shown",
+    "orient_map_north": "Orient the map",
+    "kml_icon_url_cors_issue": "The KML \"{layerName}\" contains icon(s) with URL {url} that doesn't support CORS! Please contact the administrator of this URL to add support for CORS.",
+    "warning": "Warning",
+    "legal_notice": "Legal Notice",
+    "legal_notice_url": "https://www.geo.admin.ch/en/impressum-responsibilities-and-contacts"
 }

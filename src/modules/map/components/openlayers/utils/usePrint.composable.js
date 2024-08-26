@@ -28,6 +28,8 @@ export function usePrint(map) {
     const currentJobReference = ref(null)
     /** @type {PrintStatus} */
     const printStatus = ref(PrintStatus.IDLE)
+    /** @type {PrintError} */
+    const printError = ref(null)
 
     const store = useStore()
 
@@ -89,6 +91,7 @@ export function usePrint(map) {
             log.error('Error while printing', error)
             if (printStatus.value === PrintStatus.PRINTING) {
                 printStatus.value = PrintStatus.FINISHED_FAILED
+                printError.value = error
             }
             return null
         } finally {
@@ -115,5 +118,6 @@ export function usePrint(map) {
         print,
         abortCurrentJob,
         printStatus,
+        printError,
     }
 }

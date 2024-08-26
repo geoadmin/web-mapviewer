@@ -3,11 +3,13 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
+import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'SearchBar' }
 
 const store = useStore()
 
+const isPristine = ref(true)
 const showResults = ref(false)
 const searchInput = ref(null)
 const searchValue = ref('')
@@ -20,8 +22,11 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 watch(hasResults, (newValue) => {
     // if an entry has been selected from the list, do not show the list again
-    // because the list has been hidden by onEntrySelected
-    if (!selectedEntry.value) {
+    // because the list has been hidden by onEntrySelected. Also if the search bar is pristine (not
+    // yet modified by the user) we don't want to show the result (e.g. at startup with a swisssearch
+    // query param)
+    if (!selectedEntry.value && !isPristine.value) {
+        log.debug(`Search has result changed to ${newValue}, change the show result to ${newValue}`)
         showResults.value = newValue
     }
 })
@@ -38,12 +43,19 @@ watch(searchQuery, (newQuery) => {
 
 onMounted(() => {
     searchValue.value = searchQuery.value
+    searchInput.value.focus()
 })
 
 let debounceSearch = null
 const updateSearchQuery = (event) => {
+    isPristine.value = false
     selectedEntry.value = null
     searchValue.value = event.target.value
+
+    if (hasResults.value) {
+        // we already have a result make sure to display it as soon as the user is typing
+        showResults.value = true
+    }
 
     clearTimeout(debounceSearch)
     debounceSearch = setTimeout(() => {
@@ -51,17 +63,8 @@ const updateSearchQuery = (event) => {
     }, 100)
 }
 
-const onSearchInputFocus = (event) => {
-    // When the focus event is due to a programatic focus event, the relatedTarget is not null
-    // and in this case we don't want to show the result. For example when selecting a result value
-    // we want to close the result and focus on the input, so that the user can directly change
-    // the search.
-    if (!event.relatedTarget && hasResults.value) {
-        showResults.value = true
-    }
-}
-
 const clearSearchQuery = () => {
+    hasResults.value = false
     showResults.value = false
     selectedEntry.value = null
     searchValue.value = ''
@@ -110,6 +113,16 @@ const toggleResults = () => {
         showResults.value = !showResults.value
     }
 }
+
+const onInputClicked = () => {
+    if (hasResults.value) {
+        if (isPhoneMode.value) {
+            showResults.value = !showResults.value
+        } else {
+            showResults.value = true
+        }
+    }
+}
 </script>
 
 <template>
@@ -124,7 +137,7 @@ const toggleResults = () => {
         </span>
         <input
             ref="searchInput"
-            type="text"
+            type="search"
             class="form-control text-truncate"
             :class="{
                 'rounded-bottom-0': showResults,
@@ -132,17 +145,30 @@ const toggleResults = () => {
                 'rounded-end': !searchValue,
             }"
             :placeholder="$t('search_placeholder')"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
             aria-label="Search"
             aria-describedby="searchIconText clearSearchButton"
             :value="searchValue"
             data-cy="searchbar"
             tabindex="0"
+            @click="onInputClicked"
             @input="updateSearchQuery"
-            @focus="onSearchInputFocus"
             @keydown.down.prevent="goToFirstResult"
-            @keydown.esc.prevent="toggleResults"
+            @keydown.esc.prevent="clearSearchQuery"
             @keyup.enter.stop.prevent="goToFirstResult"
         />
+        <button
+            v-if="hasResults && !isPhoneMode"
+            class="btn btn-outline-group"
+            type="button"
+            tabindex="0"
+            data-cy="searchbar-toggle-result"
+            @click="toggleResults"
+        >
+            <FontAwesomeIcon :icon="showResults ? 'caret-up' : 'caret-down'" />
+        </button>
         <button
             v-show="searchValue"
             id="clearSearchButton"
@@ -167,4 +193,11 @@ const toggleResults = () => {
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
+
+// Prevent clear icon of search input on certain browser like chrome, the clear icon is added
+// manually using bootstrap see template above.
+input[type='search']::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
 </style>

@@ -2,7 +2,7 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
@@ -38,6 +38,12 @@ const title = ref(feature.value.title)
 const description = ref(feature.value.description)
 const mediaPopovers = ref(null)
 
+const isEditingText = computed(() => {
+    const titleElement = document.getElementById('drawing-style-feature-title')
+    const descriptionElement = document.getElementById('drawing-style-feature-description')
+    return document.activeElement === titleElement || document.activeElement === descriptionElement
+})
+
 // Update the UI when the feature changes
 watch(
     () => feature.value.title,
@@ -63,6 +69,14 @@ watch(description, () => {
     debounceDescriptionUpdate(store)
 })
 
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown)
+})
+
 // Here we need to declare the debounce method globally otherwise it does not work (it is based
 // on closure which will not work if the debounce method is defined in a watcher)
 // The title debounce needs to be quick in order to be displayed on the map
@@ -70,10 +84,16 @@ const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
 // The description don't need a quick debounce as it is not displayed on the map
 const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 
+function handleKeydown(event) {
+    if (event.key === 'Delete' && !isEditingText.value) {
+        onDelete()
+    }
+}
+
 function updateFeatureTitle() {
     store.dispatch('changeFeatureTitle', {
         feature: feature.value,
-        title: title.value,
+        title: title.value.trim(),
         ...dispatcher,
     })
 }
@@ -101,6 +121,7 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
+const showInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -185,14 +206,15 @@ function mediaTypes() {
                 :class="{
                     'form-control-plaintext': readOnly,
                 }"
+                rows="1"
             ></textarea>
         </div>
 
         <div v-if="!isFeatureText" class="form-group mb-2">
-            <label class="form-label" for="drawing-style-feature-description">
-                {{ $t('modify_description') }}
-            </label>
-            <div>
+            <div class="d-flex justify-content-between">
+                <label class="form-label" for="drawing-style-feature-description">
+                    {{ $t('modify_description') }}
+                </label>
                 <div class="d-flex justify-content-end align-items-center">
                     <div v-for="(media, index) in mediaTypes()" :key="media.type">
                         <DrawingStylePopoverButton
@@ -212,6 +234,8 @@ function mediaTypes() {
                         </DrawingStylePopoverButton>
                     </div>
                 </div>
+            </div>
+            <div>
                 <textarea
                     id="drawing-style-feature-description"
                     v-model="description"
@@ -221,6 +245,7 @@ function mediaTypes() {
                     :class="{
                         'form-control-plaintext': readOnly,
                     }"
+                    rows="2"
                 ></textarea>
             </div>
         </div>
@@ -262,6 +287,7 @@ function mediaTypes() {
                     v-if="isFeatureMarker"
                     data-cy="drawing-style-marker-button"
                     icon="fas fa-map-marker-alt"
+                    :placement="showInBottomPanel ? 'top' : 'auto'"
                 >
                     <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
@@ -297,12 +323,3 @@ function mediaTypes() {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.feature-title {
-    height: 1rem;
-}
-.feature-description {
-    height: 2rem;
-}
-</style>

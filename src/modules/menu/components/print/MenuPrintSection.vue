@@ -3,11 +3,13 @@ import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { PrintError } from '@/api/print.api.js'
 import {
     PrintStatus,
     usePrint,
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import ProgressBar from '@/utils/components/ProgressBar.vue'
 import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils'
 
@@ -20,13 +22,15 @@ const printGrid = ref(false)
 const printLegend = ref(false)
 
 const olMap = inject('olMap')
-const { printStatus, print, abortCurrentJob } = usePrint(olMap)
+const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
 
 const i18n = useI18n()
 const store = useStore()
 const availablePrintLayouts = computed(() => store.state.print.layouts)
 const selectedLayout = computed(() => store.state.print.selectedLayout)
 const scales = computed(() => selectedLayout.value?.scales || [])
+// approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
+const printDuration = computed(() => 8 * (store.getters.visibleLayers.length + 1))
 
 const selectedLayoutName = computed({
     get() {
@@ -49,11 +53,17 @@ const selectedScale = computed({
     },
 })
 
-const printErrorMessage = computed(() =>
-    printStatus.value === PrintStatus.FINISHED_ABORTED
-        ? i18n.t('operation_aborted')
-        : i18n.t('operation_failed')
-)
+const printErrorMessage = computed(() => {
+    if (printStatus.FINISHED_ABORTED) {
+        return i18n.t('operation_aborted')
+    } else {
+        if (printError.value instanceof PrintError && printError.value.key) {
+            return i18n.t(printError.value.key)
+        } else {
+            return i18n.t('operation_failed')
+        }
+    }
+})
 
 watch(isSectionShown, () => {
     store.dispatch('setPrintSectionShown', { show: isSectionShown.value, ...dispatcher })
@@ -198,6 +208,12 @@ defineExpose({
                 <div class="valid-feedback">{{ i18n.t('operation_successful') }}</div>
             </div>
             <div class="full-width justify-content-center">
+                <ProgressBar
+                    v-if="printStatus === PrintStatus.PRINTING"
+                    :duration="printDuration"
+                    bar-class="bg-danger"
+                    class="mb-2"
+                />
                 <button
                     v-if="printStatus === PrintStatus.PRINTING"
                     type="button"
@@ -206,7 +222,6 @@ defineExpose({
                     @click="abortCurrentJob"
                 >
                     {{ i18n.t('abort') }}
-                    <font-awesome-icon spin :icon="['fa', 'spinner']" class="ms-2" />
                 </button>
                 <button
                     v-else

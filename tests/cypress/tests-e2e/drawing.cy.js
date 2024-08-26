@@ -55,9 +55,7 @@ describe('Drawing module tests', () => {
         }
         function readCoordinateClipboard(name, coordinate) {
             cy.log(name)
-            cy.get(`[data-cy="${name}-button"]`).focus()
-            cy.get(`[data-cy="${name}-button"]`).realClick()
-            cy.get(`[data-cy="${name}-icon"]`).should('have.class', 'fa-check')
+            cy.get(`[data-cy="${name}-button"]`).click()
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.be.equal(coordinate)
             })
@@ -267,6 +265,11 @@ describe('Drawing module tests', () => {
                 )
                 cy.log('Coordinates for marker are updated when selecting new marker')
                 cy.get('[data-cy="ol-map"]').click(200, 234)
+                // OL waits 250ms before deciding a click is a single click (and then start the event chain)
+                // and as we do not have a layer that will fire identify features to wait on, we have to resort
+                // to wait arbitrarily 250ms
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(250)
                 readCoordinateClipboard(
                     'feature-detail-coordinate-copy',
                     "2'680'013.50, 1'210'172.00"
@@ -448,6 +451,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(180, 160)
                 cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
+                cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Disclaimer should not appear when host is whitelisted')
                 cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
@@ -530,6 +534,11 @@ describe('Drawing module tests', () => {
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
             cy.log('Coordinates for annotation are updated when selecting new marker')
             cy.get('[data-cy="ol-map"]').click('center')
+            // OL waits 250ms before deciding a click is a single click (and then start the event chain)
+            // and as we do not have a layer that will fire identify features to wait on, we have to resort
+            // to wait arbitrarily 250ms
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
         it('can create line/polygons and edit them', () => {
@@ -577,9 +586,6 @@ describe('Drawing module tests', () => {
                     const [polygonCoordinates] = polygon.getGeometry().getCoordinates()
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
-            cy.get('[data-cy="feature-area-information"]')
-                .should('be.visible')
-                .contains('187.22 km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()
@@ -619,6 +625,35 @@ describe('Drawing module tests', () => {
                     const line = features[1]
                     expect(line.getGeometry().getCoordinates().length).to.eq(2)
                 })
+
+            cy.goToMapView(
+                {
+                    zoom: 6,
+                },
+                false
+            )
+
+            cy.log('Feature Area Info should be in meters below unit threshold')
+            cy.goToDrawing()
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+
+            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74802 m2')
+
+            cy.log('Feature Area Info should be in kilometers above unit threshold')
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+
+            cy.get('[data-cy="ol-map"]').click(200, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 300)
+            cy.get('[data-cy="ol-map"]').click(200, 200)
+
+            cy.get('[data-cy="feature-area-information"]')
+                .should('be.visible')
+                .contains('0.24935 km2')
         })
     })
     context('KML management', () => {
@@ -945,6 +980,7 @@ describe('Drawing module tests', () => {
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
+            cy.get('[data-cy="infobox-close"]').should('be.visible').click()
 
             // it exports KML when clicking on the export button (without choosing format)
             cy.get(

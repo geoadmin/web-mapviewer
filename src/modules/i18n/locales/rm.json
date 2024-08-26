@@ -76,7 +76,7 @@
     "connect": "Connectar",
     "contact_us": "Contact",
     "contextpopup_lv03_url": "https://www.swisstopo.admin.ch/de/landestriangulation-lv03",
-    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/de/landesvermessung-lv95",
+    "contextpopup_lv95_url": "https://www.swisstopo.admin.ch/de/schweizer-koordinatensystem",
     "coordinates_label": "Coordinatas (m)",
     "copy_success": "Link copià!",
     "copy_url": "Copiar il link",
@@ -605,7 +605,7 @@
     "obstacle_started_last_4_days": "Obstachels activads ils ultims 4 dis",
     "obstacle_deleted_last_4_days": "Obstachels stizzads ils ultims 4 dis",
     "draw_button_delete_last_point": "Stizzar l'ultim punct",
-    "elevation_href": "https://www.swisstopo.admin.ch/de/landesnivellementnetz-ln02",
+    "elevation_href": "https://www.swisstopo.admin.ch/it/sistemi-di-riferimento-geodetici-svizzeri",
     "copy_cta": "Copiar",
     "copy_done": "Copià",
     "test_map_give_feedback": "Dar feedback",
@@ -680,5 +680,11 @@
     "3d_constructions": "Edifizis ed installaziuns",
     "webmapviewer_live_disclaimer": "Il visualisader da chartas vegn actualisà proximamain - <a target='_blank' href='https://www.geo.admin.ch/de/go-live-kartenviewer'>stai pronts</a>",
     "drawing_too_large": "Tes dissegn è memia grond, stizza intgins detagls",
-    "3d_unsupported_projection": "La carta na po betg vegnir mussada en 3D perquai ch'ella na sustegna betg la projecziun EPSG:4326"
+    "3d_unsupported_projection": "La carta na po betg vegnir mussada en 3D perquai ch'ella na sustegna betg la projecziun EPSG:4326",
+    "geoloc_out_of_bounds": "Voss lieu actual sa chatta ordaifer la Svizra e na po betg vegnir mussà",
+    "orient_map_north": "Orientar la carta",
+    "kml_icon_url_cors_issue": "Il KML \"{layerName}\" cuntegna icona(s) cun URL {url} che na po nagin sustegnair CORS! As drizzai p.pl. a l'administratura da quella URL per agiuntar il sustegn dal CORS.",
+    "warning": "Avertiment",
+    "legal_notice": "Dapli infurmaziuns",
+    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte"
 }

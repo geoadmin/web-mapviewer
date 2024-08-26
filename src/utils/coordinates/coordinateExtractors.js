@@ -1,73 +1,137 @@
 import proj4 from 'proj4'
 
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 
-// 47.5 7.5
-const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
-// 47°31.8' 7°31.8'
-const REGEX_MERCATOR_WITH_DEGREES =
-    /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)['′]?\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)['′]?\s*$/i
-// 47°38'48'' 7°38'48'' or 47°38'48" 7°38'48"
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES =
-    /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['′"″]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)['′ ]+([\d.]+)['′"″]{0,2}\s*$/i
-// 47°38'48''N 7°38'48''E or 47°38'48"N 7°38'48"E
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT =
-    /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[′' ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)['′ ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*$/i
+const RE_DEGREE_IDENTIFIER = '\\s*°\\s*'
+const RE_DEGREE = `\\d{1,3}(\\.\\d+)?`
+const RE_MIN_IDENTIFIER = "\\s*['‘’‛′]\\s*"
+const RE_MIN = `\\d{1,2}(\\.\\d+)?`
+const RE_SEC_IDENTIFIER = '\\s*(["“”‟″]|[\'‘’‛′]{2})\\s*'
+const RE_SEC = `\\d{1,2}(\\.\\d+)?`
+const RE_CARD = '[NSEW]'
+const RE_SEPARATOR = '\\s*?[ \\t,/]\\s*'
+
+// 47.5 7.5 or 47.5° 7.5°
+const REGEX_WGS_84 = new RegExp(
+    `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+        `${RE_SEPARATOR}` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
+    'i'
+)
+// 47.5N 7.5E or 47.5°N 7.5°E
+const REGEX_WGS_84_WITH_CARDINALS = new RegExp(
+    `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+        `\\s*(?<card1>${RE_CARD})` +
+        `${RE_SEPARATOR}` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+        `\\s*(?<card2>${RE_CARD})$`,
+    'i'
+)
+// N47.5 E7.5 or N47.5 E7.5
+const REGEX_WGS_84_WITH_PRE_FIXED_CARDINALS = new RegExp(
+    `^(?<card1>${RE_CARD})\\s*` +
+        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+        `${RE_SEPARATOR}` +
+        `(?<card2>${RE_CARD})\\s*` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
+    'i'
+)
+// 47°31.8' 7°31.8' or 47°31.8' 7°31.8' or 47°31.8'30"N 7°31.8'30.4"E or 47°31.8'N 7°31.8'E or without °'" 47 31.8 30 N 7 31.8 30.4 E
+const REGEX_WGS_84_WITH_MIN = new RegExp(
+    `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
+        `(\\s*(?<card1>${RE_CARD}))?` +
+        `${RE_SEPARATOR}` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
+        `(\\s*(?<card2>${RE_CARD}))?$`,
+    'i'
+)
+// N47°31.8' E7°31.8'or without °'" N 47 31.8 E 7 31.8
+const REGEX_WGS_84_WITH_MIN_PREFIXED = new RegExp(
+    `^(?<card1>${RE_CARD})\\s*` +
+        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
+        `${RE_SEPARATOR}` +
+        `(?<card2>${RE_CARD})\\s*` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?$`,
+    'i'
+)
+// 47°31.8'30" 7°31.8'30.4" or 47°31.8'30"N 7°31.8'30.4"E or without °'" 47 31.8 30 N 7 31.8 30.4 E
+const REGEX_WGS_84_WITH_SECONDS = new RegExp(
+    `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec1>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
+        `(\\s*(?<card1>${RE_CARD}))?` +
+        `${RE_SEPARATOR}` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
+        `(\\s*(?<card2>${RE_CARD}))?$`,
+    'i'
+)
+// same as REGEX_WGS_84_WITH_SECONDS but with prefixed cardinal: N 47°31.8'30" E 7°31.8'30.4"
+const REGEX_WGS_84_WITH_SECONDS_PREFIXED = new RegExp(
+    `^(?<card1>${RE_CARD})\\s*` +
+        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec1>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
+        `${RE_SEPARATOR}` +
+        `(?<card2>${RE_CARD})\\s*` +
+        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?$`,
+    'i'
+)
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES =
-    /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i
+    /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i
 
-// Military Grid Reference System (MGRS)
-const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i
+// Military Grid Reference System (MGRS) (e.g. 32TMS 40959 89723)
+const REGEX_MILITARY_GRID = /^3[123]\s*[a-z]{3}\s*\d{1,5}\s*\d{1,5}$/i
+
+const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
+
+const thousandSeparatorRegex = /['`´ ]/g
 
 const numericalExtractor = (regexMatches) => {
     // removing thousand separators
-    const x = Number(regexMatches[1].replace(/[' ]/g, ''))
-    const y = Number(regexMatches[2].replace(/[' ]/g, ''))
+    const x = Number(regexMatches.groups.coord1.replace(thousandSeparatorRegex, ''))
+    const y = Number(regexMatches.groups.coord2.replace(thousandSeparatorRegex, ''))
     if (Number.isNaN(x) || Number.isNaN(y)) {
         return undefined
     }
     return reprojectUnknownSrsCoordsToWGS84(x, y)
 }
 
-const webmercatorExtractor = (regexMatches) => {
-    if (regexMatches.length === 3) {
-        // 2 matches + global match i.e. : (45.12), (7.12)
-        return numericalExtractor(regexMatches)
+const wgs84Extractor = (regexMatches) => {
+    let firstNumber, secondNumber
+    let firstCardinal, secondCardinal
+
+    // Extract degrees
+    firstNumber = Number(regexMatches.groups.degree1)
+    secondNumber = Number(regexMatches.groups.degree2)
+
+    // Extract minutes if any
+    if (regexMatches.groups.min1) {
+        firstNumber += Number(regexMatches.groups.min1) / 60
     }
-    let lon, lat
-    if (regexMatches.length === 5) {
-        // 4 matches + global match, i.e. : (47)°(5.123)', (8)°(4.154)'
-        lon = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0
-        lat = Number(regexMatches[3]) + Number(regexMatches[4]) / 60.0
+    if (regexMatches.groups.min2) {
+        secondNumber += Number(regexMatches.groups.min2) / 60
     }
-    if (regexMatches.length === 7) {
-        // 6 matches + global match, i.e. : (47)°(5)'(41.61)", (8)°(4)'(6.32)"
-        lon =
-            Number(regexMatches[1]) +
-            Number(regexMatches[2]) / 60.0 +
-            Number(regexMatches[3]) / 3600.0
-        lat =
-            Number(regexMatches[4]) +
-            Number(regexMatches[5]) / 60.0 +
-            Number(regexMatches[6]) / 3600.0
+
+    // Extract seconds if any
+    if (regexMatches.groups.sec1) {
+        firstNumber += Number(regexMatches.groups.sec1) / 3600
     }
-    if (regexMatches.length === 9) {
-        // 8 matches + global match, i.e. (47)°(5)'(41.61)"(N), (8)°(4)'(6.32)"(E)
-        const firstNumber =
-            Number(regexMatches[1]) +
-            Number(regexMatches[2]) / 60.0 +
-            Number(regexMatches[3]) / 3600.0
-        const firstCardinal = regexMatches[4]
-        const secondNumber =
-            Number(regexMatches[5]) +
-            Number(regexMatches[6]) / 60.0 +
-            Number(regexMatches[7]) / 3600.0
-        const secondCardinal = regexMatches[8]
-        switch (firstCardinal.toUpperCase()) {
+    if (regexMatches.groups.sec2) {
+        secondNumber += Number(regexMatches.groups.sec2) / 3600
+    }
+
+    // Extract cardinal if any
+    if (regexMatches.groups.card1) {
+        firstCardinal = regexMatches.groups.card1
+    }
+    if (regexMatches.groups.card2) {
+        secondCardinal = regexMatches.groups.card2
+    }
+
+    if (firstNumber && secondNumber) {
+        let lon = firstNumber,
+            lat = secondNumber
+        switch (firstCardinal?.toUpperCase()) {
             case 'N':
                 lat = firstNumber
                 break
@@ -81,7 +145,7 @@ const webmercatorExtractor = (regexMatches) => {
                 lon = -firstNumber
                 break
         }
-        switch (secondCardinal.toUpperCase()) {
+        switch (secondCardinal?.toUpperCase()) {
             case 'N':
                 lat = secondNumber
                 break
@@ -95,9 +159,12 @@ const webmercatorExtractor = (regexMatches) => {
                 lon = -secondNumber
                 break
         }
-    }
-    if (lon && lat && WGS84.isInBounds(lon, lat)) {
-        return [lon, lat]
+        if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
+            return [lon, lat]
+        }
+        if (LV95_BOUNDS_IN_WGS84.isInBounds(lat, lon)) {
+            return [lat, lon]
+        }
     }
     return null
 }
@@ -119,7 +186,7 @@ const executeAndReturn = (regex, text, outputProjection, extractor = numericalEx
         return undefined
     }
 
-    const matches = regex.exec(text)
+    const matches = regex.exec(text.trim())
     if (matches) {
         const extractedCoordinates = extractor(matches)
         if (!extractedCoordinates) {
@@ -156,7 +223,7 @@ const executeAndReturn = (regex, text, outputProjection, extractor = numericalEx
  *
  * - With or without thousands separator (`600'000 200'000` or `600000 200000`)
  *
- * WGS84 (Web Mercator):
+ * WGS84:
  *
  * - Numerical (`46.97984 6.60757`)
  * - DegreesMinutes (`46°58.7904' 6°36.4542'`)
@@ -184,27 +251,20 @@ const coordinateFromString = (text, toProjection) => {
     // creating a config array with each entry being an object with a regex attribute
     // and the corresponding extractor when this regex matches the input
     return [
-        { regex: REGEX_WEB_MERCATOR, extractor: webmercatorExtractor },
+        { regex: REGEX_WGS_84, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_CARDINALS, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_PRE_FIXED_CARDINALS, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_MIN, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_MIN_PREFIXED, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_SECONDS, extractor: wgs84Extractor },
+        { regex: REGEX_WGS_84_WITH_SECONDS_PREFIXED, extractor: wgs84Extractor },
+
         { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
-        { regex: REGEX_MERCATOR_WITH_DEGREES, extractor: webmercatorExtractor },
-        {
-            regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES,
-            extractor: webmercatorExtractor,
-        },
-        {
-            regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT,
-            extractor: webmercatorExtractor,
-        },
         { regex: REGEX_MILITARY_GRID, extractor: mgrsExtractor },
     ]
         .map((config) => {
             // going through each config and extracting the result (can be undefined if not a match)
-            return executeAndReturn(
-                config.regex,
-                text.replace(/\t/, ' '),
-                toProjection,
-                config.extractor
-            )
+            return executeAndReturn(config.regex, text, toProjection, config.extractor)
         })
         .find((result) => Array.isArray(result)) // returning the first value that is a coordinate array (will return undefined if nothing is found)
 }

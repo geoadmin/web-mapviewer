@@ -31,6 +31,7 @@ describe('Testing coordinates typing in search bar', () => {
     )
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
+        cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
         cy.readStoreValue('state.position.center').should((center) => {
             expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
             expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
@@ -55,16 +56,24 @@ describe('Testing coordinates typing in search bar', () => {
             expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
-    const standardCheck = (x, y, acceptableDelta = 0.0) => {
+    const standardCheck = (x, y, options = {}) => {
+        const { acceptableDelta = 0.0, withInversion = false } = options
         cy.get(searchbarSelector).should('be.visible')
         cy.get(searchbarSelector).paste(`${x} ${y}`)
         checkCenterInStore(acceptableDelta)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDelta)
+        if (withInversion) {
+            cy.get(searchbarSelector).clear()
+            cy.get(searchbarSelector).paste(`${y} ${x}`)
+            checkCenterInStore(acceptableDelta)
+            checkZoomLevelInStore()
+            checkThatCoordinateAreHighlighted(acceptableDelta)
+        }
     }
 
     it('Paste and clear LV95 coordinates in search bar', () => {
-        standardCheck(expectedCenterLV95[0], expectedCenterLV95[1])
+        standardCheck(expectedCenterLV95[0], expectedCenterLV95[1], { withInversion: true })
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
@@ -79,21 +88,32 @@ describe('Testing coordinates typing in search bar', () => {
             return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
         })
         const acceptableDelta = 0.25
-        standardCheck(expectedCenterWGS84[0], expectedCenterWGS84[1], acceptableDelta)
+        standardCheck(expectedCenterWGS84[0], expectedCenterWGS84[1], {
+            acceptableDelta,
+            withInversion: true,
+        })
         // clear the bar
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
-        standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], acceptableDelta)
+        standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], {
+            acceptableDelta,
+            withInversion: true,
+        })
     })
 
     it('Paste EPSG:3857 (Web-Mercator) coordinate', () => {
         const acceptableDelta = 0
-        standardCheck(expectedCenterWebMercator[0], expectedCenterWebMercator[1], acceptableDelta)
+        standardCheck(expectedCenterWebMercator[0], expectedCenterWebMercator[1], {
+            acceptableDelta,
+        })
     })
 
     it('Paste EPSG:21781 (LV03) coordinates', () => {
-        standardCheck(expectedCenterLV03[0], expectedCenterLV03[1], 0.1)
+        standardCheck(expectedCenterLV03[0], expectedCenterLV03[1], {
+            acceptableDelta: 0.1,
+            withInversion: true,
+        })
     })
 
     context('What3Words input', () => {
@@ -124,9 +144,9 @@ describe('Testing coordinates typing in search bar', () => {
     it('Paste MGRS input', () => {
         // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
         const acceptableDeltaForMGRS = 1
-        cy.get(searchbarSelector).paste(
-            latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
-        )
+        const mgrsCoordinates = latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
+        cy.log(`Enter MGRS ${mgrsCoordinates} in search bar`)
+        cy.get(searchbarSelector).paste(mgrsCoordinates)
         checkCenterInStore(acceptableDeltaForMGRS)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)

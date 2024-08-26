@@ -17,6 +17,7 @@ const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of 
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
 const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
+const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
@@ -46,29 +47,16 @@ class GeoAdminCustomizer extends BaseCustomizer {
     }
 
     /**
-     * Remove the "editableFeature" adn "geodesic" property from the feature as it is not needed and
-     * can cause issues with mapfishprint
-     *
-     * @param {State} layerState
-     * @param {GeoJSONFeature} feature Manipulated feature
-     */
-    feature(layerState, feature) {
-        // cause circular reference issues
-        delete feature.properties?.geodesic
-        // unnecessary properties for printing and cause mapfishprint to throw an error
-        delete feature.properties?.editableFeature
-    }
-
-    /**
      * Manipulate the symbolizer of a line feature before printing it. In this case replace the
      * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
      * @param {Stroke} stroke Stroke style of the line feature
      */
     // eslint-disable-next-line no-unused-vars
-    line(layerState, symbolizer, stroke) {
+    line(layerState, geojsonFeature, symbolizer, stroke) {
         if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
         }
@@ -81,24 +69,15 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * Manipulate the symbolizer of a text style of a feature before printing it.
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerText} symbolizer Interface for the symbolizer of a text feature
      * @param {Text} text Text style of the feature
      */
     // eslint-disable-next-line no-unused-vars
-    text(layerState, symbolizer, text) {
+    text(layerState, geojsonFeature, symbolizer, text) {
         symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-        // Ideally this should be done in the geoblocks/mapfishprint
-        // but it's quite complex to handle all the cases
-        try {
-            const fontFamily = symbolizer.fontFamily.split(' ')
-            symbolizer.fontWeight = fontFamily[0]
-            symbolizer.fontSize = parseInt(fontFamily[1])
-            symbolizer.fontFamily = fontFamily[2].toUpperCase()
-        } catch (error) {
-            // Keep the font family as it is
-        }
     }
 
     /**
@@ -106,11 +85,12 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * manipulate the width and offset of the image to match the old geoadmin
      *
      * @param {State} layerState
+     * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerPoint} symbolizer Interface for the symbolizer of a text feature
      * @param {Image} image Image style of the feature
      */
     // eslint-disable-next-line no-unused-vars
-    point(layerState, symbolizer, image) {
+    point(layerState, geojsonFeature, symbolizer, image) {
         const scale = image.getScaleArray()[0]
         let size = null
         let anchor = null
@@ -351,6 +331,15 @@ async function transformOlMapToPrintParams(olMap, config) {
             dpi: dpi,
             customizer: customizer,
         })
+        // Note (IS): This is a dirty fix to handle empty text annotation. See PB-790
+        // It should be removed once the issue is fixed in the mapfishprint library
+        encodedMap.layers.forEach((layer) => {
+            layer.geoJson?.features?.forEach((feature) => {
+                // Delete the editableFeature property because it will cause an error in the mapfishprint
+                // Should be handled inside GeoAdminCustomizer.feature but it skip the feature with empty text
+                delete feature.properties?.editableFeature
+            })
+        })
         if (printGrid) {
             encodedMap.layers.unshift({
                 baseURL: WMS_BASE_URL,
@@ -362,7 +351,9 @@ async function transformOlMapToPrintParams(olMap, config) {
                 styles: [''],
                 customParams: {
                     TRANSPARENT: true,
-                    MAP_RESOLUTION: dpi,
+                    // Notes(IS): The coordinate grid is cutted off if we use the same resolution as the DPI.
+                    // This value is a bit smaller than the DPI to avoid this issue.
+                    MAP_RESOLUTION: Math.floor(dpi * 0.85),
                 },
             })
         }
@@ -398,6 +389,24 @@ async function transformOlMapToPrintParams(olMap, config) {
         log.error("Couldn't encode map to print request", error)
         throw new PrintError(`Couldn't encode map to print request: ${error}`)
     }
+}
+
+/**
+ * Replacer function to manipulate some properties from the printing spec before sending it to the
+ * printing service. It is used as a parameter for JSON.stringify in the requestReport function. See
+ * more
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
+ */
+function printSpecReplacer(key, value) {
+    // Remove the "bad" property from the feature
+    const badKeys = [
+        'editableFeature', // unnecessary properties for printing but cause mapfishprint to throw an error
+        'geodesic', // cause circular reference issues on JSON.stringify
+    ]
+    if (badKeys.includes(key)) {
+        return undefined
+    }
+    return value
 }
 
 /**
@@ -457,11 +466,19 @@ export async function createPrintJob(map, config) {
             outputFilename,
             dpi,
         })
+        if (!isPrintingSpecSizeValid(printingSpec)) {
+            throw new PrintError('Printing spec is too large', 'print_request_too_large')
+        }
         log.debug('Starting print for spec', printingSpec)
-        return await requestReport(SERVICE_PRINT_URL, printingSpec)
+
+        return await requestReport(SERVICE_PRINT_URL, printingSpec, printSpecReplacer)
     } catch (error) {
         log.error('Error while creating print job', error)
-        throw new PrintError(`Error while creating print job: ${error}`)
+        if (error instanceof PrintError) {
+            throw error
+        } else {
+            throw new PrintError(`Error while creating print job: ${error}`)
+        }
     }
 }
 
@@ -492,4 +509,16 @@ export async function abortPrintJob(printJobReference) {
         log.error('Could not abort print job', error)
         throw new PrintError('Could not abort print job')
     }
+}
+/**
+ * Check if the size of the printing spec is not bigger than MAX_PRINT_SPEC_SIZE
+ *
+ * @param {Object} printingSpec
+ * @returns {boolean} True if not bigger than MAX_PRINT_SPEC_SIZE, false otherwise
+ */
+function isPrintingSpecSizeValid(printingSpec) {
+    const jsonString = JSON.stringify(printingSpec, printSpecReplacer)
+    const byteLength = new TextEncoder().encode(jsonString).length
+
+    return byteLength <= MAX_PRINT_SPEC_SIZE
 }

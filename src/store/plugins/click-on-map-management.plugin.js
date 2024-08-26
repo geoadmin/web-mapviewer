@@ -14,10 +14,10 @@ const clickOnMapManagementPlugin = (store) => {
         if (
             mutation.type === 'setShowDrawingOverlay' &&
             mutation.payload &&
-            state.map.displayLocationPopup
+            state.map.locationPopupCoordinates
         ) {
             // when entering the drawing menu we need to clear the location popup
-            store.dispatch('hideLocationPopup', dispatcher)
+            store.dispatch('clearLocationPopupCoordinates', dispatcher)
         }
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
@@ -25,7 +25,6 @@ const clickOnMapManagementPlugin = (store) => {
             const clickInfo = mutation.payload.clickInfo
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-
             if (isLeftSingleClick) {
                 store
                     .dispatch('identifyFeatureAt', {
@@ -35,11 +34,7 @@ const clickOnMapManagementPlugin = (store) => {
                         ...dispatcher,
                     })
                     .then(() => {
-                        // while embedded, we do not change the way the feature tooltip is shown after
-                        // app initialization, this way the user that embed our app can choose to disable
-                        // tooltip entirely (and manage feature selection through the postMessage API)
                         if (
-                            !state.ui.embed &&
                             store.getters.noFeatureInfo &&
                             state.features.selectedFeaturesByLayerId.length > 0
                         ) {
@@ -53,10 +48,10 @@ const clickOnMapManagementPlugin = (store) => {
                     })
             }
             if (isContextMenuClick) {
-                store.dispatch('clearAllSelectedFeatures', dispatcher)
-                store.dispatch('displayLocationPopup', dispatcher)
-            } else {
-                store.dispatch('hideLocationPopup', dispatcher)
+                store.dispatch('setLocationPopupCoordinates', {
+                    coordinates: clickInfo.coordinate,
+                    dispatcher,
+                })
             }
         }
     })
