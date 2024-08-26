@@ -19,7 +19,6 @@ function selectFeatureCallback() {
         coordinates: pinnedLocation.value,
         dispatcher,
     })
-    store.dispatch('setPinnedLocationSelected', { selected: true, ...dispatcher })
 }
 </script>
 

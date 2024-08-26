@@ -66,12 +66,6 @@ export default {
          * @type Array<Number>
          */
         locationPopupCoordinates: null,
-        /**
-         * Flags telling if pinnedLocation is selected by the user
-         *
-         * @type Boolean
-         */
-        pinnedLocationSelected: false,
     },
     actions: {
         /**
@@ -85,7 +79,6 @@ export default {
 
         clearClick: ({ commit }, { dispatcher }) => {
             commit('setClickInfo', { clickInfo: null, dispatcher })
-            commit('setPinnedLocationSelected', { selected: false, dispatcher })
         },
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
@@ -130,9 +123,6 @@ export default {
                 commit('setLocationPopupCoordinates', { coordinates: null, dispatcher })
             }
         },
-        setPinnedLocationSelected({ commit }, { selected, dispatcher }) {
-            commit('setPinnedLocationSelected', { selected, dispatcher })
-        },
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -141,7 +131,5 @@ export default {
             (state.previewedPinnedLocation = coordinates),
         setLocationPopupCoordinates: (state, { coordinates }) =>
             (state.locationPopupCoordinates = coordinates),
-        setPinnedLocationSelected: (state, { selected }) =>
-            (state.pinnedLocationSelected = selected),
     },
 }
