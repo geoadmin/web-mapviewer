@@ -26,7 +26,7 @@ function selectFeatureCallback() {
     <OpenLayersMarker
         v-if="pinnedLocation"
         :position="pinnedLocation"
-        :marker-style="'balloon'"
+        marker-style="balloon"
         :z-index="zIndexDroppedPin"
         :select-feature-callback="selectFeatureCallback"
     />

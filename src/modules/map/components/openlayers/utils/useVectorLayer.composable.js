@@ -1,6 +1,5 @@
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
-import { unByKey } from 'ol/Observable'
 import { Vector as VectorSource } from 'ol/source'
 import { onUnmounted, toValue, watchEffect } from 'vue'
 
@@ -18,15 +17,13 @@ import { randomIntBetween } from '@/utils/numberUtils'
  * @param {Readonly<Ref<Feature[]>>} features
  * @param {Function} styleFunction
  * @param {Function} onFeatureSelectCallback
- * @param {Function} onFeatureDeselectCallback
  */
 export default function useVectorLayer(
     map,
     features,
     zIndex = -1,
     styleFunction = highlightFeatureStyle,
-    onFeatureSelectCallback = () => {},
-    onFeatureDeselectCallback = () => {}
+    onFeatureSelectCallback = () => {}
 ) {
     const layer = new VectorLayer({
         id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -50,21 +47,6 @@ export default function useVectorLayer(
             event.selected.forEach((feature) => {
                 onFeatureSelectCallback(feature)
             })
-        } else if (event.deselected.length > 0) {
-            onFeatureDeselectCallback()
-        }
-    })
-
-    // Add a click listener to the map to handle deselection
-    const mapClickListener = map.on('click', function (evt) {
-        const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-            return feature
-        })
-
-        if (!feature) {
-            // If no feature is clicked, clear the selection
-            selectInteraction.getFeatures().clear()
-            onFeatureDeselectCallback()
         }
     })
 
@@ -76,7 +58,6 @@ export default function useVectorLayer(
     // Clean up: remove the interaction when the composable is unmounted
     onUnmounted(() => {
         map.removeInteraction(selectInteraction)
-        unByKey(mapClickListener)
     })
 
     return {
