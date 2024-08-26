@@ -8,7 +8,6 @@ import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMark
 const store = useStore()
 
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
-const pinnedLocationSelected = computed(() => store.state.map.pinnedLocationSelected)
 const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
 
 const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
@@ -16,11 +15,11 @@ const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
 const dispatcher = { dispatcher: 'OpenLayersPinnedLocation.vue' }
 
 function selectFeatureCallback() {
+    store.dispatch('setLocationPopupCoordinates', {
+        coordinates: pinnedLocation.value,
+        dispatcher,
+    })
     store.dispatch('setPinnedLocationSelected', { selected: true, ...dispatcher })
-}
-
-function deselectFeatureCallback() {
-    store.dispatch('setPinnedLocationSelected', { selected: false, ...dispatcher })
 }
 </script>
 
@@ -31,14 +30,6 @@ function deselectFeatureCallback() {
         :marker-style="'balloon'"
         :z-index="zIndexDroppedPin"
         :select-feature-callback="selectFeatureCallback"
-        :deselect-feature-callback="deselectFeatureCallback"
-    />
-    <!-- For highlighting when the pinned location is selected-->
-    <OpenLayersMarker
-        v-if="pinnedLocation && pinnedLocationSelected"
-        :position="pinnedLocation"
-        :marker-style="'feature'"
-        :z-index="zIndexDroppedPin"
     />
     <OpenLayersMarker
         v-if="previewedPinnedLocation"
