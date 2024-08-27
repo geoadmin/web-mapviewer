@@ -74,9 +74,9 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) => {
-            commit('setClickInfo', { clickInfo, dispatcher })
-        },
+        click: ({ commit }, { clickInfo, dispatcher }) =>
+            commit('setClickInfo', { clickInfo, dispatcher }),
+
         clearClick: ({ commit }, { dispatcher }) => {
             commit('setClickInfo', { clickInfo: null, dispatcher })
         },
