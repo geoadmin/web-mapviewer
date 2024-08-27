@@ -7,7 +7,7 @@ import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'

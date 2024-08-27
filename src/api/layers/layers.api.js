@@ -9,7 +9,8 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { API_BASE_URL, DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION, WMTS_BASE_URL } from '@/config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
 import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
@@ -83,7 +84,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     format,
                     timeConfig,
                     isBackground: !!isBackground,
-                    baseUrl: WMTS_BASE_URL,
                     isHighlightable,
                     hasTooltip,
                     topics,
@@ -209,7 +209,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
 export const getLayerDescription = (lang, layerId) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(`${API_BASE_URL}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
+            .get(`${getApi3BaseUrl()}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
             .then((response) => resolve(response.data))
             .catch((error) => {
                 log.error('Error while retrieving the legend for the layer', layerId, error)
@@ -226,13 +226,13 @@ export const getLayerDescription = (lang, layerId) => {
  */
 export const loadLayersConfigFromBackend = (lang) => {
     return new Promise((resolve, reject) => {
-        if (!API_BASE_URL) {
+        if (!getApi3BaseUrl()) {
             // this could happen if we are testing the app in unit tests, we simply reject and do nothing
             reject('API base URL is undefined')
         } else {
             const layersConfig = []
             axios
-                .get(`${API_BASE_URL}rest/services/all/MapServer/layersConfig?lang=${lang}`)
+                .get(`${getApi3BaseUrl()}rest/services/all/MapServer/layersConfig?lang=${lang}`)
                 .then(({ data: rawLayersConfig }) => {
                     if (Object.keys(rawLayersConfig).length > 0) {
                         Object.keys(rawLayersConfig).forEach((rawLayerId) => {

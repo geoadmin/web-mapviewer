@@ -11,7 +11,8 @@ import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
-import { API_BASE_URL, DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import { createPixelExtentAround } from '@/utils/extentUtils'
@@ -142,7 +143,7 @@ export async function identifyOnGeomAdminLayer({
     }
     const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
-        `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
+        `${getApi3BaseUrl()}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
             // params described as https://api3.geo.admin.ch/services/sdiservices.html#identify-features
             params: {
@@ -561,10 +562,10 @@ export const identify = (config) => {
 /**
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureId The feature ID in the BGDI
- * @returns {string}
+ * @returns {String}
  */
 function generateFeatureUrl(layer, featureId) {
-    return `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
+    return `${getApi3BaseUrl()}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
 }
 
 /**

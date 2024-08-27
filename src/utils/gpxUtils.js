@@ -3,7 +3,7 @@ import bbox from '@turf/bbox'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'
 
-import { GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config'
+import { GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config/map.config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { gpxStyles } from '@/utils/styleUtils'

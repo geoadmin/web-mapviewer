@@ -4,7 +4,7 @@ import VectorSource from 'ol/source/Vector'
 import { computed, inject, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'

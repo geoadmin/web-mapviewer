@@ -2,7 +2,7 @@
 
 import proj4 from 'proj4'
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 

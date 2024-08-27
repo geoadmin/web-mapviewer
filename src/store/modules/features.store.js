@@ -9,7 +9,7 @@ import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
-} from '@/config.js'
+} from '@/config/map.config'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'

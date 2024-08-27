@@ -7,7 +7,7 @@ import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { parseGpx } from '@/utils/gpxUtils'
 import log from '@/utils/logging'

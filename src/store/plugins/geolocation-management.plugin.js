@@ -1,9 +1,9 @@
 import proj4 from 'proj4'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }

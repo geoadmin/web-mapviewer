@@ -2,7 +2,9 @@
 
 import proj4 from 'proj4'
 
-import { API_SERVICE_SHORTLINK_BASE_URL, BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
+import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import {
     LV03Format,
     LV95Format,
@@ -119,7 +121,7 @@ describe('Test mouse position and interactions', () => {
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
             function stubShortLinkResponse(shortLinkStub) {
-                cy.intercept(`${API_SERVICE_SHORTLINK_BASE_URL}**`, {
+                cy.intercept(`${getServiceShortLinkBaseUrl()}**`, {
                     body: { shorturl: shortLinkStub, success: true },
                 }).as('shortlink')
             }

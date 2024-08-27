@@ -100,22 +100,18 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
+import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
+import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import {
-    BASE_URL_3D_TILES,
-    DEFAULT_PROJECTION,
-    IS_TESTING_WITH_CYPRESS,
-    WMS_BASE_URL,
-    WMTS_BASE_URL,
-} from '@/config'
+import { get3dTilesBaseUrl, getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
@@ -282,9 +278,9 @@ export default {
                 : urlWithoutScheme
         }
         const backendUsedToServe3dData = {}
-        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(BASE_URL_3D_TILES)}:443`] = 18
-        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(WMTS_BASE_URL)}:443`] = 18
-        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(WMS_BASE_URL)}:443`] = 18
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(get3dTilesBaseUrl())}:443`] = 18
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(getWmtsBaseUrl())}:443`] = 18
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(getWmsBaseUrl())}:443`] = 18
         // A per server key list of overrides to use for throttling limits.
         // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
         Object.assign(RequestScheduler.requestsByServer, backendUsedToServe3dData)

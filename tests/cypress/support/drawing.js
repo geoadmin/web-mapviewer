@@ -1,7 +1,7 @@
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { BREAKPOINT_PHONE_WIDTH } from '@/config'
+import { BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
 import { GREEN, RED } from '@/utils/featureStyleUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 

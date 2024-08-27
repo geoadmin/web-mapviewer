@@ -1,7 +1,7 @@
 import { PrimitiveCollection } from 'cesium'
 import { Vector as VectorLayer } from 'ol/layer'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/modules/map/components/cesium/constants'
 import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToViewer-mixins'
 import FeatureConverter from '@/modules/map/components/cesium/utils/olcs/FeatureConverter'

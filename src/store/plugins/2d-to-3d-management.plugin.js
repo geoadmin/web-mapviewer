@@ -1,4 +1,4 @@
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const dispatcher = { dispatcher: '2d-to-3d-management.plugin' }

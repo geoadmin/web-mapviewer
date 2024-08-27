@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { DRAWING_HIT_TOLERANCE } from '@/config'
+import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
 
 const cssPointer = 'cursor-pointer'

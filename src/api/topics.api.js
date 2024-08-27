@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
-import { API_BASE_URL, ENVIRONMENT } from '@/config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { ENVIRONMENT } from '@/config/staging.config'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
@@ -87,7 +88,7 @@ const readTopicTreeRecursive = (node, availableLayers) => {
 export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(`${API_BASE_URL}rest/services/${topicId}/CatalogServer?lang=${lang}`)
+            .get(`${getApi3BaseUrl()}rest/services/${topicId}/CatalogServer?lang=${lang}`)
             .then((response) => {
                 const treeItems = []
                 const topicRoot = response.data.results.root
@@ -114,7 +115,7 @@ export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
  */
 export async function loadTopics() {
     try {
-        const response = await axios.get(`${API_BASE_URL}rest/services`)
+        const response = await axios.get(`${getApi3BaseUrl()}rest/services`)
         return response.data
     } catch (error) {
         log.error(`Failed to load topics from backend`, error)

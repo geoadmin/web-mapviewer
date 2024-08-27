@@ -11,12 +11,14 @@ import { useStore } from 'vuex'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
-import { WMS_TILE_SIZE } from '@/config'
+import { getBaseUrlOverride } from '@/config/baseUrl.config'
+import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { LV95 } from '@/utils/coordinates/coordinateSystems.js'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
+
 const props = defineProps({
     wmsLayerConfig: {
         type: [GeoAdminWMSLayer, ExternalWMSLayer],
@@ -44,7 +46,7 @@ const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
 const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
-const url = computed(() => wmsLayerConfig.value.baseUrl)
+const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.value.baseUrl)
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
 const urlParams = computed(() => cloneDeep(wmsLayerConfig.value.customAttributes) ?? null)
 

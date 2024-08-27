@@ -1,4 +1,5 @@
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
@@ -126,6 +127,9 @@ const storeSyncConfig = [
         defaultValue: '',
     }),
     new TimeSliderParamConfig(),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'wms_url', baseUrlPropertyName: 'wms' }),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'wmts_url', baseUrlPropertyName: 'wmts' }),
+    createBaseUrlOverrideParamConfig({ urlParamName: 'api_url', baseUrlPropertyName: 'api3' }),
 ]
 
 export default storeSyncConfig

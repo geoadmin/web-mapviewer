@@ -1,7 +1,7 @@
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
+import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -95,7 +95,7 @@ export function sanitizeTitle(title = '') {
  * @returns Promise<Array<Any>>
  */
 const generateAxiosSearchRequest = (query, lang, type, cancelToken, extraParams = {}) => {
-    return axios.get(`${API_SERVICE_SEARCH_BASE_URL}rest/services/ech/SearchServer`, {
+    return axios.get(`${getServiceSearchBaseUrl()}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
             sr: LV95.epsgNumber,

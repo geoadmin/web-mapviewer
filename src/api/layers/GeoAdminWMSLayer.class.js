@@ -1,7 +1,7 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WMS_BASE_URL } from '@/config'
+import { getWmsBaseUrl } from '@/config/baseUrl.config'
 
 /**
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
@@ -73,7 +73,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             opacity = 1.0,
             visible = true,
             attributions = null,
-            baseUrl = WMS_BASE_URL,
+            baseUrl = getWmsBaseUrl(),
             format = 'png',
             timeConfig = null,
             wmsVersion = '1.3.0',

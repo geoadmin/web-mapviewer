@@ -14,7 +14,7 @@ import axios from 'axios'
 import { computed, inject, toRefs, watch } from 'vue'
 
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
-import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
+import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import log from '@/utils/logging'
 

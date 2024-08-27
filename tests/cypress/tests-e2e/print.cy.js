@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { API_SERVICE_KML_BASE_URL } from '@/config.js'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { formatThousand } from '@/utils/numberUtils.js'
 
 const printID = 'print-123456789'
@@ -183,7 +183,7 @@ describe('Testing print', () => {
 
             cy.goToMapView(
                 {
-                    layers: `KML|${API_SERVICE_KML_BASE_URL}some-kml-file.kml`,
+                    layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: 9,
                 },
                 true

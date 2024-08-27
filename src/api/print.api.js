@@ -8,7 +8,11 @@ import {
 import axios from 'axios'
 import { Circle } from 'ol/style'
 
-import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import {
+    getApi3BaseUrl,
+    getViewerDedicatedServicesBaseUrl,
+    getWmsBaseUrl,
+} from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
 import { adjustWidth } from '@/utils/styleUtils'
@@ -16,7 +20,7 @@ import { adjustWidth } from '@/utils/styleUtils'
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 
-const SERVICE_PRINT_URL = `${API_SERVICES_BASE_URL}print3/print/mapviewer`
+const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
 class GeoAdminCustomizer extends BaseCustomizer {
@@ -342,7 +346,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         })
         if (printGrid) {
             encodedMap.layers.unshift({
-                baseURL: WMS_BASE_URL,
+                baseURL: getWmsBaseUrl(),
                 opacity: 1,
                 singleTile: true,
                 type: 'WMS',
@@ -377,7 +381,7 @@ async function transformOlMapToPrintParams(olMap, config) {
                 classes: layersWithLegends.map((layer) => {
                     return {
                         name: layer.name,
-                        icons: [`${API_BASE_URL}static/images/legends/${layer.id}_${lang}.png`],
+                        icons: [`${getApi3BaseUrl()}static/images/legends/${layer.id}_${lang}.png`],
                     }
                 }),
             }

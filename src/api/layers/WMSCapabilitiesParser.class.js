@@ -9,7 +9,7 @@ import ExternalWMSLayer, { WMSDimension } from '@/api/layers/ExternalWMSLayer.cl
 import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { WMS_SUPPORTED_VERSIONS } from '@/config'
+import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 

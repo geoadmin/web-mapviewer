@@ -2,8 +2,8 @@ import axios, { AxiosError } from 'axios'
 import FormData from 'form-data'
 import pako from 'pako'
 
-import getFileThroughProxy from '@/api/file-proxy.api.js'
-import { API_SERVICE_KML_BASE_URL } from '@/config'
+import getFileThroughProxy from '@/api/file-proxy.api'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
 
 /**
@@ -67,7 +67,7 @@ export class KmlMetadata {
     }
 }
 
-const kmlBaseUrl = `${API_SERVICE_KML_BASE_URL}api/kml/`
+const kmlBaseUrl = `${getServiceKmlBaseUrl()}api/kml/`
 
 function validateId(id, reject) {
     if (!id) {
