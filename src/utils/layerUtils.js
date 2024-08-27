@@ -1,6 +1,7 @@
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import { getBaseUrlOverride } from '@/config/baseUrl.config'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -63,12 +64,10 @@ export function getTimestampFromConfig(layer) {
  * @param {Boolean} [options.addTimestamp=false] Add the timestamp from the time config or the
  *   timeslider to the ur. When false the timestamp is set to `{Time}` and need to processed later
  *   on. Default is `false`
- * @param {String} [options.baseUrlOverride=null] If set, will be used as the base URL while
- *   building the full WMTS URL. Default is `null`
  * @returns {String | null}
  */
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
-    const { addTimestamp = false, baseUrlOverride = null } = options ?? {}
+    const { addTimestamp = false } = options ?? {}
     if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
         let timestamp = '{Time}'
         if (addTimestamp) {
@@ -78,7 +77,7 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.id
             : wmtsLayerConfig.technicalName
-        return `${baseUrlOverride ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
+        return `${getBaseUrlOverride('wmts') ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
     }
     return null
 }

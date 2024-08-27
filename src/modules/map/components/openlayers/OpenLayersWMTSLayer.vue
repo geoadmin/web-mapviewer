@@ -6,7 +6,6 @@ import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { baseUrlOverrides } from '@/config/baseUrl.config.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -76,9 +75,7 @@ watch(wmtsTimeConfig, () => {
 })
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, {
-        baseUrlOverride: baseUrlOverrides.wmts,
-    })
+    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value)
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')

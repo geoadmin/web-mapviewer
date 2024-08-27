@@ -1,34 +1,32 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 import {
-    baseUrlOverrides,
-    defaultBaseUrlConfig,
-    enforceEndingSlashInUrl,
+    getBaseUrlOverride,
+    getDefaultBaseUrl,
+    hasBaseUrlOverrides,
+    setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const dispatcher = { dispatcher: 'BaseUrlOverrideModal.vue' }
 
 const store = useStore()
-const hasBaseUrlOverrides = computed(
-    () => !!wmsUrlOverride.value || !!wmtsUrlOverride.value || !!api3UrlOverride.value
-)
 
-const wmsUrlOverride = ref(baseUrlOverrides.wms)
-const wmtsUrlOverride = ref(baseUrlOverrides.wmts)
-const api3UrlOverride = ref(baseUrlOverrides.api3)
+const wmsUrlOverride = ref(getBaseUrlOverride('wms'))
+const wmtsUrlOverride = ref(getBaseUrlOverride('wmts'))
+const api3UrlOverride = ref(getBaseUrlOverride('api3'))
 
 function onModalClose(withConfirmation) {
     if (withConfirmation) {
-        baseUrlOverrides.wms = enforceEndingSlashInUrl(wmsUrlOverride.value)
-        baseUrlOverrides.wmts = enforceEndingSlashInUrl(wmtsUrlOverride.value)
-        baseUrlOverrides.api3 = enforceEndingSlashInUrl(api3UrlOverride.value)
+        setBaseUrlOverrides('wms', wmsUrlOverride.value)
+        setBaseUrlOverrides('wmts', wmtsUrlOverride.value)
+        setBaseUrlOverrides('api3', api3UrlOverride.value)
     }
     store.dispatch('setHasBaseUrlOverrides', {
-        hasOverrides: hasBaseUrlOverrides.value,
+        hasOverrides: hasBaseUrlOverrides(),
         ...dispatcher,
     })
 }
@@ -45,7 +43,7 @@ function onModalClose(withConfirmation) {
                         v-model="wmsUrlOverride"
                         type="url"
                         class="form-control"
-                        :placeholder="`default: ${defaultBaseUrlConfig.wms}`"
+                        :placeholder="`default: ${getDefaultBaseUrl('wms')}`"
                     />
                     <button
                         class="btn btn-outline-secondary"
@@ -65,7 +63,7 @@ function onModalClose(withConfirmation) {
                         v-model="wmtsUrlOverride"
                         type="url"
                         class="form-control"
-                        :placeholder="`default: ${defaultBaseUrlConfig.wmts}`"
+                        :placeholder="`default: ${getDefaultBaseUrl('wmts')}`"
                     />
                     <button
                         class="btn btn-outline-secondary"
@@ -85,7 +83,7 @@ function onModalClose(withConfirmation) {
                         v-model="api3UrlOverride"
                         type="url"
                         class="form-control"
-                        :placeholder="`default: ${defaultBaseUrlConfig.api3}`"
+                        :placeholder="`default: ${getDefaultBaseUrl('api3')}`"
                     />
                     <button
                         class="btn btn-outline-secondary"

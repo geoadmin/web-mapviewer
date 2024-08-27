@@ -4,7 +4,7 @@
  * @param {String} url
  * @returns {String} The URL with a trailing slash
  */
-export function enforceEndingSlashInUrl(url) {
+function enforceEndingSlashInUrl(url) {
     if (url && !url.endsWith('/')) {
         return `${url}/`
     }
@@ -19,7 +19,7 @@ export function enforceEndingSlashInUrl(url) {
  *
  * @type {Object}
  */
-export const defaultBaseUrlConfig = {
+const defaultBaseUrlConfig = {
     /**
      * Base part of the URL to use when requesting api3 (mf-chsdi3)
      *
@@ -134,13 +134,29 @@ export const defaultBaseUrlConfig = {
     vectorTiles: enforceEndingSlashInUrl(import.meta.env.VITE_APP_VECTORTILES_BASE_URL),
 }
 
-export const baseUrlOverrides = {
+export function getDefaultBaseUrl(propertyName) {
+    return defaultBaseUrlConfig[propertyName]
+}
+
+const baseUrlOverrides = {
     ...defaultBaseUrlConfig,
 }
 Object.keys(baseUrlOverrides).forEach((key) => (baseUrlOverrides[key] = null))
 
+export function hasBaseUrlOverrides() {
+    return Object.values(baseUrlOverrides).some((value) => value !== null)
+}
+
+export function getBaseUrlOverride(propertyName) {
+    return baseUrlOverrides[propertyName]
+}
+
+export function setBaseUrlOverrides(propertyName, value) {
+    baseUrlOverrides[propertyName] = enforceEndingSlashInUrl(value)
+}
+
 export function getBaseUrl(propertyName) {
-    return baseUrlOverrides[propertyName] ?? defaultBaseUrlConfig[propertyName]
+    return baseUrlOverrides[propertyName] ?? getDefaultBaseUrl(propertyName)
 }
 
 export function getApi3BaseUrl() {
