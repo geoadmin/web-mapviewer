@@ -1,10 +1,17 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'GeolocButton.vue' }
+
+const props = defineProps({
+    /** Add the compass button (only available in 2D mode) */
+    compassButton: { type: Boolean, default: false },
+})
+const { compassButton } = toRefs(props)
 
 const store = useStore()
 
@@ -61,32 +68,33 @@ function toggleGeolocation() {
      otherwise the tippy won't work when the button is disabled -->
     <div class="geoloc-button-div" :data-tippy-content="tippyContent">
         <button
-            class="toolbox-button d-print-none d-flex flex-column align-items-center justify-content-center"
+            class="toolbox-button d-print-none"
             type="button"
             :disabled="isDenied"
             :class="{ active: isActive, disabled: isDenied }"
             data-cy="geolocation-button"
             @click="toggleGeolocation"
         >
-            <FontAwesomeIcon
-                v-if="hasTrackingFeedback"
-                icon="circle"
-                class="orientation-arrow-dot"
-            />
-            <FontAwesomeIcon
-                :style="autoRotation ? { transform: 'rotate(-45deg)' } : ''"
-                icon="location-arrow"
-            />
+            <div class="fa-layers fa-fw h-100 w-100">
+                <FontAwesomeIcon v-if="autoRotation" icon="arrow-up" transform="shrink-10 up-7" />
+                <FontAwesomeIcon v-if="hasTrackingFeedback" icon="location-crosshairs" />
+                <FontAwesomeIcon
+                    v-else-if="autoRotation"
+                    icon="location-arrow"
+                    transform="shrink-4 down-4 rotate--45"
+                />
+                <FontAwesomeIcon v-else icon="location-arrow" transform="down-1 left-1" />
+            </div>
         </button>
+        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
 
-.orientation-arrow-dot {
-    width: 5px;
-    height: 5px !important;
-    margin-bottom: 3px;
+.geoloc-button-div {
+    background-color: $map-button-hover-border-color;
+    border-radius: $map-button-diameter * 0.5;
 }
 </style>

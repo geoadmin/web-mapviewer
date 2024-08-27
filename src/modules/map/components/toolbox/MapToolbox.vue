@@ -8,7 +8,6 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
@@ -36,7 +35,6 @@ const store = useStore()
 const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
-const is3dActive = computed(() => store.state.cesium.active)
 </script>
 
 <template>
@@ -50,10 +48,9 @@ const is3dActive = computed(() => store.state.cesium.active)
         data-cy="toolbox-right"
     >
         <FullScreenButton v-if="fullScreenButton" />
-        <GeolocButton v-if="geolocButton" />
+        <GeolocButton v-if="geolocButton" :compass-button="compassButton" />
         <ZoomButtons />
         <Toggle3dButton v-if="toggle3dButton" />
-        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
         <slot />
     </div>
 </template>
