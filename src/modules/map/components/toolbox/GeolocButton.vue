@@ -76,18 +76,22 @@ function toggleGeolocation() {
             @click="toggleGeolocation"
         >
             <div class="fa-layers fa-fw h-100 w-100">
-                <FontAwesomeIcon v-if="autoRotation" icon="arrow-up" transform="shrink-10 up-7" />
                 <FontAwesomeIcon
                     v-if="hasTrackingFeedback"
-                    icon="location-crosshairs"
-                    :transform="{ 'shrink-4 down-4': autoRotation }"
+                    :icon="['far', 'circle']"
+                    transform="grow-4"
                 />
                 <FontAwesomeIcon
-                    v-else-if="autoRotation"
+                    v-if="autoRotation"
+                    icon="minus"
+                    transform="shrink-10 up-7 rotate--90"
+                />
+                <FontAwesomeIcon
+                    v-if="autoRotation"
                     icon="location-arrow"
                     transform="shrink-4 down-4 rotate--45"
                 />
-                <FontAwesomeIcon v-else icon="location-arrow" transform="down-1 left-1" />
+                <FontAwesomeIcon v-else icon="location-arrow" transform="shrink-2 down-1 left-1" />
             </div>
         </button>
         <OpenLayersCompassButton
