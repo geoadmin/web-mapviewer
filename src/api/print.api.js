@@ -82,6 +82,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
+        symbolizer.conflictResolution = false
+        symbolizer.fontSize =
+            Math.ceil(2 * adjustWidth(parseInt(symbolizer.fontSize), this.printResolution)) + 'px'
     }
 
     /**
