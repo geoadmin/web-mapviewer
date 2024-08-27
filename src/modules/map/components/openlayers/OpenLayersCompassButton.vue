@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, onUnmounted, ref, toRefs } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
@@ -7,15 +7,17 @@ const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
 const props = defineProps({
     hideIfNorth: {
         type: Boolean,
-        default: true,
+        default: false,
     },
 })
-const hideIfNorth = toRefs(props)
+const { hideIfNorth } = toRefs(props)
 
 const olMap = inject('olMap')
 const store = useStore()
 
 const rotation = ref(0)
+
+const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth.value)
 
 onMounted(() => {
     olMap.on('postrender', onRotate)
@@ -43,7 +45,7 @@ const onRotate = (mapEvent) => {
     even if the angle is not normalized, it will automatically be set to zero if pointing to the
     north -->
     <button
-        v-if="!hideIfNorth || Math.abs(rotation) >= 1e-9"
+        v-if="showCompass"
         class="toolbox-button d-print-none"
         data-cy="compass-button"
         type="button"

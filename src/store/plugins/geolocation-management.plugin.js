@@ -197,6 +197,7 @@ const geolocationManagementPlugin = (store) => {
                 tracking: false,
                 ...dispatcher,
             })
+            store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
         } else if (
             mutation.type === 'setGeolocationTracking' &&
             mutation.payload?.tracking === true &&

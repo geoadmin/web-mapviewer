@@ -82,18 +82,24 @@ const orientationParameters = computed(() => {
 // the center in store is set during the moveend event, so this means that if we disable tracking
 // by using the store event, it can lead to race condition when moving the map between the
 // moveend event and the geolocation event.
-onBeforeMount(() => olMap.on('pointerdrag', disableTracking))
-onBeforeUnmount(() => olMap.un('pointerdrag', disableTracking))
+onBeforeMount(() => olMap.on('pointerdrag', disableTrackingAndAutoRotation))
+onBeforeUnmount(() => olMap.un('pointerdrag', disableTrackingAndAutoRotation))
 
 const roundIfNumber = (v, d) => (isNumber(v) ? round(v, d) : `${v}`)
 
-function disableTracking(event) {
+function disableTrackingAndAutoRotation(event) {
     if (isTracking.value) {
-        log.debug(`Map started moving, disabled geolocation tracking`, event)
+        // When the map has been dragged we disabled geolocation tracking to avoid to re-center the
+        // map when the user want to have something else in the center. Also disabled the auto rotation
+        // because auto rotation rotate the map using the position as center and it doesn't make sense
+        // to rotate if the location is not centered (this is also the same behavior as on the swisstopo
+        // app)
+        log.debug(`Map started moving, disabled geolocation tracking and autorotation`, event)
         store.dispatch('setGeolocationTracking', {
             tracking: false,
             ...dispatcher,
         })
+        store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
     }
 }
 </script>
