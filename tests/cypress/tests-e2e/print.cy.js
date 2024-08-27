@@ -487,7 +487,7 @@ describe('Testing print', () => {
                     type: 'text',
                     label: 'Sample Label',
                     fontFamily: 'Helvetica',
-                    fontSize: '16px',
+                    fontSize: '12px',
                     fontWeight: 'normal',
                     labelYOffset: 44.75,
                 }
@@ -558,7 +558,7 @@ describe('Testing print', () => {
                     type: 'text',
                     label: 'Old Label',
                     fontFamily: 'Helvetica',
-                    fontSize: '16px',
+                    fontSize: '12px',
                     fontWeight: 'normal',
                     labelYOffset: 0,
                 }
