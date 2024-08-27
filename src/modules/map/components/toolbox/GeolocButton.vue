@@ -90,7 +90,10 @@ function toggleGeolocation() {
                 <FontAwesomeIcon v-else icon="location-arrow" transform="down-1 left-1" />
             </div>
         </button>
-        <OpenLayersCompassButton v-if="compassButton && !is3dActive" />
+        <OpenLayersCompassButton
+            v-if="!is3dActive && compassButton"
+            :hide-if-north="!autoRotation"
+        />
     </div>
 </template>
 
