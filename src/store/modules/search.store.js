@@ -1,3 +1,4 @@
+import getFeature from '@/api/features/features.api'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -5,6 +6,7 @@ import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
@@ -144,7 +146,7 @@ const actions = {
      * @param dispatch
      * @param {SearchResult} entry
      */
-    selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
+    selectResultEntry: ({ dispatch, getters, rootState }, { entry, dispatcher }) => {
         const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case SearchResultTypes.LAYER:
@@ -161,7 +163,6 @@ const actions = {
                 }
                 break
             case SearchResultTypes.LOCATION:
-            case SearchResultTypes.FEATURE:
                 if (entry.extent.length === 2) {
                     dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
@@ -178,6 +179,44 @@ const actions = {
                     coordinates: entry.coordinate,
                     dispatcher: dipsatcherSelectResultEntry,
                 })
+                break
+            case SearchResultTypes.FEATURE:
+                if (entry.extent.length === 2) {
+                    dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
+                } else if (entry.zoom) {
+                    dispatch('setCenter', {
+                        center: entry.coordinate,
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                    dispatch('setZoom', {
+                        zoom: entry.zoom,
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
+                }
+
+                // Automatically select the feature
+                try {
+                    getFeature(
+                        getters.getActiveLayersById(entry.layerId)[0],
+                        entry.featureId,
+                        rootState.position.projection,
+                        {
+                            lang: rootState.i18n.lang,
+                            screenWidth: rootState.ui.width,
+                            screenHeight: rootState.ui.height,
+                            mapExtent: flattenExtent(getters.extent),
+                            coordinate: entry.coordinate,
+                        }
+                    ).then((feature) => {
+                        dispatch('setSelectedFeatures', {
+                            features: [feature],
+                            dispatcher,
+                        })
+                    })
+                } catch (error) {
+                    log.error('Error getting feature:', error)
+                }
+
                 break
         }
         dispatch('setSearchQuery', {
