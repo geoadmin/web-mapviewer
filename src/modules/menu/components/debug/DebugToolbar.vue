@@ -99,17 +99,17 @@ function toggleShowBaseUrlOverride() {
                             </button>
                             <label class="toolbox-button-label">Extents</label>
                         </div>
-                    </div>
-                    <div>
-                        <button
-                            class="toolbox-button m-auto"
-                            type="button"
-                            :class="{ active: showBaseUrlOverride }"
-                            @click="toggleShowBaseUrlOverride"
-                        >
-                            <FontAwesomeIcon icon="cog" />
-                        </button>
-                        <label class="text-center w-100">Set base URL</label>
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showBaseUrlOverride }"
+                                @click="toggleShowBaseUrlOverride"
+                            >
+                                <FontAwesomeIcon icon="cog" />
+                            </button>
+                            <label class="toolbox-button-label">Backends</label>
+                        </div>
                     </div>
                 </div>
             </div>
