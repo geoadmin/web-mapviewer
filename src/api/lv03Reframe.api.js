@@ -10,39 +10,52 @@ const REFRAME_BASE_URL = 'https://geodesy.geo.admin.ch/reframe/'
  * Re-frames LV95 coordinate taking all LV03 -> LV95 deformation into account (they are not stable,
  * so using "simple" proj4 matrices isn't enough to get a very accurate result)
  *
- * @param {[Number, Number]} lv95coordinate LV95 coordinate that we want expressed in LV03
- * @returns {Promise<[Number, Number]>} Input LV95 coordinate re-framed by the backend service into
- *   LV03 coordinate
+ * @param {[Number, Number]} config.inputCoordinates LV95 or LV03 coordinate that we want expressed
+ *   in the other coordinate system
+ * @param {CoordinateSystem} config.inputProjection Which projection is used to describe the input
+ *   coordinate, must be either LV03 or LV95.
+ * @returns {Promise<[Number, Number]>} Input coordinates re-framed by the backend service.
+ *   Coordinate system will depend on the input. If LV03 coordinates are given, the output will be
+ *   LV95 coordinates (and vice-versa)
  * @see https://www.swisstopo.admin.ch/en/rest-api-geoservices-reframe-web
  * @see https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/ReframeService.js
  */
-export default function reframe(lv95coordinate) {
+export default function reframe(config = {}) {
     return new Promise((resolve, reject) => {
-        if (!Array.isArray(lv95coordinate) || lv95coordinate.length !== 2) {
-            reject(new Error('lv95coordinate must be an array with length of 2'))
+        const { inputCoordinates, inputProjection } = config
+        if (!Array.isArray(inputCoordinates) || inputCoordinates.length !== 2) {
+            reject(new Error('inputCoordinates must be an array with length of 2'))
         }
+        if (![LV03.epsg, LV95.epsg].includes(inputProjection?.epsg)) {
+            reject(new Error('inputProjection must be LV03 or LV95'))
+        }
+        const outputProjection = inputProjection === LV03 ? LV95 : LV03
         axios({
             method: 'GET',
-            url: `${REFRAME_BASE_URL}lv95tolv03`,
+            url: `${REFRAME_BASE_URL}${inputProjection === LV95 ? 'lv95tolv03' : 'lv03tolv95'}`,
             params: {
-                easting: lv95coordinate[0],
-                northing: lv95coordinate[1],
+                easting: inputCoordinates[0],
+                northing: inputCoordinates[1],
             },
         })
             .then((response) => {
                 if (response.data?.coordinates) {
-                    resolve(response.data.coordinates)
+                    resolve(response.data.coordinates.map(outputProjection.roundCoordinateValue))
                 } else {
                     log.error(
                         'Error while re-framing coordinate',
-                        lv95coordinate,
+                        inputCoordinates,
                         'fallback to proj4'
                     )
-                    resolve(proj4(LV95.epsg, LV03.epsg, lv95coordinate))
+                    resolve(
+                        proj4(inputProjection.epsg, outputProjection.epsg, inputCoordinates).map(
+                            outputProjection.roundCoordinateValue
+                        )
+                    )
                 }
             })
             .catch((error) => {
-                log.error('Error while re-framing coordinate', lv95coordinate, error)
+                log.error('Error while re-framing coordinate', inputCoordinates, error)
                 reject(error)
             })
     })

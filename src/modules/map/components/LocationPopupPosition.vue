@@ -91,7 +91,10 @@ watch(currentLang, () => {
 async function updateLV03Coordinate() {
     try {
         const lv95coordinate = proj4(projection.value.epsg, LV95.epsg, coordinate.value)
-        lv03Coordinate.value = await reframe(lv95coordinate)
+        lv03Coordinate.value = await reframe({
+            inputCoordinates: lv95coordinate,
+            inputProjection: LV95,
+        })
     } catch (error) {
         log.error('Failed to retrieve LV03 coordinate', error)
         lv03Coordinate.value = null
