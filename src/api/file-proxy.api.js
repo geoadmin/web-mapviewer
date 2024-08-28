@@ -5,6 +5,32 @@ import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
 
 /**
+ * Transform a Dropbox URL to a direct download link, replacing dl=0 by dl=1
+ *
+ * @param {String} fileUrl
+ * @returns {String} The transformed URL
+ * @see https://www.dropbox.com/help/desktop-web/force-download
+ */
+function transformDropboxUrl(fileUrl) {
+    const dropboxPattern = /^(https?:\/\/(www\.)?dropbox\.com\/.+)/
+    if (dropboxPattern.test(fileUrl)) {
+        try {
+            const url = new URL(fileUrl)
+            const params = new URLSearchParams(url.search)
+            if (params.get('dl') === '0') {
+                params.set('dl', '1')
+                url.search = params.toString()
+                return url.toString()
+            }
+        } catch (e) {
+            log.debug('failed to transformDropboxUrl', e)
+            return fileUrl
+        }
+    }
+    return fileUrl
+}
+
+/**
  * Transform our file URL into a path, compatible with a call to service-proxy
  *
  * @param {String} fileUrl
@@ -15,7 +41,7 @@ export function transformFileUrl(fileUrl) {
         return null
     }
     // copy from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/UrlUtilsService.js#L59-L69
-    const parts = /^(http|https)(:\/\/)(.+)/.exec(fileUrl)
+    const parts = /^(http|https)(:\/\/)(.+)/.exec(transformDropboxUrl(fileUrl))
     if (parts?.length < 4) {
         return null
     }
