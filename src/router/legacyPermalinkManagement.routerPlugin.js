@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 import { START_LOCATION } from 'vue-router'
 
+import reframe from '@/api/lv03Reframe.api'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import {
     EMBED_VIEW,
@@ -217,7 +218,10 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
             )
         } else if (LV03.isInBounds(...legacyCoordinates) && projection.epsg !== LV03.epsg) {
             // if the current projection is not LV03, we also need to re-project x/y or N/E
-            newCoordinates = proj4(LV03.epsg, projection.epsg, legacyCoordinates)
+            newCoordinates = await reframe({
+                inputCoordinates: legacyCoordinates,
+                inputProjection: LV03,
+            })
             log.info(
                 `[Legacy URL] converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
             )
