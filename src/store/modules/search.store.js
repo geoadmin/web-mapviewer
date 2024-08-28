@@ -1,3 +1,5 @@
+import proj4 from 'proj4'
+
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
@@ -38,9 +40,9 @@ const actions = {
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
-            const coordinates = coordinateFromString(query, currentProjection)
+            const extractedCoordinate = await coordinateFromString(query)
             let what3wordLocation = null
-            if (!coordinates && isWhat3WordsString(query)) {
+            if (!extractedCoordinate && isWhat3WordsString(query)) {
                 try {
                     what3wordLocation = await retrieveWhat3WordsLocation(query, currentProjection)
                 } catch (error) {
@@ -51,7 +53,15 @@ const actions = {
                 }
             }
 
-            if (coordinates) {
+            if (extractedCoordinate) {
+                let coordinates = [...extractedCoordinate.coordinate]
+                if (extractedCoordinate.coordinateSystem !== currentProjection) {
+                    coordinates = proj4(
+                        extractedCoordinate.coordinateSystem.epsg,
+                        currentProjection.epsg,
+                        coordinates
+                    ).map(currentProjection.roundCoordinateValue)
+                }
                 const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
                 dispatch('setCenter', {
                     center: coordinates,

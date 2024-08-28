@@ -1,7 +1,5 @@
-import proj4 from 'proj4'
-
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
+import reframe from '@/api/lv03Reframe.api'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 
 const RE_DEGREE_IDENTIFIER = '\\s*°\\s*'
@@ -75,28 +73,119 @@ const REGEX_WGS_84_WITH_SECONDS_PREFIXED = new RegExp(
     'i'
 )
 
+/**
+ * @param {String} text
+ * @returns {[Number, Number] | undefined}
+ */
+function extractWGS84Coordinates(text) {
+    const regexMatch = [
+        REGEX_WGS_84,
+        REGEX_WGS_84_WITH_CARDINALS,
+        REGEX_WGS_84_WITH_PRE_FIXED_CARDINALS,
+        REGEX_WGS_84_WITH_MIN,
+        REGEX_WGS_84_WITH_MIN_PREFIXED,
+        REGEX_WGS_84_WITH_SECONDS,
+        REGEX_WGS_84_WITH_SECONDS_PREFIXED,
+    ]
+        .map((regex) => regex.exec(text.trim()))
+        .find((result) => Array.isArray(result))
+    if (regexMatch) {
+        return wgs84Extractor(regexMatch)
+    }
+    return undefined
+}
+
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES =
     /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i
 
+/**
+ * @param {String} text
+ * @returns {[Number, Number] | undefined}
+ */
+function extractLV95Coordinates(text) {
+    const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
+    if (coordinates) {
+        if (LV95.isInBounds(coordinates[0], coordinates[1])) {
+            return [coordinates[0], coordinates[1]].map(LV95.roundCoordinateValue)
+        } else if (LV95.isInBounds(coordinates[1], coordinates[0])) {
+            return [coordinates[1], coordinates[0]].map(LV95.roundCoordinateValue)
+        }
+    }
+    return undefined
+}
+
+/**
+ * @param {String} text
+ * @returns {Promise<[Number, Number] | undefined>}
+ */
+async function extractLV03Coordinates(text) {
+    const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
+    if (coordinates) {
+        if (LV03.isInBounds(coordinates[0], coordinates[1])) {
+            return reframe({
+                inputCoordinates: [coordinates[0], coordinates[1]],
+                inputProjection: LV03,
+            })
+        } else if (LV03.isInBounds(coordinates[1], coordinates[0])) {
+            return reframe({
+                inputCoordinates: [coordinates[1], coordinates[0]],
+                inputProjection: LV03,
+            })
+        }
+    }
+    return undefined
+}
+
+function extractMetricMercatorCoordinates(text) {
+    const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
+    if (coordinates) {
+        if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[0], coordinates[1])) {
+            return [coordinates[0], coordinates[1]].map(WEBMERCATOR.roundCoordinateValue)
+        } else if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[1], coordinates[0])) {
+            return [coordinates[1], coordinates[0]].map(WEBMERCATOR.roundCoordinateValue)
+        }
+    }
+    return undefined
+}
+
 // Military Grid Reference System (MGRS) (e.g. 32TMS 40959 89723)
 const REGEX_MILITARY_GRID = /^3[123]\s*[a-z]{3}\s*\d{1,5}\s*\d{1,5}$/i
 
+function extractMgrsCoordinates(text) {
+    const coordinate = mgrsExtractor(REGEX_MILITARY_GRID.exec(text.trim()))
+    if (coordinate) {
+        return coordinate
+    }
+    return undefined
+}
+
 const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
+const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)
 
 const thousandSeparatorRegex = /['`´ ]/g
 
+/**
+ * @param {RegExpExecArray | undefined} regexMatches Matches from REGEX_METRIC_COORDINATES
+ * @returns {[Number, Number] | undefined}
+ */
 const numericalExtractor = (regexMatches) => {
+    if (!regexMatches) {
+        return undefined
+    }
     // removing thousand separators
     const x = Number(regexMatches.groups.coord1.replace(thousandSeparatorRegex, ''))
     const y = Number(regexMatches.groups.coord2.replace(thousandSeparatorRegex, ''))
     if (Number.isNaN(x) || Number.isNaN(y)) {
         return undefined
     }
-    return reprojectUnknownSrsCoordsToWGS84(x, y)
+    return [x, y]
 }
 
 const wgs84Extractor = (regexMatches) => {
+    if (!regexMatches) {
+        return undefined
+    }
     let firstNumber, secondNumber
     let firstCardinal, secondCardinal
 
@@ -160,10 +249,10 @@ const wgs84Extractor = (regexMatches) => {
                 break
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
-            return [lon, lat]
+            return [lon, lat].map(WGS84.roundCoordinateValue)
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lat, lon)) {
-            return [lat, lon]
+            return [lat, lon].map(WGS84.roundCoordinateValue)
         }
     }
     return null
@@ -173,33 +262,26 @@ const wgs84Extractor = (regexMatches) => {
 // Grid zone designation for Switzerland + two 100km letters + two digits
 // It's a limitation of proj4 and a sensible default (precision is 10km)
 const MGRSMinimalPrecision = 7
+/**
+ * @param {RegExpExecArray} regexMatches
+ * @returns {[Number, Number] | undefined}
+ */
 const mgrsExtractor = (regexMatches) => {
-    const mgrsString = regexMatches[0].split(' ').join('')
-    if ((mgrsString.length - MGRSMinimalPrecision) % 2 === 0) {
-        return mgrsToWGS84(mgrsString)
-    }
-    return null
-}
-
-const executeAndReturn = (regex, text, outputProjection, extractor = numericalExtractor) => {
-    if (typeof text !== 'string') {
+    if (!regexMatches) {
         return undefined
     }
-
-    const matches = regex.exec(text.trim())
-    if (matches) {
-        const extractedCoordinates = extractor(matches)
-        if (!extractedCoordinates) {
-            return undefined
-        }
-        const projectedResult = proj4(WGS84.epsg, outputProjection.epsg, extractedCoordinates)
-        return [
-            outputProjection.roundCoordinateValue(projectedResult[0]),
-            outputProjection.roundCoordinateValue(projectedResult[1]),
-        ]
+    const mgrsString = regexMatches[0].split(' ').join('')
+    if ((mgrsString.length - MGRSMinimalPrecision) % 2 === 0) {
+        return mgrsToWGS84(mgrsString).map(WGS84.roundCoordinateValue)
     }
     return undefined
 }
+
+/**
+ * @typedef ExtractedCoordinate
+ * @property {CoordinateSystem} coordinateSystem
+ * @property {[Number, Number]} coordinate
+ */
 
 /**
  * Extracts (if possible) a set of coordinates from the text as an array. The text must contain only
@@ -240,33 +322,50 @@ const executeAndReturn = (regex, text, outputProjection, extractor = numericalEx
  * - I.e. `zufall.anders.blaumeise`
  *
  * @param {String} text The text in which we want to find coordinates
- * @param {CoordinateSystem} toProjection Projection wanted for the output coordinates
- * @returns {Number[]} Coordinates in the given order in text in the wanted projection, or
- *   `undefined` if nothing was found
+ * @returns {Promise<ExtractedCoordinate | undefined>} Coordinates in the given order in text with
+ *   information about which projection they are expressed in, or `undefined` if nothing was found
  */
-const coordinateFromString = (text, toProjection) => {
+const coordinateFromString = async (text) => {
     if (typeof text !== 'string') {
         return undefined
     }
-    // creating a config array with each entry being an object with a regex attribute
-    // and the corresponding extractor when this regex matches the input
-    return [
-        { regex: REGEX_WGS_84, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_CARDINALS, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_PRE_FIXED_CARDINALS, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_MIN, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_MIN_PREFIXED, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_SECONDS, extractor: wgs84Extractor },
-        { regex: REGEX_WGS_84_WITH_SECONDS_PREFIXED, extractor: wgs84Extractor },
-
-        { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
-        { regex: REGEX_MILITARY_GRID, extractor: mgrsExtractor },
-    ]
-        .map((config) => {
-            // going through each config and extracting the result (can be undefined if not a match)
-            return executeAndReturn(config.regex, text, toProjection, config.extractor)
-        })
-        .find((result) => Array.isArray(result)) // returning the first value that is a coordinate array (will return undefined if nothing is found)
+    const wgs84result = extractWGS84Coordinates(text)
+    if (wgs84result) {
+        return {
+            coordinateSystem: WGS84,
+            coordinate: wgs84result,
+        }
+    }
+    const lv95result = extractLV95Coordinates(text)
+    if (lv95result) {
+        return {
+            coordinateSystem: LV95,
+            coordinate: lv95result,
+        }
+    }
+    const lv03result = await extractLV03Coordinates(text)
+    if (lv03result) {
+        return {
+            // coordinates have been reframed to LV95
+            coordinateSystem: LV95,
+            coordinate: lv03result,
+        }
+    }
+    const mercatorResult = extractMetricMercatorCoordinates(text)
+    if (mercatorResult) {
+        return {
+            coordinateSystem: WEBMERCATOR,
+            coordinate: mercatorResult,
+        }
+    }
+    const mgrsResult = extractMgrsCoordinates(text)
+    if (mgrsResult) {
+        return {
+            coordinateSystem: WGS84,
+            coordinate: mgrsResult,
+        }
+    }
+    return undefined
 }
 
 export default coordinateFromString

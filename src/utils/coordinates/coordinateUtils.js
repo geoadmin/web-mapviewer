@@ -2,51 +2,8 @@ import { wrapX } from 'ol/coordinate'
 import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
 
-import log from '../logging'
 import { formatThousand } from '../numberUtils'
-import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'
-
-const LV95BoundsAsWebMercator = LV95.getBoundsAs(WEBMERCATOR)
-const LV95BoundsAsWGS84 = LV95.getBoundsAs(WGS84)
-
-/**
- * Attempts to re-project given coordinates to WebMercator (WGS84). Will return a tuple containing
- * [lat, lon] even if input is given as [lon, lat] (as this is what OpenLayers wants to be fed.
- *
- * This function supports input from LV95, LV03 or WebMercator input (no other projection supported)
- *
- * @param x {Number} X part of the coordinate (Easting/Longitude)
- * @param y {Number} Y part of the coordinate (Northing/Latitude)
- * @returns {Number[]} Re-projected coordinate as [lon, lat], or undefined if the input was not
- *   convertible to WebMercator
- */
-export const reprojectUnknownSrsCoordsToWGS84 = (x, y) => {
-    // guessing if this is already WGS84, or Mercator or a Swiss projection (if so, we need to reproject it to WGS84)
-    if (LV95BoundsAsWebMercator.isInBounds(x, y)) {
-        return proj4(WEBMERCATOR.epsg, WGS84.epsg, [x, y])
-        // checking LV95 bounds
-    } else if (LV95.isInBounds(x, y)) {
-        return proj4(LV95.epsg, WGS84.epsg, [x, y])
-        // checking LV95 backward
-    } else if (LV95.isInBounds(y, x)) {
-        return proj4(LV95.epsg, WGS84.epsg, [y, x])
-        // checking LV03 bounds
-    } else if (LV03.isInBounds(x, y)) {
-        return proj4(LV03.epsg, WGS84.epsg, [x, y])
-        // checking LV03 backward
-    } else if (LV03.isInBounds(y, x)) {
-        return proj4(LV03.epsg, WGS84.epsg, [y, x])
-        // checking for WGS84 bounds
-    } else if (LV95BoundsAsWGS84.isInBounds(x, y)) {
-        return [x, y]
-        // checking for WGS84 backward
-    } else if (LV95BoundsAsWGS84.isInBounds(y, x)) {
-        return [y, x]
-    } else {
-        log.error('Unknown coordinate type', [x, y])
-        return undefined
-    }
-}
+import { LV95 } from './coordinateSystems'
 
 /**
  * Returns rounded coordinate with thousands separator and comma.

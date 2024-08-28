@@ -110,6 +110,9 @@ describe('Testing coordinates typing in search bar', () => {
     })
 
     it('Paste EPSG:21781 (LV03) coordinates', () => {
+        cy.intercept('**/lv03tolv95**', {
+            coordinates: expectedCenter,
+        })
         standardCheck(expectedCenterLV03[0], expectedCenterLV03[1], {
             acceptableDelta: 0.1,
             withInversion: true,
