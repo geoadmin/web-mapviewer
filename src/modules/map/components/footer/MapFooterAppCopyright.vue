@@ -18,11 +18,22 @@ export default {
         ...mapState({
             currentLang: (state) => state.i18n.lang,
         }),
+        /**
+         * The language used for the geo.admin.ch link. Since there is no RM version of the page, we
+         * fall back to DE here
+         */
+        linkLang() {
+            const lang = this.currentLang
+            if (lang.toLowerCase() == 'rm') {
+                return 'de'
+            }
+            return lang
+        },
         links() {
             return [
                 {
                     label: 'ech_service_link_label',
-                    url: `https://www.geo.admin.ch/${this.currentLang}/home.html`,
+                    url: `https://www.geo.admin.ch/${this.linkLang}/home.html`,
                 },
                 {
                     label: 'copyright_label',
