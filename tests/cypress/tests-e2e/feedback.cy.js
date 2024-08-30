@@ -17,7 +17,7 @@ describe('Testing the feedback form', () => {
     it('test the report problem form UI, validations, and it backend interaction', () => {
         cy.goToMapView()
         cy.get('[data-cy="menu-button"]').click()
-        cy.get('[data-cy="menu-settings-section"]').click()
+        cy.get('[data-cy="menu-help-section"]').click()
 
         cy.log('The button should be in the header as a link on mobile')
         cy.get('[data-cy="feedback-button"]').should('be.visible').click()

@@ -17,7 +17,7 @@ const dispatcher = { dispatcher: 'MapPrintSection.vue' }
 
 const emits = defineEmits(['openMenuSection'])
 
-const sectionId = ref('printSection')
+const sectionId = 'printSection'
 const isSectionShown = ref(false)
 const printGrid = ref(false)
 const printLegend = ref(false)

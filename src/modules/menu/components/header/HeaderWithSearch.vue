@@ -1,3 +1,58 @@
+<script setup>
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
+import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
+import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
+import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
+import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
+import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
+import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
+import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
+import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+
+const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
+
+const header = ref(null)
+
+const store = useStore()
+const { t } = useI18n()
+
+const currentLang = computed(() => store.state.i18n.lang)
+const currentTopicId = computed(() => store.state.topics.current)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
+const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
+
+onMounted(() => {
+    nextTick(() => {
+        // Initial height
+        updateHeaderHeight()
+        // Watch for changes in height
+        window.addEventListener('resize', updateHeaderHeight)
+    })
+})
+onBeforeUnmount(() => {
+    // Remove the event listener when the component is destroyed
+    window.removeEventListener('resize', updateHeaderHeight)
+})
+
+function updateHeaderHeight() {
+    store.dispatch('setHeaderHeight', {
+        height: header.value.clientHeight,
+        ...dispatcher,
+    })
+}
+
+function resetApp() {
+    // an app reset means we keep the lang and the current topic but everything else is thrown away
+    window.location = `${window.location.origin}?lang=${currentLang.value}&topic=${currentTopicId.value}`
+}
+</script>
+
 <template>
     <div ref="header" class="header" data-cy="app-header">
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
@@ -11,7 +66,7 @@
                 </div>
                 <HeaderSwissConfederationText
                     :current-lang="currentLang"
-                    class="mx-2 cursor-pointer search-header-swiss-confederation-text"
+                    class="mx-2 cursor-pointer d-none d-lg-block search-header-swiss-confederation-text"
                     data-cy="menu-swiss-confederation-text"
                     @click="resetApp"
                 />
@@ -25,74 +80,21 @@
             <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
         </div>
         <div class="header-settings-section" data-cy="header-settings-section">
-            <LinksToolbar id="menu-links" :show-as-links="true" />
-            <LangSwitchToolbar id="menu-lang-selector" :show-as-links="true" />
+            <FeedbackButton v-if="hasGiveFeedbackButton" show-as-link />
+            <ReportProblemButton v-if="hasReportProblemButton" show-as-link />
+            <MoreInfo small />
+            <HelpLink small />
+            <HeaderLangSelector id="menu-lang-selector" />
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div
             v-if="hasDevSiteWarning"
             class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
-            v-html="$t('test_host_warning')"
+            v-html="t('test_host_warning')"
         />
         <!-- eslint-enable vue/no-v-html-->
     </div>
 </template>
-
-<script>
-import { mapGetters, mapState } from 'vuex'
-
-import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
-import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
-import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
-import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
-import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import LinksToolbar from '@/modules/menu/components/settings/LinksToolbar.vue'
-
-const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
-
-export default {
-    components: {
-        SearchBar,
-        HeaderMenuButton,
-        HeaderSwissConfederationText,
-        SwissFlag,
-        LangSwitchToolbar,
-        LinksToolbar,
-    },
-    computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-            currentTopicId: (state) => state.topics.current,
-        }),
-        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
-    },
-    mounted() {
-        this.$nextTick(() => {
-            // Initial height
-            this.updateHeaderHeight()
-            // Watch for changes in height
-            window.addEventListener('resize', this.updateHeaderHeight)
-        })
-    },
-    beforeUnmount() {
-        // Remove the event listener when the component is destroyed
-        window.removeEventListener('resize', this.updateHeaderHeight)
-    },
-    methods: {
-        resetApp() {
-            // an app reset means we keep the lang and the current topic but everything else is thrown away
-            window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopicId}`
-        },
-
-        updateHeaderHeight() {
-            this.$store.dispatch('setHeaderHeight', {
-                height: this.$refs.header.clientHeight,
-                ...dispatcher,
-            })
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
@@ -139,13 +141,12 @@ $animation-time: 0.5s;
 
 .search-header-swiss-confederation-text,
 .search-title {
-    display: none;
     font-size: 0.825rem;
 }
 
 @include respond-below(lg) {
     .header-settings-section {
-        // See MenuTray.vue where the settings section is enable above lg
+        // See MenuTray.vue where the help section is enable above lg
         display: none !important;
     }
 
@@ -164,7 +165,6 @@ $animation-time: 0.5s;
             }
         }
     }
-    .search-header-swiss-confederation-text,
     .search-title {
         display: block;
     }

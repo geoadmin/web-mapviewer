@@ -6,9 +6,9 @@ import { useStore } from 'vuex'
 import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
+import MenuHelpSection from '@/modules/menu/components/help/MenuHelpSection.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
-import MenuSettings from '@/modules/menu/components/settings/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 
@@ -32,7 +32,7 @@ const multiMenuSections = ref(['topicsSection', 'activeLayersSection', '3dSectio
 // sections and would therefore toggle other sections automatically.
 const singleModeSections = ref([
     'drawSection',
-    'settingsSection',
+    'helpSection',
     'shareSection',
     'toolsSection',
     'printSection',
@@ -91,18 +91,11 @@ function addRefBySectionId(el) {
 
 <template>
     <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
-        <MenuSection
-            id="settingsSection"
-            :ref="addRefById"
-            class="settings-section"
-            :title="i18n.t('settings')"
-            :show-content="false"
-            secondary
-            data-cy="menu-settings-section"
+        <MenuHelpSection
+            :ref="addRefBySectionId"
+            class="d-lg-none help-section"
             @open-menu-section="onOpenMenuSection"
-        >
-            <MenuSettings />
-        </MenuSection>
+        />
         <MenuShareSection
             :ref="addRefBySectionId"
             :compact="compact"
@@ -196,8 +189,8 @@ function addRefBySectionId(el) {
 }
 
 @include respond-above(lg) {
-    .settings-section {
-        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+    .help-section {
+        // See HeaderWithSearch.vue css where the help-section is enable below lg
         display: none;
     }
 }
