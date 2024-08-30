@@ -83,18 +83,11 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
         symbolizer.conflictResolution = false
-        symbolizer.fontSize =
-            Math.ceil(2 * adjustWidth(parseInt(symbolizer.fontSize), this.printResolution)) + 'px'
-
         // we try to adapt the font size and offsets to have roughly the same
         // scales on print than on the viewer.
         try {
-            symbolizer.labelYOffset = symbolizer.labelYOffset
-                ? adjustWidth(symbolizer.labelYOffset, this.printResolution)
-                : 0
-            symbolizer.labelXOffset = symbolizer.labelXOffset
-                ? adjustWidth(symbolizer.labelXOffset, this.printResolution)
-                : 0
+            symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
+            symbolizer.labelXOffset = adjustWidth(symbolizer.labelXOffset, this.printResolution)
             symbolizer.fontSize = `${adjustWidth(
                 parseInt(symbolizer.fontSize) * text.getScale(),
                 this.printResolution
@@ -146,8 +139,8 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (size) {
             symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
         }
-        symbolizer.graphicXOffset = symbolizer.graphicXOffset ? symbolizer.graphicXOffset : 0
-        symbolizer.graphicYOffset = symbolizer.graphicYOffset ? symbolizer.graphicYOffset : 0
+        symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
+        symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
 
         if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
             // Handling the case where we need to print a circle in the end of measurement lines
