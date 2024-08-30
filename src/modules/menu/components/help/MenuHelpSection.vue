@@ -140,6 +140,9 @@ defineExpose({
     top: 4px;
     width: 60px;
     text-align: center;
+    // for dumb Safari, bugs still there 14 years after
+    // https://bugs.webkit.org/show_bug.cgi?id=40216
+    text-align-last: center;
     border: 0;
     background: none;
     padding: 0;
