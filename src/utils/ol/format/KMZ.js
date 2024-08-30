@@ -23,10 +23,9 @@ export function getKMLData(buffer) {
 }
 
 export function getKMLImage(href) {
-    console.error('href: ', href)
-    const index = window.location.href.lastIndexOf('/') - 2
-    if (index !== -1) {
-        const kmlFile = zip.file(href.slice(index + 1))
+    //console.error('href: ', href)
+    if (window.location.href.lastIndexOf('/') !== -1) {
+        const kmlFile = zip.file(href.split('/').pop())
         //console.error('kmlFile: ', kmlFile)
         if (kmlFile) {
             return URL.createObjectURL(new Blob([kmlFile.asArrayBuffer()]))
