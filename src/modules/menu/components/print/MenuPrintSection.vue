@@ -17,6 +17,7 @@ const dispatcher = { dispatcher: 'MapPrintSection.vue' }
 
 const emits = defineEmits(['openMenuSection'])
 
+const sectionId = ref('printSection')
 const isSectionShown = ref(false)
 const printGrid = ref(false)
 const printLegend = ref(false)
@@ -117,22 +118,23 @@ async function printMap() {
     }
 }
 
-function onOpenMenuSection(id) {
+function onOpenMenuSection(sectionId) {
     if (printStatus.value !== PrintStatus.PRINTING) {
         printStatus.value = PrintStatus.IDLE
     }
-    emits('openMenuSection', id)
+    emits('openMenuSection', sectionId)
 }
 
 defineExpose({
     close,
+    sectionId,
 })
 </script>
 
 <template>
     <MenuSection
-        id="printSection"
-        :title="$t('print')"
+        :section-id="sectionId"
+        :title="i18n.t('print')"
         :show-content="isSectionShown"
         data-cy="menu-print-section"
         secondary

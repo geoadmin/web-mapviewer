@@ -82,9 +82,9 @@ function onCloseMenuSection(id) {
  *
  * @param {any} el Reference to the element
  */
-function addRefById(el) {
-    if (el !== null && !Object.keys(refs.value).includes(el.id)) {
-        refs.value[el.id] = el
+function addRefBySectionId(el) {
+    if (el !== null && !Object.keys(refs.value).includes(el.sectionId)) {
+        refs.value[el.sectionId] = el
     }
 }
 </script>
@@ -104,21 +104,21 @@ function addRefById(el) {
             <MenuSettings />
         </MenuSection>
         <MenuShareSection
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
             @close-menu-section="onCloseMenuSection"
         />
         <MenuPrintSection
             v-if="!is3dMode"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection
                 v-if="!is3dMode"
-                id="drawSection"
+                section-id="drawSection"
                 :title="i18n.t('draw_panel_title')"
                 secondary
                 :show-content="showDrawingOverlay"
@@ -135,8 +135,8 @@ function addRefById(el) {
             />
         </div>
         <MenuSection
-            id="toolsSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="toolsSection"
             data-cy="menu-tray-tool-section"
             :title="i18n.t('map_tools')"
             secondary
@@ -147,8 +147,8 @@ function addRefById(el) {
         </MenuSection>
         <MenuSection
             v-if="is3dMode"
-            id="3dSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="3dSection"
             data-cy="menu-tray-3d-section"
             title="3D"
             secondary
@@ -158,15 +158,15 @@ function addRefById(el) {
             <MenuThreeD :compact="compact" />
         </MenuSection>
         <MenuTopicSection
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Here below we MUST wait that the map has been rendered before displaying any menu
              content, otherwise this would slow down the application startup -->
         <MenuSection
-            id="activeLayersSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="activeLayersSection"
             :title="i18n.t('layers_displayed')"
             light
             :show-content="mapModuleReady"

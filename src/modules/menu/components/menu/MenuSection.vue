@@ -52,7 +52,7 @@ export default {
     },
     props: {
         // String that uniquely identifies this section
-        id: {
+        sectionId: {
             type: String,
             required: true,
         },
@@ -78,7 +78,7 @@ export default {
             default: false,
         },
     },
-    expose: ['close', 'open', 'id'],
+    expose: ['close', 'open', 'sectionId'],
     emits: ['openMenuSection', 'closeMenuSection', 'click:header'],
     data() {
         return {
@@ -111,9 +111,9 @@ export default {
             if (this.showBody !== value) {
                 this.showBody = value
                 if (this.showBody) {
-                    this.$emit('openMenuSection', this.id)
+                    this.$emit('openMenuSection', this.sectionId)
                 } else {
-                    this.$emit('closeMenuSection', this.id)
+                    this.$emit('closeMenuSection', this.sectionId)
                 }
             }
         },
