@@ -95,6 +95,14 @@ const runIdentify = (config) => {
                     !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
             )
             .forEach((layer) => {
+                // TODO(IS): we could use a single request for all layers, but it would lose the layer grouping
+                // pendingRequests.push(
+                //     identify({
+                //         layer,
+                //         ...commonParams,
+                //     })
+                // )
+                // Remove the following line and uncomment the previous one to use a single request for all layers
                 if (layer.layers) {
                     // for group of layers, we fire a request per sublayer
                     layer.layers.forEach((sublayer) => {
