@@ -15,6 +15,7 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
+import store from '@/store'
 import log from '@/utils/logging'
 import { adjustWidth } from '@/utils/styleUtils'
 
@@ -25,11 +26,12 @@ const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync w
 
 class GeoAdminCustomizer extends BaseCustomizer {
     /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
-    constructor(layerIDsToExclude, printResolution) {
-        super()
+    constructor(printExtent, layerIDsToExclude, printResolution) {
+        super(printExtent)
         this.layerIDsToExclude = layerIDsToExclude
         this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
+        this.geometryFilter = this.geometryFilter.bind(this)
         this.line = this.line.bind(this)
         this.text = this.text.bind(this)
         this.point = this.point.bind(this)
@@ -349,7 +351,9 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-    const customizer = new GeoAdminCustomizer(excludedLayerIDs, dpi)
+    const printExtent = store.state.print.printExtent
+    const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
+
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
     try {
