@@ -58,6 +58,7 @@ export function isGpx(fileContent) {
  */
 export async function handleFileContent(store, content, source) {
     let iconUrlFunction = null
+    let layer = null
     if (content.name && content.name.endsWith('.kmz')) {
         content = await readFileContent(content)
         const kmz = new KMZ({})
@@ -65,36 +66,41 @@ export async function handleFileContent(store, content, source) {
             dataProjection: WGS84.epsg, // KML files should always be in WGS84
             featureProjection: WGS84.epsg,
         })
-        content = kmz.kmlData
-        iconUrlFunction = kmz.iconUrlFunction
-    }
-    console.error('SPAMSPAMSPAM:', iconUrlFunction)
-    let layer = null
-    if (isKml(content) || iconUrlFunction) {
-        layer = new KMLLayer({
-            kmlFileUrl: source,
-            visible: true,
-            opacity: 1.0,
-            adminId: null,
-            kmlData: content,
-            iconUrlFunction: iconUrlFunction,
+        Promise.all([kmz.kmlData]).then((value) => {
+            console.error('Promise kmlData: ', value[0])
+            content = value[0]
+            iconUrlFunction = kmz.iconUrlFunction
+            console.error('SPAMSPAMSPAM:', content)
+            if (isKml(content) || iconUrlFunction) {
+                layer = new KMLLayer({
+                    kmlFileUrl: source,
+                    visible: true,
+                    opacity: 1.0,
+                    adminId: null,
+                    kmlData: content,
+                    iconUrlFunction: iconUrlFunction,
+                })
+                const extent = getKmlExtent(content)
+                if (!extent) {
+                    throw new EmptyKMLError()
+                }
+                const projectedExtent = getExtentForProjection(
+                    store.state.position.projection,
+                    extent
+                )
+                if (!projectedExtent) {
+                    throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
+                }
+                store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
+                if (store.getters.getActiveLayersById(layer.id).length > 0) {
+                    store.dispatch('updateLayers', { layers: [layer], ...dispatcher })
+                } else {
+                    store.dispatch('addLayer', { layer, ...dispatcher })
+                }
+            }
         })
-        const extent = getKmlExtent(content)
-        if (!extent) {
-            throw new EmptyKMLError()
-        }
-        const projectedExtent = getExtentForProjection(store.state.position.projection, extent)
-
-        if (!projectedExtent) {
-            throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
-        }
-        store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
-        if (store.getters.getActiveLayersById(layer.id).length > 0) {
-            store.dispatch('updateLayers', { layers: [layer], ...dispatcher })
-        } else {
-            store.dispatch('addLayer', { layer, ...dispatcher })
-        }
-    } else if (isGpx(content)) {
+    }
+    if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)
         layer = new GPXLayer({
@@ -114,8 +120,8 @@ export async function handleFileContent(store, content, source) {
         }
         store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
         store.dispatch('addLayer', { layer, ...dispatcher })
-    } else {
-        throw new Error(`Unsupported file ${source} content`)
-    }
+    } // else {
+    //   throw new Error(`Unsupported file ${source} content`)
+    //}
     return layer
 }

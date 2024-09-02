@@ -60,11 +60,13 @@ class KMZ extends KML {
 
     readFeatures(source, options) {
         const kmlData = getKMLData(source)
-        Promise.all([kmlData]).then((values) => {
-            console.error('kmlData: ', values)
-            this.kmlData = values
-            return super.readFeatures(values, options)
-        })
+        this.kmlData = kmlData
+        //Promise.all([kmlData]).then((values) => {
+        //    console.error('kmlData: ', values)
+        //    this.kmlData = values
+        //    return super.readFeatures(values, options)
+        //})
+        return super.readFeatures(kmlData, options)
     }
 }
 
