@@ -258,6 +258,7 @@ async function identifyOnExternalLayer(config) {
         )
     }
     if (layer instanceof ExternalWMSLayer) {
+        console.log('>>> ExternalWMSLayer: layer', layer)
         return await identifyOnExternalWmsLayer({
             coordinate,
             projection: requestProjection,
@@ -269,26 +270,37 @@ async function identifyOnExternalLayer(config) {
             outputProjection: projection,
         })
     } else if (layer instanceof ExternalGroupOfLayers) {
-        // firing one request per sub-layer
-        const allRequests = [
-            layer.layers.map((subLayer) =>
-                identifyOnExternalLayer({
-                    ...config,
-                    layer: subLayer,
-                })
-            ),
-        ]
-        const allResponses = await Promise.allSettled(allRequests)
-        // logging any error
-        allResponses
-            .filter((response) => response.status !== 'fulfilled')
-            .forEach((failedResponse) => {
-                log.error('Error while identify an external sub-layer', failedResponse)
-            })
-        return allResponses
-            .filter((response) => response.status === 'fulfilled' && response.value)
-            .map((response) => response.value)
-            .flat()
+        console.log('> ExternalGroupOfLayers: layer', layer)
+        return await identifyOnExternalWmsLayerGroup({
+            coordinate,
+            projection: requestProjection,
+            resolution,
+            layerGroup: layer,
+            featureCount,
+            lang,
+            tolerance,
+            outputProjection: projection,
+        })
+        // // firing one request per sub-layer
+        // const allRequests = [
+        //     layer.layers.map((subLayer) =>
+        //         identifyOnExternalLayer({
+        //             ...config,
+        //             layer: subLayer,
+        //         })
+        //     ),
+        // ]
+        // const allResponses = await Promise.allSettled(allRequests)
+        // // logging any error
+        // allResponses
+        //     .filter((response) => response.status !== 'fulfilled')
+        //     .forEach((failedResponse) => {
+        //         log.error('Error while identify an external sub-layer', failedResponse)
+        //     })
+        // return allResponses
+        //     .filter((response) => response.status === 'fulfilled' && response.value)
+        //     .map((response) => response.value)
+        //     .flat()
     } else {
         throw new GetFeatureInfoError(
             `Unsupported external layer type to build getFeatureInfo request: ${layer.type}`
@@ -324,6 +336,7 @@ async function identifyOnExternalLayer(config) {
  * @returns {Promise<LayerFeature[]>}
  */
 async function identifyOnExternalWmsLayer(config) {
+    // console.log('identifyOnExternalWmsLayer: layer', config.layer)
     const {
         coordinate,
         projection,
@@ -449,6 +462,185 @@ async function identifyOnExternalWmsLayer(config) {
             const featureName = label ?? name ?? title ?? identifier ?? id
             return new LayerFeature({
                 layer,
+                id: featureId,
+                name: featureName,
+                data: feature.properties,
+                coordinates: getGeoJsonFeatureCoordinates(
+                    geometry,
+                    projection,
+                    outputProjection ?? projection
+                ),
+                geometry: reprojectGeoJsonData(
+                    geometry,
+                    outputProjection ?? projection,
+                    projection
+                ),
+            })
+        })
+    }
+    return []
+}
+
+/**
+ * Runs a getFeatureInfo request on the backend of an external WMS layer.
+ *
+ * To do so, it will create a "fake" 100x100 pixel extent around the given coordinate to build the
+ * request (with the request asking for the pixel 50:50).
+ *
+ * This is done because, after many attempts to give the current map viewport and click pixel
+ * position without any positive results, I looked at what OpenLayers does under the hood, and
+ * that's exactly their approach (and the approach mf-geoadmin3 had, because it relied on the Ol
+ * class to do exactly that).
+ *
+ * And as we wanted to be as framework-agnostic as possible, I couldn't get myself to pass the OL
+ * instance of the WMS source to this function to use the utils directly, and preferred to implement
+ * it on my own.
+ *
+ * @param {[Number, Number]} config.coordinate
+ * @param {CoordinateSystem} config.projection
+ * @param {Number} config.resolution
+ * @param {ExternalGroupOfLayers} config.layerGroup
+ * @param {Number} config.featureCount
+ * @param {String} config.lang
+ * @param {Number} config.tolerance
+ * @param {CoordinateSystem} config.outputProjection The wanted output projection. Enable us to
+ *   request this WMS with a different projection and then reproject on the fly if this WMS doesn't
+ *   suppor the current map projection.
+ * @returns {Promise<LayerFeature[]>}
+ */
+async function identifyOnExternalWmsLayerGroup(config) {
+    console.log('>>>>> identifyOnExternalWmsLayerGroup: layer', config.layerGroup)
+    const {
+        coordinate,
+        projection,
+        resolution,
+        layerGroup,
+        featureCount,
+        lang,
+        tolerance,
+        outputProjection = null,
+    } = config
+    const firstLayer = layerGroup.layers[0]
+    const requestExtent = createPixelExtentAround({
+        size: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
+        coordinate,
+        projection,
+        resolution,
+        rounded: true,
+    })
+    if (!requestExtent) {
+        throw new GetFeatureInfoError('Unable to build required request extent')
+    }
+    // selecting output format depending on external WMS capabilities
+    // preferring JSON output
+    let outputFormat = APPLICATION_JSON_TYPE
+    if (!firstLayer.getFeatureInfoCapability.formats?.includes(outputFormat)) {
+        // if JSON isn't supported, we check if GML3 is supported
+        // TODO (IS): Use the first one for now
+        if (firstLayer.getFeatureInfoCapability.formats?.includes(APPLICATION_GML_3_TYPE)) {
+            outputFormat = APPLICATION_GML_3_TYPE
+        } else {
+            // if neither JSON nor GML3 are supported, we will ask for plain text
+            outputFormat = PLAIN_TEXT_TYPE
+        }
+    }
+    const layerIDs = layerGroup.layers.map((layer) => layer.id).join(',')
+    console.log('>>>>> identifyOnExternalWmsLayerGroup: layerIDs', layerIDs)
+    // params described as https://docs.geoserver.org/2.22.x/en/user/services/wms/reference.html#getfeatureinfo
+    const params = {
+        SERVICE: 'WMS',
+        VERSION: firstLayer.wmsVersion ?? '1.3.0',
+        REQUEST: 'GetFeatureInfo',
+        LAYERS: layerIDs,
+        STYLES: null,
+        CRS: projection.epsg,
+        BBOX: requestExtent.join(','),
+        WIDTH: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
+        HEIGHT: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
+        QUERY_LAYERS: layerIDs,
+        INFO_FORMAT: outputFormat,
+        FEATURE_COUNT: featureCount,
+        LANG: lang,
+        // Trying to activate a tolerance feature, guessing which are the main WMS server running environment
+        // and looking at their documentation to see if it is supported.
+        // ***************
+        // It wasn't clear if MapServer used TOLERANCE directly, but that's what shows up in mapfiles in their doc
+        // see: https://mapserver.org/mapfile/cluster.html#handling-getfeatureinfo
+        TOLERANCE: tolerance,
+        // Tolerance param for GeoServer
+        // see: https://docs.geoserver.org/main/en/user/services/wms/reference.html#getfeatureinfo
+        BUFFER: tolerance,
+        // Tolerance param for QGIS server
+        // see: https://docs.qgis.org/3.34/en/docs/server_manual/services/wms.html#wms-getfeatureinfo
+        FI_POINT_TOLERANCE: tolerance,
+        FI_LINE_TOLERANCE: tolerance,
+        FI_POLYGON_TOLERANCE: tolerance,
+        // tried to no avail finding this in degree doc (https://download.deegree.org/documentation/3.5.5/html)
+        // there might exist more implementation of WMS, but I stopped there looking for more
+        // (please add more if you think one of our customer/external layer providers uses another flavor of WMS)
+    }
+    // In WMS "all" years mean no TIME parameter
+    if (
+        firstLayer.timeConfig?.currentYear &&
+        firstLayer.timeConfig.currentYear !== ALL_YEARS_TIMESTAMP
+    ) {
+        params.TIME = firstLayer.timeConfig.currentYear
+    }
+    // WMS 1.3.0 uses i,j to describe pixel coordinate where we want feature info
+    if (params.VERSION === '1.3.0') {
+        params.I = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
+        params.J = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
+    } else {
+        // older WMS versions use x,y instead
+        params.X = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
+        params.Y = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
+    }
+    const getFeatureInfoResponse = await axios({
+        method: firstLayer.getFeatureInfoCapability.method,
+        url: firstLayer.getFeatureInfoCapability.baseUrl,
+        params,
+    })
+    if (getFeatureInfoResponse.data) {
+        let features = []
+        switch (outputFormat) {
+            case APPLICATION_GML_3_TYPE:
+                // transforming GML3 features into OL features, and then back to GeoJSON features
+                features = new GeoJSON().writeFeaturesObject(
+                    new WMSGetFeatureInfo().readFeatures(getFeatureInfoResponse.data, {
+                        dataProjection: projection.epsg,
+                    })
+                )?.features
+                break
+            case APPLICATION_JSON_TYPE:
+                // nothing to do other than extracting the data
+                features = getFeatureInfoResponse.data.features
+                break
+            case PLAIN_TEXT_TYPE:
+                // TODO : implement plain text parsing
+                log.error('Plain text parsing not yet implemented')
+                break
+        }
+        return features?.map((feature) => {
+            let geometry = feature.geometry
+            // if no geometry is defined (because we came from a GML or plain text parsing),
+            // we use the click coordinate as a point
+            if (!geometry) {
+                geometry = {
+                    type: 'Point',
+                    coordinates: [...coordinate],
+                }
+            }
+            const {
+                id = null,
+                identifier = null,
+                title = null,
+                name = null,
+                label = null,
+            } = feature.properties ?? {}
+            const featureId = feature.id ?? id ?? identifier ?? title ?? name ?? label
+            const featureName = label ?? name ?? title ?? identifier ?? id
+            return new LayerFeature({
+                layerGroup,
                 id: featureId,
                 name: featureName,
                 data: feature.properties,
