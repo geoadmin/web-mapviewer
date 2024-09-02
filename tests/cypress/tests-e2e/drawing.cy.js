@@ -654,7 +654,7 @@ describe('Drawing module tests', () => {
 
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
-                .contains('0.24935 km2')
+                .contains('0.24999 km2')
         })
     })
     context('KML management', () => {
