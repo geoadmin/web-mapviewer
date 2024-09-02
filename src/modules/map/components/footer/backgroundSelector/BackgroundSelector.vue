@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
@@ -51,6 +51,19 @@ function selectBackground(backgroundLayer) {
         ...dispatcher,
     })
 }
+
+/**
+ * This is a bit of a hack to force the reactive system to update the attributions when the language
+ * changes, so that the url will be updated on language selection: On language change the background
+ * layers are being updated, which changes the link to the correct (current) language. For the
+ * change to propagate through to the UI, we push it here again
+ */
+watch(
+    () => backgroundLayers.value,
+    () => {
+        selectBackground(currentBackgroundLayer.value)
+    }
+)
 </script>
 
 <template>
