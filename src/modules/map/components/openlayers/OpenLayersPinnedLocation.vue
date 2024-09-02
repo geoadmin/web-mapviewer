@@ -28,6 +28,7 @@ function selectFeatureCallback() {
         :position="pinnedLocation"
         marker-style="balloon"
         :z-index="zIndexDroppedPin"
+        :deselect-after-select="true"
         :select-feature-callback="selectFeatureCallback"
     />
     <OpenLayersMarker

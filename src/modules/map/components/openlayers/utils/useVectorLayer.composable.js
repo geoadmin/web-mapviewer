@@ -23,7 +23,8 @@ export default function useVectorLayer(
     features,
     zIndex = -1,
     styleFunction = highlightFeatureStyle,
-    onFeatureSelectCallback = () => {}
+    onFeatureSelectCallback = () => {},
+    deselectAfterSelect = false // If true, the selected feature will be deselected after the callback is called
 ) {
     const layer = new VectorLayer({
         id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -47,6 +48,9 @@ export default function useVectorLayer(
             event.selected.forEach((feature) => {
                 onFeatureSelectCallback(feature)
             })
+            if (deselectAfterSelect) {
+                selectInteraction.getFeatures().clear()
+            }
         }
     })
 
