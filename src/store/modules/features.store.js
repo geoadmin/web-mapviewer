@@ -6,7 +6,6 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { sendFeatureInformationToIFrameParent } from '@/api/iframeFeatureEvent.api'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
@@ -60,7 +59,6 @@ function getFeatureCountForCoordinate(coordinate) {
  *   different requests (won't be grouped by layer)
  */
 const runIdentify = (config) => {
-    console.log('runIdentify', config)
     const {
         layers,
         coordinate,
@@ -85,7 +83,6 @@ const runIdentify = (config) => {
             projection,
             featureCount,
         }
-        console.log('number of layers', layers.length)
         // for each layer we run a backend request
         // NOTE: in theory for the Geoadmin layers we could run one single backend request to API3 instead of one per layer, however
         // this would not be more efficient as a single request would take more time that several in parallel (this has been tested).
@@ -98,9 +95,7 @@ const runIdentify = (config) => {
                     !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
             )
             .forEach((layer) => {
-                console.log('layers', layer, layer instanceof ExternalGroupOfLayers)
                 if (layer.layers) {
-                    console.log('layer.layers', layer.layers)
                     // for group of layers, we fire a request per sublayer
                     layer.layers.forEach((sublayer) => {
                         pendingRequests.push(
@@ -285,7 +280,6 @@ export default {
                     featureCount,
                 })),
             ]
-            console.log('final result', features)
             if (features.length > 0) {
                 dispatch('setSelectedFeatures', {
                     features,

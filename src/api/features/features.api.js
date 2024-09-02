@@ -258,7 +258,6 @@ async function identifyOnExternalLayer(config) {
         )
     }
     if (layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers) {
-        console.log('>>> ExternalWMSLayer: layer', layer)
         return await identifyOnExternalWmsLayer({
             coordinate,
             projection: requestProjection,
@@ -304,7 +303,6 @@ async function identifyOnExternalLayer(config) {
  * @returns {Promise<LayerFeature[]>}
  */
 async function identifyOnExternalWmsLayer(config) {
-    // console.log('identifyOnExternalWmsLayer: layer', config.layer)
     const {
         coordinate,
         projection,
