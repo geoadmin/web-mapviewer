@@ -26,11 +26,13 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
         } else if (parts.length === 2) {
             const crossHairPosition = [parseFloat(parts[0]), parseFloat(parts[1])]
             if (!(isNaN(crossHairPosition[0]) || isNaN(crossHairPosition[1]))) {
-                promisesForAllDispatch.push('setCrossHair', {
-                    crossHair: CrossHairs.marker,
-                    crossHairPosition,
-                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                })
+                promisesForAllDispatch.push(
+                    store.dispatch('setCrossHair', {
+                        crossHair: CrossHairs.marker,
+                        crossHairPosition,
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                    })
+                )
             }
         } else if (parts.length === 3) {
             const crossHair = parts[0]
