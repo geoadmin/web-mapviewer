@@ -1,5 +1,5 @@
 <script setup>
-import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
+import { Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
 import { computed, inject, onBeforeUnmount, onMounted, toRefs, watch } from 'vue'
 
 import KMLLayer from '@/api/layers/KMLLayer.class.js'
@@ -42,7 +42,6 @@ function addKmlLayer() {
                 kmlDataSource.entities.values.forEach((entity) => {
                     let geometry
                     let alphaToApply = 0.2
-                    let clampToGround = false
                     if (entity.ellipse) {
                         geometry = entity.ellipse
                     }
@@ -52,7 +51,6 @@ function addKmlLayer() {
                     if (entity.polyline) {
                         geometry = entity.polyline
                         alphaToApply = 0.5
-                        clampToGround = true
                     }
                     if (entity.billboard) {
                         entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
@@ -68,10 +66,6 @@ function addKmlLayer() {
                         label.style = LabelStyle.FILL_AND_OUTLINE
                     }
                     if (geometry) {
-                        if (clampToGround) {
-                            geometry.arcType = ArcType.GEODESIC
-                            geometry.clampToGround = true
-                        }
                         if (geometry.material?.color) {
                             geometry.material.color = geometry.material.color
                                 .getValue()
