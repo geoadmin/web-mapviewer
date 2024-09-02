@@ -49,7 +49,7 @@ function calculateAreaGeographicLib(coords) {
 /** @type {ComputedRef<string>} */
 const humanReadableArea = computed(() => {
     const coords = geometryWgs84.value.coordinates[0]
-    const calculatedArea = calculateAreaGeographicLib(coords)
+    const calculatedArea = Math.abs(calculateAreaGeographicLib(coords))
     let result = ''
     if (calculatedArea) {
         const unitThreshold = 1e5
