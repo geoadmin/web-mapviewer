@@ -14,12 +14,12 @@ export default class WebMercatorCoordinateSystem extends StandardCoordinateSyste
             'WebMercator',
             // matrix comes from https://epsg.io/3857.proj4
             '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
-            // bounds are coming from https://epsg.io/3857
+            // bounds are coming from https://github.com/geoadmin/lib-gatilegrid/blob/58d6e574b69d32740a24edbc086d97897d4b41dc/gatilegrid/tilegrids.py#L122-L125
             new CoordinateSystemBounds(
-                -20037508.34,
-                20037508.34,
-                -20048966.1,
-                20048966.1,
+                -20037508.342789244,
+                20037508.342789244,
+                -20037508.342789244,
+                20037508.342789244,
                 // center of LV95's extent transformed with epsg.io website
                 [917209.87, 5914737.43]
             )
