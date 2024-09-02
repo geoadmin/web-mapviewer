@@ -151,7 +151,7 @@ export function getBaseUrlOverride(propertyName) {
     return baseUrlOverrides[propertyName]
 }
 
-export function setBaseUrlOverrides(propertyName, value) {
+export function setBaseUrlOverrides(propertyName, value = null) {
     baseUrlOverrides[propertyName] = enforceEndingSlashInUrl(value)
 }
 
