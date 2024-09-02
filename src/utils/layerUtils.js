@@ -1,6 +1,7 @@
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import { getBaseUrlOverride } from '@/config/baseUrl.config'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -76,7 +77,7 @@ export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.id
             : wmtsLayerConfig.technicalName
-        return `${wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
+        return `${getBaseUrlOverride('wmts') ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
     }
     return null
 }

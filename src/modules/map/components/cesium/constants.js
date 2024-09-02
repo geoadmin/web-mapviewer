@@ -1,11 +1,11 @@
-import { BASE_URL_3D_TILES } from '@/config'
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 
 /**
  * 3D terrain URL
  *
  * @type {string}
  */
-export const TERRAIN_URL = `${BASE_URL_3D_TILES}/ch.swisstopo.terrain.3d/v1/`
+export const TERRAIN_URL = `${get3dTilesBaseUrl()}/ch.swisstopo.terrain.3d/v1/`
 
 /**
  * The minimum distance in meters of the camera position from the terrain.

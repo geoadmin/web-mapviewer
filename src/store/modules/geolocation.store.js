@@ -8,28 +8,32 @@ const state = {
      * @type Boolean
      */
     active: false,
+
     /**
      * Flag telling if the geolocation usage has been denied by the user in his/her browser settings
      *
      * @type Boolean
      */
     denied: false,
+
     /**
      * Flag telling if the geolocation position should always be at the center of the app
      *
-     * @type Boolean
+     * @type {Boolean}
      */
     tracking: true,
+
     /**
      * Device position in the current application projection [x, y]
      *
-     * @type Array<Number>
+     * @type {Number[] | null}
      */
-    position: [0, 0],
+    position: null,
+
     /**
      * Accuracy of the geolocation position, in meters
      *
-     * @type Number
+     * @type {Number}
      */
     accuracy: 0,
 }
@@ -41,11 +45,7 @@ const actions = {
         commit('setGeolocationActive', args)
     },
     toggleGeolocation: ({ commit, state }, { dispatcher }) => {
-        const willBeActive = !state.active
-        if (willBeActive) {
-            commit('setGeolocationTracking', { tracking: true, dispatcher })
-        }
-        commit('setGeolocationActive', { active: willBeActive, dispatcher })
+        commit('setGeolocationActive', { active: !state.active, dispatcher })
     },
     setGeolocationTracking: ({ commit }, args) => commit('setGeolocationTracking', args),
     setGeolocationDenied: ({ commit }, { denied, dispatcher }) => {
@@ -69,6 +69,9 @@ const actions = {
             log.error(`Invalid geolocation accuracy: ${accuracy}`)
         }
     },
+    setGeolocationData: ({ commit }, { position, accuracy, dispatcher }) => {
+        commit('setGeolocationData', { position, accuracy, dispatcher })
+    },
 }
 
 const mutations = {
@@ -77,6 +80,10 @@ const mutations = {
     setGeolocationTracking: (state, { tracking }) => (state.tracking = tracking),
     setGeolocationAccuracy: (state, { accuracy }) => (state.accuracy = accuracy),
     setGeolocationPosition: (state, { position }) => (state.position = position),
+    setGeolocationData: (state, { position, accuracy }) => {
+        state.position = position
+        state.accuracy = accuracy
+    },
 }
 
 export default {

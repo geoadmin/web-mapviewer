@@ -55,6 +55,10 @@ export function generateGpxString(projection, features = []) {
             const coordinates = geom.getLinearRing().getCoordinates()
             clone.setGeometry(new LineString(coordinates))
         }
+        // Set the desc attribute from description property so that it is exported to GPX in desc tag
+        if (clone.getProperties().description) {
+            clone.set('desc', clone.getProperties().description)
+        }
         return clone
     })
     return gpxFormat.writeFeatures(normalizedFeatures, {

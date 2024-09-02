@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config.js'
+import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 describe('Testing the feature selection', () => {

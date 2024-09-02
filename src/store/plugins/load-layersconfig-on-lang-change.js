@@ -1,5 +1,6 @@
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import { loadTopics, parseTopics } from '@/api/topics.api'
+import { SET_HAS_URL_OVERRIDES_MUTATION_KEY } from '@/store/debug.store'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -11,7 +12,7 @@ const dispatcher = { dispatcher: 'load-layersconfig-on-lang-change' }
  *
  * @type Object
  */
-const layersConfigByLang = {}
+let layersConfigByLang = {}
 
 /**
  * Loads the whole config from the backend (aka LayersConfig) for a specific language and store it
@@ -65,10 +66,14 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
  */
 const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
-        if (mutation.type === SET_LANG_MUTATION_KEY) {
+        if ([SET_LANG_MUTATION_KEY, SET_HAS_URL_OVERRIDES_MUTATION_KEY].includes(mutation.type)) {
+            // in case of changes in URL overrides, we clear the layers config cache
+            if (SET_HAS_URL_OVERRIDES_MUTATION_KEY === mutation.type) {
+                layersConfigByLang = {}
+            }
             loadLayersAndTopicsConfigAndDispatchToStore(
                 store,
-                mutation.payload.lang,
+                mutation.payload.lang ?? store.state.i18n.lang,
                 store.state.topics.current,
                 dispatcher.dispatcher
             )

@@ -3,7 +3,7 @@
 import { isMobile } from 'tests/cypress/support/utils'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { APP_VERSION } from '@/config'
+import { APP_VERSION } from '@/config/staging.config'
 
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 

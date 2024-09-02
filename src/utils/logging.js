@@ -1,4 +1,4 @@
-import { ENVIRONMENT } from '../config'
+import { ENVIRONMENT } from '@/config/staging.config'
 
 /**
  * A log level reference that can be passed as first parameter to the log function. The levels

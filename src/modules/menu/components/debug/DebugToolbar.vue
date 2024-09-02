@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
+import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const dispatcher = { dispatcher: 'DebugToolbar.vue' }
@@ -11,6 +11,7 @@ const dispatcher = { dispatcher: 'DebugToolbar.vue' }
 const store = useStore()
 
 const showDebugTool = ref(false)
+const showBaseUrlOverride = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
@@ -37,6 +38,9 @@ function toggleShowTileDebugInfo() {
 function toggleShowLayerExtents() {
     store.dispatch('toggleShowLayerExtents', dispatcher)
 }
+function toggleShowBaseUrlOverride() {
+    showBaseUrlOverride.value = !showBaseUrlOverride.value
+}
 </script>
 
 <template>
@@ -52,57 +56,65 @@ function toggleShowLayerExtents() {
             >
                 <FontAwesomeIcon icon="gear" title="Debug tools" />
             </div>
-            <div v-if="showDebugTool" class="debug-tools-body">
+            <div v-show="showDebugTool" class="debug-tools-body">
                 <div class="card-body">
-                    <h5 class="text-decoration-underline">Map projection</h5>
-                    <div class="my-1 d-flex align-content-center">
-                        <strong class="me-2 align-self-center" data-cy="current-projection">
-                            {{ currentProjection.epsg }}
-                        </strong>
-                        <button
-                            class="toolbox-button align-self-center"
-                            type="button"
-                            :class="{ active: isMercatorTheCurrentProjection }"
-                            data-cy="toggle-projection-button"
-                            @click="toggleProjection"
-                        >
-                            <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
-                        </button>
-                    </div>
-                    <div v-if="is3dActive" class="mb-1">
-                        <h5 class="text-decoration-underline">3D</h5>
-                        <Toggle3DLayerButton class="align-self-center" />
-                    </div>
-                    <div v-else class="mb-1">
-                        <h5 class="text-decoration-underline">Layer debug</h5>
-                        <div class="d-flex gap-1 justify-content-around">
-                            <div>
-                                <button
-                                    class="toolbox-button m-auto"
-                                    type="button"
-                                    :class="{ active: showTileDebugInfo }"
-                                    @click="toggleShowTileDebugInfo"
-                                >
-                                    <FontAwesomeIcon icon="border-none" />
-                                </button>
-                                <label class="text-center w-100">Tile info</label>
-                            </div>
-                            <div>
-                                <button
-                                    class="toolbox-button m-auto"
-                                    type="button"
-                                    :class="{ active: showLayerExtents }"
-                                    @click="toggleShowLayerExtents"
-                                >
-                                    <FontAwesomeIcon icon="expand" />
-                                </button>
-                                <label class="text-center">Extents</label>
-                            </div>
+                    <div
+                        id="debug-tools-menu"
+                        class="d-flex gap-2 justify-content-center flex-wrap"
+                    >
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button"
+                                type="button"
+                                :class="{ active: isMercatorTheCurrentProjection }"
+                                data-cy="toggle-projection-button"
+                                @click="toggleProjection"
+                            >
+                                <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
+                            </button>
+                            <label class="toolbox-button-label" data-cy="current-projection">
+                                {{ currentProjection.epsg }}
+                            </label>
+                        </div>
+
+                        <div v-if="!is3dActive" class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showTileDebugInfo }"
+                                @click="toggleShowTileDebugInfo"
+                            >
+                                <FontAwesomeIcon icon="border-none" />
+                            </button>
+                            <label class="toolbox-button-label">Tile info</label>
+                        </div>
+                        <div v-if="!is3dActive" class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showLayerExtents }"
+                                @click="toggleShowLayerExtents"
+                            >
+                                <FontAwesomeIcon icon="expand" />
+                            </button>
+                            <label class="toolbox-button-label">Extents</label>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showBaseUrlOverride }"
+                                @click="toggleShowBaseUrlOverride"
+                            >
+                                <FontAwesomeIcon icon="cog" />
+                            </button>
+                            <label class="toolbox-button-label">Backends</label>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <BaseUrlOverrideModal v-if="showBaseUrlOverride" @close="toggleShowBaseUrlOverride" />
     </div>
 </template>
 

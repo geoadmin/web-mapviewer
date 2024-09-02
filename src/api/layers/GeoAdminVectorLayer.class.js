@@ -1,7 +1,7 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { VECTOR_TILE_BASE_URL } from '@/config'
+import { getVectorTilesBaseUrl } from '@/config/baseUrl.config'
 
 /**
  * Metadata for a vector tile layer (MapLibre layer) served by our backend
@@ -24,7 +24,7 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
         super({
             name: layerId,
             type: LayerTypes.VECTOR,
-            baseUrl: VECTOR_TILE_BASE_URL,
+            baseUrl: getVectorTilesBaseUrl(),
             id: layerId,
             technicalName: layerId,
             attributions: [

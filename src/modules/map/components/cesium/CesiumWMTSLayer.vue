@@ -14,7 +14,7 @@ import { mapActions } from 'vuex'
 
 import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getWmtsXyzUrl } from '@/utils/layerUtils'

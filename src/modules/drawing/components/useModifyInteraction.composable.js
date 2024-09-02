@@ -8,7 +8,7 @@ import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
 } from '@/api/features/features.api'
-import { DRAWING_HIT_TOLERANCE } from '@/config'
+import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'

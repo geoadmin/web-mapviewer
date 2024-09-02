@@ -10,7 +10,8 @@ import { mapState } from 'vuex'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
-import { DEFAULT_PROJECTION } from '@/config'
+import { getBaseUrlOverride } from '@/config/baseUrl.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -59,7 +60,7 @@ export default {
             return this.wmsLayerConfig.format ?? 'png'
         },
         url() {
-            return this.wmsLayerConfig.baseUrl
+            return getBaseUrlOverride('wms') ?? this.wmsLayerConfig.baseUrl
         },
         timestamp() {
             return getTimestampFromConfig(this.wmsLayerConfig)

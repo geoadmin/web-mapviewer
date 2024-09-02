@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 
-import { ENVIRONMENT } from '@/config'
+import { ENVIRONMENT } from '@/config/staging.config'
 import debug from '@/store/debug.store'
 import app from '@/store/modules/app.store'
 import cesium from '@/store/modules/cesium.store'

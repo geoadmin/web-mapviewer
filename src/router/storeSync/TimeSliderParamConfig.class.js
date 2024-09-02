@@ -1,4 +1,4 @@
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config'
+import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'

@@ -13,7 +13,7 @@ import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL } from '@/config.js'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 describe('Testing layersParamParser', () => {
@@ -285,9 +285,9 @@ describe('Testing layersParamParser', () => {
             {
                 pristineLayer: new KMLLayer({
                     // using an service-kml base URL to make it "internal"
-                    kmlFileUrl: `${API_SERVICE_KML_BASE_URL}fakeKmlId`,
+                    kmlFileUrl: `${getServiceKmlBaseUrl()}fakeKmlId`,
                 }),
-                expectedLayerUrlId: `KML|${API_SERVICE_KML_BASE_URL}fakeKmlId`,
+                expectedLayerUrlId: `KML|${getServiceKmlBaseUrl()}fakeKmlId`,
                 testTime: false,
                 testFeaturePreSelection: false,
             },

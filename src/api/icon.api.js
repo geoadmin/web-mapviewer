@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { API_SERVICES_BASE_URL } from '@/config'
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
@@ -188,7 +188,8 @@ export async function loadAllIconSetsFromBackend() {
     const setPromises = []
     const sets = []
     try {
-        const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
+        const rawSets = (await axios.get(`${getViewerDedicatedServicesBaseUrl()}icons/sets`)).data
+            .items
         for (const rawSet of rawSets) {
             const iconSet = new DrawingIconSet(
                 rawSet.name,

@@ -1,6 +1,6 @@
 import proj4 from 'proj4'
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -55,14 +55,14 @@ const state = {
     /**
      * The display format selected for the mousetracker
      *
-     * @type String
+     * @type {String}
      */
     displayedFormatId: LV95Format.id,
 
     /**
      * The map zoom level, which define the resolution of the view
      *
-     * @type Number
+     * @type {Number}
      */
     // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
     // hence the `?.` operator
@@ -71,14 +71,30 @@ const state = {
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
      *
-     * @type Number
+     * @type {Number}
      */
     rotation: 0,
 
     /**
+     * Flag which indicates if openlayers map rotates to align with true / magnetic north (only
+     * possible if device has orientation capabilities)
+     *
+     * @type {Boolean}
+     */
+    autoRotation: false,
+
+    /**
+     * Flag which indicates if the device has orientation capabilities (e.g. can use map auto
+     * rotate)
+     *
+     * @type {Boolean}
+     */
+    hasOrientation: false,
+
+    /**
      * Center of the view expressed with the current projection
      *
-     * @type Array<Number>
+     * @type {Number[]}
      */
     // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
     // hence the `?.` operator
@@ -96,10 +112,12 @@ const state = {
      */
     projection: DEFAULT_PROJECTION,
 
-    /** @type CrossHairs */
+    /** @type {CrossHairs} */
     crossHair: null,
-    /** @type Number[] */
+
+    /** @type {Number[]} */
     crossHairPosition: null,
+
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
      * that works with Cesium)
@@ -128,7 +146,7 @@ const getters = {
     /**
      * Resolution of the view expressed in meter per pixel
      *
-     * @type Number
+     * @type {Number}
      */
     resolution: (state) => {
         return state.projection.getResolutionForZoomAndCenter(state.zoom, state.center)
@@ -193,12 +211,18 @@ const actions = {
         }
         commit('setZoom', { zoom: state.projection.roundZoomLevel(zoom), dispatcher })
     },
-    setRotation({ commit }, rotation) {
+    setRotation({ commit }, { rotation, dispatcher }) {
         if (typeof rotation !== 'number') {
             return
         }
         rotation = normalizeAngle(rotation)
-        commit('setRotation', rotation)
+        commit('setRotation', { rotation, dispatcher })
+    },
+    setAutoRotation({ commit }, { autoRotation, dispatcher }) {
+        commit('setAutoRotation', { autoRotation, dispatcher })
+    },
+    setHasOrientation({ commit }, { hasOrientation, dispatcher }) {
+        commit('setHasOrientation', { hasOrientation, dispatcher })
     },
     /**
      * @param commit
@@ -419,7 +443,9 @@ const mutations = {
     setDisplayedFormatId: (state, { displayedFormatId }) =>
         (state.displayedFormatId = displayedFormatId),
     setZoom: (state, { zoom }) => (state.zoom = zoom),
-    setRotation: (state, rotation) => (state.rotation = rotation),
+    setRotation: (state, { rotation }) => (state.rotation = rotation),
+    setAutoRotation: (state, { autoRotation }) => (state.autoRotation = autoRotation),
+    setHasOrientation: (state, { hasOrientation }) => (state.hasOrientation = hasOrientation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
     setCrossHairPosition: (state, { crossHairPosition }) =>

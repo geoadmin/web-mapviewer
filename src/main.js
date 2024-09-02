@@ -9,22 +9,22 @@ import tippy from 'tippy.js'
 import { createApp } from 'vue'
 
 import {
-    API_BASE_URL,
-    API_SERVICE_ALTI_BASE_URL,
-    API_SERVICE_KML_BASE_URL,
-    API_SERVICE_SEARCH_BASE_URL,
-    API_SERVICES_BASE_URL,
-    APP_VERSION,
+    getApi3BaseUrl,
+    getDataBaseUrl,
+    getServiceAltiBaseUrl,
+    getServiceKmlBaseUrl,
+    getServiceSearchBaseUrl,
+    getViewerDedicatedServicesBaseUrl,
+    getWmsBaseUrl,
+    getWmtsBaseUrl,
+} from '@/config/baseUrl.config'
+import { WMS_TILE_SIZE } from '@/config/map.config'
+import {
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_TABLET,
-    DATA_BASE_URL,
-    ENVIRONMENT,
-    IS_TESTING_WITH_CYPRESS,
-    WMS_BASE_URL,
-    WMS_TILE_SIZE,
-    WMTS_BASE_URL,
-} from '@/config'
+} from '@/config/responsive.config'
+import { APP_VERSION, ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'
@@ -38,14 +38,14 @@ log.debug('Config is', {
     ENVIRONMENT,
     IS_TESTING_WITH_CYPRESS,
     APP_VERSION,
-    API_BASE_URL,
-    API_SERVICES_BASE_URL,
-    API_SERVICE_ALTI_BASE_URL,
-    API_SERVICE_KML_BASE_URL,
-    API_SERVICE_SEARCH_BASE_URL,
-    DATA_BASE_URL,
-    WMTS_BASE_URL,
-    WMS_BASE_URL,
+    'API3 base URL': getApi3BaseUrl(),
+    'Viewer services base URL': getViewerDedicatedServicesBaseUrl(),
+    'service-alti': getServiceAltiBaseUrl(),
+    'service-kml': getServiceKmlBaseUrl(),
+    'service-search': getServiceSearchBaseUrl(),
+    'data (GeoJSON)': getDataBaseUrl(),
+    WMTS: getWmtsBaseUrl(),
+    WMS: getWmsBaseUrl(),
     WMS_TILE_SIZE,
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_PHONE_HEIGHT,

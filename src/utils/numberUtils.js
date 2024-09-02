@@ -128,3 +128,25 @@ export function wrapDegrees(angleInDegrees) {
 export function isTimestampYYYYMMDD(timestamp) {
     return /^\d{4}(1[0-2]|0[1-9])(0[1-9]|[1-2][0-9]|3[0-1])$/.test(timestamp)
 }
+
+/**
+ * Compute the circular mean of radians angles
+ *
+ * @param {[Number]} values List of radians angles to compute the circular mean
+ * @returns {Number} Circular mean in radians
+ * @see https://en.wikipedia.org/wiki/Circular_mean
+ */
+export function circularMean(values) {
+    const sumCos = values.reduce((acc, curr) => acc + Math.cos(curr), 0)
+    const sumSin = values.reduce((acc, curr) => acc + Math.sin(curr), 0)
+
+    let mean = Math.atan2(sumSin, sumCos)
+    // The circular mean with this formula gives a result between -180° and 180°
+    // So we need to correct the negative values to have only 0° - 360°
+    if (mean < 0) {
+        // Correction formula in degree would be := 2 * 180 + mean but because we use radians
+        // we need to convert 180° to radian => Math.PI => Math.PI * 2 = 6.2831853
+        mean = 6.2831853 + mean
+    }
+    return mean
+}

@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config'
+import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import PrintButton from '@/utils/components/PrintButton.vue'

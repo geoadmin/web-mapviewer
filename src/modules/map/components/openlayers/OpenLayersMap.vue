@@ -4,7 +4,7 @@ import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
 import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
@@ -37,6 +37,8 @@ const mapElement = ref(null)
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const geolocationActive = computed(() => store.state.geolocation.active)
+const geoPosition = computed(() => store.state.geolocation.position)
 
 const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
@@ -72,7 +74,7 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
         <OpenLayersPinnedLocation />
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
-        <OpenLayersGeolocationFeedback />
+        <OpenLayersGeolocationFeedback v-if="geolocationActive && geoPosition" />
         <OpenLayersRectangleSelectionFeedback />
         <!-- Debug tooling -->
         <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />

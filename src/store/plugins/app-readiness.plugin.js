@@ -1,4 +1,4 @@
-import { ENVIRONMENT } from '@/config'
+import { ENVIRONMENT } from '@/config/staging.config'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'app-readiness-plugin' }

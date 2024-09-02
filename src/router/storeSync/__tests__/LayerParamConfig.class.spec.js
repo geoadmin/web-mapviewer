@@ -5,13 +5,13 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
-import { API_SERVICE_KML_BASE_URL } from '@/config'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { createLayerObject } from '@/router/storeSync/LayerParamConfig.class'
 
 describe('External layer parsing with createLayerObject', () => {
     it('parses a KML layer correctly', () => {
         const kmlFileId = '1234567abc'
-        const kmlFileUrl = `https://${API_SERVICE_KML_BASE_URL}/api/kml/files/${kmlFileId}`
+        const kmlFileUrl = `https://${getServiceKmlBaseUrl()}/api/kml/files/${kmlFileId}`
         const result = createLayerObject({
             type: LayerTypes.KML,
             id: kmlFileUrl,

@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { CrossHairs } from '@/store/modules/position.store'
 
 describe('Testing the crosshair URL param', () => {
