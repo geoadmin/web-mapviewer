@@ -29,8 +29,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          *   (default is zero)
          * @param {CoordinateSystem} projection Which projection is the output of the parsing
          */
-        const checkText = async (text, expected, message, acceptableDelta = 0, projection) => {
-            const result = await coordinateFromString(text)
+        const checkText = (text, expected, message, acceptableDelta = 0, projection) => {
+            const result = coordinateFromString(text)
             expect(result).to.be.an('Object', message)
             expect(result['coordinate']).to.be.an('Array')
             expect(result['coordinateSystem']).to.be.an('Object')
@@ -163,35 +163,35 @@ describe('Unit test functions from coordinateExtractors.js', () => {
         )
 
         describe('Testing non valid inputs', () => {
-            it('Returns undefined when anything else than numbers, coma, whitespaces and point is in the text', async () => {
-                expect(await coordinateFromString('test')).to.be.undefined
-                expect(await coordinateFromString('47.0, 7.4test')).to.eq(
+            it('Returns undefined when anything else than numbers, coma, whitespaces and point is in the text', () => {
+                expect(coordinateFromString('test')).to.be.undefined
+                expect(coordinateFromString('47.0, 7.4test')).to.eq(
                     undefined,
                     'must not accept text after the coordinates'
                 )
-                expect(await coordinateFromString('47.0.3, 7.4,0')).to.eq(
+                expect(coordinateFromString('47.0.3, 7.4,0')).to.eq(
                     undefined,
                     'must not accept text after the coordinates'
                 )
-                expect(await coordinateFromString('test47.0, 7.4')).to.eq(
+                expect(coordinateFromString('test47.0, 7.4')).to.eq(
                     undefined,
                     'must not accept text before the coordinates'
                 )
             })
-            it('Returns undefined when the given text is invalid (null or not a string)', async () => {
-                expect(await coordinateFromString(null)).to.be.undefined
-                expect(await coordinateFromString(1234)).to.be.undefined
-                expect(await coordinateFromString([45.6, 7.4])).to.be.undefined
-                expect(await coordinateFromString({ lon: 7, lat: 45 })).to.be.undefined
+            it('Returns undefined when the given text is invalid (null or not a string)', () => {
+                expect(coordinateFromString(null)).to.be.undefined
+                expect(coordinateFromString(1234)).to.be.undefined
+                expect(coordinateFromString([45.6, 7.4])).to.be.undefined
+                expect(coordinateFromString({ lon: 7, lat: 45 })).to.be.undefined
             })
-            it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', async () => {
-                expect(await coordinateFromString('47.0')).to.be.undefined
-                expect(await coordinateFromString('47.0,')).to.be.undefined
-                expect(await coordinateFromString('47.0,test')).to.be.undefined
-                expect(await coordinateFromString('47.0, test')).to.be.undefined
+            it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', () => {
+                expect(coordinateFromString('47.0')).to.be.undefined
+                expect(coordinateFromString('47.0,')).to.be.undefined
+                expect(coordinateFromString('47.0,test')).to.be.undefined
+                expect(coordinateFromString('47.0, test')).to.be.undefined
             })
-            it("Returns undefined when coordinates entered don't match any projection bur are technically valid (two numbers)", async () => {
-                expect(await coordinateFromString('600000, 20000')).to.be.undefined
+            it("Returns undefined when coordinates entered don't match any projection bur are technically valid (two numbers)", () => {
+                expect(coordinateFromString('600000, 20000')).to.be.undefined
             })
         })
         describe('EPSG:4326 (WGS84)', () => {
@@ -477,17 +477,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          *
          * @param {Number} x
          * @param {Number} y
+         * @param {CoordinateSystem} expectedProjection
          * @param {Number} acceptableDelta
          */
-        const checkSwissCoordinateSystem = (x, y, acceptableDelta) => {
+        const checkSwissCoordinateSystem = (x, y, expectedProjection, acceptableDelta) => {
             it('Returns coordinates when input is valid', () => {
-                checkXY(x, y, expectedCenterLV95[0], expectedCenterLV95[1], LV95, {
+                checkXY(x, y, x, y, expectedProjection, {
                     acceptableDelta,
                     testInverted: true,
                 })
             })
             it('Returns coordinates when input is entered backward', () => {
-                checkXY(y, x, expectedCenterLV95[0], expectedCenterLV95[1], LV95, {
+                checkXY(y, x, x, y, expectedProjection, {
                     acceptableDelta,
                     testInverted: true,
                 })
@@ -496,17 +497,17 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     numberWithThousandSeparator(x),
                     numberWithThousandSeparator(y),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     numberWithThousandSeparator(x, ' '),
                     numberWithThousandSeparator(y, ' '),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
@@ -514,33 +515,31 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     numberWithThousandSeparator(y),
                     numberWithThousandSeparator(x),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     numberWithThousandSeparator(y, ' '),
                     numberWithThousandSeparator(x, ' '),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
         }
 
         describe('EPSG:2056 (LV95)', () => {
-            checkSwissCoordinateSystem(expectedCenterLV95[0], expectedCenterLV95[1], 0.1)
+            checkSwissCoordinateSystem(expectedCenterLV95[0], expectedCenterLV95[1], LV95, 0.1)
         })
 
-        // After https://jira.swisstopo.ch/browse/PB-843 a backend service is used to reproject LV03 to LV95 coordinates.
-        // It then doesn't really make sense to test that in unit tests, so I skip it
-        describe.skip('EPSG:21781 (LV03)', () => {
+        describe('EPSG:21781 (LV03)', () => {
             const expectedCenterLV03 = proj4(LV95.epsg, LV03.epsg, expectedCenterLV95).map(
                 (value) => LV03.roundCoordinateValue(value)
             )
-            checkSwissCoordinateSystem(expectedCenterLV03[0], expectedCenterLV03[1], 0.1)
+            checkSwissCoordinateSystem(expectedCenterLV03[0], expectedCenterLV03[1], LV03, 0.1)
         })
 
         describe('Military Grid Reference System (MGRS)', () => {

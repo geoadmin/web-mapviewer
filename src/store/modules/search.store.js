@@ -1,9 +1,11 @@
 import proj4 from 'proj4'
 
+import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
+import { LV03, LV95 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
@@ -40,7 +42,7 @@ const actions = {
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
-            const extractedCoordinate = await coordinateFromString(query)
+            const extractedCoordinate = coordinateFromString(query)
             let what3wordLocation = null
             if (!extractedCoordinate && isWhat3WordsString(query)) {
                 try {
@@ -56,11 +58,25 @@ const actions = {
             if (extractedCoordinate) {
                 let coordinates = [...extractedCoordinate.coordinate]
                 if (extractedCoordinate.coordinateSystem !== currentProjection) {
-                    coordinates = proj4(
-                        extractedCoordinate.coordinateSystem.epsg,
-                        currentProjection.epsg,
-                        coordinates
-                    ).map(currentProjection.roundCoordinateValue)
+                    // special case for LV03 input, we can't use proj4 to transform them into
+                    // LV95 or others, as the deformation between LV03 and the others is not constant.
+                    // So we pass through a LV95 reframe (done by a backend service that knows all deformations between the two)
+                    // and then go to the wanted coordinate system
+                    if (extractedCoordinate.coordinateSystem === LV03) {
+                        coordinates = await reframe({
+                            inputProjection: LV03,
+                            inputCoordinates: coordinates,
+                        })
+                        coordinates = proj4(LV95.epsg, currentProjection.epsg, coordinates).map(
+                            currentProjection.roundCoordinateValue
+                        )
+                    } else {
+                        coordinates = proj4(
+                            extractedCoordinate.coordinateSystem.epsg,
+                            currentProjection.epsg,
+                            coordinates
+                        ).map(currentProjection.roundCoordinateValue)
+                    }
                 }
                 const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
                 dispatch('setCenter', {

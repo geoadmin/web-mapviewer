@@ -1,4 +1,3 @@
-import reframe from '@/api/lv03Reframe.api'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 
@@ -117,21 +116,15 @@ function extractLV95Coordinates(text) {
 
 /**
  * @param {String} text
- * @returns {Promise<[Number, Number] | undefined>}
+ * @returns {[Number, Number] | undefined}
  */
-async function extractLV03Coordinates(text) {
+function extractLV03Coordinates(text) {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV03.isInBounds(coordinates[0], coordinates[1])) {
-            return reframe({
-                inputCoordinates: [coordinates[0], coordinates[1]],
-                inputProjection: LV03,
-            })
+            return [coordinates[0], coordinates[1]].map(LV03.roundCoordinateValue)
         } else if (LV03.isInBounds(coordinates[1], coordinates[0])) {
-            return reframe({
-                inputCoordinates: [coordinates[1], coordinates[0]],
-                inputProjection: LV03,
-            })
+            return [coordinates[1], coordinates[0]].map(LV03.roundCoordinateValue)
         }
     }
     return undefined
@@ -322,33 +315,32 @@ const mgrsExtractor = (regexMatches) => {
  * - I.e. `zufall.anders.blaumeise`
  *
  * @param {String} text The text in which we want to find coordinates
- * @returns {Promise<ExtractedCoordinate | undefined>} Coordinates in the given order in text with
+ * @returns {ExtractedCoordinate | undefined} Coordinates in the given order in text with
  *   information about which projection they are expressed in, or `undefined` if nothing was found
  */
-const coordinateFromString = async (text) => {
+const coordinateFromString = (text) => {
     if (typeof text !== 'string') {
         return undefined
     }
-    const wgs84result = extractWGS84Coordinates(text)
-    if (wgs84result) {
+    const wgs84Result = extractWGS84Coordinates(text)
+    if (wgs84Result) {
         return {
             coordinateSystem: WGS84,
-            coordinate: wgs84result,
+            coordinate: wgs84Result,
         }
     }
-    const lv95result = extractLV95Coordinates(text)
-    if (lv95result) {
+    const lv95Result = extractLV95Coordinates(text)
+    if (lv95Result) {
         return {
             coordinateSystem: LV95,
-            coordinate: lv95result,
+            coordinate: lv95Result,
         }
     }
-    const lv03result = await extractLV03Coordinates(text)
-    if (lv03result) {
+    const lv03Result = extractLV03Coordinates(text)
+    if (lv03Result) {
         return {
-            // coordinates have been reframed to LV95
-            coordinateSystem: LV95,
-            coordinate: lv03result,
+            coordinateSystem: LV03,
+            coordinate: lv03Result,
         }
     }
     const mercatorResult = extractMetricMercatorCoordinates(text)
