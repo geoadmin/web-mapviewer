@@ -1,10 +1,10 @@
+import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
@@ -15,17 +15,15 @@ let firstTimeActivatingGeolocation = true
 let errorCount = 0
 
 function setCenterIfInBounds(store, center) {
-    if (
-        store.state.cesium.active
-            ? LV95.getBoundsAs(WEBMERCATOR).isInBounds(center[0], center[1])
-            : LV95.isInBounds(center[0], center[1])
-    ) {
-        store.dispatch('setCenter', {
-            center: center,
-            ...dispatcher,
-        })
+    if (LV95.getBoundsAs(store.state.position.projection).isInBounds(center[0], center[1])) {
+        if (!isEqual(store.state.position.center, center)) {
+            store.dispatch('setCenter', {
+                center: center,
+                ...dispatcher,
+            })
+        }
     } else {
-        log.warn('current geolocation is out of bounds')
+        log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
         store.dispatch('setErrorText', {
             errorText: 'geoloc_out_of_bounds',
             ...dispatcher,
@@ -38,6 +36,10 @@ const readPosition = (position, projection) => {
     return proj4(WGS84.epsg, projection.epsg, [coords.longitude, coords.latitude])
 }
 
+const centerMapOnPosition = (positionProjected, store) => {
+    setCenterIfInBounds(store, positionProjected)
+}
+
 const handlePositionAndDispatchToStore = (position, store) => {
     log.debug(
         `Received position from geolocation`,
@@ -47,30 +49,23 @@ const handlePositionAndDispatchToStore = (position, store) => {
     )
     errorCount = 0 // reset the error count on each successfull position
     const positionProjected = readPosition(position, store.state.position.projection)
-    store.dispatch('setGeolocationPosition', {
-        position: positionProjected,
-        ...dispatcher,
-    })
-    store.dispatch('setGeolocationAccuracy', {
-        accuracy: position.coords.accuracy,
-        ...dispatcher,
-    })
+    // Accuracy in in meter, so we don't need the decimal part and avoid dispatching event
+    // if the accuracy did not change more than one metter
+    const accuracy = round(position.coords.accuracy, 0)
+    if (
+        !isEqual(store.state.geolocation.position, positionProjected) ||
+        store.state.geolocation.accuracy !== accuracy
+    ) {
+        store.dispatch('setGeolocationData', {
+            position: positionProjected,
+            accuracy: accuracy,
+            ...dispatcher,
+        })
+    }
     // if tracking is active, we center the view of the map on the position received and change
     // to the proper zoom
     if (store.state.geolocation.tracking) {
-        setCenterIfInBounds(store, positionProjected)
-        // set zoom level if needed
-        let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
-        if (store.state.position.projection instanceof CustomCoordinateSystem) {
-            zoomLevel =
-                store.state.position.projection.transformStandardZoomLevelToCustom(zoomLevel)
-        }
-        if (store.state.position.zoom != zoomLevel) {
-            store.dispatch('setZoom', {
-                zoom: zoomLevel,
-                ...dispatcher,
-            })
-        }
+        centerMapOnPosition(positionProjected, store)
     }
 }
 
@@ -134,14 +129,13 @@ const handlePositionError = (error, store, state, options = {}) => {
 
 const activeGeolocation = (store, state, options = {}) => {
     const { useInitial = true } = options
-    if (
-        useInitial &&
-        store.state.geolocation.position[0] !== 0 &&
-        store.state.geolocation.position[1] !== 0
-    ) {
+    if (useInitial && state.geolocation.position !== null) {
         // if we have a previous position use it first to be more reactive but set a
         // bad accuracy as we don't know how exact it is.
-        setCenterIfInBounds(store, store.state.geolocation.position)
+        if (state.geolocation.tracking) {
+            // only center if tracking (e.g. in 3D mode we don't center)
+            setCenterIfInBounds(store, store.state.geolocation.position)
+        }
         store.dispatch('setGeolocationAccuracy', {
             accuracy: 50 * 1000, // 50 km
             ...dispatcher,
@@ -195,13 +189,25 @@ const geolocationManagementPlugin = (store) => {
             }
         } else if (
             mutation.type === 'setCenter' &&
-            mutation.payload?.dispatcher !== dispatcher.dispatcher
+            mutation.payload?.dispatcher !== dispatcher.dispatcher &&
+            store.state.geolocation.tracking
         ) {
             // if we moved the map we disabled the tracking (unless the tracking moved the map)
             store.dispatch('setGeolocationTracking', {
                 tracking: false,
                 ...dispatcher,
             })
+            store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
+        } else if (
+            mutation.type === 'setGeolocationTracking' &&
+            mutation.payload?.tracking === true &&
+            mutation.payload?.dispatcher !== dispatcher.dispatcher
+        ) {
+            // If tracking has been re-enabled by clicking on the geolocation button we re-center
+            // the map.
+            if (store.state.geolocation.position !== null) {
+                centerMapOnPosition(store.state.geolocation.position, store)
+            }
         }
     })
 }

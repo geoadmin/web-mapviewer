@@ -37,6 +37,8 @@ const mapElement = ref(null)
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const geolocationActive = computed(() => store.state.geolocation.active)
+const geoPosition = computed(() => store.state.geolocation.position)
 
 const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
@@ -72,7 +74,7 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
         <OpenLayersPinnedLocation />
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
-        <OpenLayersGeolocationFeedback />
+        <OpenLayersGeolocationFeedback v-if="geolocationActive && geoPosition" />
         <OpenLayersRectangleSelectionFeedback />
         <!-- Debug tooling -->
         <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />

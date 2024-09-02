@@ -40,7 +40,10 @@ describe('Testing the buttons of the right toolbox', () => {
         cy.readStoreValue('state.position.rotation').should('be.equal', 0)
         cy.get(compassButtonSelector).should('not.exist')
 
-        cy.writeStoreValue('setRotation', facingWest + 2 * Math.PI)
+        cy.writeStoreValue('setRotation', {
+            rotation: facingWest + 2 * Math.PI,
+            dispatcher: 'e2e-test',
+        })
         checkMapRotationAndButton(facingWest)
 
         // clicking on the button should but north up again, and the button should disapaer
