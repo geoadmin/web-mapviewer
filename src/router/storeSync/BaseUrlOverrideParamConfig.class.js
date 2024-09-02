@@ -4,14 +4,22 @@ import {
     setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import { isValidUrl } from '@/utils/utils'
 
 export default function createBaseUrlOverrideParamConfig({ urlParamName, baseUrlPropertyName }) {
     function dispatchBaseUrlOverride(to, store, urlParamValue) {
-        setBaseUrlOverrides(baseUrlPropertyName, urlParamValue)
-        store.dispatch('setHasBaseUrlOverrides', {
-            hasOverrides: hasBaseUrlOverrides(),
-            dispatcher: `BaseUrlOverrideParamConfig.${urlParamName}`,
-        })
+        if (isValidUrl(urlParamValue)) {
+            setBaseUrlOverrides(baseUrlPropertyName, urlParamValue)
+        } else {
+            setBaseUrlOverrides(baseUrlPropertyName, null)
+        }
+        const hasNowOverrides = hasBaseUrlOverrides()
+        if (store.state.debug.hasBaseUrlOverride !== hasNowOverrides) {
+            store.dispatch('setHasBaseUrlOverrides', {
+                hasOverrides: hasNowOverrides,
+                dispatcher: `BaseUrlOverrideParamConfig.${urlParamName}`,
+            })
+        }
     }
 
     function extractValue() {

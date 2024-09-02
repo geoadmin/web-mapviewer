@@ -21,9 +21,9 @@ const api3UrlOverride = ref(getBaseUrlOverride('api3'))
 
 function onModalClose(withConfirmation) {
     if (withConfirmation) {
-        setBaseUrlOverrides('wms', wmsUrlOverride.value)
-        setBaseUrlOverrides('wmts', wmtsUrlOverride.value)
-        setBaseUrlOverrides('api3', api3UrlOverride.value)
+        setBaseUrlOverrides('wms', wmsUrlOverride.value ?? null)
+        setBaseUrlOverrides('wmts', wmtsUrlOverride.value ?? null)
+        setBaseUrlOverrides('api3', api3UrlOverride.value ?? null)
     }
     store.dispatch('setHasBaseUrlOverrides', {
         hasOverrides: hasBaseUrlOverrides(),
