@@ -6,10 +6,20 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 
 const store = useStore()
+
 const pinnedLocation = computed(() => store.state.map.pinnedLocation)
 const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
 
 const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
+
+const dispatcher = { dispatcher: 'OpenLayersPinnedLocation.vue' }
+
+function selectFeatureCallback() {
+    store.dispatch('setLocationPopupCoordinates', {
+        coordinates: pinnedLocation.value,
+        dispatcher,
+    })
+}
 </script>
 
 <template>
@@ -18,6 +28,7 @@ const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
         :position="pinnedLocation"
         marker-style="balloon"
         :z-index="zIndexDroppedPin"
+        :select-feature-callback="selectFeatureCallback"
     />
     <OpenLayersMarker
         v-if="previewedPinnedLocation"
