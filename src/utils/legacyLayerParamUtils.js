@@ -188,9 +188,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
         if (bgLayerId === 'voidLayer') {
             return null
         }
-        if (bgLayerId) {
-            return layersConfig.find((layer) => layer.id === bgLayerId)
-        }
+        return bgLayerId
     }
     return undefined
 }

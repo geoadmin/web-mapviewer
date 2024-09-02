@@ -45,36 +45,39 @@ const secondLayer = new GeoAdminWMSLayer({
 
 const resetStore = () => {
     store.dispatch('clearLayers', dispatcher)
-    store.dispatch('setBackground', { bgLayer: null, ...dispatcher })
+    store.dispatch('setBackground', { bgLayerId: null, ...dispatcher })
     store.dispatch('setLayerConfig', { config: [], ...dispatcher })
 }
 
 describe('Background layer is correctly set', () => {
-    const getBackgroundLayer = () => store.state.layers.currentBackgroundLayer
+    const getBackgroundLayer = () => store.getters.currentBackgroundLayer
+    const getBackgroundLayerId = () => store.state.layers.currentBackgroundLayerId
 
     beforeEach(() => {
         resetStore()
     })
 
     it('does not have a background selected by default', () => {
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
     it('does not select a background if the one given is not present in the config', () => {
-        store.dispatch('setBackground', { bgLayer: bgLayer.id, ...dispatcher })
+        store.dispatch('setBackground', { bgLayerId: bgLayer.id })
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
     it('does select the background if it is present in the config', () => {
         store.dispatch('setLayerConfig', { config: [bgLayer], ...dispatcher })
-        store.dispatch('setBackground', { bgLayer: bgLayer.id, ...dispatcher })
+        store.dispatch('setBackground', { bgLayerId: bgLayer.id })
+        expect(getBackgroundLayerId()).to.be.a('string')
         expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
+        expect(getBackgroundLayerId()).to.eq(bgLayer.id)
         expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
     it('does not permit to select a background that has not the flag isBackground set to true', () => {
         store.dispatch('setLayerConfig', { config: [firstLayer], ...dispatcher })
-        store.dispatch('setBackground', {
-            bgLayer: firstLayer.id,
-            ...dispatcher,
-        })
+        store.dispatch('setBackground', { bgLayerId: firstLayer.id })
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
 })

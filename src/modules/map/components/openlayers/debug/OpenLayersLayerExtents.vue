@@ -24,8 +24,8 @@ const store = useStore()
 const currentProjection = computed(() => store.state.position.projection)
 const allLayers = computed(() => {
     const layers = []
-    if (store.state.layers.currentBackgroundLayer) {
-        layers.push(store.state.layers.currentBackgroundLayer)
+    if (store.getters.currentBackgroundLayer) {
+        layers.push(store.getters.currentBackgroundLayer)
     }
     layers.push(...store.getters.visibleLayers)
     return layers

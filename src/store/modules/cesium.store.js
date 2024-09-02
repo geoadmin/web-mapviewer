@@ -62,9 +62,9 @@ export default {
         isViewerReady: false,
     },
     getters: {
-        backgroundLayersFor3D(state, _, rootState) {
+        backgroundLayersFor3D(state, getters, rootState) {
             const bgLayers = []
-            const backgroundLayer = rootState.layers.currentBackgroundLayer
+            const backgroundLayer = getters.currentBackgroundLayer
             if (backgroundLayer) {
                 if (backgroundLayer.idIn3d) {
                     bgLayers.push(

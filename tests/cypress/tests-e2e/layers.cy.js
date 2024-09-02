@@ -651,7 +651,7 @@ describe('Test of layer handling', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
                 cy.goToMapView()
-                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                cy.readStoreValue('getters.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
                     expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
@@ -663,7 +663,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: 'test.timeenabled.wmts.layer',
                 })
-                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                cy.readStoreValue('getters.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
                     expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
@@ -679,7 +679,7 @@ describe('Test of layer handling', () => {
             cy.goToMapView({
                 bgLayer: 'test.background.layer2',
             })
-            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+            cy.readStoreValue('getters.currentBackgroundLayer').then((bgLayer) => {
                 expect(bgLayer).to.not.be.null
                 expect(bgLayer.id).to.eq('test.background.layer2')
             })

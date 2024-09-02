@@ -12,7 +12,7 @@ export function useLayerZIndexCalculation() {
         if (is3dActive.value) {
             return store.getters.backgroundLayersFor3D
         }
-        return [store.state.layers.currentBackgroundLayer]
+        return [store.getters.currentBackgroundLayer]
     })
 
     const visibleLayers = computed(() => {

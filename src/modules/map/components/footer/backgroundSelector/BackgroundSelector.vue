@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
@@ -9,7 +9,7 @@ const dispatcher = { dispatcher: 'BackgroundSelector.vue' }
 
 const store = useStore()
 const backgroundLayers = computed(() => store.getters.backgroundLayers)
-const currentBackgroundLayer = computed(() => store.state.layers.currentBackgroundLayer)
+const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
 const squaredDesign = computed(() => store.getters.isDesktopMode)
 
 function generateBackgroundCategories(bg) {
@@ -45,25 +45,12 @@ const sortedBackgroundLayersWithVoid = computed(() =>
     })
 )
 
-function selectBackground(backgroundLayer) {
+function selectBackground(backgroundLayerId) {
     store.dispatch('setBackground', {
-        bgLayer: backgroundLayer,
+        bgLayerId: backgroundLayerId,
         ...dispatcher,
     })
 }
-
-/**
- * This is a bit of a hack to force the reactive system to update the attributions when the language
- * changes, so that the url will be updated on language selection: On language change the background
- * layers are being updated, which changes the link to the correct (current) language. For the
- * change to propagate through to the UI, we push it here again
- */
-watch(
-    () => backgroundLayers.value,
-    () => {
-        selectBackground(currentBackgroundLayer.value)
-    }
-)
 </script>
 
 <template>

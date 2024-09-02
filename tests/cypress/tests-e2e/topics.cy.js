@@ -72,7 +72,7 @@ describe('Topics', () => {
                 expect(layers.length).to.eq(0)
             })
             // we expect background layer to have switched to the one of the topic
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should((bgLayer) => {
+            cy.readStoreValue('getters.currentBackgroundLayer').should((bgLayer) => {
                 expect(bgLayer).to.not.be.null
                 expect(bgLayer.id).to.eq(topicStandard.defaultBackground)
             })
@@ -134,7 +134,7 @@ describe('Topics', () => {
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
             })
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null') // void layer
+            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null') // void layer
         })
 
         //---------------------------------------------------------------------

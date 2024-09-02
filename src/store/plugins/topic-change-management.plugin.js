@@ -56,12 +56,12 @@ const topicChangeManagementPlugin = (store) => {
             ) {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
-                        bgLayer: currentTopic.defaultBackgroundLayer.id,
+                        bgLayerId: currentTopic.defaultBackgroundLayer.id,
                         ...dispatcher,
                     })
                 } else {
                     store.dispatch('setBackground', {
-                        bgLayer: null,
+                        bgLayerId: null,
                         ...dispatcher,
                     })
                 }

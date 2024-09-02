@@ -69,13 +69,14 @@ const storeSyncConfig = [
         urlParamName: 'bgLayer',
         mutationsToWatch: ['setBackground'],
         dispatchName: 'setBackground',
+        dispatchValueName: 'bgLayerId',
         extractValueFromStore: (store) => {
-            const backgroundLayer = store.state.layers.currentBackgroundLayer
+            const backgroundLayer = store.state.layers.currentBackgroundLayerId
             // if background layer is null (no background) we write 'void' in the URL
             if (backgroundLayer === null) {
                 return 'void'
             }
-            return backgroundLayer.id
+            return backgroundLayer
         },
         keepInUrlWhenDefault: true,
         valueType: String,
