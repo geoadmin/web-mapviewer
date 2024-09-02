@@ -68,6 +68,7 @@ export async function handleFileContent(store, content, source) {
         content = kmz.kmlData
         iconUrlFunction = kmz.iconUrlFunction
     }
+    console.error('SPAMSPAMSPAM:', iconUrlFunction)
     let layer = null
     if (isKml(content) || iconUrlFunction) {
         layer = new KMLLayer({

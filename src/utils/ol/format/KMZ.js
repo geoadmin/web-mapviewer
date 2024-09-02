@@ -10,16 +10,20 @@ import KML from '@/utils/ol/format/KML'
 
 const zip = new JSZip()
 
-export function getKMLData(buffer) {
-    let kmlData
-    zip.load(buffer)
-    const kmlFile = zip.file(/\.kml$/i)[0]
-    //console.error('kmlFile: ', kmlFile)
-    if (kmlFile) {
-        kmlData = kmlFile.asText()
-    }
-    //console.error('kmlData: ', kmlData)
-    return kmlData
+export async function getKMLData(buffer) {
+    let kml = await zip.loadAsync(buffer).then(function (content) {
+        console.error('content: ', content)
+        const kmlFile = content.file(/\.kml$/i)[0]
+        if (kmlFile) {
+            console.error('kmlFile: ', kmlFile)
+            let text = kmlFile.async('string').then(function (read) {
+                console.error('content: ', read)
+                return read
+            })
+            return text
+        }
+    })
+    return kml
 }
 
 export function getKMLImage(href) {
@@ -56,8 +60,11 @@ class KMZ extends KML {
 
     readFeatures(source, options) {
         const kmlData = getKMLData(source)
-        this.kmlData = kmlData
-        return super.readFeatures(kmlData, options)
+        Promise.all([kmlData]).then((values) => {
+            console.error('kmlData: ', values)
+            this.kmlData = values
+            return super.readFeatures(values, options)
+        })
     }
 }
 
