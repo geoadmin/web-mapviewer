@@ -9,15 +9,18 @@ import KML from '@/utils/ol/format/KML'
 // which must be done synchronously.
 
 const zip = new JSZip()
+let clone = null
 
-export async function getKMLData(buffer) {
+async function getKMLData(buffer) {
+    console.error('zip getKMLData: ', zip)
     let kml = await zip.loadAsync(buffer).then(function (content) {
-        console.error('content: ', content)
+        //console.error('content: ', content)
+        clone = content
         const kmlFile = content.file(/\.kml$/i)[0]
         if (kmlFile) {
-            console.error('kmlFile: ', kmlFile)
+            //console.error('kmlFile: ', kmlFile)
             let text = kmlFile.async('string').then(function (read) {
-                console.error('content: ', read)
+                //console.error('content: ', read)
                 return read
             })
             return text
@@ -26,13 +29,20 @@ export async function getKMLData(buffer) {
     return kml
 }
 
-export function getKMLImage(href) {
-    //console.error('href: ', href)
+async function getKMLImage(href) {
+    console.error('zip getKMLImage: ', zip)
+    console.error('href: ', href)
+    console.error('clone: ', clone)
     if (window.location.href.lastIndexOf('/') !== -1) {
         const kmlFile = zip.file(href.split('/').pop())
-        //console.error('kmlFile: ', kmlFile)
+        console.error('kmlFile: ', kmlFile)
         if (kmlFile) {
-            return URL.createObjectURL(new Blob([kmlFile.asArrayBuffer()]))
+            let url = kmlFile.async('arraybuffer').then(function (read) {
+                const tmp = URL.createObjectURL(new Blob([read]))
+                console.error('createObjectURL: ', tmp)
+                return tmp
+            })
+            return url
         }
     }
     return href
@@ -45,6 +55,7 @@ class KMZ extends KML {
         options.iconUrlFunction = getKMLImage
         super(options)
         this.kmlData = null
+        this.clone = null
         this.iconUrlFunction = options.iconUrlFunction
     }
 
