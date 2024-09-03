@@ -38,6 +38,33 @@ function readFileContent(file) {
     })
 }
 
+function createKMLLayer(store, layer, source, content, iconUrlFunction) {
+    layer = new KMLLayer({
+        kmlFileUrl: source,
+        visible: true,
+        opacity: 1.0,
+        adminId: null,
+        kmlData: content,
+        iconUrlFunction: iconUrlFunction,
+    })
+    const extent = getKmlExtent(content)
+    if (!extent) {
+        throw new EmptyKMLError()
+    }
+    const projectedExtent = getExtentForProjection(store.state.position.projection, extent)
+
+    if (!projectedExtent) {
+        throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
+    }
+    store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
+    if (store.getters.getActiveLayersById(layer.id).length > 0) {
+        store.dispatch('updateLayers', { layers: [layer], ...dispatcher })
+    } else {
+        store.dispatch('addLayer', { layer, ...dispatcher })
+    }
+    return layer
+}
+
 /**
  * Checks if file is GPX
  *
@@ -66,41 +93,16 @@ export async function handleFileContent(store, content, source) {
             dataProjection: WGS84.epsg, // KML files should always be in WGS84
             featureProjection: WGS84.epsg,
         })
-        Promise.all([kmz.kmlData]).then((value) => {
+        layer = Promise.all([kmz.kmlData]).then((value) => {
             console.error('Promise kmlData: ', value[0])
             content = value[0]
             iconUrlFunction = kmz.iconUrlFunction
-            console.error('SPAMSPAMSPAM:', content)
-            if (isKml(content) || iconUrlFunction) {
-                layer = new KMLLayer({
-                    kmlFileUrl: source,
-                    visible: true,
-                    opacity: 1.0,
-                    adminId: null,
-                    kmlData: content,
-                    iconUrlFunction: iconUrlFunction,
-                })
-                const extent = getKmlExtent(content)
-                if (!extent) {
-                    throw new EmptyKMLError()
-                }
-                const projectedExtent = getExtentForProjection(
-                    store.state.position.projection,
-                    extent
-                )
-                if (!projectedExtent) {
-                    throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
-                }
-                store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
-                if (store.getters.getActiveLayersById(layer.id).length > 0) {
-                    store.dispatch('updateLayers', { layers: [layer], ...dispatcher })
-                } else {
-                    store.dispatch('addLayer', { layer, ...dispatcher })
-                }
-            }
+            layer = createKMLLayer(store, layer, source, content, iconUrlFunction)
+            return layer
         })
-    }
-    if (isGpx(content)) {
+    } else if (isKml(content) || iconUrlFunction) {
+        layer = createKMLLayer(store, layer, source, content, iconUrlFunction)
+    } else if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)
         layer = new GPXLayer({
@@ -120,8 +122,8 @@ export async function handleFileContent(store, content, source) {
         }
         store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
         store.dispatch('addLayer', { layer, ...dispatcher })
-    } // else {
-    //   throw new Error(`Unsupported file ${source} content`)
-    //}
+    } else {
+        throw new Error(`Unsupported file ${source} content`)
+    }
     return layer
 }
