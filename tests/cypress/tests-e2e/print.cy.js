@@ -178,7 +178,7 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
-        function startPrintWithKml(kmlFixture, zoom) {
+        function startPrintWithKml(kmlFixture, center, zoom) {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
@@ -191,8 +191,8 @@ describe('Testing print', () => {
             cy.goToMapView(
                 {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
-                    z: zoom || 15,
-                    center: '2655000,1203250',
+                    z: zoom || 9,
+                    center: center || '2655000,1203250',
                 },
                 true
             )
@@ -300,7 +300,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            startPrintWithKml('import-tool/external-kml-file.kml')
+            startPrintWithKml('import-tool/external-kml-file.kml', 13)
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -429,7 +429,7 @@ describe('Testing print', () => {
         })
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
-            startPrintWithKml('print/label.kml')
+            startPrintWithKml('print/label.kml', 13)
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -501,7 +501,22 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
-            startPrintWithKml('print/old-geoadmin-label.kml', 16)
+            const customZoom = 13
+            startPrintWithKml('print/old-geoadmin-label.kml', customZoom)
+
+            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                expect(center[0]).to.eq(8.161492)
+                expect(center[1]).to.eq(46.978042)
+            })
+
+            cy.readStoreValue('state.position.center').should((center) => {
+                expect(center[0]).to.eq(2655000)
+                expect(center[1]).to.eq(1203250)
+            })
+
+            cy.readStoreValue('state.position.zoom').should((zoom) => {
+                expect(zoom).to.equal(customZoom)
+            })
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
