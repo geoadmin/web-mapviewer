@@ -24,12 +24,22 @@ const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
+/**
+ * Customizes the printing behavior for GeoAdmin.
+ *
+ * @extends BaseCustomizer
+ */
 class GeoAdminCustomizer extends BaseCustomizer {
-    /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
+    /**
+     * @param {number[]} printExtent - The extent of the area to be printed.
+     * @param {string[]} layerIDsToExclude - An array of layer IDs to exclude from the print.
+     * @param {number} printResolution - The resolution for the print.
+     */
     constructor(printExtent, layerIDsToExclude, printResolution) {
         super(printExtent)
         this.layerIDsToExclude = layerIDsToExclude
         this.printResolution = printResolution
+
         this.layerFilter = this.layerFilter.bind(this)
         this.geometryFilter = this.geometryFilter.bind(this)
         this.line = this.line.bind(this)
