@@ -1,11 +1,11 @@
 <script setup>
-import area from '@turf/area'
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
+import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
+import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
 const props = defineProps({
     geometry: {
@@ -30,7 +30,9 @@ const geometryWgs84 = computed(() => {
 
 /** @type {ComputedRef<string>} */
 const humanReadableArea = computed(() => {
-    const calculatedArea = area(transformIntoTurfEquivalent(geometryWgs84.value))
+    const coords = geometryWgs84.value.coordinates[0]
+    const res = computePolygonPerimeterArea(coords)
+    const calculatedArea = res.area
     let result = ''
     if (calculatedArea) {
         const unitThreshold = 1e5

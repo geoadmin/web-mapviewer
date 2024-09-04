@@ -642,7 +642,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 200)
             cy.get('[data-cy="ol-map"]').click(150, 230)
             cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74802 m2')
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74998 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -654,7 +654,7 @@ describe('Drawing module tests', () => {
 
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
-                .contains('0.24935 km2')
+                .contains('0.24999 km2')
         })
     })
     context('KML management', () => {
