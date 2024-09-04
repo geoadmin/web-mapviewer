@@ -178,7 +178,11 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
-        function startPrintWithKml(kmlFixture) {
+        function startPrintWithKml(kmlFixture, zoom) {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
+
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
@@ -187,7 +191,7 @@ describe('Testing print', () => {
             cy.goToMapView(
                 {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
-                    z: 15,
+                    z: zoom || 15,
                 },
                 true
             )
@@ -496,7 +500,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
-            startPrintWithKml('print/old-geoadmin-label.kml')
+            startPrintWithKml('print/old-geoadmin-label.kml', 16)
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
