@@ -192,6 +192,7 @@ describe('Testing print', () => {
                 {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: zoom || 15,
+                    center: '2655000,1203250',
                 },
                 true
             )
