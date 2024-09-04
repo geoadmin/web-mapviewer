@@ -1,3 +1,4 @@
+// eslint-disable-next-line simple-import-sort/imports
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
