@@ -187,7 +187,7 @@ describe('Testing print', () => {
             cy.goToMapView(
                 {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
-                    z: 9,
+                    z: 15,
                 },
                 true
             )
@@ -312,7 +312,7 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(5000)
+                expect(mapAttributes['scale']).to.equals(2500000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
@@ -442,6 +442,9 @@ describe('Testing print', () => {
                 expect(mapAttributes).to.haveOwnProperty('projection')
 
                 expect(mapAttributes).to.haveOwnProperty('layers')
+                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
 
@@ -511,6 +514,9 @@ describe('Testing print', () => {
                 expect(mapAttributes).to.haveOwnProperty('projection')
 
                 expect(mapAttributes).to.haveOwnProperty('layers')
+                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
 
