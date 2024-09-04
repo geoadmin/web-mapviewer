@@ -7,6 +7,12 @@ import { formatThousand } from '@/utils/numberUtils.js'
 
 const printID = 'print-123456789'
 
+function checkZoom(customZoom) {
+    cy.readStoreValue('state.position.zoom').should((zoom) => {
+        expect(zoom).to.equal(customZoom)
+    })
+}
+
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
@@ -178,7 +184,7 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
-        function startPrintWithKml(kmlFixture, center, zoom) {
+        function startPrintWithKml(kmlFixture, zoom, center) {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
@@ -300,7 +306,9 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            startPrintWithKml('import-tool/external-kml-file.kml', 13)
+            const zoom = 13
+            startPrintWithKml('import-tool/external-kml-file.kml', zoom)
+            checkZoom(zoom)
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -429,7 +437,9 @@ describe('Testing print', () => {
         })
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
-            startPrintWithKml('print/label.kml', 13)
+            const customZoom = 13
+            startPrintWithKml('print/label.kml', customZoom)
+            checkZoom(customZoom)
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -504,6 +514,8 @@ describe('Testing print', () => {
             const customZoom = 13
             startPrintWithKml('print/old-geoadmin-label.kml', customZoom)
 
+            checkZoom(customZoom)
+
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                 expect(center[0]).to.eq(8.161492)
                 expect(center[1]).to.eq(46.978042)
@@ -512,10 +524,6 @@ describe('Testing print', () => {
             cy.readStoreValue('state.position.center').should((center) => {
                 expect(center[0]).to.eq(2655000)
                 expect(center[1]).to.eq(1203250)
-            })
-
-            cy.readStoreValue('state.position.zoom').should((zoom) => {
-                expect(zoom).to.equal(customZoom)
             })
 
             cy.wait('@printRequest').then((interception) => {
