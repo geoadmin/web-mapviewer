@@ -1,10 +1,10 @@
 <script setup>
-import { Geodesic, PolygonArea } from 'geographiclib-geodesic'
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
 const props = defineProps({
@@ -28,28 +28,11 @@ const geometryWgs84 = computed(() => {
     return reprojectGeoJsonData(geometry.value, WGS84, projection.value)
 })
 
-/**
- * Calculate the area of a polygon using the GeographicLib library.
- *
- * @param {number[][]} coords - An array of coordinates representing the polygon. The coordinates
- *   should be in the format [[longitude, latitude], [longitude, latitude], ...].
- * @returns {number} The calculated area of the polygon in square meters.
- *
- *   Adapted from _calculateGlobalProperties function in geodesicManager.js
- */
-function calculateAreaGeographicLib(coords) {
-    const geodesicPolygon = new PolygonArea.PolygonArea(Geodesic.WGS84, false)
-    for (const coord of coords) {
-        geodesicPolygon.AddPoint(coord[1], coord[0])
-    }
-    const res = geodesicPolygon.Compute(false, true)
-    return res.area
-}
-
 /** @type {ComputedRef<string>} */
 const humanReadableArea = computed(() => {
     const coords = geometryWgs84.value.coordinates[0]
-    const calculatedArea = Math.abs(calculateAreaGeographicLib(coords))
+    const res = computePolygonPerimeterArea(coords)
+    const calculatedArea = res.area
     let result = ''
     if (calculatedArea) {
         const unitThreshold = 1e5
