@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import { LEGACY_ICON_SET } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 /**
@@ -191,6 +192,9 @@ export async function loadAllIconSetsFromBackend() {
         const rawSets = (await axios.get(`${getViewerDedicatedServicesBaseUrl()}icons/sets`)).data
             .items
         for (const rawSet of rawSets) {
+            if (LEGACY_ICON_SET.includes(rawSet.name)) {
+                continue
+            }
             const iconSet = new DrawingIconSet(
                 rawSet.name,
                 rawSet.colorable,
