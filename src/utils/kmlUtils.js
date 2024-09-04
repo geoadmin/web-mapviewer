@@ -213,7 +213,7 @@ export function parseIconUrl(url) {
     // /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
     // if cannot be parsed from legacy or new pattern, then use default
     const setMatch =
-        /api\/icons\/sets\/(?<set>\w+)\/icons\/(?<name>.+?)(@(?<scale>\d+(\.\d+)?)x-(?<r>\d+),(?<g>\d+),(?<b>\d+))\.png/.exec(
+        /api\/icons\/sets\/(?<set>[\w-]+)\/icons\/(?<name>.+?)(@(?<scale>\d+(\.\d+)?)x-(?<r>\d+),(?<g>\d+),(?<b>\d+))\.png/.exec(
             url
         )
 
