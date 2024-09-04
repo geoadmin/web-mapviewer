@@ -688,6 +688,12 @@
     "orient_map_north": "Orienter la carte",
     "kml_icon_url_cors_issue": "Le KML « {layerName} » contient des icônes avec l'URL {url} qui ne supporte pas CORS ! Veuillez contacter l'administrateur de cette URL pour avoir du support de CORS.",
     "warning": "Attention",
+    "switch_kml_style": "Changez le style",
+    "kml_style_default": "défaut",
+    "kml_style_geoadmin": "GeoAdmin",
     "legal_notice": "Mentions légales",
-    "legal_notice_url": "https://www.geo.admin.ch/fr/impressum-responsabilites-et-contacts"
+    "legal_notice_url": "https://www.geo.admin.ch/fr/impressum-responsabilites-et-contacts",
+    "modify_icon_category_babs-D_label": "Signes conventionnels civils D",
+    "modify_icon_category_babs-F_label": "Signes conventionnels civils F",
+    "modify_icon_category_babs-I_label": "Signes conventionnels civils I"
 }

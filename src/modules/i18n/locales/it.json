@@ -688,6 +688,12 @@
     "orient_map_north": "Orientare la mappa",
     "kml_icon_url_cors_issue": "Il KML “{layerName}” contiene icone con l'URL {url} che non supporta CORS! Contattare l'amministratore di questo URL per aggiungere il supporto per CORS.",
     "warning": "Avvertenza",
+    "switch_kml_style": "Cambia stile",
+    "kml_style_default": "predefinito",
+    "kml_style_geoadmin": "GeoAdmin",
     "legal_notice": "Informazioni legali",
-    "legal_notice_url": "https://www.geo.admin.ch/it/colophon-responsabilita-e-contatti"
+    "legal_notice_url": "https://www.geo.admin.ch/it/colophon-responsabilita-e-contatti",
+    "modify_icon_category_babs-D_label": "Segni convenzionali civili D",
+    "modify_icon_category_babs-F_label": "Segni convenzionali civili F",
+    "modify_icon_category_babs-I_label": "Segni convenzionali civili I"
 }

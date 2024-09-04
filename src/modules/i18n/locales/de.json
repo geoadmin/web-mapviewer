@@ -688,6 +688,12 @@
     "orient_map_north": "Karte einnorden",
     "kml_icon_url_cors_issue": "Die KML-Datei „{layerName}“ enthält Symbol(e) mit der URL {url}, die keine CORS-Unterstützung bietet! Bitte wenden Sie sich an den Administrator dieser URL, um die Unterstützung für CORS hinzuzufügen.",
     "warning": "Warnung",
+    "switch_kml_style": "Stil wechseln",
+    "kml_style_default": "Standard",
+    "kml_style_geoadmin": "GeoAdmin",
     "legal_notice": "Impressum",
-    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte"
+    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte",
+    "modify_icon_category_babs-D_label": "Zivile Signaturen D",
+    "modify_icon_category_babs-F_label": "Zivile Signaturen F",
+    "modify_icon_category_babs-I_label": "Zivile Signaturen I"
 }

@@ -686,6 +686,12 @@
     "orient_map_north": "Orientar la carta",
     "kml_icon_url_cors_issue": "Il KML \"{layerName}\" cuntegna icona(s) cun URL {url} che na po nagin sustegnair CORS! As drizzai p.pl. a l'administratura da quella URL per agiuntar il sustegn dal CORS.",
     "warning": "Avertiment",
+    "switch_kml_style": "Midar il stil",
+    "kml_style_default": "Standard",
+    "kml_style_geoadmin": "GeoAdmin",
     "legal_notice": "Dapli infurmaziuns",
-    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte"
+    "legal_notice_url": "https://www.geo.admin.ch/de/impressum-verantwortlichkeiten-und-kontakte",
+    "modify_icon_category_babs-D_label": "Zivile Signaturen D",
+    "modify_icon_category_babs-F_label": "Zivile Signaturen F",
+    "modify_icon_category_babs-I_label": "Zivile Signaturen I"
 }
