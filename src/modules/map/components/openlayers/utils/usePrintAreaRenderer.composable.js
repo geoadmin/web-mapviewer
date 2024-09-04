@@ -126,10 +126,10 @@ export default function usePrintAreaRenderer(map) {
 
         store.commit('setPrintExtent', {
             printExtent: [
-                topLeftCoordinate[0],
-                rightBottomCoordinate[1],
-                rightBottomCoordinate[0],
-                topLeftCoordinate[1],
+                topLeftCoordinate[0], // minX
+                rightBottomCoordinate[1], // minY
+                rightBottomCoordinate[0], // maxX
+                topLeftCoordinate[1], // maxY
             ],
             dispatcher,
         })
