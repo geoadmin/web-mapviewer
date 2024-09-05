@@ -106,6 +106,8 @@ describe('Drawing module tests', () => {
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
                 ).should('not.exist')
+                // babs icon should have a tippy describing the icon
+                cy.get('[data-cy="drawing-style-icon-selector-babs-1"]').realHover()
                 // going back to the default icon set
                 cy.get(
                     '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
