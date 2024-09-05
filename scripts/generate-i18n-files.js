@@ -50,6 +50,13 @@ sheets.spreadsheets.values.get(
                     })
                 }
             })
+            // ordering all keys alphabetically
+            Object.keys(translations).forEach((lang) => {
+                const translationForLang = translations[lang]
+                translations[lang] = Object.keys(translationForLang)
+                    .sort()
+                    .reduce((acc, key) => ({ ...acc, [key]: translationForLang[key] }), {})
+            })
             // we now export each lang as a separate JSON file in our i18n modules' folder
             langByIndex.forEach((lang, index) => {
                 if (index > 0) {
