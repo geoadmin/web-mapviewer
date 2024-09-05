@@ -85,6 +85,7 @@ export function sanitizeTitle(title = '') {
  * @extends LayerSearchResult
  * @extends LocationSearchResult
  * @typedef {Object} LayerFeatureSearchResult
+ * @param {GeoAdminLayer} layer The layer of this feature.
  */
 
 /**
