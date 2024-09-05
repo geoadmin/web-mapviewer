@@ -30,8 +30,6 @@ import log from '@/utils/logging'
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { parseRGBColor } from '@/utils/utils'
 
-export const LEGACY_ICON_SET = ['babs']
-
 export const EMPTY_KML_DATA = '<kml></kml>'
 
 // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
