@@ -159,7 +159,7 @@ export const highlightPointStyle = new Style({
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
 export function adjustWidth(width, dpi) {
-    if (!width || isNaN(width)) {
+    if (!width || isNaN(width || isNaN(dpi) || dpi <= 0)) {
         return 0
     }
 

@@ -1,5 +1,3 @@
-// 90 Was the old mapviewer magic number set to compensate for the DPI difference between the
-// mapviewer and the service print. Currently, 144 seems to be giving better results at keeping
-// the same scale overall.
-// We're going to check thoroughly if this works as intended, or if this is a monitor dpi setting element.
-export const PRINT_MAGIC_NUMBER = 144
+// In the old mapviewer, a magic number (90) was set to make some compensation between the print and the viewer,
+// to keep the scale between the two services. In the current implementation, 144 seems to be giving the best results.
+export const PRINT_DPI_COMPENSATION = 144
