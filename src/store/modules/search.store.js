@@ -196,18 +196,13 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    getFeature(
-                        getters.getActiveLayersById(entry.layerId)[0],
-                        entry.featureId,
-                        rootState.position.projection,
-                        {
-                            lang: rootState.i18n.lang,
-                            screenWidth: rootState.ui.width,
-                            screenHeight: rootState.ui.height,
-                            mapExtent: flattenExtent(getters.extent),
-                            coordinate: entry.coordinate,
-                        }
-                    ).then((feature) => {
+                    getFeature(entry.layer, entry.featureId, rootState.position.projection, {
+                        lang: rootState.i18n.lang,
+                        screenWidth: rootState.ui.width,
+                        screenHeight: rootState.ui.height,
+                        mapExtent: flattenExtent(getters.extent),
+                        coordinate: entry.coordinate,
+                    }).then((feature) => {
                         dispatch('setSelectedFeatures', {
                             features: [feature],
                             dispatcher,

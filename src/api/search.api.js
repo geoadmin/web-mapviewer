@@ -258,6 +258,7 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
                     ...locationContent,
                     resultType: SearchResultTypes.FEATURE,
                     title,
+                    layer,
                 }
             }) ?? []
         )
