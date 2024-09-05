@@ -53,14 +53,12 @@ const features = computed(() => {
 })
 
 const olMap = inject('olMap')
-useVectorLayer(
-    olMap,
-    features,
-    zIndex,
-    highlightFeatureStyle,
-    props.selectFeatureCallback,
-    props.deselectAfterSelect
-)
+useVectorLayer(olMap, features, {
+    zIndex: zIndex,
+    styleFunction: highlightFeatureStyle,
+    onFeatureSelectCallback: props.selectFeatureCallback,
+    deselectAfterSelect: props.deselectAfterSelect,
+})
 
 watch(markerStyle, (newStyle) => {
     const olStyle = getMarkerStyle(newStyle)

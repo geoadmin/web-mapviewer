@@ -91,12 +91,10 @@ const popoverCoordinate = computed(() => {
 
 const olMap = inject('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
-useVectorLayer(
-    olMap,
-    featureTransformedAsOlFeatures,
-    zIndexHighlightedFeatures,
-    highlightFeatureStyle
-)
+useVectorLayer(olMap, featureTransformedAsOlFeatures, {
+    zIndex: zIndexHighlightedFeatures,
+    styleFunction: highlightFeatureStyle,
+})
 
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
