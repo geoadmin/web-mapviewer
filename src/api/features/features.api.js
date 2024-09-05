@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
+import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
@@ -237,6 +238,7 @@ async function identifyOnExternalLayer(config) {
     }
     // deciding on which projection we should land to ask the WMS server (the current map projection might not be supported)
     let requestProjection = projection
+    let requestedCoordinate = coordinate
     if (!requestProjection) {
         throw new GetFeatureInfoError('Missing projection to build a getFeatureInfo request')
     }
@@ -251,6 +253,8 @@ async function identifyOnExternalLayer(config) {
                 (availableProjection) => availableProjection.epsg === candidate.epsg
             )
         )
+        // If we use different projection, we also need to project out initial coordinate
+        requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
     if (!requestProjection) {
         throw new GetFeatureInfoError(
@@ -259,7 +263,7 @@ async function identifyOnExternalLayer(config) {
     }
     if (layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers) {
         return await identifyOnExternalWmsLayer({
-            coordinate,
+            coordinate: requestedCoordinate,
             projection: requestProjection,
             resolution,
             layer,
@@ -319,7 +323,6 @@ async function identifyOnExternalWmsLayer(config) {
         coordinate,
         projection,
         resolution,
-        rounded: true,
     })
     if (!requestExtent) {
         throw new GetFeatureInfoError('Unable to build required request extent')
