@@ -107,13 +107,15 @@ export class DrawingIcon {
      *   belong to one icon set)
      * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y]
      *   format)
+     * @param {Number[]} size Size of the icons in pixel assuming a scaling factor of 1
      */
-    constructor(name, imageURL, imageTemplateURL, iconSetName, anchor) {
+    constructor(name, imageURL, imageTemplateURL, iconSetName, anchor, size) {
         this._name = name
         this._imageURL = imageURL
         this._imageTemplateURL = imageTemplateURL
         this._iconSetName = iconSetName
         this._anchor = anchor
+        this._size = size
     }
 
     /** @returns {String} Name of this icon in the backend (lower cased) */
@@ -137,6 +139,11 @@ export class DrawingIcon {
     /** @returns {Number[]} Offset to apply to this icon when placed on a coordinate ([x,y] format) */
     get anchor() {
         return this._anchor
+    }
+
+    /** @returns {Number[]} Size of the icons in pixel assuming a scaling factor of 1 */
+    get size() {
+        return this._size
     }
 
     /**
@@ -225,7 +232,8 @@ async function loadIconsForIconSet(iconSet) {
                     rawIcon.url,
                     rawIcon.template_url,
                     iconSet.name,
-                    rawIcon.anchor
+                    rawIcon.anchor,
+                    rawIcon.size
                 )
         )
     } catch (error) {
