@@ -46,12 +46,14 @@
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
                 <button
                     v-for="icon in currentIconSet.icons"
+                    id="icon-description"
                     :key="icon.name"
                     class="btn btn-sm"
                     :class="{
                         'btn-light': feature.icon.name !== icon.name,
                         'btn-primary': feature.icon.name === icon.name,
                     }"
+                    data-tippy-content="full_screen"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
                     @click="onCurrentIconChange(icon)"
                 >
@@ -67,6 +69,7 @@
                             )
                         "
                         crossorigin="anonymous"
+                        @load="onImageLoad"
                     />
                 </button>
             </div>
@@ -82,6 +85,7 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
@@ -102,9 +106,16 @@ export default {
     },
     emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
     setup() {
+        const { refreshTippyAttachment } = useTippyTooltip(
+            '#icon-description[data-tippy-content]',
+            {
+                placement: 'top',
+            }
+        )
         const i18n = useI18n()
         return {
             i18n,
+            refreshTippyAttachment,
         }
     },
     data: function () {
@@ -114,6 +125,7 @@ export default {
             // we store it because we don't want the selection window's icon to change size
             // only the icon on the map should
             defaultIconSize: MEDIUM,
+            loadedImages: 0,
         }
     },
     computed: {
@@ -170,6 +182,13 @@ export default {
                 }
             } else if (isSelected) {
                 return { filter: 'drop-shadow(0px 0px 0 white)' }
+            }
+        },
+        onImageLoad() {
+            this.loadedImages = this.loadedImages + 1
+            if (this.loadedImages == this.currentIconSet.icons.length) {
+                this.refreshTippyAttachment()
+                this.loadedImages = 0
             }
         },
     },
