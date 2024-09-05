@@ -88,7 +88,6 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { MEDIUM } from '@/utils/featureStyleUtils'
-import log from '@/utils/logging'
 
 export default {
     components: {
@@ -112,6 +111,7 @@ export default {
             '#icon-description[data-tippy-content]',
             {
                 placement: 'top',
+                translate: false,
             }
         )
         const i18n = useI18n()

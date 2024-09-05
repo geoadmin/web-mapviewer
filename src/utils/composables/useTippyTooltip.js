@@ -53,10 +53,11 @@ import { useI18n } from 'vue-i18n'
  * @param {string} options.theme Theme to use for the tippy
  * @param {string} options.placement Tippy placement
  * @param {[number, number]} options.delay Tippy delay
+ * @param {boolean} translate Indicates if tippy content should get translated
  */
 export function useTippyTooltip(
     selector,
-    { theme = null, placement = null, delay = [300, 0] } = {}
+    { theme = null, placement = null, delay = [300, 0], translate = true } = {}
 ) {
     let tooltips = null
     const options = { delay }
@@ -79,7 +80,11 @@ export function useTippyTooltip(
 
     function setContent() {
         tooltips?.forEach((tp) =>
-            tp.setContent(i18n.t(tp.reference.attributes['data-tippy-content'].value))
+            tp.setContent(
+                translate
+                    ? i18n.t(tp.reference.attributes['data-tippy-content'].value)
+                    : tp.reference.attributes['data-tippy-content'].value
+            )
         )
     }
 
