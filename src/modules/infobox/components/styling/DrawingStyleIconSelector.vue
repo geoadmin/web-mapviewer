@@ -53,7 +53,7 @@
                         'btn-light': feature.icon.name !== icon.name,
                         'btn-primary': feature.icon.name === icon.name,
                     }"
-                    data-tippy-content="full_screen"
+                    :data-tippy-content="getIconDescription(icon.description)"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
                     @click="onCurrentIconChange(icon)"
                 >
@@ -80,6 +80,7 @@
 
 <script>
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -87,6 +88,7 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { MEDIUM } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -113,8 +115,10 @@ export default {
             }
         )
         const i18n = useI18n()
+        const store = useStore()
         return {
             i18n,
+            store,
             refreshTippyAttachment,
         }
     },
@@ -184,11 +188,30 @@ export default {
                 return { filter: 'drop-shadow(0px 0px 0 white)' }
             }
         },
+        getIconDescription(description) {
+            if (!description) {
+                return null
+            }
+            switch (this.store.state.i18n.lang) {
+                case 'de':
+                    return description.de
+                case 'fr':
+                    return description.fr
+                case 'it':
+                    return description.it ?? description.fr
+                case 'en':
+                    return description.en ?? description.de
+                case 'rm':
+                    return description.rm ?? description.de
+            }
+        },
         onImageLoad() {
             this.loadedImages = this.loadedImages + 1
             if (this.loadedImages == this.currentIconSet.icons.length) {
-                this.refreshTippyAttachment()
                 this.loadedImages = 0
+                if (this.currentIconSet.descriptionURL) {
+                    this.refreshTippyAttachment()
+                }
             }
         },
     },
