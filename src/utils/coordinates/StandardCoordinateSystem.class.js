@@ -49,6 +49,6 @@ export default class StandardCoordinateSystem extends CoordinateSystem {
     }
 
     getDefaultZoom() {
-        return STANDARD_ZOOM_LEVEL_1_25000_MAP
+        return 8
     }
 }
