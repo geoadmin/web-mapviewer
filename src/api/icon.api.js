@@ -4,15 +4,7 @@ import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
-/**
- * Default Icon parameters for the URL.
- *
- * NOTE: The size should match the received size for the scale from the backend. It is needed to
- * avoid race condition when exporting/saving KML. Openlayer requires the size to compute the
- * scale.
- *
- * TODO: take the default size from the backend icon API
- */
+/** Default Icon parameters for the URL. */
 export const DEFAULT_ICON_URL_PARAMS = {
     scale: 1,
     size: [48, 48],
