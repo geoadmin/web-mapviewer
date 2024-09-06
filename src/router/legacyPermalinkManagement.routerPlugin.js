@@ -221,6 +221,7 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
             newCoordinates = await reframe({
                 inputCoordinates: legacyCoordinates,
                 inputProjection: LV03,
+                outputProjection: projection,
             })
             log.info(
                 `[Legacy URL] converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`

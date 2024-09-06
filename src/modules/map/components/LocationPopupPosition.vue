@@ -1,7 +1,6 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import proj4 from 'proj4'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,6 +16,7 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
 import { LV03, LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -46,7 +46,7 @@ const height = ref(null)
 const i18n = useI18n()
 
 const coordinateWGS84Metric = computed(() => {
-    return proj4(projection.value.epsg, WGS84.epsg, coordinate.value)
+    return reprojectAndRound(projection.value, WGS84, coordinate.value)
 })
 const coordinateWGS84Plain = computed(() => {
     // we want to output lat / lon, meaning we have to give the coordinate as y / x
@@ -90,10 +90,11 @@ watch(currentLang, () => {
 
 async function updateLV03Coordinate() {
     try {
-        const lv95coordinate = proj4(projection.value.epsg, LV95.epsg, coordinate.value)
+        const lv95coordinate = reprojectAndRound(projection.value, LV95, coordinate.value)
         lv03Coordinate.value = await reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,
+            outputProjection: LV03,
         })
     } catch (error) {
         log.error('Failed to retrieve LV03 coordinate', error)

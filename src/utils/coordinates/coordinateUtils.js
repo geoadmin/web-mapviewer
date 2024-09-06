@@ -155,3 +155,16 @@ export function removeZValues(coordinates) {
     }
     return unwrapped.map((coordinate) => [coordinate[0], coordinate[1]])
 }
+
+/**
+ * @param {CoordinateSystem} from
+ * @param {CoordinateSystem} into
+ * @param {[Number, Number]} coordinates
+ * @returns {[Number, Number] | null}
+ */
+export function reprojectAndRound(from, into, coordinates) {
+    if (!from || !into || !Array.isArray(coordinates)) {
+        return null
+    }
+    return proj4(from.epsg, into.epsg, coordinates).map(into.roundCoordinateValue)
+}

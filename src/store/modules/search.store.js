@@ -1,11 +1,10 @@
-import proj4 from 'proj4'
-
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
-import { LV03, LV95 } from '@/utils/coordinates/coordinateSystems'
+import { LV03 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
@@ -66,16 +65,14 @@ const actions = {
                         coordinates = await reframe({
                             inputProjection: LV03,
                             inputCoordinates: coordinates,
+                            outputProjection: currentProjection,
                         })
-                        coordinates = proj4(LV95.epsg, currentProjection.epsg, coordinates).map(
-                            currentProjection.roundCoordinateValue
-                        )
                     } else {
-                        coordinates = proj4(
-                            extractedCoordinate.coordinateSystem.epsg,
-                            currentProjection.epsg,
+                        coordinates = reprojectAndRound(
+                            extractedCoordinate.coordinateSystem,
+                            currentProjection,
                             coordinates
-                        ).map(currentProjection.roundCoordinateValue)
+                        )
                     }
                 }
                 const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
