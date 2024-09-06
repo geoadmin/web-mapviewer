@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { assertType, describe, expect, it } from 'vitest'
 
-import { LV95, WEBMERCATOR, WGS84 } from '@/proj'
+import { LV95, type ResolutionStep, WEBMERCATOR, WGS84 } from '@/proj'
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
 import StandardCoordinateSystem from '@/proj/StandardCoordinateSystem'
+import { LV95_RESOLUTIONS } from '@/proj/SwissCoordinateSystem'
 
 class BoundlessCoordinateSystem extends StandardCoordinateSystem {
     constructor() {
@@ -59,5 +60,47 @@ describe('CoordinateSystem', () => {
             expect(coordinateSystemWithouBounds.isInBounds(1, 1)).to.be.false
         })
         // the remaining tests for this function are handled in the CoordinateSystemBounds.spec.ts file
+    })
+    describe('getResolutionSteps', () => {
+        it('returns all standard (Mercator) resolutions', () => {
+            const resolutions = WEBMERCATOR.getResolutionSteps()
+            expect(resolutions).to.be.an('Array').lengthOf(21)
+
+            // mashup of values from https://wiki.openstreetmap.org/wiki/Zoom_levels (from zoom 0 to 18)
+            // and https://wiki.openstreetmap.org/wiki/Zoom_levels (zoom 19 and 20)
+            const expectedResolutions = [
+                156543.03, 78271.52, 39135.76, 19567.88, 9783.94, 4891.97, 2445.98, 1222.99, 611.5,
+                305.75, 152.87, 76.437, 38.219, 19.109, 9.5546, 4.7773, 2.3887, 1.1943, 0.5972,
+                0.299, 0.149,
+            ]
+
+            resolutions.forEach((resolutionStep, index) => {
+                expect(resolutionStep).toBeDefined()
+                assertType<ResolutionStep>(resolutionStep)
+                expect(resolutionStep.zoom).to.eq(index)
+                expect(resolutionStep.resolution).to.be.greaterThan(0)
+
+                // see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+                // the formula that was used is : resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
+                // with latitude being 47° (about Bern's latitude)
+                expect(
+                    resolutionStep.resolution,
+                    `zoom level ${index} resolution is wrongly calculated`
+                ).to.be.closeTo(expectedResolutions[index]!, expectedResolutions[index]! / 100.0) // 1% tolerance
+            })
+        })
+        it.skip('returns all LV95 resolutions', () => {
+            const resolutions = LV95.getResolutionSteps()
+            expect(resolutions).to.be.an('Array').lengthOf(LV95_RESOLUTIONS.length)
+
+            resolutions.forEach((resolutionStep, index) => {
+                expect(resolutionStep).to.be.an('Object')
+                expect(resolutionStep.zoom).to.eq(index)
+                expect(
+                    resolutionStep.resolution,
+                    `wrong LV95 resolution at zoom level ${index}`
+                ).to.be.eq(LV95_RESOLUTIONS[index])
+            })
+        })
     })
 })

@@ -17,6 +17,6 @@ export default abstract class StandardCoordinateSystem extends CoordinateSystem 
     }
 
     getDefaultZoom(): number {
-        return STANDARD_ZOOM_LEVEL_1_25000_MAP
+        return this.get1_25000ZoomLevel()
     }
 }

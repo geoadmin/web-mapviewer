@@ -35,7 +35,6 @@ const { layerConfig, parentLayerOpacity, zIndex } = defineProps({
 })
 
 const store = useStore()
-const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 
 function shouldAggregateSubLayerBeVisible(subLayer) {
@@ -56,7 +55,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             (see OpenLayersMap main component)
         -->
         <OpenLayersVectorLayer
-            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
+            v-if="layerConfig.type === LayerTypes.VECTOR"
             :vector-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

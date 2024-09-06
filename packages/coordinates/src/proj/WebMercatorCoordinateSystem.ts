@@ -40,9 +40,9 @@ export default class WebMercatorCoordinateSystem extends StandardCoordinateSyste
      *          resolution = 156543.03 meters / pixel * cos(latitude) / (2 ^ zoom level)
      */
     getResolutionForZoomAndCenter(zoom: number, center: SingleCoordinate): number {
-        const centerInRad = proj4(this.epsg, WGS84.epsg, center).map(
+        const centerInRad: SingleCoordinate = proj4(this.epsg, WGS84.epsg, center).map(
             (coordinate) => (coordinate * Math.PI) / 180.0
-        )
+        ) as SingleCoordinate
         if (typeof centerInRad[1] !== 'number') {
             return 0
         }

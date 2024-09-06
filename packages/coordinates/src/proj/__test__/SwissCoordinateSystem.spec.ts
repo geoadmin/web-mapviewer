@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { LV03, LV95 } from '@/proj'
-import {
-    LV95_RESOLUTIONS,
-    SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX,
-} from '@/proj/SwissCoordinateSystem'
+import { LV95_RESOLUTIONS, SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX } from '@/proj/SwissCoordinateSystem'
 
 describe('Unit test functions from SwissCoordinateSystem', () => {
     describe('transformCustomZoomLevelToStandard', () => {
@@ -106,22 +103,16 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
             }
         })
         it('returns zoom correctly while resolution is in between the two thresholds', () => {
-            for (let i = 0; i < LV95_RESOLUTIONS.length - 2; i++) {
-                for (
-                    let resolution = LV95_RESOLUTIONS[i]! - 1;
-                    resolution > LV95_RESOLUTIONS[i + 1]!;
-                    resolution--
-                ) {
-                    expect(LV95.getZoomForResolutionAndCenter(resolution)).to.eq(
-                        i + 1,
-                        `resolution ${resolution} was misinterpreted`
-                    )
-                    expect(LV03.getZoomForResolutionAndCenter(resolution)).to.eq(
-                        i + 1,
-                        `resolution ${resolution} was misinterpreted`
-                    )
-                }
-            }
+            LV95.getResolutionSteps().filter((step) => step.zoom !== undefined).forEach((stepWithZoomLevel, i) => {
+                expect(LV95.getZoomForResolutionAndCenter(stepWithZoomLevel.resolution)).to.eq(
+                    stepWithZoomLevel.zoom,
+                    `LV95 resolution ${stepWithZoomLevel.resolution} was misinterpreted`
+                )
+                expect(LV03.getZoomForResolutionAndCenter(stepWithZoomLevel.resolution)).to.eq(
+                    stepWithZoomLevel.zoom,
+                    `LV03 resolution ${stepWithZoomLevel.resolution} was misinterpreted`
+                )
+            })
         })
         it('returns the max zoom available, event if the resolution is smaller than expected', () => {
             const smallestResolution = LV95_RESOLUTIONS[LV95_RESOLUTIONS.length - 1]!

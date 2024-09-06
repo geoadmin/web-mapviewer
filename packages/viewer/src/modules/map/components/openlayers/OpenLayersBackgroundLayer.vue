@@ -7,6 +7,10 @@ import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLay
 
 const store = useStore()
 const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
+const layersConfig = computed(() => store.state.layers.config)
+const vectorTileCounterpart = computed(() =>
+    layersConfig.value.find((layer) => layer.id === currentBackgroundLayer.value.idInVectorTile)
+)
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()
 </script>
@@ -14,7 +18,7 @@ const { getZIndexForLayer } = useLayerZIndexCalculation()
 <template>
     <OpenLayersInternalLayer
         v-if="currentBackgroundLayer"
-        :layer-config="currentBackgroundLayer"
+        :layer-config="vectorTileCounterpart ?? currentBackgroundLayer"
         :z-index="getZIndexForLayer(currentBackgroundLayer)"
     />
 </template>

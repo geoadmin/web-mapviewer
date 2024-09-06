@@ -3,10 +3,21 @@ import { closest, round } from '@swissgeo/numbers'
 import type { ResolutionStep } from '@/proj/types'
 
 import {
+    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
 } from '@/proj/CoordinateSystem'
 import CustomCoordinateSystem from '@/proj/CustomCoordinateSystem'
+
+/**
+ * Latitude where the LV95 plane is anchored to the Mercator system. Used to calculate/transform
+ * LV95 zoom level into Mercator zoom level
+ *
+ * Value can be found in the PROJ4 matrix on epsg.io
+ *
+ * @see https://epsg.io/2056
+ */
+const LV95_LATITUDE_CENTER_IN_WGS84: number = 46.9524055555556
 
 /**
  * Resolutions for each LV95 zoom level, from 0 to 14
@@ -172,33 +183,43 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
      *   level to show the 1:25'000 map if the input is invalid
      */
     transformCustomZoomLevelToStandard(customZoomLevel: number): number {
-        const key = Math.floor(customZoomLevel)
-        if (SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX.length - 1 >= key) {
-            return (
-                SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[key] ??
-                STANDARD_ZOOM_LEVEL_1_25000_MAP
-            )
-        }
-        // if no matching zoom level was found, we return the one for the 1:25'000 map
-        return STANDARD_ZOOM_LEVEL_1_25000_MAP
+        const lv95Resolution: number = this.getResolutionForZoomAndCenter(customZoomLevel)
+        // reverting formula from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+        return Math.log2(
+            1.0 /
+                (lv95Resolution /
+                    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
+                    Math.cos((Math.PI * LV95_LATITUDE_CENTER_IN_WGS84) / 180.0))
+        )
     }
 
     getResolutionForZoomAndCenter(zoom: number): number {
-        const roundedZoom = Math.round(zoom)
-        if (typeof LV95_RESOLUTIONS[roundedZoom] !== 'number') {
-            return 0
-        }
         // ignoring the center, as it won't have any effect on the chosen zoom level
-        return LV95_RESOLUTIONS[roundedZoom]
+        const roundedZoom: number = Math.floor(zoom)
+        const resolutions: ResolutionStep[] = this.getResolutionSteps()
+        const resolutionMatchingZoom: ResolutionStep | undefined = resolutions.find(
+            (step) => step.zoom === roundedZoom
+        )
+        if (resolutionMatchingZoom) {
+            const nextStep: ResolutionStep | undefined = resolutions.find(
+                (step) => step.zoom === roundedZoom + 1
+            )
+            if (!nextStep) {
+                return resolutionMatchingZoom.resolution
+            }
+            const zoomFactor: number = resolutionMatchingZoom.resolution / nextStep.resolution
+            return resolutionMatchingZoom.resolution / Math.pow(zoomFactor, zoom % 1.0)
+        }
+        return LV95_RESOLUTIONS[roundedZoom]!
     }
 
     getZoomForResolutionAndCenter(resolution: number): number {
         // ignoring the center, as it won't have any effect on the resolution
-        const matchingResolution = LV95_RESOLUTIONS.find(
-            (lv95Resolution) => lv95Resolution <= resolution
-        )
-        if (matchingResolution) {
-            return LV95_RESOLUTIONS.indexOf(matchingResolution)
+        const matchingResolutionStep: ResolutionStep | undefined = this.getResolutionSteps()
+            .filter((step) => step.zoom)
+            .find((step) => step.resolution <= resolution)
+        if (matchingResolutionStep && matchingResolutionStep.zoom !== undefined) {
+            return matchingResolutionStep.zoom
         }
         // if no match was found, we have to decide if the resolution is too great,
         // or too small to be matched and return the zoom accordingly
