@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import proj4 from 'proj4'
 import { describe, it } from 'vitest'
 
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils'
 
 describe('Test extent utils', () => {
@@ -16,9 +16,7 @@ describe('Test extent utils', () => {
         })
         it('reproject extent of a single coordinate inside the bounds of the projection', () => {
             const singleCoordinate = [8.2, 47.5]
-            const singleCoordinateInLV95 = proj4(WGS84.epsg, LV95.epsg, singleCoordinate).map(
-                LV95.roundCoordinateValue
-            )
+            const singleCoordinateInLV95 = reprojectAndRound(WGS84, LV95, singleCoordinate)
             const extent = [singleCoordinate, singleCoordinate].flat()
             expect(getExtentForProjection(LV95, extent)).to.deep.equal([
                 singleCoordinateInLV95,
@@ -40,11 +38,11 @@ describe('Test extent utils', () => {
         })
         it('only gives back the portion of an extent that is within LV95 bounds', () => {
             const singleCoordinateInsideLV95 = [7.54, 48.12]
-            const singleCoordinateInLV95 = proj4(
-                WGS84.epsg,
-                LV95.epsg,
+            const singleCoordinateInLV95 = reprojectAndRound(
+                WGS84,
+                LV95,
                 singleCoordinateInsideLV95
-            ).map(LV95.roundCoordinateValue)
+            )
             const overlappingExtent = [0, 0, ...singleCoordinateInsideLV95]
             expect(getExtentForProjection(LV95, overlappingExtent)).to.deep.equal([
                 LV95.bounds.bottomLeft,

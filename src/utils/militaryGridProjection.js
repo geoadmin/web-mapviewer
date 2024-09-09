@@ -78,6 +78,10 @@ export function inverse(mgrs) {
     return [bbox.left, bbox.bottom, bbox.right, bbox.top]
 }
 
+/**
+ * @param {String} mgrs
+ * @returns {[Number, Number]}
+ */
 export function toPoint(mgrs) {
     if (mgrs === '') {
         throw new TypeError('toPoint received a blank string')
