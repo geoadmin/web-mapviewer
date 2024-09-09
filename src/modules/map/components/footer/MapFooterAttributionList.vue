@@ -6,6 +6,7 @@
                 v-if="source.hasDataDisclaimer"
                 :source-name="source.name"
                 :complete-disclaimer-on-click="!source.url"
+                :is-external-data-local="source.isExternalDataLocal"
             >
                 <MapFooterAttributionItem
                     :source-id="source.id"
@@ -40,7 +41,7 @@ export default {
             layersConfig: (state) => state.layers.config,
             currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
         }),
-        ...mapGetters(['visibleLayers', 'hasDataDisclaimer']),
+        ...mapGetters(['visibleLayers', 'hasDataDisclaimer', 'hasDataDisclaimerLocal']),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here
@@ -62,6 +63,7 @@ export default {
                                 name: attribution.name,
                                 url: attribution.url,
                                 hasDataDisclaimer: this.hasDataDisclaimer(layer.id),
+                                isExternalDataLocal: this.hasDataDisclaimerLocal(layer.id),
                             }
                         })
                     })

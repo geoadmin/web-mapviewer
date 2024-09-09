@@ -164,9 +164,6 @@ describe('The Import File Tool', () => {
             .children()
             .should('have.length', 4)
             .each(($layer, index) => {
-                cy.wrap($layer)
-                    .find('[data-cy="menu-external-disclaimer-icon"]')
-                    .should('be.visible')
                 cy.wrap($layer).find('[data-cy^="button-error-"]').should('not.exist')
                 cy.wrap($layer)
                     .find('[data-cy^="button-loading-metadata-spinner-"]')
@@ -174,15 +171,27 @@ describe('The Import File Tool', () => {
                 switch (index) {
                     case 0:
                         cy.wrap($layer).contains('Line accross europe')
+                        cy.wrap($layer)
+                            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
+                            .should('be.visible')
                         break
                     case 1:
                         cy.wrap($layer).contains('Sample Placemark')
+                        cy.wrap($layer)
+                            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
+                            .should('be.visible')
                         break
                     case 2:
                         cy.wrap($layer).contains('Another KML')
+                        cy.wrap($layer)
+                            .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                            .should('be.visible')
                         break
                     case 3:
                         cy.wrap($layer).contains('Sample Placemark')
+                        cy.wrap($layer)
+                            .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                            .should('be.visible')
                         break
                 }
             })
@@ -192,8 +201,8 @@ describe('The Import File Tool', () => {
         cy.log('Test the external layer disclaimer')
         cy.get('[data-cy="menu-section-active-layers"]')
             .children()
+            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible')
             .first()
-            .find('[data-cy="menu-external-disclaimer-icon"]:visible')
             .click()
         cy.get('[data-cy="modal-content"]')
             .should('be.visible')
@@ -213,9 +222,10 @@ describe('The Import File Tool', () => {
         cy.log('Test the external layer disclaimer in the footer')
         cy.closeMenuIfMobile()
         cy.get('[data-cy="layer-copyright-example.com"]')
+            .eq(0)
             .should('be.visible')
             .should('have.class', 'text-primary')
-        cy.get('[data-cy="layer-copyright-example.com"]').realHover()
+        cy.get('[data-cy="layer-copyright-example.com"]').eq(0).realHover()
         cy.get('[data-cy="tippy-third-part-disclaimer"]')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
@@ -306,7 +316,7 @@ describe('The Import File Tool', () => {
             .should('have.length', 3)
             .each(($layer, index) => {
                 cy.wrap($layer)
-                    .find('[data-cy="menu-external-disclaimer-icon"]')
+                    .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
                 cy.wrap($layer).find('[data-cy^="button-error-"]').should('be.visible').click()
                 if (index === 0) {

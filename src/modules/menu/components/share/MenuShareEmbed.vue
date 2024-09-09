@@ -12,6 +12,7 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
@@ -62,6 +63,7 @@ const copied = ref(false)
 
 const { t } = useI18n()
 const route = useRoute()
+const store = useStore()
 
 const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const embedPreviewModalWidth = computed(() => {
@@ -105,6 +107,8 @@ const buttonIcon = computed(() => {
     // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
     return ['far', 'copy']
 })
+
+const hasAnyExternalDataLocal = computed(() => store.getters.hasAnyExternalDataLocal())
 
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
@@ -295,7 +299,23 @@ watch(
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
                 <div class="small text-wrap text-center" v-html="t('share_disclaimer')"></div>
-                <!-- eslint-enable vue/no-v-html-->
+                <div
+                    v-if="hasAnyExternalDataLocal"
+                    class="d-flex flex-row gap-2 justify-content-center mt-2"
+                    data-cy="warn-share-local-file-container"
+                >
+                    <FontAwesomeIcon
+                        class="data-disclaimer-tooltip text-warning align-self-center"
+                        icon="circle-exclamation"
+                        data-cy="menu-external-disclaimer-icon-cloud"
+                    />
+                    <div
+                        class="small text-wrap text-center text-warning"
+                        data-cy="warn-share-local-file"
+                        v-html="t('warn_share_local_file')"
+                    ></div>
+                </div>
+                <!-- eslint-enable vue/no-v-html -->
             </div>
         </ModalWithBackdrop>
     </div>

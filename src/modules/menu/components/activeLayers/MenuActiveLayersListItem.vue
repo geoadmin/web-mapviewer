@@ -63,9 +63,9 @@ useTippyTooltip('.menu-layer-item [data-tippy-content]')
 const layerUpButton = ref(null)
 const layerDownButton = ref(null)
 const transparencySlider = ref(null)
-
-const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const id = computed(() => layer.value.id)
+const hasDataDisclaimerLocal = computed(() => store.getters.hasDataDisclaimerLocal(id.value))
+const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )
@@ -193,12 +193,19 @@ function duplicateLayer() {
                 v-if="hasDataDisclaimer"
                 :complete-disclaimer-on-click="true"
                 :source-name="attributionName"
+                :is-external-data-local="hasDataDisclaimerLocal"
             >
                 <FontAwesomeIcon
-                    ref="tooltipAnchor"
-                    class="data-disclaimer-tooltip text-primary p-2"
-                    icon="user"
-                    data-cy="menu-external-disclaimer-icon"
+                    v-if="hasDataDisclaimer && !hasDataDisclaimerLocal"
+                    class="data-disclaimer-tooltip text-primary"
+                    icon="cloud"
+                    data-cy="menu-external-disclaimer-icon-cloud"
+                />
+                <FontAwesomeIcon
+                    v-if="hasDataDisclaimerLocal"
+                    class="data-disclaimer-tooltip text-secondary"
+                    icon="hard-drive"
+                    data-cy="menu-external-disclaimer-icon-hard-drive"
                 />
             </ThirdPartyDisclaimer>
             <button

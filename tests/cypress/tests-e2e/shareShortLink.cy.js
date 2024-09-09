@@ -225,4 +225,64 @@ describe('Testing the share menu', () => {
             })
         }
     )
+    context(
+        'iFrame snippet generation after loading local file',
+        // embed is only available on tablet or higher viewports
+        {
+            viewportWidth: 800,
+            viewportHeight: 600,
+        },
+        () => {
+            beforeEach(() => {
+                const localKmlFile = 'import-tool/external-kml-file.kml'
+                cy.get('[data-cy="menu-button"]').click()
+
+                // Test local import
+                cy.goToMapView({}, true)
+                cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+                cy.openMenuIfMobile()
+                cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+                cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+                cy.log('Switch to local import')
+                cy.get('[data-cy="import-file-local-btn"]:visible').click()
+                cy.get('[data-cy="import-file-local-content"]').should('be.visible')
+
+                //----------------------------------------------------------------------
+                // Attach a local KML file
+                cy.log('Test add a local KML file')
+                cy.fixture(localKmlFile, null).as('kmlFixture')
+                cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+                    force: true,
+                })
+                cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+                // Assertions for successful import
+                cy.get('[data-cy="file-input-text"]')
+                    .should('have.class', 'is-valid')
+                    .should('not.have.class', 'is-invalid')
+                cy.get('[data-cy="file-input-valid-feedback"]')
+                    .should('be.visible')
+                    .contains('File successfully imported')
+                cy.get('[data-cy="import-file-load-button"]')
+                    .should('be.visible')
+                    .contains('Import')
+                cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
+                cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+                cy.get('[data-cy="import-file-close-button"]:visible').click()
+
+                // beforeEach for the whole test is clicking on the menu button once, we must click it another time
+                // otherwise the menu will be closed by the first click
+                cy.get('[data-cy="menu-share-section"]').click()
+                cy.get('[data-cy="menu-share-embed-button"]').click()
+            })
+            it('shows the warning of sharing an iframe while having a local file imported', () => {
+                cy.get('[data-cy="menu-share-embed-preview-button"]').click()
+
+                cy.get('[data-cy="warn-share-local-file-container"]').should('be.visible')
+                cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]').should('be.visible')
+                cy.get('[data-cy="warn-share-local-file"]').should('be.visible')
+            })
+        }
+    )
 })

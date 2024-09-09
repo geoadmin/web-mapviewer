@@ -291,7 +291,7 @@ describe('Test of layer handling', () => {
                 cy.openMenuIfMobile()
                 cy.get(`[data-cy^="menu-active-layer-"]`).each(($el) => {
                     cy.wrap($el)
-                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                         .should('be.visible')
                 })
                 cy.get('[data-cy^="menu-active-layer-"]').eq(0).should('contain', fakeWmsLayerName4)
@@ -450,7 +450,7 @@ describe('Test of layer handling', () => {
                     .should('contain', fakeWmtsLayerName1)
                 cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
                     cy.wrap($layer)
-                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                         .should('be.visible')
                 })
 
@@ -489,7 +489,7 @@ describe('Test of layer handling', () => {
                     .should('contain', fakeWmtsLayerName1)
                 cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
                     cy.wrap($layer)
-                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                         .should('be.visible')
                 })
                 cy.checkOlLayer([
@@ -570,7 +570,7 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.isLoading).to.be.false
                 })
                 cy.get(`[data-cy^="menu-active-layer-${wmtsUnreachableLayerId}-"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
                 cy.get(`[data-cy^="button-error-${wmtsUnreachableLayerId}-"]`)
                     .should('be.visible')
@@ -591,7 +591,7 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.isLoading).to.be.false
                 })
                 cy.get(`[data-cy^="menu-active-layer-${wmtsInvalidContentLayerId}-"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
                 cy.get(`[data-cy^="button-error-${wmtsInvalidContentLayerId}-"]`)
                     .should('be.visible')
@@ -612,7 +612,7 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.isLoading).to.be.false
                 })
                 cy.get(`[data-cy^="menu-active-layer-${wmsUnreachableLayerId}-"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
                 cy.get(`[data-cy^="button-error-${wmsUnreachableLayerId}-"]`)
                     .should('be.visible')
@@ -633,7 +633,7 @@ describe('Test of layer handling', () => {
                     expect(externaLayer.isLoading).to.be.false
                 })
                 cy.get(`[data-cy^="menu-active-layer-${wmsInvalidContentLayerId}-"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
                 cy.get(`[data-cy^="button-error-${wmsInvalidContentLayerId}-"]`)
                     .should('be.visible')
@@ -1234,7 +1234,7 @@ describe('Test of layer handling', () => {
                 goToMenuWithLayers()
                 visibleLayerIds.forEach((id) => {
                     cy.get(`[data-cy^="menu-active-layer-${id}-"]`)
-                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                         .should('not.exist')
                 })
             })
