@@ -463,6 +463,7 @@
     "outside_valid_year_range": "L'onn entrà sa chatta ordaifer il sectur disponibe:",
     "page_description": "map.geo.admin.ch è la plattafurma da chartas da la Confederaziun svizra. Access a las chartas, geoinfurmaziuns, a las geodatas, als geoservetschs ed a las metadatas da la Svizra.",
     "page_title": "Chartas da la Svizra - Confederaziun svizra - map.geo.admin.ch",
+    "parameter_error": "In problem è sa profilà cun il suandant parameter: {param}. La valur inditgada, \" {value}\", n'è betg valaivla per quest parameter ed è vegnida ignorada. Guardai nossa documentaziun uschia, tge valurs valaivlas ch'èn.",
     "parcel": "Parzelle",
     "parse_failed": "Errur da Parsing!",
     "parse_succeeded": "Chargiar reussì",

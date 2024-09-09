@@ -465,6 +465,7 @@
     "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
     "page_description": "map.geo.admin.ch è la piattaforma cartografica della Confederazione svizzera e dei cantoni. Dà accesso alle mappe, alle geoinformazioni, ai geodati, ai geoservizi e ai metadati della Svizzera.",
     "page_title": "Carta della Svizzera - Confederazione svizzera - map.geo.admin.ch",
+    "parameter_error": "Si è verificato un problema con il seguente parametro: ' {param} '. Il valore fornito, ' {value} ', non è valido per questo parametro ed è stato ignorato. Consulti la nostra documentazione per sapere quali sono i valori validi.",
     "parcel": "Parcelle",
     "parse_failed": "Errore di parsing!",
     "parse_succeeded": "Caricamento OK!",

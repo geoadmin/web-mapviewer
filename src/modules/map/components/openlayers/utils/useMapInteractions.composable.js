@@ -15,6 +15,7 @@ import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinat
 import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = {
     dispatcher: 'useMapInteractions.composable',
@@ -266,7 +267,7 @@ export default function useMapInteractions(map) {
                 errorKey = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
-            store.dispatch('setErrorText', { errorText: errorKey, ...dispatcher })
+            store.dispatch('setError', { error: new WarningMessage(errorKey, null), ...dispatcher })
         }
     }
 
