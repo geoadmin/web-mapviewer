@@ -83,11 +83,13 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
+import { SUPPORTED_LANG } from '@/modules/i18n/index'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { MEDIUM } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -112,6 +114,7 @@ export default {
             {
                 placement: 'top',
                 translate: false,
+                allowHTML: true,
             }
         )
         const i18n = useI18n()
@@ -191,21 +194,18 @@ export default {
             }
         },
         getIconDescription(description) {
-            if (!description) {
-                return null
+            const lang = this.store.state.i18n.lang
+            if (description) {
+                let str = ''
+                for (const [key, value] of Object.entries(description)) {
+                    str = str + `<div>${lang == key ? `<strong>${value}</strong>` : value}</div>`
+                    if (!SUPPORTED_LANG.includes(key)) {
+                        log.error('Language key provided is not supported: ', key)
+                    }
+                }
+                return str
             }
-            switch (this.store.state.i18n.lang) {
-                case 'de':
-                    return description.de
-                case 'fr':
-                    return description.fr
-                case 'it':
-                    return description.it ?? description.fr
-                case 'en':
-                    return description.en ?? description.de
-                case 'rm':
-                    return description.rm ?? description.de
-            }
+            return null
         },
         onImageLoad() {
             this.loadedImages = this.loadedImages + 1
