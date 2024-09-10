@@ -143,7 +143,8 @@ export default {
                 return new DropdownItem(
                     iconSet.name,
                     this.i18n.t(`modify_icon_category_${iconSet.name}_label`),
-                    iconSet
+                    iconSet,
+                    iconSet.name == 'default' ? null : 'modify_icon_category_babs_label'
                 )
             })
         },
