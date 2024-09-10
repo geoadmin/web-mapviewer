@@ -154,7 +154,7 @@ export default {
         showDisclaimer: true,
 
         /**
-         * A WarningMessage object containing parameters for error texts, so we can have error
+         * An ErrorMessage object containing parameters for error texts, so we can have error
          * messages which are similar, but not dependant on a translation key, reducing the total
          * number of translation keys needed.
          *
@@ -397,7 +397,7 @@ export default {
                     commit('setError', { error: new ErrorMessage(error, null) })
                 } else {
                     throw new Error(
-                        `Error ${error} dispatched by ${dispatcher} is neither of type WarningMessage, nor a string`
+                        `Error ${error} dispatched by ${dispatcher} is neither of type ErrorMessage, nor a string`
                     )
                 }
             } else {
