@@ -3,9 +3,9 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
@@ -26,7 +26,7 @@ function setCenterIfInBounds(store, center) {
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
         store.dispatch('setError', {
-            error: new WarningMessage('geoloc_out_of_bounds', null),
+            error: new ErrorMessage('geoloc_out_of_bounds', null),
             ...dispatcher,
         })
     }
@@ -89,14 +89,14 @@ const handlePositionError = (error, store, state, options = {}) => {
                 ...dispatcher,
             })
             store.dispatch('setError', {
-                error: new WarningMessage('geoloc_permission_denied', null),
+                error: new ErrorMessage('geoloc_permission_denied', null),
                 ...dispatcher,
             })
             break
         case error.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
             store.dispatch('setError', {
-                error: new WarningMessage('geoloc_time_out', null),
+                error: new ErrorMessage('geoloc_time_out', null),
                 ...dispatcher,
             })
             break
@@ -117,7 +117,7 @@ const handlePositionError = (error, store, state, options = {}) => {
                     }
                 } else {
                     store.dispatch('setError', {
-                        error: new WarningMessage('geoloc_unknown', null),
+                        error: new ErrorMessage('geoloc_unknown', null),
                         ...dispatcher,
                     })
                     if (reactivate) {

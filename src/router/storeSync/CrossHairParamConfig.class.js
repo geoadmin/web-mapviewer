@@ -2,8 +2,8 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import { CrossHairs } from '@/store/modules/position.store'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import { round } from '@/utils/numberUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 /**
  * The function used to dispatch the URL parameters to the store. The following options are accepted
@@ -21,7 +21,7 @@ import WarningMessage from '@/utils/WarningMessage.class'
 
 function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
-    const error = new WarningMessage('parameter_error', {
+    const error = new ErrorMessage('url_parameter_error', {
         param: 'crosshair',
         value: urlParamValue,
     })

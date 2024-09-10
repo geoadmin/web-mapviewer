@@ -5,6 +5,7 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import WarningMessage from '@/utils/WarningMessage.class'
 
@@ -157,7 +158,7 @@ export default {
          * messages which are similar, but not dependant on a translation key, reducing the total
          * number of translation keys needed.
          *
-         * @type WarningMessage
+         * @type ErrorMessage
          */
         error: null,
         /**
@@ -391,9 +392,9 @@ export default {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
         setError({ commit }, { error, dispatcher }) {
-            if (!(error instanceof WarningMessage)) {
+            if (!(error instanceof ErrorMessage)) {
                 if (error instanceof String) {
-                    commit('setError', { error: new WarningMessage(error, null) })
+                    commit('setError', { error: new ErrorMessage(error, null) })
                 } else {
                     throw new Error(
                         `Error ${error} dispatched by ${dispatcher} is neither of type WarningMessage, nor a string`
