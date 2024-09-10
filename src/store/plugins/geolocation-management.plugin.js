@@ -25,7 +25,6 @@ function setCenterIfInBounds(store, center) {
         }
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
-        // TO DO : Warning Message
         store.dispatch('setError', {
             error: new WarningMessage('geoloc_out_of_bounds', null),
             ...dispatcher,

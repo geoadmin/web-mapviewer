@@ -115,6 +115,7 @@ export default class CrossHairParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCrossHairUrlParamFromStoreValues,
             keepInUrlWhenDefault: false,
             valueType: String,
+            defaultValue: null,
         })
     }
 }
