@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { isString } from 'lodash'
 
 import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
@@ -56,41 +55,4 @@ export function proxifyUrl(url) {
         throw new Error(`Malformed URL: ${url}, can't proxify`)
     }
     return `${getServiceProxyBaseUrl()}${fileAsPath}`
-}
-
-/**
- * Get a file through our service-proxy backend, taking care of CORS headers in the process.
- *
- * That means that a file for which there is no defined CORS header will still be accessible through
- * this function (i.e. Dropbox/name your cloud share links)
- *
- * @param {String} fileUrl
- * @param {Object} [options]
- * @param {Number} [options.timeout] How long should the call wait before timing out
- * @returns {Promise<AxiosResponse>} A promise which resolve to the proxy response
- */
-export default function getFileThroughProxy(fileUrl, options = {}) {
-    const { timeout = null } = options
-    return new Promise((resolve, reject) => {
-        try {
-            axios({
-                method: 'get',
-                url: proxifyUrl(fileUrl),
-                timeout,
-            })
-                .then((response) => {
-                    resolve(response)
-                })
-                .catch((error) => {
-                    log.error(
-                        'Error while accessing file URL through service-proxy',
-                        fileUrl,
-                        error
-                    )
-                    reject(error)
-                })
-        } catch (error) {
-            reject(error)
-        }
-    })
 }
