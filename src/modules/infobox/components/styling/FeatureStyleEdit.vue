@@ -6,7 +6,6 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
@@ -158,7 +157,7 @@ function updateTextOffset() {
             feature.value.textSize.textScale,
             feature.value.iconSize.iconScale,
             feature.value.icon.anchor,
-            DEFAULT_ICON_URL_PARAMS.size //TODO: PB-303 Use icon size from backend
+            feature.value.icon.size
         )
 
         store.dispatch('changeFeatureTextOffset', {

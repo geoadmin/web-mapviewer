@@ -157,7 +157,7 @@ export default class EditableFeature extends SelectableFeature {
                   crossOrigin: 'Anonymous',
                   anchor: this.icon.anchor,
                   scale: this.iconSizeScale,
-                  size: DEFAULT_ICON_URL_PARAMS.size,
+                  size: this.icon.size,
               })
             : null
     }

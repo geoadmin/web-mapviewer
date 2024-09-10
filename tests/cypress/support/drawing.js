@@ -222,34 +222,3 @@ export function kmlMetadataTemplate(data) {
     }
     return metadata
 }
-
-/**
- * Wait until all defaults red icons have been loaded
- *
- * This wait is required when checking the KML XML content, because openlayer requires the icon size
- * from the icon request in order to compute the icon scale in KML, if the icon is not loaded when
- * saving the KML, openlayer uses a default size of 64 pixel which defer from our icon size of 48
- * pixel.
- *
- * So before doing an action that would change the icon size, we need to make sure that all icons
- * have been already loaded to avoid any race condition.
- *
- * This wait is only needed in cypress as in real life the save has a debouncing of at least 2
- * seconds which ensure that we have the icons.
- */
-Cypress.Commands.add('waitOnAllIconsDefault', () => {
-    cy.get('@icon-set-default').then((interception) => {
-        cy.wait(Array(interception.response.body.items.length).fill('@icon-default'))
-    })
-})
-
-/**
- * Wait until all defaults green icons have been loaded
- *
- * @see waitOnAllIconsDefault for more infos
- */
-Cypress.Commands.add('waitOnAllIconsDefaultGreen', () => {
-    cy.get('@icon-set-default').then((interception) => {
-        cy.wait(Array(interception.response.body.items.length).fill('@icon-default-green'))
-    })
-})

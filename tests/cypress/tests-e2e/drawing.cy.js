@@ -122,7 +122,7 @@ describe('Drawing module tests', () => {
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
                 ).click()
                 // it should load all icons with the green color
-                cy.waitOnAllIconsDefaultGreen()
+                cy.wait('@icon-default-green')
 
                 // the color of the marker already placed on the map must switch to green
                 cy.wait('@update-kml')

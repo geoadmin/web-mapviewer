@@ -4,29 +4,23 @@ import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
-/**
- * Default Icon parameters for the URL.
- *
- * NOTE: The size should match the received size for the scale from the backend. It is needed to
- * avoid race condition when exporting/saving KML. Openlayer requires the size to compute the
- * scale.
- *
- * TODO: take the default size from the backend icon API
- */
+/** Default Icon parameters for the URL. */
 export const DEFAULT_ICON_URL_PARAMS = {
     scale: 1,
-    size: [48, 48],
 }
 
 /** Default offset of title for any feature */
 export const DEFAULT_TITLE_OFFSET = [0, 0]
+
+/** Default size of icon for any feature */
+const DEFAULT_ICON_SIZE = [48, 48]
 
 /** Default offset of title for the default marker */
 export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
     MEDIUM.textScale,
     MEDIUM.iconScale,
     [0, 0.875],
-    DEFAULT_ICON_URL_PARAMS.size
+    DEFAULT_ICON_SIZE
 )
 
 /**
@@ -107,13 +101,15 @@ export class DrawingIcon {
      *   belong to one icon set)
      * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y]
      *   format)
+     * @param {Number[]} size Size of the icons in pixel assuming a scaling factor of 1
      */
-    constructor(name, imageURL, imageTemplateURL, iconSetName, anchor) {
+    constructor(name, imageURL, imageTemplateURL, iconSetName, anchor, size) {
         this._name = name
         this._imageURL = imageURL
         this._imageTemplateURL = imageTemplateURL
         this._iconSetName = iconSetName
         this._anchor = anchor
+        this._size = size
     }
 
     /** @returns {String} Name of this icon in the backend (lower cased) */
@@ -137,6 +133,11 @@ export class DrawingIcon {
     /** @returns {Number[]} Offset to apply to this icon when placed on a coordinate ([x,y] format) */
     get anchor() {
         return this._anchor
+    }
+
+    /** @returns {Number[]} Size of the icons in pixel assuming a scaling factor of 1 */
+    get size() {
+        return this._size
     }
 
     /**
@@ -225,7 +226,8 @@ async function loadIconsForIconSet(iconSet) {
                     rawIcon.url,
                     rawIcon.template_url,
                     iconSet.name,
-                    rawIcon.anchor
+                    rawIcon.anchor,
+                    rawIcon.size
                 )
         )
     } catch (error) {
