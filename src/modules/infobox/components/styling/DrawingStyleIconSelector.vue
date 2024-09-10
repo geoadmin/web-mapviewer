@@ -176,6 +176,7 @@ export default {
         onCurrentIconSizeChange(size) {
             this.$emit('change:iconSize', size)
             this.$emit('change')
+            this.refreshTippyAttachment()
         },
         changeDisplayedIconSet(dropdownItem) {
             this.currentIconSet = dropdownItem.value
@@ -210,7 +211,7 @@ export default {
             this.loadedImages = this.loadedImages + 1
             if (this.loadedImages == this.currentIconSet.icons.length) {
                 this.loadedImages = 0
-                if (this.currentIconSet.descriptionURL) {
+                if (this.currentIconSet.hasDescription) {
                     this.refreshTippyAttachment()
                 }
             }
