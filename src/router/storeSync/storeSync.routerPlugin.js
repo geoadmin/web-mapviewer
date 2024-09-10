@@ -124,7 +124,13 @@ function urlQueryWatcher(store, to, from) {
             await paramConfig.populateStoreWithQueryValue(to, store, value)
         }
 
-        if (queryValue && queryValue !== storeValue) {
+        if (
+            queryValue &&
+            queryValue !== storeValue &&
+            // if the query is undefined and the store is null, we also don't dispatch it, as we want
+            // to avoid changing the store value for no reason.
+            !(queryValue === undefined && storeValue === null)
+        ) {
             // dispatching URL value to the store
             log.debug(
                 '[URL query watcher] param',

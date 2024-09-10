@@ -2,7 +2,6 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import { CrossHairs } from '@/store/modules/position.store'
-import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
@@ -24,12 +23,8 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const error = new WarningMessage('parameter_error', {
         param: 'crosshair',
-        value: 'urlParamValue',
+        value: urlParamValue,
     })
-    log.error('ENTRY IN DISPATCH')
-    log.error(to)
-    log.error(urlParamValue)
-    log.warn('bye')
 
     if (typeof urlParamValue !== 'string' && !(urlParamValue instanceof String)) {
         promisesForAllDispatch.push(
@@ -60,7 +55,7 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             )
-            if (crossHair !== undefined) {
+            if (urlParamValue !== undefined) {
                 /**
                  * There are situations where the function is called without any parameter, and it
                  * makes some tests crash because the error message is over some necessary buttons.
@@ -91,8 +86,6 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
 
 function generateCrossHairUrlParamFromStoreValues(store) {
     if (store.state.position.crossHair) {
-        log.error('CAN SOMEONE EXPLAIN ?')
-        log.error(store.state.position.crossHair)
         let crossHairParamValue = store.state.position.crossHair
         const { center, crossHairPosition } = store.state.position
         if (
