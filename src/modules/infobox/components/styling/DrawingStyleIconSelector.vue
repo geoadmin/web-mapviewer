@@ -133,19 +133,36 @@ export default {
             // only the icon on the map should
             defaultIconSize: MEDIUM,
             loadedImages: 0,
+            should_come_from_backend: {
+                'babs-D': 'de',
+                'babs-F': 'fr',
+                'babs-I': 'it',
+            },
         }
     },
     computed: {
         currentIconSetName() {
             return this.currentIconSet
-                ? this.i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
+                ? this.i18n.t(
+                      `modify_icon_category_${this.getIconSetTitle(this.currentIconSet.name)}_label`,
+                      1,
+                      {
+                          locale: this.should_come_from_backend[this.currentIconSet.name],
+                      }
+                  )
                 : ''
         },
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
                 return new DropdownItem(
                     iconSet.name,
-                    this.i18n.t(`modify_icon_category_${iconSet.name}_label`),
+                    this.i18n.t(
+                        `modify_icon_category_${this.getIconSetTitle(iconSet.name)}_label`,
+                        1,
+                        {
+                            locale: this.should_come_from_backend[iconSet.name],
+                        }
+                    ),
                     iconSet,
                     iconSet.name == 'default' ? null : 'modify_icon_category_babs_label'
                 )
@@ -206,6 +223,12 @@ export default {
                 return str
             }
             return null
+        },
+        getIconSetTitle(title) {
+            if (title.startsWith('babs')) {
+                title = 'babs'
+            }
+            return title
         },
         onImageLoad() {
             this.loadedImages = this.loadedImages + 1
