@@ -38,13 +38,16 @@ export class DrawingIconSet {
      * @param {String} templateURL A template URL to access this icon set's metadata
      *   ({icon_set_name} needs to be replaced with this icon set's name)
      * @param {Boolean} hasDescription Tells if this icon set has icon descriptions
+     * @param {String} Language Two letter iso code that corresponds to a specific language, if the
+     *   icon set does not correspond to a language it is null
      */
-    constructor(name, isColorable, iconsURL, templateURL, hasDescription) {
+    constructor(name, isColorable, iconsURL, templateURL, hasDescription, language) {
         this._name = name
         this._isColorable = isColorable
         this._iconsURL = iconsURL
         this._templateURL = templateURL
         this._hasDescription = hasDescription
+        this._language = language
         this._icons = []
     }
 
@@ -74,9 +77,17 @@ export class DrawingIconSet {
         return this._templateURL
     }
 
-    /** @returns {String} A URL to access this icon set's icon descriptions */
+    /** @returns {Boolean} Tells if this icon set has icon descriptions */
     get hasDescription() {
         return this._hasDescription
+    }
+
+    /**
+     * @returns {String} Two letter iso code that corresponds to a specific language, if the icon
+     *   set does not correspond to a language it is null
+     */
+    get language() {
+        return this._language
     }
 
     /** @returns {DrawingIcon[]} List of all icons from this icon set */
@@ -211,7 +222,8 @@ export async function loadAllIconSetsFromBackend() {
                 rawSet.colorable,
                 rawSet.icons_url,
                 rawSet.template_url,
-                rawSet.has_description
+                rawSet.has_description,
+                rawSet.language
             )
             // retrieving all icons for this icon set
             setPromises.push(loadIconsForIconSet(iconSet))
