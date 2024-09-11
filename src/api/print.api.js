@@ -83,8 +83,18 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
         symbolizer.conflictResolution = false
-        symbolizer.fontSize =
-            Math.ceil(2 * adjustWidth(parseInt(symbolizer.fontSize), this.printResolution)) + 'px'
+        // we try to adapt the font size and offsets to have roughly the same
+        // scales on print than on the viewer.
+        try {
+            symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
+            symbolizer.labelXOffset = adjustWidth(symbolizer.labelXOffset, this.printResolution)
+            symbolizer.fontSize = `${adjustWidth(
+                parseInt(symbolizer.fontSize) * text.getScale(),
+                this.printResolution
+            )}px`
+        } catch (error) {
+            // Keep the font family as it is
+        }
     }
 
     /**
@@ -114,12 +124,23 @@ class GeoAdminCustomizer extends BaseCustomizer {
         }
 
         if (anchor) {
-            symbolizer.graphicXOffset = adjustWidth(-anchor[0] * scale, this.printResolution)
-            symbolizer.graphicYOffset = adjustWidth(-anchor[1] * scale, this.printResolution)
+            symbolizer.graphicXOffset = symbolizer.graphicXOffset
+                ? adjustWidth(
+                      (size[0] / 2 - anchor[0] + symbolizer.graphicXOffset) * scale,
+                      this.printResolution
+                  )
+                : 0
+            // don't ask why it works, but that's the best I could do.
+
+            symbolizer.graphicYOffset = symbolizer.graphicYOffset
+                ? (symbolizer.graphicYOffset = adjustWidth(-size[1], this.printResolution))
+                : 0
         }
         if (size) {
             symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
         }
+        symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
+        symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
 
         if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
             // Handling the case where we need to print a circle in the end of measurement lines
@@ -325,9 +346,7 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-
     const customizer = new GeoAdminCustomizer(excludedLayerIDs, dpi)
-
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
     try {

@@ -1,6 +1,7 @@
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle.js'
 
+import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
@@ -158,10 +159,9 @@ export const highlightPointStyle = new Style({
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
 export function adjustWidth(width, dpi) {
-    if (!width) {
-        return
+    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
+        return 0
     }
-    // 90 is choosen to compensate the difference DPI between the WMTS or WMS and the print DPI used.
-    // The number is from the old geoadmin (see the link above)
-    return (width * 90) / dpi
+
+    return (width * PRINT_DPI_COMPENSATION) / dpi
 }

@@ -2,6 +2,8 @@ import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
+import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
+import { adjustWidth } from '@/utils/styleUtils'
 
 describe('Print API unit tests', () => {
     describe('PrintLayoutAttribute tests', () => {
@@ -60,6 +62,23 @@ describe('Print API unit tests', () => {
                 new PrintLayoutAttribute('map', null, null, null, { scales })
             )
             expect(scalesInMapAttr.scales).to.eql(scales)
+        })
+        it('calculate the width correctly with the "adjustWidth" function', () => {
+            // invalid values should return 0
+            expect(adjustWidth(100, 'invalid value')).to.eql(0)
+            expect(adjustWidth(100, null)).to.eql(0)
+            expect(adjustWidth(100, undefined)).to.eql(0)
+            expect(adjustWidth(null, 254)).to.eql(0)
+            expect(adjustWidth(undefined, 254)).to.eql(0)
+            expect(adjustWidth('invalid value', 254)).to.eql(0)
+            // the dpi parameter should be a positive number
+            expect(adjustWidth(100, 0)).to.eql(0)
+            expect(adjustWidth(100, -15)).to.eql(0)
+            // checking with a slight margin for float rounding errors.
+            expect(adjustWidth(100, 254)).to.be.closeTo(
+                (100 * PRINT_DPI_COMPENSATION) / 254,
+                1 / 254
+            )
         })
     })
 })
