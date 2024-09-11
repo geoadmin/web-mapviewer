@@ -6,9 +6,9 @@ import { useStore } from 'vuex'
 import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
+import MenuHelpSection from '@/modules/menu/components/help/MenuHelpSection.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
-import MenuSettings from '@/modules/menu/components/settings/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 
@@ -32,7 +32,7 @@ const multiMenuSections = ref(['topicsSection', 'activeLayersSection', '3dSectio
 // sections and would therefore toggle other sections automatically.
 const singleModeSections = ref([
     'drawSection',
-    'settingsSection',
+    'helpSection',
     'shareSection',
     'toolsSection',
     'printSection',
@@ -82,43 +82,36 @@ function onCloseMenuSection(id) {
  *
  * @param {any} el Reference to the element
  */
-function addRefById(el) {
-    if (el !== null && !Object.keys(refs.value).includes(el.id)) {
-        refs.value[el.id] = el
+function addRefBySectionId(el) {
+    if (el !== null && !Object.keys(refs.value).includes(el.sectionId)) {
+        refs.value[el.sectionId] = el
     }
 }
 </script>
 
 <template>
     <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
-        <MenuSection
-            id="settingsSection"
-            :ref="addRefById"
-            class="settings-section"
-            :title="i18n.t('settings')"
-            :show-content="false"
-            secondary
-            data-cy="menu-settings-section"
+        <MenuHelpSection
+            :ref="addRefBySectionId"
+            class="d-lg-none help-section"
             @open-menu-section="onOpenMenuSection"
-        >
-            <MenuSettings />
-        </MenuSection>
+        />
         <MenuShareSection
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
             @close-menu-section="onCloseMenuSection"
         />
         <MenuPrintSection
             v-if="!is3dMode"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection
                 v-if="!is3dMode"
-                id="drawSection"
+                section-id="drawSection"
                 :title="i18n.t('draw_panel_title')"
                 secondary
                 :show-content="showDrawingOverlay"
@@ -135,8 +128,8 @@ function addRefById(el) {
             />
         </div>
         <MenuSection
-            id="toolsSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="toolsSection"
             data-cy="menu-tray-tool-section"
             :title="i18n.t('map_tools')"
             secondary
@@ -147,8 +140,8 @@ function addRefById(el) {
         </MenuSection>
         <MenuSection
             v-if="is3dMode"
-            id="3dSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="3dSection"
             data-cy="menu-tray-3d-section"
             title="3D"
             secondary
@@ -158,15 +151,15 @@ function addRefById(el) {
             <MenuThreeD :compact="compact" />
         </MenuSection>
         <MenuTopicSection
-            :ref="addRefById"
+            :ref="addRefBySectionId"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Here below we MUST wait that the map has been rendered before displaying any menu
              content, otherwise this would slow down the application startup -->
         <MenuSection
-            id="activeLayersSection"
-            :ref="addRefById"
+            :ref="addRefBySectionId"
+            section-id="activeLayersSection"
             :title="i18n.t('layers_displayed')"
             light
             :show-content="mapModuleReady"
@@ -196,8 +189,8 @@ function addRefById(el) {
 }
 
 @include respond-above(lg) {
-    .settings-section {
-        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+    .help-section {
+        // See HeaderWithSearch.vue css where the help-section is enable below lg
         display: none;
     }
 }

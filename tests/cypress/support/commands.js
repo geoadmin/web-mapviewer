@@ -561,17 +561,17 @@ Cypress.Commands.add(
  * @param {string} lang Language to click; de, fr, it, en or rm
  */
 Cypress.Commands.add('clickOnLanguage', (lang) => {
-    let menuSection = null
     if (isMobile()) {
-        // mobile/tablet : clicking on the menu button first
-        menuSection = cy.get('[data-cy="menu-settings-section"]')
-        menuSection.click()
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+            if (!isMenuCurrentlyOpen) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+        })
+        cy.get('[data-cy="mobile-lang-selector"]').select(lang)
     } else {
         // desktop
-        menuSection = cy.get('[data-cy="header-settings-section"]')
+        cy.get(`[data-cy="menu-lang-${lang}"]`).click()
     }
-    menuSection.should('be.visible')
-    menuSection.find(`[data-cy="menu-lang-${lang}"]`).click()
 })
 
 // cypress-wait-until wrapper to wait for a specific store state.

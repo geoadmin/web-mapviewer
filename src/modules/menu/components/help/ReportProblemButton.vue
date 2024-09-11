@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
+import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -174,12 +174,13 @@ function toggleDrawingOverlay() {
     <HeaderLink
         v-if="props.showAsLink"
         primary
+        small
         data-cy="report-problem-link-button"
         @click="openForm"
     >
         <strong>{{ i18n.t('problem_announcement') }}</strong>
     </HeaderLink>
-    <button v-else class="btn btn-primary m-1" data-cy="report-problem-button" @click="openForm">
+    <button v-else class="btn btn-primary" data-cy="report-problem-button" @click="openForm">
         {{ i18n.t('problem_announcement') }}
     </button>
     <SimpleWindow

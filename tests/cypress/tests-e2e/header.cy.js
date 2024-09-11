@@ -4,9 +4,8 @@ import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config/responsive.c
 
 const backdropSelector = '[data-cy="black-backdrop"]'
 const menuButtonSelector = '[data-cy="menu-button"]'
-const menuSettingsContentSelector = '[data-cy="menu-settings-content"]'
-const menuSettingsSectionSelector =
-    '[data-cy="menu-settings-section"] [data-cy="menu-section-header"]'
+const menuSettingsContentSelector = '[data-cy="menu-help-content"]'
+const menuSettingsSectionSelector = '[data-cy="menu-help-section"] [data-cy="menu-section-header"]'
 
 describe('Test functions for the header / search bar', () => {
     beforeEach(() => {
@@ -52,7 +51,7 @@ describe('Test functions for the header / search bar', () => {
     }
 
     context('Settings Menu Section', () => {
-        it('shows/hide the settings on clicking on the settings section', () => {
+        it('shows/hide the help on clicking on the help section', () => {
             if (width < BREAKPOINT_TABLET) {
                 // mobile/tablet only
                 cy.get(menuButtonSelector).click()

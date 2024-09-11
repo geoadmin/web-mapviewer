@@ -5,8 +5,8 @@ import { useStore } from 'vuex'
 
 import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import SendActionButtons from '@/modules/menu/components/settings/common/SendActionButtons.vue'
-import FeedbackRating from '@/modules/menu/components/settings/feedback/FeedbackRating.vue'
+import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
+import FeedbackRating from '@/modules/menu/components/help/feedback/FeedbackRating.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
@@ -109,10 +109,10 @@ function onEmailValidate(valid) {
 </script>
 
 <template>
-    <HeaderLink v-if="showAsLink" primary data-cy="feedback-link-button" @click="openForm">
+    <HeaderLink v-if="showAsLink" primary data-cy="feedback-link-button" small @click="openForm">
         <strong>{{ i18n.t('test_map_give_feedback') }}</strong>
     </HeaderLink>
-    <button v-else class="btn btn-primary m-1" data-cy="feedback-button" @click="openForm">
+    <button v-else class="btn btn-primary" data-cy="feedback-button" @click="openForm">
         {{ i18n.t('test_map_give_feedback') }}
     </button>
     <SimpleWindow
