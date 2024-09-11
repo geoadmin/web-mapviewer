@@ -35,7 +35,7 @@
             <div
                 class="rounded d-flex align-items-center p-2"
                 data-cy="drawing-style-toggle-all-icons-button"
-                @click="showAllSymbols = !showAllSymbols"
+                @click="toggleshowAllSymbols()"
             >
                 <div>{{ $t('modify_icon_label') }}</div>
                 <font-awesome-icon
@@ -109,7 +109,7 @@ export default {
     },
     emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
     setup() {
-        const { refreshTippyAttachment } = useTippyTooltip(
+        const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
             '#icon-description[data-tippy-content]',
             {
                 placement: 'top',
@@ -123,6 +123,7 @@ export default {
             i18n,
             store,
             refreshTippyAttachment,
+            removeTippy,
         }
     },
     data: function () {
@@ -184,6 +185,14 @@ export default {
         generateColorizedURL(icon) {
             return icon.generateURL(this.feature.fillColor)
         },
+        toggleshowAllSymbols() {
+            this.showAllSymbols = !this.showAllSymbols
+            if (this.showAllSymbols) {
+                this.refreshTippyAttachment()
+            } else {
+                this.removeTippy()
+            }
+        },
         onCurrentIconColorChange(color) {
             this.$emit('change:iconColor', color)
             this.$emit('change')
@@ -234,7 +243,7 @@ export default {
             this.loadedImages = this.loadedImages + 1
             if (this.loadedImages == this.currentIconSet.icons.length) {
                 this.loadedImages = 0
-                if (this.currentIconSet.hasDescription) {
+                if (this.currentIconSet.hasDescription && this.showAllSymbols) {
                     this.refreshTippyAttachment()
                 }
             }

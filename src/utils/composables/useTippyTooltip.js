@@ -125,5 +125,5 @@ export function useTippyTooltip(
             tooltips = [tooltips]
         }
     }
-    return { refreshTippyAttachment }
+    return { refreshTippyAttachment, removeTippy }
 }
