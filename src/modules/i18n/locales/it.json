@@ -648,6 +648,7 @@
     "uploading_file": "Caricamento del file...",
     "url_image": "Link della foto",
     "url_link": "Link del sito web",
+    "url_parameter_error": "Si è verificato un problema con il seguente parametro: ' {param} '. Il valore fornito, ' {value} ', non è valido per questo parametro ed è stato ignorato. Consulti la nostra documentazione per sapere quali sono i valori validi.",
     "url_video": "Link del video",
     "vector_feedback_choose_color": "Scegliere un colore",
     "vector_feedback_choose_layer": "Scegliere un layer",

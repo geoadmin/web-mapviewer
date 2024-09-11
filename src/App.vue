@@ -21,8 +21,9 @@ const i18n = useI18n()
 const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
-
-const errorText = computed(() => store.state.ui.errorText)
+const error = computed(() => {
+    return store.state.ui.error
+})
 const warning = computed(() => {
     if (store.state.ui.warnings.size > 0) {
         return store.state.ui.warnings.values().next().value
@@ -62,11 +63,13 @@ function refreshPageTitle() {
     >
         <router-view />
         <ErrorWindow
-            v-if="errorText"
+            v-if="error"
             title="error"
-            @close="store.dispatch('setErrorText', { errorText: null, ...dispatcher })"
+            @close="store.dispatch('setError', { error: null, ...dispatcher })"
         >
-            <div>{{ i18n.t(errorText) }}</div>
+            <div>
+                {{ i18n.t(error.msg, error.params) }}
+            </div>
         </ErrorWindow>
         <WarningWindow
             v-if="warning"

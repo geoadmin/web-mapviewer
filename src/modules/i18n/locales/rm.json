@@ -646,6 +646,7 @@
     "uploading_file": "La datoteca vegn chargiada",
     "url_image": "Link a la fotografia",
     "url_link": "Link a la pagina d’internet",
+    "url_parameter_error": "In problem è sa profilà cun il suandant parameter: {param}. La valur inditgada, \" {value}\", n'è betg valaivla per quest parameter ed è vegnida ignorada. Guardai nossa documentaziun uschia, tge valurs valaivlas ch'èn.",
     "url_video": "Link al video",
     "vector_feedback_choose_color": "Tscherner la colur",
     "vector_feedback_choose_layer": "Tscherner il nivel",

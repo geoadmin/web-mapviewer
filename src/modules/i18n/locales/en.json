@@ -648,6 +648,7 @@
     "uploading_file": "Loading file...",
     "url_image": "Photo URL",
     "url_link": "Website URL",
+    "url_parameter_error": "There has been an issue with the following parameter : ' {param} '. The value you have given, ' {value} ' is not valid for this parameter, and has been ignored. Please refer to our documentation for information on which values are valid.",
     "url_video": "Video URL",
     "vector_feedback_choose_color": "Choose a color",
     "vector_feedback_choose_layer": "Choose a layer",

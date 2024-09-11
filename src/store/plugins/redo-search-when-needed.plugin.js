@@ -10,6 +10,8 @@ const redoSearchWhenNeeded = (store) => {
         if (store.state.search.query.length > 2) {
             store.dispatch('setSearchQuery', {
                 query: store.state.search.query,
+                // we don't center on the search query when redoing a search if there is a crosshair
+                shouldCenter: store.state.position.crossHair === null,
             })
         }
     }

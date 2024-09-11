@@ -648,6 +648,7 @@
     "uploading_file": "Laden...",
     "url_image": "Foto  URL",
     "url_link": "Webseite URL",
+    "url_parameter_error": "Es ist ein Problem mit dem folgenden Parameter aufgetreten: ' {param} '. Der von Ihnen angegebene Wert ' {value} ' ist kein gültiger Wert für diesen Parameter und wurde ignoriert. Informationen zu gültigen Werten finden Sie in unserer Dokumentation.",
     "url_video": "Video URL",
     "vector_feedback_choose_color": "Farbe auswählen",
     "vector_feedback_choose_layer": "Ebene auswählen",
