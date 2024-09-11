@@ -206,3 +206,6 @@ export function get3dTilesBaseUrl() {
 export function getVectorTilesBaseUrl() {
     return getBaseUrl('vectorTiles')
 }
+
+export const internalDomainRegex =
+    import.meta.env.VITE_APP_INTERNAL_DOMAIN_REGEX ?? /^https:\/\/[^/]*(bgdi|admin)\.ch/

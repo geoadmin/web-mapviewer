@@ -1,10 +1,11 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import FormData from 'form-data'
 import pako from 'pako'
 
-import getFileThroughProxy from '@/api/file-proxy.api'
+import { proxifyUrl } from '@/api/file-proxy.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
+import { isInternalUrl } from '@/utils/utils'
 
 /**
  * KML links
@@ -312,8 +313,7 @@ export function loadKmlData(kmlLayer) {
                 new Error(`No file URL defined in this KML layer, cannot load data ${kmlLayer.id}`)
             )
         }
-        axios
-            .get(kmlLayer.kmlFileUrl)
+        getFileFromUrl(kmlLayer.kmlFileUrl)
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     resolve(response.data)
@@ -324,19 +324,54 @@ export function loadKmlData(kmlLayer) {
                 }
             })
             .catch((error) => {
-                if (error instanceof AxiosError) {
-                    getFileThroughProxy(kmlLayer.kmlFileUrl)
-                        .then((response) => {
-                            resolve(response.data)
-                        })
-                        .catch((error) => {
-                            reject(error)
-                        })
-                } else {
-                    const msg = `Failed to load KML data: ${error}`
-                    log.error(msg)
-                    reject(new Error(msg))
-                }
+                const msg = `Failed to load KML data: ${error}`
+                log.error(msg)
+                reject(new Error(msg))
             })
     })
+}
+
+/**
+ * Generic function to load a file from a given URL.
+ *
+ * When the URL is not an internal url and it doesn't support CORS or use HTTP it is sent over a
+ * proxy.
+ *
+ * @param {string} url URL to fetch
+ * @param {Number} [options.timeout] How long should the call wait before timing out
+ * @returns {Promise<AxiosResponse<any, any>>}
+ */
+export async function getFileFromUrl(url, options = {}) {
+    const { timeout = null } = options
+    if (/^https?:\/\/localhost/.test(url) || isInternalUrl(url)) {
+        // don't go through proxy if it is on localhost or the internal server
+        return axios.get(url, { timeout })
+    } else if (url.startsWith('http://')) {
+        // HTTP request goes through the proxy
+        return axios.get(proxifyUrl(url), { timeout })
+    }
+
+    // For other urls we need to check if they support CORS
+    let supportCORS = false
+    try {
+        // unfortunately we cannot do a real preflight call using options because browser don't
+        // allow to set the Access-Control-* headers ! Also there is no way to find out if a request
+        // is failing due to network reason or due to CORS issue,
+        // see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors
+        // Therefore here we try to get the resource using head instead
+        await axios.head(url, { timeout })
+        supportCORS = true
+    } catch (error) {
+        log.error(
+            `URL ${url} failed with ${error}. It might be due to CORS issue, ` +
+                `therefore the request will be fallback to the service-proxy`
+        )
+    }
+
+    if (supportCORS) {
+        // Server support CORS
+        return axios.get(url, { timeout })
+    }
+    // server don't support CORS use proxy
+    return axios.get(proxifyUrl(url), { timeout })
 }

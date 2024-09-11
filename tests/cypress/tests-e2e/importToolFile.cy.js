@@ -21,7 +21,10 @@ describe('The Import File Tool', () => {
         // Test the import of an online KML file
         cy.log('Test online import')
         const localKmlFile = 'import-tool/external-kml-file.kml'
-        const validOnlineUrl = 'http://example.com/valid-kml-file.kml'
+        const validOnlineUrl = 'https://example.com/valid-kml-file.kml'
+        cy.intercept('HEAD', validOnlineUrl, {
+            statusCode: 200,
+        }).as('headKmlFile')
         cy.intercept('GET', validOnlineUrl, {
             fixture: localKmlFile,
         }).as('getKmlFile')
@@ -57,7 +60,10 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         cy.log('Test adding another external online KML layer')
         const secondLocalKmlFile = 'import-tool/second-external-kml-file.kml'
-        const secondValidOnlineUrl = 'http://example.com/second-valid-kml-file.kml'
+        const secondValidOnlineUrl = 'https://example.com/second-valid-kml-file.kml'
+        cy.intercept('HEAD', secondValidOnlineUrl, {
+            statusCode: 200,
+        }).as('headSecondKmlFile')
         cy.intercept('GET', secondValidOnlineUrl, {
             fixture: secondLocalKmlFile,
         }).as('getSecondKmlFile')
@@ -231,22 +237,47 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
         cy.get(`[data-cy^="active-layer-name-${secondValidOnlineUrl}-"]`).should('be.visible')
         cy.get('[data-cy^="button-loading-metadata-spinner-"]').should('not.exist')
+
+        // Test the import of an online KML file that don't support CORS
+        cy.log('Test online import - Non CORS server')
+        const validOnlineNonCORSUrl = 'https://example.com/valid-kml-file-non-cors.kml'
+        cy.intercept('HEAD', validOnlineNonCORSUrl, { forceNetworkError: true }).as(
+            'headKmlCorsFile'
+        )
+        cy.intercept('GET', proxifyUrl(validOnlineNonCORSUrl), {
+            fixture: localKmlFile,
+        }).as('getKmlCorsFile')
+
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // Type a valid online GPX file URL
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait('@headKmlCorsFile')
+        cy.wait('@getKmlCorsFile')
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
     })
     it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
         const emptyKMLFile = 'import-tool/empty.kml'
 
-        const invalidFileOnlineUrl = 'http://example.com/invalid-file.kml'
+        cy.intercept('HEAD', 'https://example.com/*', {
+            statusCode: 200,
+        })
+
+        const invalidFileOnlineUrl = 'https://example.com/invalid-file.kml'
         cy.intercept('GET', invalidFileOnlineUrl, {
             body: `<html>Not a KML</html>`,
         }).as('getInvalidKmlFile')
 
-        const onlineUrlNotReachable = 'http://example.com/kml-file.kml'
+        const onlineUrlNotReachable = 'https://example.com/kml-file.kml'
         cy.intercept('GET', onlineUrlNotReachable, {
             statusCode: 403,
         }).as('getNoReachableKmlFile')
 
-        const outOfBoundKMLUrl = 'http://example.com/out-of-bound-kml-file.kml'
+        const outOfBoundKMLUrl = 'https://example.com/out-of-bound-kml-file.kml'
         cy.intercept('GET', outOfBoundKMLUrl, {
             fixture: outOfBoundKMLFile,
         }).as('getOutOfBoundKmlFile')
@@ -387,7 +418,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach an online empty KML file
         cy.log('Test add an online empty KML file')
-        const emptyKMLUrl = 'http://example.com/empty-kml-file.kml'
+        const emptyKMLUrl = 'https://example.com/empty-kml-file.kml'
         cy.intercept('GET', emptyKMLUrl, {
             fixture: emptyKMLFile,
         }).as('getEmptyKmlFile')
@@ -501,9 +532,10 @@ describe('The Import File Tool', () => {
 
         // Test the import of an online GPX file
         cy.log('Test online import')
-        const validOnlineUrl = 'http://example.com/valid-gpx-file.gpx'
+        const validOnlineUrl = 'https://example.com/valid-gpx-file.gpx'
         const gpxOnlineLayerId = `GPX|${validOnlineUrl}`
-        cy.intercept('GET', proxifyUrl(validOnlineUrl), {
+        cy.intercept('HEAD', validOnlineUrl, { statusCode: 200 })
+        cy.intercept('GET', validOnlineUrl, {
             fixture: gpxFileFixture,
         }).as('getGpxFile')
 
@@ -570,5 +602,27 @@ describe('The Import File Tool', () => {
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}-"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+
+        // Test the import of an online GPX file that don't support CORS
+        cy.log('Test online import - Non CORS server')
+        const validOnlineNonCORSUrl = 'https://example.com/valid-gpx-file-non-cors.gpx'
+        const gpxOnlineLayerNonCORSId = `GPX|${validOnlineNonCORSUrl}`
+        cy.intercept('HEAD', validOnlineNonCORSUrl, { forceNetworkError: true }).as(
+            'headGpxCorsFile'
+        )
+        cy.intercept('GET', proxifyUrl(validOnlineNonCORSUrl), {
+            fixture: gpxFileFixture,
+        }).as('getGpxCorsFile')
+
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // Type a valid online GPX file URL
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait('@headGpxCorsFile')
+        cy.wait('@getGpxCorsFile')
+        cy.checkOlLayer([bgLayer, gpxOnlineLayerNonCORSId])
     })
 })

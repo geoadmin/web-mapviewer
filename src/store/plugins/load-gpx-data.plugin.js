@@ -3,10 +3,9 @@
  * it here
  */
 
-import axios from 'axios'
 import GPX from 'ol/format/GPX'
 
-import { proxifyUrl } from '@/api/file-proxy.api'
+import { getFileFromUrl } from '@/api/files.api'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import log from '@/utils/logging'
 
@@ -20,7 +19,7 @@ const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
 async function loadGpx(store, gpxLayer) {
     log.debug(`Loading data for added GPX layer`, gpxLayer)
     try {
-        const response = await axios.get(proxifyUrl(gpxLayer.gpxFileUrl))
+        const response = await getFileFromUrl(gpxLayer.gpxFileUrl)
         const gpxContent = response.data
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(gpxContent)
