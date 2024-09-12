@@ -46,9 +46,8 @@
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
                 <button
                     v-for="icon in currentIconSet.icons"
-                    id="icon-description"
                     :key="icon.name"
-                    class="btn btn-sm"
+                    class="icon-description btn btn-sm"
                     :class="{
                         'btn-light': feature.icon.name !== icon.name,
                         'btn-primary': feature.icon.name === icon.name,
@@ -110,7 +109,7 @@ export default {
     emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
     setup() {
         const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-            '#icon-description[data-tippy-content]',
+            '.icon-description[data-tippy-content]',
             {
                 placement: 'top',
                 translate: false,
