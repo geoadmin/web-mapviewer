@@ -5,7 +5,9 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
-import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
+import { EmptyKMLError, getKmlExtent, unzipKmz } from '@/utils/kmlUtils'
+import log from '@/utils/logging'
+import { isZipContent } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
 
@@ -35,21 +37,30 @@ export function isGpx(fileContent) {
  * Handle file content
  *
  * @param {OBject} store Vuex store
- * @param {string} content Content of the file
+ * @param {ArrayBuffer} content Content of the file
  * @param {string} source Source of the file (either URL or file path)
  * @returns {ExternalLayer} External layer object
  */
-export function handleFileContent(store, content, source) {
+export async function handleFileContent(store, content, source) {
     let layer = null
-    if (isKml(content)) {
+    let textContent
+    if (isZipContent(content)) {
+        log.debug(`File content is a zipfile, assume it is a KMZ archive`)
+        const kmz = await unzipKmz(content, source)
+        textContent = kmz.kml
+    } else {
+        // If it is not a zip file then we assume is a text file and decode it for further handling
+        textContent = new TextDecoder('utf-8').decode(content)
+    }
+    if (isKml(textContent)) {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,
             opacity: 1.0,
             adminId: null,
-            kmlData: content,
+            kmlData: textContent,
         })
-        const extent = getKmlExtent(content)
+        const extent = getKmlExtent(textContent)
         if (!extent) {
             throw new EmptyKMLError()
         }
@@ -64,17 +75,17 @@ export function handleFileContent(store, content, source) {
         } else {
             store.dispatch('addLayer', { layer, ...dispatcher })
         }
-    } else if (isGpx(content)) {
+    } else if (isGpx(textContent)) {
         const gpxParser = new GPX()
-        const metadata = gpxParser.readMetadata(content)
+        const metadata = gpxParser.readMetadata(textContent)
         layer = new GPXLayer({
             gpxFileUrl: source,
             visible: true,
             opacity: 1.0,
-            gpxData: content,
+            gpxData: textContent,
             gpxMetadata: metadata,
         })
-        const extent = getGpxExtent(content)
+        const extent = getGpxExtent(textContent)
         if (!extent) {
             throw new EmptyGPXError()
         }
@@ -85,7 +96,8 @@ export function handleFileContent(store, content, source) {
         store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
         store.dispatch('addLayer', { layer, ...dispatcher })
     } else {
-        throw new Error(`Unsupported file ${source} content`)
+        throw new Error(`Unsupported file ${source} textContent`)
     }
+
     return layer
 }

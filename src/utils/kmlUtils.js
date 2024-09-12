@@ -1,4 +1,5 @@
 import axios from 'axios'
+import JSZip from 'jszip'
 import {
     createEmpty as emptyExtent,
     extend as extendExtent,
@@ -524,3 +525,67 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
 }
 
 export class EmptyKMLError extends Error {}
+export class KMZError extends Error {}
+
+/**
+ * Unzipped KMZ Object
+ *
+ * This class wrap the unzipped content of a KMZ archive.
+ *
+ * @class
+ * @property {string} name Name of the KMZ archive
+ * @property {string} kml Content of the KML file within the KMZ archive (unzipped)
+ * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
+ *   their unzipped content as ArrayBuffer
+ */
+export class KMZObject {
+    constructor(params = {}) {
+        const { name = null, kml = null, files = new Map() } = params
+        this.name = name
+        this.kml = kml
+        this.files = files
+    }
+}
+
+/**
+ * Unzipped a KMZ archive following the KMZ google specification.
+ *
+ * See https://developers.google.com/kml/documentation/kmzarchives
+ *
+ * @param {string} kmzContent KMZ archive content as string
+ * @param {string} kmzFileName KMZ archive name
+ * @returns {KMZObject} Returns a KMZ unzip object
+ */
+export async function unzipKmz(kmzContent, kmzFileName) {
+    const kmz = new KMZObject({ name: kmzFileName })
+    const zip = new JSZip()
+    try {
+        await zip.loadAsync(kmzContent)
+    } catch (error) {
+        log.error(`Failed to unzip KMZ file ${kmzFileName}: ${error}`)
+        throw new KMZError(`Failed to unzip KMZ file ${kmzFileName}`)
+    }
+
+    try {
+        // Valid KMZ archive must have 1 KML file with .kml extension
+        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('text')
+    } catch (error) {
+        log.error(`Failed to get KML file from KMZ archive ${kmzFileName}: ${error}`)
+        throw new KMZError(`Failed to get KML file from KMZ archive ${kmzFileName}`)
+    }
+
+    // Get all other files from the archive
+    const files = zip.file(/^(?!.*\.kml$).*$/)
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        try {
+            kmz.files.set(file.name, await file.async('arraybuffer'))
+        } catch (error) {
+            log.error(
+                `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}: ${error}. File is ignored`
+            )
+        }
+    }
+
+    return kmz
+}

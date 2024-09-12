@@ -81,11 +81,14 @@ async function loadFile() {
     loading.value = true
 
     try {
-        const response = await getFileFromUrl(fileUrl.value, { timeout: REQUEST_TIMEOUT })
+        const response = await getFileFromUrl(fileUrl.value, {
+            timeout: REQUEST_TIMEOUT,
+            responseType: 'arraybuffer',
+        })
         if (response.status !== 200) {
             throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
         }
-        handleFileContent(store, response.data, fileUrl.value)
+        await handleFileContent(store, response.data, fileUrl.value)
         importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
