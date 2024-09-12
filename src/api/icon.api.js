@@ -37,12 +37,17 @@ export class DrawingIconSet {
      *   set
      * @param {String} templateURL A template URL to access this icon set's metadata
      *   ({icon_set_name} needs to be replaced with this icon set's name)
+     * @param {Boolean} hasDescription Tells if this icon set has icon descriptions
+     * @param {String} Language Two letter iso code that corresponds to a specific language, if the
+     *   icon set does not correspond to a language it is null
      */
-    constructor(name, isColorable, iconsURL, templateURL) {
+    constructor(name, isColorable, iconsURL, templateURL, hasDescription, language) {
         this._name = name
         this._isColorable = isColorable
         this._iconsURL = iconsURL
         this._templateURL = templateURL
+        this._hasDescription = hasDescription
+        this._language = language
         this._icons = []
     }
 
@@ -72,6 +77,19 @@ export class DrawingIconSet {
         return this._templateURL
     }
 
+    /** @returns {Boolean} Tells if this icon set has icon descriptions */
+    get hasDescription() {
+        return this._hasDescription
+    }
+
+    /**
+     * @returns {String} Two letter iso code that corresponds to a specific language, if the icon
+     *   set does not correspond to a language it is null
+     */
+    get language() {
+        return this._language
+    }
+
     /** @returns {DrawingIcon[]} List of all icons from this icon set */
     get icons() {
         return [...this._icons]
@@ -99,15 +117,17 @@ export class DrawingIcon {
      *   replacing {icon_scale} and {{r},{g},{b}} respectively, see {@link DrawingIcon.generateURL})
      * @param {String} iconSetName Name of the icon set in which belongs this icon (an icon can only
      *   belong to one icon set)
+     * @param {String} description Description of icon in all available languages
      * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y]
      *   format)
      * @param {Number[]} size Size of the icons in pixel assuming a scaling factor of 1
      */
-    constructor(name, imageURL, imageTemplateURL, iconSetName, anchor, size) {
+    constructor(name, imageURL, imageTemplateURL, iconSetName, description, anchor, size) {
         this._name = name
         this._imageURL = imageURL
         this._imageTemplateURL = imageTemplateURL
         this._iconSetName = iconSetName
+        this._description = description
         this._anchor = anchor
         this._size = size
     }
@@ -146,6 +166,11 @@ export class DrawingIcon {
      */
     get iconSetName() {
         return this._iconSetName
+    }
+
+    /** @returns {String} Description for this icon as JSON object in all available languages */
+    get description() {
+        return this._description
     }
 
     /**
@@ -196,7 +221,9 @@ export async function loadAllIconSetsFromBackend() {
                 rawSet.name,
                 rawSet.colorable,
                 rawSet.icons_url,
-                rawSet.template_url
+                rawSet.template_url,
+                rawSet.has_description,
+                rawSet.language
             )
             // retrieving all icons for this icon set
             setPromises.push(loadIconsForIconSet(iconSet))
@@ -226,6 +253,7 @@ async function loadIconsForIconSet(iconSet) {
                     rawIcon.url,
                     rawIcon.template_url,
                     iconSet.name,
+                    rawIcon.description,
                     rawIcon.anchor,
                     rawIcon.size
                 )
