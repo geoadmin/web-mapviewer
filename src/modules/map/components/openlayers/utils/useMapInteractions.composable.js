@@ -267,7 +267,7 @@ export default function useMapInteractions(map) {
                 errorKey = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
-            store.dispatch('setError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
+            store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
         }
     }
 
