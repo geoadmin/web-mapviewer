@@ -154,13 +154,11 @@ export default {
         showDisclaimer: true,
 
         /**
-         * An ErrorMessage object containing parameters for error texts, so we can have error
-         * messages which are similar, but not dependant on a translation key, reducing the total
-         * number of translation keys needed.
+         * Set of errors to display. Each error must be an ErrorMessage object.
          *
-         * @type ErrorMessage
+         * @type Set(ErrorMessage)
          */
-        error: null,
+        errors: new Set(),
         /**
          * Set of warnings to display. Each warning must be an object WarningMessage
          *
@@ -391,17 +389,25 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        setError({ commit }, { error, dispatcher }) {
+        addError({ commit, state }, { error, dispatcher }) {
             if (!(error instanceof ErrorMessage)) {
-                if (error instanceof String) {
-                    commit('setError', { error: new ErrorMessage(error, null) })
-                } else {
-                    throw new Error(
-                        `Error ${error} dispatched by ${dispatcher} is neither of type ErrorMessage, nor a string`
-                    )
-                }
-            } else {
-                commit('setError', { error, dispatcher })
+                throw new Error(
+                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                )
+            }
+            if (!state.errors.has(error)) {
+                commit('addError', { error, dispatcher })
+            }
+        },
+
+        removeError({ commit, state }, { error, dispatcher }) {
+            if (!(error instanceof ErrorMessage)) {
+                throw new Error(
+                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                )
+            }
+            if (state.errors.has(error)) {
+                commit('removeError', { error, dispatcher })
             }
         },
         addWarning({ commit, state }, { warning, dispatcher }) {
@@ -486,7 +492,8 @@ export default {
             state.featureInfoPosition = position
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
-        setError: (state, { error }) => (state.error = error),
+        addError: (state, { error }) => state.errors.add(error),
+        removeError: (state, { error }) => state.errors.delete(error),
         addWarning: (state, { warning }) => state.warnings.add(warning),
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>

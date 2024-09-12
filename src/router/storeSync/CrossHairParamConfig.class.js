@@ -35,7 +35,7 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
         )
 
         promisesForAllDispatch.push(
-            store.dispatch('setError', { error, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
+            store.dispatch('addError', { error, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
         )
     } else {
         const parts = urlParamValue.split(',')
@@ -62,7 +62,7 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
                  * We consider that if the parameter is undefined, it's a choice made by the user.
                  */
                 promisesForAllDispatch.push(
-                    store.dispatch('setError', {
+                    store.dispatch('addError', {
                         error,
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })

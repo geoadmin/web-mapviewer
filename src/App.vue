@@ -22,7 +22,10 @@ const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
 const error = computed(() => {
-    return store.state.ui.error
+    if (store.state.ui.errors.size > 0) {
+        return store.state.ui.errors.values().next().value
+    }
+    return null
 })
 const warning = computed(() => {
     if (store.state.ui.warnings.size > 0) {
@@ -65,7 +68,7 @@ function refreshPageTitle() {
         <ErrorWindow
             v-if="error"
             title="error"
-            @close="store.dispatch('setError', { error: null, ...dispatcher })"
+            @close="store.dispatch('removeError', { error, ...dispatcher })"
         >
             <div>
                 {{ i18n.t(error.msg, error.params) }}
