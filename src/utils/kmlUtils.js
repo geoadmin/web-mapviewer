@@ -485,17 +485,42 @@ export function iconUrlProxyFy(url, corsIssueCallback = null) {
     return url
 }
 
+function handleIconUrl(url, iconUrlProxy = iconUrlProxyFy, files = new Map()) {
+    // Check if the url is relative to the web application
+    // To do this we take the location origin with the path, making sure that the path is the folder
+    // and not a file.
+    const localPrefix = `${location.origin}${location.pathname.replace(/[^/]+$/, '')}`
+    if (url.startsWith(localPrefix)) {
+        // url is relative file, try to get it from the kml link files
+        const file = url.replace(localPrefix, '')
+        if (files.has(file)) {
+            return URL.createObjectURL(new Blob([files.get(file)]))
+        }
+        return url
+    } else if (/^https?:\/\//.test(url)) {
+        // the url is a remote url we might need to go through our proxy to avoid CORS
+        // issues and allow mix content.
+        return iconUrlProxy(url)
+    }
+    // otherwise fallback by returning the url. This can be the case for inline icon
+    // like data:image/png;base64,...
+    return url
+}
+
 /**
  * Parses a KML's data into OL Features
  *
- * @param {kmlLayer} kmlLayer KML layer to parse
+ * @param {KMLLayer} kmlLayer KML layer to parse
  * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
 export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
     const kmlData = kmlLayer.kmlData
-    const features = new KML({ iconUrlFunction: iconUrlProxy }).readFeatures(kmlData, {
+    const files = kmlLayer.linkFiles
+    const features = new KML({
+        iconUrlFunction: (url) => handleIconUrl(url, iconUrlProxy, files),
+    }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })

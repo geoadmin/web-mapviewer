@@ -39,17 +39,20 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
         let kmlData
+        let kmlLinkFiles = new Map()
         const data = await loadKmlData(kmlLayer)
         if (isZipContent(data)) {
             log.debug(`KML ${kmlLayer.id} is a KMZ file, unzipping it first`)
             const kmz = await unzipKmz(data, kmlLayer.id)
             kmlData = kmz.kml
+            kmlLinkFiles = kmz.files
         } else {
             kmlData = new TextDecoder('utf-8').decode(data)
         }
         store.dispatch('setKmlGpxLayerData', {
             layerId: kmlLayer?.id,
             data: kmlData,
+            linkFiles: kmlLinkFiles,
             ...dispatcher,
         })
     } catch (error) {

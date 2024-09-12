@@ -44,10 +44,12 @@ export function isGpx(fileContent) {
 export async function handleFileContent(store, content, source) {
     let layer = null
     let textContent
+    let linkFiles
     if (isZipContent(content)) {
         log.debug(`File content is a zipfile, assume it is a KMZ archive`)
         const kmz = await unzipKmz(content, source)
         textContent = kmz.kml
+        linkFiles = kmz.files
     } else {
         // If it is not a zip file then we assume is a text file and decode it for further handling
         textContent = new TextDecoder('utf-8').decode(content)
@@ -59,6 +61,7 @@ export async function handleFileContent(store, content, source) {
             opacity: 1.0,
             adminId: null,
             kmlData: textContent,
+            linkFiles,
         })
         const extent = getKmlExtent(textContent)
         if (!extent) {
