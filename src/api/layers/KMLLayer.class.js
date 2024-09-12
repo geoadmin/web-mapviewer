@@ -29,6 +29,9 @@ export default class KMLLayer extends AbstractLayer {
      *   Default is `null`
      * @param {KmlMetadata | null} [kmlLayerData.kmlMetadata=null] Metadata of the KML drawing. This
      *   object contains all the metadata returned by the backend. Default is `null`
+     * @param {Map<string, ArrayBuffer>} [kmlLayerData.linkFiles=Map()] Map of KML link files. Those
+     *   files are usually sent with the kml inside a KMZ archive and can be referenced inside the
+     *   KML (e.g. icon, image, ...). Default is `Map()`
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -42,6 +45,7 @@ export default class KMLLayer extends AbstractLayer {
             adminId = null,
             kmlData = null,
             kmlMetadata = null,
+            linkFiles = new Map(),
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -79,6 +83,7 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
+        this.linkFiles = linkFiles
     }
 
     /**

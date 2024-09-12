@@ -301,7 +301,7 @@ export function loadKmlMetadata(kmlLayer) {
  * Loads the XML data from the file of a given KML layer, using the KML file URL of the layer.
  *
  * @param {KMLLayer} kmlLayer
- * @returns {Promise<String>}
+ * @returns {Promise<ArrayBuffer>}
  */
 export function loadKmlData(kmlLayer) {
     return new Promise((resolve, reject) => {
@@ -313,7 +313,9 @@ export function loadKmlData(kmlLayer) {
                 new Error(`No file URL defined in this KML layer, cannot load data ${kmlLayer.id}`)
             )
         }
-        getFileFromUrl(kmlLayer.kmlFileUrl)
+        // The file might be a KMZ file, which is a zip archive. Reading zip archive as text
+        // is asking for trouble therefore we use ArrayBuffer
+        getFileFromUrl(kmlLayer.kmlFileUrl, { responseType: 'arraybuffer' })
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     resolve(response.data)
@@ -339,16 +341,18 @@ export function loadKmlData(kmlLayer) {
  *
  * @param {string} url URL to fetch
  * @param {Number} [options.timeout] How long should the call wait before timing out
+ * @param {string} [options.responseType] Type of data that the server will respond with. Options
+ *   are 'arraybuffer', 'document', 'json', 'text', 'stream'. Default is `json`
  * @returns {Promise<AxiosResponse<any, any>>}
  */
 export async function getFileFromUrl(url, options = {}) {
-    const { timeout = null } = options
+    const { timeout = null, responseType = null } = options
     if (/^https?:\/\/localhost/.test(url) || isInternalUrl(url)) {
         // don't go through proxy if it is on localhost or the internal server
-        return axios.get(url, { timeout })
+        return axios.get(url, { timeout, responseType })
     } else if (url.startsWith('http://')) {
         // HTTP request goes through the proxy
-        return axios.get(proxifyUrl(url), { timeout })
+        return axios.get(proxifyUrl(url), { timeout, responseType })
     }
 
     // For other urls we need to check if they support CORS
@@ -370,8 +374,8 @@ export async function getFileFromUrl(url, options = {}) {
 
     if (supportCORS) {
         // Server support CORS
-        return axios.get(url, { timeout })
+        return axios.get(url, { timeout, responseType })
     }
     // server don't support CORS use proxy
-    return axios.get(proxifyUrl(url), { timeout })
+    return axios.get(proxifyUrl(url), { timeout, responseType })
 }

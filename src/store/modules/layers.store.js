@@ -652,11 +652,17 @@ const actions = {
      * NOTE: all matching layer id will be set.
      *
      * @param {string} layerId Layer ID of KML to update
-     * @param {string} data Data KML data to set
-     * @param {object | null} metadata KML metadata to set (only for geoadmin KMLs)
+     * @param {string} [data] Data KML data to set
+     * @param {object} [metadata] KML metadata to set (only for geoadmin KMLs). Default is `null`
+     * @param {Map<string, ArrayBuffer>} [linkFiles] Map of KML link files. Those files are usually
+     *   sent with the kml inside a KMZ archive and can be referenced inside the KML (e.g. icon,
+     *   image, ...).
      * @param {string} dispatcher Action dispatcher name
      */
-    setKmlGpxLayerData({ commit, getters, rootState }, { layerId, data, metadata, dispatcher }) {
+    setKmlGpxLayerData(
+        { commit, getters, rootState },
+        { layerId, data, metadata, linkFiles, dispatcher }
+    ) {
         const layers = getters.getActiveLayersById(layerId)
         if (!layers) {
             throw new Error(
@@ -692,6 +698,9 @@ const actions = {
                     clone.gpxMetadata = metadata
                     clone.name = metadata.name ?? 'GPX'
                 }
+            }
+            if (linkFiles && clone.type === LayerTypes.KML) {
+                clone.linkFiles = linkFiles
             }
             return clone
         })

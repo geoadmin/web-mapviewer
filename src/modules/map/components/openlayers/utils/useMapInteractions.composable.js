@@ -248,7 +248,9 @@ export default function useMapInteractions(map) {
             const reader = new FileReader()
             reader.onload = (event) => resolve(event.target.result)
             reader.onerror = (error) => reject(error)
-            reader.readAsText(file)
+            // The file might be a KMZ file, which is a zip archive. Reading zip archive as text
+            // is asking for trouble therefore we use ArrayBuffer
+            reader.readAsArrayBuffer(file)
         })
     }
 
