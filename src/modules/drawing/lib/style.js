@@ -1,7 +1,7 @@
 import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Style } from 'ol/style'
 
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import {
     dashedRedStroke,
     redStroke,
@@ -39,7 +39,7 @@ export const editingVertexStyleFunction = (vertex) => {
  * edited by our drawing module.
  *
  * Note that the style differs when the feature is selected (or drawn for the first time) or when
- * displayed without interaction (see {@link featureStyleFunction} for this case)
+ * displayed without interaction (see {@link geoadminStyleFunction} for this case)
  */
 export const editingFeatureStyleFunction = (feature, resolution) => {
     /* This style (image tag) will only be shown for point geometries. So this style will display
@@ -71,7 +71,7 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
             })
         )
     }
-    const defStyle = featureStyleFunction(feature, resolution)
+    const defStyle = geoadminStyleFunction(feature, resolution)
     if (defStyle) {
         styles.push(...defStyle)
     }

@@ -232,10 +232,13 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
 }
 
 /**
- * OpenLayers style function that will style a feature that is not currently edited but loaded in
- * the drawing layer.
+ * Style function that renders a feature with the distinct Geoadmin style. Meaning, by default, all
+ * red.
  *
- * It can then be selected by the user, but this time the styling will be done by
+ * If an editableFeature is found attached to the feature, its properties will be used to set
+ * color/text and such things.
+ *
+ * To style a selected feature, within the drawing module context, please use
  * {@link editingFeatureStyleFunction}
  *
  * @param {Feature} feature OpenLayers feature to style
@@ -243,45 +246,49 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
  *   meters / pixel for the webmercator projection used in this project)
  * @returns {Style[]}
  */
-export function featureStyleFunction(feature, resolution) {
+export function geoadminStyleFunction(feature, resolution) {
     const editableFeature = feature.get('editableFeature')
-    if (!editableFeature) {
-        return
+
+    const styleConfig = {
+        fillColor: editableFeature?.fillColor ?? RED,
+        strokeColor: editableFeature?.strokeColor ?? RED,
+        textColor: editableFeature?.textColor ?? RED,
     }
+
     // Tells if we are drawing a polygon for the first time, in this case we want
     // to fill this polygon with a transparent white (instead of red)
-    const isDrawing = feature.get('isDrawing')
+    const isDrawing = !!feature.get('isDrawing')
     const styles = [
         new Style({
-            geometry: feature.get('geodesic')?.getGeodesicGeom(),
-            image: editableFeature.generateOpenlayersIcon(),
+            geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
+            image: editableFeature?.generateOpenlayersIcon(),
             text: new Text({
-                text: editableFeature.title,
+                text: editableFeature?.title ?? feature.get('name'),
                 //font: editableFeature.font,
                 font: `normal 16px Helvetica`,
                 fill: new Fill({
-                    color: editableFeature.textColor.fill,
+                    color: styleConfig.textColor.fill,
                 }),
                 stroke: new Stroke({
-                    color: editableFeature.textColor.border,
+                    color: styleConfig.textColor.border,
                     width: 3,
                 }),
-                scale: editableFeature.textSizeScale || 1,
-                offsetX: editableFeature.textOffset[0],
-                offsetY: editableFeature.textOffset[1],
+                scale: editableFeature?.textSizeScale ?? 1,
+                offsetX: editableFeature?.textOffset[0] ?? 0,
+                offsetY: editableFeature?.textOffset[1] ?? 0,
             }),
             stroke:
-                editableFeature.featureType === EditableFeatureTypes.MEASURE
+                editableFeature?.featureType === EditableFeatureTypes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
-                          color: editableFeature.fillColor.fill,
+                          color: styleConfig.fillColor.fill,
                           width: 3,
                       }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
+                      color: [...styleConfig.fillColor.rgb.slice(0, 3), 0.4],
                   }),
             zIndex: 10,
         }),
@@ -294,11 +301,11 @@ export function featureStyleFunction(feature, resolution) {
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
+                          color: [...styleConfig.fillColor.rgb.slice(0, 3), 0.4],
                       }),
                 zIndex: 0,
                 stroke: new Stroke({
-                    color: editableFeature.fillColor.fill,
+                    color: styleConfig.strokeColor.fill,
                     width: 3,
                 }),
             })
@@ -306,7 +313,7 @@ export function featureStyleFunction(feature, resolution) {
     }
     /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (editableFeature.featureType === EditableFeatureTypes.MEASURE && feature.get('geodesic')) {
+    if (editableFeature?.featureType === EditableFeatureTypes.MEASURE && feature.get('geodesic')) {
         styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles

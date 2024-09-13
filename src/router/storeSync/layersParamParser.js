@@ -1,4 +1,5 @@
 import LayerFeature from '@/api/features/LayerFeature.class'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import {
     decodeExternalLayerParam,
     encodeExternalLayerParam,
@@ -118,6 +119,11 @@ export function parseLayersParam(queryValue) {
                         parsedValue = Number(value)
                     } else if (key === 'year' && value.toLowerCase() === 'none') {
                         parsedValue = null
+                    } else if (
+                        key === 'style' &&
+                        Object.values(KmlStyles).includes(value?.toUpperCase())
+                    ) {
+                        parsedValue = value.toUpperCase()
                     } else {
                         parsedValue = value
                     }
@@ -175,6 +181,14 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         (!defaultLayerConfig || defaultLayerConfig.updateDelay !== layer.updateDelay)
     ) {
         layerUrlString += `@updateDelay=${layer.updateDelay}`
+    }
+
+    if (layer.type === LayerTypes.KML) {
+        // for our own files, the default style is GeoAdmin (and we don't want to write that in the URL)
+        const defaultKmlStyle = layer.isExternal ? KmlStyles.DEFAULT : KmlStyles.GEOADMIN
+        if (layer.style !== defaultKmlStyle) {
+            layerUrlString += `@style=${layer.style.toLowerCase()}`
+        }
     }
 
     // Add custom attributes if any

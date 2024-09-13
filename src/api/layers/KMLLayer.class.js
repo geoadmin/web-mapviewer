@@ -1,5 +1,6 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
@@ -46,6 +47,7 @@ export default class KMLLayer extends AbstractLayer {
             kmlData = null,
             kmlMetadata = null,
             linkFiles = new Map(),
+            style = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -84,6 +86,16 @@ export default class KMLLayer extends AbstractLayer {
         }
         this.kmlData = kmlData
         this.linkFiles = linkFiles
+        if (style === null) {
+            // if no style was given, we select the default style depending on the origin of the KML
+            if (isExternal) {
+                this.style = KmlStyles.DEFAULT
+            } else {
+                this.style = KmlStyles.GEOADMIN
+            }
+        } else {
+            this.style = style
+        }
     }
 
     /**

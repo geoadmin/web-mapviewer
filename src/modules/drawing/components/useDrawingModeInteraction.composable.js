@@ -13,7 +13,7 @@ import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
@@ -178,7 +178,7 @@ export default function useDrawingModeInteraction({
         // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
         // This function will be automatically recalled every time the feature object is modified or rerendered.
         // (so there is no need to recall setstyle after modifying an extended property)
-        feature.setStyle(featureStyleFunction)
+        feature.setStyle(geoadminStyleFunction)
         // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
         interaction.finishDrawing()
         store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })

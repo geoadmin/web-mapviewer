@@ -5,6 +5,7 @@ import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -266,7 +267,7 @@ export default function useMapInteractions(map) {
     async function handleFile(file) {
         try {
             const fileContent = await readFileContent(file)
-            await handleFileContent(store, fileContent, file.name, file)
+            await handleFileContent(store, fileContent, file.name, file, KmlStyles.DEFAULT)
         } catch (error) {
             let errorKey
             log.error(`Error loading file`, file.name, error)

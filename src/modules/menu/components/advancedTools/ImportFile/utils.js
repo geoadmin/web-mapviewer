@@ -38,13 +38,14 @@ export function isGpx(fileContent) {
 /**
  * Handle file content
  *
- * @param {OBject} store Vuex store
+ * @param {Object} store Vuex store
  * @param {ArrayBuffer} content Content of the file
  * @param {string} source Source of the file (either URL or file path)
  * @param {File | null} [originalFile]
+ * @param {KmlStyles} style Style to apply to this file when displayed on the map
  * @returns {ExternalLayer} External layer object
  */
-export async function handleFileContent(store, content, source, originalFile = null) {
+export async function handleFileContent(store, content, source, originalFile = null, style = KmlStyles.DEFAULT) {
     let layer = null
     let parsedContent
     let linkFiles
@@ -99,6 +100,7 @@ export async function handleFileContent(store, content, source, originalFile = n
             adminId: null,
             kmlData: parsedContent,
             linkFiles,
+            style,
         })
         const extent = getKmlExtent(parsedContent)
         if (!extent) {
