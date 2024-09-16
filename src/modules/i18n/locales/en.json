@@ -172,7 +172,7 @@
     "drawing_attached": "Drawing added as attachment",
     "drawing_too_large": "Your drawing is too large, remove some features",
     "drop_invalid_url": "URL is not valid.",
-    "drop_me_here": "Drop KML file here",
+    "drop_me_here": "Drop file here (KML, GPX, GeoTIFF)",
     "duplicate_layer": "Duplicate map",
     "east": "East",
     "ech": "Geocatalog",

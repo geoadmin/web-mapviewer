@@ -172,7 +172,7 @@
     "drawing_attached": "Dessin ajouté en pièce jointe",
     "drawing_too_large": "Ton dessin est trop grand, enlève quelques éléments",
     "drop_invalid_url": "URL non valide.",
-    "drop_me_here": "Déplacer le fichier KML ici",
+    "drop_me_here": "Déposer le fichier ici (KML, GPX, GeoTIFF)",
     "duplicate_layer": "Duplication de carte",
     "east": "Est",
     "ech": "Géocatalogue",

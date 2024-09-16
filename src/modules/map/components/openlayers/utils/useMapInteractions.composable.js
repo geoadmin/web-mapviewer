@@ -243,6 +243,10 @@ export default function useMapInteractions(map) {
         mapElement.removeEventListener('dragleave', onDragLeave)
     }
 
+    /**
+     * @param {File} file
+     * @returns {Promise<ArrayBuffer>}
+     */
     function readFileContent(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
@@ -254,10 +258,14 @@ export default function useMapInteractions(map) {
         })
     }
 
+    /**
+     * @param {File} file
+     * @returns {Promise<void>}
+     */
     async function handleFile(file) {
         try {
             const fileContent = await readFileContent(file)
-            handleFileContent(store, fileContent, file.name)
+            handleFileContent(store, fileContent, file.name, file)
         } catch (error) {
             let errorKey
             log.error(`Error loading file`, file.name, error)

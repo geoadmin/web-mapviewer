@@ -172,7 +172,7 @@
     "drawing_attached": "Zeichnung als Anhang hinzugefügt",
     "drawing_too_large": "Ihre Zeichnung ist zu gross, entfernen Sie einige Details.",
     "drop_invalid_url": "URL ist ungültig.",
-    "drop_me_here": "KML Datei hierhin ziehen",
+    "drop_me_here": "Datei hier ablegen (KML, GPX, GeoTIFF)",
     "duplicate_layer": "Karte duplizieren",
     "east": "Ost",
     "ech": "Geokatalog",
