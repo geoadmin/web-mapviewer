@@ -1,4 +1,4 @@
-import { fromArrayBuffer, GeoTIFF } from 'geotiff'
+import { fromArrayBuffer } from 'geotiff'
 import GPX from 'ol/format/GPX'
 
 import GeoTIFFLayer from '@/api/layers/GeoTIFFLayer.class'
@@ -9,7 +9,7 @@ import { getExtentForProjection } from '@/utils/extentUtils'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils'
 import { EmptyKMLError, getKmlExtent, unzipKmz } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
-import { isZipContent } from '@/utils/utils'
+import { isTiffContent, isZipContent } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'ImportFile/utils' }
 
@@ -53,36 +53,38 @@ export async function handleFileContent(store, content, source, originalFile = n
         const kmz = await unzipKmz(content, source)
         parsedContent = kmz.kml
         linkFiles = kmz.files
-    } else if (source.endsWith('.tif')) {
-        log.debug(`File content might be a COGTIFF, attempting a parse as such`)
+    } else if (isTiffContent(content)) {
+        log.debug(`File content might be a GeoTIFF, attempting a parse as such`)
         try {
             parsedContent = await fromArrayBuffer(content)
+            layer = new GeoTIFFLayer({
+                fileSource: source,
+                visible: true,
+                opacity: 1.0,
+                // For local files : OpenLayers needs a Blob, and not an already parsed GeoTIFF instance
+                data: originalFile,
+            })
+            store.dispatch('addLayer', { layer, ...dispatcher })
+            // looking into the GeoTIFF file to get the extent
+            const geoTIFFImage = await parsedContent.getImage()
+            const geoTIFFExtent = geoTIFFImage.getBoundingBox()
+            if (geoTIFFExtent) {
+                store.dispatch('zoomToExtent', {
+                    extent: normalizeExtent(geoTIFFExtent),
+                    ...dispatcher,
+                })
+            }
+            // we are done here, so to not run the parsed content part below, we stop the function here
+            return layer
         } catch (err) {
-            log.debug('parsing as COGTIFF failed, moving on with other formats', err)
+            log.debug('parsing as GeoTIFF failed', err)
+            throw new Error(`Could not parse GeoTIFF from ${source}`)
         }
     } else {
         // If it is not a zip file then we assume is a text file and decode it for further handling
         parsedContent = new TextDecoder('utf-8').decode(content)
     }
-    if (parsedContent instanceof GeoTIFF) {
-        layer = new GeoTIFFLayer({
-            fileSource: source,
-            visible: true,
-            opacity: 1.0,
-            // For local files : OpenLayers needs a Blob, and not an already parsed GeoTIFF instance
-            data: originalFile,
-        })
-        store.dispatch('addLayer', { layer, ...dispatcher })
-        // looking into the GeoTIFF file to get the extento
-        const geoTIFFImage = await parsedContent.getImage()
-        const geoTIFFExtent = geoTIFFImage.getBoundingBox()
-        if (geoTIFFExtent) {
-            store.dispatch('zoomToExtent', {
-                extent: normalizeExtent(geoTIFFExtent),
-                ...dispatcher,
-            })
-        }
-    } else if (isKml(parsedContent)) {
+    if (isKml(parsedContent)) {
         layer = new KMLLayer({
             kmlFileUrl: source,
             visible: true,
