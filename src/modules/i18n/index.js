@@ -11,7 +11,7 @@ import rm from './locales/rm.json'
 export const languages = { de, fr, it, en, rm }
 
 const OFFICIAL_SWISS_LANG = ['de', 'fr', 'it', 'rm']
-const SUPPORTED_LANG = ['en', ...OFFICIAL_SWISS_LANG]
+export const SUPPORTED_LANG = ['en', ...OFFICIAL_SWISS_LANG]
 
 const locales = Object.entries(languages).reduce((obj, entry) => {
     const key = langToLocal(entry[0])

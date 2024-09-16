@@ -1,10 +1,30 @@
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
+import { CrossHairs } from '@/store/modules/position.store'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import { round } from '@/utils/numberUtils'
+
+/**
+ * The function used to dispatch the URL parameters to the store. The following options are accepted
+ *
+ * 1. `marker` --> place the specified marker at the center
+ * 2. `marker,,`--> same as before
+ * 3. `,x,y` --> place the default marker at the coordinates x,y
+ * 4. `marker,x,y --> place the specified marker at the coordinates x,y
+ *
+ * @param {Object} to
+ * @param {Object} store
+ * @param {URLSearchParams} urlParamValue
+ * @returns
+ */
 
 function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
+    const error = new ErrorMessage('url_parameter_error', {
+        param: 'crosshair',
+        value: urlParamValue,
+    })
 
     if (typeof urlParamValue !== 'string' && !(urlParamValue instanceof String)) {
         promisesForAllDispatch.push(
@@ -13,18 +33,45 @@ function dispatchCrossHairFromUrlIntoStore(to, store, urlParamValue) {
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         )
+
+        promisesForAllDispatch.push(
+            store.dispatch('addError', { error, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
+        )
     } else {
         const parts = urlParamValue.split(',')
-        if (parts.length === 1) {
+        let crossHair = parts[0]
+        let crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
+        if (isNaN(crossHairPosition[0]) || isNaN(crossHairPosition[1])) {
+            crossHairPosition = null
+        }
+
+        if (
+            (!crossHair && !crossHairPosition) ||
+            (!Object.values(CrossHairs).includes(crossHair) && crossHair !== '')
+        ) {
             promisesForAllDispatch.push(
                 store.dispatch('setCrossHair', {
-                    crossHair: urlParamValue,
+                    crossHair: null,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             )
-        } else if (parts.length === 3) {
-            const crossHair = parts[0]
-            const crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
+            if (urlParamValue !== undefined) {
+                /**
+                 * There are situations where the function is called without any parameter, and it
+                 * makes some tests crash because the error message is over some necessary buttons.
+                 * We consider that if the parameter is undefined, it's a choice made by the user.
+                 */
+                promisesForAllDispatch.push(
+                    store.dispatch('addError', {
+                        error,
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                    })
+                )
+            }
+        } else {
+            if (crossHair === '') {
+                crossHair = CrossHairs.marker
+            }
             promisesForAllDispatch.push(
                 store.dispatch('setCrossHair', {
                     crossHair,
@@ -68,6 +115,7 @@ export default class CrossHairParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCrossHairUrlParamFromStoreValues,
             keepInUrlWhenDefault: false,
             valueType: String,
+            defaultValue: null,
         })
     }
 }

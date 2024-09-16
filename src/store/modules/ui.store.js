@@ -5,6 +5,7 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import WarningMessage from '@/utils/WarningMessage.class'
 
@@ -153,14 +154,11 @@ export default {
         showDisclaimer: true,
 
         /**
-         * Text to display in the error window
+         * Set of errors to display. Each error must be an ErrorMessage object.
          *
-         * When this text is set the error window will be displayed
-         *
-         * @type String
+         * @type Set(ErrorMessage)
          */
-        errorText: null,
-
+        errors: new Set(),
         /**
          * Set of warnings to display. Each warning must be an object WarningMessage
          *
@@ -391,8 +389,26 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        setErrorText({ commit }, { errorText, dispatcher }) {
-            commit('setErrorText', { errorText, dispatcher })
+        addError({ commit, state }, { error, dispatcher }) {
+            if (!(error instanceof ErrorMessage)) {
+                throw new Error(
+                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                )
+            }
+            if (!state.errors.has(error)) {
+                commit('addError', { error, dispatcher })
+            }
+        },
+
+        removeError({ commit, state }, { error, dispatcher }) {
+            if (!(error instanceof ErrorMessage)) {
+                throw new Error(
+                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                )
+            }
+            if (state.errors.has(error)) {
+                commit('removeError', { error, dispatcher })
+            }
         },
         addWarning({ commit, state }, { warning, dispatcher }) {
             if (!(warning instanceof WarningMessage)) {
@@ -476,7 +492,8 @@ export default {
             state.featureInfoPosition = position
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
-        setErrorText: (state, { errorText }) => (state.errorText = errorText),
+        addError: (state, { error }) => state.errors.add(error),
+        removeError: (state, { error }) => state.errors.delete(error),
         addWarning: (state, { warning }) => state.warnings.add(warning),
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>

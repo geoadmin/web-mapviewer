@@ -1,4 +1,5 @@
 import axios from 'axios'
+import JSZip from 'jszip'
 import {
     createEmpty as emptyExtent,
     extend as extendExtent,
@@ -48,7 +49,7 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
  * @returns {string} Return KML name
  */
 export function parseKmlName(content) {
-    const kml = new KML({ extractStyles: false, iconUrlFunction: iconUrlProxyFy })
+    const kml = new KML({ extractStyles: false })
 
     return kml.readName(content)
 }
@@ -60,7 +61,7 @@ export function parseKmlName(content) {
  * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
  */
 export function getKmlExtent(content) {
-    const kml = new KML({ extractStyles: false, iconUrlFunction: iconUrlProxyFy })
+    const kml = new KML({ extractStyles: false })
     const features = kml.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -213,7 +214,7 @@ export function parseIconUrl(url) {
     // /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
     // if cannot be parsed from legacy or new pattern, then use default
     const setMatch =
-        /api\/icons\/sets\/(?<set>\w+)\/icons\/(?<name>.+?)(@(?<scale>\d+(\.\d+)?)x-(?<r>\d+),(?<g>\d+),(?<b>\d+))\.png/.exec(
+        /api\/icons\/sets\/(?<set>[\w-]+)\/icons\/(?<name>.+?)(@(?<scale>\d+(\.\d+)?)x-(?<r>\d+),(?<g>\d+),(?<b>\d+))\.png/.exec(
             url
         )
 
@@ -484,17 +485,42 @@ export function iconUrlProxyFy(url, corsIssueCallback = null) {
     return url
 }
 
+function handleIconUrl(url, iconUrlProxy = iconUrlProxyFy, files = new Map()) {
+    // Check if the url is relative to the web application
+    // To do this we take the location origin with the path, making sure that the path is the folder
+    // and not a file.
+    const localPrefix = `${location.origin}${location.pathname.replace(/[^/]+$/, '')}`
+    if (url.startsWith(localPrefix)) {
+        // url is relative file, try to get it from the kml link files
+        const file = url.replace(localPrefix, '')
+        if (files.has(file)) {
+            return URL.createObjectURL(new Blob([files.get(file)]))
+        }
+        return url
+    } else if (/^https?:\/\//.test(url)) {
+        // the url is a remote url we might need to go through our proxy to avoid CORS
+        // issues and allow mix content.
+        return iconUrlProxy(url)
+    }
+    // otherwise fallback by returning the url. This can be the case for inline icon
+    // like data:image/png;base64,...
+    return url
+}
+
 /**
  * Parses a KML's data into OL Features
  *
- * @param {kmlLayer} kmlLayer KML layer to parse
+ * @param {KMLLayer} kmlLayer KML layer to parse
  * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
 export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
     const kmlData = kmlLayer.kmlData
-    const features = new KML({ iconUrlFunction: iconUrlProxy }).readFeatures(kmlData, {
+    const files = kmlLayer.linkFiles
+    const features = new KML({
+        iconUrlFunction: (url) => handleIconUrl(url, iconUrlProxy, files),
+    }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
@@ -524,3 +550,67 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
 }
 
 export class EmptyKMLError extends Error {}
+export class KMZError extends Error {}
+
+/**
+ * Unzipped KMZ Object
+ *
+ * This class wrap the unzipped content of a KMZ archive.
+ *
+ * @class
+ * @property {string} name Name of the KMZ archive
+ * @property {string} kml Content of the KML file within the KMZ archive (unzipped)
+ * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
+ *   their unzipped content as ArrayBuffer
+ */
+export class KMZObject {
+    constructor(params = {}) {
+        const { name = null, kml = null, files = new Map() } = params
+        this.name = name
+        this.kml = kml
+        this.files = files
+    }
+}
+
+/**
+ * Unzipped a KMZ archive following the KMZ google specification.
+ *
+ * See https://developers.google.com/kml/documentation/kmzarchives
+ *
+ * @param {string} kmzContent KMZ archive content as string
+ * @param {string} kmzFileName KMZ archive name
+ * @returns {KMZObject} Returns a KMZ unzip object
+ */
+export async function unzipKmz(kmzContent, kmzFileName) {
+    const kmz = new KMZObject({ name: kmzFileName })
+    const zip = new JSZip()
+    try {
+        await zip.loadAsync(kmzContent)
+    } catch (error) {
+        log.error(`Failed to unzip KMZ file ${kmzFileName}: ${error}`)
+        throw new KMZError(`Failed to unzip KMZ file ${kmzFileName}`)
+    }
+
+    try {
+        // Valid KMZ archive must have 1 KML file with .kml extension
+        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('text')
+    } catch (error) {
+        log.error(`Failed to get KML file from KMZ archive ${kmzFileName}: ${error}`)
+        throw new KMZError(`Failed to get KML file from KMZ archive ${kmzFileName}`)
+    }
+
+    // Get all other files from the archive
+    const files = zip.file(/^(?!.*\.kml$).*$/)
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        try {
+            kmz.files.set(file.name, await file.async('arraybuffer'))
+        } catch (error) {
+            log.error(
+                `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}: ${error}. File is ignored`
+            )
+        }
+    }
+
+    return kmz
+}

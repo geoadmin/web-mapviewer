@@ -33,6 +33,7 @@
                 <a
                     class="dropdown-item"
                     :class="{ active: currentValue === item.value }"
+                    :data-tippy-content="item.description"
                     :data-cy="`dropdown-item-${item.id}`"
                     @click="selectItem(item)"
                 >
@@ -46,6 +47,7 @@
 <script>
 import { Dropdown } from 'bootstrap'
 
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 /**
@@ -53,10 +55,11 @@ import { randomIntBetween } from '@/utils/numberUtils'
  * item will be considered the value.
  */
 export class DropdownItem {
-    constructor(id, title, value = null) {
+    constructor(id, title, value = null, description = null) {
         this._id = id
         this._title = title
         this._value = value || title
+        this._description = description
     }
 
     get id() {
@@ -68,6 +71,9 @@ export class DropdownItem {
     }
     get value() {
         return this._value
+    }
+    get description() {
+        return this._description
     }
 }
 
@@ -114,6 +120,9 @@ export default {
         },
     },
     emits: ['click', 'select:item'],
+    setup() {
+        useTippyTooltip('.dropdown-item[data-tippy-content]', { placement: 'left' })
+    },
     data() {
         return {
             // generating a unique HTML ID for this dropdown

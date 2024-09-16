@@ -12,6 +12,7 @@ import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useD
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
@@ -247,7 +248,9 @@ export default function useMapInteractions(map) {
             const reader = new FileReader()
             reader.onload = (event) => resolve(event.target.result)
             reader.onerror = (error) => reject(error)
-            reader.readAsText(file)
+            // The file might be a KMZ file, which is a zip archive. Reading zip archive as text
+            // is asking for trouble therefore we use ArrayBuffer
+            reader.readAsArrayBuffer(file)
         })
     }
 
@@ -266,7 +269,7 @@ export default function useMapInteractions(map) {
                 errorKey = 'invalid_kml_gpx_file_error'
                 log.error(`Failed to load file`, error)
             }
-            store.dispatch('setErrorText', { errorText: errorKey, ...dispatcher })
+            store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
         }
     }
 

@@ -1,7 +1,39 @@
+<script setup>
+/**
+ * As we've many link like buttons in the header, this component aims at having the CSS required for
+ * such link-button once
+ */
+import { toRefs } from 'vue'
+
+const props = defineProps({
+    primary: {
+        type: Boolean,
+        default: false,
+    },
+    secondary: {
+        type: Boolean,
+        default: false,
+    },
+    showAsButton: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { primary, secondary, showAsButton } = toRefs(props)
+
+const emits = defineEmits(['click'])
+
+function forwardClickEvent(e) {
+    emits('click', e)
+}
+</script>
+
 <template>
     <button
-        class="btn btn-xs btn-link m-0 px-1 custom-text-decoration"
+        class="btn m-0 px-1 custom-text-decoration"
         :class="{
+            'btn-xs btn-link': !showAsButton,
+            'btn-light border-light-subtle': showAsButton,
             'text-black': !primary && !secondary,
             'text-primary': primary,
             'text-secondary': secondary,
@@ -11,31 +43,6 @@
         <slot />
     </button>
 </template>
-
-<script>
-/**
- * As we've many link like buttons in the header, this component aims at having the CSS required for
- * such link-button once
- */
-export default {
-    props: {
-        primary: {
-            type: Boolean,
-            default: false,
-        },
-        secondary: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['click'],
-    methods: {
-        forwardClickEvent(e) {
-            this.$emit('click', e)
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

@@ -25,7 +25,7 @@ const menuTopicSection = ref(null)
 const showTopicSelectionPopup = ref(false)
 
 // The id needs to be exposed and is used by the MenuTray to close sections.
-const id = 'topicsSection'
+const sectionId = 'topicsSection'
 const currentTopic = computed(() => store.state.topics.current)
 const currentTopicTree = computed(() => store.state.topics.tree)
 const allTopics = computed(() => store.state.topics.config)
@@ -51,23 +51,23 @@ function close() {
     menuTopicSection.value.close()
 }
 
-function onOpenMenuTopics(id) {
-    emit('openMenuSection', id)
+function onOpenMenuTopics(sectionId) {
+    emit('openMenuSection', sectionId)
     store.dispatch('addTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
 }
 
-function onCloseMenuTopics(id) {
-    emit('closeMenuSection', id)
+function onCloseMenuTopics(sectionId) {
+    emit('closeMenuSection', sectionId)
     store.dispatch('removeTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
 }
 
-defineExpose({ close, id })
+defineExpose({ close, id: sectionId })
 </script>
 
 <template>
     <MenuSection
-        :id="id"
         ref="menuTopicSection"
+        :section-id="sectionId"
         :title="i18n.t(currentTopic)"
         :show-content="showTopicTree"
         light

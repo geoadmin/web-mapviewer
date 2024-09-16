@@ -10,7 +10,7 @@ import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const acceptedFileTypes = ['.kml', '.KML', '.gpx', '.GPX']
+const acceptedFileTypes = ['.kml', '.KML', '.kmz', '.KMZ', '.gpx', '.GPX']
 
 const store = useStore()
 
@@ -41,8 +41,10 @@ async function loadFile() {
 
     if (isFormValid.value && selectedFile.value) {
         try {
-            const content = await selectedFile.value.text()
-            handleFileContent(store, content, selectedFile.value.name)
+            // The file might be a KMZ which is a zip archive. Handling zip archive as text is
+            // asking for trouble, therefore we need first to get it as binary
+            const content = await selectedFile.value.arrayBuffer()
+            await handleFileContent(store, content, selectedFile.value.name)
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
             if (error instanceof OutOfBoundsError) {

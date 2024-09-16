@@ -8,7 +8,6 @@ import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTrack
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAppCopyright from '@/modules/map/components/footer/MapFooterAppCopyright.vue'
-import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVersion.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
@@ -17,6 +16,7 @@ import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import { UIModes } from '@/store/modules/ui.store'
+import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import log from '@/utils/logging'
@@ -90,7 +90,7 @@ onMounted(() => {
                         </template>
                     </template>
                     <template v-if="!isPhoneMode" #bottom-right>
-                        <MapFooterAppVersion />
+                        <AppVersion />
                         <MapFooterAppCopyright />
                     </template>
                 </MapFooter>

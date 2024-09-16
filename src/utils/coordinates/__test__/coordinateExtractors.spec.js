@@ -30,19 +30,23 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          * @param {CoordinateSystem} projection Which projection is the output of the parsing
          */
         const checkText = (text, expected, message, acceptableDelta = 0, projection) => {
-            const result = coordinateFromString(text, projection)
-            expect(result).to.be.an('Array', message)
-            expect(result.length).to.eq(2, message)
-            expect(result[0]).to.approximately(
+            const result = coordinateFromString(text)
+            expect(result).to.be.an('Object', message)
+            expect(result['coordinate']).to.be.an('Array')
+            expect(result['coordinateSystem']).to.be.an('Object')
+            const { coordinate, coordinateSystem } = result
+            expect(coordinate.length).to.eq(2, message)
+            expect(coordinate[0]).to.approximately(
                 expected[0],
                 acceptableDelta,
                 message + '\nx result: ' + result[0] + '\n'
             )
-            expect(result[1]).to.approximately(
+            expect(coordinate[1]).to.approximately(
                 expected[1],
                 acceptableDelta,
                 message + '\ny result: ' + result[1] + '\n'
             )
+            expect(coordinateSystem.epsg).to.eq(projection.epsg)
         }
         /**
          * Checks that X and Y (given as param) output the expected X and Y with different
@@ -220,26 +224,26 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DD[0],
                     expectedCenterWGS84_DD[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 // also checking with cardinals
                 checkXY(
                     `${expectedCenterWGS84_DD[0]} E`,
                     `${expectedCenterWGS84_DD[1]} N`,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     `E ${expectedCenterWGS84_DD[0]}`,
                     `N ${expectedCenterWGS84_DD[1]}`,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -247,25 +251,25 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DMS[0],
                     expectedCenterWGS84_DMS[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 // removing space between degrees and minutes
                 checkXY(
                     ...expectedCenterWGS84_DMS.map((val) => val.replace(/° /g, '°')),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 // removing space between minutes and seconds
                 checkXY(
                     ...expectedCenterWGS84_DMS.map((val) => val.replace(/' /g, "'")),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 // removing space between degrees, minutes and seconds
@@ -273,9 +277,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     ...expectedCenterWGS84_DMS.map((val) =>
                         val.replace(/° /g, '°').replace(/' /g, "'")
                     ),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -302,25 +306,25 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DMS_No_NE[0],
                     expectedCenterWGS84_DMS_No_NE[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     latWithSpaceBetweenDegAndMin,
                     lonWithSpaceBetweenDegAndMin,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     latWithSpaceBetweenDegAndMinAndSec,
                     lonWithSpaceBetweenDegAndMinAndSec,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
 
@@ -328,25 +332,25 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DMS_No_NE[0].replace(/"/g, "''"),
                     expectedCenterWGS84_DMS_No_NE[1].replace(/"/g, "''"),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     latWithSpaceBetweenDegAndMin.replace(/"/g, "''"),
                     lonWithSpaceBetweenDegAndMin.replace(/"/g, "''"),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     latWithSpaceBetweenDegAndMinAndSec.replace(/"/g, "''"),
                     lonWithSpaceBetweenDegAndMinAndSec.replace(/"/g, "''"),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -354,26 +358,26 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DD_NoSymbol[0],
                     expectedCenterWGS84_DD_NoSymbol[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 // also checking with cardinals
                 checkXY(
                     `${expectedCenterWGS84_DD_NoSymbol[0]} N`,
                     `${expectedCenterWGS84_DD_NoSymbol[1]} E`,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     `N ${expectedCenterWGS84_DD_NoSymbol[0]}`,
                     `E ${expectedCenterWGS84_DD_NoSymbol[1]}`,
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -381,9 +385,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DMS_NoSymbol[0],
                     expectedCenterWGS84_DMS_NoSymbol[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -391,9 +395,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     expectedCenterWGS84_DMS[0],
                     expectedCenterWGS84_DMS[1],
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    expectedCenterWGS84[0],
+                    expectedCenterWGS84[1],
+                    WGS84,
                     { acceptableDelta, testInverted: true }
                 )
             })
@@ -473,17 +477,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          *
          * @param {Number} x
          * @param {Number} y
+         * @param {CoordinateSystem} expectedProjection
          * @param {Number} acceptableDelta
          */
-        const checkSwissCoordinateSystem = (x, y, acceptableDelta) => {
+        const checkSwissCoordinateSystem = (x, y, expectedProjection, acceptableDelta) => {
             it('Returns coordinates when input is valid', () => {
-                checkXY(x, y, expectedCenterLV95[0], expectedCenterLV95[1], LV95, {
+                checkXY(x, y, x, y, expectedProjection, {
                     acceptableDelta,
                     testInverted: true,
                 })
             })
             it('Returns coordinates when input is entered backward', () => {
-                checkXY(y, x, expectedCenterLV95[0], expectedCenterLV95[1], LV95, {
+                checkXY(y, x, x, y, expectedProjection, {
                     acceptableDelta,
                     testInverted: true,
                 })
@@ -492,17 +497,17 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     numberWithThousandSeparator(x),
                     numberWithThousandSeparator(y),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     numberWithThousandSeparator(x, ' '),
                     numberWithThousandSeparator(y, ' '),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
@@ -510,31 +515,31 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     numberWithThousandSeparator(y),
                     numberWithThousandSeparator(x),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true }
                 )
                 checkXY(
                     numberWithThousandSeparator(y, ' '),
                     numberWithThousandSeparator(x, ' '),
-                    expectedCenterLV95[0],
-                    expectedCenterLV95[1],
-                    LV95,
+                    x,
+                    y,
+                    expectedProjection,
                     { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
                 )
             })
         }
 
         describe('EPSG:2056 (LV95)', () => {
-            checkSwissCoordinateSystem(expectedCenterLV95[0], expectedCenterLV95[1], 0.1)
+            checkSwissCoordinateSystem(expectedCenterLV95[0], expectedCenterLV95[1], LV95, 0.1)
         })
 
         describe('EPSG:21781 (LV03)', () => {
             const expectedCenterLV03 = proj4(LV95.epsg, LV03.epsg, expectedCenterLV95).map(
                 (value) => LV03.roundCoordinateValue(value)
             )
-            checkSwissCoordinateSystem(expectedCenterLV03[0], expectedCenterLV03[1], 0.1)
+            checkSwissCoordinateSystem(expectedCenterLV03[0], expectedCenterLV03[1], LV03, 0.1)
         })
 
         describe('Military Grid Reference System (MGRS)', () => {
@@ -543,7 +548,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             it('Returns coordinates in EPSG:4326 when MGRS string is entered', () => {
                 // as MGRS is a grid based system, what is return is essentially a 1-meter box.
                 // So depending on which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
-                checkText(MGRS, LV95.bounds.center, 'MGRS not supported', 1, LV95)
+                checkText(MGRS, LV95.getBoundsAs(WGS84).center, 'MGRS not supported', 1, WGS84)
             })
         })
     })

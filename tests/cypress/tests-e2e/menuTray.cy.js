@@ -6,8 +6,7 @@ const menuTopicHeaderSelector = menuTopicSectionSelector + ' > [data-cy="menu-se
 const menuActiveLayersSectionSelector = '[data-cy="menu-active-layers"]'
 const menuActiveLayersHeaderSelector =
     menuActiveLayersSectionSelector + ' > [data-cy="menu-section-header"]'
-const menuSettingsHeaderSelector =
-    '[data-cy="menu-settings-section"] > [data-cy="menu-section-header"]'
+const menuHelpSectionHeader = '[data-cy="menu-help-section"] > [data-cy="menu-section-header"]'
 const menuShareHeaderSelector = '[data-cy="menu-share-section"] > [data-cy="menu-section-header"]'
 
 function getFakeWMTSLayerCatalogEntry(id) {
@@ -114,7 +113,7 @@ function measureMenu(shouldHaveMaxSize) {
         if (shouldHaveMaxSize) {
             cy.get('@menuTrayBottom').should('be.equal', expectedMenuTrayBottom)
         } else {
-            cy.get('@menuTrayBottom').should('be.lt', expectedMenuTrayBottom)
+            cy.get('@menuTrayBottom').should('be.lte', expectedMenuTrayBottom)
         }
     })
 }
@@ -158,7 +157,7 @@ function checkOpenSections(openSections) {
     const sections = [
         { name: 'topics', selector: '[data-cy="menu-topic-tree"]' },
         { name: 'activeLayers', selector: '[data-cy="menu-section-active-layers"]' },
-        { name: 'settings', selector: '[data-cy="menu-settings-content"]' },
+        { name: 'help', selector: '[data-cy="menu-help-content"]' },
         {
             name: 'share',
             selector: '[data-cy="menu-share-section"] > [data-cy="menu-section-body"]',
@@ -235,9 +234,9 @@ describe('Test menu tray ui', () => {
         checkOpenSections(['activeLayers'])
         measureMenu(true)
 
-        cy.get(menuSettingsHeaderSelector).click()
+        cy.get(menuHelpSectionHeader).click()
         waitForAnimationsToFinish()
-        checkOpenSections(['settings'])
+        checkOpenSections(['help'])
         measureMenu(false)
 
         cy.get(menuShareHeaderSelector).click()

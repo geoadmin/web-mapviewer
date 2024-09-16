@@ -1,6 +1,6 @@
 <template>
     <MenuSection
-        id="shareSection"
+        :section-id="sectionId"
         :title="$t('share')"
         :show-content="isSectionShown"
         data-cy="menu-share-section"
@@ -48,9 +48,9 @@ export default {
         },
     },
     emits: ['openMenuSection'],
-    expose: ['close', 'id'],
+    expose: ['close', 'sectionId'],
     data() {
-        return { id: 'shareSection' }
+        return { sectionId: 'shareSection' }
     },
     computed: {
         ...mapState({

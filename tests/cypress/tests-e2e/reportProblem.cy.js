@@ -25,7 +25,7 @@ describe('Testing the report problem form', () => {
         interceptFeedback(false)
         cy.goToMapView()
         cy.get('[data-cy="menu-button"]').should('be.visible').click()
-        cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-help-section"]').should('be.visible').click()
 
         cy.log('The button should be in the header as a link on mobile')
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
@@ -174,7 +174,7 @@ describe('Testing the report problem form', () => {
         interceptFeedback(true)
         if (isMobile()) {
             cy.get('[data-cy="menu-button"]').should('be.visible').click()
-            cy.get('[data-cy="menu-settings-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-help-section"]').should('be.visible').click()
         }
 
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()

@@ -3,6 +3,7 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 
@@ -24,8 +25,8 @@ function setCenterIfInBounds(store, center) {
         }
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
-        store.dispatch('setErrorText', {
-            errorText: 'geoloc_out_of_bounds',
+        store.dispatch('addError', {
+            error: new ErrorMessage('geoloc_out_of_bounds', null),
             ...dispatcher,
         })
     }
@@ -87,11 +88,17 @@ const handlePositionError = (error, store, state, options = {}) => {
                 denied: true,
                 ...dispatcher,
             })
-            store.dispatch('setErrorText', { errorText: 'geoloc_permission_denied', ...dispatcher })
+            store.dispatch('addError', {
+                error: new ErrorMessage('geoloc_permission_denied', null),
+                ...dispatcher,
+            })
             break
         case error.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
-            store.dispatch('setErrorText', { errorText: 'geoloc_time_out', ...dispatcher })
+            store.dispatch('addError', {
+                error: new ErrorMessage('geoloc_time_out', null),
+                ...dispatcher,
+            })
             break
         default:
             if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
@@ -109,7 +116,10 @@ const handlePositionError = (error, store, state, options = {}) => {
                         activeGeolocation(store, state, { useInitial: false })
                     }
                 } else {
-                    store.dispatch('setErrorText', { errorText: 'geoloc_unknown', ...dispatcher })
+                    store.dispatch('addError', {
+                        error: new ErrorMessage('geoloc_unknown', null),
+                        ...dispatcher,
+                    })
                     if (reactivate) {
                         // If after 3 retries we failed to re-activate, set the geolocation to false
                         // so that the user can manually retry the geolocation later on. This can

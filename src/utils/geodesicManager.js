@@ -21,6 +21,26 @@ const geod = Geodesic.WGS84
 export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
 
 /**
+ * Calculate the area and perimeter of a polygon using the GeographicLib library
+ *
+ * @param {number[][]} coords - An array of coordinates representing the polygon. The coordinates
+ *   should be in the format [[longitude, latitude], [longitude, latitude], ...].
+ * @returns {Object} An object containing the calculated area and perimeter of the polygon.
+ * @returns {number} Return.area - The calculated area of the polygon in square meters.
+ * @returns {number} Return.perimeter - The calculated perimeter of the polygon in meters.
+ */
+export function computePolygonPerimeterArea(coords) {
+    const geodesicPolygon = new PolygonArea.PolygonArea(geod, false)
+    for (const coord of coords) {
+        geodesicPolygon.AddPoint(coord[1], coord[0])
+    }
+    const result = geodesicPolygon.Compute(false, true)
+    result.area = Math.abs(result.area)
+
+    return result
+}
+
+/**
  * Class responsible for:
  *
  * - Generating the geodesic geometries of a given Polygon or LineString. The generated geometries are
@@ -153,11 +173,7 @@ export class GeodesicGeometries {
 
     /* The following "_calculate*" methods are helper methods of "_calculateEverything" */
     _calculateGlobalProperties() {
-        const geodesicPolygon = new PolygonArea.PolygonArea(geod, !this.isPolygon)
-        for (const coord of this.coords) {
-            geodesicPolygon.AddPoint(coord[1], coord[0])
-        }
-        const res = geodesicPolygon.Compute(false, true)
+        const res = computePolygonPerimeterArea(this.coords)
         this.totalLength = res.perimeter
         this.totalArea = res.area
         if (this.hasAzimuthCircle) {

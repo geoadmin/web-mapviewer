@@ -106,6 +106,8 @@ describe('Drawing module tests', () => {
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
                 ).should('not.exist')
+                // babs icon should have a tippy describing the icon
+                cy.get('[data-cy="drawing-style-icon-selector-babs-1"]').realHover()
                 // going back to the default icon set
                 cy.get(
                     '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
@@ -122,7 +124,7 @@ describe('Drawing module tests', () => {
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
                 ).click()
                 // it should load all icons with the green color
-                cy.waitOnAllIconsDefaultGreen()
+                cy.wait('@icon-default-green')
 
                 // the color of the marker already placed on the map must switch to green
                 cy.wait('@update-kml')
@@ -642,7 +644,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 200)
             cy.get('[data-cy="ol-map"]').click(150, 230)
             cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74802 m2')
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74998 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -654,7 +656,7 @@ describe('Drawing module tests', () => {
 
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
-                .contains('0.24935 km2')
+                .contains('0.24999 km2')
         })
     })
     context('KML management', () => {

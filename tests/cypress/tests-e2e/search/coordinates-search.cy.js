@@ -1,10 +1,9 @@
 /// <reference types="cypress" />
 
-import proj4 from 'proj4'
-
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
 
@@ -15,20 +14,14 @@ describe('Testing coordinates typing in search bar', () => {
         cy.goToMapView()
     })
     const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value) => value - 1000)
-    const expectedCenterLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, expectedCenter).map(
-        LV95.roundCoordinateValue
-    )
-    const expectedCenterLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, expectedCenter).map(
-        LV03.roundCoordinateValue
-    )
-    const expectedCenterWebMercator = proj4(
-        DEFAULT_PROJECTION.epsg,
-        WEBMERCATOR.epsg,
+    const expectedCenterLV95 = reprojectAndRound(DEFAULT_PROJECTION, LV95, expectedCenter)
+    const expectedCenterLV03 = reprojectAndRound(DEFAULT_PROJECTION, LV03, expectedCenter)
+    const expectedCenterWebMercator = reprojectAndRound(
+        DEFAULT_PROJECTION,
+        WEBMERCATOR,
         expectedCenter
-    ).map(WEBMERCATOR.roundCoordinateValue)
-    const expectedCenterWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, expectedCenter).map(
-        WGS84.roundCoordinateValue
     )
+    const expectedCenterWGS84 = reprojectAndRound(DEFAULT_PROJECTION, WGS84, expectedCenter)
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
@@ -110,6 +103,9 @@ describe('Testing coordinates typing in search bar', () => {
     })
 
     it('Paste EPSG:21781 (LV03) coordinates', () => {
+        cy.intercept('**/lv03tolv95**', {
+            coordinates: expectedCenter,
+        })
         standardCheck(expectedCenterLV03[0], expectedCenterLV03[1], {
             acceptableDelta: 0.1,
             withInversion: true,
