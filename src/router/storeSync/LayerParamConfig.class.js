@@ -15,6 +15,7 @@ import {
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -254,6 +255,29 @@ function generateLayerUrlParamFromStoreValues(store) {
         .join(';')
 }
 
+// this one differs from the usual acceptedValues, as it handles each layer separately, telling the user
+// which layer encountered an issue.
+function acceptedValues(store, query) {
+    const parsed = parseLayersParam(query)
+    parsed
+        .filter((layer) => !store.getters.getLayerConfigById(layer.id))
+        .forEach((layer) => {
+            let value = layer.id
+            Object.entries(layer.customAttributes).forEach(
+                ([attribute_name, attribute_value]) =>
+                    (value += `@${attribute_name}=${attribute_value}`)
+            )
+            if (!layer.visible || layer.opacity) {
+                value += `,${layer.visible ? '' : 'f'},${layer.opacity ?? 1}`
+            }
+            store.dispatch('addError', {
+                error: new ErrorMessage('url_layer_error', { param: 'layers', value: value }),
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
+        })
+    return true
+}
+
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super({
@@ -275,6 +299,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateLayerUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
+            acceptedValues: acceptedValues,
         })
     }
 }

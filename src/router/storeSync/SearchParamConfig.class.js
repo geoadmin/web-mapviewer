@@ -28,6 +28,7 @@ export default class SearchParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: String,
             defaultValue: '',
+            acceptedValues: null,
         })
     }
 }

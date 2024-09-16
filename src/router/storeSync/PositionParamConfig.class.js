@@ -32,6 +32,17 @@ function generateCenterUrlParamFromStoreValues(store) {
     return null
 }
 
+function acceptedValues(store, query) {
+    if (query) {
+        let center = query.split(',')
+        return (
+            center.length === 2 &&
+            store.state.position.projection.isInBounds(query.split(',')[0], query.split(',')[1])
+        )
+    }
+    return false
+}
+
 /**
  * Describe the position (center) of the map in the URL. It will make sure that the URL values are
  * read as floating numbers.
@@ -45,6 +56,7 @@ export default class PositionParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCenterUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
+            acceptedValues: acceptedValues,
         })
     }
 }

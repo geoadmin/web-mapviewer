@@ -46,6 +46,7 @@ export default class CompareSliderParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: Number,
             defaultValue: null,
+            acceptedValues: (store, query) => query && Number(query) <= 1.0 && Number(query) >= 0.0,
         })
     }
 }

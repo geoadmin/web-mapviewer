@@ -1,4 +1,5 @@
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { SUPPORTED_LANG } from '@/modules/i18n'
 import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
@@ -9,6 +10,7 @@ import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 
 import TimeSliderParamConfig from './TimeSliderParamConfig.class'
 
@@ -26,6 +28,7 @@ const storeSyncConfig = [
         extractValueFromStore: (store) => store.state.i18n.lang,
         keepInUrlWhenDefault: true,
         valueType: String,
+        acceptedValues: (store, query) => SUPPORTED_LANG.includes(query),
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'sr',
@@ -38,6 +41,8 @@ const storeSyncConfig = [
         // Unit tests somehow come to this line without having set DEFAULT_PROJECTION correctly.
         // So as defensive measure for this, we set a "just in case" default hard-coded value.
         defaultValue: DEFAULT_PROJECTION?.epsgNumber ?? 2056,
+        acceptedValues: (store, query) =>
+            allCoordinateSystems.map((cs) => cs.epsgNumber).includes(query),
     }),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
@@ -80,6 +85,8 @@ const storeSyncConfig = [
         },
         keepInUrlWhenDefault: true,
         valueType: String,
+        acceptedValues: (store, query) =>
+            store.layers.backgroundLayers.map((layer) => layer.id).includes(query),
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'topic',
@@ -90,6 +97,8 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         defaultValue: null,
+        acceptedValues: (store, query) =>
+            store.state.topics.config.map((topic) => topic.id).includes(query),
     }),
     new SearchParamConfig(),
     new CrossHairParamConfig(),
@@ -104,6 +113,7 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: false,
         valueType: String,
         defaultValue: FeatureInfoPositions.NONE,
+        acceptedValues: (store, query) => Object.values(FeatureInfoPositions).includes(query),
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'catalogNodes',
@@ -118,6 +128,7 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: false,
         valueType: String,
         defaultValue: '',
+        acceptedValues: null,
     }),
     new TimeSliderParamConfig(),
     createBaseUrlOverrideParamConfig({ urlParamName: 'wms_url', baseUrlPropertyName: 'wms' }),

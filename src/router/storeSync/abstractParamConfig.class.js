@@ -1,4 +1,7 @@
 // NOTE: This is exported but should only be used in this module, if the value is needed outside
+
+import ErrorMessage from '@/utils/ErrorMessage.class'
+
 // of this module we should use the string directly to avoid module dependencies.
 export const STORE_DISPATCHER_ROUTER_PLUGIN = 'storeSync.routerPlugin'
 
@@ -35,6 +38,7 @@ export default class AbstractParamConfig {
         keepInUrlWhenDefault = true,
         valueType = String,
         defaultValue = null,
+        acceptedValues = null,
     } = {}) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
@@ -48,6 +52,7 @@ export default class AbstractParamConfig {
             // value is falsy
             this.defaultValue = false
         }
+        this.acceptedValues = acceptedValues
     }
 
     /**
@@ -153,13 +158,23 @@ export default class AbstractParamConfig {
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
             if (store && this.setValuesInStore) {
-                const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
-                if (promiseSetValuesInStore) {
-                    promiseSetValuesInStore.then(() => {
-                        resolve()
+                if (this.acceptedValues && !this.acceptedValues(store, query)) {
+                    store.dispatch('addError', {
+                        error: new ErrorMessage('url_parameter_error', {
+                            param: this.urlParamName,
+                            value: query,
+                        }),
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
                 } else {
-                    resolve()
+                    const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
+                    if (promiseSetValuesInStore) {
+                        promiseSetValuesInStore.then(() => {
+                            resolve()
+                        })
+                    } else {
+                        resolve()
+                    }
                 }
             } else {
                 reject('Query, store or setter functions is not set')
