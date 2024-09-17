@@ -25,18 +25,19 @@ export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
  *
  * @param {number[][]} coords - An array of coordinates representing the polygon. The coordinates
  *   should be in the format [[longitude, latitude], [longitude, latitude], ...].
+ * @param {Boolean} isPolyline Tells if the given coords are describing a polyline (unclosed
+ *   polygon) or a polygon. If true is given, the length will be calculated (instead of area)
  * @returns {Object} An object containing the calculated area and perimeter of the polygon.
  * @returns {number} Return.area - The calculated area of the polygon in square meters.
  * @returns {number} Return.perimeter - The calculated perimeter of the polygon in meters.
  */
-export function computePolygonPerimeterArea(coords) {
-    const geodesicPolygon = new PolygonArea.PolygonArea(geod, false)
+export function computePolygonPerimeterArea(coords, isPolyline = false) {
+    const geodesicPolygon = new PolygonArea.PolygonArea(geod, isPolyline)
     for (const coord of coords) {
         geodesicPolygon.AddPoint(coord[1], coord[0])
     }
     const result = geodesicPolygon.Compute(false, true)
     result.area = Math.abs(result.area)
-
     return result
 }
 
@@ -173,7 +174,7 @@ export class GeodesicGeometries {
 
     /* The following "_calculate*" methods are helper methods of "_calculateEverything" */
     _calculateGlobalProperties() {
-        const res = computePolygonPerimeterArea(this.coords)
+        const res = computePolygonPerimeterArea(this.coords, !this.isPolygon)
         this.totalLength = res.perimeter
         this.totalArea = res.area
         if (this.hasAzimuthCircle) {
