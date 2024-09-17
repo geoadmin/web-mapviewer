@@ -30,14 +30,6 @@ export function readCameraFromUrlParam(urlParamValue) {
     return null
 }
 
-function acceptedValues(store, query) {
-    return (
-        query &&
-        query.split(',').length === 6 &&
-        query.split(',').filter((value) => value === '' || !isNaN(value)).length === 6
-    )
-}
-
 function dispatchCameraFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const camera = readCameraFromUrlParam(urlParamValue)
@@ -80,7 +72,10 @@ export default class CameraParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCameraUrlParamFromStoreValues,
             keepInUrlWhenDefault: false,
             valueType: String,
-            acceptedValues: acceptedValues,
+            acceptedValues: (store, query) =>
+                query &&
+                query.split(',').length === 6 &&
+                query.split(',').filter((value) => value === '' || !isNaN(value)).length === 6,
         })
     }
 }

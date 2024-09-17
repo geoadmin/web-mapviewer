@@ -256,24 +256,39 @@ function generateLayerUrlParamFromStoreValues(store) {
 }
 
 // this one differs from the usual acceptedValues, as it handles each layer separately, telling the user
-// which layer encountered an issue.
+// which layer won't render. It's basic, which means it will only tells the user when he gives a non
+// external layer that doesn't exist, or when he forgets the scheme for its external layer.
 function acceptedValues(store, query) {
     const parsed = parseLayersParam(query)
+    const url_matcher = /https?:\/\//
+
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
-            let value = layer.id
-            Object.entries(layer.customAttributes).forEach(
-                ([attribute_name, attribute_value]) =>
-                    (value += `@${attribute_name}=${attribute_value}`)
-            )
-            if (!layer.visible || layer.opacity) {
-                value += `,${layer.visible ? '' : 'f'},${layer.opacity ?? 1}`
+            if (
+                !layer.isExternal ||
+                (layer.baseUrl && !layer.baseUrl?.match(url_matcher)?.length > 0)
+            ) {
+                let value = ''
+                if (layer.isExternal) {
+                    value = `${layer.type}|`
+                }
+                value += layer.id
+                Object.entries(layer.customAttributes).forEach(
+                    ([attribute_name, attribute_value]) =>
+                        (value += `@${attribute_name}=${attribute_value}`)
+                )
+                if (!layer.visible || layer.opacity) {
+                    value += `,${layer.visible ? '' : 'f'},${layer.opacity ?? 1}`
+                }
+                let error_type = layer.isExternal
+                    ? 'url_external_layer_no_scheme_error'
+                    : 'url_layer_error'
+                store.dispatch('addError', {
+                    error: new ErrorMessage(error_type, { layer: value }),
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
             }
-            store.dispatch('addError', {
-                error: new ErrorMessage('url_layer_error', { layer: value }),
-                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-            })
         })
     return true
 }

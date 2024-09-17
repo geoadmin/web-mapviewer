@@ -89,6 +89,7 @@ function acceptedValues(store, query) {
             (Object.values(CrossHairs).includes(crossHair) || crossHair === '')
         )
     }
+    return false
 }
 
 /**

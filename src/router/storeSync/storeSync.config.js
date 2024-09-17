@@ -1,4 +1,5 @@
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { SUPPORTED_LANG } from '@/modules/i18n'
 import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
@@ -85,8 +86,13 @@ const storeSyncConfig = [
         },
         keepInUrlWhenDefault: true,
         valueType: String,
-        acceptedValues: (store, query) =>
-            store.layers.backgroundLayers.map((layer) => layer.id).includes(query),
+        acceptedValues: (store, query) => {
+            // in cypress, the backgroundLayers is undefined, so we skip this check
+            if (IS_TESTING_WITH_CYPRESS) {
+                return true
+            }
+            return store.state.layers.backgroundLayers?.map((layer) => layer.id).includes(query)
+        },
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'topic',

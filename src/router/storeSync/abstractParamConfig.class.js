@@ -158,7 +158,11 @@ export default class AbstractParamConfig {
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
             if (store && this.setValuesInStore) {
-                if (this.acceptedValues && !this.acceptedValues(store, query)) {
+                if (
+                    this.acceptedValues &&
+                    to.query[this.urlParamName] &&
+                    !this.acceptedValues(store, query)
+                ) {
                     store.dispatch('addError', {
                         error: new ErrorMessage('url_parameter_error', {
                             param: this.urlParamName,
@@ -166,15 +170,14 @@ export default class AbstractParamConfig {
                         }),
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
-                } else {
-                    const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
-                    if (promiseSetValuesInStore) {
-                        promiseSetValuesInStore.then(() => {
-                            resolve()
-                        })
-                    } else {
+                }
+                const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
+                if (promiseSetValuesInStore) {
+                    promiseSetValuesInStore.then(() => {
                         resolve()
-                    }
+                    })
+                } else {
+                    resolve()
                 }
             } else {
                 reject('Query, store or setter functions is not set')

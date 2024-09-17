@@ -50,12 +50,14 @@ export function decodeUrlLayerId(urlLayerId) {
         // KML/GPX do not have layer IDs, so we use their baseUrl as "ID"
         const decodedLayerId = layerId ? decodeExternalLayerParam(layerId) : decodedBaseUrl
         return {
+            isExternal: true,
             id: decodedLayerId,
             type: layerType,
             baseUrl: decodedBaseUrl,
         }
     }
     return {
+        isExternal: false,
         id: urlLayerId,
     }
 }
