@@ -208,4 +208,4 @@ export function getVectorTilesBaseUrl() {
 }
 
 export const internalDomainRegex =
-    import.meta.env.VITE_APP_INTERNAL_DOMAIN_REGEX ?? /^https:\/\/[^/]*(bgdi|admin)\.ch/
+    import.meta.env.VITE_APP_INTERNAL_DOMAIN_REGEX ?? /^https:\/\/[^/]*(bgdi|geo\.admin)\.ch/
