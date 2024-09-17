@@ -48,7 +48,7 @@ function acceptedValues(store, query) {
         // we add a small error here to tell the user that every parameter is in order
         // for the time slider, but that there are no layers that supports it.
         store.dispatch('addError', {
-            error: new ErrorMessage('time_slider_no_active_time_layer', {}),
+            error: new ErrorMessage('time_slider_no_time_layer_active_url_error', {}),
             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
         })
     }

@@ -271,7 +271,7 @@ function acceptedValues(store, query) {
                 value += `,${layer.visible ? '' : 'f'},${layer.opacity ?? 1}`
             }
             store.dispatch('addError', {
-                error: new ErrorMessage('url_layer_error', { param: 'layers', value: value }),
+                error: new ErrorMessage('url_layer_error', { layer: value }),
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         })
