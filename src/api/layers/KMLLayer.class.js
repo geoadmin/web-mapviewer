@@ -17,6 +17,8 @@ import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
  */
 export default class KMLLayer extends AbstractLayer {
     /**
+     * @param {String} [kmlLayerData.name] The name for this KML layer. If none is given, 'KML' will
+     *   be used.
      * @param {String} kmlLayerData.kmlFileUrl The URL to access the KML data.
      * @param {Boolean} [kmlLayerData.visible=true] If the layer is visible on the map (or hidden).
      *   When `null` is given, then it uses the default value. Default is `true`
@@ -39,6 +41,7 @@ export default class KMLLayer extends AbstractLayer {
             throw new InvalidLayerDataError('Missing KML layer data', kmlLayerData)
         }
         const {
+            name = null,
             kmlFileUrl = null,
             visible = true,
             opacity = 1.0,
@@ -54,7 +57,7 @@ export default class KMLLayer extends AbstractLayer {
         const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
         const isExternal = kmlFileUrl.indexOf(getServiceKmlBaseUrl()) === -1
         super({
-            name: 'KML',
+            name: name ?? 'KML',
             id: kmlFileUrl,
             type: LayerTypes.KML,
             baseUrl: kmlFileUrl,

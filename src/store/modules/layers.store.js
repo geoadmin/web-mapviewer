@@ -165,6 +165,16 @@ const getters = {
         ) ?? null,
 
     /**
+     * Get index of active layer by ID.
+     *
+     * When there exists no layer with this ID then -1 is returned.
+     *
+     * @returns {number}
+     */
+    getIndexOfActiveLayerById: (state) => (layerId) =>
+        state.activeLayers.findIndex((layer) => layer.id === layerId),
+
+    /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
      *
@@ -451,7 +461,6 @@ const actions = {
 
             const updatedLayer = layer2Update.clone()
             Object.entries(layer).forEach((entry) => (updatedLayer[entry[0]] = entry[1]))
-
             commit('updateLayer', { index, layer: updatedLayer, dispatcher })
         }
     },

@@ -75,7 +75,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         }
     }
 
-    async function saveDrawing(retryOnError = true) {
+    async function saveDrawing({ retryOnError = true, drawingName = null }) {
         try {
             log.debug(
                 `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${differSaveDrawingTimeout}`
@@ -84,12 +84,13 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             saveState.value = DrawingState.SAVING
             const kmlData = generateKmlString(
                 projection.value,
-                drawingLayer.getSource().getFeatures()
+                drawingLayer.getSource().getFeatures(),
+                drawingName ?? activeKmlLayer.value?.name
             )
             if (online.value) {
-                await saveOnlineDrawing(kmlData)
+                await saveOnlineDrawing(kmlData, drawingName)
             } else {
-                await saveLocalDrawing(kmlData)
+                await saveLocalDrawing(kmlData, drawingName)
             }
             saveState.value = DrawingState.SAVED
         } catch (e) {
@@ -97,16 +98,22 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             saveState.value = DrawingState.SAVE_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 // Retry saving in 5 seconds
-                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false })
+                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false, drawingName })
             }
         }
     }
 
-    async function saveOnlineDrawing(kmlData) {
+    /**
+     * @param {String} kmlData
+     * @param {String} [drawingName=null] Default is `null`
+     * @returns {Promise<void>}
+     */
+    async function saveOnlineDrawing(kmlData, drawingName = null) {
         if (!activeKmlLayer.value?.adminId) {
             // creation of the new KML (copy or new)
             const kmlMetadata = await createKml(kmlData)
             const kmlLayer = new KMLLayer({
+                name: drawingName ?? activeKmlLayer.value?.name,
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
                 visible: true,
                 opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
@@ -143,8 +150,14 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         }
     }
 
-    async function saveLocalDrawing(kmlData) {
+    /**
+     * @param {String} kmlData
+     * @param {String} [drawingName=null] Default is `null`
+     * @returns {Promise<void>}
+     */
+    async function saveLocalDrawing(kmlData, drawingName = null) {
         const kmlLayer = new KMLLayer({
+            name: drawingName,
             kmlFileUrl: temporaryKmlId.value,
             visible: true,
             opacity: 1,
@@ -157,7 +170,11 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         }
     }
 
-    async function debounceSaveDrawing({ debounceTime = 2000, retryOnError = true } = {}) {
+    async function debounceSaveDrawing({
+        debounceTime = 2000,
+        retryOnError = true,
+        drawingName = null,
+    } = {}) {
         log.debug(
             `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${differSaveDrawingTimeout}`
         )
@@ -175,7 +192,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 )
             })
         }
-        const savePromise = saveDrawing(retryOnError)
+        const savePromise = saveDrawing({ retryOnError, drawingName })
         savesInProgress.value.push(savePromise)
         await savePromise
         // removing this promise from the "in-progress" list when it's done
