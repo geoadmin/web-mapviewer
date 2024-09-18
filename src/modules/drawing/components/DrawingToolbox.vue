@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -17,7 +17,6 @@ import DrawingHeader from './DrawingHeader.vue'
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
-
 const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
 const i18n = useI18n()
 const store = useStore()
@@ -38,6 +37,16 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const activeKmlLayerIndex = computed(() =>
+    store.getters.getIndexOfActiveLayerById(activeKmlLayer.value.id)
+)
+const activeKmlLayerName = ref(activeKmlLayer.value?.name)
+const isActiveLayerNameEditMode = ref(false)
+
+// This is necessary to update the layer name in case the sanitized name is different
+watch(activeKmlLayer, () => {
+    activeKmlLayerName.value = activeKmlLayer.value?.name
+})
 
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
@@ -67,6 +76,18 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     }
 }
+
+async function onSaveName() {
+    isActiveLayerNameEditMode.value = !isActiveLayerNameEditMode.value
+    if (activeKmlLayerName.value === activeKmlLayer.value.name) return
+    store.dispatch('updateLayer', {
+        index: activeKmlLayerIndex.value,
+        layer: { ...activeKmlLayer.value, name: activeKmlLayerName.value },
+        ...dispatcher,
+    })
+    await debounceSaveDrawing()
+}
+
 function closeDrawing() {
     emits('closeDrawing')
 }
@@ -87,6 +108,41 @@ function onDeleteLastPoint() {
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
+                <div
+                    class="d-flex justify-content-center align-items-center gap-2 p-4"
+                    v-if="activeKmlLayer"
+                >
+                    <label for="activeKmlLayerName" class="mr-3">
+                        {{ i18n.t('file_name') }}
+                    </label>
+                    <div class="input-group">
+                        <input
+                            id="activeKmlLayerName"
+                            v-model="activeKmlLayerName"
+                            type="string"
+                            class="form-control"
+                            :disabled="!isActiveLayerNameEditMode"
+                            :placeholder="`${i18n.t('draw_layer_label')}`"
+                        />
+                        <button
+                            v-if="!isActiveLayerNameEditMode"
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click="isActiveLayerNameEditMode = !isActiveLayerNameEditMode"
+                        >
+                            {{ i18n.t('edit_button') }}
+                        </button>
+                        <button
+                            v-else
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click="onSaveName"
+                        >
+                            {{ i18n.t('save_button') }}
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card-body position-relative container">
                     <div
                         class="row justify-content-start g-2"

@@ -120,6 +120,7 @@ export const getKmlUrl = (id) => {
  * @returns {Promise<KmlMetadata>}
  */
 export const createKml = (kml) => {
+    console.log('createKml', kml)
     return new Promise((resolve, reject) => {
         const form = buildKmlForm(kml)
         form.append('author', 'web-mapviewer')
@@ -156,6 +157,7 @@ export const createKml = (kml) => {
  * @returns {Promise<KmlMetadata>}
  */
 export const updateKml = (id, adminId, kml) => {
+    console.log('updateKml name', kml)
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
@@ -230,6 +232,7 @@ export const getKmlFromUrl = (url) => {
  * @returns {Promise<KmlMetadata>} KML metadata
  */
 export const getKmlMetadataByAdminId = (adminId) => {
+    console.log('getKmlMetadataByAdminId', adminId)
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
