@@ -97,7 +97,7 @@ async function loadFile() {
             log.error(`Failed to load file from url ${fileUrl.value}`, error)
             errorFileLoadingMessage.value = 'loading_error_network_failure'
         } else if (error instanceof OutOfBoundsError) {
-            errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
+            errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
         } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
             errorFileLoadingMessage.value = 'kml_gpx_file_empty'
         } else {

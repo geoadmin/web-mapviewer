@@ -201,7 +201,9 @@ function validateFile() {
     if (
         value.value &&
         acceptedFileTypes.value?.length > 0 &&
-        !acceptedFileTypes.value.some((type) => value.value.name.endsWith(type))
+        !acceptedFileTypes.value.some((type) =>
+            value.value.name.toLowerCase().endsWith(type.toLowerCase())
+        )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }

@@ -265,12 +265,12 @@ export default function useMapInteractions(map) {
     async function handleFile(file) {
         try {
             const fileContent = await readFileContent(file)
-            handleFileContent(store, fileContent, file.name, file)
+            await handleFileContent(store, fileContent, file.name, file)
         } catch (error) {
             let errorKey
             log.error(`Error loading file`, file.name, error)
             if (error instanceof OutOfBoundsError) {
-                errorKey = 'kml_gpx_file_out_of_bounds'
+                errorKey = 'imported_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorKey = 'kml_gpx_file_empty'
             } else {

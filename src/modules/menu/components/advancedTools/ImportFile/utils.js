@@ -64,22 +64,29 @@ export async function handleFileContent(store, content, source, originalFile = n
                 // For local files : OpenLayers needs a Blob, and not an already parsed GeoTIFF instance
                 data: originalFile,
             })
-            store.dispatch('addLayer', { layer, ...dispatcher })
-            // looking into the GeoTIFF file to get the extent
-            const geoTIFFImage = await parsedContent.getImage()
-            const geoTIFFExtent = geoTIFFImage.getBoundingBox()
-            if (geoTIFFExtent) {
-                store.dispatch('zoomToExtent', {
-                    extent: normalizeExtent(geoTIFFExtent),
-                    ...dispatcher,
-                })
-            }
-            // we are done here, so to not run the parsed content part below, we stop the function here
-            return layer
         } catch (err) {
             log.error('parsing as GeoTIFF failed', err)
             throw new Error(`Could not parse GeoTIFF from ${source}`)
         }
+        // looking into the GeoTIFF file to get the extent
+        const geoTIFFImage = await parsedContent.getImage()
+        const geoTIFFExtent = geoTIFFImage.getBoundingBox()
+        if (geoTIFFExtent) {
+            const projectedExtent = getExtentForProjection(
+                store.state.position.projection,
+                normalizeExtent(geoTIFFExtent)
+            )
+            if (!projectedExtent) {
+                throw new OutOfBoundsError(`GeoTIFF out of projection bounds: ${geoTIFFExtent}`)
+            }
+            store.dispatch('zoomToExtent', {
+                extent: normalizeExtent(geoTIFFExtent),
+                ...dispatcher,
+            })
+        }
+        store.dispatch('addLayer', { layer, ...dispatcher })
+        // we are done here, so to not run the parsed content part below, we stop the function here
+        return layer
     } else {
         // If it is not a zip file then we assume is a text file and decode it for further handling
         parsedContent = new TextDecoder('utf-8').decode(content)
