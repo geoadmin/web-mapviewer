@@ -11,6 +11,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'
+import OpenLayersGeoTIFF from '@/modules/map/components/openlayers/OpenLayersGeoTIFF.vue'
 import OpenLayersGPXLayer from '@/modules/map/components/openlayers/OpenLayersGPXLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
@@ -126,6 +127,12 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <OpenLayersGPXLayer
             v-if="layerConfig.type === LayerTypes.GPX"
             :gpx-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
+            :z-index="zIndex"
+        />
+        <OpenLayersGeoTIFF
+            v-if="layerConfig.type === LayerTypes.GEOTIFF"
+            :geotiff-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />

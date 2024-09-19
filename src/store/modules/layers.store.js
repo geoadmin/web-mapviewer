@@ -688,7 +688,7 @@ const actions = {
                 if (!extent) {
                     clone.addErrorKey('kml_gpx_file_empty')
                 } else if (!getExtentForProjection(rootState.position.projection, extent)) {
-                    clone.addErrorKey('kml_gpx_file_out_of_bounds')
+                    clone.addErrorKey('imported_file_out_of_bounds')
                 }
             }
             if (metadata) {

@@ -278,3 +278,17 @@ export function isZipContent(content) {
     }
     return true
 }
+
+/**
+ * Check if the input is a TIFF content or not
+ *
+ * @param {ArrayBuffer} content
+ * @returns {boolean} Return true if the content is a TIFF content
+ */
+export function isTiffContent(content) {
+    // Check the first 4 bytes for the TIFF file signature
+    // signatures can be found here https://en.wikipedia.org/wiki/TIFF
+    const tiffLittleEndianSignature = [0x49, 0x49, 0x2a, 0x00]
+    const contentSignature = new Uint8Array(content.slice(0, 4))
+    return tiffLittleEndianSignature.every((byte, index) => byte === contentSignature[index])
+}

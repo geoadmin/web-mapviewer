@@ -10,7 +10,7 @@ import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const acceptedFileTypes = ['.kml', '.KML', '.kmz', '.KMZ', '.gpx', '.GPX']
+const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
 const store = useStore()
 
@@ -48,11 +48,11 @@ async function loadFile() {
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
-                errorFileLoadingMessage.value = 'kml_gpx_file_out_of_bounds'
+                errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorFileLoadingMessage.value = 'kml_gpx_file_empty'
             } else {
-                errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
+                errorFileLoadingMessage.value = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
             }
         }

@@ -243,6 +243,10 @@ export default function useMapInteractions(map) {
         mapElement.removeEventListener('dragleave', onDragLeave)
     }
 
+    /**
+     * @param {File} file
+     * @returns {Promise<ArrayBuffer>}
+     */
     function readFileContent(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
@@ -254,19 +258,23 @@ export default function useMapInteractions(map) {
         })
     }
 
+    /**
+     * @param {File} file
+     * @returns {Promise<void>}
+     */
     async function handleFile(file) {
         try {
             const fileContent = await readFileContent(file)
-            handleFileContent(store, fileContent, file.name)
+            await handleFileContent(store, fileContent, file.name, file)
         } catch (error) {
             let errorKey
             log.error(`Error loading file`, file.name, error)
             if (error instanceof OutOfBoundsError) {
-                errorKey = 'kml_gpx_file_out_of_bounds'
+                errorKey = 'imported_file_out_of_bounds'
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorKey = 'kml_gpx_file_empty'
             } else {
-                errorKey = 'invalid_kml_gpx_file_error'
+                errorKey = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
             }
             store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
