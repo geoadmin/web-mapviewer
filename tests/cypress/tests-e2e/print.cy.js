@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-import { zoom } from 'chartjs-plugin-zoom'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { formatThousand } from '@/utils/numberUtils.js'
@@ -189,9 +188,10 @@ describe('Testing print', () => {
             }).as('kmlHeadRequest')
             cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
+            const kmlID = `${getServiceKmlBaseUrl()}some-kml-file.kml`
             cy.goToMapView(
                 {
-                    layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
+                    layers: `KML|${kmlID}`,
                     z: zoom || 9,
                     center: center || '2655000,1203250',
                 },
@@ -208,6 +208,7 @@ describe('Testing print', () => {
 
             cy.get('[data-cy="print-map-button"]').should('be.visible').click()
             cy.get('[data-cy="abort-print-button"]').should('be.visible')
+            return kmlID
         }
 
         it('should send a print request to mapfishprint (with layers added)', () => {
@@ -304,9 +305,10 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            const zoom = 13
-            startPrintWithKml('import-tool/external-kml-file.kml', zoom)
-            checkZoom(zoom)
+            const customZoom = 13
+            const kmlID = startPrintWithKml('import-tool/external-kml-file.kml', customZoom)
+            checkZoom(customZoom)
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -440,8 +442,9 @@ describe('Testing print', () => {
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
             const customZoom = 13
-            startPrintWithKml('print/label.kml', customZoom)
+            const kmlID = startPrintWithKml('print/label.kml', customZoom)
             checkZoom(customZoom)
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -514,7 +517,7 @@ describe('Testing print', () => {
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
             const customZoom = 13
-            startPrintWithKml('print/old-geoadmin-label.kml', customZoom)
+            const kmlID = startPrintWithKml('print/old-geoadmin-label.kml', customZoom)
 
             checkZoom(customZoom)
 
@@ -527,6 +530,8 @@ describe('Testing print', () => {
                 expect(center[0]).to.eq(2655000)
                 expect(center[1]).to.eq(1203250)
             })
+
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
