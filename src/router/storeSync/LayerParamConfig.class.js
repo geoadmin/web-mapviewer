@@ -2,6 +2,7 @@ import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import GeoTIFFLayer from '@/api/layers/GeoTIFFLayer.class.js'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -71,6 +72,15 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
+        }
+    } else if (parsedLayer.type === LayerTypes.GEOTIFF) {
+        // format is GEOTIFF|FILE_URL
+        if (parsedLayer.baseUrl.startsWith('http')) {
+            layer = new GeoTIFFLayer({
+                fileSource: parsedLayer.baseUrl,
+                visible: parsedLayer.visible,
+                opacity: parsedLayer.opacity ?? defaultOpacity,
+            })
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID

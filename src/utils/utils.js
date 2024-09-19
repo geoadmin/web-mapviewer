@@ -287,13 +287,8 @@ export function isZipContent(content) {
  */
 export function isTiffContent(content) {
     // Check the first 4 bytes for the TIFF file signature
-    // there are two signatures that can be found here https://en.wikipedia.org/wiki/TIFF
-    const tiffSignatures = [
-        [0x49, 0x49, 0x2a, 0x00],
-        [0x4d, 0x4d, 0x00, 0x2a],
-    ]
+    // signatures can be found here https://en.wikipedia.org/wiki/TIFF
+    const tiffLittleEndianSignature = [0x49, 0x49, 0x2a, 0x00]
     const contentSignature = new Uint8Array(content.slice(0, 4))
-    return tiffSignatures.some((signature) =>
-        signature.every((byte, index) => byte === contentSignature[index])
-    )
+    return tiffLittleEndianSignature.every((byte, index) => byte === contentSignature[index])
 }

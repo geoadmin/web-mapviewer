@@ -306,7 +306,7 @@
     "inspire_service_link_label": "geo.admin.ch",
     "invalid_email": "ungültige E-Mail",
     "invalid_file": "Datotecadad nun vala",
-    "invalid_kml_gpx_file_error": "Datotecadad nun vala, èn ancum suttatschadas ils files KML u GPX.",
+    "invalid_import_file_error": "Datotecadad nun vala, èn ancum suttatschadas ils files KML, GPX u GeoTIFF.",
     "invalid_url": "URL è nunvalid",
     "invalid_wms_capabilities": "Dadis WMS Capabilitiesinvalid",
     "invalid_wmts_capabilities": "Dadis WMTS Capabilitiesinvalid",

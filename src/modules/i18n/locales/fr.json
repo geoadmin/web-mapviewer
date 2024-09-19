@@ -308,7 +308,7 @@
     "inspire_service_link_label": "geo.admin.ch",
     "invalid_email": "e-mail invalide",
     "invalid_file": "Fichier invalide, seuls les fichiers KML ou GPX sont pris en charge",
-    "invalid_kml_gpx_file_error": "Fichier invalide, seuls les fichiers KML ou GPX sont pris en charge",
+    "invalid_import_file_error": "Fichier invalide, seuls les fichiers KML, GPX ou GeoTIFF sont pris en charge",
     "invalid_url": "URL non valide.",
     "invalid_wms_capabilities": "Données WMS Capabilities invalides",
     "invalid_wmts_capabilities": "Données WMTS Capabilities invalides",

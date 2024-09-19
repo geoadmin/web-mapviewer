@@ -102,7 +102,7 @@ async function loadFile() {
             errorFileLoadingMessage.value = 'kml_gpx_file_empty'
         } else {
             log.error(`Failed to parse file from url ${fileUrl.value}`, error)
-            errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
+            errorFileLoadingMessage.value = 'invalid_import_file_error'
         }
     }
     loading.value = false

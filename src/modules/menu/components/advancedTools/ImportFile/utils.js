@@ -77,7 +77,7 @@ export async function handleFileContent(store, content, source, originalFile = n
             // we are done here, so to not run the parsed content part below, we stop the function here
             return layer
         } catch (err) {
-            log.debug('parsing as GeoTIFF failed', err)
+            log.error('parsing as GeoTIFF failed', err)
             throw new Error(`Could not parse GeoTIFF from ${source}`)
         }
     } else {

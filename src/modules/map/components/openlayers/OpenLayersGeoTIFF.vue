@@ -27,7 +27,7 @@ const source = computed(() => {
     if (geotiffConfig.value.isLocalFile) {
         return { blob: geotiffConfig.value.data }
     }
-    return { source: geotiffConfig.value.fileSource }
+    return { url: geotiffConfig.value.fileSource }
 })
 
 const geoTIFFSource = new GeoTIFFSource({

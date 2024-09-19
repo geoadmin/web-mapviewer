@@ -52,7 +52,7 @@ export default class GeoTIFFLayer extends AbstractLayer {
         })
         this.isLocalFile = isLocalFile
         this.fileSource = fileSource
-        this.isLoading = !data
+        this.isLoading = false
         this.data = data
     }
 }

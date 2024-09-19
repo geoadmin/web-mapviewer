@@ -274,7 +274,7 @@ export default function useMapInteractions(map) {
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorKey = 'kml_gpx_file_empty'
             } else {
-                errorKey = 'invalid_kml_gpx_file_error'
+                errorKey = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
             }
             store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })

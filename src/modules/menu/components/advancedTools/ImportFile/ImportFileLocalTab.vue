@@ -52,7 +52,7 @@ async function loadFile() {
             } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorFileLoadingMessage.value = 'kml_gpx_file_empty'
             } else {
-                errorFileLoadingMessage.value = 'invalid_kml_gpx_file_error'
+                errorFileLoadingMessage.value = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
             }
         }
