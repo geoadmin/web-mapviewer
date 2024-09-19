@@ -3,6 +3,7 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import ErrorMessage from '@/utils/ErrorMessage.class'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
@@ -36,29 +37,19 @@ function generateTimeSliderUrlParamFromStore(store) {
     return store.state.ui.isTimeSliderActive ? store.state.layers.previewYear : null
 }
 
-function acceptedValues(store, query) {
-    if (
-        query &&
-        !isNaN(query) &&
-        Number.isInteger(query) &&
-        OLDEST_YEAR <= query &&
-        YOUNGEST_YEAR >= query &&
-        store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length === 0
-    ) {
-        // we add a small error here to tell the user that every parameter is in order
-        // for the time slider, but that there are no layers that supports it.
-        store.dispatch('addError', {
-            error: new ErrorMessage('time_slider_no_time_layer_active_url_error', {}),
-            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-        })
-    }
-    return (
-        query &&
-        !isNaN(query) &&
-        Number.isInteger(query) &&
-        OLDEST_YEAR <= query &&
-        YOUNGEST_YEAR >= query
+function validateUrlInput(store, query) {
+    const validationObject = this.getStandardValidationResponse(
+        query,
+        !isNaN(query) && Number.isInteger(query) && OLDEST_YEAR <= query && YOUNGEST_YEAR >= query
     )
+
+    if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length === 0) {
+        validationObject['warnings'] = new WarningMessage(
+            'time_slider_no_time_layer_active_url_warning',
+            {}
+        )
+    }
+    return validationObject
 }
 
 /**
@@ -76,7 +67,7 @@ export default class TimeSliderParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: Number,
             defaultValue: null,
-            acceptedValues: acceptedValues,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

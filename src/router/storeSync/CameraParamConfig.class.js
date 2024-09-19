@@ -72,10 +72,14 @@ export default class CameraParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCameraUrlParamFromStoreValues,
             keepInUrlWhenDefault: false,
             valueType: String,
-            acceptedValues: (store, query) =>
-                query &&
-                query.split(',').length === 6 &&
-                query.split(',').filter((value) => value === '' || !isNaN(value)).length === 6,
+            validateUrlInput: (store, query) =>
+                this.getStandardValidationResponse(
+                    query,
+                    query &&
+                        query.split(',').length === 6 &&
+                        query.split(',').filter((value) => value === '' || !isNaN(value)).length ===
+                            6
+                ),
         })
     }
 }

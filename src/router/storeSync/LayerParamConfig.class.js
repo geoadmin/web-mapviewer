@@ -255,42 +255,36 @@ function generateLayerUrlParamFromStoreValues(store) {
         .join(';')
 }
 
-// this one differs from the usual acceptedValues, as it handles each layer separately, telling the user
+// this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
 // which layer won't render. It's basic, which means it will only tells the user when he gives a non
 // external layer that doesn't exist, or when he forgets the scheme for its external layer.
-function acceptedValues(store, query) {
+function validateUrlInput(store, query) {
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
-
+    const faulty_layers = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
-            if (
-                !layer.isExternal ||
-                (layer.baseUrl && !layer.baseUrl?.match(url_matcher)?.length > 0)
-            ) {
-                let value = ''
-                if (layer.isExternal) {
-                    value = `${layer.type}|`
-                }
-                value += layer.id
-                Object.entries(layer.customAttributes).forEach(
-                    ([attribute_name, attribute_value]) =>
-                        (value += `@${attribute_name}=${attribute_value}`)
+            if (!layer.baseUrl) {
+                faulty_layers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+            } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
+                faulty_layers.push(
+                    new ErrorMessage('url_external_layer_no_scheme_error', {
+                        layer: `${layer.type}|${layer.baseUrl}`,
+                    })
                 )
-                if (!layer.visible || layer.opacity) {
-                    value += `,${layer.visible ? '' : 'f'},${layer.opacity ?? 1}`
-                }
-                let error_type = layer.isExternal
-                    ? 'url_external_layer_no_scheme_error'
-                    : 'url_layer_error'
-                store.dispatch('addError', {
-                    error: new ErrorMessage(error_type, { layer: value }),
-                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                })
             }
         })
-    return true
+    const valid = faulty_layers.length < parsed.length
+    return {
+        valid,
+        errors:
+            faulty_layers.length === 0
+                ? null
+                : valid
+                  ? faulty_layers
+                  : this.getStandardValidationResponse(query, valid),
+    }
 }
 
 export default class LayerParamConfig extends AbstractParamConfig {
@@ -314,7 +308,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateLayerUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
-            acceptedValues: acceptedValues,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

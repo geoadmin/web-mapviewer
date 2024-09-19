@@ -32,15 +32,15 @@ function generateCenterUrlParamFromStoreValues(store) {
     return null
 }
 
-function acceptedValues(store, query) {
+function validateUrlInput(store, query) {
     if (query) {
-        let center = query.split(',')
-        return (
-            center.length === 2 &&
-            store.state.position.projection.isInBounds(query.split(',')[0], query.split(',')[1])
+        const center = query.split(',')
+        return this.getStandardValidationResponse(
+            query,
+            center.length === 2 && store.state.position.projection.isInBounds(center[0], center[1])
         )
     }
-    return false
+    return this.getStandardValidationResponse(query, false)
 }
 
 /**
@@ -56,7 +56,7 @@ export default class PositionParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCenterUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
-            acceptedValues: acceptedValues,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

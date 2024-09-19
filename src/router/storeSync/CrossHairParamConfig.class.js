@@ -77,19 +77,19 @@ function generateCrossHairUrlParamFromStoreValues(store) {
     return null
 }
 
-function acceptedValues(store, query) {
+function validateUrlInput(store, query) {
     if (query) {
         const parts = query.split(',')
         let crossHair = parts[0]
         let crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
-
-        return (
-            (typeof query === 'string' || query instanceof String) &&
-            (crossHair || crossHairPosition) &&
-            (Object.values(CrossHairs).includes(crossHair) || crossHair === '')
+        return this.getStandardValidationResponse(
+            query,
+            (crossHair ||
+                crossHairPosition.filter((coordinate) => !isNaN(coordinate)).length === 2) &&
+                (Object.values(CrossHairs).includes(crossHair) || crossHair === '')
         )
     }
-    return false
+    return this.getStandardValidationResponse(query, false)
 }
 
 /**
@@ -109,7 +109,7 @@ export default class CrossHairParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: String,
             defaultValue: null,
-            acceptedValues: acceptedValues, // TODO : implement this to have a common behavior amongst all params
+            validateUrlInput: validateUrlInput,
         })
     }
 }

@@ -33,7 +33,7 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
         keepInUrlWhenDefault = false,
         valueType = String,
         defaultValue = null,
-        acceptedValues = null,
+        validateUrlInput = null,
     } = {}) {
         super({
             urlParamName,
@@ -47,7 +47,7 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault,
             valueType,
             defaultValue,
-            acceptedValues,
+            validateUrlInput,
         })
     }
 }

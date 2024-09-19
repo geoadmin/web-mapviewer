@@ -38,7 +38,7 @@ export default class AbstractParamConfig {
         keepInUrlWhenDefault = true,
         valueType = String,
         defaultValue = null,
-        acceptedValues = null,
+        validateUrlInput = null,
     } = {}) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
@@ -52,7 +52,7 @@ export default class AbstractParamConfig {
             // value is falsy
             this.defaultValue = false
         }
-        this.acceptedValues = acceptedValues
+        this.validateUrlInput = validateUrlInput
     }
 
     /**
@@ -146,6 +146,24 @@ export default class AbstractParamConfig {
         }
     }
 
+    getStandardErrorMessage(query) {
+        return new ErrorMessage('url_parameter_error', { param: this.urlParamName, value: query })
+    }
+
+    /**
+     * Return the standard feedback for most parameters given in the URL: if the query is validated,
+     * it can proceed and be set in the store.
+     *
+     * @param {any} query The value of the URL parameter given
+     * @param {Boolean} is_valid Is the value valid or not
+     * @returns
+     */
+    getStandardValidationResponse(query, is_valid) {
+        return {
+            valid: is_valid,
+            errors: is_valid ? null : this.getStandardErrorMessage(query),
+        }
+    }
     /**
      * Sets the store values according to the URL. Returns a promise that will resolve when the
      * store is up-to-date.
@@ -158,24 +176,38 @@ export default class AbstractParamConfig {
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
             if (store && this.setValuesInStore) {
-                if (
-                    this.acceptedValues &&
-                    to.query[this.urlParamName] &&
-                    !this.acceptedValues(store, query)
-                ) {
-                    store.dispatch('addError', {
-                        error: new ErrorMessage('url_parameter_error', {
-                            param: this.urlParamName,
-                            value: query,
-                        }),
+                // when removing a parameter from the URL, this sends a query to populate the store with
+                // the query value, with the param being absent from the query. In this case, we don't
+                // try to validate the input.
+                let inputValidation =
+                    to.query[this.urlParamName] && this.validateUrlInput
+                        ? this.validateUrlInput(store, query)
+                        : { valid: true }
+
+                // if there are no errors, we want to avoid dispatching and commiting, as it is costly
+                if (inputValidation.errors) {
+                    store.dispatch('addErrors', {
+                        errors: inputValidation.errors,
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
                 }
-                const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
-                if (promiseSetValuesInStore) {
-                    promiseSetValuesInStore.then(() => {
-                        resolve()
+
+                if (inputValidation.warnings) {
+                    store.dispatch('addWarnings', {
+                        errors: inputValidation.warnings,
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
+                }
+
+                if (inputValidation.valid) {
+                    const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
+                    if (promiseSetValuesInStore) {
+                        promiseSetValuesInStore.then(() => {
+                            resolve()
+                        })
+                    } else {
+                        resolve()
+                    }
                 } else {
                     resolve()
                 }
@@ -185,3 +217,5 @@ export default class AbstractParamConfig {
         })
     }
 }
+
+// validateUrlInput --> return an object in the form {valid:bool ; warnings : [], errors: []}
