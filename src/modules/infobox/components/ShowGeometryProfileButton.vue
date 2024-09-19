@@ -4,7 +4,9 @@ import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import LayerFeature from '@/api/features/LayerFeature.class'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const dispatcher = { dispatcher: 'ShowGeometryProfileButton.vue' }
 
@@ -20,7 +22,17 @@ const i18n = useI18n()
 const store = useStore()
 
 function showProfile() {
-    store.dispatch('setProfileFeature', { feature: feature.value, ...dispatcher })
+    let simplifyGeometry = false
+    if (feature.value instanceof LayerFeature) {
+        // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
+        // as they might be coming directly from a GPS device (meaning polluted with GPS uncertainty/error)
+        simplifyGeometry = feature.value.layer.type === LayerTypes.GPX
+    }
+    store.dispatch('setProfileFeature', {
+        feature: feature.value,
+        simplifyGeometry,
+        ...dispatcher,
+    })
 }
 </script>
 
