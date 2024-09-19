@@ -239,6 +239,8 @@ async function identifyOnExternalLayer(config) {
     // deciding on which projection we should land to ask the WMS server (the current map projection might not be supported)
     let requestProjection = projection
     let requestedCoordinate = coordinate
+    console.log('projection', projection)
+    console.log('layer.availableProjections', layer.availableProjections)
     if (!requestProjection) {
         throw new GetFeatureInfoError('Missing projection to build a getFeatureInfo request')
     }
@@ -253,13 +255,15 @@ async function identifyOnExternalLayer(config) {
                 (availableProjection) => availableProjection.epsg === candidate.epsg
             )
         )
-        // If we use different projection, we also need to project out initial coordinate
-        requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
     if (!requestProjection) {
         throw new GetFeatureInfoError(
             `No common projection found with external WMS provider, possible projection were ${layer.availableProjections.map((proj) => proj.epsg).join(', ')}`
         )
+    }
+    if (requestProjection.epsg !== projection.epsg) {
+        // If we use different projection, we also need to project out initial coordinate
+        requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
     if (layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers) {
         return await identifyOnExternalWmsLayer({

@@ -10,7 +10,7 @@ import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
-import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 function findLayer(layerId, startFrom, parents) {
@@ -26,6 +26,17 @@ function findLayer(layerId, startFrom, parents) {
         }
     }
     return found
+}
+
+function getCRSFromLayer(layer) {
+    if (layer.CRS) {
+        return layer.CRS
+    }
+    if (layer.Layer?.length > 0) {
+        return [...new Set(layer.Layer.map((sublayer) => getCRSFromLayer(sublayer)).flat())]
+    } else {
+        return []
+    }
 }
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
@@ -299,14 +310,18 @@ export default class WMSCapabilitiesParser {
             throw new CapabilitiesError(msg, 'no_wms_version_found')
         }
 
-        // by default, WGS84 must be supported
-        let availableProjections = [WGS84]
-        if (layer.CRS) {
-            availableProjections = layer.CRS.filter((crs) =>
+        let availableProjections = getCRSFromLayer(layer)
+            .filter((crs) =>
                 allCoordinateSystems.some((projection) => projection.epsg === crs.toUpperCase())
-            ).map((crs) =>
+            )
+            .map((crs) =>
                 allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
             )
+        console.log('Available projections', availableProjections)
+
+        // by default, WGS84 must be supported
+        if (availableProjections.length === 0) {
+            availableProjections = [LV95]
         }
         // filtering out double inputs
         availableProjections = [...new Set(availableProjections)]
