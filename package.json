@@ -61,6 +61,7 @@
         "@turf/helpers": "^7.1.0",
         "@turf/nearest-point": "^7.1.0",
         "@turf/point-to-line-distance": "^7.1.0",
+        "@turf/simplify": "^7.1.0",
         "animate.css": "^4.1.1",
         "axios": "^1.7.5",
         "bootstrap": "^5.3.3",

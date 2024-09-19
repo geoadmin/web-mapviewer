@@ -1,3 +1,4 @@
+import simplify from '@turf/simplify'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
 
@@ -9,9 +10,11 @@ import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+    GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
 } from '@/config/map.config'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
+import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 /** @param {SelectableFeature} feature */
@@ -601,9 +604,14 @@ export default {
          * @param {SelectableFeature | null} feature A feature which has a LineString or Polygon
          *   geometry, and for which we want to show a height profile (or `null` if the profile
          *   should be cleared/hidden)
+         * @param {Boolean} simplifyGeometry If set to true, the geometry of the feature will be
+         *   simplified before being sent to the profile backend. This is useful in case the data
+         *   comes from an unfiltered GPS source (GPX track), and not simplifying the track could
+         *   lead to a coastal paradox (meaning the hiking time will be way of the charts because of
+         *   all the small jumps due to GPS errors)
          * @param dispatcher
          */
-        setProfileFeature(store, { feature = null, dispatcher }) {
+        setProfileFeature(store, { feature = null, simplifyGeometry = false, dispatcher }) {
             const { state, commit, rootState } = store
             if (feature === null) {
                 commit('setProfileFeature', { feature: null, dispatcher })
@@ -615,9 +623,22 @@ export default {
                 commit('setProfileFeature', { feature: feature, dispatcher })
                 commit('setProfileData', { data: null, dispatcher })
                 if (feature?.geometry) {
-                    let coordinates = [...feature.geometry.coordinates]
+                    let coordinates
+                    if (simplifyGeometry) {
+                        // using TurfJS instead of OL here, as we receive geometry as GeoJSON.
+                        // Using OL would mean parsing all features as OL features once again.
+                        // Both OL and TurfJS use a Ramer-Douglas-Peucker algorithm, so output will be very similar
+                        const turfGeom = transformIntoTurfEquivalent(feature.geometry)
+                        coordinates = [
+                            ...simplify(turfGeom, {
+                                tolerance: GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
+                            }).geometry.coordinates,
+                        ]
+                    } else {
+                        coordinates = [...feature.geometry.coordinates]
+                    }
                     // unwrapping the first set of coordinates if they come from a multi-feature type geometry
-                    if (coordinates[0].some((coordinage) => Array.isArray(coordinage))) {
+                    if (coordinates[0].some((coordinate) => Array.isArray(coordinate))) {
                         coordinates = coordinates[0]
                     }
                     getProfile(coordinates, rootState.position.projection)

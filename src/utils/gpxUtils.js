@@ -3,7 +3,6 @@ import bbox from '@turf/bbox'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'
 
-import { GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config/map.config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { gpxStyles } from '@/utils/styleUtils'
@@ -46,8 +45,6 @@ export function parseGpx(gpxData, projection) {
     })
     features.forEach((feature) => {
         const geom = feature.getGeometry()
-        // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
-        feature.setGeometry(geom.simplify(GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE))
         feature.setStyle(gpxStyles[geom.getType()])
     })
     return features
