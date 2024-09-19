@@ -313,6 +313,10 @@ describe('Testing print', () => {
             checkZoom(customZoom)
             cy.checkOlLayer(['test.background.layer2', kmlID])
 
+            // Add a wait to make sure the print request is sent
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(2000) // Wait for 2 seconds
+
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
                 expect(interception.request.body['layout']).to.equal('1. A4 landscape')
