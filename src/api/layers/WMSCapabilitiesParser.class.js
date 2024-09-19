@@ -10,7 +10,7 @@ import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
-import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 function findLayer(layerId, startFrom, parents) {
@@ -28,12 +28,18 @@ function findLayer(layerId, startFrom, parents) {
     return found
 }
 
-function getCRSFromLayer(layer) {
+// Return the common projections of all sub layers if the main layer doesn't have any CRS defined
+// If the main layer has CRS defined, return them
+function getLayerProjections(layer) {
     if (layer.CRS) {
         return layer.CRS
     }
     if (layer.Layer?.length > 0) {
-        return [...new Set(layer.Layer.map((sublayer) => getCRSFromLayer(sublayer)).flat())]
+        const allCRS = layer.Layer.map((sublayer) => getLayerProjections(sublayer))
+        const commonCRS = allCRS.reduce((acc, crsArray) =>
+            acc.filter((crs) => crsArray.includes(crs))
+        )
+        return commonCRS
     } else {
         return []
     }
@@ -310,18 +316,17 @@ export default class WMSCapabilitiesParser {
             throw new CapabilitiesError(msg, 'no_wms_version_found')
         }
 
-        let availableProjections = getCRSFromLayer(layer)
+        let availableProjections = getLayerProjections(layer)
             .filter((crs) =>
                 allCoordinateSystems.some((projection) => projection.epsg === crs.toUpperCase())
             )
             .map((crs) =>
                 allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
             )
-        console.log('Available projections', availableProjections)
 
         // by default, WGS84 must be supported
         if (availableProjections.length === 0) {
-            availableProjections = [LV95]
+            availableProjections = [WGS84]
         }
         // filtering out double inputs
         availableProjections = [...new Set(availableProjections)]

@@ -239,8 +239,6 @@ async function identifyOnExternalLayer(config) {
     // deciding on which projection we should land to ask the WMS server (the current map projection might not be supported)
     let requestProjection = projection
     let requestedCoordinate = coordinate
-    console.log('projection', projection)
-    console.log('layer.availableProjections', layer.availableProjections)
     if (!requestProjection) {
         throw new GetFeatureInfoError('Missing projection to build a getFeatureInfo request')
     }
