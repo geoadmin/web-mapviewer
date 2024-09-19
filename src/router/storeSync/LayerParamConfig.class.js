@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
@@ -283,7 +284,7 @@ function validateUrlInput(store, query) {
                 ? null
                 : valid
                   ? faulty_layers
-                  : this.getStandardValidationResponse(query, valid),
+                  : getStandardValidationResponse(query, valid),
     }
 }
 

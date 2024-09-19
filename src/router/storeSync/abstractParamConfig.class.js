@@ -159,6 +159,9 @@ export default class AbstractParamConfig {
      * @returns
      */
     getStandardValidationResponse(query, is_valid) {
+        console.error('ENTRY IN STANDARD VALIDATION RESPONSE')
+        console.error(query)
+        console.error(is_valid)
         return {
             valid: is_valid,
             errors: is_valid ? null : this.getStandardErrorMessage(query),

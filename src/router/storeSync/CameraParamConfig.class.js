@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -73,7 +74,7 @@ export default class CameraParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: String,
             validateUrlInput: (store, query) =>
-                this.getStandardValidationResponse(
+                getStandardValidationResponse(
                     query,
                     query &&
                         query.split(',').length === 6 &&

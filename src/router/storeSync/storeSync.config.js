@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { SUPPORTED_LANG } from '@/modules/i18n'
@@ -30,7 +31,7 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         validateUrlInput: (store, query) =>
-            this.getStandardValidationResponse(query, SUPPORTED_LANG.includes(query)),
+            getStandardValidationResponse(query, SUPPORTED_LANG.includes(query)),
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'sr',
@@ -44,7 +45,7 @@ const storeSyncConfig = [
         // So as defensive measure for this, we set a "just in case" default hard-coded value.
         defaultValue: DEFAULT_PROJECTION?.epsgNumber ?? 2056,
         validateUrlInput: (store, query) =>
-            this.getStandardValidationResponse(
+            getStandardValidationResponse(
                 query,
                 allCoordinateSystems.map((cs) => cs.epsgNumber).includes(query)
             ),
@@ -93,7 +94,7 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             // in cypress, the backgroundLayers is undefined, so we skip this check
 
-            this.getStandardValidationResponse(
+            getStandardValidationResponse(
                 query,
                 IS_TESTING_WITH_CYPRESS ||
                     store.state.layers.backgroundLayers?.map((layer) => layer.id).includes(query)
@@ -109,7 +110,7 @@ const storeSyncConfig = [
         valueType: String,
         defaultValue: null,
         validateUrlInput: (store, query) =>
-            this.getStandardValidationResponse(
+            getStandardValidationResponse(
                 query,
                 store.state.topics.config.map((topic) => topic.id).includes(query)
             ),
@@ -128,7 +129,7 @@ const storeSyncConfig = [
         valueType: String,
         defaultValue: FeatureInfoPositions.NONE,
         validateUrlInput: (store, query) =>
-            this.getStandardValidationResponse(
+            getStandardValidationResponse(
                 query,
                 Object.values(FeatureInfoPositions).includes(query)
             ),

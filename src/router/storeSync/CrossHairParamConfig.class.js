@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -82,14 +83,14 @@ function validateUrlInput(store, query) {
         const parts = query.split(',')
         let crossHair = parts[0]
         let crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
-        return this.getStandardValidationResponse(
+        return getStandardValidationResponse(
             query,
             (crossHair ||
                 crossHairPosition.filter((coordinate) => !isNaN(coordinate)).length === 2) &&
                 (Object.values(CrossHairs).includes(crossHair) || crossHair === '')
         )
     }
-    return this.getStandardValidationResponse(query, false)
+    return getStandardValidationResponse(query, false)
 }
 
 /**

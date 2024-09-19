@@ -1,8 +1,8 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 import WarningMessage from '@/utils/WarningMessage.class'
 
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
@@ -38,7 +38,7 @@ function generateTimeSliderUrlParamFromStore(store) {
 }
 
 function validateUrlInput(store, query) {
-    const validationObject = this.getStandardValidationResponse(
+    const validationObject = getStandardValidationResponse(
         query,
         !isNaN(query) && Number.isInteger(query) && OLDEST_YEAR <= query && YOUNGEST_YEAR >= query
     )
