@@ -39,7 +39,7 @@ export default {
             type: String,
             default: '',
         },
-        isExternalDataLocal: {
+        isLocalFile: {
             type: Boolean,
             default: false,
         },

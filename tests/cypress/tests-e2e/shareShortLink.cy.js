@@ -233,7 +233,7 @@ describe('Testing the share menu', () => {
             viewportHeight: 600,
         },
         () => {
-            beforeEach(() => {
+            it('shows the warning of sharing an iframe while having a local file imported', () => {
                 const localKmlFile = 'import-tool/external-kml-file.kml'
                 cy.get('[data-cy="menu-button"]').click()
 
@@ -275,8 +275,7 @@ describe('Testing the share menu', () => {
                 // otherwise the menu will be closed by the first click
                 cy.get('[data-cy="menu-share-section"]').click()
                 cy.get('[data-cy="menu-share-embed-button"]').click()
-            })
-            it('shows the warning of sharing an iframe while having a local file imported', () => {
+
                 cy.get('[data-cy="menu-share-embed-preview-button"]').click()
 
                 cy.get('[data-cy="warn-share-local-file-container"]').should('be.visible')

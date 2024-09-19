@@ -108,7 +108,7 @@ const buttonIcon = computed(() => {
     return ['far', 'copy']
 })
 
-const hasAnyExternalDataLocal = computed(() => store.getters.hasAnyExternalDataLocal())
+const hasAnyLocalFile = computed(() => store.getters.hasAnyLocalFile())
 
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
@@ -300,7 +300,7 @@ watch(
                 <!-- eslint-disable vue/no-v-html-->
                 <div class="small text-wrap text-center" v-html="t('share_disclaimer')"></div>
                 <div
-                    v-if="hasAnyExternalDataLocal"
+                    v-if="hasAnyLocalFile"
                     class="d-flex flex-row gap-2 justify-content-center mt-2"
                     data-cy="warn-share-local-file-container"
                 >
@@ -310,7 +310,7 @@ watch(
                         data-cy="menu-external-disclaimer-icon-cloud"
                     />
                     <div
-                        class="small text-wrap text-center text-warning"
+                        class="small text-wrap text-center"
                         data-cy="warn-share-local-file"
                         v-html="t('warn_share_local_file')"
                     ></div>

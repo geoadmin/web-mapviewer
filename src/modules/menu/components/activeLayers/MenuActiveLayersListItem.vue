@@ -64,7 +64,7 @@ const layerUpButton = ref(null)
 const layerDownButton = ref(null)
 const transparencySlider = ref(null)
 const id = computed(() => layer.value.id)
-const hasDataDisclaimerLocal = computed(() => store.getters.hasDataDisclaimerLocal(id.value))
+const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
 const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
@@ -193,16 +193,16 @@ function duplicateLayer() {
                 v-if="hasDataDisclaimer"
                 :complete-disclaimer-on-click="true"
                 :source-name="attributionName"
-                :is-external-data-local="hasDataDisclaimerLocal"
+                :is-local-file="isLocalFile"
             >
                 <FontAwesomeIcon
-                    v-if="hasDataDisclaimer && !hasDataDisclaimerLocal"
+                    v-if="!isLocalFile"
                     class="data-disclaimer-tooltip text-primary"
                     icon="cloud"
                     data-cy="menu-external-disclaimer-icon-cloud"
                 />
                 <FontAwesomeIcon
-                    v-if="hasDataDisclaimerLocal"
+                    v-else
                     class="data-disclaimer-tooltip text-secondary"
                     icon="hard-drive"
                     data-cy="menu-external-disclaimer-icon-hard-drive"

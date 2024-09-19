@@ -41,7 +41,7 @@ export default {
             layersConfig: (state) => state.layers.config,
             currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
         }),
-        ...mapGetters(['visibleLayers', 'hasDataDisclaimer', 'hasDataDisclaimerLocal']),
+        ...mapGetters(['visibleLayers', 'hasDataDisclaimer', 'isLocalFile']),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here
@@ -63,7 +63,7 @@ export default {
                                 name: attribution.name,
                                 url: attribution.url,
                                 hasDataDisclaimer: this.hasDataDisclaimer(layer.id),
-                                isExternalDataLocal: this.hasDataDisclaimerLocal(layer.id),
+                                isExternalDataLocal: this.isLocalFile(layer),
                             }
                         })
                     })
