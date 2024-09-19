@@ -1,7 +1,7 @@
 <script setup>
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'
-import { computed, inject, toRefs } from 'vue'
+import { computed, inject, toRefs, watch } from 'vue'
 
 import GeoTIFFLayer from '@/api/layers/GeoTIFFLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -20,7 +20,7 @@ const props = defineProps({
         default: -1,
     },
 })
-const { geotiffConfig, zIndex } = toRefs(props)
+const { geotiffConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const olMap = inject('olMap')
 const source = computed(() => {
@@ -29,15 +29,23 @@ const source = computed(() => {
     }
     return { url: geotiffConfig.value.fileSource }
 })
+const opacity = computed(() => parentLayerOpacity.value ?? geotiffConfig.value.opacity)
 
-const geoTIFFSource = new GeoTIFFSource({
-    convertToRGB: 'auto',
-    sources: [source.value],
-})
 const layer = new WebGLTileLayer({
-    source: geoTIFFSource,
+    source: createLayerSource(),
+    opacity: opacity.value,
 })
 useAddLayerToMap(layer, olMap, zIndex)
+
+watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(source, () => layer.setSource(createLayerSource()))
+
+function createLayerSource() {
+    return new GeoTIFFSource({
+        convertToRGB: 'auto',
+        sources: [source.value],
+    })
+}
 </script>
 
 <template>
