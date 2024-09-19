@@ -899,6 +899,15 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             })
             cy.log(`[${layer.id}] layer at index ${index} is rendered ${olLayer.rendered}`)
             expect(olLayer.rendered, `[${layer.id}] layer.rendered`).to.be.true
+            cy.log(`Class: ${olLayer.constructor.name}`)
+            if (olLayer.constructor.name === 'VectorLayer') {
+                cy.log(`[${layer.id}] extent: ${olLayer.getSource().getExtent()}`)
+                const features = olLayer.getSource().getFeatures()
+                cy.log(`Number of features: ${features.length}`)
+                features.forEach((feature, featureIndex) => {
+                    cy.log(`Feature ${featureIndex}: ${JSON.stringify(feature.getProperties())}`)
+                })
+            }
         })
     })
     invisibleLayers.forEach((layer) => {
