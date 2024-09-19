@@ -278,7 +278,7 @@ export default function useMapInteractions(map) {
                 errorKey = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
             }
-            store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
+            store.dispatch('addErrors', { error: new ErrorMessage(errorKey, null), ...dispatcher })
         }
     }
 

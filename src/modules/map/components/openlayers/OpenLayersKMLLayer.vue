@@ -87,7 +87,7 @@ function iconUrlProxy(url) {
     return iconUrlProxyFy(
         url,
         (url) => {
-            store.dispatch('addWarning', {
+            store.dispatch('addWarnings', {
                 warning: new WarningMessage('kml_icon_url_cors_issue', {
                     layerName: layerName.value,
                     url: url,
@@ -96,7 +96,7 @@ function iconUrlProxy(url) {
             })
         },
         (url) => {
-            store.dispatch('addWarning', {
+            store.dispatch('addWarnings', {
                 warning: new WarningMessage('kml_icon_url_scheme_http', {
                     layerName: layerName.value,
                     url: url,
