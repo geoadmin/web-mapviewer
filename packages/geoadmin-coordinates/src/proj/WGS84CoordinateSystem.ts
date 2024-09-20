@@ -2,10 +2,9 @@ import { round } from '@geoadmin/numbers'
 
 import type { SingleCoordinate } from '@/utils'
 
+import { PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES } from '@/proj/CoordinateSystem'
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
-import StandardCoordinateSystem, {
-    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
-} from '@/proj/StandardCoordinateSystem'
+import StandardCoordinateSystem from '@/proj/StandardCoordinateSystem'
 
 export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
     constructor() {
