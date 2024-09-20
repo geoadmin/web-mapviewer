@@ -13,17 +13,14 @@
         :wms-layer-config="layerConfig"
         :projection="projection"
         :z-index="zIndex"
-        :is-time-slider-active="isTimeSliderActive"
     />
     <div v-if="layerConfig.type === LayerTypes.GROUP">
         <CesiumWMSLayer
             v-for="(layer, index) in layerConfig.layers"
             :key="`${layer.id}-${index}`"
             :wms-layer-config="layer"
-            :projection="projection"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex + index"
-            :is-time-slider-active="isTimeSliderActive"
         />
     </div>
     <div v-if="layerConfig.type === LayerTypes.AGGREGATE">

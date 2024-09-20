@@ -2,7 +2,7 @@
 import { Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
 import { computed, inject, onBeforeUnmount, onMounted, toRefs, watch } from 'vue'
 
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 const props = defineProps({
     kmlLayerConfig: {
