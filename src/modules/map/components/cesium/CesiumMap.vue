@@ -11,40 +11,8 @@
         @touchcancel="clearLongPressTimer"
         @contextmenu="onContextMenu"
     >
-        <div v-if="viewerCreated">
-            <!--
-               Adding background layer, z-index can be set to zero for all, as only the WMTS
-               background layer is an imagery layer (and requires one), all other BG layer are
-               primitive layer and will ignore this prop
-            -->
-            <CesiumInternalLayer
-                v-for="bgLayer in backgroundLayersFor3D"
-                :key="bgLayer.id"
-                :layer-config="bgLayer"
-                :projection="projection"
-                :z-index="0"
-            />
-            <!--
-               Adding all other layers
-               Layers split between imagery and primitive type for correct zIndex ordering.
-               Only imagery layers require a z-index, we start to count them at 1 because of the
-               background WMTS layer
-            -->
-            <CesiumInternalLayer
-                v-for="(layer, index) in visibleImageryLayers"
-                :key="layer.id"
-                :layer-config="layer"
-                :projection="projection"
-                :z-index="index + startingZIndexForImageryLayers"
-                :is-time-slider-active="isTimeSliderActive"
-            />
-            <CesiumInternalLayer
-                v-for="layer in visiblePrimitiveLayers"
-                :key="layer.id"
-                :layer-config="layer"
-                :projection="projection"
-            />
-        </div>
+        <CesiumBackgroundLayer v-if="viewerCreated" />
+        <CesiumVisibleLayers v-if="viewerCreated" />
         <CesiumPopover
             v-if="viewerCreated && showFeaturesPopover"
             :coordinates="popoverCoordinates"
@@ -102,22 +70,18 @@ import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { get3dTilesBaseUrl, getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'
 import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
-import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
+import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
@@ -145,12 +109,13 @@ import { wrapDegrees } from '@/utils/numberUtils.js'
 const dispatcher = { dispatcher: 'CesiumMap.vue' }
 export default {
     components: {
+        CesiumVisibleLayers,
+        CesiumBackgroundLayer,
         CesiumGeolocationFeedback,
         FontAwesomeIcon,
         CesiumPopover,
         FeatureEdit,
         FeatureList,
-        CesiumInternalLayer,
     },
     provide() {
         return {
@@ -172,7 +137,6 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             projection: (state) => state.position.projection,
-            isFullScreenMode: (state) => state.ui.fullscreenMode,
             isTimeSliderActive: (state) => state.ui.isTimeSliderActive,
             layersConfig: (state) => state.layers.config,
         }),
@@ -182,7 +146,6 @@ export default {
             'resolution',
             'hasDevSiteWarning',
             'visibleLayers',
-            'backgroundLayersFor3D',
             'showFeatureInfoInTooltip',
         ]),
         isProjectionWebMercator() {
@@ -190,25 +153,6 @@ export default {
         },
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
-        },
-        visibleImageryLayers() {
-            return this.visibleLayers
-                .filter(
-                    (l) =>
-                        l instanceof GeoAdminWMTSLayer ||
-                        l instanceof GeoAdminWMSLayer ||
-                        l instanceof GeoAdminAggregateLayer ||
-                        l instanceof ExternalLayer
-                )
-                .map((visibleLayer) => {
-                    if (visibleLayer.idIn3d) {
-                        return (
-                            this.layersConfig.find((layer) => layer.id === visibleLayer.idIn3d) ??
-                            visibleLayer
-                        )
-                    }
-                    return visibleLayer
-                })
         },
         isFeatureInfoInTooltip() {
             return this.showFeatureInfoInTooltip
@@ -226,11 +170,6 @@ export default {
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)
-        },
-        startingZIndexForImageryLayers() {
-            return this.backgroundLayersFor3D.find((layer) => layer.type === LayerTypes.WMTS)
-                ? 1
-                : 0
         },
     },
     watch: {
