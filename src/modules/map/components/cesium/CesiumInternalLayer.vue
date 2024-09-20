@@ -41,11 +41,7 @@
     </div>
     <CesiumGeoJSONLayer
         v-if="layerConfig.type === LayerTypes.GEOJSON"
-        :layer-id="layerConfig.id"
-        :opacity="layerConfig.opacity"
-        :geojson-url="layerConfig.geoJsonUrl"
-        :style-url="layerConfig.styleUrl"
-        :projection="projection"
+        :geo-json-config="layerConfig"
     />
     <CesiumKMLLayer v-if="layerConfig.type === LayerTypes.KML" :kml-layer-config="layerConfig" />
     <CesiumGPXLayer v-if="layerConfig.type === LayerTypes.GPX" :gpx-layer-config="layerConfig" />
@@ -57,10 +53,10 @@ import { mapGetters } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 
-import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumGPXLayer from './CesiumGPXLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
 import CesiumWMSLayer from './CesiumWMSLayer.vue'

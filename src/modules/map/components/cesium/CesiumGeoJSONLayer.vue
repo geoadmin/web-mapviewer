@@ -1,72 +1,51 @@
+<script setup>
+import { GeoJsonDataSource } from 'cesium'
+import { cloneDeep } from 'lodash'
+import { reproject } from 'reproject'
+import { computed, inject, onMounted, toRefs } from 'vue'
+
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging.js'
+
+const props = defineProps({
+    geoJsonConfig: {
+        type: GeoAdminGeoJsonLayer,
+        required: true,
+    },
+})
+
+const { geoJsonConfig } = toRefs(props)
+
+const getViewer = inject('getViewer')
+const viewer = getViewer()
+
+const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
+const geoJsonDataInMercator = computed(() => {
+    if (geoJsonData.value?.crs?.properties?.name === LV95.epsg) {
+        const reprojectedData = reproject(cloneDeep(geoJsonData.value), LV95.epsg, WGS84.epsg)
+        delete reprojectedData.crs
+        return reprojectedData
+    }
+    return geoJsonConfig.value.geoJsonData
+})
+
+onMounted(() => {
+    GeoJsonDataSource.load(geoJsonDataInMercator.value)
+        .then((loadedData) => {
+            loadedData.entities.values.forEach((entity) =>
+                setEntityStyle(entity, geoJsonStyle.value)
+            )
+            viewer.dataSources.add(loadedData)
+        })
+        .catch((error) => {
+            log.error('Error while parsing GeoJSON in Cesium', error)
+        })
+})
+</script>
+
 <template>
     <slot />
 </template>
-
-<script>
-import axios from 'axios'
-import GeoJSON from 'ol/format/GeoJSON'
-import { Vector as VectorSource } from 'ol/source'
-
-import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
-import log from '@/utils/logging'
-
-import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
-
-/** Adds a GeoJSON layer to the Cesium viewer */
-export default {
-    mixins: [addPrimitiveFromOLLayerMixins],
-    props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        geojsonUrl: {
-            type: String,
-            required: true,
-        },
-        styleUrl: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 0.9,
-        },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
-    },
-    methods: {
-        loadDataInOLLayer() {
-            return Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
-                .then((responses) => {
-                    const geojsonData = responses[0].data
-                    const geojsonStyleLiterals = responses[1].data
-                    const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
-                    this.olLayer.setSource(
-                        new VectorSource({
-                            features: new GeoJSON().readFeatures(
-                                reprojectGeoJsonData(geojsonData, this.projection)
-                            ),
-                        })
-                    )
-                    this.olLayer.setStyle(function (feature, res) {
-                        return style.getFeatureStyle(feature, res)
-                    })
-                })
-                .catch((error) => {
-                    log.error(
-                        `Error while fetching GeoJSON data/style for layer ${this.layerId}`,
-                        error
-                    )
-                    throw new Error(
-                        `Error while fetching GeoJSON data/style for layer ${this.layerId}`
-                    )
-                })
-        },
-    },
-}
-</script>
