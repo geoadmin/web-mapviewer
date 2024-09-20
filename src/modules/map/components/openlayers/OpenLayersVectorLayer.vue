@@ -9,12 +9,14 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
-import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import { Source } from 'ol/source'
 import { computed, inject, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
+import MapLibreLayer from '@/modules/map/components/openlayers/utils/ol-maplibre-layer/MapLibreLayer'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
 
 const props = defineProps({
     vectorLayerConfig: {
@@ -32,6 +34,9 @@ const props = defineProps({
 })
 const { vectorLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
+const store = useStore()
+const currentProjection = computed(() => store.state.position.projection)
+
 // extracting useful info from what we've linked so far
 const layerId = computed(() => vectorLayerConfig.value.vectorStyleId)
 const opacity = computed(() => parentLayerOpacity.value ?? vectorLayerConfig.value.opacity)
@@ -47,6 +52,12 @@ const layer = new MapLibreLayer({
     source: new Source({
         attribution: [vectorLayerConfig.value.attribution],
     }),
+    translateZoom: (zoom) => {
+        if (currentProjection.value instanceof SwissCoordinateSystem) {
+            return currentProjection.value.transformCustomZoomLevelToStandard(zoom)
+        }
+        return zoom
+    },
 })
 
 const olMap = inject('olMap')
