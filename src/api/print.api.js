@@ -8,6 +8,7 @@ import {
 import axios from 'axios'
 import { Circle } from 'ol/style'
 
+import { unProxifyUrl } from '@/api/file-proxy.api'
 import {
     getApi3BaseUrl,
     getViewerDedicatedServicesBaseUrl,
@@ -116,6 +117,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (symbolizer.externalGraphic) {
             size = image.getSize()
             anchor = image.getAnchor()
+            // service print can't handle a proxied url, so we ensure we're
+            // giving the original url for the print job.
+            symbolizer.externalGraphic = unProxifyUrl(symbolizer.externalGraphic)
         } else if (image instanceof Circle) {
             const radius = image.getRadius()
             const width = adjustWidth(2 * radius, this.printResolution)
