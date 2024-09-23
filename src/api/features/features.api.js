@@ -24,6 +24,7 @@ const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
 const APPLICATION_JSON_TYPE = 'application/json'
 const APPLICATION_GML_3_TYPE = 'application/vnd.ogc.gml'
+const APPLICATION_OGC_WMS_XML_TYPE = 'application/vnd.ogc.wms_xml'
 const PLAIN_TEXT_TYPE = 'text/plain'
 
 /**
@@ -281,6 +282,50 @@ async function identifyOnExternalLayer(config) {
     }
 }
 
+// Parse OGC WMS XML response to GeoJSON
+function parseOGCWMSFeatureInfoResponse(response) {
+    const parser = new DOMParser()
+    const xmlDoc = parser.parseFromString(response, 'text/xml')
+
+    // Check for parsing errors
+    const parserError = xmlDoc.getElementsByTagName('parsererror')
+    if (parserError.length > 0) {
+        console.error('Error parsing OGC WMS XML response')
+        return null
+    }
+
+    const features = []
+    const fieldElements = xmlDoc.getElementsByTagName('FIELDS')
+
+    for (let i = 0; i < fieldElements.length; i++) {
+        const fieldElement = fieldElements[i]
+        const properties = {}
+
+        // Extract attributes from the FIELDS element
+        for (let j = 0; j < fieldElement.attributes.length; j++) {
+            const attribute = fieldElement.attributes[j]
+            properties[attribute.name] = attribute.value
+        }
+
+        // Create a GeoJSON feature
+        const feature = {
+            type: 'Feature',
+            geometry: null, // Assuming geometry is not provided in the response
+            properties: properties,
+        }
+
+        features.push(feature)
+    }
+
+    // Create a GeoJSON FeatureCollection
+    const geojson = {
+        type: 'FeatureCollection',
+        features: features,
+    }
+
+    return geojson
+}
+
 /**
  * Runs a getFeatureInfo request on the backend of an external WMS layer.
  *
@@ -336,6 +381,8 @@ async function identifyOnExternalWmsLayer(config) {
         // if JSON isn't supported, we check if GML3 is supported
         if (layer.getFeatureInfoCapability.formats?.includes(APPLICATION_GML_3_TYPE)) {
             outputFormat = APPLICATION_GML_3_TYPE
+        } else if (layer.getFeatureInfoCapability.formats?.includes(APPLICATION_OGC_WMS_XML_TYPE)) {
+            outputFormat = APPLICATION_OGC_WMS_XML_TYPE
         } else {
             // if neither JSON nor GML3 are supported, we will ask for plain text
             outputFormat = PLAIN_TEXT_TYPE
@@ -406,6 +453,9 @@ async function identifyOnExternalWmsLayer(config) {
             case APPLICATION_JSON_TYPE:
                 // nothing to do other than extracting the data
                 features = getFeatureInfoResponse.data.features
+                break
+            case APPLICATION_OGC_WMS_XML_TYPE:
+                features = parseOGCWMSFeatureInfoResponse(getFeatureInfoResponse.data)?.features
                 break
             case PLAIN_TEXT_TYPE:
                 // TODO : implement plain text parsing
