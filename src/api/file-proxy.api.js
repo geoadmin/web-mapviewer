@@ -56,3 +56,15 @@ export function proxifyUrl(url) {
     }
     return `${getServiceProxyBaseUrl()}${fileAsPath}`
 }
+
+export function unProxifyUrl(proxified_url) {
+    if (
+        (typeof proxified_url === 'string' || proxified_url instanceof String) &&
+        proxified_url.startsWith(getServiceProxyBaseUrl())
+    ) {
+        let url = proxified_url.replace(getServiceProxyBaseUrl(), '')
+        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1])}`
+    }
+
+    return proxified_url
+}
