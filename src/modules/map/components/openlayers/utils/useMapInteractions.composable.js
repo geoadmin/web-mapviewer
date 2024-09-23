@@ -184,6 +184,7 @@ export default function useMapInteractions(map) {
 
     function onMapRightClick(event) {
         clearTimeout(longClickTimeout)
+        longClickTriggered = event.updateLongClickTriggered ?? false
         store.dispatch('click', {
             clickInfo: new ClickInfo({
                 coordinate: event.coordinate,
@@ -212,7 +213,6 @@ export default function useMapInteractions(map) {
             // LocationPopup by touching the same-ish spot for 500ms
             longClickTimeout = setTimeout(() => {
                 if (!mapHasMoved) {
-                    longClickTriggered = true
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
                     const pixel = map.getEventPixel(event)
                     const coordinate = map.getCoordinateFromPixel(pixel)
@@ -220,6 +220,7 @@ export default function useMapInteractions(map) {
                         ...event,
                         pixel,
                         coordinate,
+                        updateLongClickTriggered: true,
                     })
                 }
                 mapHasMoved = false
