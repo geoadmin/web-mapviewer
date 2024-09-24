@@ -1,7 +1,5 @@
 // NOTE: This is exported but should only be used in this module, if the value is needed outside
 
-import ErrorMessage from '@/utils/ErrorMessage.class'
-
 // of this module we should use the string directly to avoid module dependencies.
 export const STORE_DISPATCHER_ROUTER_PLUGIN = 'storeSync.routerPlugin'
 
@@ -63,10 +61,11 @@ export default class AbstractParamConfig {
      * @returns {undefined | number | string | boolean} The value casted in the type given to the
      *   config (see constructor)
      */
-    readValueFromQuery(query) {
+    readValueFromQuery(query, store) {
         if (!query) {
             return undefined
         }
+
         if (!(this.urlParamName in query)) {
             if (!this.keepInUrlWhenDefault) {
                 return this.defaultValue
@@ -74,7 +73,33 @@ export default class AbstractParamConfig {
                 return undefined
             }
         }
+
         const queryValue = query[this.urlParamName]
+        if (store) {
+            let inputValidation = this.validateUrlInput
+                ? this.validateUrlInput(store, queryValue)
+                : { valid: true }
+            console.error(inputValidation)
+
+            // if there are no errors, we want to avoid dispatching and commiting, as it is costly
+            if (inputValidation.errors) {
+                store.dispatch('addErrors', {
+                    errors: inputValidation.errors,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
+
+            if (inputValidation.warnings) {
+                store.dispatch('addWarnings', {
+                    errors: inputValidation.warnings,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
+            if (!inputValidation.valid) {
+                return undefined
+            }
+        }
+
         if (this.valueType === Boolean) {
             // Edge case here in Javascript with Boolean constructor, Boolean('false') returns true as the "object"
             // we passed to the constructor is valid and non-null. So we manage that "the old way" for booleans
@@ -91,6 +116,7 @@ export default class AbstractParamConfig {
         } else if (queryValue === null || queryValue === undefined) {
             return this.defaultValue
         }
+        console.error('let us continue')
         return this.valueType(queryValue)
     }
 
@@ -157,44 +183,16 @@ export default class AbstractParamConfig {
      */
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
-            console.error('HELLO')
-            console.error(query)
             if (store && this.setValuesInStore) {
                 // when removing a parameter from the URL, this sends a query to populate the store with
                 // the query value, with the param being absent from the query. In this case, we don't
                 // try to validate the input.
-                let inputValidation =
-                    to.query[this.urlParamName] && this.validateUrlInput
-                        ? this.validateUrlInput(store, query)
-                        : { valid: true }
-                console.error(inputValidation)
 
-                // if there are no errors, we want to avoid dispatching and commiting, as it is costly
-                if (inputValidation.errors) {
-                    console.warn('ENTRY HERE')
-                    console.warn(inputValidation.errors)
-                    store.dispatch('addErrors', {
-                        errors: inputValidation.errors,
-                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                    })
-                }
-
-                if (inputValidation.warnings) {
-                    store.dispatch('addWarnings', {
-                        errors: inputValidation.warnings,
-                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                    })
-                }
-
-                if (inputValidation.valid) {
-                    const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
-                    if (promiseSetValuesInStore) {
-                        promiseSetValuesInStore.then(() => {
-                            resolve()
-                        })
-                    } else {
+                const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
+                if (promiseSetValuesInStore) {
+                    promiseSetValuesInStore.then(() => {
                         resolve()
-                    }
+                    })
                 } else {
                     resolve()
                 }
@@ -204,5 +202,3 @@ export default class AbstractParamConfig {
         })
     }
 }
-
-// validateUrlInput --> return an object in the form {valid:bool ; warnings : [], errors: []}
