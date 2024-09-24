@@ -47,7 +47,7 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                allCoordinateSystems.map((cs) => cs.epsgNumber).includes(query),
+                allCoordinateSystems.map((cs) => cs.epsgNumber).includes(Number(query)),
                 'sr'
             ),
     }),
@@ -133,7 +133,13 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                Object.values(FeatureInfoPositions).includes(query),
+                Object.values(FeatureInfoPositions).filter((featureInfoPosition) => {
+                    return (
+                        featureInfoPosition.localeCompare(query, undefined, {
+                            sensitivity: 'accent',
+                        }) === 0
+                    )
+                }).length === 1,
                 'featureInfo'
             ),
     }),

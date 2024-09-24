@@ -40,7 +40,10 @@ function generateTimeSliderUrlParamFromStore(store) {
 function validateUrlInput(store, query) {
     const validationObject = getStandardValidationResponse(
         query,
-        !isNaN(query) && Number.isInteger(query) && OLDEST_YEAR <= query && YOUNGEST_YEAR >= query,
+        !isNaN(query) &&
+            Number.isInteger(Number(query)) &&
+            OLDEST_YEAR <= query &&
+            YOUNGEST_YEAR >= query,
         this.urlParamName
     )
 

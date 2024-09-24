@@ -16,8 +16,6 @@ export function getStandardErrorMessage(query, urlParamName) {
  * @returns
  */
 export function getStandardValidationResponse(query, is_valid, urlParamName) {
-    console.warn('inGETSTANDARD')
-    console.warn(is_valid)
     return {
         valid: is_valid,
         errors: is_valid ? null : getStandardErrorMessage(query, urlParamName),

@@ -66,7 +66,7 @@ export default class AbstractParamConfig {
             return undefined
         }
 
-        if (!(this.urlParamName in query)) {
+        if (!(this.urlParamName in query) || query[this.urlParamName] === undefined) {
             if (!this.keepInUrlWhenDefault) {
                 return this.defaultValue
             } else {
@@ -79,7 +79,6 @@ export default class AbstractParamConfig {
             let inputValidation = this.validateUrlInput
                 ? this.validateUrlInput(store, queryValue)
                 : { valid: true }
-            console.error(inputValidation)
 
             // if there are no errors, we want to avoid dispatching and commiting, as it is costly
             if (inputValidation.errors) {
@@ -116,7 +115,6 @@ export default class AbstractParamConfig {
         } else if (queryValue === null || queryValue === undefined) {
             return this.defaultValue
         }
-        console.error('let us continue')
         return this.valueType(queryValue)
     }
 
