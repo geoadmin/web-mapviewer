@@ -87,10 +87,11 @@ function validateUrlInput(store, query) {
             query,
             (crossHair ||
                 crossHairPosition.filter((coordinate) => !isNaN(coordinate)).length === 2) &&
-                (Object.values(CrossHairs).includes(crossHair) || crossHair === '')
+                (Object.values(CrossHairs).includes(crossHair) || crossHair === ''),
+            this.urlParamName
         )
     }
-    return getStandardValidationResponse(query, false)
+    return getStandardValidationResponse(query, false, this.urlParamName)
 }
 
 /**

@@ -38,10 +38,11 @@ function validateUrlInput(store, query) {
         const center = query.split(',')
         return getStandardValidationResponse(
             query,
-            center.length === 2 && store.state.position.projection.isInBounds(center[0], center[1])
+            center.length === 2 && store.state.position.projection.isInBounds(center[0], center[1]),
+            this.urlParamName
         )
     }
-    return getStandardValidationResponse(query, false)
+    return getStandardValidationResponse(query, false, this.urlParamName)
 }
 
 /**

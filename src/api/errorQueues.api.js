@@ -1,7 +1,10 @@
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
-export function getStandardErrorMessage(query) {
-    return new ErrorMessage('url_parameter_error', { param: this.urlParamName, value: query })
+export function getStandardErrorMessage(query, urlParamName) {
+    return new ErrorMessage('url_parameter_error', {
+        param: urlParamName,
+        value: query,
+    })
 }
 
 /**
@@ -12,9 +15,11 @@ export function getStandardErrorMessage(query) {
  * @param {Boolean} is_valid Is the value valid or not
  * @returns
  */
-export function getStandardValidationResponse(query, is_valid) {
+export function getStandardValidationResponse(query, is_valid, urlParamName) {
+    console.warn('inGETSTANDARD')
+    console.warn(is_valid)
     return {
         valid: is_valid,
-        errors: is_valid ? null : this.getStandardErrorMessage(query),
+        errors: is_valid ? null : getStandardErrorMessage(query, urlParamName),
     }
 }

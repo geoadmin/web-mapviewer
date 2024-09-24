@@ -31,7 +31,7 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         validateUrlInput: (store, query) =>
-            getStandardValidationResponse(query, SUPPORTED_LANG.includes(query)),
+            getStandardValidationResponse(query, SUPPORTED_LANG.includes(query), 'lang'),
     }),
     new SimpleUrlParamConfig({
         urlParamName: 'sr',
@@ -47,7 +47,8 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                allCoordinateSystems.map((cs) => cs.epsgNumber).includes(query)
+                allCoordinateSystems.map((cs) => cs.epsgNumber).includes(query),
+                'sr'
             ),
     }),
     // Position must be processed after the projection param,
@@ -112,7 +113,8 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                store.state.topics.config.map((topic) => topic.id).includes(query)
+                store.state.topics.config.map((topic) => topic.id).includes(query),
+                'topic'
             ),
     }),
     new SearchParamConfig(),
@@ -131,7 +133,8 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                Object.values(FeatureInfoPositions).includes(query)
+                Object.values(FeatureInfoPositions).includes(query),
+                'featureInfo'
             ),
     }),
     new SimpleUrlParamConfig({

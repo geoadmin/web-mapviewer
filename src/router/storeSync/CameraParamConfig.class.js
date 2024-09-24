@@ -79,7 +79,8 @@ export default class CameraParamConfig extends AbstractParamConfig {
                     query &&
                         query.split(',').length === 6 &&
                         query.split(',').filter((value) => value === '' || !isNaN(value)).length ===
-                            6
+                            6,
+                    this.urlParamName
                 ),
         })
     }

@@ -40,7 +40,8 @@ function generateTimeSliderUrlParamFromStore(store) {
 function validateUrlInput(store, query) {
     const validationObject = getStandardValidationResponse(
         query,
-        !isNaN(query) && Number.isInteger(query) && OLDEST_YEAR <= query && YOUNGEST_YEAR >= query
+        !isNaN(query) && Number.isInteger(query) && OLDEST_YEAR <= query && YOUNGEST_YEAR >= query,
+        this.urlParamName
     )
 
     if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length === 0) {

@@ -396,7 +396,7 @@ export default {
             ) {
                 commit('addErrors', { errors, dispatcher })
             } else if (errors instanceof ErrorMessage) {
-                if (state.errors.has(errors)) {
+                if (!state.errors.has(errors)) {
                     commit('addError', {
                         error: errors,
                         dispatcher,

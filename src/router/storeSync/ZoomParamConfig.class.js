@@ -42,7 +42,11 @@ export default class ZoomParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: true,
             valueType: Number,
             validateUrlInput: (store, query) =>
-                getStandardValidationResponse(query, query && !isNaN(query) && Number(query) >= 0),
+                getStandardValidationResponse(
+                    query,
+                    query && !isNaN(query) && Number(query) >= 0,
+                    this.urlParamName
+                ),
         })
     }
 }

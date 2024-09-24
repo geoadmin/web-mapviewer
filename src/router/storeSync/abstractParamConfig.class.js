@@ -146,27 +146,6 @@ export default class AbstractParamConfig {
         }
     }
 
-    getStandardErrorMessage(query) {
-        return new ErrorMessage('url_parameter_error', { param: this.urlParamName, value: query })
-    }
-
-    /**
-     * Return the standard feedback for most parameters given in the URL: if the query is validated,
-     * it can proceed and be set in the store.
-     *
-     * @param {any} query The value of the URL parameter given
-     * @param {Boolean} is_valid Is the value valid or not
-     * @returns
-     */
-    getStandardValidationResponse(query, is_valid) {
-        console.error('ENTRY IN STANDARD VALIDATION RESPONSE')
-        console.error(query)
-        console.error(is_valid)
-        return {
-            valid: is_valid,
-            errors: is_valid ? null : this.getStandardErrorMessage(query),
-        }
-    }
     /**
      * Sets the store values according to the URL. Returns a promise that will resolve when the
      * store is up-to-date.
@@ -178,6 +157,8 @@ export default class AbstractParamConfig {
      */
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
+            console.error('HELLO')
+            console.error(query)
             if (store && this.setValuesInStore) {
                 // when removing a parameter from the URL, this sends a query to populate the store with
                 // the query value, with the param being absent from the query. In this case, we don't
@@ -186,9 +167,12 @@ export default class AbstractParamConfig {
                     to.query[this.urlParamName] && this.validateUrlInput
                         ? this.validateUrlInput(store, query)
                         : { valid: true }
+                console.error(inputValidation)
 
                 // if there are no errors, we want to avoid dispatching and commiting, as it is costly
                 if (inputValidation.errors) {
+                    console.warn('ENTRY HERE')
+                    console.warn(inputValidation.errors)
                     store.dispatch('addErrors', {
                         errors: inputValidation.errors,
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,

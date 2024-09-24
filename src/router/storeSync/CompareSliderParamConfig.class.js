@@ -50,7 +50,8 @@ export default class CompareSliderParamConfig extends AbstractParamConfig {
             validateUrlInput: (store, query) =>
                 getStandardValidationResponse(
                     query,
-                    query && Number(query) <= 1.0 && Number(query) >= 0.0
+                    query && Number(query) <= 1.0 && Number(query) >= 0.0,
+                    this.urlParamName
                 ),
         })
     }

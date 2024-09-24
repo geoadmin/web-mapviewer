@@ -284,7 +284,7 @@ function validateUrlInput(store, query) {
                 ? null
                 : valid
                   ? faulty_layers
-                  : getStandardValidationResponse(query, valid),
+                  : getStandardValidationResponse(query, valid, this.urlParamName),
     }
 }
 
