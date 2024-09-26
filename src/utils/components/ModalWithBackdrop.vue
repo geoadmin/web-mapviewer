@@ -8,7 +8,7 @@
                 ref="modal"
                 class="modal-popup position-fixed"
                 :style="modalStyle"
-                :class="modalPosition"
+                :class="modalClass"
             >
                 <div
                     class="card"
@@ -120,7 +120,7 @@ export default {
             type: Boolean,
             default: false,
         },
-        dragable: {
+        movable: {
             type: Boolean,
             default: false,
         },
@@ -139,25 +139,21 @@ export default {
     computed: {
         headerStyle() {
             return {
-                cursor: this.dragable ? 'move' : 'default',
+                cursor: this.movable ? 'move' : 'default',
             }
         },
         modalStyle() {
-            return !this.top
-                ? {
-                      top: this.modalTop + 'px',
-                      left: this.modalLeft + 'px',
-                      transform: 'translate(0%, -50%)',
-                  }
-                : {
-                      top: this.modalTop + 'px',
-                      left: this.modalLeft + 'px',
-                  }
+            const transform = this.top ? '' : 'translate(0%, -50%)'
+            return {
+                top: this.modalTop + 'px',
+                left: this.modalLeft + 'px',
+                transform: transform,
+            }
         },
     },
     mounted() {
         if (this.top) {
-            this.modalPosition = 'on-top-with-padding'
+            this.modalClass = 'on-top-with-padding'
         }
         this.$nextTick(() => {
             this.setInitialPosition()
@@ -182,11 +178,11 @@ export default {
             }
         },
         startDrag(event) {
-            if (!this.dragable) return
+            if (!this.movable) return
             this.isDragging = true
             this.dragStartX = event.clientX - this.modalLeft
             this.dragStartY = event.clientY - this.modalTop
-            this.modalPosition = ''
+            this.modalClass = ''
             document.addEventListener('mousemove', this.onDrag)
             document.addEventListener('mouseup', this.stopDrag)
         },
