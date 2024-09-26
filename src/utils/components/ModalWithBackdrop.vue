@@ -4,7 +4,7 @@
         sure that it is always on top of the reset. -->
         <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
-            <div class="modal-popup position-fixed start-50" :class="modalPosition">
+            <div ref="modal" class="modal-popup position-fixed" :style="modalStyle">
                 <div
                     class="card"
                     :class="{
@@ -16,6 +16,7 @@
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                         :style="headerStyle"
+                        @mousedown="startDrag"
                     >
                         <span
                             v-if="title"
@@ -123,7 +124,11 @@ export default {
     data() {
         return {
             hideForPrint: false,
-            modalPosition: '',
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0,
+            modalLeft: 0,
+            modalTop: 0,
         }
     },
     computed: {
@@ -132,11 +137,25 @@ export default {
                 cursor: this.dragable ? 'move' : 'default',
             }
         },
+        modalStyle() {
+            return !this.top
+                ? {
+                      top: this.modalTop + 'px',
+                      left: this.modalLeft + 'px',
+                      transform: 'translate(0%, -50%)',
+                  }
+                : {
+                      top: this.modalTop + 'px',
+                      left: this.modalLeft + 'px',
+                      transform: 'translateX(-50%)',
+                      //   paddingTop: '20px', // Assuming 'on-top-with-padding' means some padding
+                  }
+        },
     },
     mounted() {
-        this.modalPosition = !this.top
-            ? 'start-50 top-50 translate-middle'
-            : 'start-50 translate-middle-x on-top-with-padding'
+        this.$nextTick(() => {
+            this.setInitialPosition()
+        })
     },
     methods: {
         onClose(withConfirmation) {
@@ -145,6 +164,34 @@ export default {
         },
         onHideParentModal(hide) {
             this.hideForPrint = hide
+        },
+        setInitialPosition() {
+            const modalRect = this.$refs.modal.getBoundingClientRect()
+            this.modalLeft = `${window.innerWidth / 2 - modalRect.width / 2}`
+            if (this.top) {
+                this.modalTop = '0'
+            } else {
+                this.modalTop = `${window.innerHeight / 2 - modalRect.height / 2}`
+            }
+        },
+        startDrag(event) {
+            if (!this.dragable) return
+            this.isDragging = true
+            this.dragStartX = event.clientX - this.modalLeft
+            this.dragStartY = event.clientY - this.modalTop
+            this.modalPosition = ''
+            document.addEventListener('mousemove', this.onDrag)
+            document.addEventListener('mouseup', this.stopDrag)
+        },
+        onDrag(event) {
+            if (!this.isDragging) return
+            this.modalLeft = event.clientX - this.dragStartX
+            this.modalTop = event.clientY - this.dragStartY
+        },
+        stopDrag() {
+            this.isDragging = false
+            document.removeEventListener('mousemove', this.onDrag)
+            document.removeEventListener('mouseup', this.stopDrag)
         },
     },
 }
