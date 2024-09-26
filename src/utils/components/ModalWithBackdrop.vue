@@ -4,13 +4,7 @@
         sure that it is always on top of the reset. -->
         <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
-            <div
-                class="modal-popup position-fixed start-50"
-                :class="{
-                    'top-50 translate-middle': !top,
-                    'translate-middle-x on-top-with-padding': top,
-                }"
-            >
+            <div class="modal-popup position-fixed start-50" :class="modalPosition">
                 <div
                     class="card"
                     :class="{
@@ -119,12 +113,22 @@ export default {
             type: Boolean,
             default: false,
         },
+        dragable: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     data() {
         return {
             hideForPrint: false,
+            modalPosition: '',
         }
+    },
+    mounted() {
+        this.modalPosition = !this.top
+            ? 'start-50 top-50 translate-middle'
+            : 'start-50 translate-middle-x on-top-with-padding'
     },
     methods: {
         onClose(withConfirmation) {
