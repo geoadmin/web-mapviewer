@@ -4,7 +4,12 @@
         sure that it is always on top of the reset. -->
         <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
-            <div ref="modal" class="modal-popup position-fixed" :style="modalStyle">
+            <div
+                ref="modal"
+                class="modal-popup position-fixed"
+                :style="modalStyle"
+                :class="modalPosition"
+            >
                 <div
                     class="card"
                     :class="{
@@ -147,12 +152,13 @@ export default {
                 : {
                       top: this.modalTop + 'px',
                       left: this.modalLeft + 'px',
-                      transform: 'translateX(-50%)',
-                      //   paddingTop: '20px', // Assuming 'on-top-with-padding' means some padding
                   }
         },
     },
     mounted() {
+        if (this.top) {
+            this.modalPosition = 'on-top-with-padding'
+        }
         this.$nextTick(() => {
             this.setInitialPosition()
         })
@@ -169,7 +175,8 @@ export default {
             const modalRect = this.$refs.modal.getBoundingClientRect()
             this.modalLeft = `${window.innerWidth / 2 - modalRect.width / 2}`
             if (this.top) {
-                this.modalTop = '0'
+                const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+                this.modalTop = 0.75 * rootFontSize // 0.75rem, the value of $card-spacer-y
             } else {
                 this.modalTop = `${window.innerHeight / 2 - modalRect.height / 2}`
             }
