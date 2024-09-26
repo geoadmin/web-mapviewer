@@ -15,6 +15,7 @@
                     <div
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
+                        :style="headerStyle"
                     >
                         <span
                             v-if="title"
@@ -124,6 +125,13 @@ export default {
             hideForPrint: false,
             modalPosition: '',
         }
+    },
+    computed: {
+        headerStyle() {
+            return {
+                cursor: this.dragable ? 'move' : 'default',
+            }
+        },
     },
     mounted() {
         this.modalPosition = !this.top
