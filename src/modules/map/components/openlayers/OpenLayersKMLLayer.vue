@@ -84,15 +84,27 @@ onUnmounted(() => {
 })
 
 function iconUrlProxy(url) {
-    return iconUrlProxyFy(url, (url) => {
-        store.dispatch('addWarning', {
-            warning: new WarningMessage('kml_icon_url_cors_issue', {
-                layerName: layerName.value,
-                url: url,
-            }),
-            dispatcher: 'kmlUtils.js',
-        })
-    })
+    return iconUrlProxyFy(
+        url,
+        (url) => {
+            store.dispatch('addWarning', {
+                warning: new WarningMessage('kml_icon_url_cors_issue', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
+                dispatcher: 'kmlUtils.js',
+            })
+        },
+        (url) => {
+            store.dispatch('addWarning', {
+                warning: new WarningMessage('kml_icon_url_scheme_http', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
+                dispatcher: 'kmlUtils.js',
+            })
+        }
+    )
 }
 
 function createSourceForProjection() {

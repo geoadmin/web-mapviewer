@@ -453,9 +453,13 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
 }
 
 const nonGeoadminIconUrls = new Set()
-export function iconUrlProxyFy(url, corsIssueCallback = null) {
+export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack = null) {
     // We only proxyfy URL that are not from our backend.
     if (!/^(https:\/\/[^/]*(bgdi\.ch|geo\.admin\.ch)|https?:\/\/localhost)/.test(url)) {
+        if (url.startsWith('http:') && httpIssueCallBack) {
+            log.warn(`KML Icon url ${url} has an http scheme`)
+            httpIssueCallBack(url)
+        }
         const proxyUrl = proxifyUrl(url)
         // Only perform the CORS check if we have a callback and it has not yet been done
         if (!nonGeoadminIconUrls.has(url) && corsIssueCallback) {

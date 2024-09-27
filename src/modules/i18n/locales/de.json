@@ -327,6 +327,7 @@
     "kml": "KML",
     "kml_gpx_file_empty": "Die KML/GPX-Datei ist leer",
     "kml_icon_url_cors_issue": "Die KML-Datei „{layerName}“ enthält Symbol(e) mit der URL {url}, die keine CORS-Unterstützung bietet! Bitte wenden Sie sich an den Administrator dieser URL, um die Unterstützung für CORS hinzuzufügen.",
+    "kml_icon_url_scheme_http": "Die KML\" {layerName}\" enthält Symbole mit der {url}-URL in http. Ab dem 31. Januar 2025 wird die Unterstützung für diese Ressourcen eingestellt und nur https-Ressourcen werden unterstützt. Weitere Informationen finden Sie unter https://www.geo.admin.ch/de/informationen-ssl-zertifikate-http-protokoll",
     "kml_no_text_elements": "Information: Die Labels werden nicht gespeichert",
     "kml_style_default": "Standard",
     "kml_style_geoadmin": "GeoAdmin",
