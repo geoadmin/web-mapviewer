@@ -9,7 +9,7 @@ const dispatcher = { dispatcher: 'BackgroundSelector.vue' }
 
 const store = useStore()
 const backgroundLayers = computed(() => store.getters.backgroundLayers)
-const currentBackgroundLayer = computed(() => store.state.layers.currentBackgroundLayer)
+const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
 const squaredDesign = computed(() => store.getters.isDesktopMode)
 
 function generateBackgroundCategories(bg) {
@@ -45,9 +45,9 @@ const sortedBackgroundLayersWithVoid = computed(() =>
     })
 )
 
-function selectBackground(backgroundLayer) {
+function selectBackground(backgroundLayerId) {
     store.dispatch('setBackground', {
-        bgLayer: backgroundLayer,
+        bgLayerId: backgroundLayerId,
         ...dispatcher,
     })
 }

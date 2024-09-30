@@ -33,11 +33,11 @@ const cloneActiveLayerConfig = (getters, layer) => {
 
 const state = {
     /**
-     * Current background layer
+     * Current background layer ID
      *
-     * @type AbstractLayer
+     * @type string
      */
-    currentBackgroundLayer: null,
+    currentBackgroundLayerId: null,
     /**
      * Currently active layers (that have been selected by the user from the search bar or the layer
      * tree)
@@ -81,6 +81,14 @@ const state = {
 }
 
 const getters = {
+    /**
+     * Return the current background layer from the list of layers via ID
+     *
+     * @returns {AbstractLayer} The current background layer
+     */
+    currentBackgroundLayer: (state, getters) => {
+        return getters.getLayerConfigById(state.currentBackgroundLayerId)
+    },
     /**
      * Filter all the active layers and gives only those who are visible on the map.
      *
@@ -250,22 +258,16 @@ const actions = {
      * Will set the background to the given layer (or layer ID), but only if this layer's
      * configuration states that this layer can be a background layer (isBackground flag)
      *
-     * @param {String | AbstractLayer} bgLayer Either the background layer id or an AbstractLayer
-     *   object
+     * @param {String | null} bgLayerId The background layer id object
      * @param {string} dispatcher Action dispatcher name
      */
-    setBackground({ commit, getters }, { bgLayer, dispatcher }) {
-        const layerIdOrObject = bgLayer
-        let futureBackground
-        if (typeof layerIdOrObject === 'string') {
-            futureBackground = getters.getLayerConfigById(layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
-            futureBackground = getters.getLayerConfigById(layerIdOrObject.id)
+    setBackground({ commit, getters }, { bgLayerId }) {
+        if (bgLayerId === null) {
+            // setting it to no background
+            commit('setBackground', { bgLayerId: null })
         }
-        if (futureBackground?.isBackground) {
-            commit('setBackground', { bgLayer: futureBackground, dispatcher })
-        } else {
-            commit('setBackground', { bgLayer: null, dispatcher })
+        if (getters.getLayerConfigById(bgLayerId)?.isBackground) {
+            commit('setBackground', { bgLayerId: bgLayerId })
         }
     },
 
@@ -781,8 +783,8 @@ const actions = {
 }
 
 const mutations = {
-    setBackground(state, { bgLayer }) {
-        state.currentBackgroundLayer = bgLayer
+    setBackground(state, { bgLayerId }) {
+        state.currentBackgroundLayerId = bgLayerId
     },
     setLayerConfig(state, { config }) {
         state.config = config

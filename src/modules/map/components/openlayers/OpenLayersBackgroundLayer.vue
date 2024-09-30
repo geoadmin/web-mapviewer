@@ -6,7 +6,7 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
 
 const store = useStore()
-const currentBackgroundLayer = computed(() => store.state.layers.currentBackgroundLayer)
+const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()
 </script>
