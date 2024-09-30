@@ -1,3 +1,4 @@
+import getFeature from '@/api/features/features.api'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -5,6 +6,7 @@ import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
+import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
@@ -144,45 +146,55 @@ const actions = {
      * @param dispatch
      * @param {SearchResult} entry
      */
-    selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
-        const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
+    selectResultEntry: ({ dispatch, getters, rootState }, { entry, dispatcher }) => {
+        const dispatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case SearchResultTypes.LAYER:
                 if (getters.getActiveLayersById(entry.layerId).length === 0) {
                     dispatch('addLayer', {
                         layerConfig: { id: entry.layerId, visible: true },
-                        dispatcher: dipsatcherSelectResultEntry,
+                        dispatcher: dispatcherSelectResultEntry,
                     })
                 } else {
                     dispatch('updateLayers', {
                         layers: [{ id: entry.layerId, visible: true }],
-                        dispatcher: dipsatcherSelectResultEntry,
+                        dispatcher: dispatcherSelectResultEntry,
                     })
                 }
                 break
             case SearchResultTypes.LOCATION:
-            case SearchResultTypes.FEATURE:
-                if (entry.extent.length === 2) {
-                    dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
-                } else if (entry.zoom) {
-                    dispatch('setCenter', {
-                        center: entry.coordinate,
-                        dispatcher: dipsatcherSelectResultEntry,
-                    })
-                    dispatch('setZoom', {
-                        zoom: entry.zoom,
-                        dispatcher: dipsatcherSelectResultEntry,
-                    })
-                }
+                zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry)
                 dispatch('setPinnedLocation', {
                     coordinates: entry.coordinate,
-                    dispatcher: dipsatcherSelectResultEntry,
+                    dispatcher: dispatcherSelectResultEntry,
                 })
+                break
+            case SearchResultTypes.FEATURE:
+                zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry)
+
+                // Automatically select the feature
+                try {
+                    getFeature(entry.layer, entry.featureId, rootState.position.projection, {
+                        lang: rootState.i18n.lang,
+                        screenWidth: rootState.ui.width,
+                        screenHeight: rootState.ui.height,
+                        mapExtent: flattenExtent(getters.extent),
+                        coordinate: entry.coordinate,
+                    }).then((feature) => {
+                        dispatch('setSelectedFeatures', {
+                            features: [feature],
+                            dispatcher,
+                        })
+                    })
+                } catch (error) {
+                    log.error('Error getting feature:', error)
+                }
+
                 break
         }
         dispatch('setSearchQuery', {
             query: entry.sanitizedTitle,
-            dispatcher: dipsatcherSelectResultEntry,
+            dispatcher: dispatcherSelectResultEntry,
         })
     },
 }
@@ -197,4 +209,19 @@ export default {
     getters,
     actions,
     mutations,
+}
+
+function zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry) {
+    if (entry.extent.length === 2) {
+        dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
+    } else if (entry.zoom) {
+        dispatch('setCenter', {
+            center: entry.coordinate,
+            dispatcher: dispatcherSelectResultEntry,
+        })
+        dispatch('setZoom', {
+            zoom: entry.zoom,
+            dispatcher: dispatcherSelectResultEntry,
+        })
+    }
 }

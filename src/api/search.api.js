@@ -85,6 +85,7 @@ export function sanitizeTitle(title = '') {
  * @extends LayerSearchResult
  * @extends LocationSearchResult
  * @typedef {Object} LayerFeatureSearchResult
+ * @param {GeoAdminLayer} layer The layer of this feature.
  */
 
 /**
@@ -258,6 +259,7 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
                     ...locationContent,
                     resultType: SearchResultTypes.FEATURE,
                     title,
+                    layer,
                 }
             }) ?? []
         )

@@ -13,18 +13,21 @@ import { randomIntBetween } from '@/utils/numberUtils'
  * Caveat: it will not update the style!
  *
  * @param {Map} map
- * @param {Readonly<Ref<Number>>} zIndex
  * @param {Readonly<Ref<Feature[]>>} features
- * @param {Function} styleFunction
- * @param {Function} onFeatureSelectCallback
+ * @param {Readonly<Ref<Number>>} [config.zIndex] The Z index of the layer
+ * @param {Function} [config.styleFunction] A function that defines the style for the vector layer.
+ * @param {Function} [config.onFeatureSelectCallback] A callback function that is called when a
+ *   feature is selected.
+ * @param {boolean} [config.deselectAfterSelect] If true, the selected feature will be deselected
+ *   after the select callback is called
  */
-export default function useVectorLayer(
-    map,
-    features,
-    zIndex = -1,
-    styleFunction = highlightFeatureStyle,
-    onFeatureSelectCallback = () => {}
-) {
+export default function useVectorLayer(map, features, config) {
+    const {
+        zIndex = -1,
+        styleFunction = highlightFeatureStyle,
+        onFeatureSelectCallback = () => {},
+        deselectAfterSelect = false,
+    } = config
     const layer = new VectorLayer({
         id: `vector-layer-${randomIntBetween(0, 100000)}`,
         source: new VectorSource({
@@ -47,6 +50,9 @@ export default function useVectorLayer(
             event.selected.forEach((feature) => {
                 onFeatureSelectCallback(feature)
             })
+            if (deselectAfterSelect) {
+                selectInteraction.getFeatures().clear()
+            }
         }
     })
 
