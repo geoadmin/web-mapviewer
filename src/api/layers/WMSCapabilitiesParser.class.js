@@ -28,6 +28,23 @@ function findLayer(layerId, startFrom, parents) {
     return found
 }
 
+// Return the common projections of all sub layers if the main layer doesn't have any CRS defined
+// If the main layer has CRS defined, return them
+function getLayerProjections(layer) {
+    if (layer.CRS) {
+        return layer.CRS
+    }
+    if (layer.Layer?.length > 0) {
+        const allCRS = layer.Layer.map((sublayer) => getLayerProjections(sublayer))
+        const commonCRS = allCRS.reduce((acc, crsArray) =>
+            acc.filter((crs) => crsArray.includes(crs))
+        )
+        return commonCRS
+    } else {
+        return []
+    }
+}
+
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export default class WMSCapabilitiesParser {
     constructor(content, originUrl) {
@@ -299,14 +316,17 @@ export default class WMSCapabilitiesParser {
             throw new CapabilitiesError(msg, 'no_wms_version_found')
         }
 
-        // by default, WGS84 must be supported
-        let availableProjections = [WGS84]
-        if (layer.CRS) {
-            availableProjections = layer.CRS.filter((crs) =>
+        let availableProjections = getLayerProjections(layer)
+            .filter((crs) =>
                 allCoordinateSystems.some((projection) => projection.epsg === crs.toUpperCase())
-            ).map((crs) =>
+            )
+            .map((crs) =>
                 allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
             )
+
+        // by default, WGS84 must be supported
+        if (availableProjections.length === 0) {
+            availableProjections = [WGS84]
         }
         // filtering out double inputs
         availableProjections = [...new Set(availableProjections)]

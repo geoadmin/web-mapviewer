@@ -95,24 +95,12 @@ const runIdentify = (config) => {
                     !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
             )
             .forEach((layer) => {
-                if (layer.layers) {
-                    // for group of layers, we fire a request per sublayer
-                    layer.layers.forEach((sublayer) => {
-                        pendingRequests.push(
-                            identify({
-                                layer: sublayer,
-                                ...commonParams,
-                            })
-                        )
+                pendingRequests.push(
+                    identify({
+                        layer,
+                        ...commonParams,
                     })
-                } else {
-                    pendingRequests.push(
-                        identify({
-                            layer,
-                            ...commonParams,
-                        })
-                    )
-                }
+                )
             })
         // grouping all features from the different requests
         Promise.allSettled(pendingRequests)

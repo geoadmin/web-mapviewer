@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
+import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
@@ -237,6 +238,7 @@ async function identifyOnExternalLayer(config) {
     }
     // deciding on which projection we should land to ask the WMS server (the current map projection might not be supported)
     let requestProjection = projection
+    let requestedCoordinate = coordinate
     if (!requestProjection) {
         throw new GetFeatureInfoError('Missing projection to build a getFeatureInfo request')
     }
@@ -257,9 +259,13 @@ async function identifyOnExternalLayer(config) {
             `No common projection found with external WMS provider, possible projection were ${layer.availableProjections.map((proj) => proj.epsg).join(', ')}`
         )
     }
-    if (layer instanceof ExternalWMSLayer) {
+    if (requestProjection.epsg !== projection.epsg) {
+        // If we use different projection, we also need to project out initial coordinate
+        requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
+    }
+    if (layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers) {
         return await identifyOnExternalWmsLayer({
-            coordinate,
+            coordinate: requestedCoordinate,
             projection: requestProjection,
             resolution,
             layer,
@@ -268,27 +274,6 @@ async function identifyOnExternalLayer(config) {
             tolerance,
             outputProjection: projection,
         })
-    } else if (layer instanceof ExternalGroupOfLayers) {
-        // firing one request per sub-layer
-        const allRequests = [
-            layer.layers.map((subLayer) =>
-                identifyOnExternalLayer({
-                    ...config,
-                    layer: subLayer,
-                })
-            ),
-        ]
-        const allResponses = await Promise.allSettled(allRequests)
-        // logging any error
-        allResponses
-            .filter((response) => response.status !== 'fulfilled')
-            .forEach((failedResponse) => {
-                log.error('Error while identify an external sub-layer', failedResponse)
-            })
-        return allResponses
-            .filter((response) => response.status === 'fulfilled' && response.value)
-            .map((response) => response.value)
-            .flat()
     } else {
         throw new GetFeatureInfoError(
             `Unsupported external layer type to build getFeatureInfo request: ${layer.type}`
@@ -340,7 +325,6 @@ async function identifyOnExternalWmsLayer(config) {
         coordinate,
         projection,
         resolution,
-        rounded: true,
     })
     if (!requestExtent) {
         throw new GetFeatureInfoError('Unable to build required request extent')
