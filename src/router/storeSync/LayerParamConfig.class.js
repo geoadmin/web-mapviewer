@@ -260,29 +260,35 @@ function generateLayerUrlParamFromStoreValues(store) {
 // which layer won't render. It's basic, which means it will only tells the user when he gives a non
 // external layer that doesn't exist, or when he forgets the scheme for its external layer.
 function validateUrlInput(store, query) {
+    if (query === '') {
+        return {
+            valid: true,
+            errors: null,
+        }
+    }
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
-    const faulty_layers = []
+    const faultyLayers = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
-                faulty_layers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
             } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
-                faulty_layers.push(
+                faultyLayers.push(
                     new ErrorMessage('url_external_layer_no_scheme_error', {
                         layer: `${layer.type}|${layer.baseUrl}`,
                     })
                 )
             }
         })
-    const valid = faulty_layers.length < parsed.length
+    const valid = faultyLayers.length < parsed.length
     if (!valid) {
         return getStandardValidationResponse(query, valid, this.urlParamName)
     }
     return {
         valid,
-        errors: faulty_layers.length === 0 ? null : faulty_layers,
+        errors: faultyLayers.length === 0 ? null : faultyLayers,
     }
 }
 

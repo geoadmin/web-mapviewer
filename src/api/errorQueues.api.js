@@ -12,7 +12,7 @@ export function getStandardErrorMessage(query, urlParamName) {
  * can proceed and be set in the store.
  *
  * @param {any} query The value of the URL parameter given
- * @param {Boolean} is_valid Is the value valid or not
+ * @param {Boolean} isValid Is the value valid or not
  * @returns
  */
 export function getStandardValidationResponse(query, isValid, urlParamName) {
