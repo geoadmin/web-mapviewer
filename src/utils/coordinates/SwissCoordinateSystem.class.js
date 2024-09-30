@@ -1,9 +1,22 @@
 import {
+    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
 } from '@/utils/coordinates/CoordinateSystem.class'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { closest, round } from '@/utils/numberUtils'
+
+/**
+ * Latitude where the LV95 plane is anchored to the Mercator system. Used to calculate/transform
+ * LV95 zoom level into Mercator zoom level
+ *
+ * Value can be found in the PROJ4 matrix on epsg.io
+ *
+ * @type {number}
+ * @see https://epsg.io/2056
+ */
+const LV95_LATITUDE_CENTER_IN_WGS84 = 46.9524055555556
+
 /**
  * Resolutions for each LV95 zoom level, from 0 to 14
  *
@@ -89,8 +102,15 @@ const swisstopoZoomLevels = swissPyramidZoomToStandardZoomMatrix.map((_, index) 
  * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
  */
 export default class SwissCoordinateSystem extends CustomCoordinateSystem {
+    /**
+     * @returns {ResolutionStep[]}
+     * @override
+     */
     getResolutions() {
-        return TILEGRID_RESOLUTIONS
+        return TILEGRID_RESOLUTIONS.map((resolution) => ({
+            zoom: LV95_RESOLUTIONS.indexOf(resolution) ?? null,
+            resolution: resolution,
+        }))
     }
 
     /**
@@ -136,24 +156,37 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
      *   level to show the 1:25'000 map if the input is invalid
      */
     transformCustomZoomLevelToStandard(customZoomLevel) {
-        const key = Math.floor(customZoomLevel)
-        if (swissPyramidZoomToStandardZoomMatrix.length - 1 >= key) {
-            return swissPyramidZoomToStandardZoomMatrix[key]
-        }
-        // if no matching zoom level was found, we return the one for the 1:25'000 map
-        return STANDARD_ZOOM_LEVEL_1_25000_MAP
+        const lv95Resolution = this.getResolutionForZoomAndCenter(customZoomLevel)
+        // reverting formula from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+        return Math.log2(
+            1.0 /
+                (lv95Resolution /
+                    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
+                    Math.cos((Math.PI * LV95_LATITUDE_CENTER_IN_WGS84) / 180.0))
+        )
     }
 
     getResolutionForZoomAndCenter(zoom) {
-        return LV95_RESOLUTIONS[Math.round(zoom)]
+        const roundedZoom = Math.floor(zoom)
+        const resolutions = this.getResolutions()
+        const resolutionMatchingZoom = resolutions.find((step) => step.zoom === roundedZoom)
+        if (resolutionMatchingZoom) {
+            const nextStep = resolutions.find((step) => step.zoom === roundedZoom + 1)
+            if (!nextStep) {
+                return resolutionMatchingZoom.resolution
+            }
+            const zoomFactor = resolutionMatchingZoom.resolution / nextStep.resolution
+            return resolutionMatchingZoom.resolution / Math.pow(zoomFactor, zoom % 1.0)
+        }
+        return LV95_RESOLUTIONS[roundedZoom]
     }
 
     getZoomForResolutionAndCenter(resolution) {
-        const matchingResolution = LV95_RESOLUTIONS.find(
-            (lv95Resolution) => lv95Resolution <= resolution
-        )
-        if (matchingResolution) {
-            return LV95_RESOLUTIONS.indexOf(matchingResolution)
+        const matchingResolutionStep = this.getResolutions()
+            .filter((step) => step.zoom)
+            .find((step) => step.resolution <= resolution)
+        if (matchingResolutionStep) {
+            return matchingResolutionStep.zoom
         }
         // if no match was found, we have to decide if the resolution is too great,
         // or too small to be matched and return the zoom accordingly

@@ -4,11 +4,12 @@
     "exclude": ["src/**/__tests__/*"],
     "compilerOptions": {
         "baseUrl": ".",
+        "target": "ES6",
         "paths": {
             "@/*": ["./src/*"]
         },
         // see https://www.typescriptlang.org/tsconfig#allowJs
-        "allowJs": true,
+        "allowJs": true
 
         // we do not specify "types" so that all @types/... import from our package.json are included
     }

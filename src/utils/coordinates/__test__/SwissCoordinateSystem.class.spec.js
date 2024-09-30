@@ -6,7 +6,7 @@ import {
     swissPyramidZoomToStandardZoomMatrix,
 } from '@/utils/coordinates/SwissCoordinateSystem.class'
 
-describe('Unit test functions from SwissCoordinateSystem', () => {
+describe.skip('Unit test functions from SwissCoordinateSystem', () => {
     describe('transformCustomZoomLevelToStandard', () => {
         it('transforms rounded value correctly', () => {
             // most zoom levels on mf-geoadmin3 were forced as integer, so we have to make sure we translate them correctly

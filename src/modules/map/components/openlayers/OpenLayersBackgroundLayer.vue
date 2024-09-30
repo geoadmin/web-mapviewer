@@ -6,7 +6,11 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
 
 const store = useStore()
+const layersConfig = computed(() => store.state.layers.config)
 const currentBackgroundLayer = computed(() => store.state.layers.currentBackgroundLayer)
+const vectorTileCounterpart = computed(() =>
+    layersConfig.value.find((layer) => layer.id === currentBackgroundLayer.value.idInVectorTile)
+)
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()
 </script>
@@ -14,7 +18,7 @@ const { getZIndexForLayer } = useLayerZIndexCalculation()
 <template>
     <OpenLayersInternalLayer
         v-if="currentBackgroundLayer"
-        :layer-config="currentBackgroundLayer"
+        :layer-config="vectorTileCounterpart ?? currentBackgroundLayer"
         :z-index="getZIndexForLayer(currentBackgroundLayer)"
     />
 </template>

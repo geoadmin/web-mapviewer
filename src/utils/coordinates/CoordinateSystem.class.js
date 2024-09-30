@@ -1,8 +1,35 @@
-import { getTopLeft, getWidth } from 'ol/extent'
+import { getTopLeft } from 'ol/extent'
 import proj4 from 'proj4'
 
 import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import { round } from '@/utils/numberUtils'
+
+/**
+ * Equatorial radius of the Earth, in meters
+ *
+ * @type {Number}
+ * @see https://en.wikipedia.org/wiki/Equator#Exact_length
+ * @see https://en.wikipedia.org/wiki/World_Geodetic_System#WGS_84
+ */
+const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0
+
+/**
+ * Length of the Earth around its equator, in meters
+ *
+ * @type {Number}
+ */
+const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
+
+/**
+ * Resolution (pixel/meter) found at zoom level 0 while looking at the equator. This constant is
+ * used to calculate the resolution taking latitude into account. With Mercator projection, the
+ * deformation increases when latitude increases.
+ *
+ * @type {Number}
+ * @see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+ * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
+ */
+export const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
 /**
  * These are the zoom levels, for each projection, which give us a 1:25'000 ratio map.
@@ -16,6 +43,12 @@ import { round } from '@/utils/numberUtils'
 
 export const STANDARD_ZOOM_LEVEL_1_25000_MAP = 15.5
 export const SWISS_ZOOM_LEVEL_1_25000_MAP = 8
+
+/**
+ * @typedef ResolutionStep
+ * @property {Number} resolution Resolution of this step, in meters/pixel
+ * @property {Number} zoom Corresponding zoom level for this resolution step
+ */
 
 /**
  * Representation of a coordinate system (or also called projection system) in the context of this
@@ -180,14 +213,22 @@ export default class CoordinateSystem {
      * A (descending) list of all the available resolutions for this coordinate system. If this is
      * not the behavior you want, you have to override this function.
      *
-     * @returns {Number[]}
+     * @param {Number} [latitude=null] Latitude for which resolutions should be calculated expressed
+     *   in degrees. If none is given, the center of the bounds will be used to get the latitude
+     *   value. Default is `null`
+     * @returns {ResolutionStep[]}
+     * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
      */
-    getResolutions() {
-        const extent = this.bounds.flatten
-        const size = getWidth(extent) / 256
+    getResolutions(latitude = null) {
+        // at zoom level 0, with a tile size of 256x256, calculating how many meters are stored in a pixel
+        const zoom0PixelSizeInMeters = PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES
         const resolutions = []
-        for (let z = 0; z < 19; ++z) {
-            resolutions[z] = size / Math.pow(2, z)
+        const latInRad = ((latitude ?? 0) * Math.PI) / 180.0
+        for (let z = 0; z < 21; ++z) {
+            resolutions.push({
+                resolution: (zoom0PixelSizeInMeters * Math.cos(latInRad)) / Math.pow(2, z),
+                zoom: z,
+            })
         }
         return resolutions
     }
