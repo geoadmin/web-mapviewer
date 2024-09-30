@@ -39,6 +39,10 @@ export default {
             type: String,
             default: '',
         },
+        isLocalFile: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -50,7 +54,9 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         tooltipContent() {
-            return this.$t('external_data_tooltip')
+            return this.isExternalDataLocal
+                ? this.$t('warn_share_local_file')
+                : this.$t('external_data_tooltip')
         },
     },
     watch: {
@@ -61,14 +67,19 @@ export default {
     mounted() {
         if (this.showTippy) {
             this.tippyInstance = tippy(this.$refs.tippyAnchor, {
-                theme: 'primary',
+                theme: this.isExternalDataLocal ? 'secondary' : 'primary',
                 content: this.tooltipContent,
                 arrow: true,
                 placement: 'top',
                 touch: false,
                 delay: 250,
                 onCreate: (instance) => {
-                    instance.popper.setAttribute('data-cy', `tippy-third-part-disclaimer`)
+                    instance.popper.setAttribute(
+                        'data-cy',
+                        this.isExternalDataLocal
+                            ? `tippy-warn-share-local-file`
+                            : `tippy-third-part-disclaimer`
+                    )
                 },
             })
         }

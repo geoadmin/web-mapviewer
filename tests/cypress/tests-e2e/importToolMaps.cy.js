@@ -334,7 +334,7 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon"]')
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 3)
             .first()
             .should('be.visible')
@@ -480,7 +480,7 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon"]')
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 2)
             .first()
             .should('be.visible')
