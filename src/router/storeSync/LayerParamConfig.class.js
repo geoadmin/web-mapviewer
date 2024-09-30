@@ -277,14 +277,12 @@ function validateUrlInput(store, query) {
             }
         })
     const valid = faulty_layers.length < parsed.length
+    if (!valid) {
+        return getStandardValidationResponse(query, valid, this.urlParamName)
+    }
     return {
         valid,
-        errors:
-            faulty_layers.length === 0
-                ? null
-                : valid
-                  ? faulty_layers
-                  : getStandardValidationResponse(query, valid, this.urlParamName),
+        errors: faulty_layers.length === 0 ? null : faulty_layers,
     }
 }
 

@@ -84,6 +84,7 @@ const storeSyncConfig = [
         dispatchValueName: 'bgLayerId',
         extractValueFromStore: (store) => {
             const backgroundLayer = store.state.layers.currentBackgroundLayerId
+
             // if background layer is null (no background) we write 'void' in the URL
             if (backgroundLayer === null) {
                 return 'void'
@@ -93,12 +94,12 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         validateUrlInput: (store, query) =>
-            // in cypress, the backgroundLayers is undefined, so we skip this check
-
             getStandardValidationResponse(
                 query,
+                // in cypress, the backgroundLayers is undefined, so we skip this check
                 IS_TESTING_WITH_CYPRESS ||
-                    store.state.layers.backgroundLayers?.map((layer) => layer.id).includes(query)
+                    store.getters.backgroundLayers?.map((layer) => layer.id).includes(query),
+                'bgLayer'
             ),
     }),
     new SimpleUrlParamConfig({

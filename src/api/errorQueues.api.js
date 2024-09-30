@@ -15,9 +15,9 @@ export function getStandardErrorMessage(query, urlParamName) {
  * @param {Boolean} is_valid Is the value valid or not
  * @returns
  */
-export function getStandardValidationResponse(query, is_valid, urlParamName) {
+export function getStandardValidationResponse(query, isValid, urlParamName) {
     return {
-        valid: is_valid,
-        errors: is_valid ? null : getStandardErrorMessage(query, urlParamName),
+        valid: isValid,
+        errors: isValid ? null : getStandardErrorMessage(query, urlParamName),
     }
 }

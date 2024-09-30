@@ -78,6 +78,14 @@ function generateCrossHairUrlParamFromStoreValues(store) {
     return null
 }
 
+/**
+ * @param {Object} store
+ * @param {String} query The crossHair parameter can have multiple values, either one identifier for
+ *   the crossHair itself, or one identifier with two coordinates in a coma separated string, or a
+ *   blank identifier with coordinates. For example, crossHair=marker , crossHair=marker,x,y and
+ *   crossHair=,x,y are all valid values.
+ * @returns
+ */
 function validateUrlInput(store, query) {
     if (query) {
         const parts = query.split(',')
