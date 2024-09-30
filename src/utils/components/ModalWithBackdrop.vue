@@ -134,6 +134,7 @@ export default {
             dragStartY: 0,
             modalLeft: 0,
             modalTop: 0,
+            modalClass: '',
         }
     },
     computed: {
@@ -152,12 +153,16 @@ export default {
         },
     },
     mounted() {
-        if (this.top) {
-            this.modalClass = 'on-top-with-padding'
+        this.modalClass = {
+            'start-50': true,
+            'top-50 translate-middle': !this.top,
+            'translate-middle-x on-top-with-padding': this.top,
         }
-        this.$nextTick(() => {
-            this.setInitialPosition()
-        })
+        if (this.movable) {
+            this.$nextTick(() => {
+                this.setInitialPosition()
+            })
+        }
     },
     methods: {
         onClose(withConfirmation) {
