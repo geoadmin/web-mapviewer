@@ -17,7 +17,6 @@ function dispatchSearchFromUrl(to, store, urlParamValue) {
         shouldCenter: !(to.query.crosshair && to.query.center),
         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
     })
-    removeQueryParamFromHref(URL_PARAM_NAME)
 }
 
 /**
@@ -49,6 +48,7 @@ export default class SearchParamConfig extends AbstractParamConfig {
         super({
             urlParamName: URL_PARAM_NAME,
             setValuesInStore: dispatchSearchFromUrl,
+            afterSetValuesInStore: () => removeQueryParamFromHref(URL_PARAM_NAME),
             keepInUrlWhenDefault: false,
             valueType: String,
             defaultValue: '',
