@@ -268,9 +268,9 @@ describe('Test on legacy param import', () => {
                 false
             )
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
-            cy.url().should('include', 'swisssearch=1530+Payerne')
+            cy.url().should('not.contain', 'swisssearch')
             cy.get('[data-cy="searchbar"]').click()
-            cy.get('[data-cy="search-results-locations"]').should('be.visible')
+            cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
