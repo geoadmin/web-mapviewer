@@ -2,6 +2,7 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 
+const URL_PARAM_NAME = 'swisssearch'
 /**
  * The goal is to stop centering on the search when sharing a position. When we share a position,
  * both the center and the crosshair are sets.
@@ -16,15 +17,38 @@ function dispatchSearchFromUrl(to, store, urlParamValue) {
         shouldCenter: !(to.query.crosshair && to.query.center),
         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
     })
+    removeQueryParamFromHref(URL_PARAM_NAME)
+}
+
+/**
+ * This will remove the query param from the URL It is necessary to do this in vanilla JS because
+ * the router does not provide a way to remove a query without reloading the page which then removes
+ * the value from the store
+ *
+ * @param {Object} key The key to remove from the URL
+ */
+function removeQueryParamFromHref(key) {
+    const [baseUrl, queryString] = window.location.href.split('?')
+    if (!queryString) {
+        return
+    }
+
+    const params = new URLSearchParams(queryString)
+    if (!params.has(key)) {
+        return
+    }
+    params.delete(key)
+
+    const newQueryString = params.toString()
+    const newUrl = newQueryString ? `${baseUrl}?${newQueryString}` : baseUrl
+    window.history.replaceState({}, document.title, newUrl)
 }
 
 export default class SearchParamConfig extends AbstractParamConfig {
     constructor() {
         super({
-            urlParamName: 'swisssearch',
-            mutationsToWatch: ['setSearchQuery'],
+            urlParamName: URL_PARAM_NAME,
             setValuesInStore: dispatchSearchFromUrl,
-            extractValueFromStore: (store) => store.state.search.query,
             keepInUrlWhenDefault: false,
             valueType: String,
             defaultValue: '',
