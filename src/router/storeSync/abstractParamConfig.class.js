@@ -37,6 +37,7 @@ export default class AbstractParamConfig {
         valueType = String,
         defaultValue = null,
         validateUrlInput = null,
+        afterSetValuesInStore = null,
     } = {}) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
@@ -51,6 +52,7 @@ export default class AbstractParamConfig {
             this.defaultValue = false
         }
         this.validateUrlInput = validateUrlInput
+        this.afterSetValuesInStore = afterSetValuesInStore
     }
 
     /**
@@ -198,6 +200,28 @@ export default class AbstractParamConfig {
                 }
             } else {
                 reject('Query, store or setter functions is not set')
+            }
+        })
+    }
+
+    /**
+     * Triggers an action after the store has been populated with the query value. Returns a promise
+     *
+     * @returns {Promise<any>}
+     */
+    afterPopulateStore() {
+        return new Promise((resolve, reject) => {
+            if (this.afterSetValuesInStore) {
+                const promiseAfterSetValuesInStore = this.afterSetValuesInStore()
+                if (promiseAfterSetValuesInStore) {
+                    promiseAfterSetValuesInStore.then(() => {
+                        resolve()
+                    })
+                } else {
+                    resolve()
+                }
+            } else {
+                reject('After query, store or setter functions is not set')
             }
         })
     }
