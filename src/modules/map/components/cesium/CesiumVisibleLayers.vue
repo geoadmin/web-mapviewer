@@ -15,7 +15,6 @@ const store = useStore()
 
 const visibleLayers = computed(() => store.getters.visibleLayers)
 const layersConfig = computed(() => store.state.layers.config)
-const projection = computed(() => store.state.position.projection)
 const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D)
 
 const visibleImageryLayers = computed(() =>
@@ -62,13 +61,11 @@ function isPrimitiveLayer(layer) {
         v-for="(layer, index) in visibleImageryLayers"
         :key="layer.id"
         :layer-config="layer"
-        :projection="projection"
         :z-index="index + startingZIndexForImageryLayers"
     />
     <CesiumInternalLayer
         v-for="layer in visiblePrimitiveLayers"
         :key="layer.id"
         :layer-config="layer"
-        :projection="projection"
     />
 </template>

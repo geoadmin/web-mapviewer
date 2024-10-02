@@ -7,7 +7,6 @@ import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalL
 const store = useStore()
 
 const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D)
-const projection = computed(() => store.state.position.projection)
 </script>
 
 <template>
@@ -20,7 +19,6 @@ const projection = computed(() => store.state.position.projection)
         v-for="(bgLayer, index) in backgroundLayersFor3D"
         :key="bgLayer.id"
         :layer-config="bgLayer"
-        :projection="projection"
         :z-index="index"
     />
 </template>
