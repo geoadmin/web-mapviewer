@@ -609,15 +609,9 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
-@import '@/modules/map/scss/toolbox-buttons';
 @import '@/scss/media-query.mixin';
 
-.cesium-map,
-.cesium-widget,
-:global(.cesium-viewer),
-:global(.cesium-viewer-cesiumWidgetContainer),
-:global(.cesium-widget),
-:global(.cesium-widget canvas) {
+.cesium-map {
     overflow: hidden;
     display: block;
     position: absolute;
@@ -637,10 +631,6 @@ export default {
     bottom: calc($footer-height + $screen-padding-for-ui-elements);
     top: unset;
     left: unset;
-    border: $border-width solid $danger-border-subtle;
-    border-radius: $border-radius;
-    background-color: $danger-bg-subtle;
-    padding: 0.5rem;
 }
 
 @include respond-above(phone) {
