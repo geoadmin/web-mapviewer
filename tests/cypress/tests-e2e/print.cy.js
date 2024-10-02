@@ -339,7 +339,8 @@ describe('Testing print', () => {
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
                 cy.log('Layers:', layers)
-                cy.log('Layer 1:', layers[0]['type'])
+                cy.log('Layer 0:', layers[0]['type'])
+
                 expect(layers).to.have.length(2)
                 expect(layers[0]['type']).to.equals('geojson')
                 expect(layers[0]['geoJson']['features']).to.have.length(1)
@@ -420,6 +421,8 @@ describe('Testing print', () => {
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 // In this GPX layer, htere are two features (a line and a point).
@@ -474,6 +477,8 @@ describe('Testing print', () => {
                 const layers = mapAttributes.layers
 
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 const geoJsonLayer = layers[0]
@@ -561,6 +566,8 @@ describe('Testing print', () => {
                 const layers = mapAttributes.layers
 
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 const geoJsonLayer = layers[0]
