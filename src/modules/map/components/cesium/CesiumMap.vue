@@ -325,8 +325,6 @@ export default {
             sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
             sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
-            this.viewerCreated = true
-
             // if the default projection is a national projection (or custom projection), we then constrain
             // the camera to only move in bounds of this custom projection
             if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
@@ -338,6 +336,7 @@ export default {
                 limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
             )
             this.initCamera()
+            this.viewerCreated = true
 
             if (this.$refs.compass) {
                 this.$refs.compass.scene = this.viewer.scene

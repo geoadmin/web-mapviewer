@@ -70,6 +70,11 @@ const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDesktopMode = computed(() => store.getters.isTraditionalDesktopSize)
 
+const size = ref({
+    height: popover.value?.clientHeight ?? 0,
+    width: popover.value?.clientWidth ?? 0,
+})
+
 const cssPositionOnScreen = computed(() => {
     if (mode.value === MapPopoverMode.FEATURE_TOOLTIP) {
         return {
@@ -104,6 +109,12 @@ const popoverLimits = computed(() => {
 })
 
 onMounted(() => {
+    if (popover.value) {
+        size.value = {
+            height: popover.value.clientHeight,
+            width: popover.value.clientWidth,
+        }
+    }
     if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
         useMovableElement(popover.value, {
             grabElement: popoverHeader,
@@ -115,6 +126,10 @@ onMounted(() => {
 function onClose() {
     emits('close')
 }
+
+defineExpose({
+    size: size,
+})
 </script>
 
 <template>
