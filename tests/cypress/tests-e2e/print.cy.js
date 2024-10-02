@@ -338,6 +338,8 @@ describe('Testing print', () => {
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 1:', layers[0]['type'])
                 expect(layers).to.have.length(2)
                 expect(layers[0]['type']).to.equals('geojson')
                 expect(layers[0]['geoJson']['features']).to.have.length(1)
