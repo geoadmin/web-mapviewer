@@ -17,6 +17,8 @@ function hexToRgba(hexValue, alpha = 1.0) {
     ]
 }
 
+const STROKE_WIDTH = 3
+
 export const whiteSketchFill = new Fill({
     color: hexToRgba(white, 0.4),
 })
@@ -26,23 +28,23 @@ export const redFill = new Fill({
 })
 /** Standard line styling */
 export const redStroke = new Stroke({
-    width: 3,
+    width: STROKE_WIDTH,
     color: hexToRgba(red),
 })
 
 export const malibuStroke = new Stroke({
-    width: 3,
+    width: STROKE_WIDTH,
     color: hexToRgba(malibu),
 })
 
 /** Styling specific for measurement, with a dashed red line */
 export const dashedRedStroke = new Stroke({
     color: hexToRgba(red),
-    width: 3,
+    width: STROKE_WIDTH,
     lineDash: [8],
 })
 
-export const gpxStrokeStyle = new Stroke({ width: 1.5, color: hexToRgba(red, 1) })
+export const gpxStrokeStyle = new Stroke({ width: STROKE_WIDTH, color: hexToRgba(red, 1) })
 
 export const pointStyle = {
     radius: 7,
@@ -78,7 +80,7 @@ export const gpxStyles = {
 
 export const geolocationPointWidth = 10
 export const geolocationPointFillColor = hexToRgba(red, 0.9)
-export const geolocationPointBorderWidth = 3
+export const geolocationPointBorderWidth = STROKE_WIDTH
 export const geolocationPointBorderColor = hexToRgba(white, 1.0)
 
 export const geolocationPointStyle = new Style({
@@ -118,7 +120,7 @@ export const highlightedFill = new Fill({
 })
 export const highlightedStroke = new Stroke({
     color: hexToRgba(mocassinToRed2, 1.0),
-    width: 3,
+    width: STROKE_WIDTH,
 })
 
 export const hoveredFill = new Fill({
@@ -126,7 +128,7 @@ export const hoveredFill = new Fill({
 })
 export const hoveredStroke = new Stroke({
     color: hexToRgba(red, 1.0),
-    width: 3,
+    width: STROKE_WIDTH,
 })
 
 export const hoveredLinePolygonStyle = new Style({

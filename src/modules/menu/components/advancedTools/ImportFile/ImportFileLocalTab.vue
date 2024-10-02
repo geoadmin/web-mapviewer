@@ -2,6 +2,7 @@
 import { computed, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import FileInput from '@/utils/components/FileInput.vue'
@@ -44,7 +45,7 @@ async function loadFile() {
             // The file might be a KMZ which is a zip archive. Handling zip archive as text is
             // asking for trouble, therefore we need first to get it as binary
             const content = await selectedFile.value.arrayBuffer()
-            await handleFileContent(store, content, selectedFile.value.name)
+            await handleFileContent(store, content, selectedFile.value.name, KmlStyles.DEFAULT)
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
@@ -81,6 +82,7 @@ function validateForm(valid) {
         <FileInput
             v-model="selectedFile"
             required
+            class="mt-1"
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
             :activate-validation="activateValidation"

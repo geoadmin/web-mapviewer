@@ -48,7 +48,7 @@ watch(selectedFeatures, (newSelectedFeatures) => {
     }
 })
 watch(currentlySelectedFeature, (newFeature, oldFeature) => {
-    if (newFeature) {
+    if (newFeature && newFeature.get('editableFeature')) {
         const editableFeature = newFeature.get('editableFeature')
         editableFeature.setCoordinatesFromFeature(newFeature)
         // binding store feature change events to our handlers
@@ -66,7 +66,7 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     } else {
         store.dispatch('clearAllSelectedFeatures', dispatcher)
     }
-    if (oldFeature) {
+    if (oldFeature && oldFeature.get('editableFeature')) {
         // editableFeature was removed from the state just before, so we can edit it directly again.
         oldFeature.get('editableFeature').removeListener('change:style', onFeatureChange)
     }

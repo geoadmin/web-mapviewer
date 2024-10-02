@@ -5,7 +5,7 @@
             ref="dropdownMainButton"
             :disabled="disabled"
             class="btn btn-light"
-            :class="{ 'dropdown-toggle': !withToggleButton }"
+            :class="{ 'dropdown-toggle': !withToggleButton, 'btn-sm': small }"
             type="button"
             data-cy="dropdown-main-button"
             :data-bs-toggle="withToggleButton ? null : 'dropdown'"
@@ -115,6 +115,10 @@ export default {
             default: false,
         },
         disabled: {
+            type: Boolean,
+            default: false,
+        },
+        small: {
             type: Boolean,
             default: false,
         },

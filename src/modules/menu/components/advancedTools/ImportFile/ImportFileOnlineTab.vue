@@ -4,6 +4,7 @@ import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { getFileFromUrl } from '@/api/files.api'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import TextInput from '@/utils/components/TextInput.vue'
@@ -88,7 +89,7 @@ async function loadFile() {
         if (response.status !== 200) {
             throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
         }
-        await handleFileContent(store, response.data, fileUrl.value)
+        await handleFileContent(store, response.data, fileUrl.value, KmlStyles.DEFAULT)
         importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
@@ -127,7 +128,7 @@ async function loadFile() {
                 ref="fileUrlInput"
                 v-model="fileUrl"
                 required
-                class="mb-2"
+                class="mt-1"
                 placeholder="import_file_url_placeholder"
                 :activate-validation="activateValidation"
                 :invalid-marker="!!errorFileLoadingMessage"
