@@ -1,4 +1,4 @@
-import clip from 'liang-barsky'
+import { clip } from 'liang-barsky'
 
 /**
  * Representation of boundaries of a coordinate system (also sometime called extent)
