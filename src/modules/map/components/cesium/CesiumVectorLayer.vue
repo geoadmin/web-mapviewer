@@ -3,6 +3,7 @@ import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRefs } from 'vue'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import { CESIUM_LABEL_STYLE } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 import log from '@/utils/logging'
 
@@ -31,15 +32,27 @@ const url = computed(() => {
     return `${baseUrl.value}${rootFolder}${layerId.value}${timeFolder}/tileset.json`
 })
 
-useAddPrimitiveLayer(getViewer(), loadTileSetAndApplyStyle(url.value))
+useAddPrimitiveLayer(
+    getViewer(),
+    loadTileSetAndApplyStyle(url.value, {
+        withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
+    })
+)
 
 /**
  * @param {String} tileSetJsonURL
+ * @param {Object} options
+ * @param {Boolean} [options.withEnhancedLabelStyle=false] Default is `false`
  * @returns {Promise<Cesium3DTileset>}
  */
-async function loadTileSetAndApplyStyle(tileSetJsonURL) {
+async function loadTileSetAndApplyStyle(tileSetJsonURL, options) {
     try {
-        return await Cesium3DTileset.fromUrl(tileSetJsonURL)
+        const { withEnhancedLabelStyle = false } = options ?? {}
+        const tileset = await Cesium3DTileset.fromUrl(tileSetJsonURL)
+        if (withEnhancedLabelStyle) {
+            tileset.style = CESIUM_LABEL_STYLE
+        }
+        return tileset
     } catch (error) {
         log.error('Error while loading tileset for', tileSetJsonURL, error)
     }

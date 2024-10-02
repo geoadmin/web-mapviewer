@@ -129,3 +129,7 @@ function onContextMenu(event) {
     })
 }
 </script>
+
+<template>
+    <slot />
+</template>
