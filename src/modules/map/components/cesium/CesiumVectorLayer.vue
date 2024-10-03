@@ -3,7 +3,7 @@ import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRefs } from 'vue'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
-import { CESIUM_LABEL_STYLE } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
+import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle'
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 import log from '@/utils/logging'
 
@@ -19,6 +19,7 @@ const getViewer = inject('getViewer')
 
 const baseUrl = computed(() => layerConfig.value.baseUrl)
 const layerId = computed(() => layerConfig.value.id)
+const opacity = computed(() => layerConfig.value.opacity)
 
 const url = computed(() => {
     let rootFolder = ''
@@ -36,7 +37,8 @@ useAddPrimitiveLayer(
     getViewer(),
     loadTileSetAndApplyStyle(url.value, {
         withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
-    })
+    }),
+    opacity
 )
 
 /**
@@ -50,7 +52,7 @@ async function loadTileSetAndApplyStyle(tileSetJsonURL, options) {
         const { withEnhancedLabelStyle = false } = options ?? {}
         const tileset = await Cesium3DTileset.fromUrl(tileSetJsonURL)
         if (withEnhancedLabelStyle) {
-            tileset.style = CESIUM_LABEL_STYLE
+            tileset.style = CESIUM_SWISSNAMES3D_STYLE
         }
         return tileset
     } catch (error) {
