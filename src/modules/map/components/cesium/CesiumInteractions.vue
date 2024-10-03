@@ -9,6 +9,7 @@ import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
+import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
@@ -69,7 +70,7 @@ function onClick(event) {
             features.push(
                 ...identifyGeoJSONFeatureAt(
                     geoJSonLayer,
-                    [event.position.x, event.position.y],
+                    coordinates,
                     projection.value,
                     resolution.value
                 )
@@ -128,6 +129,8 @@ function onContextMenu(event) {
         ...dispatcher,
     })
 }
+
+useDragFileOverlay(getViewer().container)
 </script>
 
 <template>
