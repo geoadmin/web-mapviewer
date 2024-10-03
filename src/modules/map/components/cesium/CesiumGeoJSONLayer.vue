@@ -2,9 +2,10 @@
 import { GeoJsonDataSource } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, onMounted, toRefs, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, toRefs, watch } from 'vue'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config.js'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
 import { LV03, LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -43,12 +44,21 @@ onMounted(() => {
         createSource()
     }
 })
+onBeforeUnmount(() => {
+    if (dataSource) {
+        const viewer = getViewer()
+        viewer.dataSources.remove(dataSource)
+        viewer.scene.requestRender()
+        dataSource = null
+    }
+})
 
 watch(isLoading, createSource)
 watch(opacity, () => {
     dataSource?.entities.values.forEach((entity) =>
         setEntityStyle(entity, geoJsonStyle.value, opacity.value)
     )
+    getViewer().scene.requestRender()
 })
 
 let dataSource = null
@@ -60,7 +70,22 @@ function createSource() {
             dataSource.entities.values.forEach((entity) =>
                 setEntityStyle(entity, geoJsonStyle.value, opacity.value)
             )
-            viewer.dataSources.add(dataSource)
+
+            // need to wait for terrain loaded otherwise primitives will be placed wrong (under the terrain)
+            if (viewer.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
+                viewer.dataSources.add(dataSource)
+                viewer.scene.requestRender()
+            } else {
+                const unlisten = viewer.scene.globe.tileLoadProgressEvent.addEventListener(
+                    (queueLength) => {
+                        if (viewer.scene.globe.tilesLoaded && queueLength === 0) {
+                            viewer.dataSources.add(dataSource)
+                            viewer.scene.requestRender()
+                            unlisten()
+                        }
+                    }
+                )
+            }
         })
         .catch((error) => {
             log.error('Error while parsing GeoJSON in Cesium', error)
