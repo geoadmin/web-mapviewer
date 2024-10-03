@@ -1,5 +1,7 @@
 import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
+import log from '@/utils/logging'
+
 /**
  * @param {Viewer} cesiumViewer
  * @param {ImageryProvider} provider
@@ -30,6 +32,7 @@ export default function useAddImageryLayer(cesiumViewer, provider, zIndex, opaci
         if (layer) {
             const index = cesiumViewer.scene.imageryLayers.indexOf(layer)
             const indexDiff = Math.abs(toValue(zIndex) - index)
+            log.debug(`[Cesium] change in zIndex for a layer from ${toValue(zIndex)} to ${index}`)
             for (let i = indexDiff; i !== 0; i--) {
                 if (index > zIndex) {
                     cesiumViewer.scene.imageryLayers.lower(layer)

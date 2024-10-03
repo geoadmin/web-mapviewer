@@ -101,9 +101,7 @@ async function createViewer() {
         requestRenderMode: true,
     })
 
-    if (hasDevSiteWarning.value) {
-        viewer.scene.debugShowFramesPerSecond = true
-    }
+    viewer.scene.debugShowFramesPerSecond = hasDevSiteWarning.value
 
     const scene = viewer.scene
     scene.useDepthPicking = true

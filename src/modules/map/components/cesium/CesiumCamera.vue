@@ -49,26 +49,54 @@ watch(cameraPosition, flyToPosition, {
     deep: true,
 })
 
+/** @returns {CameraPosition | null} */
+function getCurrentCameraPosition() {
+    const viewer = getViewer()
+    if (!viewer) {
+        return null
+    }
+    const camera = viewer.camera
+    const position = camera.positionCartographic
+    return {
+        x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
+        y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
+        z: parseFloat(position.height.toFixed(1)),
+        // Wrap degrees, cesium might return 360, which is internally wrapped to 0 in store.
+        heading: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0))),
+        pitch: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0))),
+        roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
+    }
+}
+
 function flyToPosition() {
+    const viewer = getViewer()
+    if (!viewer) {
+        return
+    }
+    const currentPosition = getCurrentCameraPosition()
+    if (isEqual(currentPosition, cameraPosition.value)) {
+        log.debug(
+            '[Cesium] Camera position is already at the correct location, no changes made to the Cesium viewer'
+        )
+        return
+    }
     try {
-        if (getViewer()) {
-            log.debug(
-                `[Cesium] Fly to camera position ${cameraPosition.value.x}, ${cameraPosition.value.y}, ${cameraPosition.value.z}`
-            )
-            getViewer().camera.flyTo({
-                destination: Cartesian3.fromDegrees(
-                    cameraPosition.value.x,
-                    cameraPosition.value.y,
-                    cameraPosition.value.z
-                ),
-                orientation: {
-                    heading: CesiumMath.toRadians(cameraPosition.value.heading),
-                    pitch: CesiumMath.toRadians(cameraPosition.value.pitch),
-                    roll: CesiumMath.toRadians(cameraPosition.value.roll),
-                },
-                duration: 1,
-            })
-        }
+        log.debug(
+            `[Cesium] Fly to camera position ${cameraPosition.value.x}, ${cameraPosition.value.y}, ${cameraPosition.value.z}`
+        )
+        viewer.camera.flyTo({
+            destination: Cartesian3.fromDegrees(
+                cameraPosition.value.x,
+                cameraPosition.value.y,
+                cameraPosition.value.z
+            ),
+            orientation: {
+                heading: CesiumMath.toRadians(cameraPosition.value.heading),
+                pitch: CesiumMath.toRadians(cameraPosition.value.pitch),
+                roll: CesiumMath.toRadians(cameraPosition.value.roll),
+            },
+            duration: 1,
+        })
     } catch (error) {
         log.error('[Cesium] Error while moving the camera', error, cameraPosition.value)
     }
@@ -98,22 +126,13 @@ function setCenterToCameraTarget() {
 }
 
 function onCameraMoveEnd() {
-    const viewer = getViewer()
-    if (!viewer) {
-        return
-    }
-    const camera = viewer.camera
-    const position = camera.positionCartographic
-    const newCameraPosition = {
-        x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
-        y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
-        z: parseFloat(position.height.toFixed(1)),
-        // Wrap degrees, cesium might return 360, which is internally wrapped to 0 in store.
-        heading: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0))),
-        pitch: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0))),
-        roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
-    }
-    if (!isEqual(newCameraPosition, cameraPosition.value)) {
+    const newCameraPosition = getCurrentCameraPosition()
+    if (newCameraPosition !== null && !isEqual(newCameraPosition, cameraPosition.value)) {
+        log.debug(
+            '[Cesium] Camera position has changed, dispatching to the store',
+            cameraPosition.value,
+            newCameraPosition
+        )
         store.dispatch('setCameraPosition', {
             position: newCameraPosition,
             ...dispatcher,
