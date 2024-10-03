@@ -2,10 +2,7 @@
 import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
 
-import {
-    CAMERA_MAX_ZOOM_DISTANCE,
-    CAMERA_MIN_ZOOM_DISTANCE,
-} from '@/modules/map/components/cesium/constants'
+import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config.js'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 

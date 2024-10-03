@@ -1,15 +1,36 @@
 {
-    "type": "single",
-    "geomType": "point",
-    "vectorOptions": {
+  "type": "unique",
+  "property": "some-property-selector",
+  "values": [
+    {
+      "geomType": "point",
+      "value": "some value",
+      "vectorOptions": {
         "type": "circle",
         "radius": 9,
         "fill": {
-            "color": "#00FFFF"
+          "color": "#00FFFF"
         },
         "stroke": {
-            "color": "#000000",
-            "width": 1
+          "color": "#000000",
+          "width": 1
         }
+      }
+    },
+    {
+      "geomType": "point",
+      "value": "some other value",
+      "vectorOptions": {
+        "type": "circle",
+        "radius": 20,
+        "fill": {
+          "color": "#FF0000"
+        },
+        "stroke": {
+          "color": "#00FF00",
+          "width": 2
+        }
+      }
     }
+  ]
 }

@@ -8,7 +8,7 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeUnmount, onMounted, toRefs, watch } from 'vue'
 import { inject } from 'vue'
 import { computed } from 'vue'
 
@@ -21,37 +21,44 @@ const props = defineProps({
     },
 })
 
-const gpxData = computed(() => props.gpxLayerConfig.gpxData)
+const { gpxLayerConfig } = toRefs(props)
 
-let gpxDataSource = null
+const gpxData = computed(() => gpxLayerConfig.value.gpxData)
+const opacity = computed(() => gpxLayerConfig.value.opacity)
 
 const getViewer = inject('getViewer')
 
-watch(gpxData, addLayer)
+onMounted(addGpxLayer)
+onBeforeUnmount(removeGpxLayer)
 
-onMounted(addLayer)
-onBeforeUnmount(removeLayer)
+watch(gpxData, addGpxLayer)
+watch(opacity, applyStyleToGpxEntities)
 
-function addLayer() {
-    removeLayer()
-    const gpxBlob = new Blob([gpxData.value], { type: 'application/gpx+xml' })
-    gpxDataSource = new GpxDataSource()
-    gpxDataSource
-        .load(gpxBlob, {
-            clampToGround: true,
-        })
-        .then((dataSource) => {
-            updateStyle()
-            getViewer().dataSources.add(dataSource)
-            getViewer().scene.requestRender()
-        })
+let gpxDataSource = null
+
+function removeGpxLayer() {
+    if (gpxDataSource) {
+        const viewer = getViewer()
+        viewer.dataSources.remove(gpxDataSource)
+        viewer.scene.requestRender()
+        gpxDataSource = null
+    }
 }
 
-function removeLayer() {
-    if (gpxDataSource) {
-        getViewer().dataSources.remove(gpxDataSource)
-        gpxDataSource = null
-        getViewer().scene.requestRender()
+function addGpxLayer() {
+    removeGpxLayer()
+    if (gpxData.value) {
+        new GpxDataSource()
+            .load(new Blob([gpxData.value], { type: 'application/gpx+xml' }), {
+                clampToGround: true,
+            })
+            .then((dataSource) => {
+                gpxDataSource = dataSource
+                applyStyleToGpxEntities()
+                const viewer = getViewer()
+                viewer.dataSources.add(dataSource)
+                viewer.scene.requestRender()
+            })
     }
 }
 
@@ -68,9 +75,7 @@ function createRedCircleImage(radius, opacity = 1) {
     // Draw a red circle on the canvas
     context.beginPath()
     context.arc(radius, radius, radius, 0, 2 * Math.PI, false)
-
-    const color = `rgba(255, 0, 0, ${opacity})`
-    context.fillStyle = color
+    context.fillStyle = `rgba(255, 0, 0, ${opacity})`
     context.fill()
 
     // Return the data URL of the canvas drawing
@@ -89,10 +94,10 @@ function createRedCircleBillboard(radius, opacity = 1) {
     })
 }
 
-function updateStyle() {
+function applyStyleToGpxEntities() {
     const radius = 8
-    const redCircleBillboard = createRedCircleBillboard(radius)
-    const redColorMaterial = new ColorMaterialProperty(Color.RED)
+    const redCircleBillboard = createRedCircleBillboard(radius, opacity.value)
+    const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity.value))
 
     const entities = gpxDataSource.entities.values
     entities.forEach((entity) => {
@@ -110,13 +115,13 @@ function updateStyle() {
 
         if (cesiumDefined(entity.polyline)) {
             entity.polyline.material = redColorMaterial
-            entity.polyline.width = 1.5
+            entity.polyline.width = 3
         }
 
         if (cesiumDefined(entity.polygon)) {
             entity.polygon.material = redColorMaterial
             entity.polygon.outline = true
-            entity.polygon.outlineColor = Color.BLACK
+            entity.polygon.outlineColor = Color.BLACK.withAlpha(opacity.value)
         }
     })
     getViewer().scene.requestRender()

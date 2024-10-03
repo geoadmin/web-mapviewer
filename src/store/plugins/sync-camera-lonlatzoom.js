@@ -21,7 +21,7 @@ export default function syncCameraLonLatZoom(store) {
             log.debug(`[${self}] ignore mutation triggered by this plugin`, mutation)
             return
         }
-        if (mutation.type === 'setCameraPosition') {
+        if (mutation.type === 'setCameraPosition' && state.position.camera) {
             const lon = state.position.camera.x
             const lat = state.position.camera.y
             const height = state.position.camera.z
