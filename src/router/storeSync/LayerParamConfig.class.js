@@ -19,6 +19,7 @@ import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 /**
  * Parse layers such as described in
@@ -269,14 +270,15 @@ function validateUrlInput(store, query) {
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
     const faultyLayers = []
+    const localLayers = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
                 faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
             } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
-                faultyLayers.push(
-                    new ErrorMessage('url_external_layer_no_scheme_error', {
+                localLayers.push(
+                    new WarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
                     })
                 )
@@ -289,6 +291,7 @@ function validateUrlInput(store, query) {
     return {
         valid,
         errors: faultyLayers.length === 0 ? null : faultyLayers,
+        warnings: localLayers.length === 0 ? null : localLayers,
     }
 }
 
