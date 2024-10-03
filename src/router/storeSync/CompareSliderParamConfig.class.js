@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -46,6 +47,12 @@ export default class CompareSliderParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: Number,
             defaultValue: null,
+            validateUrlInput: (store, query) =>
+                getStandardValidationResponse(
+                    query,
+                    query && Number(query) <= 1.0 && Number(query) >= 0.0,
+                    this.urlParamName
+                ),
         })
     }
 }

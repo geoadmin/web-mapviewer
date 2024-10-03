@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -40,6 +41,12 @@ export default class ZoomParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateZoomUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: Number,
+            validateUrlInput: (store, query) =>
+                getStandardValidationResponse(
+                    query,
+                    query && !isNaN(query) && Number(query) >= 0,
+                    this.urlParamName
+                ),
         })
     }
 }

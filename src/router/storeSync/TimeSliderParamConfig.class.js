@@ -1,7 +1,9 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
@@ -35,6 +37,25 @@ function generateTimeSliderUrlParamFromStore(store) {
     return store.state.ui.isTimeSliderActive ? store.state.layers.previewYear : null
 }
 
+function validateUrlInput(store, query) {
+    const validationObject = getStandardValidationResponse(
+        query,
+        !isNaN(query) &&
+            Number.isInteger(Number(query)) &&
+            OLDEST_YEAR <= query &&
+            YOUNGEST_YEAR >= query,
+        this.urlParamName
+    )
+
+    if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length === 0) {
+        validationObject['warnings'] = new WarningMessage(
+            'time_slider_no_time_layer_active_url_warning',
+            {}
+        )
+    }
+    return validationObject
+}
+
 /**
  * When the timeSlider parameter is set in the URL, if the year is a valid year, it will set the
  * timeSlider to active to the correct year. The parameter only appears if the time Slider is
@@ -50,6 +71,7 @@ export default class TimeSliderParamConfig extends AbstractParamConfig {
             keepInUrlWhenDefault: false,
             valueType: Number,
             defaultValue: null,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

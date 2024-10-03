@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
@@ -15,6 +16,7 @@ import {
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -254,6 +256,42 @@ function generateLayerUrlParamFromStoreValues(store) {
         .join(';')
 }
 
+// this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
+// which layer won't render. It's basic, which means it will only tells the user when he gives a non
+// external layer that doesn't exist, or when he forgets the scheme for its external layer.
+function validateUrlInput(store, query) {
+    if (query === '') {
+        return {
+            valid: true,
+            errors: null,
+        }
+    }
+    const parsed = parseLayersParam(query)
+    const url_matcher = /https?:\/\//
+    const faultyLayers = []
+    parsed
+        .filter((layer) => !store.getters.getLayerConfigById(layer.id))
+        .forEach((layer) => {
+            if (!layer.baseUrl) {
+                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+            } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
+                faultyLayers.push(
+                    new ErrorMessage('url_external_layer_no_scheme_error', {
+                        layer: `${layer.type}|${layer.baseUrl}`,
+                    })
+                )
+            }
+        })
+    const valid = faultyLayers.length < parsed.length
+    if (!valid) {
+        return getStandardValidationResponse(query, valid, this.urlParamName)
+    }
+    return {
+        valid,
+        errors: faultyLayers.length === 0 ? null : faultyLayers,
+    }
+}
+
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super({
@@ -275,6 +313,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateLayerUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

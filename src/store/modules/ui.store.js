@@ -389,14 +389,23 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        addError({ commit, state }, { error, dispatcher }) {
-            if (!(error instanceof ErrorMessage)) {
+        addErrors({ commit, state }, { errors, dispatcher }) {
+            if (
+                errors instanceof Array &&
+                errors.filter((error) => error instanceof ErrorMessage).length === errors.length
+            ) {
+                commit('addErrors', { errors, dispatcher })
+            } else if (errors instanceof ErrorMessage) {
+                if (!state.errors.has(errors)) {
+                    commit('addError', {
+                        error: errors,
+                        dispatcher,
+                    })
+                }
+            } else {
                 throw new Error(
-                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                    `Error ${errors} dispatched by ${dispatcher} is not of type ErrorMessage, or not an Array of ErrorMessages`
                 )
-            }
-            if (!state.errors.has(error)) {
-                commit('addError', { error, dispatcher })
             }
         },
 
@@ -410,14 +419,21 @@ export default {
                 commit('removeError', { error, dispatcher })
             }
         },
-        addWarning({ commit, state }, { warning, dispatcher }) {
-            if (!(warning instanceof WarningMessage)) {
+        addWarnings({ commit, state }, { warnings, dispatcher }) {
+            if (
+                warnings instanceof Array &&
+                warnings.filter((warning) => warning instanceof WarningMessage).length ===
+                    warnings.length
+            ) {
+                commit('addWarnings', { warnings, dispatcher })
+            } else if (warnings instanceof WarningMessage) {
+                if (!state.warnings.has(warnings)) {
+                    commit('addWarning', { warning: warnings, dispatcher })
+                }
+            } else {
                 throw new Error(
-                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+                    `Warning ${warnings} dispatched by ${dispatcher} is not of type WarningMessage, or not an Array of WarningMessages`
                 )
-            }
-            if (!state.warnings.has(warning)) {
-                commit('addWarning', { warning, dispatcher })
             }
         },
         removeWarning({ commit, state }, { warning, dispatcher }) {
@@ -493,8 +509,14 @@ export default {
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
         addError: (state, { error }) => state.errors.add(error),
+        addErrors: (state, { errors }) => {
+            errors.forEach((error) => state.errors.add(error))
+        },
         removeError: (state, { error }) => state.errors.delete(error),
         addWarning: (state, { warning }) => state.warnings.add(warning),
+        addWarnings: (state, { warnings }) => {
+            warnings.forEach((warning) => state.warnings.add(warning))
+        },
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
