@@ -26,6 +26,7 @@ watch(
         // if an entry has been selected from the list, do not show the list again
         // because the list has been hidden by onEntrySelected.
         if (!selectedEntry.value) {
+            // if (!selectedEntry.value) {
             log.debug(
                 `Search has result changed to ${newValue}, change the show result to ${newValue}`
             )

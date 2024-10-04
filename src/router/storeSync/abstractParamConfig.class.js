@@ -27,12 +27,14 @@ export default class AbstractParamConfig {
      *   added to the URL even though its value is set to the default value of the param.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      * @param {Boolean | Number | String | null} defaultValue
+     * @param {Function} afterSetValuesInStore A function that will be called after the store values
+     *   have been set
      */
     constructor({
         urlParamName,
         mutationsToWatch,
         setValuesInStore,
-        extractValueFromStore,
+        extractValueFromStore = (_) => '',
         keepInUrlWhenDefault = true,
         valueType = String,
         defaultValue = null,
@@ -210,18 +212,17 @@ export default class AbstractParamConfig {
      * @returns {Promise<any>}
      */
     afterPopulateStore() {
-        return new Promise((resolve, reject) => {
-            if (this.afterSetValuesInStore) {
-                const promiseAfterSetValuesInStore = this.afterSetValuesInStore()
-                if (promiseAfterSetValuesInStore) {
-                    promiseAfterSetValuesInStore.then(() => {
-                        resolve()
-                    })
-                } else {
+        return new Promise((resolve) => {
+            if (!this.afterSetValuesInStore) {
+                resolve()
+            }
+            const promiseAfterSetValuesInStore = this.afterSetValuesInStore()
+            if (promiseAfterSetValuesInStore) {
+                promiseAfterSetValuesInStore.then(() => {
                     resolve()
-                }
+                })
             } else {
-                reject('After query, store or setter functions is not set')
+                resolve()
             }
         })
     }
