@@ -80,7 +80,10 @@ async function onSaveName() {
     if (activeKmlLayerName.value === activeKmlLayer.value.name) return
     store.dispatch('updateLayer', {
         index: activeKmlLayerIndex.value,
-        layer: { ...activeKmlLayer.value, name: activeKmlLayerName.value },
+        layer: { 
+            id: activeKmlLayer.value.id,
+            name: activeKmlLayerName.value
+        },
         ...dispatcher,
     })
     await debounceSaveDrawing()
@@ -107,7 +110,6 @@ function onDeleteLastPoint() {
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <div
-                    v-if="activeKmlLayer"
                     class="d-flex justify-content-center align-items-center gap-2 p-3"
                 >
                     <label for="activeKmlLayerName" class="mr-3">
@@ -115,6 +117,7 @@ function onDeleteLastPoint() {
                     </label>
                     <div class="input-group">
                         <input
+                            :disabled="!activeKmlLayer"
                             id="activeKmlLayerName"
                             v-model="activeKmlLayerName"
                             type="string"
@@ -123,12 +126,13 @@ function onDeleteLastPoint() {
                             :placeholder="`${i18n.t('draw_layer_label')}`"
                         />
                         <button
+                            :disabled="!activeKmlLayer"
                             class="btn btn-outline-secondary"
                             type="button"
                             data-cy="drawing-toolbox-file-name-save-button"
                             @click="onSaveName"
                         >
-                            {{ i18n.t('save_button') }}
+                            {{ i18n.t('validate') }}
                         </button>
                     </div>
                 </div>

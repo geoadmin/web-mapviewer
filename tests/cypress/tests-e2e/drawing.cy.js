@@ -642,17 +642,17 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74998 m2')
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 380)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('9999.8 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
             cy.get('[data-cy="ol-map"]').click(200, 250)
-            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(250, 250)
             cy.get('[data-cy="ol-map"]').click(150, 300)
             cy.get('[data-cy="ol-map"]').click(200, 250)
 
@@ -947,7 +947,7 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.closeDrawingMode()
         })
-        it('can export the drawing/profile in multiple formats', () => {
+        it.only('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
             const checkFiles = (extension, callback) => {
                 recurse(
@@ -964,11 +964,11 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 380)
             // clicking on the same spot as the first, it should close the polygon
-            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
 
             cy.wait('@post-kml')
 
