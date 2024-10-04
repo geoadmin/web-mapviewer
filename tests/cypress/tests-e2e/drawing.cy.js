@@ -646,7 +646,9 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 360)
             cy.get('[data-cy="ol-map"]').click(150, 380)
             cy.get('[data-cy="ol-map"]').click(140, 360)
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('9999.8 m2')
+            cy.get('[data-cy="feature-area-information"]')
+                .should('be.visible')
+                .contains('9999.8 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -947,7 +949,7 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.closeDrawingMode()
         })
-        it.only('can export the drawing/profile in multiple formats', () => {
+        it('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
             const checkFiles = (extension, callback) => {
                 recurse(

@@ -80,9 +80,9 @@ async function onSaveName() {
     if (activeKmlLayerName.value === activeKmlLayer.value.name) return
     store.dispatch('updateLayer', {
         index: activeKmlLayerIndex.value,
-        layer: { 
+        layer: {
             id: activeKmlLayer.value.id,
-            name: activeKmlLayerName.value
+            name: activeKmlLayerName.value,
         },
         ...dispatcher,
     })
@@ -109,17 +109,15 @@ function onDeleteLastPoint() {
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
-                <div
-                    class="d-flex justify-content-center align-items-center gap-2 p-3"
-                >
+                <div class="d-flex justify-content-center align-items-center gap-2 p-3">
                     <label for="activeKmlLayerName" class="mr-3">
                         {{ i18n.t('file_name') }}
                     </label>
                     <div class="input-group">
                         <input
-                            :disabled="!activeKmlLayer"
                             id="activeKmlLayerName"
                             v-model="activeKmlLayerName"
+                            :disabled="!activeKmlLayer"
                             type="string"
                             class="form-control"
                             data-cy="drawing-toolbox-file-name-input"
