@@ -144,10 +144,17 @@ const getters = {
             (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
         ) ?? null,
 
+    /**
+     * Get index of current KML layer selected for drawing.
+     *
+     * That is the KML layer that will be used when the drawing mode is opened.
+     *
+     * When no KML layer is in active layers then -1 is returned.
+     *
+     * @returns {number}
+     */
     getIndexOfActiveLayerById: (state) => (layerId) =>
-        state.activeLayers.findIndex(
-            (layer) => layer.id === layerId
-        ),
+        state.activeLayers.findIndex((layer) => layer.id === layerId),
 
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -400,7 +407,6 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     updateLayer({ commit, getters }, { index, layer, dispatcher }) {
-        console.log('updateLayer', index, layer.name)
         if (layer instanceof AbstractLayer) {
             commit('updateLayer', { index, layer, dispatcher })
         } else {
@@ -417,7 +423,6 @@ const actions = {
 
             const updatedLayer = layer2Update.clone()
             Object.entries(layer).forEach((entry) => (updatedLayer[entry[0]] = entry[1]))
-            console.log('updatedLayer', updatedLayer)
             commit('updateLayer', { index, layer: updatedLayer, dispatcher })
         }
     },

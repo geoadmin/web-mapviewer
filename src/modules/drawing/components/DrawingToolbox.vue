@@ -41,7 +41,6 @@ const activeKmlLayerIndex = computed(() =>
     store.getters.getIndexOfActiveLayerById(activeKmlLayer.value.id)
 )
 const activeKmlLayerName = ref(activeKmlLayer.value?.name)
-const isActiveLayerNameEditMode = ref(false)
 
 // This is necessary to update the layer name in case the sanitized name is different
 watch(activeKmlLayer, () => {
@@ -78,7 +77,6 @@ function onCloseClearConfirmation(confirmed) {
 }
 
 async function onSaveName() {
-    isActiveLayerNameEditMode.value = !isActiveLayerNameEditMode.value
     if (activeKmlLayerName.value === activeKmlLayer.value.name) return
     store.dispatch('updateLayer', {
         index: activeKmlLayerIndex.value,
@@ -109,8 +107,8 @@ function onDeleteLastPoint() {
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <div
-                    class="d-flex justify-content-center align-items-center gap-2 p-4"
                     v-if="activeKmlLayer"
+                    class="d-flex justify-content-center align-items-center gap-2 p-3"
                 >
                     <label for="activeKmlLayerName" class="mr-3">
                         {{ i18n.t('file_name') }}
@@ -121,21 +119,13 @@ function onDeleteLastPoint() {
                             v-model="activeKmlLayerName"
                             type="string"
                             class="form-control"
-                            :disabled="!isActiveLayerNameEditMode"
+                            data-cy="drawing-toolbox-file-name-input"
                             :placeholder="`${i18n.t('draw_layer_label')}`"
                         />
                         <button
-                            v-if="!isActiveLayerNameEditMode"
                             class="btn btn-outline-secondary"
                             type="button"
-                            @click="isActiveLayerNameEditMode = !isActiveLayerNameEditMode"
-                        >
-                            {{ i18n.t('edit_button') }}
-                        </button>
-                        <button
-                            v-else
-                            class="btn btn-outline-secondary"
-                            type="button"
+                            data-cy="drawing-toolbox-file-name-save-button"
                             @click="onSaveName"
                         >
                             {{ i18n.t('save_button') }}

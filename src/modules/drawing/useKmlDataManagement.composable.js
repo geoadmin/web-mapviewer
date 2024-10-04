@@ -107,7 +107,6 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         if (!activeKmlLayer.value?.adminId) {
             // creation of the new KML (copy or new)
             const kmlMetadata = await createKml(kmlData)
-            console.log('kmlMetadata', kmlMetadata)
             const kmlLayer = new KMLLayer({
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
                 visible: true,
@@ -116,11 +115,9 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 kmlData: kmlData,
                 kmlMetadata: kmlMetadata,
             })
-            console.log('kmlLayer', kmlLayer)
             // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
             // Meaning we must remove the old one from the layers; it will otherwise be there twice
             // (once the pristine "old" KML, and once the new copy)
-            console.log('create activeKmlLayer', activeKmlLayer.value)
             if (activeKmlLayer.value) {
                 await store.dispatch('removeLayer', {
                     layerId: activeKmlLayer.value.id,
@@ -132,8 +129,6 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 ...dispatcher,
             })
         } else {
-            console.log('update activeKmlLayer', activeKmlLayer.value)
-
             // if a KMLLayer is already defined, we update it
             const kmlMetadata = await updateKml(
                 activeKmlLayer.value.fileId,
@@ -156,7 +151,6 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             opacity: 1,
             kmlData: kmlData,
         })
-        console.log('kmlLayer', kmlLayer)
         if (!temporaryKml.value) {
             await store.dispatch('addSystemLayer', { layer: kmlLayer, ...dispatcher })
         } else {

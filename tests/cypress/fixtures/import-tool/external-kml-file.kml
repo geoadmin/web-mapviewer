@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
+    <name>Sample KML File</name>
     <Placemark>
       <name>Sample Placemark</name>
       <description>This is a sample KML Placemark.</description>

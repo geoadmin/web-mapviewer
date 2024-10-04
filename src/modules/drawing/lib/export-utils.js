@@ -1,10 +1,10 @@
+import DOMPurify from 'dompurify'
 import Feature from 'ol/Feature'
 import { GPX } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import DOMPurify from 'dompurify'
 import i18n from '@/modules/i18n/index'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
@@ -73,6 +73,7 @@ export function generateGpxString(projection, features = []) {
  *
  * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to KML format
+ * @param fileName {String} name of the file
  * @returns {string}
  */
 export function generateKmlString(projection, features = [], fileName) {
@@ -83,7 +84,6 @@ export function generateKmlString(projection, features = [], fileName) {
     }
     let kmlString = EMPTY_KML_DATA
     let exportFeatures = []
-    console.log('features', features)
     features.forEach((f) => {
         const clone = f.clone()
         clone.setId(f.getId())
@@ -133,7 +133,7 @@ export function generateKmlString(projection, features = [], fileName) {
 
         // Remove empty placemark added to have <Document> tag
         kmlString = kmlString.replace(/<Placemark\/>/g, '')
-        const clean = DOMPurify.sanitize(fileName, {USE_PROFILES: { xml: true }})
+        const clean = DOMPurify.sanitize(fileName, { USE_PROFILES: { xml: true } })
         kmlString = kmlString.replace(
             /<Document>/,
             `<Document><name>${clean ? clean : i18n.global.t('draw_layer_label')}</name>`
