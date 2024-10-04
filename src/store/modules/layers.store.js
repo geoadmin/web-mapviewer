@@ -193,7 +193,7 @@ const getters = {
      * @returns {AbstractLayer | null} Active layer or null if the index is invalid
      */
     getActiveLayerByIndex: (state) => (index) => {
-        if (index < 0 || index == null) {
+        if (index < 0 || index === null) {
             throw new Error(`Failed to get ActiveLayer by index: invalid index ${index}`)
         }
         return state.activeLayers.at(index) ?? null
@@ -362,7 +362,7 @@ const actions = {
                 }
                 return clone
             })
-            .filter((layer) => layer != null)
+            .filter((layer) => layer !== null)
         commit('setLayers', { layers: clones, dispatcher })
     },
 
@@ -377,7 +377,7 @@ const actions = {
     removeLayer({ commit }, { index = null, layerId = null, dispatcher }) {
         if (layerId) {
             commit('removeLayersById', { layerId, dispatcher })
-        } else if (index != null) {
+        } else if (index !== null) {
             commit('removeLayerByIndex', { index, dispatcher })
         } else {
             log.error(

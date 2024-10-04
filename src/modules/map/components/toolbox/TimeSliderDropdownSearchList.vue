@@ -23,7 +23,7 @@ const searchList = ref(null)
 
 function goToSpecific(value) {
     const key = entries.value.findIndex((entry) => {
-        return entry.url == value
+        return entry.url === value
     })
     if (key >= 0) {
         const elem = searchList.value.querySelector(`[tabindex="${key}"]`)

@@ -835,10 +835,10 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             if (!l.id) {
                 throw new Error(`Invalid layer object ${l}: don't have an id`)
             }
-            if (l.visible == undefined) {
+            if (l.visible === undefined) {
                 l.visible = true
             }
-            if (l.opacity == undefined) {
+            if (l.opacity === undefined) {
                 l.opacity = 1
             }
             return l

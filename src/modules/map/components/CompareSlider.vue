@@ -50,7 +50,7 @@ onUnmounted(() => {
 })
 
 function slice() {
-    if (preRenderKey.value != null && postRenderKey.value != null) {
+    if (preRenderKey.value !== null && postRenderKey.value !== null) {
         unByKey(preRenderKey.value)
         unByKey(postRenderKey.value)
         preRenderKey.value = null
