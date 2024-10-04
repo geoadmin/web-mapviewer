@@ -22,7 +22,7 @@ function dispatchSearchFromUrl(to, store, urlParamValue) {
 /**
  * This will remove the query param from the URL It is necessary to do this in vanilla JS because
  * the router does not provide a way to remove a query without reloading the page which then removes
- * the value from the store
+ * the value from the store.
  *
  * @param {Object} key The key to remove from the URL
  */
@@ -47,6 +47,7 @@ export default class SearchParamConfig extends AbstractParamConfig {
     constructor() {
         super({
             urlParamName: URL_PARAM_NAME,
+            mutationsToWatch: [],
             setValuesInStore: dispatchSearchFromUrl,
             afterSetValuesInStore: () => removeQueryParamFromHref(URL_PARAM_NAME),
             keepInUrlWhenDefault: false,
