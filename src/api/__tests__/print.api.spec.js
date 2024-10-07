@@ -9,6 +9,7 @@ import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.con
 // (e.g. topic management plugin)
 import router from '@/router' // eslint-disable-line no-unused-vars
 import store from '@/store' // eslint-disable-line no-unused-vars
+
 import { adjustWidth } from '@/utils/styleUtils'
 
 describe('Print API unit tests', () => {
