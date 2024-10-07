@@ -646,7 +646,7 @@
     "upload_failed": "Errur da chargiar",
     "upload_succeeded": "Chargiar reussì",
     "uploading_file": "La datoteca vegn chargiada",
-    "url_external_layer_no_scheme_error": "La stresa exteriura '{layer}' n'ha betg ina regulaziun valaivla e vegn ignorada.",
+    "url_external_layer_no_scheme_warning": "Vus avais chargià u survegnì in link cun ina stresa indigena u avais survegnì ina colliaziun cun ina stresa indigena che n'è pia betg vegnida chargiada. Sche Vus possedais la datoteca cun la stresa layererbock, avais Vus per plaschair importar quella puspè.",
     "url_image": "Link a la fotografia",
     "url_layer_error": "la carta ­\"layerÏ\" n'ha però betg pudì vegnir mussada. Controllai per plaschair che Vus n'avais betg fatg in sbagl da contestaziun",
     "url_link": "Link a la pagina d’internet",

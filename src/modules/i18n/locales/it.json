@@ -648,7 +648,7 @@
     "upload_failed": "Caricamento fallito!",
     "upload_succeeded": "Caricamento OK!",
     "uploading_file": "Caricamento del file...",
-    "url_external_layer_no_scheme_error": "Il livello esterno '{layer}' non ha uno schema valido e viene ignorato.",
+    "url_external_layer_no_scheme_warning": "Si è ricaricato durante l'importazione di un livello locale, o si è ricevuto un link contenente un livello locale, che non è stato caricato. Se si dispone del file contenente il livello {layer}, si prega di reimportarlo.",
     "url_image": "Link della foto",
     "url_layer_error": "Impossibile visualizzare la mappa '{layer}'. Controlla di non aver commesso errori di battitura",
     "url_link": "Link del sito web",
