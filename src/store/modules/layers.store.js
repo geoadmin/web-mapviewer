@@ -78,6 +78,12 @@ const state = {
      * @type AbstractLayer[]
      */
     systemLayers: [],
+    /**
+     * Name of the active KML layer for drawing.
+     *
+     * @type {String | null}
+     */
+    activeKmlLayerName: null,
 }
 
 const getters = {
@@ -145,11 +151,16 @@ const getters = {
         ) ?? null,
 
     /**
-     * Get index of current KML layer selected for drawing.
+     * Get the name of the active KML layer for drawing.
      *
-     * That is the KML layer that will be used when the drawing mode is opened.
+     * @returns {String | null}
+     */
+    activeKmlLayerName: (state) => state.activeKmlLayerName,
+
+    /**
+     * Get index of active layer by ID.
      *
-     * When no KML layer is in active layers then -1 is returned.
+     * When there exists no layer with this ID then -1 is returned.
      *
      * @returns {number}
      */
@@ -314,6 +325,15 @@ const actions = {
             }
         })
         commit('setLayers', { layers: layers, dispatcher })
+    },
+
+    /**
+     * Set the active KML layer name
+     *
+     * @param {String} name
+     */
+    setActiveKmlLayerName({ commit }, { name }) {
+        commit('setActiveKmlLayerName', { name })
     },
 
     /**
@@ -867,6 +887,9 @@ const mutations = {
     },
     setPreviewLayer(state, { layer }) {
         state.previewLayer = layer
+    },
+    setActiveKmlLayerName(state, { name }) {
+        state.activeKmlLayerName = name
     },
     setPreviewYear(state, { year }) {
         state.previewYear = year

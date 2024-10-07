@@ -1,6 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, inject, ref, watch } from 'vue'
+import DOMPurify from 'dompurify'
+import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -38,14 +39,9 @@ const isDrawingLineOrMeasure = computed(() =>
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const activeKmlLayerIndex = computed(() =>
-    store.getters.getIndexOfActiveLayerById(activeKmlLayer.value.id)
+    store.getters.getIndexOfActiveLayerById(activeKmlLayer.value?.id)
 )
-const activeKmlLayerName = ref(activeKmlLayer.value?.name)
-
-// This is necessary to update the layer name in case the sanitized name is different
-watch(activeKmlLayer, () => {
-    activeKmlLayerName.value = activeKmlLayer.value?.name
-})
+const activeKmlLayerName = ref(activeKmlLayer.value?.name || i18n.t('draw_layer_label'))
 
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
@@ -77,12 +73,18 @@ function onCloseClearConfirmation(confirmed) {
 }
 
 async function onSaveName() {
-    if (activeKmlLayerName.value === activeKmlLayer.value.name) return
+    if (!activeKmlLayerName.value) return
+    const cleanKmlLayerName = DOMPurify.sanitize(activeKmlLayerName.value, {
+        USE_PROFILES: { xml: true },
+    })
+    activeKmlLayerName.value = cleanKmlLayerName
+    store.dispatch('setActiveKmlLayerName', { name: cleanKmlLayerName, ...dispatcher })
+    if (!activeKmlLayer.value || activeKmlLayerName.value === activeKmlLayer.value?.name) return
     store.dispatch('updateLayer', {
         index: activeKmlLayerIndex.value,
         layer: {
-            id: activeKmlLayer.value.id,
-            name: activeKmlLayerName.value,
+            id: activeKmlLayer.value?.id,
+            name: cleanKmlLayerName,
         },
         ...dispatcher,
     })
@@ -117,14 +119,12 @@ function onDeleteLastPoint() {
                         <input
                             id="activeKmlLayerName"
                             v-model="activeKmlLayerName"
-                            :disabled="!activeKmlLayer"
                             type="string"
                             class="form-control"
                             data-cy="drawing-toolbox-file-name-input"
                             :placeholder="`${i18n.t('draw_layer_label')}`"
                         />
                         <button
-                            :disabled="!activeKmlLayer"
                             class="btn btn-outline-secondary"
                             type="button"
                             data-cy="drawing-toolbox-file-name-save-button"

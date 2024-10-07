@@ -1,4 +1,3 @@
-import DOMPurify from 'dompurify'
 import Feature from 'ol/Feature'
 import { GPX } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
@@ -133,10 +132,9 @@ export function generateKmlString(projection, features = [], fileName) {
 
         // Remove empty placemark added to have <Document> tag
         kmlString = kmlString.replace(/<Placemark\/>/g, '')
-        const clean = DOMPurify.sanitize(fileName, { USE_PROFILES: { xml: true } })
         kmlString = kmlString.replace(
             /<Document>/,
-            `<Document><name>${clean ? clean : i18n.global.t('draw_layer_label')}</name>`
+            `<Document><name>${fileName ? fileName : i18n.global.t('draw_layer_label')}</name>`
         )
     }
     return kmlString
