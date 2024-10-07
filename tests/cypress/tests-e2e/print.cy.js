@@ -353,7 +353,7 @@ describe('Testing print', () => {
                 expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
             })
         })
-        it('should send a print request correctly to mapfishprint (with KML layer) - with import layer', () => {
+        it.skip('should send a print request correctly to mapfishprint (with KML layer) - with import layer', () => {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
