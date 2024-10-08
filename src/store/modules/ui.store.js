@@ -389,19 +389,12 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        addErrors({ commit, state }, { errors, dispatcher }) {
+        addErrors({ commit }, { errors, dispatcher }) {
             if (
                 errors instanceof Array &&
                 errors.filter((error) => error instanceof ErrorMessage).length === errors.length
             ) {
                 commit('addErrors', { errors, dispatcher })
-            } else if (errors instanceof ErrorMessage) {
-                if (!state.errors.has(errors)) {
-                    commit('addError', {
-                        error: errors,
-                        dispatcher,
-                    })
-                }
             } else {
                 throw new Error(
                     `Error ${errors} dispatched by ${dispatcher} is not of type ErrorMessage, or not an Array of ErrorMessages`
@@ -419,17 +412,13 @@ export default {
                 commit('removeError', { error, dispatcher })
             }
         },
-        addWarnings({ commit, state }, { warnings, dispatcher }) {
+        addWarnings({ commit }, { warnings, dispatcher }) {
             if (
                 warnings instanceof Array &&
                 warnings.filter((warning) => warning instanceof WarningMessage).length ===
                     warnings.length
             ) {
                 commit('addWarnings', { warnings, dispatcher })
-            } else if (warnings instanceof WarningMessage) {
-                if (!state.warnings.has(warnings)) {
-                    commit('addWarning', { warning: warnings, dispatcher })
-                }
             } else {
                 throw new Error(
                     `Warning ${warnings} dispatched by ${dispatcher} is not of type WarningMessage, or not an Array of WarningMessages`
@@ -508,12 +497,10 @@ export default {
             state.featureInfoPosition = position
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
-        addError: (state, { error }) => state.errors.add(error),
         addErrors: (state, { errors }) => {
             errors.forEach((error) => state.errors.add(error))
         },
         removeError: (state, { error }) => state.errors.delete(error),
-        addWarning: (state, { warning }) => state.warnings.add(warning),
         addWarnings: (state, { warnings }) => {
             warnings.forEach((warning) => state.warnings.add(warning))
         },

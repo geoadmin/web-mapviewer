@@ -18,6 +18,6 @@ export function getStandardErrorMessage(query, urlParamName) {
 export function getStandardValidationResponse(query, isValid, urlParamName) {
     return {
         valid: isValid,
-        errors: isValid ? null : getStandardErrorMessage(query, urlParamName),
+        errors: isValid ? null : [getStandardErrorMessage(query, urlParamName)],
     }
 }

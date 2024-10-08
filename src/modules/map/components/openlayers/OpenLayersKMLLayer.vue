@@ -88,19 +88,23 @@ function iconUrlProxy(url) {
         url,
         (url) => {
             store.dispatch('addWarnings', {
-                warning: new WarningMessage('kml_icon_url_cors_issue', {
-                    layerName: layerName.value,
-                    url: url,
-                }),
+                warnings: [
+                    new WarningMessage('kml_icon_url_cors_issue', {
+                        layerName: layerName.value,
+                        url: url,
+                    }),
+                ],
                 dispatcher: 'kmlUtils.js',
             })
         },
         (url) => {
             store.dispatch('addWarnings', {
-                warning: new WarningMessage('kml_icon_url_scheme_http', {
-                    layerName: layerName.value,
-                    url: url,
-                }),
+                warnings: [
+                    new WarningMessage('kml_icon_url_scheme_http', {
+                        layerName: layerName.value,
+                        url: url,
+                    }),
+                ],
                 dispatcher: 'kmlUtils.js',
             })
         }
