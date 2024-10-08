@@ -24,8 +24,6 @@
                         ref="modalHeader"
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
-                        :style="headerStyle"
-                        @mousedown="startDrag"
                     >
                         <span
                             v-if="title"
@@ -136,28 +134,7 @@ export default {
     data() {
         return {
             hideForPrint: false,
-            isDragging: false,
-            dragStartX: 0,
-            dragStartY: 0,
-            modalLeft: 0,
-            modalTop: 0,
-            modalClass: '',
         }
-    },
-    computed: {
-        headerStyle() {
-            return {
-                cursor: this.movable ? 'move' : 'default',
-            }
-        },
-        modalStyle() {
-            const transform = this.top ? '' : 'translate(0%, -50%)'
-            return {
-                top: this.modalTop + 'px',
-                left: this.modalLeft + 'px',
-                transform: transform,
-            }
-        },
     },
     mounted() {
         if (this.movable) {
@@ -195,35 +172,6 @@ export default {
         },
         onHideParentModal(hide) {
             this.hideForPrint = hide
-        },
-        setInitialPosition() {
-            const modalRect = this.$refs.modal.getBoundingClientRect()
-            this.modalLeft = `${window.innerWidth / 2 - modalRect.width / 2}`
-            if (this.top) {
-                const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
-                this.modalTop = 0.75 * rootFontSize // 0.75rem, the value of $card-spacer-y
-            } else {
-                this.modalTop = `${window.innerHeight / 2 - modalRect.height / 2}`
-            }
-        },
-        startDrag(event) {
-            if (!this.movable) return
-            this.isDragging = true
-            this.dragStartX = event.clientX - this.modalLeft
-            this.dragStartY = event.clientY - this.modalTop
-            this.modalClass = ''
-            document.addEventListener('mousemove', this.onDrag)
-            document.addEventListener('mouseup', this.stopDrag)
-        },
-        onDrag(event) {
-            if (!this.isDragging) return
-            this.modalLeft = event.clientX - this.dragStartX
-            this.modalTop = event.clientY - this.dragStartY
-        },
-        stopDrag() {
-            this.isDragging = false
-            document.removeEventListener('mousemove', this.onDrag)
-            document.removeEventListener('mouseup', this.stopDrag)
         },
     },
 }
