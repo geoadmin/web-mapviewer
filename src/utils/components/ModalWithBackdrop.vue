@@ -6,9 +6,8 @@
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div
                 ref="modalRef"
-                class="modal-popup position-fixed"
+                class="modal-popup position-fixed start-50"
                 :class="{
-                    'start-50': true,
                     'top-50 translate-middle': !top,
                     'translate-middle-x on-top-with-padding': top,
                 }"
@@ -140,7 +139,16 @@ export default {
         if (this.movable) {
             const modalElement = this.$refs.modalRef
             if (modalElement) {
-                useMovableElement(modalElement, { grabElement: this.$refs.modalHeader })
+                useMovableElement(modalElement, {
+                    grabElement: this.$refs.modalHeader,
+                    initialPositionClasses: [
+                        'start-50',
+                        'top-50',
+                        'translate-middle',
+                        'translate-middle-x',
+                        'on-top-with-padding',
+                    ],
+                })
             } else {
                 log.error('Modal element not found')
             }

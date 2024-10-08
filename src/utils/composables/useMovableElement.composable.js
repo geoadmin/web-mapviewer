@@ -16,9 +16,11 @@ const defaultPadding = 4 // px
  * @param {{ top: Number; bottom: Number; left: Number; right: Number }} [options.offset] Offset in
  *   pixels with the border of the screen to constrain element movements. A default padding of 4
  *   pixel will be applied if no offset is given.
+ * @param {string[]} [options.initialPositionClasses] Initial position classes to remove when the
+ *   element is being moved
  */
 export function useMovableElement(element, options = {}) {
-    const { grabElement = null, offset = null } = options
+    const { grabElement = null, offset = null, initialPositionClasses = [] } = options
     let firstMovement = true
 
     const padding = ref({
@@ -135,15 +137,13 @@ export function useMovableElement(element, options = {}) {
     function placeElementAt(top, left) {
         const htmlElement = toValue(element)
         const htmlElementStyle = htmlElement.style
-        // In case the original element has transform CSS, we need to reset it on the first movement and set the top to the correct value
-        if (firstMovement && htmlElementStyle.transform !== 'none') {
+
+        // In case the original element has CSS class that affects its position, we remove them first
+        if (firstMovement && initialPositionClasses.length > 0) {
             const rect = element.getBoundingClientRect()
-
-            htmlElementStyle.transform = 'none'
-            htmlElement.classList.remove('top-50')
-            htmlElement.classList.remove('start-50')
-            htmlElement.classList.remove('translate-middle')
-
+            initialPositionClasses.forEach((className) => {
+                htmlElement.classList.remove(className)
+            })
             htmlElementStyle.top = `${rect.top}px`
             htmlElementStyle.left = `${rect.left}px`
         } else {
