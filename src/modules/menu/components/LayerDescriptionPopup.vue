@@ -59,7 +59,13 @@ onMounted(async () => {
 </script>
 
 <template>
-    <ModalWithBackdrop :title="title" allow-print movable @close="emit('close', layerId)">
+    <ModalWithBackdrop
+        :title="title"
+        allow-print
+        movable
+        :use-black-backdrop="false"
+        @close="emit('close', layerId)"
+    >
         <div class="layer-description" data-cy="layer-description-popup">
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
