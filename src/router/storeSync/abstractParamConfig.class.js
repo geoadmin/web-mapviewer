@@ -90,7 +90,7 @@ export default class AbstractParamConfig {
 
             if (inputValidation.warnings) {
                 store.dispatch('addWarnings', {
-                    errors: inputValidation.warnings,
+                    warnings: inputValidation.warnings,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             }
