@@ -8,4 +8,12 @@ export default class ErrorMessage {
         this.msg = msg
         this.params = params
     }
+
+    isEquals(object) {
+        return (
+            object instanceof ErrorMessage &&
+            object.msg === this.msg &&
+            object.params === this.params
+        )
+    }
 }
