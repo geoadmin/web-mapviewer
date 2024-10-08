@@ -17,6 +17,7 @@
                     :class="{
                         'border-primary': headerPrimary,
                         'modal-popup-fluid': fluid,
+                        'modal-popup-compact': compact,
                     }"
                 >
                     <div
@@ -146,6 +147,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        compact: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     data() {
@@ -207,6 +212,10 @@ export default {
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;
+
+            &.modal-popup-compact {
+                width: 20vw;
+            }
 
             @include respond-below(phone) {
                 width: 100vw;
