@@ -75,7 +75,9 @@ export default class AbstractParamConfig {
         }
 
         const queryValue = query[this.urlParamName]
-        if (store) {
+        // we don't need to validate again if the content of the store is the same as the query
+        // we need the store check to avoid self recursion
+        if (store && this.valuesAreDifferentBetweenQueryAndStore(query, store)) {
             let inputValidation = this.validateUrlInput
                 ? this.validateUrlInput(store, queryValue)
                 : { valid: true }

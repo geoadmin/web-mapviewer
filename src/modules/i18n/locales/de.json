@@ -648,7 +648,7 @@
     "upload_failed": "Fehler beim Hochladen!",
     "upload_succeeded": "Upload OK!",
     "uploading_file": "Laden...",
-    "url_external_layer_no_scheme_error": "Die externe Ebene '{layer}' hat kein gültiges Schema und wird ignoriert.",
+    "url_external_layer_no_scheme_warning": "Sie haben neu geladen, während eine lokale Ebene importiert wurde, oder eine Verknüpfung mit einer lokalen Ebene erhalten, die nicht geladen wurde. Wenn Sie die Datei mit der {layer}-Ebene haben, importieren Sie sie bitte erneut.",
     "url_image": "Foto  URL",
     "url_layer_error": "Die Karte „{layer}“ konnte nicht angezeigt werden. Bitte überprüfen Sie, ob Sie keine Tippfehler gemacht haben",
     "url_link": "Webseite URL",

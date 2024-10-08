@@ -648,7 +648,7 @@
     "upload_failed": "Erreur d'enregistrement!",
     "upload_succeeded": "Chargement OK!",
     "uploading_file": "Chargement du fichier...",
-    "url_external_layer_no_scheme_error": "La couche externe « {layer} » n'a pas de schéma valide et sera ignorée.",
+    "url_external_layer_no_scheme_warning": "Vous avez rechargé alors qu'une couche locale était importée, ou reçu un lien contenant une couche locale, qui n'a donc pas été chargée. Si vous disposez du fichier contenant la couche {layer}, veuillez le réimporter.",
     "url_image": "Lien de la photo",
     "url_layer_error": "La carte '{layer}' n'a pas pu être affichée. Veuillez vérifier que vous n'avez pas fait de fautes de frappe",
     "url_link": "Lien du site web",

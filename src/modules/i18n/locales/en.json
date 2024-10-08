@@ -648,7 +648,7 @@
     "upload_failed": "Upload error!",
     "upload_succeeded": "Upload OK!",
     "uploading_file": "Loading file...",
-    "url_external_layer_no_scheme_error": "The external layer '{layer}' has no valid scheme and will be ignored.",
+    "url_external_layer_no_scheme_warning": "You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the {layer} layer, please re-import it.",
     "url_image": "Photo URL",
     "url_layer_error": "The map '{layer}' could not be displayed. Please check that you have not made any typos",
     "url_link": "Website URL",
