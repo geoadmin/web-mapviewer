@@ -1,13 +1,20 @@
+import center from '@turf/center'
+import { points } from '@turf/helpers'
 import axios from 'axios'
 import proj4 from 'proj4'
 
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
+import { getGpxExtent, parseGpx } from '@/utils/gpxUtils'
+import { getKmlExtent, parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+
+import LayerTypes from './layers/LayerTypes.enum'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 
@@ -278,6 +285,126 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
     }
 }
 
+/**
+ * Searches for the query string in the layer inside the provided search fields
+ *
+ * @param layer
+ * @param {String} queryString
+ * @param {String} searchFields
+ * @returns {Boolean}
+ */
+function isQueryInLayer(layer, queryString, searchFields) {
+    const queryStringClean = queryString
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+    return searchFields.some((field) => {
+        const value = layer[field]?.toString()
+        return value && value.trim().toLowerCase().includes(queryStringClean)
+    })
+}
+
+/**
+ * Searches for the query string in the KML layer
+ *
+ * @param {CoordinateSystem} outputProjection
+ * @param {String} queryString
+ * @param layer
+ * @returns {SearchResult}
+ */
+async function searchKmlLayerFeatures(outputProjection, queryString, layer) {
+    try {
+        const searchFields = ['name', 'description', 'id', 'kmlFileUrl']
+        const isInLayer = isQueryInLayer(layer, queryString, searchFields)
+        if (!isInLayer) return []
+        const features = parseKml(layer, outputProjection, [])
+        if (!features || !features.length) return []
+
+        const extent = getKmlExtent(layer.kmlData)
+
+        return createSearchResultFromLayer(layer, features[0], extent, outputProjection)
+    } catch (error) {
+        log.error(
+            `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+            error
+        )
+        return []
+    }
+}
+
+/**
+ * Searches for the query string in the GPX layer
+ *
+ * @param {CoordinateSystem} outputProjection
+ * @param {String} queryString
+ * @param layer
+ * @returns {SearchResult}
+ */
+async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
+    try {
+        const searchFields = ['name', 'description', 'id', 'baseUrl', 'gpxFileUrl']
+        const isInLayer = isQueryInLayer(layer, queryString, searchFields)
+        if (!isInLayer) return []
+        const features = parseGpx(layer.gpxData, outputProjection, [])
+        if (!features || !features.length) return []
+
+        const extent = getGpxExtent(layer.gpxData)
+
+        return createSearchResultFromLayer(layer, features[0], extent, outputProjection)
+    } catch (error) {
+        log.error(
+            `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+            error
+        )
+        return []
+    }
+}
+
+/**
+ * Creates the SearchResult for a layer
+ *
+ * @param layer
+ * @param feature
+ * @param {ol/extent|null} extent
+ * @param {CoordinateSystem} outputProjection
+ * @returns {SearchResult}
+ */
+function createSearchResultFromLayer(layer, feature, extent, outputProjection) {
+    const layerName = layer.name ?? ''
+    const coordinates = extractOlFeatureCoordinates(feature)
+    const zoom = outputProjection.get1_25000ZoomLevel()
+    const point = points(coordinates)
+    const centerPoint = center(point)
+
+    const layerContent = {
+        resultType: SearchResultTypes.LAYER,
+        id: layer.id,
+        title: layerName,
+        sanitizedTitle: sanitizeTitle(layerName),
+        description: layer.description ?? '',
+        layerId: layer.id,
+    }
+    const locationContent = {
+        resultType: SearchResultTypes.LOCATION,
+        id: layer.id,
+        title: layerName,
+        sanitizedTitle: sanitizeTitle(layerName),
+        description: layer.description ?? '',
+        featureId: layer.id ?? layer.description,
+        coordinate: centerPoint.geometry.coordinates,
+        extent,
+        zoom,
+    }
+    return {
+        ...layerContent,
+        ...locationContent,
+        resultType: SearchResultTypes.FEATURE,
+        title: layerName,
+        layer,
+    }
+}
+
 let cancelToken = null
 /**
  * @param {CoordinateSystem} config.outputProjection The projection in which the search results must
@@ -324,6 +451,21 @@ export default async function search(config) {
                 .map((layer) =>
                     searchLayerFeatures(outputProjection, queryString, layer, lang, cancelToken)
                 )
+        )
+    }
+
+    if (layersToSearch.some((layer) => layer.type === LayerTypes.KML)) {
+        allRequests.push(
+            ...layersToSearch
+                .filter((layer) => layer.type === LayerTypes.KML)
+                .map((layer) => searchKmlLayerFeatures(outputProjection, queryString, layer))
+        )
+    }
+    if (layersToSearch.some((layer) => layer.type === LayerTypes.GPX)) {
+        allRequests.push(
+            ...layersToSearch
+                .filter((layer) => layer.type === LayerTypes.GPX)
+                .map((layer) => searchGpxLayerFeatures(outputProjection, queryString, layer))
         )
     }
 
