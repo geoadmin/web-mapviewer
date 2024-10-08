@@ -31,10 +31,18 @@
                             >{{ title }}</span
                         >
                         <PrintButton
-                            v-if="allowPrint"
+                            v-if="allowPrint && showContent"
                             :content="$refs.modalContent"
                             @hide-parent-modal="onHideParentModal"
                         ></PrintButton>
+                        <button
+                            class="btn btn-sm btn-light d-flex align-items-center"
+                            data-cy="modal-minimize-button"
+                            @click="showContent = !showContent"
+                            @mousedown.stop=""
+                        >
+                            <FontAwesomeIcon :icon="`caret-${showContent ? 'up' : 'down'}`" />
+                        </button>
                         <button
                             class="btn btn-sm d-flex align-items-center"
                             :class="{
@@ -48,6 +56,7 @@
                         </button>
                     </div>
                     <div
+                        v-if="showContent"
                         ref="modalContent"
                         class="card-body pt-3 ps-4 pe-4"
                         data-cy="modal-content"
@@ -133,6 +142,7 @@ export default {
     data() {
         return {
             hideForPrint: false,
+            showContent: true,
         }
     },
     mounted() {
