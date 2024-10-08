@@ -389,12 +389,21 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        addErrors({ commit }, { errors, dispatcher }) {
+        addErrors({ commit, state }, { errors, dispatcher }) {
             if (
                 errors instanceof Array &&
                 errors.filter((error) => error instanceof ErrorMessage).length === errors.length
             ) {
-                commit('addErrors', { errors, dispatcher })
+                errors = errors.filter(
+                    (error) =>
+                        // we only add the errors that are not existing within the store
+                        [...state.errors].filter((otherError) => {
+                            error.isEquals(otherError)
+                        }).length === 0
+                )
+                if (errors.length > 0) {
+                    commit('addErrors', { errors, dispatcher })
+                }
             } else {
                 throw new Error(
                     `Error ${errors} dispatched by ${dispatcher} is not of type ErrorMessage, or not an Array of ErrorMessages`
@@ -412,13 +421,22 @@ export default {
                 commit('removeError', { error, dispatcher })
             }
         },
-        addWarnings({ commit }, { warnings, dispatcher }) {
+        addWarnings({ commit, state }, { warnings, dispatcher }) {
             if (
                 warnings instanceof Array &&
                 warnings.filter((warning) => warning instanceof WarningMessage).length ===
                     warnings.length
             ) {
-                commit('addWarnings', { warnings, dispatcher })
+                warnings = warnings.filter(
+                    (warning) =>
+                        // we only add the warnings that are not existing within the store
+                        [...state.warnings].filter((otherWarning) => {
+                            warning.isEquals(otherWarning)
+                        }).length === 0
+                )
+                if (warnings.length > 0) {
+                    commit('addWarnings', { warnings, dispatcher })
+                }
             } else {
                 throw new Error(
                     `Warning ${warnings} dispatched by ${dispatcher} is not of type WarningMessage, or not an Array of WarningMessages`
