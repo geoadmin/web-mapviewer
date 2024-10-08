@@ -223,7 +223,7 @@ export default {
             max-height: 90svh;
 
             &.modal-popup-compact {
-                width: 20vw;
+                width: $overlay-width;
             }
         }
         .card-header {
