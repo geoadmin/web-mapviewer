@@ -134,10 +134,11 @@ export function useMovableElement(element, options = {}) {
 
     function placeElementAt(top, left) {
         const htmlElementStyle = toValue(element).style
-        // In case the original element has transform CSS, we need to reset it on the first movement and set the top to the mouse location to make it smooth movement transition
-        if (firstMovement) {
+        // In case the original element has transform CSS, we need to reset it on the first movement and set the top to the correct value
+        if (firstMovement && htmlElementStyle.transform !== 'none') {
+            const rect = element.getBoundingClientRect()
             htmlElementStyle.transform = 'none'
-            htmlElementStyle.top = `${lastMousePosition.top}px`
+            htmlElementStyle.top = `${rect.top}px`
         } else {
             htmlElementStyle.top = `${top}px`
         }
