@@ -56,7 +56,7 @@
                         </button>
                     </div>
                     <div
-                        v-if="showContent"
+                        v-show="showContent"
                         ref="modalContent"
                         class="card-body pt-3 ps-4 pe-4"
                         data-cy="modal-content"
