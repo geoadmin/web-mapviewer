@@ -19,6 +19,7 @@ const defaultPadding = 4 // px
  */
 export function useMovableElement(element, options = {}) {
     const { grabElement = null, offset = null } = options
+    let firstMovement = true
 
     const padding = ref({
         top: toValue(offset)?.top ?? defaultPadding,
@@ -26,6 +27,7 @@ export function useMovableElement(element, options = {}) {
         left: toValue(offset)?.left ?? defaultPadding,
         right: toValue(offset)?.right ?? defaultPadding,
     })
+
     const viewport = ref({
         bottom: window.innerHeight - padding.value.bottom,
         left: padding.value.left,
@@ -99,7 +101,6 @@ export function useMovableElement(element, options = {}) {
             top: toValue(element).offsetTop,
         }
         const elementSize = toValue(element).getBoundingClientRect()
-
         // check to make sure the element will be within our viewport boundary
         let newLeft = elementOffset.left - currentMousePosition.left
         let newTop = elementOffset.top - currentMousePosition.top
@@ -133,8 +134,15 @@ export function useMovableElement(element, options = {}) {
 
     function placeElementAt(top, left) {
         const htmlElementStyle = toValue(element).style
-        htmlElementStyle.top = `${top}px`
+        // In case the original element has transform CSS, we need to reset it on the first movement and set the top to the mouse location to make it smooth movement transition
+        if (firstMovement) {
+            htmlElementStyle.transform = 'none'
+            htmlElementStyle.top = `${lastMousePosition.top}px`
+        } else {
+            htmlElementStyle.top = `${top}px`
+        }
         htmlElementStyle.left = `${left}px`
+        firstMovement = false
     }
 
     /**
