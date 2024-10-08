@@ -133,16 +133,23 @@ export function useMovableElement(element, options = {}) {
     }
 
     function placeElementAt(top, left) {
-        const htmlElementStyle = toValue(element).style
+        const htmlElement = toValue(element)
+        const htmlElementStyle = htmlElement.style
         // In case the original element has transform CSS, we need to reset it on the first movement and set the top to the correct value
         if (firstMovement && htmlElementStyle.transform !== 'none') {
             const rect = element.getBoundingClientRect()
+
             htmlElementStyle.transform = 'none'
+            htmlElement.classList.remove('top-50')
+            htmlElement.classList.remove('start-50')
+            htmlElement.classList.remove('translate-middle')
+
             htmlElementStyle.top = `${rect.top}px`
+            htmlElementStyle.left = `${rect.left}px`
         } else {
             htmlElementStyle.top = `${top}px`
+            htmlElementStyle.left = `${left}px`
         }
-        htmlElementStyle.left = `${left}px`
         firstMovement = false
     }
 
