@@ -212,11 +212,6 @@ export default {
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;
-
-            &.modal-popup-compact {
-                width: 20vw;
-            }
-
             @include respond-below(phone) {
                 width: 100vw;
                 border-radius: unset;
@@ -226,6 +221,10 @@ export default {
             // But for desktop we let the size be dynamic with max to 90% of the view
             max-width: 80vw;
             max-height: 90svh;
+
+            &.modal-popup-compact {
+                width: 20vw;
+            }
         }
         .card-header {
             align-items: center;
