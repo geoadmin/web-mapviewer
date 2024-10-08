@@ -3,7 +3,7 @@
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
         <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
-            <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
+            <BlackBackdrop v-if="useBlackBackDrop" place-for-modal @click.stop="onClose(false)" />
             <div
                 ref="modalRef"
                 class="modal-popup position-fixed start-50"
@@ -136,6 +136,10 @@ export default {
         movable: {
             type: Boolean,
             default: false,
+        },
+        useBlackBackdrop: {
+            type: Boolean,
+            default: true,
         },
     },
     emits: ['close'],
