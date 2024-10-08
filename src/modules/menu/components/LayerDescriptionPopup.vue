@@ -64,6 +64,7 @@ onMounted(async () => {
         allow-print
         movable
         allow-minimize
+        compact
         :use-black-backdrop="false"
         @close="emit('close', layerId)"
     >
