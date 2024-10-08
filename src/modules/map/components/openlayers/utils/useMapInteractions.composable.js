@@ -20,6 +20,11 @@ import log from '@/utils/logging'
 const dispatcher = {
     dispatcher: 'useMapInteractions.composable',
 }
+const longPressEvents = [
+    'touch',
+    'pen',
+    '', // This is necessary for IoS support
+]
 
 export default function useMapInteractions(map) {
     const store = useStore()
@@ -184,7 +189,7 @@ export default function useMapInteractions(map) {
 
     function onMapRightClick(event) {
         clearTimeout(longClickTimeout)
-        longClickTriggered = event.updateLongClickTriggered ?? false
+        longClickTriggered = event.updateLongClickTriggered ?? event.type === 'contextmenu'
         store.dispatch('click', {
             clickInfo: new ClickInfo({
                 coordinate: event.coordinate,
@@ -212,7 +217,12 @@ export default function useMapInteractions(map) {
             // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
             // LocationPopup by touching the same-ish spot for 500ms
             longClickTimeout = setTimeout(() => {
-                if (!mapHasMoved) {
+                // we need to ensure long mouse clicks don't trigger this.
+                if (
+                    !mapHasMoved &&
+                    (longPressEvents.includes(event.originalEvent?.pointerType) ||
+                        longPressEvents.includes(event.pointerType))
+                ) {
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
                     const pixel = map.getEventPixel(event)
                     const coordinate = map.getCoordinateFromPixel(pixel)
