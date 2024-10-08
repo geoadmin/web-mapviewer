@@ -36,6 +36,7 @@
                             @hide-parent-modal="onHideParentModal"
                         ></PrintButton>
                         <button
+                            v-if="allowMinimize"
                             class="btn btn-sm btn-light d-flex align-items-center"
                             data-cy="modal-minimize-button"
                             @click="showContent = !showContent"
@@ -140,6 +141,10 @@ export default {
         useBlackBackdrop: {
             type: Boolean,
             default: true,
+        },
+        allowMinimize: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ['close'],
