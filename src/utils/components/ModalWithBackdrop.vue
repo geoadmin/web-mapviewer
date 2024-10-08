@@ -8,9 +8,9 @@
                 ref="modalRef"
                 class="modal-popup position-fixed"
                 :class="{
-                    'start-50': !movable,
-                    'top-50 translate-middle': !top && !movable,
-                    'translate-middle-x on-top-with-padding': top && !movable,
+                    'start-50': true,
+                    'top-50 translate-middle': !top,
+                    'translate-middle-x on-top-with-padding': top,
                 }"
             >
                 <div
@@ -140,25 +140,6 @@ export default {
         if (this.movable) {
             const modalElement = this.$refs.modalRef
             if (modalElement) {
-                const modalRect = modalElement.getBoundingClientRect()
-                const modalLeft = window.innerWidth / 2 - modalRect.width / 2
-                let modalTop
-                if (this.top) {
-                    const rootFontSize = parseFloat(
-                        getComputedStyle(document.documentElement).fontSize
-                    )
-                    modalTop = 0.75 * rootFontSize // 0.75rem, the value of $card-spacer-y
-                } else {
-                    modalTop = window.innerHeight / 2 - modalRect.height / 2
-                }
-                const transform = this.top ? '' : 'translate(0%, -50%)'
-
-                // Remove positioning classes and set initial position
-                modalElement.style.position = 'static'
-                modalElement.style.top = `${modalTop}px`
-                modalElement.style.left = `${modalLeft}px`
-                modalElement.style.transform = transform
-
                 useMovableElement(modalElement, { grabElement: this.$refs.modalHeader })
             } else {
                 log.error('Modal element not found')
