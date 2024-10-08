@@ -8,6 +8,7 @@ import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const state = {
@@ -174,18 +175,29 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    getFeature(entry.layer, entry.featureId, rootState.position.projection, {
-                        lang: rootState.i18n.lang,
-                        screenWidth: rootState.ui.width,
-                        screenHeight: rootState.ui.height,
-                        mapExtent: flattenExtent(getters.extent),
-                        coordinate: entry.coordinate,
-                    }).then((feature) => {
+                    if (entry.layer.getTopicForIdentifyAndTooltipRequests) {
+                        getFeature(entry.layer, entry.featureId, rootState.position.projection, {
+                            lang: rootState.i18n.lang,
+                            screenWidth: rootState.ui.width,
+                            screenHeight: rootState.ui.height,
+                            mapExtent: flattenExtent(getters.extent),
+                            coordinate: entry.coordinate,
+                        }).then((feature) => {
+                            dispatch('setSelectedFeatures', {
+                                features: [feature],
+                                dispatcher,
+                            })
+                        })
+                    } else {
+                        const features = parseKml(entry.layer, rootState.position.projection, [])
+                        // TODO
+                        // fix set selectedFeatures
                         dispatch('setSelectedFeatures', {
-                            features: [feature],
+                            features,
+                            paginationSize: features.length,
                             dispatcher,
                         })
-                    })
+                    }
                 } catch (error) {
                     log.error('Error getting feature:', error)
                 }
