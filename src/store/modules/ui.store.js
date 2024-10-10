@@ -394,12 +394,11 @@ export default {
                 errors instanceof Array &&
                 errors.filter((error) => error instanceof ErrorMessage).length === errors.length
             ) {
-                errors = errors.filter(
-                    (error) =>
-                        // we only add the errors that are not existing within the store
-                        [...state.errors].filter((otherError) => {
-                            error.isEquals(otherError)
-                        }).length === 0
+                errors = errors.filter((error) =>
+                    // we only add the errors that are not existing within the store
+                    [...state.errors].some((otherError) => {
+                        error.isEquals(otherError)
+                    })
                 )
                 if (errors.length > 0) {
                     commit('addErrors', { errors, dispatcher })
@@ -427,12 +426,11 @@ export default {
                 warnings.filter((warning) => warning instanceof WarningMessage).length ===
                     warnings.length
             ) {
-                warnings = warnings.filter(
-                    (warning) =>
-                        // we only add the warnings that are not existing within the store
-                        [...state.warnings].filter((otherWarning) => {
-                            warning.isEquals(otherWarning)
-                        }).length === 0
+                warnings = warnings.filter((warning) =>
+                    // we only add the warnings that are not existing within the store
+                    [...state.warnings].some((otherWarning) => {
+                        warning.isEquals(otherWarning)
+                    })
                 )
                 if (warnings.length > 0) {
                     commit('addWarnings', { warnings, dispatcher })
