@@ -6,14 +6,18 @@ export default class ErrorMessage {
      */
     constructor(msg, params = null) {
         this.msg = msg
-        this.params = params
+        this.params = params ?? {}
     }
 
     isEquals(object) {
         return (
             object instanceof ErrorMessage &&
             object.msg === this.msg &&
-            object.params === this.params
+            Object.keys(this.params).every(
+                (key) =>
+                    Object.keys(object.params).includes(key) &&
+                    this.params[key] === object.params[key]
+            )
         )
     }
 }
