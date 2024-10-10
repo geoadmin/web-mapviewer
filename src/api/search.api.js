@@ -286,22 +286,22 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
 }
 
 /**
- * Searches for the query string in the layer inside the provided search fields
+ * Searches for the query string in the feature inside the provided search fields
  *
- * @param layer
+ * @param feature
  * @param {String} queryString
  * @param {String} searchFields
  * @returns {Boolean}
  */
-function isQueryInLayer(layer, queryString, searchFields) {
+function isQueryInFeature(feature, queryString, searchFields) {
     const queryStringClean = queryString
         .trim()
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
     return searchFields.some((field) => {
-        const value = layer[field]?.toString()
-        return value && value.trim().toLowerCase().includes(queryStringClean)
+        const value = feature.values_[field]?.toString()
+        return !!value && value.trim().toLowerCase().includes(queryStringClean)
     })
 }
 
@@ -311,19 +311,24 @@ function isQueryInLayer(layer, queryString, searchFields) {
  * @param {CoordinateSystem} outputProjection
  * @param {String} queryString
  * @param layer
- * @returns {SearchResult}
+ * @returns {SearchResult[]}
  */
 async function searchKmlLayerFeatures(outputProjection, queryString, layer) {
     try {
-        const searchFields = ['name', 'description', 'id', 'kmlFileUrl']
-        const isInLayer = isQueryInLayer(layer, queryString, searchFields)
-        if (!isInLayer) return []
+        const searchFields = ['name', 'description', 'id']
         const features = parseKml(layer, outputProjection, [])
         if (!features || !features.length) return []
 
+        const includedFeatures = features.filter((feature) =>
+            isQueryInFeature(feature, queryString, searchFields)
+        )
+        if (!includedFeatures.length) return []
+
         const extent = getKmlExtent(layer.kmlData)
 
-        return createSearchResultFromLayer(layer, features[0], extent, outputProjection)
+        return includedFeatures.map((feature) =>
+            createSearchResultFromLayer(layer, feature, extent, outputProjection)
+        )
     } catch (error) {
         log.error(
             `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
@@ -339,19 +344,24 @@ async function searchKmlLayerFeatures(outputProjection, queryString, layer) {
  * @param {CoordinateSystem} outputProjection
  * @param {String} queryString
  * @param layer
- * @returns {SearchResult}
+ * @returns {SearchResult[]}
  */
 async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
     try {
-        const searchFields = ['name', 'description', 'id', 'baseUrl', 'gpxFileUrl']
-        const isInLayer = isQueryInLayer(layer, queryString, searchFields)
-        if (!isInLayer) return []
+        const searchFields = ['name', 'description', 'id']
         const features = parseGpx(layer.gpxData, outputProjection, [])
         if (!features || !features.length) return []
 
+        const includedFeatures = features.filter((feature) =>
+            isQueryInFeature(feature, queryString, searchFields)
+        )
+        if (!includedFeatures.length) return []
+
         const extent = getGpxExtent(layer.gpxData)
 
-        return createSearchResultFromLayer(layer, features[0], extent, outputProjection)
+        return includedFeatures.map((feature) =>
+            createSearchResultFromLayer(layer, feature, extent, outputProjection)
+        )
     } catch (error) {
         log.error(
             `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
@@ -371,27 +381,28 @@ async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
  * @returns {SearchResult}
  */
 function createSearchResultFromLayer(layer, feature, extent, outputProjection) {
-    const layerName = layer.name ?? ''
+    const featureName = feature.values_.name || layer.name || ''
     const coordinates = extractOlFeatureCoordinates(feature)
     const zoom = outputProjection.get1_25000ZoomLevel()
+    // TODO is this the correct way we should handle this? It works fine for polygons but for lines it might be a bit off
     const point = points(coordinates)
     const centerPoint = center(point)
-
+    const featureId = feature.id_ ?? feature.ol_uid
     const layerContent = {
         resultType: SearchResultTypes.LAYER,
         id: layer.id,
-        title: layerName,
-        sanitizedTitle: sanitizeTitle(layerName),
+        title: layer.name ?? '',
+        sanitizedTitle: sanitizeTitle(layer.name),
         description: layer.description ?? '',
         layerId: layer.id,
     }
     const locationContent = {
         resultType: SearchResultTypes.LOCATION,
-        id: layer.id,
-        title: layerName,
-        sanitizedTitle: sanitizeTitle(layerName),
-        description: layer.description ?? '',
-        featureId: layer.id ?? layer.description,
+        id: featureId,
+        title: featureName,
+        sanitizedTitle: sanitizeTitle(featureName),
+        description: feature.values_.description ?? '',
+        featureId: featureId,
         coordinate: centerPoint.geometry.coordinates,
         extent,
         zoom,
@@ -400,7 +411,7 @@ function createSearchResultFromLayer(layer, feature, extent, outputProjection) {
         ...layerContent,
         ...locationContent,
         resultType: SearchResultTypes.FEATURE,
-        title: layerName,
+        title: featureName,
         layer,
     }
 }
@@ -461,6 +472,7 @@ export default async function search(config) {
                 .map((layer) => searchKmlLayerFeatures(outputProjection, queryString, layer))
         )
     }
+
     if (layersToSearch.some((layer) => layer.type === LayerTypes.GPX)) {
         allRequests.push(
             ...layersToSearch
