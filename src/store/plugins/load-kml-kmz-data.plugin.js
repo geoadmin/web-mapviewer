@@ -5,7 +5,6 @@
 
 import { loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
 import log from '@/utils/logging'
@@ -76,21 +75,14 @@ async function loadData(store, kmlLayer) {
         )
         store.dispatch('updateLayer', {
             layerId: kmlLayer.id,
-            values: {
-                ...kml,
-                // we have to pass the adminId (when defined) as it won't be read by the KML parser
-                // meaning it will be updated to null if it was previously defined
-                adminId: kmlLayer.adminId,
-            },
+            values: kml,
             ...dispatcher,
         })
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
-        store.dispatch('addLayerError', {
+        store.dispatch('addLayerErrorKey', {
             layerId: kmlLayer.id,
-            isExternal: kmlLayer.isExternal,
-            baseUrl: kmlLayer.baseUrl,
-            error: generateErrorMessageFromErrorType(error),
+            errorKey: `loading_error_network_failure`,
             ...dispatcher,
         })
     }

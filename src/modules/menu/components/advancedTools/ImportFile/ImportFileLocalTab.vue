@@ -23,6 +23,7 @@ const { active } = toRefs(props)
 const loadingFile = ref(false)
 const selectedFile = ref(null)
 const errorFileLoadingMessage = ref(null)
+const errorFileLoadingExtraParams = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const importSuccessMessage = ref('')
@@ -33,6 +34,7 @@ const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 async function loadFile() {
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = ''
+    errorFileLoadingExtraParams.value = null
     activateValidation.value = true
     loadingFile.value = true
 
