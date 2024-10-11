@@ -201,9 +201,12 @@ const actions = {
                             features = parseKml(entry.layer, rootState.position.projection, [])
                         }
                         if (entry.layer.type === LayerTypes.GPX) {
-                            features = parseGpx(entry.layer, rootState.position.projection, [])
+                            features = parseGpx(
+                                entry.layer.gpxData,
+                                rootState.position.projection,
+                                []
+                            )
                         }
-                        // TODO see if there is a better way of finding the feature
                         const layerFeatures = features
                             .map((feature) => createLayerFeature(feature, entry.layer))
                             .filter((feature) => !!feature && feature.data.title === entry.title)
