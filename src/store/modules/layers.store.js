@@ -193,7 +193,7 @@ const getters = {
      * @returns {AbstractLayer | null} Active layer or null if the index is invalid
      */
     getActiveLayerByIndex: (state) => (index) => {
-        if (index < 0 || index === null) {
+        if (index < 0 || index === undefined || index === null) {
             throw new Error(`Failed to get ActiveLayer by index: invalid index ${index}`)
         }
         return state.activeLayers.at(index) ?? null
