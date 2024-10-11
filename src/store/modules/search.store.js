@@ -6,8 +6,8 @@ import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { flattenExtent } from '@/utils/extentUtils'
 import log from '@/utils/logging'
 
 const state = {

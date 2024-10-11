@@ -6,8 +6,9 @@ import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
+import { normalizeExtent } from '@/utils/extentUtils'
 import log from '@/utils/logging'
-import { wrapDegrees } from '@/utils/numberUtils.js'
+import { wrapDegrees } from '@/utils/numberUtils'
 
 /** @enum */
 export const CrossHairs = {
@@ -260,11 +261,12 @@ const actions = {
         }
     },
     zoomToExtent: ({ commit, state, rootState }, { extent, maxZoom, dispatcher }) => {
-        if (extent && Array.isArray(extent) && extent.length === 2) {
+        const normalizedExtent = extent ? normalizeExtent(extent) : null
+        if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
-                proj4(state.projection.epsg, WGS84.epsg, extent[0]),
-                proj4(state.projection.epsg, WGS84.epsg, extent[1]),
+                proj4(state.projection.epsg, WGS84.epsg, normalizedExtent[0]),
+                proj4(state.projection.epsg, WGS84.epsg, normalizedExtent[1]),
             ]
             // Calculate center of extent and convert position back to the wanted projection
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
@@ -281,8 +283,8 @@ const actions = {
                 })
             }
             const extentSize = {
-                width: extent[1][0] - extent[0][0],
-                height: extent[1][1] - extent[0][1],
+                width: normalizedExtent[1][0] - normalizedExtent[0][0],
+                height: normalizedExtent[1][1] - normalizedExtent[0][1],
             }
             let targetResolution
             // if the extent's height is greater than width, we base our resolution calculation on that

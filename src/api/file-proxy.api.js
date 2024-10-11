@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { isString } from 'lodash'
 
 import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
@@ -67,4 +68,15 @@ export function unProxifyUrl(proxifiedUrl) {
     }
 
     return proxifiedUrl
+}
+
+/**
+ * @param {String} fileUrl
+ * @returns {Promise<ArrayBuffer>}
+ */
+export async function getContentThroughServiceProxy(fileUrl) {
+    const proxifyGetResponse = await axios.get(proxifyUrl(fileUrl), {
+        responseType: 'arraybuffer',
+    })
+    return proxifyGetResponse.data
 }

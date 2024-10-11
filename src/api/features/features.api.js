@@ -15,8 +15,7 @@ import {
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
 import allCoordinateSystems, { LV95 } from '@/utils/coordinates/coordinateSystems'
-import { projExtent } from '@/utils/coordinates/coordinateUtils'
-import { createPixelExtentAround } from '@/utils/extentUtils'
+import { createPixelExtentAround, projExtent } from '@/utils/extentUtils'
 import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 

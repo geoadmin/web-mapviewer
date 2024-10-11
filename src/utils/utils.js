@@ -260,35 +260,3 @@ export function humanFileSize(size) {
 export function isInternalUrl(url) {
     return internalDomainRegex.test(url)
 }
-
-/**
- * Check if the input is a zipfile content or not
- *
- * @param {ArrayBuffer} content
- * @returns {boolean} Return true if the content is a zipfile content
- */
-export function isZipContent(content) {
-    // Check the first 4 bytes for the ZIP file signature
-    const zipSignature = [0x50, 0x4b, 0x03, 0x04]
-    const view = new Uint8Array(content.slice(0, 4))
-    for (let i = 0; i < zipSignature.length; i++) {
-        if (view[i] !== zipSignature[i]) {
-            return false
-        }
-    }
-    return true
-}
-
-/**
- * Check if the input is a TIFF content or not
- *
- * @param {ArrayBuffer} content
- * @returns {boolean} Return true if the content is a TIFF content
- */
-export function isTiffContent(content) {
-    // Check the first 4 bytes for the TIFF file signature
-    // signatures can be found here https://en.wikipedia.org/wiki/TIFF
-    const tiffLittleEndianSignature = [0x49, 0x49, 0x2a, 0x00]
-    const contentSignature = new Uint8Array(content.slice(0, 4))
-    return tiffLittleEndianSignature.every((byte, index) => byte === contentSignature[index])
-}

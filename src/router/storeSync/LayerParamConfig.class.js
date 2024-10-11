@@ -15,8 +15,8 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
 import ErrorMessage from '@/utils/ErrorMessage.class'
+import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 import WarningMessage from '@/utils/WarningMessage.class'

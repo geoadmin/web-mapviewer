@@ -14,7 +14,7 @@ import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent } from '@/utils/extentUtils'
 import log from '@/utils/logging'
 
 /**

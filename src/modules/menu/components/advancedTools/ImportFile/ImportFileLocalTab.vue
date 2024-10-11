@@ -1,18 +1,17 @@
 <script setup>
 import { computed, ref, toRefs } from 'vue'
-import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
+import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import FileInput from '@/utils/components/FileInput.vue'
-import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
-import { EmptyGPXError } from '@/utils/gpxUtils'
-import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
-const store = useStore()
+const { handleFileSource } = useImportFile()
 
 const props = defineProps({
     active: {
@@ -26,6 +25,7 @@ const { active } = toRefs(props)
 const loadingFile = ref(false)
 const selectedFile = ref(null)
 const errorFileLoadingMessage = ref(null)
+const errorFileLoadingExtraParams = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const importSuccessMessage = ref('')
@@ -36,21 +36,21 @@ const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 async function loadFile() {
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = ''
+    errorFileLoadingExtraParams.value = null
     activateValidation.value = true
     loadingFile.value = true
 
     if (isFormValid.value && selectedFile.value) {
         try {
-            // The file might be a KMZ which is a zip archive. Handling zip archive as text is
-            // asking for trouble, therefore we need first to get it as binary
-            const content = await selectedFile.value.arrayBuffer()
-            await handleFileContent(store, content, selectedFile.value.name)
-            importSuccessMessage.value = 'file_imported_success'
+            await handleFileSource(selectedFile.value, false)
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
                 errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
-            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
+            } else if (error instanceof EmptyFileContentError) {
                 errorFileLoadingMessage.value = 'kml_gpx_file_empty'
+            } else if (error instanceof UnknownProjectionError) {
+                errorFileLoadingMessage.value = 'unknown_projection_error'
+                errorFileLoadingExtraParams.value = { epsg: error.epsg }
             } else {
                 errorFileLoadingMessage.value = 'invalid_import_file_error'
                 log.error(`Failed to load file`, error)
@@ -86,6 +86,7 @@ function validateForm(valid) {
             :activate-validation="activateValidation"
             :invalid-marker="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage"
+            :invalid-message-extra-params="errorFileLoadingExtraParams"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />

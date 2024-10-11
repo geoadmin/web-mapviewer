@@ -40,12 +40,11 @@ async function autoReloadData(store, geoJsonLayer) {
             const requester = 'auto-load-geojson-style'
             store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             const { data } = await load(geoJsonLayer.geoJsonUrl).response
-            const layerCopy = geoJsonLayer.clone()
-            layerCopy.geoJsonData = data
-            // we update through the action updateLayers, so that if multiple copies of the same GeoJSON layer are present,
-            // they will all be updated with the fresh data
-            store.dispatch('updateLayers', {
-                layers: [layerCopy],
+            store.dispatch('updateLayer', {
+                layerId: geoJsonLayer.id,
+                layers: {
+                    geoJsonData: data,
+                },
                 ...dispatcher,
             })
             store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
