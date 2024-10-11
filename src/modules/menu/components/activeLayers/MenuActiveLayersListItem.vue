@@ -15,6 +15,7 @@ import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/acti
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
+import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
 import log from '@/utils/logging'
@@ -167,6 +168,7 @@ function duplicateLayer() {
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
+            <ZoomToExtentButton v-if="layer.extent" :extent="layer.extent" />
             <button
                 v-if="showSpinner"
                 class="loading-button btn border-0 d-flex align-items-center"

@@ -15,6 +15,7 @@ export default class GPXLayer extends AbstractLayer {
      * @param {GPXMetadata | null} [gpxLayerData.gpxMetadata=null] Metadata of the GPX file. This
      *   object contains all the metadata found in the file itself within the <metadata> tag.
      *   Default is `null`
+     * @param {[Number, Number, Number, Number] | null} gpxLayerData.extent
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(gpxLayerData) {
@@ -27,6 +28,7 @@ export default class GPXLayer extends AbstractLayer {
             opacity = 1.0,
             gpxData = null,
             gpxMetadata = null,
+            extent = null,
         } = gpxLayerData
         if (gpxFileUrl === null) {
             throw new InvalidLayerDataError('Missing GPX file URL', gpxLayerData)
@@ -51,5 +53,6 @@ export default class GPXLayer extends AbstractLayer {
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
         this.gpxMetadata = gpxMetadata
+        this.extent = extent
     }
 }

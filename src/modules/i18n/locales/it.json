@@ -645,6 +645,7 @@
     "transparency": "Trasparenza",
     "try_test_viewer": "Prova test.map.geo.admin.ch",
     "twitter_tooltip": "Tweet della carta",
+    "unknown_projection_error": "Il file utilizza una proiezione non supportata {epsg}",
     "unsupported_content_type": "Tipo di contenuto della risposta non supportato",
     "upload_failed": "Caricamento fallito!",
     "upload_succeeded": "Caricamento OK!",
