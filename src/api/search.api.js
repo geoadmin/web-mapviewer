@@ -1,3 +1,4 @@
+import bbox from '@turf/bbox'
 import center from '@turf/center'
 import { points } from '@turf/helpers'
 import axios from 'axios'
@@ -8,10 +9,11 @@ import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
-import { getGpxExtent, parseGpx } from '@/utils/gpxUtils'
-import { getKmlExtent, parseKml } from '@/utils/kmlUtils'
+import { parseGpx } from '@/utils/gpxUtils'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 import LayerTypes from './layers/LayerTypes.enum'
@@ -324,10 +326,8 @@ async function searchKmlLayerFeatures(outputProjection, queryString, layer) {
         )
         if (!includedFeatures.length) return []
 
-        const extent = getKmlExtent(layer.kmlData)
-
         return includedFeatures.map((feature) =>
-            createSearchResultFromLayer(layer, feature, extent, outputProjection)
+            createSearchResultFromLayer(layer, feature, outputProjection)
         )
     } catch (error) {
         log.error(
@@ -357,10 +357,8 @@ async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
         )
         if (!includedFeatures.length) return []
 
-        const extent = getGpxExtent(layer.gpxData)
-
         return includedFeatures.map((feature) =>
-            createSearchResultFromLayer(layer, feature, extent, outputProjection)
+            createSearchResultFromLayer(layer, feature, outputProjection)
         )
     } catch (error) {
         log.error(
@@ -380,13 +378,15 @@ async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
  * @param {CoordinateSystem} outputProjection
  * @returns {SearchResult}
  */
-function createSearchResultFromLayer(layer, feature, extent, outputProjection) {
+function createSearchResultFromLayer(layer, feature, outputProjection) {
     const featureName = feature.values_.name || layer.name || ''
     const coordinates = extractOlFeatureCoordinates(feature)
     const zoom = outputProjection.get1_25000ZoomLevel()
-    // TODO is this the correct way we should handle this? It works fine for polygons but for lines it might be a bit off
-    const point = points(coordinates)
-    const centerPoint = center(point)
+
+    const coordinatePoints = points(coordinates)
+    const centerPoint = center(coordinatePoints)
+    const normalExtent = normalizeExtent(bbox(coordinatePoints))
+
     const featureId = feature.id_ ?? feature.ol_uid
     const layerContent = {
         resultType: SearchResultTypes.LAYER,
@@ -404,7 +404,7 @@ function createSearchResultFromLayer(layer, feature, extent, outputProjection) {
         description: feature.values_.description ?? '',
         featureId: featureId,
         coordinate: centerPoint.geometry.coordinates,
-        extent,
+        extent: normalExtent,
         zoom,
     }
     return {
