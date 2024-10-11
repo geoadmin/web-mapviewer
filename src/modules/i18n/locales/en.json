@@ -649,6 +649,7 @@
     "transparency": "Transparency",
     "try_test_viewer": "Try out test.map.geo.admin.ch",
     "twitter_tooltip": "Tweet this map",
+    "unknown_projection_error": "File is using an unsupported projection {epsg}",
     "unsupported_content_type": "Unsupported response content type",
     "upload_failed": "Upload error!",
     "upload_succeeded": "Upload OK!",

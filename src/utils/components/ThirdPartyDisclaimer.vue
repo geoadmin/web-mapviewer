@@ -54,7 +54,7 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         tooltipContent() {
-            return this.isExternalDataLocal
+            return this.isLocalFile
                 ? this.$t('warn_share_local_file')
                 : this.$t('external_data_tooltip')
         },
@@ -67,7 +67,7 @@ export default {
     mounted() {
         if (this.showTippy) {
             this.tippyInstance = tippy(this.$refs.tippyAnchor, {
-                theme: this.isExternalDataLocal ? 'secondary' : 'primary',
+                theme: this.isLocalFile ? 'secondary' : 'primary',
                 content: this.tooltipContent,
                 arrow: true,
                 placement: 'top',
@@ -76,7 +76,7 @@ export default {
                 onCreate: (instance) => {
                     instance.popper.setAttribute(
                         'data-cy',
-                        this.isExternalDataLocal
+                        this.isLocalFile
                             ? `tippy-warn-share-local-file`
                             : `tippy-third-part-disclaimer`
                     )

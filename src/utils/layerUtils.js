@@ -5,7 +5,7 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent } from '@/utils/extentUtils'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do

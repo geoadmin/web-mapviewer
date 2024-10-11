@@ -34,6 +34,7 @@ export default class KMLLayer extends AbstractLayer {
      * @param {Map<string, ArrayBuffer>} [kmlLayerData.linkFiles=Map()] Map of KML link files. Those
      *   files are usually sent with the kml inside a KMZ archive and can be referenced inside the
      *   KML (e.g. icon, image, ...). Default is `Map()`
+     * @param {[Number, Number, Number, Number] | null} kmlLayerData.extent
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -49,6 +50,7 @@ export default class KMLLayer extends AbstractLayer {
             kmlData = null,
             kmlMetadata = null,
             linkFiles = new Map(),
+            extent = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -93,6 +95,7 @@ export default class KMLLayer extends AbstractLayer {
         }
         this.kmlData = kmlData
         this.linkFiles = linkFiles
+        this.extent = extent
     }
 
     /**

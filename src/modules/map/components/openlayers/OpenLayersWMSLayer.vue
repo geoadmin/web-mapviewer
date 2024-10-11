@@ -15,8 +15,8 @@ import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { flattenExtent } from '@/utils/extentUtils'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const props = defineProps({

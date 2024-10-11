@@ -557,7 +557,6 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
     return features
 }
 
-export class EmptyKMLError extends Error {}
 export class KMZError extends Error {}
 
 /**
@@ -585,7 +584,7 @@ export class KMZObject {
  *
  * See https://developers.google.com/kml/documentation/kmzarchives
  *
- * @param {string} kmzContent KMZ archive content as string
+ * @param {String | ArrayBuffer} kmzContent KMZ archive content
  * @param {string} kmzFileName KMZ archive name
  * @returns {KMZObject} Returns a KMZ unzip object
  */
