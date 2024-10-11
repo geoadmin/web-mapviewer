@@ -3,12 +3,12 @@ import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'
 import { computed, inject, toRefs, watch } from 'vue'
 
-import GeoTIFFLayer from '@/api/layers/GeoTIFFLayer.class'
+import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const props = defineProps({
     geotiffConfig: {
-        type: GeoTIFFLayer,
+        type: CloudOptimizedGeoTIFFLayer,
         required: true,
     },
     parentLayerOpacity: {
@@ -23,11 +23,17 @@ const props = defineProps({
 const { geotiffConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const olMap = inject('olMap')
+const noDataValue = computed(() => geotiffConfig.value.noDataValue ?? 0)
 const source = computed(() => {
-    if (geotiffConfig.value.isLocalFile) {
-        return { blob: geotiffConfig.value.data }
+    const base = {
+        nodata: noDataValue.value,
     }
-    return { url: geotiffConfig.value.fileSource }
+    if (geotiffConfig.value.isLocalFile) {
+        base.blob = geotiffConfig.value.data
+    } else {
+        base.url = geotiffConfig.value.fileSource
+    }
+    return base
 })
 const opacity = computed(() => parentLayerOpacity.value ?? geotiffConfig.value.opacity)
 

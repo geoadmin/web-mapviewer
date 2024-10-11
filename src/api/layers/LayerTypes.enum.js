@@ -11,6 +11,6 @@ const LayerTypes = {
     GPX: 'GPX',
     VECTOR: 'VECTOR',
     GROUP: 'GROUP',
-    GEOTIFF: 'GEOTIFF',
+    COG: 'COG',
 }
 export default LayerTypes
