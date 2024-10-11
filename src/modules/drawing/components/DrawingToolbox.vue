@@ -73,18 +73,16 @@ function onCloseClearConfirmation(confirmed) {
 }
 
 async function onSaveName() {
-    if (!activeKmlLayerName.value) return
     const cleanKmlLayerName = DOMPurify.sanitize(activeKmlLayerName.value, {
         USE_PROFILES: { xml: true },
     })
     activeKmlLayerName.value = cleanKmlLayerName
-    store.dispatch('setActiveKmlLayerName', { name: cleanKmlLayerName, ...dispatcher })
     if (!activeKmlLayer.value || activeKmlLayerName.value === activeKmlLayer.value?.name) return
     store.dispatch('updateLayer', {
         index: activeKmlLayerIndex.value,
         layer: {
             id: activeKmlLayer.value?.id,
-            name: cleanKmlLayerName,
+            name: activeKmlLayerName.value,
         },
         ...dispatcher,
     })

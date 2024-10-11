@@ -19,7 +19,7 @@ const store = useStore()
 
 const projection = computed(() => store.state.position.projection)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
-const activeKmlLayerName = computed(() => store.getters.activeKmlLayerName)
+const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 
 function onExportOptionSelected(dropdownItem) {
     exportSelection.value = dropdownItem.value
@@ -38,7 +38,7 @@ function exportDrawing() {
         type = 'application/gpx+xml;charset=UTF-8'
     } else {
         fileName = generateFilename('.kml')
-        content = generateKmlString(projection.value, features, activeKmlLayerName.value)
+        content = generateKmlString(projection.value, features, activeKmlLayer.value?.name)
         type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
     }
     saveAs(new Blob([content], { type }), fileName)

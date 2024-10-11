@@ -21,7 +21,6 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     const online = computed(() => store.state.drawing.online)
     const projection = computed(() => store.state.position.projection)
     const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-    const activeKmlLayerName = computed(() => store.getters.activeKmlLayerName)
     const availableIconSets = computed(() => store.state.drawing.iconSets)
     const temporaryKmlId = computed(() => store.state.drawing.temporaryKmlId)
     const temporaryKml = computed(() =>
@@ -86,7 +85,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             const kmlData = generateKmlString(
                 projection.value,
                 drawingLayer.getSource().getFeatures(),
-                activeKmlLayerName.value
+                activeKmlLayer.value?.name
             )
             if (online.value) {
                 await saveOnlineDrawing(kmlData)

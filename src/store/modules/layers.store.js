@@ -78,12 +78,6 @@ const state = {
      * @type AbstractLayer[]
      */
     systemLayers: [],
-    /**
-     * Name of the active KML layer for drawing.
-     *
-     * @type {String | null}
-     */
-    activeKmlLayerName: null,
 }
 
 const getters = {
@@ -149,13 +143,6 @@ const getters = {
         state.activeLayers.findLast(
             (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
         ) ?? null,
-
-    /**
-     * Get the name of the active KML layer for drawing.
-     *
-     * @returns {String | null}
-     */
-    activeKmlLayerName: (state) => state.activeKmlLayerName,
 
     /**
      * Get index of active layer by ID.
@@ -325,15 +312,6 @@ const actions = {
             }
         })
         commit('setLayers', { layers: layers, dispatcher })
-    },
-
-    /**
-     * Set the active KML layer name
-     *
-     * @param {String} name
-     */
-    setActiveKmlLayerName({ commit }, { name }) {
-        commit('setActiveKmlLayerName', { name })
     },
 
     /**
@@ -887,9 +865,6 @@ const mutations = {
     },
     setPreviewLayer(state, { layer }) {
         state.previewLayer = layer
-    },
-    setActiveKmlLayerName(state, { name }) {
-        state.activeKmlLayerName = name
     },
     setPreviewYear(state, { year }) {
         state.previewYear = year
