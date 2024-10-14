@@ -928,14 +928,14 @@ class Modify extends PointerInteraction {
     let handled;
     if (
       !mapBrowserEvent.map.getView().getInteracting() &&
-      mapBrowserEvent.type == MapBrowserEventType.POINTERMOVE &&
+      mapBrowserEvent.type === MapBrowserEventType.POINTERMOVE &&
       !this.handlingDownUpSequence
     ) {
       this.handlePointerMove_(mapBrowserEvent);
     }
     if (this.vertexFeature_ && this.deleteCondition_(mapBrowserEvent)) {
       if (
-        mapBrowserEvent.type != MapBrowserEventType.SINGLECLICK ||
+        mapBrowserEvent.type !== MapBrowserEventType.SINGLECLICK ||
         !this.ignoreNextSingleClick_
       ) {
         handled = this.removePoint();
@@ -944,7 +944,7 @@ class Modify extends PointerInteraction {
       }
     }
 
-    if (mapBrowserEvent.type == MapBrowserEventType.SINGLECLICK) {
+    if (mapBrowserEvent.type === MapBrowserEventType.SINGLECLICK) {
       this.ignoreNextSingleClick_ = false;
     }
 
@@ -1501,7 +1501,7 @@ class Modify extends PointerInteraction {
   removePoint() {
     if (
       this.lastPointerEvent_ &&
-      this.lastPointerEvent_.type != MapBrowserEventType.POINTERDRAG
+      this.lastPointerEvent_.type !== MapBrowserEventType.POINTERDRAG
     ) {
       const evt = this.lastPointerEvent_;
       this.willModifyFeatures_(evt, this.dragSegments_);
@@ -1553,7 +1553,7 @@ class Modify extends PointerInteraction {
       if (dragSegment[1] === 0) {
         segmentsByFeature[uid].right = segmentData;
         segmentsByFeature[uid].index = segmentData.index;
-      } else if (dragSegment[1] == 1) {
+      } else if (dragSegment[1] === 1) {
         segmentsByFeature[uid].left = segmentData;
         segmentsByFeature[uid].index = segmentData.index + 1;
       }
@@ -1595,7 +1595,7 @@ class Modify extends PointerInteraction {
         case 'Polygon':
           component = component[segmentData.depth[0]];
           if (component.length > 4) {
-            if (index == component.length - 1) {
+            if (index === component.length - 1) {
               index = 0;
             }
             component.splice(index, 1);

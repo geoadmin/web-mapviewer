@@ -953,7 +953,7 @@ describe('Test of layer handling', () => {
                     .contains(timestamp.slice(0, 4))
                 cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
-                    const layer = activeLayers.find((l) => l.id == timedLayerId)
+                    const layer = activeLayers.find((l) => l.id === timedLayerId)
                     expect(layer).not.to.be.undefined
                     expect(layer.timeConfig.currentTimestamp).to.eq(timestamp)
                 })

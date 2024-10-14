@@ -126,7 +126,7 @@ function onPositionTabClick() {
     newClickInfo.value = false
 }
 async function onShareTabClick() {
-    if (newClickInfo.value && showEmbedSharing.value == false) {
+    if (newClickInfo.value && showEmbedSharing.value === false) {
         //copyShareLink is called by watcher since new shortlink is computed with a delay
         requestClipboard.value = true
     } else {

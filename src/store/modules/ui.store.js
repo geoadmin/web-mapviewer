@@ -455,7 +455,7 @@ export default {
         },
         setShowLoadingBar(state, { requester, loading }) {
             if (loading) {
-                if (state.loadingBarRequesters[requester] == null) {
+                if (state.loadingBarRequesters[requester] === null) {
                     state.loadingBarRequesters[requester] = 0
                 }
                 state.loadingBarRequesters[requester] += 1

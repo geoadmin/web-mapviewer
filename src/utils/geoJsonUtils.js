@@ -86,7 +86,7 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
  */
 export function transformIntoTurfEquivalent(geoJsonData, fromProjection = null) {
     const geometryWGS84 = reprojectGeoJsonData(
-        geoJsonData.type == 'GeometryCollection' ? geoJsonData.geometries[0] : geoJsonData,
+        geoJsonData.type === 'GeometryCollection' ? geoJsonData.geometries[0] : geoJsonData,
         WGS84,
         fromProjection
     )
