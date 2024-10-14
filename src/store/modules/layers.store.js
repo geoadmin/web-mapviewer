@@ -165,10 +165,21 @@ const getters = {
      * Retrieves active layer(s) by ID
      *
      * @param {string} layerId ID of the layer(s) to retrieve
+     * @param {string} isExternal If the layer must be external, not, or both
+     * @param {string} baseUrl Base URL of the layer(s) to retrieve
      * @returns {[AbstractLayer]} All active layers matching the ID
      */
-    getActiveLayersById: (state) => (layerId) =>
-        state.activeLayers.filter((layer) => layer.id === layerId),
+    getActiveLayersById:
+        (state) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            console.log('getActiveLayersById', layerId, isExternal, baseUrl)
+            return state.activeLayers.filter((layer) => {
+                const matchesLayerId = layer.id === layerId
+                const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
+                const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
+                return matchesLayerId && matchesIsExternal && matchesBaseUrl
+            })
+        },
 
     /**
      * Retrieves layer(s) by ID.
@@ -324,6 +335,7 @@ const actions = {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
+        console.log('addLayer', layer, layerId, layerConfig, dispatcher)
         let clone = null
         if (layer) {
             clone = layer.clone()
@@ -334,6 +346,7 @@ const actions = {
             clone = getters.getLayerConfigById(layerId)?.clone() ?? null
         }
         if (clone) {
+            console.log('addLayer', clone)
             commit('addLayer', { layer: clone, dispatcher })
         } else {
             log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)

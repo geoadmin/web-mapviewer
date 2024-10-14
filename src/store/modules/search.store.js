@@ -150,7 +150,7 @@ const actions = {
         const dispatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case SearchResultTypes.LAYER:
-                if (getters.getActiveLayersById(entry.layerId).length === 0) {
+                if (getters.getActiveLayersById(entry.layerId, false).length === 0) {
                     dispatch('addLayer', {
                         layerConfig: { id: entry.layerId, visible: true },
                         dispatcher: dispatcherSelectResultEntry,
