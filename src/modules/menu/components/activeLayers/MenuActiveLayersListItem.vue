@@ -65,7 +65,9 @@ const layerDownButton = ref(null)
 const transparencySlider = ref(null)
 const id = computed(() => layer.value.id)
 const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
-const hasDataDisclaimer = computed(() => store.getters.hasDataDisclaimer(id.value))
+const hasDataDisclaimer = computed(() =>
+    store.getters.hasDataDisclaimer(id.value, layer.value.isExternal, layer.value.baseUrl)
+)
 const attributionName = computed(() =>
     layer.value.attributions.map((attribution) => attribution.name).join(', ')
 )

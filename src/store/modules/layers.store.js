@@ -228,10 +228,20 @@ const getters = {
      * @param {string} layerId Layer ID of the layer to check for data disclaimer
      * @returns {Boolean}
      */
-    hasDataDisclaimer: (state) => (layerId) => {
-        const layer = state.activeLayers.find((layer) => layer.id === layerId)
-        return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
-    },
+    hasDataDisclaimer:
+        (state, getters) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
+            console.log(
+                'hasDataDisclaimer',
+                layerId,
+                isExternal,
+                baseUrl,
+                layer,
+                layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+            )
+            return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+        },
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer) which has
