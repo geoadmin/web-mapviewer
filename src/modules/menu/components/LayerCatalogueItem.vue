@@ -66,7 +66,6 @@ const showItem = computed(() => {
     }
     return true
 })
-const activeLayers = computed(() => store.state.layers.activeLayers)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
