@@ -13,11 +13,8 @@ export default class WarningMessage {
         return (
             object instanceof WarningMessage &&
             object.msg === this.msg &&
-            Object.keys(this.params).every(
-                (key) =>
-                    Object.keys(object.params).includes(key) &&
-                    this.params[key] === object.params[key]
-            )
+            Object.keys(this.params).length === Object.keys(object.params).length &&
+            Object.keys(this.params).every((key) => this.params[key] === object.params[key])
         )
     }
 }
