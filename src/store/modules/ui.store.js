@@ -390,15 +390,13 @@ export default {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
         addErrors({ commit, state }, { errors, dispatcher }) {
-            if (
-                errors instanceof Array &&
-                errors.filter((error) => error instanceof ErrorMessage).length === errors.length
-            ) {
-                errors = errors.filter((error) =>
-                    // we only add the errors that are not existing within the store
-                    [...state.errors].some((otherError) => {
-                        error.isEquals(otherError)
-                    })
+            if (errors instanceof Array && errors.every((error) => error instanceof ErrorMessage)) {
+                errors = errors.filter(
+                    (error) =>
+                        // we only add the errors that are not existing within the store
+                        ![...state.errors].some((otherError) => {
+                            error.isEquals(otherError)
+                        })
                 )
                 if (errors.length > 0) {
                     commit('addErrors', { errors, dispatcher })
@@ -423,14 +421,14 @@ export default {
         addWarnings({ commit, state }, { warnings, dispatcher }) {
             if (
                 warnings instanceof Array &&
-                warnings.filter((warning) => warning instanceof WarningMessage).length ===
-                    warnings.length
+                warnings.every((warning) => warning instanceof WarningMessage)
             ) {
-                warnings = warnings.filter((warning) =>
-                    // we only add the warnings that are not existing within the store
-                    [...state.warnings].some((otherWarning) => {
-                        warning.isEquals(otherWarning)
-                    })
+                warnings = warnings.filter(
+                    (warning) =>
+                        // we only add the warnings that are not existing within the store
+                        ![...state.warnings].some((otherWarning) => {
+                            warning.isEquals(otherWarning)
+                        })
                 )
                 if (warnings.length > 0) {
                     commit('addWarnings', { warnings, dispatcher })
