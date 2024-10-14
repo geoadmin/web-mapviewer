@@ -149,6 +149,8 @@ function addRemoveLayer() {
     if (layers.length > 0) {
         store.dispatch('removeLayer', {
             layerId: item.value.id,
+            isExternal: item.value.isExternal,
+            baseUrl: item.value.baseUrl,
             ...dispatcher,
         })
     } else if (item.value.isExternal) {

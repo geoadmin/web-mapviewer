@@ -352,7 +352,6 @@ const actions = {
             clone = getters.getLayerConfigById(layerId)?.clone() ?? null
         }
         if (clone) {
-            console.log('addLayer', clone)
             commit('addLayer', { layer: clone, dispatcher })
         } else {
             log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
@@ -393,11 +392,14 @@ const actions = {
      * @param {number} index Index of the layer to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayer({ commit }, { index = null, layerId = null, dispatcher }) {
+    removeLayer(
+        { commit },
+        { index = null, layerId = null, isExternal = null, baseUrl = null, dispatcher }
+    ) {
         if (layerId) {
             commit('removeLayersById', { layerId, dispatcher })
         } else if (index !== null) {
-            commit('removeLayerByIndex', { index, dispatcher })
+            commit('removeLayersById', { layerId, isExternal, baseUrl, dispatcher })
         } else {
             log.error(
                 `Failed to remove layer: invalid parameter: ${index}, ${layerId}, ${dispatcher}`
@@ -840,8 +842,13 @@ const mutations = {
             )
         })
     },
-    removeLayersById(state, { layerId }) {
-        state.activeLayers = state.activeLayers.filter((layer) => layer.id !== layerId)
+    removeLayersById(state, { layerId, isExternal = null, baseUrl = null }) {
+        state.activeLayers = state.activeLayers.filter((layer) => {
+            const matchesLayerId = layer.id === layerId
+            const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
+            const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
+            return !(matchesLayerId && matchesIsExternal && matchesBaseUrl)
+        })
     },
     removeLayerByIndex(state, { index }) {
         state.activeLayers.splice(index, 1)
