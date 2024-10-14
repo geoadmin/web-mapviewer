@@ -397,9 +397,9 @@ const actions = {
         { index = null, layerId = null, isExternal = null, baseUrl = null, dispatcher }
     ) {
         if (layerId) {
-            commit('removeLayersById', { layerId, dispatcher })
-        } else if (index !== null) {
             commit('removeLayersById', { layerId, isExternal, baseUrl, dispatcher })
+        } else if (index !== null) {
+            commit('removeLayerByIndex', { index, dispatcher })
         } else {
             log.error(
                 `Failed to remove layer: invalid parameter: ${index}, ${layerId}, ${dispatcher}`
