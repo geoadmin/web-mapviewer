@@ -1,7 +1,11 @@
+import GeoJSON from 'ol/format/GeoJSON'
+
+import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -96,4 +100,29 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
         return projection.getResolutions().length
     }
     return indexOfResolution
+}
+
+export function createLayerFeature(olFeature, layer) {
+    if (!olFeature?.getGeometry()) return null
+    return new LayerFeature({
+        layer: layer,
+        id: olFeature.getId(),
+        name:
+            olFeature.get('label') ??
+            // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+            // some of their layers are
+            // - ch.meteoschweiz.messwerte-niederschlag-10min
+            // - ch.meteoschweiz.messwerte-lufttemperatur-10min
+            olFeature.get('station_name') ??
+            // GPX track feature don't have an ID but have a name !
+            olFeature.get('name') ??
+            olFeature.getId(),
+        data: {
+            title: olFeature.get('name'),
+            description: olFeature.get('description'),
+        },
+        coordinates: olFeature.getGeometry().getCoordinates(),
+        geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
+        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+    })
 }

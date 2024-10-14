@@ -53,6 +53,7 @@
         "@turf/area": "^7.1.0",
         "@turf/bbox": "^7.1.0",
         "@turf/boolean-contains": "^7.1.0",
+        "@turf/boolean-intersects": "^7.1.0",
         "@turf/boolean-point-in-polygon": "^7.1.0",
         "@turf/buffer": "^7.1.0",
         "@turf/centroid": "^7.1.0",
