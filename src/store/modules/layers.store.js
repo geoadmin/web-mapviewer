@@ -232,14 +232,14 @@ const getters = {
         (state, getters) =>
         (layerId, isExternal = null, baseUrl = null) => {
             const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
-            console.log(
-                'hasDataDisclaimer',
-                layerId,
-                isExternal,
-                baseUrl,
-                layer,
-                layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
-            )
+            // console.log(
+            //     'hasDataDisclaimer',
+            //     layerId,
+            //     isExternal,
+            //     baseUrl,
+            //     layer,
+            //     layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+            // )
             return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
         },
 
@@ -345,7 +345,7 @@ const actions = {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
-        console.log('addLayer', layer, layerId, layerConfig, dispatcher)
+        // console.log('addLayer', layer, layerId, layerConfig, dispatcher)
         let clone = null
         if (layer) {
             clone = layer.clone()
