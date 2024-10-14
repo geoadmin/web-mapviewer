@@ -5,13 +5,24 @@ import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
+/**
+ * Check if a layer match with the layerId, isExternal, and baseUrl
+ *
+ * @param {string} layerId ID of the layer to compare
+ * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+ * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+ * @param {AbstractLayer} layerToMatch Layer to compare with
+ * @returns {boolean}
+ */
+function matchTwoLayers(layerId, isExternal = null, baseUrl = null, layerToMatch) {
+    const matchesLayerId = layerToMatch.id === layerId
+    const matchesIsExternal = isExternal === null || layerToMatch.isExternal === isExternal
+    const matchesBaseUrl = baseUrl === null || layerToMatch.baseUrl === baseUrl
+    return matchesLayerId && matchesIsExternal && matchesBaseUrl
+}
+
 const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) => {
-    return state.activeLayers.filter((layer) => {
-        const matchesLayerId = layer.id === layerId
-        const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
-        const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
-        return matchesLayerId && matchesIsExternal && matchesBaseUrl
-    })
+    return state.activeLayers.filter((layer) => matchTwoLayers(layerId, isExternal, baseUrl, layer))
 }
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
@@ -168,22 +179,20 @@ const getters = {
         state.config.find((layer) => layer.id === geoAdminLayerId) ?? null,
 
     /**
-     * Retrieves active layer(s) by ID
+     * Retrieves active layer(s) by layerID, isExternal, and baseUrl.
      *
      * @param {string} layerId ID of the layer(s) to retrieve
-     * @param {string} isExternal If the layer must be external, not, or both
-     * @param {string} baseUrl Base URL of the layer(s) to retrieve
-     * @returns {[AbstractLayer]} All active layers matching the ID
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+     *   baseUrl
+     * @returns {[AbstractLayer]} All active layers matching the ID, isExternal, and baseUrl
      */
     getActiveLayersById:
         (state) =>
         (layerId, isExternal = null, baseUrl = null) => {
-            return state.activeLayers.filter((layer) => {
-                const matchesLayerId = layer.id === layerId
-                const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
-                const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
-                return matchesLayerId && matchesIsExternal && matchesBaseUrl
-            })
+            return state.activeLayers.filter((layer) =>
+                matchTwoLayers(layerId, isExternal, baseUrl, layer)
+            )
         },
 
     /**
@@ -843,12 +852,9 @@ const mutations = {
         })
     },
     removeLayersById(state, { layerId, isExternal = null, baseUrl = null }) {
-        state.activeLayers = state.activeLayers.filter((layer) => {
-            const matchesLayerId = layer.id === layerId
-            const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
-            const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
-            return !(matchesLayerId && matchesIsExternal && matchesBaseUrl)
-        })
+        state.activeLayers = state.activeLayers.filter((layer) =>
+            matchTwoLayers(layerId, isExternal, baseUrl, layer)
+        )
     },
     removeLayerByIndex(state, { index }) {
         state.activeLayers.splice(index, 1)
