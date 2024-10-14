@@ -5,8 +5,14 @@ import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const getActiveLayersById = (state, layerId) =>
-    state.activeLayers.filter((layer) => layer.id === layerId)
+const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) => {
+    return state.activeLayers.filter((layer) => {
+        const matchesLayerId = layer.id === layerId
+        const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
+        const matchesBaseUrl = baseUrl === null || layer.baseUrl === baseUrl
+        return matchesLayerId && matchesIsExternal && matchesBaseUrl
+    })
+}
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
@@ -172,7 +178,6 @@ const getters = {
     getActiveLayersById:
         (state) =>
         (layerId, isExternal = null, baseUrl = null) => {
-            console.log('getActiveLayersById', layerId, isExternal, baseUrl)
             return state.activeLayers.filter((layer) => {
                 const matchesLayerId = layer.id === layerId
                 const matchesIsExternal = isExternal === null || layer.isExternal === isExternal
@@ -232,14 +237,6 @@ const getters = {
         (state, getters) =>
         (layerId, isExternal = null, baseUrl = null) => {
             const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
-            // console.log(
-            //     'hasDataDisclaimer',
-            //     layerId,
-            //     isExternal,
-            //     baseUrl,
-            //     layer,
-            //     layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
-            // )
             return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
         },
 
@@ -345,7 +342,6 @@ const actions = {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
-        // console.log('addLayer', layer, layerId, layerConfig, dispatcher)
         let clone = null
         if (layer) {
             clone = layer.clone()
@@ -454,7 +450,11 @@ const actions = {
                 if (layer instanceof AbstractLayer) {
                     return layer
                 } else {
-                    const layers2Update = getters.getActiveLayersById(layer.id)
+                    const layers2Update = getters.getActiveLayersById(
+                        layer.id,
+                        layer.isExternal,
+                        layer.baseUrl
+                    )
                     if (!layers2Update) {
                         throw new Error(
                             `Failed to updateLayers: "${layer.id}" not found in active layers`
@@ -832,10 +832,12 @@ const mutations = {
     },
     updateLayers(state, { layers }) {
         layers.forEach((layer) => {
-            getActiveLayersById(state, layer.id).forEach((layer2Update) => {
-                log.debug(`update layer`, layer2Update, layer)
-                Object.assign(layer2Update, layer)
-            })
+            getActiveLayersById(state, layer.id, layer.isExternal, layer.baseUrl).forEach(
+                (layer2Update) => {
+                    log.debug(`update layer`, layer2Update, layer)
+                    Object.assign(layer2Update, layer)
+                }
+            )
         })
     },
     removeLayersById(state, { layerId }) {
