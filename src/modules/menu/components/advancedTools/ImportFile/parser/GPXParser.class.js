@@ -26,6 +26,7 @@ export default class GPXParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.gpx'],
+            fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
             serviceProxyConfiguration: {
                 validateContent: isGpx,
             },

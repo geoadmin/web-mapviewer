@@ -79,13 +79,14 @@ export async function parseLayerFromFile(fileSource, currentProjection, options 
                 }
             )
         } catch (error) {
-            log.debug(
-                'Could not parse file through mime type detection, attempting a content parsing through service-proxy',
+            log.error(
+                '[FileParser] Could not parse file through mime type detection, raising an invalid file error',
                 error
             )
+            throw new Error('Invalid file')
         }
     }
-    // if MIME type detection was unsuccessful, we attempt another pass of parsing, this using service-proxy to ge the file's content
+    // if MIME type detection was unsuccessful, we attempt another pass of parsing, this time using service-proxy to ge the file's content
     if (!isLocalFile) {
         log.debug('[FileParser] MIME type detection failed, going through service-proxy')
         return await parseAll(

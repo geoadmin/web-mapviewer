@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -33,11 +34,14 @@ export default function useImportFile() {
         })
         try {
             const layer = await parseLayerFromFile(source, projection.value)
-            await store.dispatch('addLayer', {
-                layer,
-                zoomToLayerExtent: true,
-                ...dispatcher,
-            })
+            // checking that the same layer is not already present before adding it
+            if (store.getters.getActiveLayersById(layer.id).length === 0) {
+                await store.dispatch('addLayer', {
+                    layer,
+                    zoomToLayerExtent: true,
+                    ...dispatcher,
+                })
+            }
         } catch (error) {
             if (!sendErrorToStore) {
                 throw error
@@ -45,7 +49,9 @@ export default function useImportFile() {
             let errorKey
             let errorParams
             log.error(`Error loading file`, source.name ?? source, error)
-            if (error instanceof OutOfBoundsError) {
+            if (error instanceof AxiosError || /fetch/.test(error.message)) {
+                errorKey = 'loading_error_network_failure'
+            } else if (error instanceof OutOfBoundsError) {
                 errorKey = 'imported_file_out_of_bounds'
             } else if (error instanceof EmptyFileContentError) {
                 errorKey = 'kml_gpx_file_empty'
