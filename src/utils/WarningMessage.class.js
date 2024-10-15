@@ -6,6 +6,15 @@ export default class WarningMessage {
      */
     constructor(msg, params = null) {
         this.msg = msg
-        this.params = params
+        this.params = params ?? {}
+    }
+
+    isEquals(object) {
+        return (
+            object instanceof WarningMessage &&
+            object.msg === this.msg &&
+            Object.keys(this.params).length === Object.keys(object.params).length &&
+            Object.keys(this.params).every((key) => this.params[key] === object.params[key])
+        )
     }
 }
