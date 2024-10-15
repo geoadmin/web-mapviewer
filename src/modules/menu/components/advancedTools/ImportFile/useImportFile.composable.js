@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 

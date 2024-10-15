@@ -623,7 +623,6 @@ describe('The Import File Tool', () => {
         cy.reload()
         cy.waitMapIsReady()
         cy.wait(['@headGpxFile', '@getGpxFile'])
-
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
         cy.openMenuIfMobile()
