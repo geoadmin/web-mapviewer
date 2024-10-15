@@ -877,6 +877,7 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
                 description: `[${layer.id}] waitUntil layer.rendered`,
                 errorMsg: `[${layer.id}] layer.rendered is not true`,
             })
+            cy.log(`[${layer.id}] layer at index ${index} is rendered ${olLayer.rendered}`)
         })
     })
     invisibleLayers.forEach((layer) => {
