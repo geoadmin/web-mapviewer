@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import DOMPurify from 'dompurify'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -12,6 +12,7 @@ import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip.js'
 
 import DrawingHeader from './DrawingHeader.vue'
 
@@ -38,10 +39,8 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const activeKmlLayerIndex = computed(() =>
-    store.getters.getIndexOfActiveLayerById(activeKmlLayer.value?.id)
-)
-const activeKmlLayerName = ref(activeKmlLayer.value?.name || i18n.t('draw_layer_label'))
+const activeKmlLayerName = computed(() => activeKmlLayer.value?.name)
+const drawingName = ref(activeKmlLayerName.value ?? i18n.t('draw_layer_label'))
 
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
@@ -67,26 +66,37 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('clearDrawingFeatures', dispatcher)
         store.dispatch('clearAllSelectedFeatures', dispatcher)
         drawingLayer.getSource().clear()
-        debounceSaveDrawing()
+        debounceSaveDrawing({ drawingName: drawingName.value })
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     }
 }
 
-async function onSaveName() {
-    const cleanKmlLayerName = DOMPurify.sanitize(activeKmlLayerName.value, {
+const { removeTippy: removeNoActiveKmlWarning } = useTippyTooltip('#drawing-name-container')
+
+onMounted(() => {
+    // if there's already an active KML layer, we can remove the tippy (as it will be empty, see template below)
+    if (activeKmlLayer.value) {
+        removeNoActiveKmlWarning()
+    }
+})
+
+watch(drawingName, () => {
+    sanitizeDrawingName()
+    debounceSaveDrawing({
+        drawingName: drawingName.value.trim(),
+    })
+})
+watch(activeKmlLayer, () => {
+    if (activeKmlLayer.value) {
+        // no need for the message telling the user the drawing is empty, and he can't edit the drawing name
+        removeNoActiveKmlWarning()
+    }
+})
+
+function sanitizeDrawingName() {
+    drawingName.value = DOMPurify.sanitize(drawingName.value, {
         USE_PROFILES: { xml: true },
     })
-    activeKmlLayerName.value = cleanKmlLayerName
-    if (!activeKmlLayer.value || activeKmlLayerName.value === activeKmlLayer.value?.name) return
-    store.dispatch('updateLayer', {
-        index: activeKmlLayerIndex.value,
-        layer: {
-            id: activeKmlLayer.value?.id,
-            name: activeKmlLayerName.value,
-        },
-        ...dispatcher,
-    })
-    await debounceSaveDrawing()
 }
 
 function closeDrawing() {
@@ -109,28 +119,25 @@ function onDeleteLastPoint() {
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
-                <div class="d-flex justify-content-center align-items-center gap-2 p-3">
-                    <label for="activeKmlLayerName" class="mr-3">
+                <div
+                    id="drawing-name-container"
+                    class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
+                    :data-tippy-content="
+                        !activeKmlLayer ? i18n.t('drawing_empty_cannot_edit_name') : ''
+                    "
+                >
+                    <label for="drawing-name" class="text-nowrap">
                         {{ i18n.t('file_name') }}
                     </label>
-                    <div class="input-group">
-                        <input
-                            id="activeKmlLayerName"
-                            v-model="activeKmlLayerName"
-                            type="string"
-                            class="form-control"
-                            data-cy="drawing-toolbox-file-name-input"
-                            :placeholder="`${i18n.t('draw_layer_label')}`"
-                        />
-                        <button
-                            class="btn btn-outline-secondary"
-                            type="button"
-                            data-cy="drawing-toolbox-file-name-save-button"
-                            @click="onSaveName"
-                        >
-                            {{ i18n.t('validate') }}
-                        </button>
-                    </div>
+                    <input
+                        id="drawing-name"
+                        v-model="drawingName"
+                        type="text"
+                        class="form-control"
+                        data-cy="drawing-toolbox-file-name-input"
+                        :placeholder="`${i18n.t('draw_layer_label')}`"
+                        :disabled="!activeKmlLayer"
+                    />
                 </div>
 
                 <div class="card-body position-relative container">
