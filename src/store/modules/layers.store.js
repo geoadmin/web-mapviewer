@@ -868,8 +868,8 @@ const mutations = {
         })
     },
     removeLayersById(state, { layerId, isExternal = null, baseUrl = null }) {
-        state.activeLayers = state.activeLayers.filter((layer) =>
-            matchTwoLayers(layerId, isExternal, baseUrl, layer)
+        state.activeLayers = state.activeLayers.filter(
+            (layer) => !matchTwoLayers(layerId, isExternal, baseUrl, layer)
         )
     },
     removeLayerByIndex(state, { index }) {
