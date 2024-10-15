@@ -9,9 +9,9 @@ import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'
-import OpenLayersGeoTIFF from '@/modules/map/components/openlayers/OpenLayersGeoTIFF.vue'
 import OpenLayersGPXLayer from '@/modules/map/components/openlayers/OpenLayersGPXLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
@@ -130,8 +130,8 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
-        <OpenLayersGeoTIFF
-            v-if="layerConfig.type === LayerTypes.GEOTIFF"
+        <OpenLayersCOGTiffLayer
+            v-if="layerConfig.type === LayerTypes.COG"
             :geotiff-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
