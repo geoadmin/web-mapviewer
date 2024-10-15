@@ -27,6 +27,11 @@ export class KMLParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.kml'],
+            fileContentTypes: [
+                'application/vnd.google-earth.kml+xml',
+                'application/xml',
+                'text/xml',
+            ],
             serviceProxyConfiguration: {
                 validateContent: isKml,
             },
@@ -41,7 +46,7 @@ export class KMLParser extends FileParser {
      *   embedded files with the layer
      * @returns {KMLLayer}
      */
-    parseKmlLayer(fileContent, fileSource, currentProjection, linkFiles = null) {
+    parseKmlLayer(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
         if (isKml(fileContent)) {
             const extent = getKmlExtent(fileContent)
             if (!extent) {
@@ -67,7 +72,7 @@ export class KMLParser extends FileParser {
             })
         }
 
-        throw new Error('No KML data found in this file')
+        throw new EmptyFileContentError('No KML data found in this file')
     }
 
     async parseLocalFile(file, currentProjection) {

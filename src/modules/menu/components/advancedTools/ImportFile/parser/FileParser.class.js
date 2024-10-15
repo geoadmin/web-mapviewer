@@ -98,19 +98,6 @@ export default class FileParser {
     }
 
     /**
-     * @param {String} fileUrl
-     * @returns {Promise<ArrayBuffer>}
-     */
-    async getContentThroughServiceProxy(fileUrl) {
-        if (!this.serviceProxyConfiguration) {
-            throw new Error('No service-proxy configuration for this parser')
-        }
-        // service proxy will stream the response, so we will only receive Content-Type application/binary
-        // we need to check the content of what is returned
-        return await getContentThroughServiceProxy(fileUrl)
-    }
-
-    /**
      * @param {ArrayBuffer} fileArrayBuffer
      * @returns {Boolean}
      */

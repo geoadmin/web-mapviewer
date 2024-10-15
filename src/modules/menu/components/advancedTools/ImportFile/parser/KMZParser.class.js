@@ -27,6 +27,7 @@ export default class KMZParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.kmz'],
+            fileContentTypes: ['application/vnd.google-earth.kmz'],
             // ZIP file signature
             fileTypeLittleEndianSignature: [0x50, 0x4b, 0x03, 0x04],
             serviceProxyConfiguration: {

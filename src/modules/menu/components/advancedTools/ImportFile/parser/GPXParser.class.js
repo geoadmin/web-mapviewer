@@ -12,12 +12,15 @@ import { getGpxExtent } from '@/utils/gpxUtils'
 /**
  * Checks if file is GPX
  *
- * @param {ArrayBuffer} fileContent
+ * @param {ArrayBuffer | String} fileContent
  * @returns {boolean}
  */
 export function isGpx(fileContent) {
-    const fileContentAsText = new TextDecoder('utf-8').decode(fileContent)
-    return /<gpx/.test(fileContentAsText) && /<\/gpx\s*>/.test(fileContentAsText)
+    let stringValue = fileContent
+    if (fileContent instanceof ArrayBuffer) {
+        stringValue = new TextDecoder('utf-8').decode(fileContent)
+    }
+    return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
 }
 
 const gpxMetadataParser = new GPX()
@@ -26,6 +29,7 @@ export default class GPXParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.gpx'],
+            fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
             serviceProxyConfiguration: {
                 validateContent: isGpx,
             },
