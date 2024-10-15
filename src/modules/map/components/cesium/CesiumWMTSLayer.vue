@@ -76,6 +76,8 @@ export default {
                 )
                 this.addLayerErrorKey({
                     layerId: this.wmtsLayerConfig.id,
+                    isExternal: this.wmtsLayerConfig.isExternal,
+                    baseUrl: this.wmtsLayerConfig.baseUrl,
                     errorKey: threeDErrorKey,
                     ...dispatcher,
                 })
@@ -121,6 +123,8 @@ export default {
         if (this.wmtsLayerConfig.hasErrorKey(threeDErrorKey)) {
             this.removeLayerErrorKey({
                 layerId: this.wmtsLayerConfig.id,
+                isExternal: this.wmtsLayerConfig.isExternal,
+                baseUrl: this.wmtsLayerConfig.baseUrl,
                 errorKey: threeDErrorKey,
                 ...dispatcher,
             })

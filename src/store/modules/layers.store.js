@@ -196,20 +196,27 @@ const getters = {
         },
 
     /**
-     * Retrieves layer(s) by ID.
+     * Retrieves layer(s) by ID, isExternal, and baseUrl properties.
      *
      * Search in active layer and in preview layer
      *
      * @param {string} layerId ID of the layer(s) to retrieve
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+     *   baseUrl
      * @returns {[AbstractLayer]} All active layers matching the ID
      */
-    getLayersById: (state) => (layerId) => {
-        const layers = state.activeLayers.filter((layer) => layer.id === layerId)
-        if (state.previewLayer?.id === layerId) {
-            layers.push(state.previewLayer)
-        }
-        return layers
-    },
+    getLayersById:
+        (state) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            const layers = state.activeLayers.filter((layer) =>
+                matchTwoLayers(layerId, isExternal, baseUrl, layer)
+            )
+            if (matchTwoLayers(layerId, isExternal, baseUrl, state.previewLayer)) {
+                layers.push(state.previewLayer)
+            }
+            return layers
+        },
 
     /**
      * Retrieves active layer by index
@@ -641,14 +648,17 @@ const actions = {
     /**
      * Add a layer error translation key.
      *
-     * NOTE: This set the error key to all layers matching the ID.
+     * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
+     * properties.
      *
      * @param {string} layerId Layer ID of the layer to set the error
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
      * @param {string} errorKey Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    addLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const layers = getters.getLayersById(layerId)
+    addLayerErrorKey({ commit, getters }, { layerId, isExternal, baseUrl, errorKey, dispatcher }) {
+        const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
                 `Failed to add layer error key "${layerId}", layer not found in active layers`
@@ -668,14 +678,20 @@ const actions = {
     /**
      * Remove a layer error translation key.
      *
-     * NOTE: This set the error key to all layers matching the ID.
+     * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
+     * properties.
      *
      * @param {string} layerId Layer ID of the layer to set the error
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
      * @param {string} errorKey Error translation key to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const layers = getters.getLayersById(layerId)
+    removeLayerErrorKey(
+        { commit, getters },
+        { layerId, isExternal, baseUrl, errorKey, dispatcher }
+    ) {
+        const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
                 `Failed to remove layer error key "${layerId}", layer not found in active layers`
