@@ -1,4 +1,8 @@
+import GeoJSON from 'ol/format/GeoJSON'
+
 import getFeature from '@/api/features/features.api'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -7,7 +11,10 @@ import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateS
 import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { parseGpx } from '@/utils/gpxUtils'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const state = {
@@ -174,18 +181,40 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    getFeature(entry.layer, entry.featureId, rootState.position.projection, {
-                        lang: rootState.i18n.lang,
-                        screenWidth: rootState.ui.width,
-                        screenHeight: rootState.ui.height,
-                        mapExtent: flattenExtent(getters.extent),
-                        coordinate: entry.coordinate,
-                    }).then((feature) => {
+                    if (entry.layer.getTopicForIdentifyAndTooltipRequests) {
+                        getFeature(entry.layer, entry.featureId, rootState.position.projection, {
+                            lang: rootState.i18n.lang,
+                            screenWidth: rootState.ui.width,
+                            screenHeight: rootState.ui.height,
+                            mapExtent: flattenExtent(getters.extent),
+                            coordinate: entry.coordinate,
+                        }).then((feature) => {
+                            dispatch('setSelectedFeatures', {
+                                features: [feature],
+                                dispatcher,
+                            })
+                        })
+                    } else {
+                        // For imported KML and GPX files
+                        let features = []
+                        if (entry.layer.type === LayerTypes.KML) {
+                            features = parseKml(entry.layer, rootState.position.projection, [])
+                        }
+                        if (entry.layer.type === LayerTypes.GPX) {
+                            features = parseGpx(
+                                entry.layer.gpxData,
+                                rootState.position.projection,
+                                []
+                            )
+                        }
+                        const layerFeatures = features
+                            .map((feature) => createLayerFeature(feature, entry.layer))
+                            .filter((feature) => !!feature && feature.data.title === entry.title)
                         dispatch('setSelectedFeatures', {
-                            features: [feature],
+                            features: layerFeatures,
                             dispatcher,
                         })
-                    })
+                    }
                 } catch (error) {
                     log.error('Error getting feature:', error)
                 }
@@ -197,6 +226,31 @@ const actions = {
             dispatcher: dispatcherSelectResultEntry,
         })
     },
+}
+
+function createLayerFeature(olFeature, layer) {
+    if (!olFeature.getGeometry()) return null
+    return new LayerFeature({
+        layer: layer,
+        id: olFeature.getId(),
+        name:
+            olFeature.get('label') ??
+            // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+            // some of their layers are
+            // - ch.meteoschweiz.messwerte-niederschlag-10min
+            // - ch.meteoschweiz.messwerte-lufttemperatur-10min
+            olFeature.get('station_name') ??
+            // GPX track feature don't have an ID but have a name !
+            olFeature.get('name') ??
+            olFeature.getId(),
+        data: {
+            title: olFeature.get('name'),
+            description: olFeature.get('description'),
+        },
+        coordinates: olFeature.getGeometry().getCoordinates(),
+        geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
+        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+    })
 }
 
 const mutations = {
