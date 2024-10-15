@@ -734,7 +734,7 @@ describe('Drawing module tests', () => {
                 cy.log('Reload the page')
                 cy.reload()
                 cy.waitMapIsReady()
-                cy.wait('@get-kml')
+                cy.wait(['@head-kml', '@get-kml'])
                 cy.openMenuIfMobile()
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
@@ -891,6 +891,12 @@ describe('Drawing module tests', () => {
                 const adminId = await getKmlAdminIdFromRequest(req)
                 req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
             }).as('update-kml')
+            cy.intercept('HEAD', kmlFileUrl, {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.google-earth.kml+xml',
+                },
+            }).as('head-legacy-kml')
             cy.intercept('GET', kmlFileUrl, {
                 statusCode: 200,
                 fixture: 'service-kml/legacy-mf-geoadmin3.kml',
@@ -898,8 +904,14 @@ describe('Drawing module tests', () => {
 
             // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
-            cy.wait('@get-kml-metadata-by-admin-id')
-            cy.wait('@get-legacy-kml')
+            cy.wait([
+                '@get-kml-metadata-by-admin-id',
+                // as we come from outside any import tool, all file parser will be tried consecutively, and each of them
+                // will try to get a HEAD response. As it starts with KMZ, there will be two HEAD request (one for KMZ parser on for KML)
+                '@head-legacy-kml',
+                '@head-legacy-kml',
+                '@get-legacy-kml',
+            ])
             cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL

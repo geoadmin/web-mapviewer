@@ -1,4 +1,5 @@
 <script setup>
+import { AxiosError } from 'axios'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
@@ -76,14 +77,18 @@ async function loadFile() {
 
     try {
         await handleFileSource(fileUrl.value, false)
+        importSuccessMessage.value = 'file_imported_success'
+        setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
+        log.error(`Failed to load file from url ${fileUrl.value}`, error)
         buttonState.value = 'default'
-        if (error instanceof OutOfBoundsError) {
+        if (error instanceof AxiosError || /fetch/.test(error.message)) {
+            errorFileLoadingMessage.value = 'loading_error_network_failure'
+        } else if (error instanceof OutOfBoundsError) {
             errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
         } else if (error instanceof EmptyFileContentError) {
             errorFileLoadingMessage.value = 'kml_gpx_file_empty'
         } else {
-            log.error(`Failed to parse file from url ${fileUrl.value}`, error)
             errorFileLoadingMessage.value = 'invalid_import_file_error'
         }
     }

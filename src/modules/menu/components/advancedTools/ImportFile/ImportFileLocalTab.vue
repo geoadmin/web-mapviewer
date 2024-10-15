@@ -43,6 +43,7 @@ async function loadFile() {
     if (isFormValid.value && selectedFile.value) {
         try {
             await handleFileSource(selectedFile.value, false)
+            importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
                 errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
