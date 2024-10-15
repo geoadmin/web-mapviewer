@@ -995,7 +995,7 @@ describe('Drawing module tests', () => {
             const newKmlName = 'new kml name'
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').clear()
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newKmlName)
-            cy.get('[data-cy="drawing-toolbox-file-name-save-button"]').click()
+            cy.wait('@update-kml')
             // it exports KML when clicking on the export button (without choosing format)
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
@@ -1013,7 +1013,7 @@ describe('Drawing module tests', () => {
             const newDirtyKmlName = `${newKmlName}<script>alert("xss")</script>`
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').clear()
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newDirtyKmlName)
-            cy.get('[data-cy="drawing-toolbox-file-name-save-button"]').click()
+            cy.wait('@update-kml')
 
             // it exports KML when clicking on the export button (without choosing format)
             cy.get(

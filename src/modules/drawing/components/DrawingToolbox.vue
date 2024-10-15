@@ -83,6 +83,10 @@ onMounted(() => {
 watch(drawingName, () => {
     sanitizeDrawingName()
     debounceSaveDrawing({
+        // Lowering the risk of the user changing the name and leaving the drawing module without the name being saved.
+        // It is terrible design that this can occur, but moving the drawing name management other places raises the complexity tenfold
+        // so that is a trade-off we can live with.
+        debounceTime: 500,
         drawingName: drawingName.value.trim(),
     })
 })
