@@ -250,11 +250,11 @@ describe('Testing the feature selection', () => {
         })
     })
     context('Feature identification on the map', () => {
-        function drawRectangleOnMap(pixelsFromCenter) {
+        function drawRectangleOnMap(pixelsFromCenter, position = 'center') {
             cy.get('@olMap').realMouseDown({ ctrlKey: true, position: 'center' })
             cy.get('@olMap').realMouseMove(pixelsFromCenter.x, pixelsFromCenter.y, {
                 ctrlKey: true,
-                position: 'center',
+                position,
             })
             cy.get('@olMap').then((olMapElement) => {
                 cy.get('@olMap').realMouseUp({
@@ -267,9 +267,28 @@ describe('Testing the feature selection', () => {
         }
 
         it('can select an area to identify features inside it', () => {
-            cy.goToMapView({
-                layers: 'test.wms.layer',
+            // Import KML file
+            const localKmlFile = 'import-tool/external-kml-file.kml'
+            cy.goToMapView(
+                {
+                    layers: 'test.wms.layer',
+                },
+                true
+            )
+            const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+            cy.fixture(localKmlFile, null).as('kmlFixture')
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+                force: true,
             })
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+            cy.get('[data-cy="modal-close-button"]:visible').click()
+
+            cy.closeMenuIfMobile()
+
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.log(
                 'Selecting a rectangle (by click&drag) while pressing SHIFT, should start a rectangle identification of features'
@@ -278,7 +297,8 @@ describe('Testing the feature selection', () => {
                 x: 100,
                 y: -100,
             })
-            cy.log('making sure 50 items are requested when selecting a dragbox on the map')
+
+            cy.log('making sure 51 items are requested when selecting a dragbox on the map') // including the one from the kml file
             cy.wait('@identify')
                 .its('request.query.limit')
                 .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
@@ -299,7 +319,7 @@ describe('Testing the feature selection', () => {
             cy.log('checking that each feature has been rendered in the list')
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
+                .should('have.length', featureCountWithKml)
             cy.get('@highlightedFeatures').scrollTo('bottom')
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
@@ -321,7 +341,7 @@ describe('Testing the feature selection', () => {
             }
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
+                .should('have.length', 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1)
 
             cy.log('Sending an empty response for further identify')
             cy.intercept('**identify**', {
@@ -337,6 +357,13 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'sending a single feature as response, checking that the "Load more" button is not added'
             )
+            cy.goToMapView(
+                {
+                    layers: 'test.wms.layer',
+                },
+                true
+            )
+
             cy.intercept('**identify**', {
                 fixture: 'features/features.fixture',
             }).as('identifySingleFeature')

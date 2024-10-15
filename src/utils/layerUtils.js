@@ -102,6 +102,14 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
     return indexOfResolution
 }
 
+/**
+ * Creates a LayerFeature object from an OpenLayers feature and a layer.
+ *
+ * @param {ol.Feature} olFeature - The OpenLayers feature to convert.
+ * @param {AbstractLayer} layer - The layer associated with the feature.
+ * @returns {LayerFeature | null} The created LayerFeature object or null if the feature has no
+ *   geometry.
+ */
 export function createLayerFeature(olFeature, layer) {
     if (!olFeature?.getGeometry()) return null
     return new LayerFeature({
