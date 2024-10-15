@@ -69,6 +69,13 @@ export function useDragBoxSelect() {
     }
 }
 
+/**
+ * Converts an OpenLayers geometry object to a Turf.js geometry object.
+ *
+ * @param {ol.geom.Geometry} olGeometry - The OpenLayers geometry object to convert.
+ * @returns {Object | null} The corresponding Turf.js geometry object, or null if the geometry type
+ *   is not supported.
+ */
 function fromOlGeometryToTurfGeometry(olGeometry) {
     if (olGeometry instanceof Point) {
         return point(olGeometry.getCoordinates())
