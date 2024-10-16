@@ -281,7 +281,6 @@ function generateIconFromStyle(iconStyle, iconArgs) {
  * @returns {DrawingIcon | null} Return the drawing icon or null in case of non geoadmin icon
  */
 export function getIcon(iconArgs, iconStyle, availableIconSets, iconNotFoundCallback = null) {
-    console.log('getIcon', iconArgs, iconStyle, availableIconSets, iconNotFoundCallback)
     if (!iconArgs) {
         return null
     }
