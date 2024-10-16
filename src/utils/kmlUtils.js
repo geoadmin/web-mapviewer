@@ -280,7 +280,8 @@ function generateIconFromStyle(iconStyle, iconArgs) {
  * @param {DrawingIconSet[] | null} availableIconSets
  * @returns {DrawingIcon | null} Return the drawing icon or null in case of non geoadmin icon
  */
-export function getIcon(iconArgs, iconStyle, availableIconSets) {
+export function getIcon(iconArgs, iconStyle, availableIconSets, iconNotFoundCallback = null) {
+    console.log('getIcon', iconArgs, iconStyle, availableIconSets, iconNotFoundCallback)
     if (!iconArgs) {
         return null
     }
@@ -299,7 +300,11 @@ export function getIcon(iconArgs, iconStyle, availableIconSets) {
     }
     const iconSet = availableIconSets.find((drawingIconSet) => drawingIconSet.name === iconArgs.set)
     if (!iconSet) {
-        log.error(`Iconset ${iconArgs.set} not found, fallback to default icon`)
+        if (iconNotFoundCallback) {
+            iconNotFoundCallback()
+        } else {
+            log.error(`Iconset ${iconArgs.set} not found, fallback to default icon`)
+        }
         return generateIconFromStyle(iconStyle, iconArgs)
     }
 
