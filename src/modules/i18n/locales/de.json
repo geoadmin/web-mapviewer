@@ -538,6 +538,8 @@
     "search_in_catalogue_placeholder": "Suche in importierten Karten",
     "search_placeholder": "Suche nach Adressen, Parzellen oder Karten",
     "search_title": "Ort suchen oder Karte hinzufügen:",
+    "search_result_origin_kantone": "Kt.",
+    "search_result_origin_district": "Bezirk",
     "select_feature_annotation": "Klicke, um den Text zu selektieren",
     "select_feature_linepolygon": "Klicke, um die Flächenlinie zu selektieren",
     "select_feature_marker": "Klicke, um das Symbol zu selektieren",

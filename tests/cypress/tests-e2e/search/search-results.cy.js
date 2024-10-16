@@ -73,9 +73,10 @@ describe('Test the search bar result handling', () => {
                         expectedCenterDefaultProjection[1] + 500
                     })`,
                     label: expectedLocationLabel,
+                    origin: 'kantone',
                 },
             },
-            { attrs: { label: 'Test location #2' } },
+            { attrs: { label: 'Test location #2', origin: 'district' } },
             { attrs: { label: 'Test location #3' } },
         ],
     }
@@ -163,7 +164,11 @@ describe('Test the search bar result handling', () => {
             .as('locationSearchResults')
             .first()
             .invoke('text')
-            .should('eq', expectedLocationLabel.replaceAll(/<\/?b>/g, ''))
+            .should('eq', `Ct. ${expectedLocationLabel.replaceAll(/<\/?b>/g, '')}`)
+        cy.get('@locationSearchResults')
+            .eq(1)
+            .invoke('text')
+            .should('eq', `District Test location #2`)
 
         cy.log('Checking that it adds the search query as swisssearch URL param')
         cy.url().should('contain', 'swisssearch=test')
