@@ -328,6 +328,7 @@
     "kml_gpx_file_empty": "Il file KML/GPX è vuoto",
     "kml_icon_url_cors_issue": "Il KML “{layerName}” contiene icone con l'URL {url} che non supporta CORS! Contattare l'amministratore di questo URL per aggiungere il supporto per CORS.",
     "kml_icon_url_scheme_http": "Il KML {layerName} contiene icone con l'URL {url} in http. A partire dal 31 gennaio 2025, il supporto per queste risorse sarà terminato e saranno supportate solo le risorse https. Per maggiori informazioni, vedere https://www.geo.admin.ch/it/informazioni-importanti-crtificati-ssl-protocollo-http",
+    "kml_icon_set_not_found": "Iconset \"{iconSetName}\" non trovato, torna all'icona predefinita",
     "kml_no_text_elements": "Informazione: le etichette non saranno salvate",
     "kml_style_default": "predefinito",
     "kml_style_geoadmin": "GeoAdmin",

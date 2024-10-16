@@ -326,6 +326,7 @@
     "kml_gpx_file_empty": "La datoteca KML/GPX è vegnida empruva",
     "kml_icon_url_cors_issue": "Il KML \"{layerName}\" cuntegna icona(s) cun URL {url} che na po nagin sustegnair CORS! As drizzai p.pl. a l'administratura da quella URL per agiuntar il sustegn dal CORS.",
     "kml_icon_url_scheme_http": "Il MPML \" {layerName}\" cuntegna iconas cun il URL {url} en il program da http. A partir dals 31 da schaner 2025 vegn il sustegn per questas resursas franà, i vegn rapportà mo pli da las resursas da https. Ulteriuras infurmaziuns sin https://www.geo.admin.ch/de/informationen-ssl-zertifikate-http-protokoll",
+    "kml_icon_set_not_found": "Iconset \"{iconSetName}\" na arakhlăs pes, palpale k-o defaultno ikona",
     "kml_no_text_elements": " Infurmaziun: ils labels na vegnan betg memorisads",
     "kml_style_default": "Standard",
     "kml_style_geoadmin": "GeoAdmin",
