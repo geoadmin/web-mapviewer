@@ -18,18 +18,27 @@ const selectedEntry = ref(null)
 
 const searchQuery = computed(() => store.state.search.query)
 const hasResults = computed(() => store.state.search.results.length > 0)
+const hasResultsOne = computed(() => store.state.search.results.length === 1)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+let isImmediateTrigger = true
 
 watch(
     hasResults,
     (newValue) => {
         // if an entry has been selected from the list, do not show the list again
         // because the list has been hidden by onEntrySelected.
+
+        // to prevent the list from being shown when the page with swisssearch is loaded and only one result is available and selected
+        if (isImmediateTrigger && hasResultsOne.value) {
+            isImmediateTrigger = false
+            return
+        }
         if (!selectedEntry.value) {
             log.debug(
                 `Search has result changed to ${newValue}, change the show result to ${newValue}`
             )
             showResults.value = newValue
+            isImmediateTrigger = false
         }
     },
     // we need to run the watcher immediately to make sure the result list is displayed on the first load

@@ -33,6 +33,19 @@ const state = {
 
 const getters = {}
 
+function extractLimitNumber(query) {
+    const regex = / limit: \d+/
+    const match = query.match(regex)
+
+    if (match) {
+        return {
+            limit: parseInt(match[0].split(':')[1].trim()),
+            extractedQuery: query.replace(match[0], ''),
+        }
+    }
+    return { limit: 0, extractedQuery: query }
+}
+
 const actions = {
     /**
      * @param {vuex} vuex
@@ -41,10 +54,12 @@ const actions = {
      */
     setSearchQuery: async (
         { commit, rootState, dispatch, getters },
-        { query = '', shouldCenter = true, dispatcher }
+        { query = '', originUrlParam = false, shouldCenter = true, dispatcher }
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
+        const { limit, extractedQuery } = extractLimitNumber(query)
+        query = extractedQuery
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
@@ -135,7 +150,14 @@ const actions = {
                         queryString: query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
+                        limit,
                     })
+                    if (originUrlParam && results.length === 1) {
+                        dispatch('selectResultEntry', {
+                            dispatcher: `${dispatcher}/setSearchQuery`,
+                            entry: results[0],
+                        })
+                    }
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }

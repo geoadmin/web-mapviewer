@@ -197,13 +197,14 @@ function parseLocationResult(result, outputProjection) {
     }
 }
 
-async function searchLayers(queryString, lang, cancelToken) {
+async function searchLayers(queryString, lang, cancelToken, limit = 0) {
     try {
         const layerResponse = await generateAxiosSearchRequest(
             queryString,
             lang,
             'layers',
-            cancelToken.token
+            cancelToken.token,
+            { limit }
         )
         // checking that there is something of interest to parse
         const resultWithAttrs = layerResponse?.data.results?.filter((result) => result.attrs)
@@ -222,15 +223,17 @@ async function searchLayers(queryString, lang, cancelToken) {
  * @param queryString
  * @param lang
  * @param cancelToken
+ * @param limit
  * @returns {Promise<LocationSearchResult[]>}
  */
-async function searchLocation(outputProjection, queryString, lang, cancelToken) {
+async function searchLocation(outputProjection, queryString, lang, cancelToken, limit = 0) {
     try {
         const locationResponse = await generateAxiosSearchRequest(
             queryString,
             lang,
             'locations',
-            cancelToken.token
+            cancelToken.token,
+            { limit }
         )
         // checking that there is something of interest to parse
         const resultWithAttrs = locationResponse?.data.results?.filter((result) => result.attrs)
@@ -427,10 +430,17 @@ let cancelToken = null
  * @param {String} config.lang The lang ISO code in which the search must be conducted
  * @param {GeoAdminLayer[]} [config.layersToSearch=[]] List of searchable layers for which to fire
  *   search requests. Default is `[]`
+ * @param {number} config.limit The maximum number of results to return
  * @returns {Promise<SearchResult[]>}
  */
 export default async function search(config) {
-    const { outputProjection = null, queryString = null, lang = null, layersToSearch = [] } = config
+    const {
+        outputProjection = null,
+        queryString = null,
+        lang = null,
+        layersToSearch = [],
+        limit = 0,
+    } = config
     if (!(outputProjection instanceof CoordinateSystem)) {
         const errorMessage = `A valid output projection is required to start a search request`
         log.error(errorMessage)
@@ -454,10 +464,11 @@ export default async function search(config) {
 
     /** @type {Promise<SearchResult[]>[]} */
     const allRequests = [
-        searchLayers(queryString, lang, cancelToken),
-        searchLocation(outputProjection, queryString, lang, cancelToken),
+        searchLayers(queryString, lang, cancelToken, limit),
+        searchLocation(outputProjection, queryString, lang, cancelToken, limit),
     ]
 
+    // TODO limit also in the local kml and gpx files ?
     if (layersToSearch.some((layer) => layer.searchable)) {
         allRequests.push(
             ...layersToSearch
