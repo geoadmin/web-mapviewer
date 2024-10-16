@@ -15,6 +15,9 @@ import log from '@/utils/logging'
  * @returns {boolean}
  */
 function matchTwoLayers(layerId, isExternal = null, baseUrl = null, layerToMatch) {
+    if (layerToMatch === null) {
+        return false
+    }
     const matchesLayerId = layerToMatch.id === layerId
     const matchesIsExternal = isExternal === null || layerToMatch.isExternal === isExternal
     const matchesBaseUrl = baseUrl === null || layerToMatch.baseUrl === baseUrl
