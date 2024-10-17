@@ -96,7 +96,7 @@ watch(availableIconSets, () => {
                             iconSetName: iconArgs.set,
                         }),
                     ],
-                    dispatcher: 'kmlUtils.js',
+                    ...dispatcher,
                 })
             })
             if (icon) {
