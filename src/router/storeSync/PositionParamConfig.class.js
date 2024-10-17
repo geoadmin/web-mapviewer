@@ -16,7 +16,11 @@ export function readCenterFromUrlParam(urlParamValue) {
 function dispatchCenterFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const center = readCenterFromUrlParam(urlParamValue)
-    if (center) {
+
+    // Quick explanation here: we use the 'center' parameter to center when
+    // - there is no swisssearch parameter (as it takes priority) or
+    // - there is a swisssearch parameter and a crosshair (it happens when we share positions)
+    if (center && (!to.query.swisssearch || to.query.crosshair)) {
         promisesForAllDispatch.push(
             store.dispatch('setCenter', { center, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
         )
