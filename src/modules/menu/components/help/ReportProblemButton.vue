@@ -7,6 +7,7 @@ import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.
 import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
+import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -17,6 +18,15 @@ const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
 const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
+const exportOptions = [
+    new DropdownItem('feedback_category_background_map', 'feedback_category_background_map'),
+    new DropdownItem('feedback_category_thematic_map', 'feedback_category_thematic_map'),
+    new DropdownItem(
+        'feedback_category_application_service',
+        'feedback_category_application_service'
+    ),
+    new DropdownItem('feedback_category_other', 'feedback_category_other'),
+]
 
 const i18n = useI18n()
 const store = useStore()
@@ -37,6 +47,7 @@ const reportProblemCloseSuccessful = ref(null)
 const showReportProblemForm = ref(false)
 const feedback = ref({
     message: null,
+    category: 'select_category',
     kml: null,
     email: null,
     file: null,
@@ -94,9 +105,10 @@ async function sendReportProblem() {
     request.value.pending = true
     try {
         const feedbackSentSuccessfully = await sendFeedback(
-            '[web-mapviewer] Problem report', // subject
+            '[Problem Report]', // subject
             feedback.value.message,
             {
+                category: feedback.value.category,
                 email: feedback.value.email,
                 attachment: feedback.value.file,
                 kml: feedback.value.kml,
@@ -168,6 +180,10 @@ function toggleDrawingOverlay() {
         ...dispatcher,
     })
 }
+
+function selectItem(dropdownItem) {
+    feedback.value.category = dropdownItem.value
+}
 </script>
 
 <template>
@@ -205,7 +221,19 @@ function toggleDrawingOverlay() {
                     @validate="onTextValidate"
                 />
             </div>
-
+            <div class="mb-2">
+                {{ i18n.t('feedback_category') }}
+            </div>
+            <div class="my-2">
+                <DropdownButton
+                    label="feedback_description"
+                    :title="feedback.category"
+                    :current-value="feedback.category"
+                    :items="exportOptions"
+                    data-cy="drawing-toolbox-export-button"
+                    @select:item="selectItem"
+                />
+            </div>
             <div>
                 <div class="mb-2">
                     {{ i18n.t('feedback_drawing') }}
