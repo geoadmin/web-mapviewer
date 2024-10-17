@@ -51,6 +51,8 @@ const storeSyncConfig = [
                 'sr'
             ),
     }),
+    //
+    new SearchParamConfig(),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
     // to the default projection EPSG number
@@ -118,7 +120,6 @@ const storeSyncConfig = [
                 'topic'
             ),
     }),
-    new SearchParamConfig(),
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
