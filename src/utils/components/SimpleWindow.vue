@@ -1,7 +1,9 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+
+import { useMovableElement } from '../composables/useMovableElement.composable'
 
 const props = defineProps({
     title: {
@@ -16,6 +18,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    movable: {
+        type: Boolean,
+        default: false,
+    },
 })
 const { title, hide } = toRefs(props)
 
@@ -27,16 +33,31 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const i18n = useI18n()
 
 const emit = defineEmits(['close'])
+
+const windowRef = ref(null)
+const headerRef = ref(null)
+
+onMounted(() => {
+    if (props.movable) {
+        const windowElement = windowRef.value
+        const headerElement = headerRef.value
+        useMovableElement(windowElement, {
+            grabElement: headerElement,
+        })
+    }
+})
 </script>
 
 <template>
     <teleport to="#main-component">
         <div
             v-show="!hide"
+            ref="windowRef"
             class="simple-window card"
             :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
         >
             <div
+                ref="headerRef"
                 class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
