@@ -87,7 +87,7 @@ onMounted(() => {
 
 .simple-window {
     $top-margin: calc(2 * $header-height + 2rem);
-    z-index: calc($zindex-menu - 1);
+    z-index: calc($zindex-menu + 1);
     position: fixed;
     top: $top-margin;
     right: 4rem;
