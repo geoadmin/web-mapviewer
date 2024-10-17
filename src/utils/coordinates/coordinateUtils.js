@@ -24,69 +24,6 @@ export function toRoundedString(coordinate, digits, withThousandsSeparator = tru
 }
 
 /**
- * Projection of an extent, described as [topLeftX, topLeftY, bottomRightX, bottomRightY]
- *
- * @param {CoordinateSystem} fromProj Current projection used to describe the extent
- * @param {CoordinateSystem} toProj Target projection we want the extent be expressed in
- * @param {Number[]} extent An extent, described as `[topLeftX, topLeftY, bottomRightX,
- *   bottomRightY]`
- * @returns {null | Number[]} The reprojected extent, or null if the given extent is not an array of
- *   four numbers
- */
-export function projExtent(fromProj, toProj, extent) {
-    if (extent.length === 4) {
-        const topLeft = proj4(fromProj.epsg, toProj.epsg, [extent[0], extent[1]])
-        const bottomRight = proj4(fromProj.epsg, toProj.epsg, [extent[2], extent[3]])
-        return [...topLeft, ...bottomRight].map(toProj.roundCoordinateValue)
-    }
-    return null
-}
-
-/**
- * Return an extent normalized to [[x, y], [x, y]] from a flat extent
- *
- * @param {Array} extent Extent to normalize
- * @returns {Array} Extent in the form [[x, y], [x, y]]
- */
-export function normalizeExtent(extent) {
-    let extentNormalized = extent
-    if (extent?.length === 4) {
-        // convert to the flat extent to [[x, y], [x, y]]
-        extentNormalized = [
-            [extent[0], extent[1]],
-            [extent[2], extent[3]],
-        ]
-    } else if (extent?.length !== 2) {
-        throw new Error(`Invalid extent: ${extent}`)
-    }
-    return extentNormalized
-}
-
-/**
- * Flatten extent
- *
- * @param {Array} extent Extent to flatten
- * @returns {Array} Flatten extent in from [minx, miny, maxx, maxy]
- */
-export function flattenExtent(extent) {
-    let flattenExtent = extent
-    if (extent?.length === 2) {
-        flattenExtent = [...extent[0], ...extent[1]]
-    } else if (extent?.length !== 4) {
-        throw new Error(`Invalid extent: ${extent}`)
-    }
-    return flattenExtent
-}
-
-/** Coordinates or extent out of bounds error */
-export class OutOfBoundsError extends Error {
-    constructor(message) {
-        super(message)
-        this.name = 'OutOfBoundsError'
-    }
-}
-
-/**
  * Convert recursively input coordinates into LV95
  *
  * @param {[]} input Coordinate of a point, multipoint or polygon

@@ -2,7 +2,7 @@ import proj4 from 'proj4'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import { projExtent } from '@/utils/coordinates/coordinateUtils'
+import { projExtent } from '@/utils/extentUtils'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'reproject-selected-features-on-projection-change.plugin' }

@@ -24,6 +24,9 @@ describe('The Import File Tool', () => {
         const validOnlineUrl = 'https://example.com/valid-kml-file.kml'
         cy.intercept('HEAD', validOnlineUrl, {
             statusCode: 200,
+            headers: {
+                'Content-Type': 'application/vnd.google-earth.kml+xml',
+            },
         }).as('headKmlFile')
         cy.intercept('GET', validOnlineUrl, {
             fixture: localKmlFile,
@@ -32,7 +35,7 @@ describe('The Import File Tool', () => {
         // Type a valid online KML file URL
         cy.get('[data-cy="text-input"]:visible').type(validOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.wait('@getKmlFile')
+        cy.wait(['@headKmlFile', '@getKmlFile'])
 
         // Assertions for successful import
         cy.get('[data-cy="text-input"]')
@@ -54,7 +57,7 @@ describe('The Import File Tool', () => {
         // RE-click on the import button should not add the layer a second time
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.wait('@getKmlFile')
+        cy.wait(['@headKmlFile', '@getKmlFile'])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
         //----------------------------------------------------------------------
@@ -63,6 +66,9 @@ describe('The Import File Tool', () => {
         const secondValidOnlineUrl = 'https://example.com/second-valid-kml-file.kml'
         cy.intercept('HEAD', secondValidOnlineUrl, {
             statusCode: 200,
+            headers: {
+                'Content-Type': 'application/vnd.google-earth.kml+xml',
+            },
         }).as('headSecondKmlFile')
         cy.intercept('GET', secondValidOnlineUrl, {
             fixture: secondLocalKmlFile,
@@ -72,7 +78,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input-clear"]:visible').click()
         cy.get('[data-cy="text-input"]:visible').type(secondValidOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.wait('@getSecondKmlFile')
+        cy.wait(['@headSecondKmlFile', '@getSecondKmlFile'])
 
         // Assertions for successful import
         cy.get('[data-cy="text-input"]')
@@ -274,7 +280,10 @@ describe('The Import File Tool', () => {
 
         cy.intercept('HEAD', 'https://example.com/*', {
             statusCode: 200,
-        })
+            headers: {
+                'Content-Type': 'application/vnd.google-earth.kml+xml',
+            },
+        }).as('headRequest')
 
         const invalidFileOnlineUrl = 'https://example.com/invalid-file.kml'
         cy.intercept('GET', invalidFileOnlineUrl, {
@@ -305,9 +314,14 @@ describe('The Import File Tool', () => {
 
         //---------------------------------------------------------------------
         cy.log('Test invalid external KML file from url parameter')
-        cy.wait('@getInvalidKmlFile')
-        cy.wait('@getNoReachableKmlFile')
-        cy.wait('@getOutOfBoundKmlFile')
+        cy.wait([
+            '@headRequest',
+            '@getInvalidKmlFile',
+            '@headRequest',
+            '@getNoReachableKmlFile',
+            '@headRequest',
+            '@getOutOfBoundKmlFile',
+        ])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
@@ -374,12 +388,13 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(invalidOnlineUrl)
 
         cy.get('[data-cy="text-input"]')
-
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
+
         cy.get('[data-cy="text-input-invalid-feedback"]')
             .should('be.visible')
             .contains('URL is not valid')
+
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
         cy.get('[data-cy="text-input"]').type('{enter}')
@@ -543,7 +558,10 @@ describe('The Import File Tool', () => {
         cy.log('Test online import')
         const validOnlineUrl = 'https://example.com/valid-gpx-file.gpx'
         const gpxOnlineLayerId = `GPX|${validOnlineUrl}`
-        cy.intercept('HEAD', validOnlineUrl, { statusCode: 200 })
+        cy.intercept('HEAD', validOnlineUrl, {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/gpx+xml' },
+        }).as('headGpxFile')
         cy.intercept('GET', validOnlineUrl, {
             fixture: gpxFileFixture,
         }).as('getGpxFile')
@@ -551,7 +569,7 @@ describe('The Import File Tool', () => {
         // Type a valid online GPX file URL
         cy.get('[data-cy="text-input"]:visible').type(validOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.wait('@getGpxFile')
+        cy.wait(['@headGpxFile', '@getGpxFile'])
 
         // Assertions for successful import
         cy.get('[data-cy="text-input"]')
@@ -603,7 +621,7 @@ describe('The Import File Tool', () => {
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
         cy.waitMapIsReady()
-        cy.wait('@getGpxFile')
+        cy.wait(['@headGpxFile', '@getGpxFile'])
         // only the URL GPX should be kept while reloading
         cy.checkOlLayer([bgLayer, gpxOnlineLayerId])
         // Test removing a layer
@@ -630,8 +648,7 @@ describe('The Import File Tool', () => {
         // Type a valid online GPX file URL
         cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.wait('@headGpxCorsFile')
-        cy.wait('@getGpxCorsFile')
+        cy.wait(['@headGpxCorsFile', '@getGpxCorsFile'])
         cy.checkOlLayer([bgLayer, gpxOnlineLayerNonCORSId])
     })
 })

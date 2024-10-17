@@ -12,7 +12,7 @@ import {
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
 } from '@/config/map.config'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
+import { flattenExtent } from '@/utils/extentUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'

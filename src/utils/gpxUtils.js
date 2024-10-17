@@ -49,5 +49,3 @@ export function parseGpx(gpxData, projection) {
     })
     return features
 }
-
-export class EmptyGPXError extends Error {}

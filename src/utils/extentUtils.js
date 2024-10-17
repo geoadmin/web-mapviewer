@@ -1,46 +1,113 @@
 import bbox from '@turf/bbox'
 import buffer from '@turf/buffer'
 import { point } from '@turf/helpers'
-import { getIntersection as getExtentIntersection, isEmpty as isExtentEmpty } from 'ol/extent'
+import { getIntersection as getExtentIntersection } from 'ol/extent'
 import proj4 from 'proj4'
 
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class.js'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { normalizeExtent, projExtent } from '@/utils/coordinates/coordinateUtils'
-import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 
 /**
- * Get a flattened extent for the projection bounds.
+ * Projection of an extent, described as [minx, miny, maxx, maxy].
  *
- * @param {CoordinateSystem} projection Projection in which to get the extent
- * @param {[number, number, number, number]} extent Extent in WGS84 such as `[minx, miny, maxx,
- *   maxy]`
- * @returns {null | [[number, number], [number, number]]} Return null if the extent is out of
- *   projection bounds or the intersection between the extent and projection bounds. The return
- *   extent is re-projected to the projection. The output format will be `[[minx, miny], [maxx,
- *   maxy]]`.
+ * @param {CoordinateSystem} fromProj Current projection used to describe the extent
+ * @param {CoordinateSystem} toProj Target projection we want the extent be expressed in
+ * @param {Number[]} extent An extent, described as `[minx, miny, maxx, maxy].`
+ * @returns {null | Number[]} The reprojected extent, or null if the given extent is not an array of
+ *   four numbers
  */
-export function getExtentForProjection(projection, extent) {
-    if (!(projection instanceof CoordinateSystem) || extent?.length !== 4) {
-        return null
-    }
-    const projectionBounds = projection.getBoundsAs(WGS84).flatten
-    let intersectExtent = getExtentIntersection(projectionBounds, extent)
-    log.debug(
-        `Get extent for projection ${projection.epsg}`,
-        `extent=${extent}`,
-        `projectionBounds=${projectionBounds}`,
-        `intersectExtent=${intersectExtent}`
-    )
-    if (!isExtentEmpty(intersectExtent)) {
-        return normalizeExtent(projExtent(WGS84, projection, intersectExtent))
+export function projExtent(fromProj, toProj, extent) {
+    if (extent.length === 4) {
+        const bottomLeft = proj4(fromProj.epsg, toProj.epsg, [extent[0], extent[1]])
+        const topRight = proj4(fromProj.epsg, toProj.epsg, [extent[2], extent[3]])
+        return [...bottomLeft, ...topRight].map(toProj.roundCoordinateValue)
     }
     return null
 }
 
 /**
- * @param {Number} config.size Number of pixels the extent should be (if 100 is given, a box of
+ * Return an extent normalized to [[x, y], [x, y]] from a flat extent
+ *
+ * @param {Array} extent Extent to normalize
+ * @returns {Array} Extent in the form [[x, y], [x, y]]
+ */
+export function normalizeExtent(extent) {
+    let extentNormalized = extent
+    if (extent?.length === 4) {
+        // convert to the flat extent to [[x, y], [x, y]]
+        extentNormalized = [
+            [extent[0], extent[1]],
+            [extent[2], extent[3]],
+        ]
+    } else if (extent?.length !== 2) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return extentNormalized
+}
+
+/**
+ * Flatten extent
+ *
+ * @param {Array} extent Extent to flatten
+ * @returns {Array} Flatten extent in from [minx, miny, maxx, maxy]
+ */
+export function flattenExtent(extent) {
+    let flattenExtent = extent
+    if (extent?.length === 2) {
+        flattenExtent = [...extent[0], ...extent[1]]
+    } else if (extent?.length !== 4) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return flattenExtent
+}
+
+/**
+ * Get the intersection of the extent with the current projection, as a flatten extent expressed in
+ * the current projection
+ *
+ * @param {[Number, Number, Number, Number] | [[Number, Number], [Number, Number]]} extent Such as
+ *   [minx, miny, maxx, maxy]. or [bottomLeft, topRight]
+ * @param {CoordinateSystem} extentProjection
+ * @param {CoordinateSystem} currentProjection
+ * @returns {[Number, Number, Number, Number] | null}
+ */
+export function getExtentIntersectionWithCurrentProjection(
+    extent,
+    extentProjection,
+    currentProjection
+) {
+    if (
+        (extent?.length !== 4 && extent?.length !== 2) ||
+        !(extentProjection instanceof CoordinateSystem) ||
+        !(currentProjection instanceof CoordinateSystem)
+    ) {
+        return null
+    }
+    let extentInCurrentProjection = flattenExtent(extent)
+    if (extentProjection.epsg !== currentProjection.epsg) {
+        extentInCurrentProjection = projExtent(
+            extentProjection,
+            currentProjection,
+            extentInCurrentProjection
+        )
+    }
+    extentInCurrentProjection = getExtentIntersection(
+        extentInCurrentProjection,
+        currentProjection.bounds.flatten
+    )
+    if (
+        !extentInCurrentProjection ||
+        // OL now populates the extent with Infinity when nothing is in common, instead returning a null value
+        extentInCurrentProjection.every((value) => Math.abs(value) === Infinity)
+    ) {
+        return null
+    }
+    return flattenExtent(extentInCurrentProjection)
+}
+
+/**
+ * @param {Number} config.size Number of pixels the extent should be (if s100 is given, a box of
  *   100x100 pixels with the coordinate at its center will be returned)
  * @param {[Number, Number]} config.coordinate Where the center of the "size" pixel(s) extent should
  *   be.
