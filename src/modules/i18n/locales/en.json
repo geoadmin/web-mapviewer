@@ -538,6 +538,8 @@
     "search_in_catalogue_placeholder": "Search in imported maps",
     "search_placeholder": "Search for addresses, parcels or maps",
     "search_title": "Search for a place or add a map:",
+    "search_result_origin_kantone": "Ct.",
+    "search_result_origin_district": "District",
     "select_feature_annotation": "Click to select the text",
     "select_feature_linepolygon": "Click to select the line or the surface",
     "select_feature_marker": "Click to select the marker",
