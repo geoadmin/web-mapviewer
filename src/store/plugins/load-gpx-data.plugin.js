@@ -33,6 +33,8 @@ async function loadGpx(store, gpxLayer) {
         log.error(`Error while fetching GPX data for layer ${gpxLayer?.id}`)
         store.dispatch('addLayerErrorKey', {
             layerId: gpxLayer.id,
+            isExternal: gpxLayer.isExternal,
+            baseUrl: gpxLayer.baseUrl,
             errorKey: `loading_error_network_failure`,
             ...dispatcher,
         })
