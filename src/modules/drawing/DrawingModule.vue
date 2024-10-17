@@ -13,6 +13,7 @@ import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composa
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 
@@ -88,7 +89,16 @@ watch(availableIconSets, () => {
         const feature = drawingLayer.getSource()?.getFeatureById(featureId)?.get('editableFeature')
         if (feature?.icon) {
             const iconArgs = parseIconUrl(feature.icon.imageURL)
-            const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value)
+            const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value, () => {
+                store.dispatch('addWarnings', {
+                    warnings: [
+                        new WarningMessage('kml_icon_set_not_found', {
+                            iconSetName: iconArgs.set,
+                        }),
+                    ],
+                    ...dispatcher,
+                })
+            })
             if (icon) {
                 feature.icon = icon
             }

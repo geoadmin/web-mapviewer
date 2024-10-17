@@ -94,7 +94,7 @@ function iconUrlProxy(url) {
                         url: url,
                     }),
                 ],
-                dispatcher: 'kmlUtils.js',
+                ...dispatcher,
             })
         },
         (url) => {
@@ -105,7 +105,7 @@ function iconUrlProxy(url) {
                         url: url,
                     }),
                 ],
-                dispatcher: 'kmlUtils.js',
+                ...dispatcher,
             })
         }
     )

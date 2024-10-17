@@ -158,7 +158,9 @@ export default {
     },
     mounted() {
         const iconSetNameToLookup = this.feature?.icon ? this.feature.icon.iconSetName : 'default'
-        this.currentIconSet = this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup)
+        this.currentIconSet =
+            this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ||
+            this.iconSets.find((iconSet) => iconSet.name === 'default')
     },
     methods: {
         /**
