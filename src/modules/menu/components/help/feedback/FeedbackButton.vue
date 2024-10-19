@@ -118,6 +118,7 @@ function onEmailValidate(valid) {
     <SimpleWindow
         v-if="showFeedbackForm"
         :title="request.completed ? '' : 'test_map_give_feedback'"
+        movable
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="p-2" data-cy="feedback-form">

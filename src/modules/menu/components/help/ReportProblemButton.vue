@@ -187,6 +187,7 @@ function toggleDrawingOverlay() {
         v-if="showReportProblemForm"
         :title="request.completed ? '' : 'problem_announcement'"
         :hide="showDrawingOverlay"
+        movable
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="report-problem" data-cy="report-problem-form">
