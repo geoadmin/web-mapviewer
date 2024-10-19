@@ -213,7 +213,7 @@ describe('Test the search bar result handling', () => {
                 expect(legend.innerHTML).to.contain(expectedLegendContent)
             })
         // closing legend
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         cy.log('Testing keyboard navigation')
         cy.goToMapView()
