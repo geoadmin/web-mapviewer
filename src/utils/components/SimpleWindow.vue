@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { useMovableElement } from '../composables/useMovableElement.composable'
+import PrintButton from './PrintButton.vue'
 
 const props = defineProps({
     title: {
@@ -22,6 +23,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    allowPrint: {
+        type: Boolean,
+        default: false,
+    },
 })
 const { title, hide } = toRefs(props)
 
@@ -36,6 +41,7 @@ const emit = defineEmits(['close'])
 
 const windowRef = ref(null)
 const headerRef = ref(null)
+const contentRef = ref(null)
 
 onMounted(() => {
     if (props.movable) {
@@ -63,6 +69,7 @@ onMounted(() => {
             >
                 <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
                 <span v-else class="me-auto" />
+                <PrintButton v-if="allowPrint && showBody" :content="contentRef"></PrintButton>
                 <button class="btn btn-light btn-sm me-2" @click.stop="showBody = !showBody">
                     <FontAwesomeIcon :icon="`caret-${showBody ? 'up' : 'down'}`" />
                 </button>
@@ -74,7 +81,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon="times" />
                 </button>
             </div>
-            <div class="card-body" :class="{ hide: !showBody }">
+            <div ref="contentRef" class="card-body" :class="{ hide: !showBody }">
                 <slot />
             </div>
         </div>
