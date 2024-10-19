@@ -3,9 +3,8 @@
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
         <div v-show="!hide && !hideForPrint" data-cy="modal-with-backdrop">
-            <BlackBackdrop v-if="useBlackBackdrop" place-for-modal @click.stop="onClose(false)" />
+            <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div
-                ref="modalRef"
                 class="modal-popup position-fixed start-50"
                 :class="{
                     'top-50 translate-middle': !top,
@@ -17,11 +16,9 @@
                     :class="{
                         'border-primary': headerPrimary,
                         'modal-popup-fluid': fluid,
-                        'modal-popup-compact': compact,
                     }"
                 >
                     <div
-                        ref="modalHeader"
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                     >
@@ -32,19 +29,10 @@
                             >{{ title }}</span
                         >
                         <PrintButton
-                            v-if="allowPrint && showContent"
+                            v-if="allowPrint"
                             :content="$refs.modalContent"
                             @hide-parent-modal="onHideParentModal"
                         ></PrintButton>
-                        <button
-                            v-if="allowMinimize"
-                            class="btn btn-sm btn-light d-flex align-items-center"
-                            data-cy="modal-minimize-button"
-                            @click="showContent = !showContent"
-                            @mousedown.stop=""
-                        >
-                            <FontAwesomeIcon :icon="`caret-${showContent ? 'up' : 'down'}`" />
-                        </button>
                         <button
                             class="btn btn-sm d-flex align-items-center"
                             :class="{
@@ -58,7 +46,6 @@
                         </button>
                     </div>
                     <div
-                        v-show="showContent"
                         ref="modalContent"
                         class="card-body pt-3 ps-4 pe-4"
                         data-cy="modal-content"
@@ -92,9 +79,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import PrintButton from '@/utils/components/PrintButton.vue'
-import log from '@/utils/logging'
-
-import { useMovableElement } from '../composables/useMovableElement.composable'
 
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
@@ -135,47 +119,11 @@ export default {
             type: Boolean,
             default: false,
         },
-        movable: {
-            type: Boolean,
-            default: false,
-        },
-        useBlackBackdrop: {
-            type: Boolean,
-            default: true,
-        },
-        allowMinimize: {
-            type: Boolean,
-            default: false,
-        },
-        compact: {
-            type: Boolean,
-            default: false,
-        },
     },
     emits: ['close'],
     data() {
         return {
             hideForPrint: false,
-            showContent: true,
-        }
-    },
-    mounted() {
-        if (this.movable) {
-            const modalElement = this.$refs.modalRef
-            if (modalElement) {
-                useMovableElement(modalElement, {
-                    grabElement: this.$refs.modalHeader,
-                    initialPositionClasses: [
-                        'start-50',
-                        'top-50',
-                        'translate-middle',
-                        'translate-middle-x',
-                        'on-top-with-padding',
-                    ],
-                })
-            } else {
-                log.error('Modal element not found')
-            }
         }
     },
     methods: {
@@ -212,6 +160,7 @@ export default {
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;
+
             @include respond-below(phone) {
                 width: 100vw;
                 border-radius: unset;
@@ -221,10 +170,6 @@ export default {
             // But for desktop we let the size be dynamic with max to 90% of the view
             max-width: 80vw;
             max-height: 90svh;
-
-            &.modal-popup-compact {
-                width: $overlay-width;
-            }
         }
         .card-header {
             align-items: center;
