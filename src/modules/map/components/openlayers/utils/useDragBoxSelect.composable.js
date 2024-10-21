@@ -28,13 +28,15 @@ export function useDragBoxSelect() {
     )
     dragBoxSelect.on('boxend', () => {
         const selectExtent = dragBoxSelect.getGeometry()?.getExtent()
-        if (selectExtent?.length !== 4) return
+        if (selectExtent?.length !== 4) {
+            return
+        }
 
         const dragBox = polygon(dragBoxSelect.getGeometry()?.getCoordinates())
         const visibleLayers = store.getters.visibleLayers.filter((layer) =>
             [LayerTypes.GEOJSON, LayerTypes.GPX, LayerTypes.KML].includes(layer.type)
         )
-        const features = visibleLayers
+        const vectorFeatures = visibleLayers
             .flatMap((layer) => {
                 if (layer.type === LayerTypes.KML) {
                     const kmlFeatures = parseKml(layer, store.state.position.projection, [])
@@ -59,7 +61,7 @@ export function useDragBoxSelect() {
             .map(({ feature, layer }) => createLayerFeature(feature, layer))
 
         store.dispatch('click', {
-            clickInfo: new ClickInfo({ coordinate: selectExtent, features: features }),
+            clickInfo: new ClickInfo({ coordinate: selectExtent, features: vectorFeatures }),
             ...dispatcher,
         })
     })

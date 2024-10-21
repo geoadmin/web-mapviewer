@@ -110,8 +110,11 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
  * @returns {LayerFeature | null} The created LayerFeature object or null if the feature has no
  *   geometry.
  */
-export function createLayerFeature(olFeature, layer) {
-    if (!olFeature?.getGeometry()) return null
+export function createLayerFeature(olFeature, layer, coordinates, geometry) {
+    if (!olFeature?.getGeometry() || geometry) {
+        return null
+    }
+    geometry = geometry ?? new GeoJSON().writeGeometryObject(olFeature.getGeometry())
     return new LayerFeature({
         layer: layer,
         id: olFeature.getId(),
@@ -129,8 +132,8 @@ export function createLayerFeature(olFeature, layer) {
             title: olFeature.get('name'),
             description: olFeature.get('description'),
         },
-        coordinates: olFeature.getGeometry().getCoordinates(),
-        geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
-        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+        coordinates: coordinates ? coordinates : olFeature.getGeometry().getCoordinates(),
+        geometry: geometry,
+        extent: normalizeExtent(geometry.getExtent()),
     })
 }
