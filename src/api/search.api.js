@@ -2,6 +2,7 @@ import axios from 'axios'
 import proj4 from 'proj4'
 
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
+import i18n from '@/modules/i18n'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -128,7 +129,7 @@ function parseLocationResult(result, outputProjection) {
         throw new SearchError('Invalid location result, cannot be parsed')
     }
     // reading the main values from the attrs
-    const { label: title, detail: description, featureId } = result.attrs
+    const { label: title, detail: description, featureId, origin } = result.attrs
 
     let coordinate = []
     let zoom = result.attrs.zoomlevel
@@ -168,10 +169,15 @@ function parseLocationResult(result, outputProjection) {
     if (!zoom && extent.length === 0) {
         zoom = outputProjection.get1_25000ZoomLevel()
     }
+    let newOrigin
+    if (['district', 'kantone'].includes(origin)) {
+        newOrigin = origin === 'district' ? i18n.global.t('district') : i18n.global.t('ct')
+    }
+    const newTitle = newOrigin ? `${newOrigin} ${title}` : title
     return {
         resultType: SearchResultTypes.LOCATION,
         id: featureId,
-        title,
+        title: newTitle,
         sanitizedTitle: sanitizeTitle(title),
         description,
         featureId: featureId ?? description,
