@@ -538,8 +538,6 @@
     "search_in_catalogue_placeholder": "Rechercher dans les cartes importées",
     "search_placeholder": "Recherche d'adresse, parcelles ou cartes",
     "search_title": "Rechercher un lieu ou ajouter une carte :",
-    "search_result_origin_kantone": "Ct.",
-    "search_result_origin_district": "District",
     "select_feature_annotation": "Cliquer pour selectionner l'annotation",
     "select_feature_linepolygon": "Cliquer pour selectionner le trait ou la surface",
     "select_feature_marker": "Cliquer pour sélectionner le symbole",
