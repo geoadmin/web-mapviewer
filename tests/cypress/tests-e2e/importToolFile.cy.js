@@ -176,7 +176,7 @@ describe('The Import File Tool', () => {
                             .should('be.visible')
                         break
                     case 1:
-                        cy.wrap($layer).contains('Sample Placemark')
+                        cy.wrap($layer).contains('Sample KML File')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
@@ -188,7 +188,7 @@ describe('The Import File Tool', () => {
                             .should('be.visible')
                         break
                     case 3:
-                        cy.wrap($layer).contains('Sample Placemark')
+                        cy.wrap($layer).contains('Sample KML File')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                             .should('be.visible')
