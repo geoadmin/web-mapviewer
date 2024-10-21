@@ -30,7 +30,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
 const i18n = useI18n()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'close-all'])
 </script>
 
 <template>
@@ -58,6 +58,7 @@ const emit = defineEmits(['close'])
                 class="btn btn-light btn-sm btn-outline-danger"
                 data-cy="error-window-close"
                 @click.stop="emit('close')"
+                @contextmenu.prevent="emit('close-all')"
             >
                 <FontAwesomeIcon icon="times" />
             </button>
