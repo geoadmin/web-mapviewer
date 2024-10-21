@@ -5,10 +5,11 @@ import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+
+import { createLayerFeature } from './layerUtils'
 
 const pixelToleranceForIdentify = 20
 
@@ -110,26 +111,9 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
     }
     return identifyInGeoJson(reprojectedGeoJSON, coordinate, projection, resolution).map(
         (feature) => {
-            return new LayerFeature({
-                layer: geoJsonLayer,
-                id: feature.id,
-                // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
-                // some of their layers are
-                // - ch.meteoschweiz.messwerte-niederschlag-10min
-                // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-                name:
-                    feature.properties.label ??
-                    feature.properties.station_name ??
-                    // GPX track feature don't have an ID but have a name !
-                    feature.properties.name ??
-                    feature.id,
-                data: {
-                    title: feature.properties.name,
-                    description: feature.properties.description,
-                },
-                coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
-                geometry: reproject(feature.geometry, WGS84.epsg, projection.epsg),
-            })
+            const coordinates = reprojectCoordinates(feature.geometry.coordinates, projection)
+            const geometry = reproject(feature.geometry, WGS84.epsg, projection.epsg)
+            return createLayerFeature(feature, geoJsonLayer, coordinates, geometry)
         }
     )
 }
