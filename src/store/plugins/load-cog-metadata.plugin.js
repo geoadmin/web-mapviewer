@@ -1,3 +1,4 @@
+import { fromUrl } from 'geotiff'
 import { toValue } from 'vue'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
@@ -6,6 +7,8 @@ import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedT
 const cogParser = new CloudOptimizedGeoTIFFParser()
 
 async function loadExtentAndUpdateLayer(store, layer) {
+    const geoTIFFInstance = await fromUrl(layer.fileSource)
+    const firstImage = await geoTIFFInstance.getImage()
     const layerWithExtent = await cogParser.parse(
         {
             fileSource: layer.fileSource,
@@ -19,6 +22,7 @@ async function loadExtentAndUpdateLayer(store, layer) {
         layerId: layer.id,
         values: {
             extent: layerWithExtent.extent,
+            isMoreThanThreeBand: firstImage.getSamplesPerPixel() > 3,
         },
     })
 }

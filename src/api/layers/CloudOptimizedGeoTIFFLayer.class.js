@@ -25,6 +25,7 @@ export default class CloudOptimizedGeoTIFFLayer extends AbstractLayer {
      * @param {Number | null} [cogConfig.noDataValue] Which value will be describing the absence of
      *   data in this COG. Will be used to create transparency whenever this value is present.
      * @param {[Number, Number, Number, Number] | null} [cogConfig.extent] The extent of this COG.
+     * @param {Boolean} [cogConfig.isMoreThanThreeBand] If the COG has more than three bands.
      * @throws InvalidLayerDataError if no `cogConfig` is given or if it is invalid
      */
     constructor(cogConfig) {
@@ -38,6 +39,7 @@ export default class CloudOptimizedGeoTIFFLayer extends AbstractLayer {
             data = null,
             noDataValue = null,
             extent = null,
+            isMoreThanThreeBand = false,
         } = cogConfig
         if (fileSource === null) {
             throw new InvalidLayerDataError('Missing COG file source', cogConfig)
@@ -64,5 +66,6 @@ export default class CloudOptimizedGeoTIFFLayer extends AbstractLayer {
         this.data = data
         this.noDataValue = noDataValue
         this.extent = extent
+        this.isMoreThanThreeBand = isMoreThanThreeBand
     }
 }

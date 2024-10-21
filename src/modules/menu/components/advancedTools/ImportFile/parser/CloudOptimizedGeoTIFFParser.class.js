@@ -52,6 +52,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             data: fileSource,
             noDataValue: firstImage.getGDALNoData(),
             extent: flattenExtent(intersection),
+            isMoreThanThreeBand: firstImage.getSamplesPerPixel() > 3,
         })
     }
 
