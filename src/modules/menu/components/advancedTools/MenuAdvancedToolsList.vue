@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 
@@ -71,14 +71,14 @@ function onToggleImportFile() {
             data-cy="menu-advanced-tools-import-file"
             @toggle-menu="onToggleImportFile"
         >
-            <ModalWithBackdrop
+            <SimpleWindow
                 v-if="showImportFile"
                 :title="i18n.t('import_file')"
-                top
+                movable
                 @close="onToggleImportFile"
             >
                 <ImportFile />
-            </ModalWithBackdrop>
+            </SimpleWindow>
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             v-if="!is3dActive"

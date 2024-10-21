@@ -47,7 +47,7 @@ const windowRef = ref(null)
 const headerRef = ref(null)
 const contentRef = ref(null)
 
-const windowClass = computed(() => {
+const initialPositionClass = computed(() => {
     switch (props.initialPosition) {
         case 'top-left':
             return 'position-top-left'
@@ -65,6 +65,7 @@ onMounted(() => {
         const headerElement = headerRef.value
         useMovableElement(windowElement, {
             grabElement: headerElement,
+            initialPositionClasses: [initialPositionClass.value],
         })
     }
 })
@@ -76,7 +77,7 @@ onMounted(() => {
             v-show="!hide"
             ref="windowRef"
             class="simple-window card"
-            :class="[windowClass, { 'dev-disclaimer-present': hasDevSiteWarning }]"
+            :class="[initialPositionClass, { 'dev-disclaimer-present': hasDevSiteWarning }]"
         >
             <div
                 ref="headerRef"
