@@ -319,12 +319,16 @@ async function searchKmlLayerFeatures(outputProjection, queryString, layer) {
     try {
         const searchFields = ['name', 'description', 'id']
         const features = parseKml(layer, outputProjection, [])
-        if (!features || !features.length) return []
+        if (!features || !features.length) {
+            return []
+        }
 
         const includedFeatures = features.filter((feature) =>
             isQueryInFeature(feature, queryString, searchFields)
         )
-        if (!includedFeatures.length) return []
+        if (!includedFeatures.length) {
+            return []
+        }
 
         return includedFeatures.map((feature) =>
             createSearchResultFromLayer(layer, feature, outputProjection)
@@ -350,13 +354,15 @@ async function searchGpxLayerFeatures(outputProjection, queryString, layer) {
     try {
         const searchFields = ['name', 'description', 'id']
         const features = parseGpx(layer.gpxData, outputProjection, [])
-        if (!features || !features.length) return []
-
+        if (!features || !features.length) {
+            return []
+        }
         const includedFeatures = features.filter((feature) =>
             isQueryInFeature(feature, queryString, searchFields)
         )
-        if (!includedFeatures.length) return []
-
+        if (!includedFeatures.length) {
+            return []
+        }
         return includedFeatures.map((feature) =>
             createSearchResultFromLayer(layer, feature, outputProjection)
         )
