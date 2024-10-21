@@ -171,7 +171,7 @@ function parseLocationResult(result, outputProjection) {
     }
     let newOrigin
     if (['district', 'kantone'].includes(origin)) {
-        newOrigin = i18n.global.t(`search_result_origin_${origin}`)
+        newOrigin = origin === 'district' ? i18n.global.t('district') : i18n.global.t('ct')
     }
     const newTitle = newOrigin ? `${newOrigin} ${title}` : title
     return {
