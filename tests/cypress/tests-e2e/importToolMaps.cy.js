@@ -179,16 +179,14 @@ describe('The Import Maps Tool', () => {
         const lastSubItemTitle = 'OpenData-AV 3'
         cy.get(`[data-cy="catalogue-tree-item-info-${lastSubItemId}"]`).should('be.visible').click()
         cy.wait('@getLegendOfficialSurvey3')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
-            .should('be.visible')
-            .contains(lastSubItemTitle)
+        cy.get(`[data-cy="simple-window-title"]`).should('be.visible').contains(lastSubItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
         cy.get(`[data-cy="layer-description-popup-description-body"]`)
             .should('be.visible')
             .contains('OpenData-AV 3 abstract')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend with only abstract')
@@ -198,7 +196,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .click()
 
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
+        cy.get(`[data-cy="simple-window-title"]`)
             .should('be.visible')
             .contains(legendAbstractOnlyItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
@@ -207,7 +205,7 @@ describe('The Import Maps Tool', () => {
             .contains('Nitrates are an essential food for plants.')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('not.exist')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('not.exist')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend without abstract')
@@ -232,14 +230,14 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .click()
         cy.wait('@getLegendOfficialSurvey2')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
+        cy.get(`[data-cy="simple-window-title"]`)
             .should('be.visible')
             .contains(legendWithoutAbstractItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('not.exist')
         cy.get(`[data-cy="layer-description-popup-description-body"]`).should('not.exist')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //-----------------------------------------------------------------------------------------
         cy.log('Second external layer should be a single layer')
@@ -465,7 +463,7 @@ describe('The Import Maps Tool', () => {
         }).as('wmts-legend')
         cy.get(`[data-cy="catalogue-tree-item-info-${layer1Id}"]`).should('be.visible').click()
         cy.wait('@wmts-legend')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`).should('be.visible').contains(layer1Name)
+        cy.get(`[data-cy="simple-window-title"]`).should('be.visible').contains(layer1Name)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
         cy.get(`[data-cy="layer-description-popup-description-body"]`)
             .should('be.visible')
@@ -475,7 +473,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .find('img')
             .should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
