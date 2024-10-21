@@ -66,7 +66,11 @@ export default {
                                 id: attribution.name.replace(/[._]/g, '-'),
                                 name: attribution.name,
                                 url: attribution.url,
-                                hasDataDisclaimer: this.hasDataDisclaimer(layer.id),
+                                hasDataDisclaimer: this.hasDataDisclaimer(
+                                    layer.id,
+                                    layer.isExternal,
+                                    layer.baseUrl
+                                ),
                                 isExternalDataLocal: this.isLocalFile(layer),
                             }
                         })
