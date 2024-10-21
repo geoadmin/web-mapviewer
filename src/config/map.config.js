@@ -77,3 +77,17 @@ export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
  * @type {Number}
  */
 export const GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE = 12.5 // meters
+
+/**
+ * Constant representing the style value for a four-band color COG (Cloud Optimized GeoTIFF). This
+ * value is used in the map configuration to define the rendering style for four-band color imagery.
+ * ATTENTION: This value was only functional for one specific COG
+ * (https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v100/2024-04-13t103031/ch.swisstopo.swisseo_s2-sr_v100_mosaic_2024-04-13t103031_bands-10m.tif)
+ * and might not work for other COGs.
+ *
+ * @constant {number}
+ * @default 2500
+ * @name COG_FOUR_BAND_COLOR_STYLE_VALUE
+ * @see https://openlayers.org/en/latest/examples/cog-stretch.html
+ */
+export const COG_FOUR_BAND_COLOR_STYLE_VALUE = 2500
