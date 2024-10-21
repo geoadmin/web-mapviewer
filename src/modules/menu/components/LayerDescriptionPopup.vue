@@ -59,7 +59,13 @@ onMounted(async () => {
 </script>
 
 <template>
-    <SimpleWindow :title="title" movable allow-print @close="emit('close', layerId)">
+    <SimpleWindow
+        :title="title"
+        movable
+        allow-print
+        initial-position="top-left"
+        @close="emit('close', layerId)"
+    >
         <div class="layer-description" data-cy="layer-description-popup">
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />

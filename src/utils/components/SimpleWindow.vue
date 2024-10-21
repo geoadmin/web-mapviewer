@@ -27,6 +27,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    initialPosition: {
+        type: String,
+        default: 'center',
+    },
 })
 const { title, hide } = toRefs(props)
 
@@ -42,6 +46,18 @@ const emit = defineEmits(['close'])
 const windowRef = ref(null)
 const headerRef = ref(null)
 const contentRef = ref(null)
+
+const windowClass = computed(() => {
+    switch (props.initialPosition) {
+        case 'top-left':
+            return 'position-top-left'
+        case 'top-right':
+            return 'position-top-right'
+        case 'center':
+        default:
+            return 'position-center'
+    }
+})
 
 onMounted(() => {
     if (props.movable) {
@@ -60,7 +76,7 @@ onMounted(() => {
             v-show="!hide"
             ref="windowRef"
             class="simple-window card"
-            :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
+            :class="[windowClass, { 'dev-disclaimer-present': hasDevSiteWarning }]"
         >
             <div
                 ref="headerRef"
@@ -127,5 +143,20 @@ onMounted(() => {
             padding: 0px;
         }
     }
+}
+.position-top-left {
+    left: calc($menu-tray-width + 2rem);
+    right: unset;
+}
+
+.position-top-right {
+    left: unset;
+    right: 4rem;
+}
+
+.position-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 </style>
