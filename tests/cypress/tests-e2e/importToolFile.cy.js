@@ -1,6 +1,10 @@
 /// <reference types="cypress" />
 
+import proj4 from 'proj4'
+
 import { proxifyUrl } from '@/api/file-proxy.api.js'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('The Import File Tool', () => {
     it('Import KML file', () => {
@@ -196,9 +200,67 @@ describe('The Import File Tool', () => {
                 }
             })
 
+        // Test the search for a feature in the local KML file
+        const expectedSecondCenterEpsg4326 = [8.117189, 46.852375] // lon/lat
+        const expectedCenterEpsg4326 = [9.74921, 46.707841] // lon/lat
+        const expectedSecondCenterDefaultProjection = proj4(
+            WGS84.epsg,
+            DEFAULT_PROJECTION.epsg,
+            expectedSecondCenterEpsg4326
+        )
+        const expectedCenterDefaultProjection = proj4(
+            WGS84.epsg,
+            DEFAULT_PROJECTION.epsg,
+            expectedCenterEpsg4326
+        )
+        const expectedLayerId = 'external-kml-file.kml'
+        const expectedOnlineLayerId = 'https://example.com/second-valid-kml-file.kml'
+        const acceptedDelta = 0.1
+        const checkLocation = (expected, result) => {
+            expect(result).to.be.an('Array')
+            expect(result.length).to.eq(2)
+            expect(result[0]).to.approximately(expected[0], acceptedDelta)
+            expect(result[1]).to.approximately(expected[1], acceptedDelta)
+        }
+
+        cy.log('Test search for a feature in the local KML file')
+        cy.closeMenuIfMobile()
+        cy.get('[data-cy="searchbar"]').paste('placemark')
+        cy.get('[data-cy="search-results"]').should('be.visible')
+        cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
+        cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
+        cy.get('@layerSearchResults').first().trigger('mouseenter')
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+            const visibleIds = visibleLayers.map((layer) => layer.id)
+            expect(visibleIds).to.contain(expectedLayerId)
+        })
+        cy.get('@layerSearchResults').first().realClick()
+        // checking that the view has centered on the feature
+        cy.readStoreValue('state.position.center').should((center) =>
+            checkLocation(expectedCenterDefaultProjection, center)
+        )
+
+        cy.log('Test search for a feature in the online KML file')
+        cy.get('[data-cy="searchbar-clear"]').click()
+        cy.get('[data-cy="searchbar"]').paste('another sample')
+        cy.get('[data-cy="search-results"]').should('be.visible')
+        cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 1)
+        cy.get('@layerSearchResults').invoke('text').should('contain', 'Another Sample Placemark')
+        cy.get('@layerSearchResults').first().trigger('mouseenter')
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+            const visibleIds = visibleLayers.map((layer) => layer.id)
+            expect(visibleIds).to.contain(expectedOnlineLayerId)
+        })
+        cy.get('@layerSearchResults').first().realClick()
+        // checking that the view has centered on the feature
+        cy.readStoreValue('state.position.center').should((center) =>
+            checkLocation(expectedSecondCenterDefaultProjection, center)
+        )
+
         //---------------------------------------------------------------------
         // Test the disclaimer
         cy.log('Test the external layer disclaimer')
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]')
             .children()
             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible')

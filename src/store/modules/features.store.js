@@ -34,7 +34,7 @@ const getEditableFeatureWithId = (state, featureId) => {
     )
 }
 
-function getFeatureCountForCoordinate(coordinate) {
+export function getFeatureCountForCoordinate(coordinate) {
     return coordinate.length === 2
         ? DEFAULT_FEATURE_COUNT_SINGLE_POINT
         : DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION
@@ -58,7 +58,7 @@ function getFeatureCountForCoordinate(coordinate) {
  * @returns {Promise<LayerFeature[]>} A promise that will contain all feature identified by the
  *   different requests (won't be grouped by layer)
  */
-const runIdentify = (config) => {
+export const runIdentify = (config) => {
     const {
         layers,
         coordinate,
