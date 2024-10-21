@@ -51,6 +51,12 @@ const storeSyncConfig = [
                 'sr'
             ),
     }),
+    // Search should be positioned before position,
+    // this will avoid an issue where when the position is not present in the query,
+    // it would populate the query with the store value, which could be different from the
+    // one we wanted with the Search param. Upon making a second pass through the storeSync router,
+    // the center would be set again to the initial store value
+    new SearchParamConfig(),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
     // to the default projection EPSG number
@@ -118,7 +124,6 @@ const storeSyncConfig = [
                 'topic'
             ),
     }),
-    new SearchParamConfig(),
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
