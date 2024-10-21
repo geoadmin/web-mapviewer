@@ -412,6 +412,19 @@ export default {
                 commit('removeError', { error, dispatcher })
             }
         },
+
+        removeSimilarError({ commit, state }, { error, dispatcher }) {
+            if (!(error instanceof ErrorMessage)) {
+                throw new Error(
+                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+                )
+            }
+            state.errors.forEach((existingError) => {
+                if (existingError.equals(error)) {
+                    commit('removeError', { error: existingError, dispatcher })
+                }
+            })
+        },
         addWarnings({ commit }, { warnings, dispatcher }) {
             if (
                 warnings instanceof Array &&
