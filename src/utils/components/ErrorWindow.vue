@@ -16,6 +16,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    count: {
+        type: Number,
+        default: 1,
+    },
 })
 const { title, hide } = toRefs(props)
 
@@ -40,7 +44,9 @@ const emit = defineEmits(['close'])
             class="card-header d-flex align-items-center justify-content-sm-end"
             data-cy="window-header"
         >
-            <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
+            <span v-if="title" class="me-auto text-truncate">
+                {{ i18n.t(title) }} <span v-if="count > 1">({{ count }})</span>
+            </span>
             <span v-else class="me-auto" />
             <button
                 class="btn btn-light btn-sm btn-outline-danger me-2"

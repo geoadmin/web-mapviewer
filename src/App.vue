@@ -27,6 +27,15 @@ const error = computed(() => {
     }
     return null
 })
+const errorCount = computed(() => {
+    let count = 0
+    store.state.ui.errors.forEach((e) => {
+        if (error.value.equals(e)) {
+            count++
+        }
+    })
+    return count
+})
 const warning = computed(() => {
     if (store.state.ui.warnings.size > 0) {
         return store.state.ui.warnings.values().next().value
@@ -68,6 +77,7 @@ function refreshPageTitle() {
         <ErrorWindow
             v-if="error"
             title="error"
+            :count="errorCount"
             @close="store.dispatch('removeError', { error, ...dispatcher })"
         >
             <div>
