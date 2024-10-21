@@ -78,8 +78,7 @@ function refreshPageTitle() {
             v-if="error"
             title="error"
             :count="errorCount"
-            @close="store.dispatch('removeError', { error, ...dispatcher })"
-            @close-all="store.dispatch('removeSimilarError', { error, ...dispatcher })"
+            @close="store.dispatch('removeSimilarError', { error, ...dispatcher })"
         >
             <div>
                 {{ i18n.t(error.msg, error.params) }}
