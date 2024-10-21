@@ -9,7 +9,7 @@ const dispatcher = { dispatcher: 'SearchBar' }
 
 const store = useStore()
 
-const isPristine = ref(true)
+const isPristine = ref(true) // if search bar is not yet modified by the user
 const showResults = ref(false)
 const searchInput = ref(null)
 const searchValue = ref('')
@@ -20,16 +20,21 @@ const searchQuery = computed(() => store.state.search.query)
 const hasResults = computed(() => store.state.search.results.length > 0)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
-watch(hasResults, (newValue) => {
-    // if an entry has been selected from the list, do not show the list again
-    // because the list has been hidden by onEntrySelected. Also if the search bar is pristine (not
-    // yet modified by the user) we don't want to show the result (e.g. at startup with a swisssearch
-    // query param)
-    if (!selectedEntry.value && !isPristine.value) {
-        log.debug(`Search has result changed to ${newValue}, change the show result to ${newValue}`)
-        showResults.value = newValue
-    }
-})
+watch(
+    hasResults,
+    (newValue) => {
+        // if an entry has been selected from the list, do not show the list again
+        // because the list has been hidden by onEntrySelected.
+        if (!selectedEntry.value) {
+            log.debug(
+                `Search has result changed to ${newValue}, change the show result to ${newValue}`
+            )
+            showResults.value = newValue
+        }
+    },
+    // we need to run the watcher immediately to make sure the result list is displayed on the first load
+    { immediate: true }
+)
 
 watch(showResults, (newValue) => {
     if (newValue && isPhoneMode.value && store.state.ui.showMenu) {
