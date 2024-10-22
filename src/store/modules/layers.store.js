@@ -1,8 +1,9 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems.js'
-import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils.js'
-import { getGpxExtent } from '@/utils/gpxUtils.js'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import ErrorMessage from '@/utils/ErrorMessage.class'
+import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
+import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
@@ -657,10 +658,10 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to set the error
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
-     * @param {string} errorKey Error translation key to add
+     * @param {ErrorMessage} error Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    addLayerErrorKey({ commit, getters }, { layerId, isExternal, baseUrl, errorKey, dispatcher }) {
+    addLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
         const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
@@ -669,7 +670,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.addErrorKey(errorKey)
+            clone.addErrorMessage(error)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
@@ -687,13 +688,10 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to set the error
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
-     * @param {string} errorKey Error translation key to remove
+     * @param {ErrorMessage} error Error translation key to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayerErrorKey(
-        { commit, getters },
-        { layerId, isExternal, baseUrl, errorKey, dispatcher }
-    ) {
+    removeLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
         const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
@@ -702,7 +700,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.removeErrorKey(errorKey)
+            clone.removeErrorMessage(error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -716,7 +714,7 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to clear the error keys
      * @param {string} dispatcher Action dispatcher name
      */
-    clearLayerErrorKeys({ commit, getters }, { layerId, dispatcher }) {
+    clearLayerErrors({ commit, getters }, { layerId, dispatcher }) {
         const layers = getters.getLayerById(layerId)
         if (layers.length === 0) {
             throw new Error(
@@ -725,7 +723,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.clearErrorKeys()
+            clone.clearErrorMessages()
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -771,7 +769,7 @@ const actions = {
                 clone.isLoading = false
 
                 if (!extent) {
-                    clone.addErrorKey('kml_gpx_file_empty')
+                    clone.addErrorMessage(new ErrorMessage('kml_gpx_file_empty'))
                 } else if (
                     !getExtentIntersectionWithCurrentProjection(
                         extent,
@@ -779,7 +777,7 @@ const actions = {
                         rootState.position.projection
                     )
                 ) {
-                    clone.addErrorKey('imported_file_out_of_bounds')
+                    clone.addErrorMessage(new ErrorMessage('imported_file_out_of_bounds'))
                 }
             }
             if (metadata) {

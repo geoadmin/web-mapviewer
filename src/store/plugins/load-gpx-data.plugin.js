@@ -5,6 +5,7 @@
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
@@ -34,11 +35,11 @@ async function loadGpx(store, gpxLayer) {
         })
     } catch (error) {
         log.error(`Error while fetching GPX data for layer ${gpxLayer?.id}`)
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: gpxLayer.id,
             isExternal: gpxLayer.isExternal,
             baseUrl: gpxLayer.baseUrl,
-            errorKey: `loading_error_network_failure`,
+            error: new ErrorMessage('loading_error_network_failure'),
             ...dispatcher,
         })
     }

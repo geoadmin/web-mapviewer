@@ -6,6 +6,7 @@
 import axios from 'axios'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
@@ -91,7 +92,7 @@ function loadDataAndStyle(geoJsonLayer) {
                 )
                 const clone = geoJsonLayer.clone()
                 clone.isLoading = false
-                clone.addErrorKey('loading_error_network_failure')
+                clone.addErrorMessage(new ErrorMessage('loading_error_network_failure'))
                 return clone
             }),
     }
