@@ -211,19 +211,10 @@ export default class AbstractParamConfig {
      *
      * @returns {Promise<any>}
      */
-    afterPopulateStore() {
-        return new Promise((resolve) => {
-            if (!this.afterSetValuesInStore) {
-                resolve()
-            }
-            const promiseAfterSetValuesInStore = this.afterSetValuesInStore()
-            if (promiseAfterSetValuesInStore) {
-                promiseAfterSetValuesInStore.then(() => {
-                    resolve()
-                })
-            } else {
-                resolve()
-            }
-        })
+    async afterPopulateStore() {
+        if (!this.afterSetValuesInStore) {
+            return
+        }
+        return await this.afterSetValuesInStore()
     }
 }
