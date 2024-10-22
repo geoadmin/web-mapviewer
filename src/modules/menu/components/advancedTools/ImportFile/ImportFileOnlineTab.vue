@@ -1,10 +1,8 @@
 <script setup>
-import { AxiosError } from 'axios'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
-import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import TextInput from '@/utils/components/TextInput.vue'
 import log from '@/utils/logging'
@@ -25,6 +23,7 @@ const loading = ref(false)
 const fileUrlInput = ref(null)
 const fileUrl = ref('')
 const importSuccessMessage = ref('')
+/** @type {Ref<ErrorMessage | null>} */
 const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
@@ -63,13 +62,13 @@ function onUrlValidate(valid) {
 }
 
 function onUrlChange() {
-    errorFileLoadingMessage.value = ''
+    errorFileLoadingMessage.value = null
     importSuccessMessage.value = ''
 }
 
 async function loadFile() {
     importSuccessMessage.value = ''
-    errorFileLoadingMessage.value = ''
+    errorFileLoadingMessage.value = null
     if (!validateForm()) {
         return
     }
@@ -82,15 +81,7 @@ async function loadFile() {
     } catch (error) {
         log.error(`Failed to load file from url ${fileUrl.value}`, error)
         buttonState.value = 'default'
-        if (error instanceof AxiosError || /fetch/.test(error.message)) {
-            errorFileLoadingMessage.value = 'loading_error_network_failure'
-        } else if (error instanceof OutOfBoundsError) {
-            errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
-        } else if (error instanceof EmptyFileContentError) {
-            errorFileLoadingMessage.value = 'kml_gpx_file_empty'
-        } else {
-            errorFileLoadingMessage.value = 'invalid_import_file_error'
-        }
+        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
     }
     loading.value = false
 }
@@ -118,7 +109,8 @@ async function loadFile() {
                 placeholder="import_file_url_placeholder"
                 :activate-validation="activateValidation"
                 :invalid-marker="!!errorFileLoadingMessage"
-                :invalid-message="errorFileLoadingMessage"
+                :invalid-message="errorFileLoadingMessage?.msg"
+                :invalid-message-params="errorFileLoadingMessage?.params"
                 :valid-message="importSuccessMessage"
                 :validate="validateUrl"
                 data-cy="import-file-online-url"
