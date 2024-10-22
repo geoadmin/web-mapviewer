@@ -11,6 +11,7 @@ import { ClickInfo } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
+import log from '@/utils/logging'
 
 const dispatcher = {
     dispatcher: 'useDragBoxSelect.composable',
@@ -31,8 +32,26 @@ export function useDragBoxSelect() {
         if (selectExtent?.length !== 4) {
             return
         }
+        const dragBoxCoordinates = dragBoxSelect.getGeometry()?.getCoordinates()
 
-        const dragBox = polygon(dragBoxSelect.getGeometry()?.getCoordinates())
+        if (
+            !Array.isArray(dragBoxCoordinates) ||
+            !dragBoxCoordinates.every(
+                (coord) =>
+                    Array.isArray(coord) &&
+                    coord.every(
+                        (point) =>
+                            Array.isArray(point) &&
+                            point.length === 2 &&
+                            point.every(Number.isFinite)
+                    )
+            )
+        ) {
+            log.error('Invalid dragBoxCoordinates:', dragBoxCoordinates)
+            return
+        }
+
+        const dragBox = polygon(dragBoxCoordinates)
         const visibleLayers = store.getters.visibleLayers.filter((layer) =>
             [LayerTypes.GEOJSON, LayerTypes.GPX, LayerTypes.KML].includes(layer.type)
         )
