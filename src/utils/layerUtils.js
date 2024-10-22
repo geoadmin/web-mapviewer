@@ -134,6 +134,6 @@ export function createLayerFeature(olFeature, layer, coordinates, geometry) {
         },
         coordinates: coordinates ? coordinates : olFeature.getGeometry().getCoordinates(),
         geometry: geometry,
-        extent: normalizeExtent(geometry.getExtent()),
+        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
     })
 }
