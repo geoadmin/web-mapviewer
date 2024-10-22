@@ -1,6 +1,7 @@
 import { getFileFromUrl } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -47,32 +48,31 @@ export class KMLParser extends FileParser {
      * @returns {KMLLayer}
      */
     parseKmlLayer(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
-        if (isKml(fileContent)) {
-            const extent = getKmlExtent(fileContent)
-            if (!extent) {
-                throw new EmptyFileContentError()
-            }
-            const extentInCurrentProjection = getExtentIntersectionWithCurrentProjection(
-                extent,
-                WGS84,
-                currentProjection
-            )
-            if (!extentInCurrentProjection) {
-                throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
-            }
-            return new KMLLayer({
-                kmlFileUrl: fileSource,
-                visible: true,
-                opacity: 1.0,
-                adminId: null,
-                kmlData: fileContent,
-                extent: extentInCurrentProjection,
-                extentProjection: currentProjection,
-                linkFiles,
-            })
+        if (!isKml(fileContent)) {
+            throw new InvalidFileContentError('No KML data found in this file')
         }
-
-        throw new EmptyFileContentError('No KML data found in this file')
+        const extent = getKmlExtent(fileContent)
+        if (!extent) {
+            throw new EmptyFileContentError()
+        }
+        const extentInCurrentProjection = getExtentIntersectionWithCurrentProjection(
+            extent,
+            WGS84,
+            currentProjection
+        )
+        if (!extentInCurrentProjection) {
+            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
+        }
+        return new KMLLayer({
+            kmlFileUrl: fileSource,
+            visible: true,
+            opacity: 1.0,
+            adminId: null,
+            kmlData: fileContent,
+            extent: extentInCurrentProjection,
+            extentProjection: currentProjection,
+            linkFiles,
+        })
     }
 
     async parseLocalFile(file, currentProjection) {

@@ -3,6 +3,7 @@ import GPX from 'ol/format/GPX'
 import { getFileFromUrl } from '@/api/files.api'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -37,6 +38,9 @@ export default class GPXParser extends FileParser {
     }
 
     parseGpxLayer(fileContent, fileSource, currentProjection) {
+        if (!isGpx(fileContent)) {
+            throw new InvalidFileContentError()
+        }
         const extent = getGpxExtent(fileContent)
         if (!extent) {
             throw new EmptyFileContentError()
