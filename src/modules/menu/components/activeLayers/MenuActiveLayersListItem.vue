@@ -183,7 +183,7 @@ function duplicateLayer() {
             <ErrorButton
                 v-else-if="layer.hasError"
                 :compact="compact"
-                :error-message="layer.getFirstErrorKey()"
+                :error-message="layer.getFirstErrorMessage()"
                 :data-cy="`button-error-${id}-${index}`"
             />
             <MenuActiveLayersListItemTimeSelector

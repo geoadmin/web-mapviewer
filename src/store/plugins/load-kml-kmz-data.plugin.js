@@ -5,8 +5,7 @@
 
 import { loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
-import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
 import log from '@/utils/logging'
@@ -87,17 +86,11 @@ async function loadData(store, kmlLayer) {
         })
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
-        let errorKey = 'loading_error_network_failure'
-        if (error instanceof OutOfBoundsError) {
-            errorKey = 'imported_file_out_of_bounds'
-        } else if (error instanceof EmptyFileContentError) {
-            errorKey = 'kml_gpx_file_empty'
-        }
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            errorKey,
+            error: generateErrorMessageFromErrorType(error),
             ...dispatcher,
         })
     }
