@@ -149,7 +149,6 @@ export function useMovableElement(element, options = {}) {
             initialPositionClasses.length > 0 &&
             movementSource === MovementSource.MOUSE_DRAG
         ) {
-            console.log('first movement')
             const rect = element.getBoundingClientRect()
             initialPositionClasses.forEach((className) => {
                 htmlElement.classList.remove(className)
@@ -173,7 +172,6 @@ export function useMovableElement(element, options = {}) {
      * here.
      */
     function constrainsElementWithinViewport() {
-        console.log('constrainsElementWithinViewport')
         const currentPosition = {
             left: toValue(element).offsetLeft,
             top: toValue(element).offsetTop,
