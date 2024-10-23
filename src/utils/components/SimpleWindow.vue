@@ -66,6 +66,7 @@ onMounted(() => {
         useMovableElement(windowElement, {
             grabElement: headerElement,
             initialPositionClasses: [initialPositionClass.value],
+            offset: { bottom: 0, right: 0, left: 0 },
         })
     }
 })
@@ -121,13 +122,31 @@ onMounted(() => {
     max-width: 400px;
     max-height: calc(100vh - $top-margin);
 
+    @include respond-above(phone) {
+        &.position-top-left {
+            left: calc($menu-tray-width + 2rem);
+            right: unset;
+        }
+
+        &.position-top-right {
+            left: unset;
+            right: 4rem;
+        }
+
+        &.position-center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
     @include respond-below(phone) {
         $top-margin: $header-height;
 
         top: $top-margin;
-        left: 50%;
-        right: unset;
-        transform: translate(-50%, 0%);
+        left: 0px;
+        right: 0px;
+        transform: unset;
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
 
@@ -144,20 +163,5 @@ onMounted(() => {
             padding: 0px;
         }
     }
-}
-.position-top-left {
-    left: calc($menu-tray-width + 2rem);
-    right: unset;
-}
-
-.position-top-right {
-    left: unset;
-    right: 4rem;
-}
-
-.position-center {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
 </style>

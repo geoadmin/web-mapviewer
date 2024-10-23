@@ -2,6 +2,11 @@ import { onMounted, ref, toValue } from 'vue'
 
 const defaultPadding = 4 // px
 
+const MovementSource = Object.freeze({
+    MOUSE_DRAG: 'mouse_drag',
+    WINDOW_RESIZE: 'window_resize',
+})
+
 /**
  * Makes an element movable on the whole screen, making sure it won't go out of the screen (it will
  * be constrained by the screen borders)
@@ -126,7 +131,7 @@ export function useMovableElement(element, options = {}) {
         if (newLeft + elementSize.width > viewportRight) {
             newLeft = viewportRight - elementSize.width
         }
-        placeElementAt(newTop, newLeft)
+        placeElementAt(newTop, newLeft, MovementSource.MOUSE_DRAG)
     }
 
     function closeDragElement() {
@@ -134,12 +139,17 @@ export function useMovableElement(element, options = {}) {
         document.removeEventListener('mousemove', elementDrag)
     }
 
-    function placeElementAt(top, left) {
+    function placeElementAt(top, left, movementSource = MovementSource.MOUSE_DRAG) {
         const htmlElement = toValue(element)
         const htmlElementStyle = htmlElement.style
 
-        // In case the original element has CSS class that affects its position, we remove them first
-        if (firstMovement && initialPositionClasses.length > 0) {
+        // In case the original element has CSS class that affects its position, we remove them first if the user is dragging the element
+        if (
+            firstMovement &&
+            initialPositionClasses.length > 0 &&
+            movementSource === MovementSource.MOUSE_DRAG
+        ) {
+            console.log('first movement')
             const rect = element.getBoundingClientRect()
             initialPositionClasses.forEach((className) => {
                 htmlElement.classList.remove(className)
@@ -163,6 +173,7 @@ export function useMovableElement(element, options = {}) {
      * here.
      */
     function constrainsElementWithinViewport() {
+        console.log('constrainsElementWithinViewport')
         const currentPosition = {
             left: toValue(element).offsetLeft,
             top: toValue(element).offsetTop,
@@ -187,7 +198,11 @@ export function useMovableElement(element, options = {}) {
             currentPosition.top !== positionConstrainedByNewLimits.top ||
             currentPosition.left !== positionConstrainedByNewLimits.left
         ) {
-            placeElementAt(positionConstrainedByNewLimits.top, positionConstrainedByNewLimits.left)
+            placeElementAt(
+                positionConstrainedByNewLimits.top,
+                positionConstrainedByNewLimits.left,
+                MovementSource.WINDOW_RESIZE
+            )
         }
     }
 }
