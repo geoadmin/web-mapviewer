@@ -130,8 +130,8 @@ onMounted(() => {
 
     @include respond-above(phone) {
         &.wide {
-            max-width: 100vw;
-            width: 80vw;
+            max-width: calc(100vw - $menu-tray-width - 2rem);
+            min-width: 50vw;
         }
 
         &.top-left {
