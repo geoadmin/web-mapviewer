@@ -280,7 +280,6 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
-            
             cy.fixture(localKmlFile, null).as('kmlFixture')
             cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
                 force: true,
