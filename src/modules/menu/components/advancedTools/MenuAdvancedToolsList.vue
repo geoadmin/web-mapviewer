@@ -75,6 +75,7 @@ function onToggleImportFile() {
                 v-if="showImportFile"
                 :title="i18n.t('import_file')"
                 movable
+                wide
                 @close="onToggleImportFile"
             >
                 <ImportFile />

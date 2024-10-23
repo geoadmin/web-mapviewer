@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 import { useMovableElement } from '../composables/useMovableElement.composable'
 import PrintButton from './PrintButton.vue'
 
+const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
+
 const props = defineProps({
     title: {
         type: String,
@@ -29,7 +31,12 @@ const props = defineProps({
     },
     initialPosition: {
         type: String,
-        default: 'center',
+        default: 'top-center',
+    },
+    // If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px)
+    wide: {
+        type: Boolean,
+        default: false,
     },
 })
 const { title, hide } = toRefs(props)
@@ -48,14 +55,10 @@ const headerRef = ref(null)
 const contentRef = ref(null)
 
 const initialPositionClass = computed(() => {
-    switch (props.initialPosition) {
-        case 'top-left':
-            return 'position-top-left'
-        case 'top-right':
-            return 'position-top-right'
-        case 'center':
-        default:
-            return 'position-center'
+    if (accepetedInitialPositions.includes(props.initialPosition)) {
+        return props.initialPosition
+    } else {
+        return 'top-center'
     }
 })
 
@@ -78,7 +81,10 @@ onMounted(() => {
             v-show="!hide"
             ref="windowRef"
             class="simple-window card"
-            :class="[initialPositionClass, { 'dev-disclaimer-present': hasDevSiteWarning }]"
+            :class="[
+                initialPositionClass,
+                { 'dev-disclaimer-present': hasDevSiteWarning, wide: wide },
+            ]"
         >
             <div
                 ref="headerRef"
@@ -123,20 +129,25 @@ onMounted(() => {
     max-height: calc(100vh - $top-margin);
 
     @include respond-above(phone) {
-        &.position-top-left {
+        &.wide {
+            max-width: 100vw;
+            width: 80vw;
+        }
+
+        &.top-left {
             left: calc($menu-tray-width + 2rem);
             right: unset;
         }
 
-        &.position-top-right {
+        &.top-right {
             left: unset;
             right: 4rem;
         }
 
-        &.position-center {
-            top: 50%;
+        &.top-center {
+            top: $card-spacer-y !important;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, 0);
         }
     }
 
@@ -149,6 +160,7 @@ onMounted(() => {
         transform: unset;
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
+        width: 100vw;
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);
