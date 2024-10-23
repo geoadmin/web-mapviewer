@@ -3,8 +3,8 @@ import { computed, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useMovableElement } from '../composables/useMovableElement.composable'
-import PrintButton from './PrintButton.vue'
+import PrintButton from '@/utils/components/PrintButton.vue'
+import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
 const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
 
