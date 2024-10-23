@@ -59,7 +59,7 @@ const reportProblemCloseSuccessful = ref(null)
 const showReportProblemForm = ref(false)
 const feedback = ref({
     message: null,
-    category: 'select_category',
+    category: null,
     kml: null,
     email: null,
     file: null,
@@ -86,6 +86,7 @@ const isTemporaryKmlValid = computed(
 )
 const isFormValid = computed(
     () =>
+        feedback.value.category &&
         isMessageValid.value &&
         isEmailValid.value &&
         isAttachmentValid.value &&
@@ -223,16 +224,26 @@ function selectItem(dropdownItem) {
             <div class="mb-2 fw-bold">
                 {{ i18n.t('feedback_category') }}
             </div>
-            <div class="my-2">
+            <div
+                class="my-2"
+                :class="{
+                    'is-valid': feedback.category,
+                    'is-invalid': !feedback.category && activateValidation,
+                }"
+            >
                 <DropdownButton
                     label="feedback_description"
-                    :title="i18n.t(feedback.category)"
+                    :title="i18n.t(feedback.category ? feedback.category : 'select_category')"
                     :current-value="feedback.category"
                     :items="exportOptions"
                     data-cy="drawing-toolbox-export-button"
                     @select:item="selectItem"
                 />
             </div>
+            <div class="invalid-feedback" data-cy="text-area-input-invalid-feedback">
+                {{ i18n.t('category_not_selected_warning') }}
+            </div>
+
             <div class="my-3">
                 <TextAreaInput
                     ref="feedbackMessageTextArea"
@@ -277,6 +288,7 @@ function selectItem(dropdownItem) {
                     v-model="feedback.email"
                     label="feedback_mail"
                     :disabled="request.pending"
+                    :placeholder="'no_email'"
                     :activate-validation="activateValidation"
                     data-cy="report-problem"
                     @validate="onEmailValidate"
