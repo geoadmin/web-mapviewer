@@ -18,18 +18,30 @@ const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
 const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
-const exportOptions = [
-    new DropdownItem('feedback_category_background_map', 'feedback_category_background_map'),
-    new DropdownItem('feedback_category_thematic_map', 'feedback_category_thematic_map'),
-    new DropdownItem(
-        'feedback_category_application_service',
-        'feedback_category_application_service'
-    ),
-    new DropdownItem('feedback_category_other', 'feedback_category_other'),
-]
-
 const i18n = useI18n()
 const store = useStore()
+const exportOptions = [
+    new DropdownItem(
+        'feedback_category_background_map',
+        i18n.t('feedback_category_background_map'),
+        'feedback_category_background_map'
+    ),
+    new DropdownItem(
+        'feedback_category_thematic_map',
+        i18n.t('feedback_category_thematic_map'),
+        'feedback_category_thematic_map'
+    ),
+    new DropdownItem(
+        'feedback_category_application_service',
+        i18n.t('feedback_category_application_service'),
+        'feedback_category_application_service'
+    ),
+    new DropdownItem(
+        'feedback_category_other',
+        i18n.t('feedback_category_other'),
+        'feedback_category_other'
+    ),
+]
 
 const props = defineProps({
     showAsLink: {
@@ -208,6 +220,19 @@ function selectItem(dropdownItem) {
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="report-problem" data-cy="report-problem-form">
+            <div class="mb-2 fw-bold">
+                {{ i18n.t('feedback_category') }}
+            </div>
+            <div class="my-2">
+                <DropdownButton
+                    label="feedback_description"
+                    :title="i18n.t(feedback.category)"
+                    :current-value="feedback.category"
+                    :items="exportOptions"
+                    data-cy="drawing-toolbox-export-button"
+                    @select:item="selectItem"
+                />
+            </div>
             <div class="my-3">
                 <TextAreaInput
                     ref="feedbackMessageTextArea"
@@ -219,19 +244,6 @@ function selectItem(dropdownItem) {
                     :activate-validation="activateValidation"
                     invalid-message="feedback_empty_warning"
                     @validate="onTextValidate"
-                />
-            </div>
-            <div class="mb-2">
-                {{ i18n.t('feedback_category') }}
-            </div>
-            <div class="my-2">
-                <DropdownButton
-                    label="feedback_description"
-                    :title="feedback.category"
-                    :current-value="feedback.category"
-                    :items="exportOptions"
-                    data-cy="drawing-toolbox-export-button"
-                    @select:item="selectItem"
                 />
             </div>
             <div>
