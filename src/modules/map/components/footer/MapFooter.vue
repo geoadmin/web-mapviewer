@@ -22,10 +22,7 @@ onUpdated(() => {
 
 <template>
     <div class="map-footer" data-cy="app-footer">
-        <div
-            v-if="(hasTopLeftFooter || hasTopRightFooter) && !isFullscreenMode"
-            class="map-footer-top"
-        >
+        <div v-if="hasTopLeftFooter || hasTopRightFooter" class="map-footer-top">
             <slot name="top-left" />
             <span v-if="hasTopRightFooter" class="map-footer-top-spacer" />
             <slot name="top-right" />

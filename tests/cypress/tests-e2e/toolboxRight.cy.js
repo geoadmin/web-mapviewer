@@ -33,7 +33,7 @@ describe('Testing the buttons of the right toolbox', () => {
         })
         cy.get('[data-cy="app-header"]').should('not.be.visible')
         cy.get('[data-cy="menu-tray"]').should('be.hidden')
-        cy.get('[data-cy="app-footer"]').should('be.hidden')
+        cy.get('[data-cy="app-footer"]').should('not.be.hidden')
     })
     it('shows a compass in the toolbox when map orientation is not pure north', () => {
         // Should not be visible on standard startup, as the map is facing north
