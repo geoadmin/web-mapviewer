@@ -5,7 +5,7 @@ import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { getLayerDescription } from '@/api/layers/layers.api'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const props = defineProps({
     layer: {
@@ -59,7 +59,13 @@ onMounted(async () => {
 </script>
 
 <template>
-    <ModalWithBackdrop :title="title" :allow-print="true" @close="emit('close', layerId)">
+    <SimpleWindow
+        :title="title"
+        movable
+        allow-print
+        initial-position="top-left"
+        @close="emit('close', layerId)"
+    >
         <div class="layer-description" data-cy="layer-description-popup">
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
@@ -97,7 +103,7 @@ onMounted(async () => {
             <div v-else data-cy="layer-description" v-html="htmlContent"></div>
             <!-- eslint-enable vue/no-v-html-->
         </div>
-    </ModalWithBackdrop>
+    </SimpleWindow>
 </template>
 
 <style lang="scss">

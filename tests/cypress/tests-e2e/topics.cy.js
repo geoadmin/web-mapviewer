@@ -190,7 +190,7 @@ describe('Topics', () => {
         ).as('legend')
         cy.get('[data-cy="catalogue-tree-item-info-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="layer-description-popup"]').should('be.visible').contains(expectedContent)
-        cy.get('[data-cy="modal-close-button"]:visible').click()
+        cy.get('[data-cy="window-close"]:visible').click()
 
         //---------------------------------------------------------------------
         cy.log('previews the layer on hover')
