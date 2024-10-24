@@ -18,6 +18,7 @@ const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
 const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
+
 const i18n = useI18n()
 const store = useStore()
 const exportOptions = [
@@ -230,13 +231,13 @@ function selectItem(dropdownItem) {
                     'is-valid': feedback.category,
                     'is-invalid': !feedback.category && activateValidation,
                 }"
+                data-cy="report-feedback-category-dropdown"
             >
                 <DropdownButton
                     label="feedback_description"
                     :title="i18n.t(feedback.category ? feedback.category : 'select_category')"
                     :current-value="feedback.category"
                     :items="exportOptions"
-                    data-cy="drawing-toolbox-export-button"
                     @select:item="selectItem"
                 />
             </div>
