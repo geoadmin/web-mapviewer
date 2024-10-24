@@ -12,6 +12,7 @@ const redoSearchWhenNeeded = (store) => {
                 query: store.state.search.query,
                 // we don't center on the search query when redoing a search if there is a crosshair
                 shouldCenter: store.state.position.crossHair === null,
+                originUrlParam: true, // necessary to select the first result if there is only one else it will not be because this redo search is done every time the page loaded
             })
         }
     }

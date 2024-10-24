@@ -170,18 +170,14 @@ describe('Test the search bar result handling', () => {
             .invoke('text')
             .should('eq', `District Test location #2`)
 
-        cy.log('Checking that it adds the search query as swisssearch URL param')
-        cy.url().should('contain', 'swisssearch=test')
+        cy.log('Checking that it does not add the search query as swisssearch URL param')
+        cy.url().should('not.contain', 'swisssearch')
 
         cy.log(
             'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
         )
-        cy.reload()
-        cy.waitMapIsReady()
-        cy.wait(['@search-locations', '@search-layers'])
+
         cy.readStoreValue('state.search.query').should('eq', 'test')
-        cy.get('@locationSearchResults').should('not.be.visible')
-        cy.get(searchbarSelector).click()
         cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('Checking that it displays layer results with info-buttons')
@@ -384,5 +380,17 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
 
         cy.get('@layerFeatureSearchCategory').should('be.visible')
+
+        cy.get(searchbarSelector).click()
+        cy.get('@locationSearchResults').should('not.be.visible')
+
+        cy.log('Checking that the swisssearch url param is not present after reloading the page')
+        cy.reload()
+        cy.waitMapIsReady()
+        cy.wait(['@search-locations', '@search-layers'])
+
+        cy.url().should('not.contain', 'swisssearch')
+        cy.readStoreValue('state.search.query').should('equal', '')
+        cy.get('@locationSearchResults').should('not.exist')
     })
 })
