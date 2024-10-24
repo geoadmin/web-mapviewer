@@ -285,6 +285,10 @@ describe('Testing the feature selection', () => {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
+            cy.get('[data-cy="file-input-text"]').should(
+                'have.value',
+                'external-kml-file.kml, 0.368 kb'
+            )
             cy.get('[data-cy="import-file-close-button"]:visible').click()
 
             cy.closeMenuIfMobile()
