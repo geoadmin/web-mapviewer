@@ -7,9 +7,8 @@ import { reproject } from 'reproject'
 
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
+import { createLayerFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
-
-import { createLayerFeature } from './layerUtils'
 
 const pixelToleranceForIdentify = 20
 

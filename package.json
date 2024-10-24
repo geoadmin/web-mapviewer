@@ -57,6 +57,7 @@
         "@turf/boolean-point-in-polygon": "^7.1.0",
         "@turf/buffer": "^7.1.0",
         "@turf/centroid": "^7.1.0",
+        "@turf/circle": "^7.1.0",
         "@turf/distance": "^7.1.0",
         "@turf/explode": "^7.1.0",
         "@turf/helpers": "^7.1.0",

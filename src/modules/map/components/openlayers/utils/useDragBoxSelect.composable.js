@@ -1,8 +1,16 @@
 import { booleanIntersects } from '@turf/boolean-intersects'
-import { lineString, point, polygon } from '@turf/helpers'
+import { circle } from '@turf/circle'
+import {
+    geometryCollection,
+    lineString,
+    multiLineString,
+    multiPoint,
+    multiPolygon,
+    point,
+    polygon,
+} from '@turf/helpers'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
-import { LineString, Point, Polygon } from 'ol/geom'
 import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
@@ -98,14 +106,35 @@ export function useDragBoxSelect() {
  *   is not supported.
  */
 function fromOlGeometryToTurfGeometry(olGeometry) {
-    if (olGeometry instanceof Point) {
-        return point(olGeometry.getCoordinates())
+    if (!olGeometry || typeof olGeometry.getCoordinates !== 'function') {
+        log.error('Invalid OpenLayers geometry provided.', olGeometry)
+        return null
     }
-    if (olGeometry instanceof Polygon) {
-        return polygon(olGeometry.getCoordinates())
+
+    // Mapping OpenLayers geometry types to Turf.js functions
+    const geometryMapping = {
+        Point: point,
+        MultiPoint: multiPoint,
+        LineString: lineString,
+        MultiLineString: multiLineString,
+        Polygon: polygon,
+        MultiPolygon: multiPolygon,
+        GeometryCollection: geometryCollection,
+        Circle: function (olGeometry) {
+            const center = olGeometry.getCenter()
+            const radius = olGeometry.getRadius()
+            return circle(center, radius)
+        },
     }
-    if (olGeometry instanceof LineString) {
-        return lineString(olGeometry.getCoordinates())
+
+    const olGeometryType = olGeometry.getType()
+
+    const turfGeometryFunction = geometryMapping[olGeometryType]
+
+    if (turfGeometryFunction) {
+        return turfGeometryFunction(olGeometry.getCoordinates())
+    } else {
+        log.error('Unsupported geometry type:', olGeometryType)
+        return null
     }
-    return null
 }
