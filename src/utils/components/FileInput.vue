@@ -150,6 +150,17 @@ const props = defineProps({
         default: '',
     },
     /**
+     * Invalid message might sometimes require extra parameters to correctly set all placeholder in
+     * the translated message. This object is used to convey this dynamic placeholder replacement to
+     * the i18n call.
+     *
+     * @type {Object}
+     */
+    invalidMessageExtraParams: {
+        type: Object,
+        default: () => {},
+    },
+    /**
      * Mark the field has validated.
      *
      * As long as the flag is false, no validation is run and no validation marks are set. Also the
@@ -272,6 +283,7 @@ function onFileSelected(evt) {
                     i18n.t(invalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
+                        ...invalidMessageExtraParams,
                     })
                 }}
             </div>

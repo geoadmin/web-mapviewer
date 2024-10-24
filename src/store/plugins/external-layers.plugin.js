@@ -10,6 +10,7 @@ import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'external-layers.plugin' }
@@ -111,11 +112,11 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
         return updated
     } catch (error) {
         log.error(`Failed to update external layer ${layer.id}: `, error)
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: layer.id,
             isExternal: layer.isExternal,
             baseUrl: layer.baseUrl,
-            errorKey: error.key ? error.key : 'error',
+            error: new ErrorMessage(error.key ?? 'error'),
             ...dispatcher,
         })
         return null

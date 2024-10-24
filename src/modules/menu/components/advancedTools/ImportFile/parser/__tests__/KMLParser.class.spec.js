@@ -1,22 +1,25 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { isKml } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import { isKml } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 
-describe('Test ImportFile utils', () => {
+describe('Test KMLParser utils', () => {
     it('Detect KML file syntax', () => {
         expect(isKml('<kml>test</kml>')).to.be.true
         expect(isKml('<kml:kml>test</kml:kml>')).to.be.true
         expect(isKml(' <?xml version="1.0" encoding="UTF-8"?><kml:kml>test</kml:kml>')).to.be.true
         expect(
-            isKml(`<?xml version="1.0" encoding="UTF-8"?>
+            isKml(
+                `<?xml version="1.0" encoding="UTF-8"?>
         <kml:kml>
             test
         </kml:kml>
-        `)
+        `
+            )
         ).to.be.true
         expect(
-            isKml(`
+            isKml(
+                `
 <kml>
     <Placemark>
         <name>test</name>
@@ -25,7 +28,8 @@ describe('Test ImportFile utils', () => {
             <coordinates>7.438632503,46.951082887,598.947</coordinates>
         </Point>
     </Placemark>
-</kml>`)
+</kml>`
+            )
         ).to.be.true
     })
     it("Don't detect invalid KML file syntax", () => {
@@ -33,7 +37,8 @@ describe('Test ImportFile utils', () => {
         expect(isKml('<akml>test</akml>')).to.be.false
         expect(isKml('<?xml version="1.0" encoding="UTF-8"?><div>test</div>')).to.be.false
         expect(
-            isKml(`<div><![CDATA[
+            isKml(
+                `<div><![CDATA[
 <kml>
     <Placemark>
         <name>test</name>
@@ -43,7 +48,8 @@ describe('Test ImportFile utils', () => {
         </Point>
     </Placemark>
 </kml>
-]]></div>`)
+]]></div>`
+            )
         ).to.be.false
     })
 })

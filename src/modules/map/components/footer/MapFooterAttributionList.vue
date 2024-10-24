@@ -6,7 +6,7 @@
                 v-if="source.hasDataDisclaimer"
                 :source-name="source.name"
                 :complete-disclaimer-on-click="!source.url"
-                :is-external-data-local="source.isExternalDataLocal"
+                :is-local-file="source.isLocalFile"
             >
                 <MapFooterAttributionItem
                     :source-id="source.id"
@@ -71,7 +71,7 @@ export default {
                                     layer.isExternal,
                                     layer.baseUrl
                                 ),
-                                isExternalDataLocal: this.isLocalFile(layer),
+                                isLocalFile: this.isLocalFile(layer),
                             }
                         })
                     })

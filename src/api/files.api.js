@@ -340,6 +340,7 @@ export function loadKmlData(kmlLayer) {
  * proxy.
  *
  * @param {string} url URL to fetch
+ * @param {Object} [options]
  * @param {Number} [options.timeout] How long should the call wait before timing out
  * @param {string} [options.responseType] Type of data that the server will respond with. Options
  *   are 'arraybuffer', 'document', 'json', 'text', 'stream'. Default is `json`
@@ -349,10 +350,10 @@ export async function getFileFromUrl(url, options = {}) {
     const { timeout = null, responseType = null } = options
     if (/^https?:\/\/localhost/.test(url) || isInternalUrl(url)) {
         // don't go through proxy if it is on localhost or the internal server
-        return axios.get(url, { timeout, responseType })
+        return await axios.get(url, { timeout, responseType })
     } else if (url.startsWith('http://')) {
         // HTTP request goes through the proxy
-        return axios.get(proxifyUrl(url), { timeout, responseType })
+        return await axios.get(proxifyUrl(url), { timeout, responseType })
     }
 
     // For other urls we need to check if they support CORS
@@ -374,8 +375,8 @@ export async function getFileFromUrl(url, options = {}) {
 
     if (supportCORS) {
         // Server support CORS
-        return axios.get(url, { timeout, responseType })
+        return await axios.get(url, { timeout, responseType })
     }
     // server don't support CORS use proxy
-    return axios.get(proxifyUrl(url), { timeout, responseType })
+    return await axios.get(proxifyUrl(url), { timeout, responseType })
 }

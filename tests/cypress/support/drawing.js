@@ -101,6 +101,12 @@ const addFileAPIFixtureAndIntercept = () => {
             })
         }
     }).as('get-kml')
+    cy.intercept('HEAD', `**/api/kml/files/**`, {
+        statusCode: 200,
+        headers: {
+            'Content-Type': 'application/vnd.google-earth.kml+xml',
+        },
+    }).as('head-kml')
 }
 
 Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {

@@ -4,13 +4,15 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import ErrorMessage from '@/utils/ErrorMessage.class'
+
 const props = defineProps({
     compact: {
         type: Boolean,
         required: true,
     },
     errorMessage: {
-        type: String,
+        type: ErrorMessage,
         required: true,
     },
 })
@@ -21,15 +23,16 @@ const i18n = useI18n()
 const store = useStore()
 
 const lang = computed(() => store.state.i18n.lang)
+const translatedMessage = computed(() => i18n.t(errorMessage.value.msg, errorMessage.value.params))
 
 let tippyInstance = null
 
-watch(lang, () => tippyInstance?.setContent(i18n.t(errorMessage.value)))
+watch(lang, () => tippyInstance?.setContent(translatedMessage.value))
 
 onMounted(() => {
     tippyInstance = tippy(errorButton.value, {
         theme: 'danger',
-        content: i18n.t(errorMessage.value),
+        content: translatedMessage.value,
         arrow: true,
         placement: 'top',
         touch: false,

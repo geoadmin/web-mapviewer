@@ -45,10 +45,10 @@ export function propsValidator4ValidateFunc(value, _props) {
  * @param {Boolean | null} props.invalidMarker Mark the field as invalid. This can be used if the
  *   field requires some external validation. When not set or set to null this props is ignored.
  *   NOTE: this props is ignored when activate-validation is false.
- * @param {String} props.invalidMessage Invalid message Message that will be added in red below the
- *   field once the validation has been done and the field is invalid. NOTE: this message is
- *   overwritten if the internal validation failed (not allow file type or file too big or required
- *   empty file).
+ * @param {String} props.invalidMessage Invalid message that will be added in red below the field
+ *   once the validation has been done and the field is invalid. NOTE: this message is overwritten
+ *   if the internal validation failed (not allow file type or file too big or required empty
+ *   file).
  * @param {Boolean} props.activateValidation Mark the field has validated. As long as the flag is
  *   false, no validation is run and no validation marks are set. Also the props is-invalid and
  *   is-valid are ignored.

@@ -6,6 +6,7 @@
 import axios from 'axios'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
@@ -40,12 +41,11 @@ async function autoReloadData(store, geoJsonLayer) {
             const requester = 'auto-load-geojson-style'
             store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             const { data } = await load(geoJsonLayer.geoJsonUrl).response
-            const layerCopy = geoJsonLayer.clone()
-            layerCopy.geoJsonData = data
-            // we update through the action updateLayers, so that if multiple copies of the same GeoJSON layer are present,
-            // they will all be updated with the fresh data
-            store.dispatch('updateLayers', {
-                layers: [layerCopy],
+            store.dispatch('updateLayer', {
+                layerId: geoJsonLayer.id,
+                layers: {
+                    geoJsonData: data,
+                },
                 ...dispatcher,
             })
             store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
@@ -92,7 +92,7 @@ function loadDataAndStyle(geoJsonLayer) {
                 )
                 const clone = geoJsonLayer.clone()
                 clone.isLoading = false
-                clone.addErrorKey('loading_error_network_failure')
+                clone.addErrorMessage(new ErrorMessage('loading_error_network_failure'))
                 return clone
             }),
     }

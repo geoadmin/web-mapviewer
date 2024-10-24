@@ -643,6 +643,7 @@
     "transparency": "Transparenza",
     "try_test_viewer": "Empruvai test.map.geo.admin.ch",
     "twitter_tooltip": "Tschivlottais questa charta",
+    "unknown_projection_error": "Die Datei verwendet eine nicht unterstützte Projektion {epsg}",
     "unsupported_content_type": "Tip da containt da resposta betg sustegnì",
     "upload_failed": "Errur da chargiar",
     "upload_succeeded": "Chargiar reussì",

@@ -3,13 +3,17 @@
  * it here
  */
 
-import { loadKmlData, loadKmlMetadata } from '@/api/files.api'
+import { loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { unzipKmz } from '@/utils/kmlUtils'
+import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
+import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
+import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
 import log from '@/utils/logging'
-import { isZipContent } from '@/utils/utils'
 
-const dispatcher = { dispatcher: 'load-kml-data.plugin' }
+const dispatcher = { dispatcher: 'load-kml-kmz-data.plugin' }
+
+const kmzParser = new KMZParser()
+const kmlParser = new KMLParser()
 
 /**
  * @param {Vuex.Store} store
@@ -20,9 +24,11 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
-        store.dispatch('setKmlGpxLayerData', {
-            layerId: kmlLayer?.id,
-            metadata,
+        store.dispatch('updateLayer', {
+            layerId: kmlLayer.id,
+            values: {
+                kmlMetadata: metadata,
+            },
             ...dispatcher,
         })
     } catch (error) {
@@ -38,30 +44,53 @@ async function loadMetadata(store, kmlLayer) {
 async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
-        let kmlData
-        let kmlLinkFiles = new Map()
-        const data = await loadKmlData(kmlLayer)
-        if (isZipContent(data)) {
-            log.debug(`KML ${kmlLayer.id} is a KMZ file, unzipping it first`)
-            const kmz = await unzipKmz(data, kmlLayer.id)
-            kmlData = kmz.kml
-            kmlLinkFiles = kmz.files
-        } else {
-            kmlData = new TextDecoder('utf-8').decode(data)
-        }
-        store.dispatch('setKmlGpxLayerData', {
-            layerId: kmlLayer?.id,
-            data: kmlData,
-            linkFiles: kmlLinkFiles,
+        const kmz = await kmzParser.parse(
+            {
+                fileSource: kmlLayer.kmlFileUrl,
+                currentProjection: store.state.position.projection,
+            },
+            {
+                allowServiceProxy: true,
+            }
+        )
+        store.dispatch('updateLayer', {
+            layerId: kmlLayer.id,
+            values: kmz,
+            ...dispatcher,
+        })
+        // avoiding going below in the KML parsing
+        return
+    } catch (error) {
+        // not a KMZ layer, we proceed below to check if it is a KML
+    }
+
+    try {
+        const kml = await kmlParser.parse(
+            {
+                fileSource: kmlLayer.kmlFileUrl,
+                currentProjection: store.state.position.projection,
+            },
+            {
+                allowServiceProxy: true,
+            }
+        )
+        store.dispatch('updateLayer', {
+            layerId: kmlLayer.id,
+            values: {
+                ...kml,
+                // we have to pass the adminId (when defined) as it won't be read by the KML parser
+                // meaning it will be updated to null if it was previously defined
+                adminId: kmlLayer.adminId,
+            },
             ...dispatcher,
         })
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            errorKey: `loading_error_network_failure`,
+            error: generateErrorMessageFromErrorType(error),
             ...dispatcher,
         })
     }
