@@ -34,7 +34,7 @@ export default class AbstractParamConfig {
         urlParamName,
         mutationsToWatch,
         setValuesInStore,
-        extractValueFromStore = (_) => '',
+        extractValueFromStore,
         keepInUrlWhenDefault = true,
         valueType = String,
         defaultValue = null,
