@@ -1,13 +1,23 @@
+import bbox from '@turf/bbox'
+import center from '@turf/center'
+import { points } from '@turf/helpers'
 import axios from 'axios'
 import proj4 from 'proj4'
 
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
+import { parseGpx } from '@/utils/gpxUtils'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
+
+const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 
@@ -278,6 +288,137 @@ async function searchLayerFeatures(outputProjection, queryString, layer, lang, c
     }
 }
 
+/**
+ * Searches for the query string in the feature inside the provided search fields
+ *
+ * @param {ol/Feature} feature
+ * @param {String} queryString
+ * @param {String[]} searchFields
+ * @returns {Boolean}
+ */
+function isQueryInFeature(feature, queryString, searchFields) {
+    const queryStringClean = queryString
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // replaces all special characters and accents
+    return searchFields.some((field) => {
+        const value = feature.values_[field]?.toString()
+        return !!value && value.trim().toLowerCase().includes(queryStringClean)
+    })
+}
+
+/**
+ * Searches for the query string in the layer
+ *
+ * @param {CoordinateSystem} outputProjection
+ * @param {String} queryString
+ * @param {GeoAdminLayer} layer
+ * @param {any} parseData Data needed in the parseFunction
+ * @param {Function} parseFunction Function to parse the data
+ * @returns {SearchResult[]}
+ */
+function searchFeatures(outputProjection, queryString, layer, parseData, parseFunction) {
+    try {
+        const features = parseFunction(parseData, outputProjection, [])
+        if (!features || !features.length) {
+            return []
+        }
+        const includedFeatures = features.filter((feature) =>
+            isQueryInFeature(feature, queryString, KML_GPX_SEARCH_FIELDS)
+        )
+        if (!includedFeatures.length) {
+            return []
+        }
+        return includedFeatures.map((feature) =>
+            createSearchResultFromLayer(layer, feature, outputProjection)
+        )
+    } catch (error) {
+        log.error(
+            `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+            error
+        )
+        return []
+    }
+}
+
+/**
+ * Searches for features in KML and GPX layers based on a query string and output projection
+ *
+ * @param {GeoAdminLayer[]} layersToSearch - The layers to search through
+ * @param {string} queryString - The query string to search for
+ * @param {string} outputProjection - The projection to use for the output
+ * @returns {SearchResult[]}
+ */
+function searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection) {
+    return layersToSearch.reduce((returnLayers, currentLayer) => {
+        if (currentLayer.type === LayerTypes.KML) {
+            return returnLayers.concat(
+                searchFeatures(outputProjection, queryString, currentLayer, currentLayer, parseKml)
+            )
+        }
+        if (currentLayer.type === LayerTypes.GPX) {
+            return returnLayers.concat(
+                ...searchFeatures(
+                    outputProjection,
+                    queryString,
+                    currentLayer,
+                    currentLayer.gpxData,
+                    parseGpx
+                )
+            )
+        }
+        return returnLayers
+    }, [])
+}
+
+/**
+ * Creates the SearchResult for a layer
+ *
+ * @param {GeoAdminLayer} layer
+ * @param {ol/Feature} feature
+ * @param {ol/extent|null} extent
+ * @param {CoordinateSystem} outputProjection
+ * @returns {SearchResult}
+ */
+function createSearchResultFromLayer(layer, feature, outputProjection) {
+    const featureName = feature.values_.name || layer.name || '' // this needs || to avoid using empty string when feature.values_.name is an empty string
+    const coordinates = extractOlFeatureCoordinates(feature)
+    const zoom = outputProjection.get1_25000ZoomLevel()
+
+    const coordinatePoints = points(coordinates)
+    const centerPoint = center(coordinatePoints)
+    const normalExtent = normalizeExtent(bbox(coordinatePoints))
+
+    const featureId = feature.getId()
+    const layerContent = {
+        resultType: SearchResultTypes.LAYER,
+        id: layer.id,
+        title: layer.name ?? '',
+        sanitizedTitle: sanitizeTitle(layer.name),
+        description: layer.description ?? '',
+        layerId: layer.id,
+    }
+    const locationContent = {
+        resultType: SearchResultTypes.LOCATION,
+        id: featureId,
+        title: featureName,
+        sanitizedTitle: sanitizeTitle(featureName),
+        description: feature.values_.description ?? '',
+        featureId: featureId,
+        coordinate: centerPoint.geometry.coordinates,
+        extent: normalExtent,
+        zoom,
+    }
+    return {
+        ...layerContent,
+        ...locationContent,
+        resultType: SearchResultTypes.FEATURE,
+        title: featureName,
+        layer,
+    }
+}
+
 let cancelToken = null
 /**
  * @param {CoordinateSystem} config.outputProjection The projection in which the search results must
@@ -326,6 +467,8 @@ export default async function search(config) {
                 )
         )
     }
+
+    allRequests.push(searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection))
 
     // letting all requests finish in parallel
     const allResults = await Promise.all(allRequests)
