@@ -285,7 +285,7 @@ describe('Testing the feature selection', () => {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
-            cy.get('[data-cy="modal-close-button"]:visible').click()
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
 
             cy.closeMenuIfMobile()
 
