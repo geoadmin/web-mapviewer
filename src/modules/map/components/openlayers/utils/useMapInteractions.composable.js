@@ -1,20 +1,19 @@
-import GeoJSON from 'ol/format/GeoJSON'
 import { DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
+import { createLayerFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const dispatcher = {
@@ -138,32 +137,7 @@ export default function useMapInteractions(map) {
                             layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
                             hitTolerance: DRAWING_HIT_TOLERANCE,
                         })
-                        .map(
-                            (olFeature) =>
-                                new LayerFeature({
-                                    layer: vectorLayer,
-                                    id: olFeature.getId(),
-                                    name:
-                                        olFeature.get('label') ??
-                                        // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
-                                        // some of their layers are
-                                        // - ch.meteoschweiz.messwerte-niederschlag-10min
-                                        // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-                                        olFeature.get('station_name') ??
-                                        // GPX track feature don't have an ID but have a name !
-                                        olFeature.get('name') ??
-                                        olFeature.getId(),
-                                    data: {
-                                        title: olFeature.get('name'),
-                                        description: olFeature.get('description'),
-                                    },
-                                    coordinates: olFeature.getGeometry().getCoordinates(),
-                                    geometry: new GeoJSON().writeGeometryObject(
-                                        olFeature.getGeometry()
-                                    ),
-                                    extent: normalizeExtent(olFeature.getGeometry().getExtent()),
-                                })
-                        )
+                        .map((olFeature) => createLayerFeature(olFeature, vectorLayer))
                         // unique filter on features (OL sometimes return twice the same features)
                         .filter(
                             (feature, index, self) =>
