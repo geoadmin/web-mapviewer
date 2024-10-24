@@ -2,12 +2,18 @@ import axios from 'axios'
 
 import { getContentThroughServiceProxy } from '@/api/file-proxy.api.js'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
 import log from '@/utils/logging.js'
 
-const allParsers = [new KMZParser(), new KMLParser(), new GPXParser()]
+const allParsers = [
+    new CloudOptimizedGeoTIFFParser(),
+    new KMZParser(),
+    new KMLParser(),
+    new GPXParser(),
+]
 
 /**
  * @param {Object} config
