@@ -1,5 +1,12 @@
+// eslint-disable-next-line simple-import-sort/imports
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
+
+// We need to import the router here to avoid error when initializing router plugins, this is
+// needed since some store plugins might require access to router to get the query parameters
+// (e.g. topic management plugin)
+import router from '@/router' // eslint-disable-line no-unused-vars
+import store from '@/store' // eslint-disable-line no-unused-vars
 
 import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
 import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
