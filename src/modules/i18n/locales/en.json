@@ -248,6 +248,8 @@
     "follow_us": "Follow us",
     "form_invalid": "The form is invalid",
     "full_screen": "Full screen",
+    "full_screen_exit": "Exit full screen",
+    "full_screen_window_exit": "To exit full screen press F11",
     "full_width": "Full width",
     "funksender": "Radio transmitter",
     "funksender_service_link_href": "mailto:info@bakom.admin.ch",
