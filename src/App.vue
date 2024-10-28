@@ -9,8 +9,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import ErrorWindow from '@/utils/components/ErrorWindow.vue'
-import WarningWindow from '@/utils/components/WarningWindow.vue'
+import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
 
 const withOutline = ref(false)
@@ -21,17 +20,10 @@ const i18n = useI18n()
 const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
-const error = computed(() => {
-    if (store.state.ui.errors.size > 0) {
-        return store.state.ui.errors.values().next().value
-    }
-    return null
-})
-const warning = computed(() => {
-    if (store.state.ui.warnings.size > 0) {
-        return store.state.ui.warnings.values().next().value
-    }
-    return null
+const showFeedbackPopup = computed(() => {
+    console.error(store.state.ui.errors)
+    console.error(store.state.ui.warnings)
+    return store.state.ui.errors.size + store.state.ui.warnings.size > 0
 })
 
 onMounted(() => {
@@ -65,22 +57,7 @@ function refreshPageTitle() {
         @pointerdown="withOutline = false"
     >
         <router-view />
-        <ErrorWindow
-            v-if="error"
-            title="error"
-            @close="store.dispatch('removeError', { error, ...dispatcher })"
-        >
-            <div>
-                {{ i18n.t(error.msg, error.params) }}
-            </div>
-        </ErrorWindow>
-        <WarningWindow
-            v-if="warning"
-            title="warning"
-            @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
-        >
-            <div>{{ i18n.t(warning.msg, warning.params) }}</div>
-        </WarningWindow>
+        <FeedbackPopup v-if="showFeedbackPopup"> </FeedbackPopup>
     </div>
 </template>
 
