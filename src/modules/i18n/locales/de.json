@@ -248,6 +248,8 @@
     "follow_us": "Folgen Sie uns",
     "form_invalid": "Das Formular ist ungültig",
     "full_screen": "Vollbild",
+    "full_screen_exit": "Vollbildmodus beenden",
+    "full_screen_window_exit": "Um den Vollbildmodus zu verlassen, drücken Sie F11",
     "full_width": "Vollständige Breite",
     "funksender": "Funksender",
     "funksender_service_link_href": "mailto:info@bakom.admin.ch",
