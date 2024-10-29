@@ -275,6 +275,8 @@ describe('Testing the feature selection', () => {
                 },
                 true
             )
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+
             const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -285,7 +287,16 @@ describe('Testing the feature selection', () => {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
-            cy.get('[data-cy="import-file-close-button"]:visible').click()
+
+            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
+
+            cy.get('[data-cy="file-input-text"]').should(
+                'have.value',
+                'external-kml-file.kml, 0.368 kb'
+            )
+            cy.get('[data-cy="import-file-close-button"]:visible').realClick()
+            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
+            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
 
             cy.closeMenuIfMobile()
 
@@ -324,6 +335,7 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
             cy.get('@loadMore').click()
+            cy.wait('@routeChange')
             cy.wait('@identify')
                 .its('request.query')
                 .should((query) => {
@@ -363,6 +375,7 @@ describe('Testing the feature selection', () => {
                 },
                 true
             )
+            cy.wait('@routeChange')
 
             cy.intercept('**identify**', {
                 fixture: 'features/features.fixture',
@@ -372,8 +385,7 @@ describe('Testing the feature selection', () => {
                 x: 30,
                 y: -80,
             })
-            cy.wait('@identifySingleFeature')
-            cy.wait(`@htmlPopup`)
+            cy.wait(['@identifySingleFeature', '@htmlPopup'])
 
             cy.get('@highlightedFeatures').should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
@@ -391,6 +403,16 @@ describe('Testing the feature selection', () => {
             })
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
+
+            cy.get('@routeChange.all').should('have.length', 5)
+            cy.get('@layers.all').should('have.length', 1)
+            cy.get('@topics.all').should('have.length', 1)
+            cy.get('@topic-ech.all').should('have.length', 1)
+            cy.get('@htmlPopup.all').should('have.length', 101)
+            cy.get('@noMoreResults.all').should('have.length', 1)
+            cy.get('@identify.all').should('have.length', 2)
+            cy.get('@identifySingleFeature.all').should('have.length', 1)
+            cy.get('@emptyIdentify.all').should('have.length', 1)
         })
     })
 })

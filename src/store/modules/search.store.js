@@ -146,14 +146,12 @@ const actions = {
         }
         commit('setSearchResults', { results, dispatcher: `${dispatcher}/setSearchQuery` })
     },
-    setSearchResults: ({ commit }, { results, dispatcher }) =>
-        commit('setSearchResults', { results, dispatcher }),
     /**
      * @param commit
      * @param dispatch
      * @param {SearchResult} entry
      */
-    selectResultEntry: ({ dispatch, getters, rootState }, { entry, dispatcher }) => {
+    selectResultEntry: async ({ dispatch, getters, rootState, commit }, { entry, dispatcher }) => {
         const dispatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case SearchResultTypes.LAYER:
@@ -167,6 +165,23 @@ const actions = {
                         layers: [{ id: entry.layerId, visible: true }],
                         dispatcher: dispatcherSelectResultEntry,
                     })
+                }
+                // launching a new search to get (potential) layer features
+                try {
+                    const resultIncludingLayerFeatures = await search({
+                        outputProjection: rootState.position.projection,
+                        queryString: state.query,
+                        lang: rootState.i18n.lang,
+                        layersToSearch: getters.visibleLayers,
+                    })
+                    if (resultIncludingLayerFeatures.length > state.results.length) {
+                        commit('setSearchResults', {
+                            results: resultIncludingLayerFeatures,
+                            ...dispatcher,
+                        })
+                    }
+                } catch (error) {
+                    log.error(`Search failed`, error)
                 }
                 break
             case SearchResultTypes.LOCATION:
@@ -221,10 +236,6 @@ const actions = {
 
                 break
         }
-        dispatch('setSearchQuery', {
-            query: entry.sanitizedTitle,
-            dispatcher: dispatcherSelectResultEntry,
-        })
     },
 }
 
