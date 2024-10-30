@@ -1,11 +1,10 @@
-import axios from 'axios'
-
-import { getContentThroughServiceProxy } from '@/api/file-proxy.api.js'
+import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { getFileMimeType } from '@/api/files.api'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import log from '@/utils/logging.js'
+import log from '@/utils/logging'
 
 const allParsers = [new KMZParser(), new KMLParser(), new GPXParser()]
 
@@ -53,12 +52,11 @@ export async function parseLayerFromFile(fileSource, currentProjection, options 
     if (!isLocalFile) {
         // running a HEAD request on the resource to only gather this info once for all file parsers
         try {
-            const headResponse = await axios.head(fileSource)
-            mimeType = headResponse.headers.get('content-type')
+            mimeType = await getFileMimeType(fileSource)
             log.debug('[FileParsing] got MIME type', mimeType, 'for file', fileSource)
         } catch (err) {
             log.debug(
-                '[File parsing] could not have a HEAD response on',
+                '[File parsing][parseLayerFromFile] could not have a HEAD response on',
                 fileSource,
                 'this file might require service-proxy'
             )
@@ -79,13 +77,18 @@ export async function parseLayerFromFile(fileSource, currentProjection, options 
                 }
             )
         } catch (error) {
-            log.error('[FileParser] Could not parse file through mime type detection', error)
+            log.error(
+                '[FileParser][parseLayerFromFile] Could not parse file through mime type detection',
+                error
+            )
             throw error
         }
     }
     // if MIME type detection was unsuccessful, we attempt another pass of parsing, this time using service-proxy to ge the file's content
     if (!isLocalFile) {
-        log.debug('[FileParser] MIME type detection failed, going through service-proxy')
+        log.debug(
+            '[FileParser][parseLayerFromFile] MIME type detection failed, going through service-proxy'
+        )
         return await parseAll(
             {
                 fileSource,

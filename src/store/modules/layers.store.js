@@ -758,7 +758,10 @@ const actions = {
             if (data) {
                 let extent
                 if (clone.type === LayerTypes.KML) {
-                    clone.name = parseKmlName(data) || 'KML'
+                    clone.name = parseKmlName(data)
+                    if (!clone.name || clone.name === '') {
+                        clone.name = clone.kmlFileUrl
+                    }
                     clone.kmlData = data
                     extent = getKmlExtent(data)
                 } else if (clone.type === LayerTypes.GPX) {

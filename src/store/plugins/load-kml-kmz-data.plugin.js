@@ -3,7 +3,8 @@
  * it here
  */
 
-import { loadKmlMetadata } from '@/api/files.api'
+import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { getFileMimeType, loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
@@ -43,6 +44,39 @@ async function loadMetadata(store, kmlLayer) {
  */
 async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
+    // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
+
+    let mimeType = null
+    try {
+        mimeType = await getFileMimeType(kmlLayer.kmlFileUrl)
+    } catch (error) {
+        log.debug(
+            '[load-kml-kmz-data] could not get MIME type for KML',
+            kmlLayer.kmlFileUrl,
+            'trying getting data through service-proxy'
+        )
+    }
+    let loadedContent = null
+    if (!mimeType) {
+        try {
+            loadedContent = await getContentThroughServiceProxy(kmlLayer.kmlFileUrl)
+        } catch (error) {
+            log.error(
+                '[load-kml-kmz-data] could not get content for KML',
+                kmlLayer.kmlFileUrl,
+                'through service-proxy'
+            )
+            store.dispatch('addLayerError', {
+                layerId: kmlLayer.id,
+                isExternal: kmlLayer.isExternal,
+                baseUrl: kmlLayer.baseUrl,
+                error: generateErrorMessageFromErrorType(error),
+                ...dispatcher,
+            })
+            // stopping there, there won't be anything to do with this file (no MIME type, no data through service-proxy)
+            return
+        }
+    }
     try {
         const kmz = await kmzParser.parse(
             {
@@ -50,7 +84,9 @@ async function loadData(store, kmlLayer) {
                 currentProjection: store.state.position.projection,
             },
             {
-                allowServiceProxy: true,
+                allowServiceProxy: false,
+                mimeType,
+                loadedContent,
             }
         )
         store.dispatch('updateLayer', {
@@ -71,7 +107,9 @@ async function loadData(store, kmlLayer) {
                 currentProjection: store.state.position.projection,
             },
             {
-                allowServiceProxy: true,
+                allowServiceProxy: false,
+                mimeType,
+                loadedContent,
             }
         )
         store.dispatch('updateLayer', {

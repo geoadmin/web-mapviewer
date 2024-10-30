@@ -380,3 +380,20 @@ export async function getFileFromUrl(url, options = {}) {
     // server don't support CORS use proxy
     return await axios.get(proxifyUrl(url), { timeout, responseType })
 }
+
+/**
+ * Get a file MIME type through a HEAD request (and reading the Content-Type header returned by this
+ * request. Returns `null` if the HEAD request failed, or if no Content-Type header is set.
+ *
+ * @param url
+ * @returns {Promise<String | null>}
+ */
+export async function getFileMimeType(url) {
+    try {
+        const headResponse = await axios.head(url)
+        return headResponse.headers.get('content-type')
+    } catch (error) {
+        log.error(`HEAD request on URL ${url} failed with`, error)
+        return null
+    }
+}

@@ -7,6 +7,7 @@ import {
 } from '@/config/staging.config'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
+import { isNumber } from '@/utils/numberUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
@@ -465,7 +466,7 @@ export default {
         },
         setShowLoadingBar(state, { requester, loading }) {
             if (loading) {
-                if (state.loadingBarRequesters[requester] === null) {
+                if (!isNumber(state.loadingBarRequesters[requester])) {
                     state.loadingBarRequesters[requester] = 0
                 }
                 state.loadingBarRequesters[requester] += 1
