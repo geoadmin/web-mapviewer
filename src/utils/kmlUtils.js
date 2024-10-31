@@ -42,6 +42,8 @@ export const EMPTY_KML_DATA = '<kml></kml>'
 // See https://github.com/openlayers/openlayers/pull/12695
 export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
 
+const kmlReader = new KML({ extractStyles: false })
+
 /**
  * Read the KML name
  *
@@ -49,9 +51,7 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
  * @returns {string} Return KML name
  */
 export function parseKmlName(content) {
-    const kml = new KML({ extractStyles: false })
-
-    return kml.readName(content)
+    return kmlReader.readName(content)
 }
 
 /**
@@ -61,8 +61,7 @@ export function parseKmlName(content) {
  * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
  */
 export function getKmlExtent(content) {
-    const kml = new KML({ extractStyles: false })
-    const features = kml.readFeatures(content, {
+    const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
     })

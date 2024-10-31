@@ -1,5 +1,5 @@
 import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { getFileMimeType } from '@/api/files.api'
+import { getFileFromUrl, getFileMimeType } from '@/api/files.api'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
@@ -38,6 +38,60 @@ async function parseAll(config, options) {
 }
 
 /**
+ * Will (attempt to) load the MIME type of the file (through a HEAD request) and then decide if it
+ * requires service-proxy to get the content (HEAD request failed) or if the content should be
+ * loaded with a simple GET request.
+ *
+ * If nothing could get loaded (HTTP 4xx or 5xx for both request) it will return `null` for both
+ * mimeType and loadedContent (no error will be thrown)
+ *
+ * @param {String} fileUrl
+ * @returns {Promise<{ mimeType: [String, null]; loadedContent: [null, String, ArrayBuffer] }>}
+ */
+export async function getOnlineFileContent(fileUrl) {
+    let mimeType = null
+    let loadedContent = null
+    try {
+        mimeType = await getFileMimeType(fileUrl)
+        log.debug('[FileParser] got MIME type', mimeType, 'for file', fileUrl)
+    } catch (error) {
+        log.debug(
+            '[FileParser][getOnlineFileContent] could not have a HEAD response on',
+            fileUrl,
+            'this file might require service-proxy',
+            error
+        )
+    }
+    if (!mimeType) {
+        try {
+            loadedContent = await getContentThroughServiceProxy(fileUrl)
+        } catch (error) {
+            log.error(
+                '[FileParser][getOnlineFileContent] could not get content of file',
+                fileUrl,
+                'through service-proxy',
+                error
+            )
+        }
+    }
+    if (!loadedContent) {
+        try {
+            loadedContent = await getFileFromUrl(fileUrl)
+        } catch (error) {
+            log.error(
+                '[FileParser][getOnlineFileContent] could not get content for file',
+                fileUrl,
+                error
+            )
+        }
+    }
+    return {
+        loadedContent,
+        mimeType,
+    }
+}
+
+/**
  * @param {File | String} fileSource
  * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file against
  *   the current projection (and raise OutOfBoundError in case no mutual data is available)
@@ -48,47 +102,8 @@ async function parseAll(config, options) {
  */
 export async function parseLayerFromFile(fileSource, currentProjection, options = {}) {
     const isLocalFile = fileSource instanceof File
-    let mimeType = null
     if (!isLocalFile) {
-        // running a HEAD request on the resource to only gather this info once for all file parsers
-        try {
-            mimeType = await getFileMimeType(fileSource)
-            log.debug('[FileParsing] got MIME type', mimeType, 'for file', fileSource)
-        } catch (err) {
-            log.debug(
-                '[File parsing][parseLayerFromFile] could not have a HEAD response on',
-                fileSource,
-                'this file might require service-proxy'
-            )
-        }
-    }
-    // if we could read the MIME type of the file, we parse the file disabling any service-proxy request
-    if (mimeType) {
-        try {
-            return await parseAll(
-                {
-                    fileSource,
-                    currentProjection,
-                },
-                {
-                    ...options,
-                    mimeType,
-                    allowServiceProxy: false,
-                }
-            )
-        } catch (error) {
-            log.error(
-                '[FileParser][parseLayerFromFile] Could not parse file through mime type detection',
-                error
-            )
-            throw error
-        }
-    }
-    // if MIME type detection was unsuccessful, we attempt another pass of parsing, this time using service-proxy to ge the file's content
-    if (!isLocalFile) {
-        log.debug(
-            '[FileParser][parseLayerFromFile] MIME type detection failed, going through service-proxy'
-        )
+        const { mimeType, loadedContent } = await getOnlineFileContent(fileSource)
         return await parseAll(
             {
                 fileSource,
@@ -96,8 +111,8 @@ export async function parseLayerFromFile(fileSource, currentProjection, options 
             },
             {
                 ...options,
-                // only firing service-proxy request once here, the same response will be used by all parsers
-                loadedContent: await getContentThroughServiceProxy(fileSource),
+                mimeType,
+                loadedContent,
                 allowServiceProxy: false,
             }
         )

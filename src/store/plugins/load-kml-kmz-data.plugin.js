@@ -3,12 +3,13 @@
  * it here
  */
 
-import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { getFileMimeType, loadKmlMetadata } from '@/api/files.api'
+import { loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { getOnlineFileContent } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-kml-kmz-data.plugin' }
@@ -46,36 +47,18 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
 
-    let mimeType = null
-    try {
-        mimeType = await getFileMimeType(kmlLayer.kmlFileUrl)
-    } catch (error) {
-        log.debug(
-            '[load-kml-kmz-data] could not get MIME type for KML',
-            kmlLayer.kmlFileUrl,
-            'trying getting data through service-proxy'
-        )
-    }
-    let loadedContent = null
-    if (!mimeType) {
-        try {
-            loadedContent = await getContentThroughServiceProxy(kmlLayer.kmlFileUrl)
-        } catch (error) {
-            log.error(
-                '[load-kml-kmz-data] could not get content for KML',
-                kmlLayer.kmlFileUrl,
-                'through service-proxy'
-            )
-            store.dispatch('addLayerError', {
-                layerId: kmlLayer.id,
-                isExternal: kmlLayer.isExternal,
-                baseUrl: kmlLayer.baseUrl,
-                error: generateErrorMessageFromErrorType(error),
-                ...dispatcher,
-            })
-            // stopping there, there won't be anything to do with this file (no MIME type, no data through service-proxy)
-            return
-        }
+    const { mimeType, loadedContent } = await getOnlineFileContent(kmlLayer.kmlFileUrl)
+    if (!mimeType && !loadedContent) {
+        log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
+        store.dispatch('addLayerError', {
+            layerId: kmlLayer.id,
+            isExternal: kmlLayer.isExternal,
+            baseUrl: kmlLayer.baseUrl,
+            error: new ErrorMessage('loading_error_network_failure'),
+            ...dispatcher,
+        })
+        // stopping there, there won't be anything to do with this file
+        return
     }
     try {
         const kmz = await kmzParser.parse(

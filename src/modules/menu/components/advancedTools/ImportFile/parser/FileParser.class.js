@@ -1,20 +1,16 @@
 import axios from 'axios'
 
 import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { getFileFromUrl } from '@/api/files.api'
 import log from '@/utils/logging'
 
 /**
  * @function
- * @typedef ValidateProxifyContent
+ * @typedef ValidateFileContent
  *
- *   Function receiving the content from service-proxy, and assessing if it is a match for this parser
+ *   Function receiving the content from a file, and assessing if it is a match for this parser
  * @param {ArrayBuffer} content
  * @returns {Boolean} Content is a match for this parser, or not
- */
-
-/**
- * @typedef ServiceProxyConfiguration
- * @property {ValidateProxifyContent} validateContent
  */
 
 /**
@@ -33,22 +29,27 @@ export default class FileParser {
      * @param {String[]} config.fileContentTypes Which MIME types are typically associated with this
      *   file type. Will be used with one HTTP HEAD request on the file URL (if online file) to
      *   assert if this parser is the valid candidate for the file.
-     * @param {ServiceProxyConfiguration} [config.serviceProxyConfiguration=null] If set,
-     *   service-proxy will be used to get the file content if first request on the URL failed.
-     *   Content of the proxifyed request will be checked against the ValidateProxifyContent before
-     *   going through the parsing. Default is `null`
+     * @param {ValidateFileContent} [config.validateFileContent=null] Function receiving the content
+     *   from a file (as ArrayBuffer), and assessing if it is a match for this parser. Default is
+     *   `null`
+     * @param {Boolean} [config.readFileAsText=false] Will load file as text if `true`, if `false`
+     *   will use ArrayBuffer instead. Only set it to true when you know the file type is supposed
+     *   to be read in its entirety (KML/GPX) but never set it to true for format that can get very
+     *   large (COG) or aren't fit for text reader (zip files). Default is `false`
      */
     constructor(config = {}) {
         const {
             fileTypeLittleEndianSignature = [],
             fileExtensions = [],
             fileContentTypes = [],
-            serviceProxyConfiguration = null,
+            validateFileContent = null,
+            readFileAsText = false,
         } = config
         this.fileTypeLittleEndianSignature = fileTypeLittleEndianSignature
         this.fileExtensions = fileExtensions
         this.fileContentTypes = fileContentTypes
-        this.serviceProxyConfiguration = serviceProxyConfiguration
+        this.validateFileContent = validateFileContent
+        this.readFileAsText = readFileAsText
     }
 
     /**
@@ -86,7 +87,6 @@ export default class FileParser {
     }
 
     /**
-     * @abstract
      * @param {File} file
      * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file
      *   against the current projection (and raise OutOfBoundError in case no mutual data is
@@ -94,20 +94,25 @@ export default class FileParser {
      * @returns {Promise<AbstractLayer>}
      */
     async parseLocalFile(file, currentProjection) {
-        throw new Error(`Parser not yet implemented ${file} ${currentProjection}`)
+        if (this.readFileAsText) {
+            return this.parseFileContent(
+                new TextDecoder('utf-8').decode(await file.arrayBuffer()),
+                file.name,
+                currentProjection
+            )
+        }
+        return this.parseFileContent(await file.arrayBuffer(), file.name, currentProjection)
     }
 
     /**
      * @param {ArrayBuffer} fileArrayBuffer
      * @returns {Boolean}
      */
-    validateContentThroughServiceProxy(fileArrayBuffer) {
-        if (!this.serviceProxyConfiguration) {
+    isFileContentValid(fileArrayBuffer) {
+        if (!this.validateFileContent) {
             return false
         }
-        // service proxy will stream the response, so we will only receive Content-Type application/binary
-        // we need to check the content of what is returned
-        return this.serviceProxyConfiguration.validateContent(fileArrayBuffer)
+        return this.validateFileContent(fileArrayBuffer)
     }
 
     /**
@@ -129,12 +134,12 @@ export default class FileParser {
     async isOnlineFileParsingPossible(fileUrl, options = {}) {
         const { allowServiceProxy = false, mimeType = null, loadedContent = null } = options
 
-        if (mimeType) {
+        if (mimeType && !loadedContent) {
             return this.fileContentTypes.includes(mimeType)
         }
 
         if (loadedContent) {
-            return this.validateContentThroughServiceProxy(loadedContent)
+            return this.isFileContentValid(loadedContent)
         }
 
         log.debug(
@@ -153,9 +158,7 @@ export default class FileParser {
                     `[FileParser][${this.constructor.name}] could not access resource through HEAD request, trying through service-proxy`,
                     fileUrl
                 )
-                return this.validateContentThroughServiceProxy(
-                    await getContentThroughServiceProxy(fileUrl)
-                )
+                return this.isFileContentValid(await getContentThroughServiceProxy(fileUrl))
             } else {
                 log.debug(
                     `[FileParser][${this.constructor.name}] HEAD request failed, but service-proxy is not allowed for file, could not parse`,
@@ -169,6 +172,16 @@ export default class FileParser {
 
     /**
      * @abstract
+     * @param {String | ArrayBuffer} fileContent
+     * @param {String} fileSource
+     * @param {CoordinateSystem} currentProjection
+     * @returns {Promise<AbstractLayer>}
+     */
+    async parseFileContent(fileContent, fileSource, currentProjection) {
+        throw new Error(`Not yet implemented ${fileContent} ${fileSource} ${currentProjection}`)
+    }
+
+    /**
      * @param {String} fileUrl
      * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file
      *   against the current projection (and raise OutOfBoundError in case no mutual data is
@@ -178,8 +191,31 @@ export default class FileParser {
      *   online file
      * @returns {Promise<AbstractLayer>}
      */
-    async parseUrl(fileUrl, currentProjection, options = {}) {
-        throw new Error(`Parser not yet implemented ${fileUrl} ${currentProjection} ${options}`)
+    async parseUrl(fileUrl, currentProjection, options) {
+        const { loadedContent = null } = options
+        if (loadedContent) {
+            log.debug(
+                `[FileParser][${this.constructor.name}] preloaded content detected, won't create new requests`
+            )
+            if (this.readFileAsText && loadedContent instanceof ArrayBuffer) {
+                log.debug(
+                    `[FileParser][${this.constructor.name}] transforming array buffer content to text`
+                )
+                return await this.parseFileContent(
+                    new TextDecoder('utf-8').decode(loadedContent),
+                    fileUrl,
+                    currentProjection
+                )
+            }
+            return await this.parseFileContent(loadedContent, fileUrl, currentProjection)
+        }
+        // no preloaded content, we load the file itself
+        const fileContent = await getFileFromUrl(fileUrl, {
+            ...options,
+            // Reading zip archive as text is asking for trouble therefore we use ArrayBuffer (for KMZ)
+            responseType: this.readFileAsText ? 'text' : 'arraybuffer',
+        })
+        return await this.parseFileContent(fileContent.data, fileUrl, currentProjection)
     }
 
     /**

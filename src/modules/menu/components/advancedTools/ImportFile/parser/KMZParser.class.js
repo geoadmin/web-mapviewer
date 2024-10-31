@@ -1,4 +1,3 @@
-import { getFileFromUrl } from '@/api/files.api'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import { unzipKmz } from '@/utils/kmlUtils'
@@ -30,9 +29,7 @@ export default class KMZParser extends FileParser {
             fileContentTypes: ['application/vnd.google-earth.kmz'],
             // ZIP file signature
             fileTypeLittleEndianSignature: [0x50, 0x4b, 0x03, 0x04],
-            serviceProxyConfiguration: {
-                validateContent: isZipContent,
-            },
+            validateFileContent: isZipContent,
         })
     }
 
@@ -42,21 +39,8 @@ export default class KMZParser extends FileParser {
      * @param {CoordinateSystem} currentProjection
      * @returns {Promise<KMLLayer>}
      */
-    async parseKmzLayer(data, fileSource, currentProjection) {
+    async parseFileContent(data, fileSource, currentProjection) {
         const kmz = await unzipKmz(data, fileSource)
-        return kmlParser.parseKmlLayer(kmz.kml, kmz.name, currentProjection, kmz.files)
-    }
-
-    async parseLocalFile(file, currentProjection) {
-        return await this.parseKmzLayer(await file.arrayBuffer(), file.name, currentProjection)
-    }
-
-    async parseUrl(fileUrl, currentProjection, options) {
-        const fileContent = await getFileFromUrl(fileUrl, {
-            ...options,
-            // Reading zip archive as text is asking for trouble therefore we use ArrayBuffer
-            responseType: 'arraybuffer',
-        })
-        return await this.parseKmzLayer(fileContent.data, fileUrl, currentProjection)
+        return kmlParser.parseFileContent(kmz.kml, kmz.name, currentProjection, kmz.files)
     }
 }

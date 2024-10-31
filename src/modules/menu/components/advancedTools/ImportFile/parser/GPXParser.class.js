@@ -1,6 +1,5 @@
 import GPX from 'ol/format/GPX'
 
-import { getFileFromUrl } from '@/api/files.api'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
@@ -31,13 +30,12 @@ export default class GPXParser extends FileParser {
         super({
             fileExtensions: ['.gpx'],
             fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
-            serviceProxyConfiguration: {
-                validateContent: isGpx,
-            },
+            validateFileContent: isGpx,
+            readFileAsText: true,
         })
     }
 
-    parseGpxLayer(fileContent, fileSource, currentProjection) {
+    async parseFileContent(fileContent, fileSource, currentProjection) {
         if (!isGpx(fileContent)) {
             throw new InvalidFileContentError()
         }
@@ -61,18 +59,5 @@ export default class GPXParser extends FileParser {
             gpxMetadata: gpxMetadataParser.readMetadata(fileContent),
             extent: extentInCurrentProjection,
         })
-    }
-
-    async parseLocalFile(file, currentProjection) {
-        return this.parseGpxLayer(
-            new TextDecoder('utf-8').decode(await file.arrayBuffer()),
-            file.name,
-            currentProjection
-        )
-    }
-
-    async parseUrl(fileUrl, currentProjection, options) {
-        const fileContent = await getFileFromUrl(fileUrl, options)
-        return this.parseGpxLayer(fileContent.data, fileUrl, currentProjection)
     }
 }

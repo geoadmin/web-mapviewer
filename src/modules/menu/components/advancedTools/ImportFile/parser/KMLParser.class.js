@@ -1,4 +1,3 @@
-import { getFileFromUrl } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
@@ -33,21 +32,20 @@ export class KMLParser extends FileParser {
                 'application/xml',
                 'text/xml',
             ],
-            serviceProxyConfiguration: {
-                validateContent: isKml,
-            },
+            validateFileContent: isKml,
+            readFileAsText: true,
         })
     }
 
     /**
-     * @param {String} fileContent
+     * @param {String | ArrayBuffer} fileContent
      * @param fileSource
      * @param currentProjection
      * @param {Map<string, ArrayBuffer>} [linkFiles] Used in the context of a KMZ to carry the
      *   embedded files with the layer
-     * @returns {KMLLayer}
+     * @returns {Promise<KMLLayer>}
      */
-    parseKmlLayer(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
+    async parseFileContent(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
         if (!isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
@@ -73,18 +71,5 @@ export class KMLParser extends FileParser {
             extentProjection: currentProjection,
             linkFiles,
         })
-    }
-
-    async parseLocalFile(file, currentProjection) {
-        return this.parseKmlLayer(
-            new TextDecoder('utf-8').decode(await file.arrayBuffer()),
-            file.name,
-            currentProjection
-        )
-    }
-
-    async parseUrl(fileUrl, currentProjection, options) {
-        const fileContent = await getFileFromUrl(fileUrl, options)
-        return this.parseKmlLayer(fileContent.data, fileUrl, currentProjection)
     }
 }
