@@ -39,8 +39,10 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const drawingName = computed(() => store.state.drawing.name)
-const editableDrawingName = ref(drawingName.value)
+const drawingName = computed({
+    get: () => store.state.drawing.name,
+    set: (value) => debounceSaveDrawingName(value),
+})
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
@@ -79,13 +81,6 @@ onMounted(() => {
     }
 })
 
-watch(drawingName, (newName) => {
-    editableDrawingName.value = newName
-})
-watch(editableDrawingName, () => {
-    debounceSaveDrawingName()
-})
-
 watch(activeKmlLayer, () => {
     if (activeKmlLayer.value) {
         // no need for the message telling the user the drawing is empty, and he can't edit the drawing name
@@ -105,18 +100,15 @@ function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
 
-const debounceSaveDrawingName = debounce(async () => {
-    // sanitizing to avoid any XSS vector
-    editableDrawingName.value = DOMPurify.sanitize(editableDrawingName.value, {
-        USE_PROFILES: { xml: true },
-    }).trim()
-    if (editableDrawingName.value !== drawingName.value) {
-        await store.dispatch('setDrawingName', {
-            name: editableDrawingName.value,
-            ...dispatcher,
-        })
-        debounceSaveDrawing()
-    }
+const debounceSaveDrawingName = debounce(async (newName) => {
+    await store.dispatch('setDrawingName', {
+        // sanitizing to avoid any XSS vector
+        name: DOMPurify.sanitize(newName, {
+            USE_PROFILES: { xml: true },
+        }).trim(),
+        ...dispatcher,
+    })
+    debounceSaveDrawing()
 }, 200)
 </script>
 
@@ -140,7 +132,7 @@ const debounceSaveDrawingName = debounce(async () => {
                     </label>
                     <input
                         id="drawing-name"
-                        v-model="editableDrawingName"
+                        v-model="drawingName"
                         type="text"
                         class="form-control"
                         data-cy="drawing-toolbox-file-name-input"
