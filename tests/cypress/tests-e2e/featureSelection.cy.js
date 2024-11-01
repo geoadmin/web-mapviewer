@@ -250,16 +250,31 @@ describe('Testing the feature selection', () => {
         })
     })
     context('Feature identification on the map', () => {
-        function drawRectangleOnMap(pixelsFromCenter, position = 'center') {
-            cy.get('@olMap').realMouseDown({ ctrlKey: true, position: 'center' })
-            cy.get('@olMap').realMouseMove(pixelsFromCenter.x, pixelsFromCenter.y, {
-                ctrlKey: true,
-                position,
-            })
+        function drawRectangleOnMap(pixelsAroundCenter) {
             cy.get('@olMap').then((olMapElement) => {
+                const elementSize = {
+                    width: olMapElement.width(),
+                    height: olMapElement.height(),
+                }
+                cy.get('@olMap').realMouseDown({
+                    x: elementSize.width / 2.0 - pixelsAroundCenter.x / 2.0,
+                    y: elementSize.height / 2.0 - pixelsAroundCenter.y / 2.0,
+                    position: 'center',
+                    ctrlKey: true,
+                })
+                cy.get('@olMap').realMouseMove(
+                    pixelsAroundCenter.x / 2.0,
+                    pixelsAroundCenter.y / 2.0,
+                    {
+                        x: elementSize.width / 2.0 - pixelsAroundCenter.x / 2.0,
+                        y: elementSize.height / 2.0 - pixelsAroundCenter.y / 2.0,
+                        position: 'center',
+                        ctrlKey: true,
+                    }
+                )
                 cy.get('@olMap').realMouseUp({
-                    x: olMapElement.width() / 2.0 + pixelsFromCenter.x,
-                    y: olMapElement.height() / 2.0 + pixelsFromCenter.y,
+                    x: elementSize.width / 2.0 + pixelsAroundCenter.x / 2.0,
+                    y: elementSize.height / 2.0 + pixelsAroundCenter.y / 2.0,
                     position: 'center',
                     ctrlKey: true,
                 })
@@ -306,7 +321,7 @@ describe('Testing the feature selection', () => {
             )
             drawRectangleOnMap({
                 x: 100,
-                y: -100,
+                y: 100,
             })
 
             cy.log('making sure 51 items are requested when selecting a dragbox on the map') // including the one from the kml file
@@ -383,7 +398,7 @@ describe('Testing the feature selection', () => {
 
             drawRectangleOnMap({
                 x: 30,
-                y: -80,
+                y: 100,
             })
             cy.wait(['@identifySingleFeature', '@htmlPopup'])
 
@@ -399,7 +414,7 @@ describe('Testing the feature selection', () => {
             }).as('emptyIdentify')
             drawRectangleOnMap({
                 x: 100,
-                y: -100,
+                y: 100,
             })
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
