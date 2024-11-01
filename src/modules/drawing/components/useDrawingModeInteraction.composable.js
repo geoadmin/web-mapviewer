@@ -200,15 +200,29 @@ export default function useDrawingModeInteraction({
                 // A point is added or removed, updating sketch points counter
                 counterLinePolyPoints.value = lineCoords.length
             } else if (lineCoords.length > 1) {
+                const center = olMap.getView().getCenter()
+                const extent = olMap.getView().calculateExtent(olMap.getSize())
+                const boxSize = Math.min(extent[2] - extent[0], extent[3] - extent[1]) / 4
+
+                const boxExtent = [
+                    center[0] - boxSize,
+                    center[1] - boxSize,
+                    center[0] + boxSize,
+                    center[1] + boxSize
+                ]
+
                 const firstPoint = lineCoords[0]
                 const lastPoint = lineCoords[lineCoords.length - 1]
                 const sketchPoint = lineCoords[lineCoords.length - 2]
 
-                // Checks is snapped to first point of geom
+                // Checks if snapped to first point of geom within the box
                 const isSnapOnFirstPoint =
-                    lastPoint[0] === firstPoint[0] && lastPoint[1] === firstPoint[1]
+                    lastPoint[0] >= boxExtent[0] && lastPoint[0] <= boxExtent[2] &&
+                    lastPoint[1] >= boxExtent[1] && lastPoint[1] <= boxExtent[3] &&
+                    firstPoint[0] >= boxExtent[0] && firstPoint[0] <= boxExtent[2] &&
+                    firstPoint[1] >= boxExtent[1] && firstPoint[1] <= boxExtent[3]
 
-                // Checks is snapped to last point of geom
+                // Checks if snapped to last point of geom
                 const isSnapOnLastPoint =
                     lastPoint[0] === sketchPoint[0] && lastPoint[1] === sketchPoint[1]
 
