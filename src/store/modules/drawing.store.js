@@ -63,6 +63,12 @@ export default {
          * @type {String | null}
          */
         temporaryKmlId: null,
+        /**
+         * The name of the drawing, or null if no drawing is currently edited.
+         *
+         * @type {String | null}
+         */
+        name: null,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -118,6 +124,9 @@ export default {
                 dispatcher,
             })
         },
+        setDrawingName({ commit }, { name, dispatcher }) {
+            commit('setDrawingName', { name, dispatcher })
+        },
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
@@ -131,6 +140,9 @@ export default {
             state.drawingOverlay.title = title
             state.online = online
             state.temporaryKmlId = kmlId
+        },
+        setDrawingName(state, { name }) {
+            state.name = name
         },
     },
 }

@@ -7,14 +7,14 @@ import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
+import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip.js'
-
-import DrawingHeader from './DrawingHeader.vue'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
@@ -39,7 +39,8 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const drawingName = ref(activeKmlLayer.value?.name || i18n.t('draw_layer_label'))
+const drawingName = computed(() => store.state.drawing.name)
+const editableDrawingName = ref(drawingName.value)
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
@@ -64,7 +65,7 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('clearDrawingFeatures', dispatcher)
         store.dispatch('clearAllSelectedFeatures', dispatcher)
         drawingLayer.getSource().clear()
-        debounceSaveDrawing({ drawingName: drawingName.value })
+        debounceSaveDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     }
 }
@@ -78,15 +79,11 @@ onMounted(() => {
     }
 })
 
-watch(drawingName, () => {
-    sanitizeDrawingName()
-    debounceSaveDrawing({
-        // Lowering the risk of the user changing the name and leaving the drawing module without the name being saved.
-        // It is terrible design that this can occur, but moving the drawing name management other places raises the complexity tenfold
-        // so that is a trade-off we can live with.
-        debounceTime: 500,
-        drawingName: drawingName.value.trim(),
-    })
+watch(drawingName, (newName) => {
+    editableDrawingName.value = newName
+})
+watch(editableDrawingName, () => {
+    debounceSaveDrawingName()
 })
 
 watch(activeKmlLayer, () => {
@@ -96,15 +93,10 @@ watch(activeKmlLayer, () => {
     }
 })
 
-function sanitizeDrawingName() {
-    drawingName.value = DOMPurify.sanitize(drawingName.value, {
-        USE_PROFILES: { xml: true },
-    })
-}
-
 function closeDrawing() {
     emits('closeDrawing')
 }
+
 function selectDrawingMode(drawingMode) {
     store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
 }
@@ -112,6 +104,20 @@ function selectDrawingMode(drawingMode) {
 function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
+
+const debounceSaveDrawingName = debounce(async () => {
+    // sanitizing to avoid any XSS vector
+    editableDrawingName.value = DOMPurify.sanitize(editableDrawingName.value, {
+        USE_PROFILES: { xml: true },
+    }).trim()
+    if (editableDrawingName.value !== drawingName.value) {
+        await store.dispatch('setDrawingName', {
+            name: editableDrawingName.value,
+            ...dispatcher,
+        })
+        debounceSaveDrawing()
+    }
+}, 200)
 </script>
 
 <template>
@@ -134,7 +140,7 @@ function onDeleteLastPoint() {
                     </label>
                     <input
                         id="drawing-name"
-                        v-model="drawingName"
+                        v-model="editableDrawingName"
                         type="text"
                         class="form-control"
                         data-cy="drawing-toolbox-file-name-input"
