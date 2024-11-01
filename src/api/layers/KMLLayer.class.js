@@ -81,6 +81,12 @@ export default class KMLLayer extends AbstractLayer {
         this.kmlMetadata = kmlMetadata
         if (kmlData) {
             this.name = parseKmlName(kmlData)
+            if (!this.name || this.name === '') {
+                this.name = isLocalFile
+                    ? kmlFileUrl
+                    : // only keeping what is after the last slash
+                      kmlFileUrl.split('/').pop()
+            }
             this.isLoading = false
         } else {
             this.isLoading = true

@@ -2,6 +2,7 @@
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -22,6 +23,7 @@ const olMap = inject('olMap')
 const drawingInteractions = ref(null)
 const isNewDrawing = ref(true)
 
+const i18n = useI18n()
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 const projection = computed(() => store.state.position.projection)
@@ -130,6 +132,11 @@ onMounted(() => {
     if (hasKml.value) {
         isNewDrawing.value = false
         addKmlToDrawing()
+    } else {
+        store.dispatch('setDrawingName', {
+            name: i18n.t('draw_layer_label'),
+            ...dispatcher,
+        })
     }
     olMap.addLayer(drawingLayer)
 
