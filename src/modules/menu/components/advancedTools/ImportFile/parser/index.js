@@ -46,9 +46,14 @@ async function parseAll(config, options) {
  * mimeType and loadedContent (no error will be thrown)
  *
  * @param {String} fileUrl
- * @returns {Promise<{ mimeType: [String, null]; loadedContent: [null, String, ArrayBuffer] }>}
+ * @param {Object} [options]
+ * @param {Boolean} [options.allowServiceProxy=false] Flag telling the function if it can use
+ *   service-proxy in case a HEAD feature failed (potential CORS issue) on the file URL. Only use it
+ *   for file format that are meant for non-technical users (KML/GPX,etc...). Default is `false`
+ * @returns {Promise<{ mimeType: [String, null]; loadedContent: [null, ArrayBuffer] }>}
  */
-export async function getOnlineFileContent(fileUrl) {
+export async function getOnlineFileContent(fileUrl, options) {
+    const { allowServiceProxy = false } = options
     let mimeType = null
     let loadedContent = null
     try {
@@ -62,7 +67,7 @@ export async function getOnlineFileContent(fileUrl) {
             error
         )
     }
-    if (!mimeType) {
+    if (!mimeType && allowServiceProxy) {
         try {
             loadedContent = await getContentThroughServiceProxy(fileUrl)
         } catch (error) {
@@ -76,7 +81,10 @@ export async function getOnlineFileContent(fileUrl) {
     }
     if (!loadedContent) {
         try {
-            loadedContent = await getFileFromUrl(fileUrl)
+            const fileContentRequest = await getFileFromUrl(fileUrl, {
+                responseType: 'arraybuffer',
+            })
+            loadedContent = fileContentRequest.data
         } catch (error) {
             log.error(
                 '[FileParser][getOnlineFileContent] could not get content for file',
@@ -103,8 +111,11 @@ export async function getOnlineFileContent(fileUrl) {
 export async function parseLayerFromFile(fileSource, currentProjection, options = {}) {
     const isLocalFile = fileSource instanceof File
     if (!isLocalFile) {
-        const { mimeType, loadedContent } = await getOnlineFileContent(fileSource)
-        return await parseAll(
+        // first pass without using service-proxy
+        const { mimeType, loadedContent } = await getOnlineFileContent(fileSource, {
+            allowServiceProxy: false,
+        })
+        const resultsWithoutServiceProxy = await parseAll(
             {
                 fileSource,
                 currentProjection,
@@ -116,6 +127,32 @@ export async function parseLayerFromFile(fileSource, currentProjection, options 
                 allowServiceProxy: false,
             }
         )
+        if (resultsWithoutServiceProxy) {
+            return resultsWithoutServiceProxy
+        }
+        // getting content through service-proxy and running another pass of parsing
+        try {
+            const proxyfiedContent = await getContentThroughServiceProxy(fileSource)
+            return await parseAll(
+                {
+                    fileSource,
+                    currentProjection,
+                },
+                {
+                    ...options,
+                    mimeType,
+                    loadedContent: proxyfiedContent,
+                    allowServiceProxy: false,
+                }
+            )
+        } catch (error) {
+            log.error(
+                '[FileParser][parseLayerFromFile] could not get content through service-proxy for file',
+                fileSource,
+                error
+            )
+            throw error
+        }
     }
     return await parseAll({
         fileSource,

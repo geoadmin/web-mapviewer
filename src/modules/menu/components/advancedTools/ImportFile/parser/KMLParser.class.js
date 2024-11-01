@@ -10,14 +10,11 @@ import { getKmlExtent } from '@/utils/kmlUtils'
 /**
  * Checks if file is KMLs
  *
- * @param {ArrayBuffer | String} fileContent
+ * @param {ArrayBuffer} fileContent
  * @returns {boolean}
  */
 export function isKml(fileContent) {
-    let stringValue = fileContent
-    if (fileContent instanceof ArrayBuffer) {
-        stringValue = new TextDecoder('utf-8').decode(fileContent)
-    }
+    let stringValue = new TextDecoder('utf-8').decode(fileContent)
     return /^\s*(<\?xml\b[^>]*\?>)?\s*(<!--(.*?)-->\s*)*<(kml:)?kml\b[^>]*>[\s\S.]*<\/(kml:)?kml\s*>/g.test(
         stringValue
     )
@@ -33,12 +30,11 @@ export class KMLParser extends FileParser {
                 'text/xml',
             ],
             validateFileContent: isKml,
-            readFileAsText: true,
         })
     }
 
     /**
-     * @param {String | ArrayBuffer} fileContent
+     * @param {ArrayBuffer} fileContent
      * @param fileSource
      * @param currentProjection
      * @param {Map<string, ArrayBuffer>} [linkFiles] Used in the context of a KMZ to carry the
@@ -49,7 +45,8 @@ export class KMLParser extends FileParser {
         if (!isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
-        const extent = getKmlExtent(fileContent)
+        const kmlAsText = new TextDecoder('utf-8').decode(fileContent)
+        const extent = getKmlExtent(kmlAsText)
         if (!extent) {
             throw new EmptyFileContentError()
         }
@@ -66,7 +63,7 @@ export class KMLParser extends FileParser {
             visible: true,
             opacity: 1.0,
             adminId: null,
-            kmlData: fileContent,
+            kmlData: kmlAsText,
             extent: extentInCurrentProjection,
             extentProjection: currentProjection,
             linkFiles,

@@ -565,7 +565,7 @@ export class KMZError extends Error {}
  *
  * @class
  * @property {string} name Name of the KMZ archive
- * @property {string} kml Content of the KML file within the KMZ archive (unzipped)
+ * @property {ArrayBuffer} kml Content of the KML file within the KMZ archive (unzipped)
  * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
  *   their unzipped content as ArrayBuffer
  */
@@ -583,7 +583,7 @@ export class KMZObject {
  *
  * See https://developers.google.com/kml/documentation/kmzarchives
  *
- * @param {String | ArrayBuffer} kmzContent KMZ archive content
+ * @param {ArrayBuffer} kmzContent KMZ archive content
  * @param {string} kmzFileName KMZ archive name
  * @returns {KMZObject} Returns a KMZ unzip object
  */
@@ -599,7 +599,7 @@ export async function unzipKmz(kmzContent, kmzFileName) {
 
     try {
         // Valid KMZ archive must have 1 KML file with .kml extension
-        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('text')
+        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('arraybuffer')
     } catch (error) {
         log.error(`Failed to get KML file from KMZ archive ${kmzFileName}: ${error}`)
         throw new KMZError(`Failed to get KML file from KMZ archive ${kmzFileName}`)

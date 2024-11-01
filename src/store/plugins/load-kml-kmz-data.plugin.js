@@ -47,7 +47,9 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
 
-    const { mimeType, loadedContent } = await getOnlineFileContent(kmlLayer.kmlFileUrl)
+    const { mimeType, loadedContent } = await getOnlineFileContent(kmlLayer.kmlFileUrl, {
+        responseType: 'arraybuffer',
+    })
     if (!mimeType && !loadedContent) {
         log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
         store.dispatch('addLayerError', {

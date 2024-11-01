@@ -12,14 +12,11 @@ import { getGpxExtent } from '@/utils/gpxUtils'
 /**
  * Checks if file is GPX
  *
- * @param {ArrayBuffer | String} fileContent
+ * @param {ArrayBuffer} fileContent
  * @returns {boolean}
  */
 export function isGpx(fileContent) {
-    let stringValue = fileContent
-    if (fileContent instanceof ArrayBuffer) {
-        stringValue = new TextDecoder('utf-8').decode(fileContent)
-    }
+    const stringValue = new TextDecoder('utf-8').decode(fileContent)
     return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
 }
 
@@ -31,7 +28,6 @@ export default class GPXParser extends FileParser {
             fileExtensions: ['.gpx'],
             fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
             validateFileContent: isGpx,
-            readFileAsText: true,
         })
     }
 
@@ -39,7 +35,8 @@ export default class GPXParser extends FileParser {
         if (!isGpx(fileContent)) {
             throw new InvalidFileContentError()
         }
-        const extent = getGpxExtent(fileContent)
+        const gpxAsText = new TextDecoder('utf-8').decode(fileContent)
+        const extent = getGpxExtent(gpxAsText)
         if (!extent) {
             throw new EmptyFileContentError()
         }
@@ -55,8 +52,8 @@ export default class GPXParser extends FileParser {
             gpxFileUrl: fileSource,
             visible: true,
             opacity: 1.0,
-            gpxData: fileContent,
-            gpxMetadata: gpxMetadataParser.readMetadata(fileContent),
+            gpxData: gpxAsText,
+            gpxMetadata: gpxMetadataParser.readMetadata(gpxAsText),
             extent: extentInCurrentProjection,
         })
     }

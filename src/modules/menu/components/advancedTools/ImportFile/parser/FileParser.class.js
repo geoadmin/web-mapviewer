@@ -32,10 +32,6 @@ export default class FileParser {
      * @param {ValidateFileContent} [config.validateFileContent=null] Function receiving the content
      *   from a file (as ArrayBuffer), and assessing if it is a match for this parser. Default is
      *   `null`
-     * @param {Boolean} [config.readFileAsText=false] Will load file as text if `true`, if `false`
-     *   will use ArrayBuffer instead. Only set it to true when you know the file type is supposed
-     *   to be read in its entirety (KML/GPX) but never set it to true for format that can get very
-     *   large (COG) or aren't fit for text reader (zip files). Default is `false`
      */
     constructor(config = {}) {
         const {
@@ -43,13 +39,11 @@ export default class FileParser {
             fileExtensions = [],
             fileContentTypes = [],
             validateFileContent = null,
-            readFileAsText = false,
         } = config
         this.fileTypeLittleEndianSignature = fileTypeLittleEndianSignature
         this.fileExtensions = fileExtensions
         this.fileContentTypes = fileContentTypes
         this.validateFileContent = validateFileContent
-        this.readFileAsText = readFileAsText
     }
 
     /**
@@ -94,13 +88,6 @@ export default class FileParser {
      * @returns {Promise<AbstractLayer>}
      */
     async parseLocalFile(file, currentProjection) {
-        if (this.readFileAsText) {
-            return this.parseFileContent(
-                new TextDecoder('utf-8').decode(await file.arrayBuffer()),
-                file.name,
-                currentProjection
-            )
-        }
         return this.parseFileContent(await file.arrayBuffer(), file.name, currentProjection)
     }
 
@@ -172,7 +159,7 @@ export default class FileParser {
 
     /**
      * @abstract
-     * @param {String | ArrayBuffer} fileContent
+     * @param {ArrayBuffer} fileContent
      * @param {String} fileSource
      * @param {CoordinateSystem} currentProjection
      * @returns {Promise<AbstractLayer>}
@@ -191,29 +178,19 @@ export default class FileParser {
      *   online file
      * @returns {Promise<AbstractLayer>}
      */
-    async parseUrl(fileUrl, currentProjection, options) {
+    async parseUrl(fileUrl, currentProjection, options = {}) {
         const { loadedContent = null } = options
         if (loadedContent) {
             log.debug(
                 `[FileParser][${this.constructor.name}] preloaded content detected, won't create new requests`
             )
-            if (this.readFileAsText && loadedContent instanceof ArrayBuffer) {
-                log.debug(
-                    `[FileParser][${this.constructor.name}] transforming array buffer content to text`
-                )
-                return await this.parseFileContent(
-                    new TextDecoder('utf-8').decode(loadedContent),
-                    fileUrl,
-                    currentProjection
-                )
-            }
             return await this.parseFileContent(loadedContent, fileUrl, currentProjection)
         }
         // no preloaded content, we load the file itself
         const fileContent = await getFileFromUrl(fileUrl, {
             ...options,
             // Reading zip archive as text is asking for trouble therefore we use ArrayBuffer (for KMZ)
-            responseType: this.readFileAsText ? 'text' : 'arraybuffer',
+            responseType: 'arraybuffer',
         })
         return await this.parseFileContent(fileContent.data, fileUrl, currentProjection)
     }
