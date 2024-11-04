@@ -21,8 +21,6 @@ const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
 const showFeedbackPopup = computed(() => {
-    console.error(store.state.ui.errors)
-    console.error(store.state.ui.warnings)
     return store.state.ui.errors.size + store.state.ui.warnings.size > 0
 })
 

@@ -24,6 +24,10 @@ const store = useStore()
 const showBody = ref(true)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
+const warningCount = computed(() =>
+    store.state.ui.warnings.size > 1 ? `(${store.state.ui.warnings.size})` : ''
+)
+
 const i18n = useI18n()
 
 const emit = defineEmits(['close'])
@@ -40,7 +44,9 @@ const emit = defineEmits(['close'])
             class="card-header d-flex align-items-center justify-content-sm-end"
             data-cy="window-header"
         >
-            <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
+            <span v-if="title" class="me-auto text-truncate"
+                >{{ i18n.t(title) }}{{ warningCount }}</span
+            >
             <span v-else class="me-auto" />
             <button class="btn btn-sm btn-light me-2" @click.stop="showBody = !showBody">
                 <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
