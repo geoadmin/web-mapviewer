@@ -283,7 +283,8 @@ describe('Testing the feature selection', () => {
 
         it('can select an area to identify features inside it', () => {
             // Import KML file
-            const localKmlFile = 'import-tool/external-kml-file.kml'
+            const fileName = 'external-kml-file.kml'
+            const localKmlFile = `import-tool/${fileName}`
             cy.goToMapView(
                 {
                     layers: 'test.wms.layer',
@@ -305,15 +306,18 @@ describe('Testing the feature selection', () => {
 
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
-            cy.get('[data-cy="file-input-text"]').should(
-                'have.value',
-                'external-kml-file.kml, 0.368 kb'
-            )
+            cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').realClick()
             cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
             cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
 
             cy.closeMenuIfMobile()
+
+            cy.checkOlLayer([
+                'test.background.layer2',
+                { id: 'test.wms.layer', opacity: 0.75 },
+                fileName,
+            ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.log(
