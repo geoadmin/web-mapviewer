@@ -395,7 +395,7 @@ export default {
                     (error) =>
                         // we only add the errors that are not existing within the store
                         ![...state.errors].some((otherError) => {
-                            error.isEquals(otherError)
+                            return error.isEquals(otherError)
                         })
                 )
                 if (errors.length > 0) {
@@ -427,7 +427,7 @@ export default {
                     (warning) =>
                         // we only add the warnings that are not existing within the store
                         ![...state.warnings].some((otherWarning) => {
-                            warning.isEquals(otherWarning)
+                            return warning.isEquals(otherWarning)
                         })
                 )
                 if (warnings.length > 0) {
