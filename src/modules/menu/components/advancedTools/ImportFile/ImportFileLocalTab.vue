@@ -1,18 +1,15 @@
 <script setup>
 import { computed, ref, toRefs } from 'vue'
-import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
+import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import FileInput from '@/utils/components/FileInput.vue'
-import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
-import { EmptyGPXError } from '@/utils/gpxUtils'
-import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
-const store = useStore()
+const { handleFileSource } = useImportFile()
 
 const props = defineProps({
     active: {
@@ -41,20 +38,11 @@ async function loadFile() {
 
     if (isFormValid.value && selectedFile.value) {
         try {
-            // The file might be a KMZ which is a zip archive. Handling zip archive as text is
-            // asking for trouble, therefore we need first to get it as binary
-            const content = await selectedFile.value.arrayBuffer()
-            await handleFileContent(store, content, selectedFile.value.name)
+            await handleFileSource(selectedFile.value, false)
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
-            if (error instanceof OutOfBoundsError) {
-                errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
-            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                errorFileLoadingMessage.value = 'kml_gpx_file_empty'
-            } else {
-                errorFileLoadingMessage.value = 'invalid_import_file_error'
-                log.error(`Failed to load file`, error)
-            }
+            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
+            log.error(`Failed to load file`, error)
         }
     }
 
@@ -85,7 +73,8 @@ function validateForm(valid) {
             :placeholder="'no_file'"
             :activate-validation="activateValidation"
             :invalid-marker="!!errorFileLoadingMessage"
-            :invalid-message="errorFileLoadingMessage"
+            :invalid-message="errorFileLoadingMessage?.msg"
+            :invalid-message-extra-params="errorFileLoadingMessage?.params"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />

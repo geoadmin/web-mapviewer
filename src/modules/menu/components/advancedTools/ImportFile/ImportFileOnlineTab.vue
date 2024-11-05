@@ -1,21 +1,12 @@
 <script setup>
-import { AxiosError } from 'axios'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import { getFileFromUrl } from '@/api/files.api'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
+import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import TextInput from '@/utils/components/TextInput.vue'
-import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
-import { EmptyGPXError } from '@/utils/gpxUtils'
-import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
-
-const REQUEST_TIMEOUT = 5 * 60 * 1000 // milliseconds
-
-const store = useStore()
 
 const props = defineProps({
     active: {
@@ -25,11 +16,14 @@ const props = defineProps({
 })
 const { active } = toRefs(props)
 
+const { handleFileSource } = useImportFile()
+
 // Reactive data
 const loading = ref(false)
 const fileUrlInput = ref(null)
 const fileUrl = ref('')
 const importSuccessMessage = ref('')
+/** @type {Ref<ErrorMessage | null>} */
 const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
@@ -68,42 +62,26 @@ function onUrlValidate(valid) {
 }
 
 function onUrlChange() {
-    errorFileLoadingMessage.value = ''
+    errorFileLoadingMessage.value = null
     importSuccessMessage.value = ''
 }
 
 async function loadFile() {
     importSuccessMessage.value = ''
-    errorFileLoadingMessage.value = ''
+    errorFileLoadingMessage.value = null
     if (!validateForm()) {
         return
     }
     loading.value = true
 
     try {
-        const response = await getFileFromUrl(fileUrl.value, {
-            timeout: REQUEST_TIMEOUT,
-            responseType: 'arraybuffer',
-        })
-        if (response.status !== 200) {
-            throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
-        }
-        await handleFileContent(store, response.data, fileUrl.value)
+        await handleFileSource(fileUrl.value, false)
         importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
+        log.error(`Failed to load file from url ${fileUrl.value}`, error)
         buttonState.value = 'default'
-        if (error instanceof AxiosError || /fetch/.test(error.message)) {
-            log.error(`Failed to load file from url ${fileUrl.value}`, error)
-            errorFileLoadingMessage.value = 'loading_error_network_failure'
-        } else if (error instanceof OutOfBoundsError) {
-            errorFileLoadingMessage.value = 'imported_file_out_of_bounds'
-        } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-            errorFileLoadingMessage.value = 'kml_gpx_file_empty'
-        } else {
-            log.error(`Failed to parse file from url ${fileUrl.value}`, error)
-            errorFileLoadingMessage.value = 'invalid_import_file_error'
-        }
+        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
     }
     loading.value = false
 }
@@ -131,7 +109,8 @@ async function loadFile() {
                 placeholder="import_file_url_placeholder"
                 :activate-validation="activateValidation"
                 :invalid-marker="!!errorFileLoadingMessage"
-                :invalid-message="errorFileLoadingMessage"
+                :invalid-message="errorFileLoadingMessage?.msg"
+                :invalid-message-params="errorFileLoadingMessage?.params"
                 :valid-message="importSuccessMessage"
                 :validate="validateUrl"
                 data-cy="import-file-online-url"

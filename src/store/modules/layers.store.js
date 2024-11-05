@@ -1,7 +1,9 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getExtentForProjection } from '@/utils/extentUtils.js'
-import { getGpxExtent } from '@/utils/gpxUtils.js'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import ErrorMessage from '@/utils/ErrorMessage.class'
+import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
+import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
@@ -362,11 +364,12 @@ const actions = {
      * @param {AbstractLayer} layer
      * @param {String} layerId
      * @param {ActiveLayerConfig} layerConfig
+     * @param {Boolean} zoomToLayerExtent
      * @param {string} dispatcher Action dispatcher name
      */
     addLayer(
-        { commit, getters },
-        { layer = null, layerId = null, layerConfig = null, dispatcher }
+        { commit, dispatch, getters },
+        { layer = null, layerId = null, layerConfig = null, zoomToLayerExtent = false, dispatcher }
     ) {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
@@ -382,6 +385,12 @@ const actions = {
         }
         if (clone) {
             commit('addLayer', { layer: clone, dispatcher })
+            if (zoomToLayerExtent && layer.extent) {
+                dispatch('zoomToExtent', {
+                    extent: layer.extent,
+                    dispatcher,
+                })
+            }
         } else {
             log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
         }
@@ -439,30 +448,13 @@ const actions = {
     /**
      * Full or partial update of a layer at index in the active layer list
      *
-     * @param {number} index Index of the layer to update
-     * @param {AbstractLayer | { any: any }} layer Full layer object (AbstractLayer) to update or an
-     *   object with the properties to update (partial update)
+     * @param {String} layerId ID of the layer we want to update
+     * @param {AbstractLayer | { any: any }} values Full layer object (AbstractLayer) to update or
+     *   an object with the properties to update (partial update)
      * @param {string} dispatcher Action dispatcher name
      */
-    updateLayer({ commit, getters }, { index, layer, dispatcher }) {
-        if (layer instanceof AbstractLayer) {
-            commit('updateLayer', { index, layer, dispatcher })
-        } else {
-            // Partial update of a layer
-            const layer2Update = getters.getActiveLayerByIndex(index)
-            if (!layer2Update) {
-                throw new Error(`Failed to updateLayer: invalid layer index ${index}`)
-            }
-            if (layer.id && layer.id !== layer2Update.id) {
-                throw new Error(
-                    `Failed to updateLayer "${layer2Update.id}" at index ${index}: not allowed to update layer ID to "${layer.id}"`
-                )
-            }
-
-            const updatedLayer = layer2Update.clone()
-            Object.entries(layer).forEach((entry) => (updatedLayer[entry[0]] = entry[1]))
-            commit('updateLayer', { index, layer: updatedLayer, dispatcher })
-        }
+    updateLayer({ commit }, { layerId, values, dispatcher }) {
+        commit('updateLayer', { layerId, values, dispatcher })
     },
 
     /**
@@ -666,10 +658,10 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to set the error
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
-     * @param {string} errorKey Error translation key to add
+     * @param {ErrorMessage} error Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    addLayerErrorKey({ commit, getters }, { layerId, isExternal, baseUrl, errorKey, dispatcher }) {
+    addLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
         const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
@@ -678,7 +670,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.addErrorKey(errorKey)
+            clone.addErrorMessage(error)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
@@ -696,13 +688,10 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to set the error
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
-     * @param {string} errorKey Error translation key to remove
+     * @param {ErrorMessage} error Error translation key to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayerErrorKey(
-        { commit, getters },
-        { layerId, isExternal, baseUrl, errorKey, dispatcher }
-    ) {
+    removeLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
         const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
@@ -711,7 +700,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.removeErrorKey(errorKey)
+            clone.removeErrorMessage(error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -725,7 +714,7 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to clear the error keys
      * @param {string} dispatcher Action dispatcher name
      */
-    clearLayerErrorKeys({ commit, getters }, { layerId, dispatcher }) {
+    clearLayerErrors({ commit, getters }, { layerId, dispatcher }) {
         const layers = getters.getLayerById(layerId)
         if (layers.length === 0) {
             throw new Error(
@@ -734,7 +723,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.clearErrorKeys()
+            clone.clearErrorMessages()
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -769,7 +758,10 @@ const actions = {
             if (data) {
                 let extent
                 if (clone.type === LayerTypes.KML) {
-                    clone.name = parseKmlName(data) || 'KML'
+                    clone.name = parseKmlName(data)
+                    if (!clone.name || clone.name === '') {
+                        clone.name = clone.kmlFileUrl
+                    }
                     clone.kmlData = data
                     extent = getKmlExtent(data)
                 } else if (clone.type === LayerTypes.GPX) {
@@ -780,9 +772,15 @@ const actions = {
                 clone.isLoading = false
 
                 if (!extent) {
-                    clone.addErrorKey('kml_gpx_file_empty')
-                } else if (!getExtentForProjection(rootState.position.projection, extent)) {
-                    clone.addErrorKey('imported_file_out_of_bounds')
+                    clone.addErrorMessage(new ErrorMessage('kml_gpx_file_empty'))
+                } else if (
+                    !getExtentIntersectionWithCurrentProjection(
+                        extent,
+                        WGS84,
+                        rootState.position.projection
+                    )
+                ) {
+                    clone.addErrorMessage(new ErrorMessage('imported_file_out_of_bounds'))
                 }
             }
             if (metadata) {
@@ -857,17 +855,12 @@ const mutations = {
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
-    updateLayer(state, { index, layer }) {
-        const layer2Update = getActiveLayerByIndex(state, index)
-        if (!layer2Update) {
-            throw new Error(`Failed to update layer at index ${index}: invalid index`)
+    updateLayer(state, { layerId, values }) {
+        const layer2Update = state.activeLayers.find((layer) => layer.id === layerId)
+        if (!(layer2Update instanceof AbstractLayer)) {
+            throw new Error(`Failed to updateLayer: no layer found with ID ${layerId}`)
         }
-        if (layer.id && layer.id !== layer2Update.id) {
-            throw new Error(
-                `Failed to update layer at index ${index}: layer id "${layer2Update.id}" at index ${index} don't match given id "${layer.id}"`
-            )
-        }
-        Object.assign(layer2Update, layer)
+        Object.assign(layer2Update, values)
     },
     updateLayers(state, { layers }) {
         layers.forEach((layer) => {
