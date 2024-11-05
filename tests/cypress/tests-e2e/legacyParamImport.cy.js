@@ -272,7 +272,7 @@ describe('Test on legacy param import', () => {
                 },
                 false
             )
-            cy.readStoreValue('state.search.query').should('eq', '  1530 Payerne')
+            cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('not.contain', 'swisssearch')
             cy.get('[data-cy="searchbar"]').click()
             const acceptableDelta = 0.25

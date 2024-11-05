@@ -197,7 +197,7 @@ function parseLocationResult(result, outputProjection) {
     }
 }
 
-async function searchLayers(queryString, lang, cancelToken, limit = 0) {
+async function searchLayers(queryString, lang, cancelToken, limit = null) {
     try {
         const layerResponse = await generateAxiosSearchRequest(
             queryString,
@@ -226,7 +226,7 @@ async function searchLayers(queryString, lang, cancelToken, limit = 0) {
  * @param limit
  * @returns {Promise<LocationSearchResult[]>}
  */
-async function searchLocation(outputProjection, queryString, lang, cancelToken, limit = 0) {
+async function searchLocation(outputProjection, queryString, lang, cancelToken, limit = null) {
     try {
         const locationResponse = await generateAxiosSearchRequest(
             queryString,
@@ -439,7 +439,7 @@ export default async function search(config) {
         queryString = null,
         lang = null,
         layersToSearch = [],
-        limit = 0,
+        limit = null,
     } = config
     if (!(outputProjection instanceof CoordinateSystem)) {
         const errorMessage = `A valid output projection is required to start a search request`
@@ -468,7 +468,6 @@ export default async function search(config) {
         searchLocation(outputProjection, queryString, lang, cancelToken, limit),
     ]
 
-    // TODO limit also in the local kml and gpx files ?
     if (layersToSearch.some((layer) => layer.searchable)) {
         allRequests.push(
             ...layersToSearch
