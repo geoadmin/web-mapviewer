@@ -29,24 +29,35 @@ const state = {
      * @type {SearchResult[]}
      */
     results: [],
+
+    /**
+     * If true, the first search result will be automatically selected
+     *
+     * @type {Boolean}
+     */
+    swisssearchAutoSelect: false,
 }
 
 const getters = {}
 
-function extractLimitNumber(query) {
-    const regex = / limit: \d+/
-    const match = query.match(regex)
-
-    if (match) {
-        return {
-            limit: parseInt(match[0].split(':')[1].trim()),
-            extractedQuery: query.replace(match[0], ''),
-        }
+function getResultForAutoselect(results) {
+    if (results.length === 1) {
+        return results[0]
     }
-    return { limit: 0, extractedQuery: query }
+    // Try to find a result with resultType LOCATION
+    const locationResult = results.find(
+        (result) => result.resultType === SearchResultTypes.LOCATION
+    )
+
+    // If a location result is found, return it; otherwise, return the first result
+    return locationResult || results[0]
 }
 
 const actions = {
+    setSwisssearchAutoSelect: ({ commit }, { value = false, dispatcher }) => {
+        commit('setSwisssearchAutoSelect', { value, dispatcher })
+    },
+
     /**
      * @param {vuex} vuex
      * @param {Object} payload
@@ -58,8 +69,6 @@ const actions = {
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
-        const { limit, extractedQuery } = extractLimitNumber(query)
-        query = extractedQuery
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
@@ -150,12 +159,15 @@ const actions = {
                         queryString: query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
-                        limit,
+                        limit: state.swisssearchAutoSelect ? 1 : 0,
                     })
-                    if (originUrlParam && results.length === 1) {
+                    if (
+                        (originUrlParam && results.length === 1) ||
+                        (originUrlParam && state.swisssearchAutoSelect && results.length >= 1)
+                    ) {
                         dispatch('selectResultEntry', {
                             dispatcher: `${dispatcher}/setSearchQuery`,
-                            entry: results[0],
+                            entry: getResultForAutoselect(results),
                         })
                     }
                 } catch (error) {
@@ -194,6 +206,7 @@ const actions = {
                         queryString: state.query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
+                        limit: state.swisssearchAutoSelect ? 1 : 0,
                     })
                     if (resultIncludingLayerFeatures.length > state.results.length) {
                         commit('setSearchResults', {
@@ -257,6 +270,12 @@ const actions = {
 
                 break
         }
+        if (state.swisssearchAutoSelect) {
+            dispatch('setSwisssearchAutoSelect', {
+                value: false,
+                dispatcher: dispatcherSelectResultEntry,
+            })
+        }
     },
 }
 
@@ -286,6 +305,7 @@ function createLayerFeature(olFeature, layer) {
 }
 
 const mutations = {
+    setSwisssearchAutoSelect: (state, { value }) => (state.swisssearchAutoSelect = value),
     setSearchQuery: (state, { query }) => (state.query = query),
     setSearchResults: (state, { results }) => (state.results = results ?? []),
 }

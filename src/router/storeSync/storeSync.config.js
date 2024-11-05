@@ -8,13 +8,13 @@ import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfi
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
+import SearchAutoSelectConfig from '@/router/storeSync/SearchAutoSelectConfig.class'
 import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
+import TimeSliderParamConfig from '@/router/storeSync/TimeSliderParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
 import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
-
-import TimeSliderParamConfig from './TimeSliderParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -23,6 +23,8 @@ import TimeSliderParamConfig from './TimeSliderParamConfig.class'
  * @type Array<AbstractParamConfig>
  */
 const storeSyncConfig = [
+    // SearchAutoSelectConfig should be processed before SearchParamConfig to avoid a bug where the autoselect would not be set
+    new SearchAutoSelectConfig(),
     new SimpleUrlParamConfig({
         urlParamName: 'lang',
         mutationsToWatch: ['setLang'],

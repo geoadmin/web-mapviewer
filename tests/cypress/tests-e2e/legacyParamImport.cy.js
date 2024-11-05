@@ -286,46 +286,6 @@ describe('Test on legacy param import', () => {
             })
             cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
-        it('limits the swisssearch with legacy parameter limit', () => {
-            cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
-                body: { results: [] },
-            }).as('search-layers')
-            const coordinates = [2598633.75, 1200386.75]
-            cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
-                body: {
-                    results: [
-                        {
-                            attrs: {
-                                detail: '1530 payerne 5822 payerne ch vd',
-                                label: '  <b>1530 Payerne</b>',
-                                lat: 46.954559326171875,
-                                lon: 7.420684814453125,
-                                y: coordinates[0],
-                                x: coordinates[1],
-                            },
-                        },
-                        {
-                            attrs: {
-                                detail: '1530 payerne 5822 payerne ch vd 2',
-                                label: '  <b>1530 Payerne</b> 2',
-                                lat: 46.954559326171875,
-                                lon: 7.420684814453125,
-                                y: coordinates[0],
-                                x: coordinates[1],
-                            },
-                        },
-                    ],
-                },
-            }).as('search-locations')
-            cy.goToMapView(
-                {
-                    swisssearch: '1530 Payerne limit: 2',
-                },
-                false
-            )
-            cy.readStoreValue('state.search.query').should('eq', '1530 Payerne limit: 2')
-            cy.url().should('not.contain', 'swisssearch')
-        })
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
             const layerId = 'ch.swisstopo-vd.official-survey'

@@ -126,12 +126,14 @@ function urlQueryWatcher(store, to, from) {
         }
 
         if (
+            // to call afterSetValuesInStore in SearchAutoSelectConfig if it was set to false in the URL to remove the parameter from the URL
+            queryValue === false ||
             // when the query value is an empty string, queryValue is false.
-            (queryValue || queryValue === '') &&
-            queryValue !== storeValue &&
-            // if the query is undefined and the store is null, we also don't dispatch it, as we want
-            // to avoid changing the store value for no reason.
-            !(queryValue === undefined && storeValue === null)
+            ((queryValue || queryValue === '') &&
+                queryValue !== storeValue &&
+                // if the query is undefined and the store is null, we also don't dispatch it, as we want
+                // to avoid changing the store value for no reason.
+                !(queryValue === undefined && storeValue === null))
         ) {
             // dispatching URL value to the store
             log.debug(
