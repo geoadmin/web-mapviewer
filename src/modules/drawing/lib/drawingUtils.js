@@ -1,4 +1,4 @@
-import { LineString, Polygon } from 'ol/geom'
+import { LineString, Point, Polygon } from 'ol/geom'
 
 /**
  * Checks if point is at target within tolerance.
@@ -33,9 +33,10 @@ export function getVertexCoordinates(feature) {
 
     if (geometry) {
         const coordinates = geometry.getCoordinates()
-
         if (geometry instanceof LineString) {
             normalized = coordinates
+        } else if (geometry instanceof Point) {
+            normalized = [coordinates]
         } else if (geometry instanceof Polygon) {
             normalized = coordinates[0]
         }
