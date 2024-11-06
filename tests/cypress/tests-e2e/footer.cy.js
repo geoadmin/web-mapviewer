@@ -13,16 +13,14 @@ describe('Testing the footer content / tools', () => {
         // which mean a higher resolution as the acceptable threshold for scale line to be visible.
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
 
-        // triple zoom, the scale line should appear (zoom level 10)
-        cy.get('[data-cy="zoom-in"]').click()
-        cy.get('[data-cy="zoom-in"]').click()
-        cy.get('[data-cy="zoom-in"]').click()
+        // zoom by mouse wheel, the scale line should appear (zoom level 10)
+        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: -5000 })
+        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: -5000 })
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
         // it should disappear again if we zoom out again
-        cy.get('[data-cy="zoom-out"]').click()
-        cy.get('[data-cy="zoom-out"]').click()
-        cy.get('[data-cy="zoom-out"]').click()
+        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: 5000 })
+        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: 5000 })
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
     })
     it('has a functional background wheel', () => {
