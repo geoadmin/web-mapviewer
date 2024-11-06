@@ -332,7 +332,7 @@
     "kml_gpx_file_empty": "Le fichier KML/GPX est vide",
     "kml_icon_url_cors_issue": "Le KML « {layerName} » contient des icônes avec l'URL {url} qui ne supporte pas CORS ! Veuillez contacter l'administrateur de cette URL pour avoir du support de CORS.",
     "kml_icon_url_scheme_http": "Le KML « {layerName} » contient des icônes avec l'URL {url} en http. A compter du 31 janvier 2025, le support pour ces ressources sera arrêté, et seules les ressources en https seront supportées. Pour plus d'informations, consultez https://www.geo.admin.ch/fr/informations-importantes-certification-ssl-protocole-http",
-    "kml_icon_set_not_found": "L'ensemble d'icônes « {iconSetName} » n'a pas été trouvé, retour à l'icône par défaut",
+    "kml_icon_set_not_found": "Attention, vous modifiez un dessin qui contient des icônes qui ne sont plus disponibles. Si vous les remplacez, l'action ne pourra pas être annulé !",
     "kml_no_text_elements": "Information: Les étiquettes ne seront pas sauvées",
     "kml_style_default": "défaut",
     "kml_style_geoadmin": "GeoAdmin",
