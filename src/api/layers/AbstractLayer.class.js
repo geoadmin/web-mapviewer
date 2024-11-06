@@ -156,7 +156,13 @@ export default class AbstractLayer {
 
     /** @param {ErrorMessage} errorMessage */
     removeErrorMessage(errorMessage) {
-        this.errorMessages.delete(errorMessage)
+        // We need to find the error message that equals to remove it
+        for (let msg of this.errorMessages) {
+            if (msg.isEquals(errorMessage)) {
+                this.errorMessages.delete(msg)
+                break
+            }
+        }
         this.hasError = !!this.errorMessages.size
     }
 
