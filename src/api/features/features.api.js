@@ -4,7 +4,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
@@ -263,7 +262,7 @@ async function identifyOnExternalLayer(config) {
         // If we use different projection, we also need to project out initial coordinate
         requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
-    if (layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers) {
+    if (layer instanceof ExternalWMSLayer) {
         return await identifyOnExternalWmsLayer({
             coordinate: requestedCoordinate,
             projection: requestProjection,

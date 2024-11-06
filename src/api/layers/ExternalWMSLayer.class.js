@@ -90,6 +90,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             opacity = 1.0,
             visible = true,
             baseUrl = null,
+            layers = [],
             attributions = null,
             wmsVersion = '1.3.0',
             format = 'png',
@@ -127,5 +128,6 @@ export default class ExternalWMSLayer extends ExternalLayer {
         this.wmsVersion = wmsVersion
         this.format = format
         this.dimensions = dimensions
+        this.layers = [...layers]
     }
 }

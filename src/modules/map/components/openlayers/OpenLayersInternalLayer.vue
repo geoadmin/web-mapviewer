@@ -8,7 +8,6 @@ import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
@@ -90,23 +89,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex"
         />
         <div v-if="layerConfig.type === LayerTypes.GROUP">
-            <!-- If the layer is a group but it is a WMS layer, we use OpenLayersWMSLayer directly so the WMS request is handled on the layer group level, reducing the number of request -->
-            <div v-if="layerConfig instanceof ExternalWMSLayer">
-                <OpenLayersWMSLayer
-                    :wms-layer-config="layerConfig"
-                    :parent-layer-opacity="parentLayerOpacity"
-                    :z-index="zIndex"
-                />
-            </div>
-            <div v-else>
-                <OpenLayersInternalLayer
-                    v-for="(layer, index) in layerConfig.layers"
-                    :key="`${layer.id}-${index}`"
-                    :layer-config="layer"
-                    :parent-layer-opacity="layerConfig.opacity"
-                    :z-index="zIndex + index"
-                />
-            </div>
+            <OpenLayersInternalLayer
+                v-for="(layer, index) in layerConfig.layers"
+                :key="`${layer.id}-${index}`"
+                :layer-config="layer"
+                :parent-layer-opacity="layerConfig.opacity"
+                :z-index="zIndex + index"
+            />
         </div>
         <!--
         Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
