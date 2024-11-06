@@ -96,7 +96,7 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the group of layer has been added to the map')
-        cy.checkOlLayer([bgLayer, `${itemId}-1`, `${itemId}-2`, `${itemId}-3`])
+        cy.checkOlLayer([bgLayer, itemId])
 
         //---------------------------------------------------------------------------------
         cy.log('Toggle the sub layers')
@@ -272,16 +272,8 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the single layer has been added to the map')
-        // NOTE here below itemId-1 should be present twice, one from the group of layer itemId and
-        // once as single layer
-        cy.checkOlLayer([
-            bgLayer,
-            `${itemId}-1`,
-            `${itemId}-2`,
-            `${itemId}-3`,
-            `${itemId}-1`,
-            singleLayerId,
-        ])
+        // NOTE here below itemId-1 should be present once as a single layer only
+        cy.checkOlLayer([bgLayer, itemId, `${itemId}-1`, singleLayerId])
 
         //-----------------------------------------------------------------------------------------
         cy.log('Toggle import menu')
