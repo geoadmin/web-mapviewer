@@ -771,8 +771,7 @@ const actions = {
                 }
                 clone.isLoading = false
                 // Reset the error keys for the layer as the data is now loaded
-                clone.removeErrorKey('kml_gpx_file_empty')
-                clone.removeErrorKey('imported_file_out_of_bounds')
+                clone.clearErrorMessages()
 
                 if (!extent) {
                     clone.addErrorMessage(new ErrorMessage('kml_gpx_file_empty'))
