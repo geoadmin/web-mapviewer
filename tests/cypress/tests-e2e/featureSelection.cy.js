@@ -386,6 +386,18 @@ describe('Testing the feature selection', () => {
             cy.get('@loadMore').should('not.exist')
 
             cy.log(
+                'verify that the feature selection is cleared for the layer when the layer is toggled off'
+            )
+            cy.openMenuIfMobile()
+            cy.get(`[data-cy^="button-toggle-visibility-layer-${'test.wms.layer'}-0"]`).click()
+            cy.closeMenuIfMobile()
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
+            cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
+            cy.wait('@routeChange')
+
+            cy.log(
                 'sending a single feature as response, checking that the "Load more" button is not added'
             )
             cy.goToMapView(
@@ -423,7 +435,7 @@ describe('Testing the feature selection', () => {
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
 
-            cy.get('@routeChange.all').should('have.length', 5)
+            cy.get('@routeChange.all').should('have.length', 6)
             cy.get('@layers.all').should('have.length', 1)
             cy.get('@topics.all').should('have.length', 1)
             cy.get('@topic-ech.all').should('have.length', 1)
