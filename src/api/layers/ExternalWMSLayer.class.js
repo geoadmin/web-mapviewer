@@ -47,6 +47,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
      *   Default is `true`
      * @param {String} externalWmsData.baseUrl Base URL to build WMS requests (no endpoint / URL
      *   param defined)
+     * @param {ExternalWMSLayer[]} externalLayerData.layers Description of the layers being part of
+     *   this group (they will all be displayed at the same time, in contrast to an aggregate
+     *   layer)
      * @param {String} [externalWmsData.wmsVersion='1.3.0'] WMS protocol version to be used when
      *   querying this server. Default is `'1.3.0'`
      * @param {LayerAttribution[]} [externalWmsData.attributions=null] Description of the data
