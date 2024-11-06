@@ -5,6 +5,7 @@ import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
+        cy.viewport(1920, 1080)
         cy.goToMapView({
             sr: WEBMERCATOR.epsgNumber,
         })
@@ -13,14 +14,16 @@ describe('Testing the footer content / tools', () => {
         // which mean a higher resolution as the acceptable threshold for scale line to be visible.
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
 
-        // zoom by mouse wheel, the scale line should appear (zoom level 10)
-        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: -5000 })
-        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: -5000 })
+        // triple zoom, the scale line should appear (zoom level 10)
+        cy.get('[data-cy="zoom-in"]').click()
+        cy.get('[data-cy="zoom-in"]').click()
+        cy.get('[data-cy="zoom-in"]').click()
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
         // it should disappear again if we zoom out again
-        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: 5000 })
-        cy.get('[data-cy="map"]').trigger('wheel', { deltaY: 5000 })
+        cy.get('[data-cy="zoom-out"]').click()
+        cy.get('[data-cy="zoom-out"]').click()
+        cy.get('[data-cy="zoom-out"]').click()
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
     })
     it('has a functional background wheel', () => {
