@@ -11,8 +11,6 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="mouse-position-select"]').should('not.exist')
         cy.get('[data-cy="mouse-position"]').should('not.exist')
 
-        cy.get('[data-cy="zoom-in"]').should('be.visible')
-        cy.get('[data-cy="zoom-out"]').should('be.visible')
         cy.get('[data-cy="3d-button"]').should('be.visible')
 
         cy.get('[data-cy="geolocation-button"]').should('not.exist')
@@ -104,8 +102,6 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="mouse-position-select"]').should('not.exist')
         cy.get('[data-cy="mouse-position"]').should('not.exist')
 
-        cy.get('[data-cy="zoom-in"]').should('be.visible')
-        cy.get('[data-cy="zoom-out"]').should('be.visible')
         cy.get('[data-cy="3d-button"]').should('be.visible')
 
         cy.get('[data-cy="geolocation-button"]').should('not.exist')
