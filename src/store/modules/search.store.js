@@ -235,6 +235,7 @@ const actions = {
 
                 break
         }
+        commit('setSearchQuery', { query: entry.sanitizedTitle, dispatcher })
     },
 }
 

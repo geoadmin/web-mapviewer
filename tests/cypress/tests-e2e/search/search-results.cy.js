@@ -324,7 +324,7 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).should('have.value', 'test')
         cy.get('@locationSearchResults').first().realClick()
         // search bar should not take element's title as value, but stays with the user search query
-        cy.get(searchbarSelector).should('have.value', 'test')
+        cy.get(searchbarSelector).should('have.value', 'Test location')
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
