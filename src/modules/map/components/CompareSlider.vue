@@ -151,7 +151,7 @@ function releaseSlider() {
             class="compare-slider-caret-right bg-primary text-white rounded-end"
             :icon="['fas', 'caret-right']"
         />
-        <div v-if="showLayerName" class="compare-slider-layer-name">
+        <div v-if="showLayerName" class="compare-slider-layer-name text-break">
             <FontAwesomeIcon icon="arrow-left" class="me-1" />
             <strong>{{ visibleLayerOnTop.name }}</strong>
         </div>
