@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { getRenderPixel } from 'ol/render'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
 
@@ -15,7 +17,7 @@ const preRenderKey = ref(null)
 const postRenderKey = ref(null)
 const compareSliderOffset = ref(0)
 const showLayerName = ref(false)
-
+const context = ref(null)
 const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
@@ -31,11 +33,15 @@ const visibleLayers = computed(() => store.getters.visibleLayers)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
-    slice()
+    nextTick(slice)
 })
 
 watch(visibleLayers, () => {
     nextTick(slice)
+})
+
+watch(visibleLayerOnTop, () => {
+    context.value = null
 })
 
 onMounted(() => {
@@ -45,45 +51,73 @@ onMounted(() => {
 
 onUnmounted(() => {
     compareRatio.value = storeCompareRatio.value
+    context.value = null
 
-    slice()
+    nextTick(slice)
 })
 
 function slice() {
-    if (preRenderKey.value !== null && postRenderKey.value !== null) {
-        unByKey(preRenderKey.value)
-        unByKey(postRenderKey.value)
-        preRenderKey.value = null
-        postRenderKey.value = null
-    }
-    const topVisibleLayer = olMap
-        ?.getAllLayers()
-        .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
-        .find((layer) => layer.get('id') === visibleLayerOnTop.value?.id)
-    log.debug(`Compare slider slicing`, topVisibleLayer, visibleLayerOnTop.value)
-    if (topVisibleLayer && isCompareSliderActive.value) {
-        preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
-        postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
+    if (isCompareSliderActive.value) {
+        if (preRenderKey.value !== null && postRenderKey.value !== null) {
+            unByKey(preRenderKey.value)
+            unByKey(postRenderKey.value)
+            preRenderKey.value = null
+            postRenderKey.value = null
+        }
+        const topVisibleLayer = olMap
+            ?.getAllLayers()
+            .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
+            .find((layer) => layer.get('id') === visibleLayerOnTop.value?.id)
+        log.debug(`Compare slider slicing`, topVisibleLayer, visibleLayerOnTop.value)
+        if (topVisibleLayer && visibleLayerOnTop.value.type !== LayerTypes.COG) {
+            preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
+            postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
+        } else {
+            preRenderKey.value = topVisibleLayer.on('prerender', onWebGLPreRender)
+            postRenderKey.value = topVisibleLayer.on('postrender', onWebGLPostRender)
+        }
     }
     olMap.render()
 }
+function onWebGLPreRender(event) {
+    if (!context.value) {
+        context.value = event.context
+    }
+    const mapSize = olMap.getSize()
+    // get render coordinates and dimensions given CSS coordinates
+    const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
+    const topRight = getRenderPixel(event, [mapSize[0], 0])
 
-function onPreRender(event) {
-    const ctx = event.context
-    // the offset is there to ensure we get to the slider line, and not the border of the element
-    let width = ctx.canvas.width
+    let width = topRight[0] - bottomLeft[0]
+    const height = topRight[1] - bottomLeft[1]
     if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-        width = ctx.canvas.width * compareRatio.value
+        width = Math.round(width * compareRatio.value)
+    }
+    context.value.enable(context.value.SCISSOR_TEST)
+
+    context.value.scissor(bottomLeft[0], bottomLeft[1], width, height)
+}
+function onWebGLPostRender(event) {
+    context.value.disable(context.value.SCISSOR_TEST)
+}
+function onPreRender(event) {
+    if (!context.value) {
+        context.value = event.context
+    }
+    // the offset is there to ensure we get to the slider line, and not the border of the element
+    let width = context.value.canvas.width
+    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
+        width = context.value.canvas.width * compareRatio.value
     }
 
-    ctx.save()
-    ctx.beginPath()
-    ctx.rect(0, 0, width, ctx.canvas.height)
-    ctx.clip()
+    context.value.save()
+    context.value.beginPath()
+    context.value.rect(0, 0, width, context.value.canvas.height)
+    context.value.clip()
 }
 
 function onPostRender(event) {
-    event.context.restore()
+    context.value.restore()
 }
 
 function grabSlider(event) {
@@ -116,7 +150,8 @@ function listenToMouseMove(event) {
     }
 
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
-    olMap.render()
+    nextTick(slice)
+    //olMap.render()
 }
 
 function releaseSlider() {

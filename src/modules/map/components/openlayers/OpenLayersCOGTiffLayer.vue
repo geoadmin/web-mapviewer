@@ -41,6 +41,10 @@ const layer = new WebGLTileLayer({
     source: createLayerSource(),
     opacity: opacity.value,
 })
+// we need to set the id, otherwise it would be undefined and we could not work with the layer with some tools
+if (!layer.get('id')) {
+    layer.set('id', source.value.url)
+}
 useAddLayerToMap(layer, olMap, zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
