@@ -90,10 +90,43 @@ export default {
          * @type {String | null}
          */
         editingMode: EditMode.OFF,
+
+        /**
+         * Flag to indicate if the drawing is shared with an admin id
+         *
+         * @type {Boolean}
+         */
+        isDrawingEditShared: false,
+
+        /**
+         * Flag to indicate if the drawing has been modified
+         *
+         * @type {Boolean}
+         */
+        isDrawingModified: false,
+
+        /**
+         * Flag to indicate if the website is visited with an admin id
+         *
+         * @type {Boolean}
+         */
+        isVisitWithAdminId: false,
     },
     getters: {
         isDrawingEmpty(state) {
             return state.featureIds.length === 0
+        },
+
+        showNotSharedDrawingWarning(state) {
+            console.log(
+                'showNotSharedDrawingWarning',
+                !state.isVisitWithAdminId,
+                !state.isDrawingEditShared,
+                state.isDrawingModified
+            )
+            return (
+                !state.isVisitWithAdminId && !state.isDrawingEditShared && state.isDrawingModified
+            )
         },
     },
     actions: {
@@ -101,6 +134,24 @@ export default {
             if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', { mode, dispatcher })
             }
+        },
+        setIsDrawingEditShared({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsDrawingEditShared', {
+                value: value === null ? state.isDrawingEditShared : value,
+                dispatcher,
+            })
+        },
+        setIsDrawingModified({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsDrawingModified', {
+                value: value === null ? state.isDrawingModified : value,
+                dispatcher,
+            })
+        },
+        setIsVisitWithAdminId({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsVisitWithAdminId', {
+                value: value === null ? state.isVisitWithAdminId : value,
+                dispatcher,
+            })
         },
         async loadAvailableIconSets({ commit }, { dispatcher }) {
             const iconSets = await loadAllIconSetsFromBackend()
@@ -165,6 +216,9 @@ export default {
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
+        setIsDrawingEditShared: (state, { value }) => (state.isDrawingEditShared = value),
+        setIsDrawingModified: (state, { value }) => (state.isDrawingModified = value),
+        setIsVisitWithAdminId: (state, { value }) => (state.isVisitWithAdminId = value),
         setIconSets: (state, { iconSets }) => (state.iconSets = iconSets),
         addDrawingFeature: (state, { featureId }) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, { featureId }) =>

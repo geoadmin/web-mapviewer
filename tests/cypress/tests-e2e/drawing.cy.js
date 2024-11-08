@@ -890,24 +890,80 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
         })
         it('manages the KML layer in the layer list / URL params correctly', () => {
+            const warningTitle = `Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.`
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait('@post-kml')
+            cy.wait(['@post-kml', '@layers', '@topics', '@topic-ech', '@routeChange'])
 
             // checks that it adds the kml file ID in the URL while in drawing mode
             cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)
             // checks that it doesn't add adminId to the url
             cy.url().should('not.contain', 'adminId')
 
+            cy.closeDrawingMode(false)
+
+            cy.log('check if clicking close that it opens the warning again')
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="modal-close-button"]').click()
+
+            cy.closeDrawingMode(false)
+
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+
+            cy.log(
+                'check if clicking close that the drawing is still not saved but now the drawing mode is closed'
+            )
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
+
+            cy.closeDrawingMode(false)
+
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
+            cy.log(
+                'check that now that the drawing edit link is copied and the warning is not shown anymore'
+            )
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
             cy.closeDrawingMode()
+
+            cy.log(
+                'check that the warning shows after deleting the drawing and drawing something new'
+            )
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
+            cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click()
+            cy.closeDrawingMode(false)
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
                 expect(drawingLayer.type).to.eq(LayerTypes.KML)
                 expect(drawingLayer.visible).to.be.true
             })
-            // checks that it clears the drawing when the drawing layer is removed
+
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(0)
@@ -1202,7 +1258,6 @@ describe('Drawing module tests', () => {
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
-            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             // it changes the name of the KML file

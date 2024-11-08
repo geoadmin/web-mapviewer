@@ -137,14 +137,23 @@ Cypress.Commands.add('openDrawingMode', () => {
     cy.window().its('mapPointerEventReady').should('be.false')
 })
 
-Cypress.Commands.add('closeDrawingMode', () => {
+Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => {
     cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
         .should('be.visible')
         .click()
-    cy.window().its('store.state.drawing.drawingOverlay.show').should('be.false')
-    // In drawing mode the click event on the map are removed therefore we need to wait that
-    // they are added again begore continuing testing
-    cy.waitMapIsReady()
+
+    if (closeDrawingNotSharedAdmin) {
+        // Close the drawing not shared admin modal if it is open
+        cy.get('body').then(($body) => {
+            if ($body.find('[data-cy="drawing-share-admin-close"]').length > 0) {
+                cy.get('[data-cy="drawing-share-admin-close"]').click()
+            }
+        })
+        cy.window().its('store.state.drawing.drawingOverlay.show').should('be.false')
+        // In drawing mode the click event on the map are removed therefore we need to wait that
+        // they are added again begore continuing testing
+        cy.waitMapIsReady()
+    }
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {

@@ -240,6 +240,7 @@ describe('Testing the report problem form', () => {
 
         cy.log(`Exit drawing mode`)
         cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
+        cy.get('[data-cy="drawing-share-admin-close"]').click()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('[data-cy="text-area-input"]').should('be.visible').should('have.value', text)
@@ -284,6 +285,7 @@ describe('Testing the report problem form', () => {
         })
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
+        cy.get('[data-cy="drawing-share-admin-close"]').should('be.visible').click()
         cy.get('[data-cy="dropdown-main-button"]').scrollIntoView()
         cy.get('[data-cy="report-problem-form"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
