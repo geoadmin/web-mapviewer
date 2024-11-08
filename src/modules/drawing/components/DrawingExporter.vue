@@ -8,6 +8,8 @@ import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/expo
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { generateFilename } from '@/utils/utils'
 
+const dispatcher = { dispatcher: 'DrawingExporter.vue' }
+
 const exportOptions = [new DropdownItem('kml', 'KML'), new DropdownItem('gpx', 'GPX')]
 
 const drawingLayer = inject('drawingLayer')
@@ -42,6 +44,10 @@ function exportDrawing() {
         type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
     }
     saveAs(new Blob([content], { type }), fileName)
+    store.dispatch('setIsDrawingExportedOrShared', {
+        exported: true,
+        ...dispatcher,
+    })
 }
 </script>
 
