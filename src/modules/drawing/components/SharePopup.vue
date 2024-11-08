@@ -1,11 +1,16 @@
 <script setup>
 import { computed, onUnmounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'SharePopup.vue' }
+
+const store = useStore()
 
 const props = defineProps({
     kmlLayer: {
@@ -87,6 +92,10 @@ async function updateShareUrl() {
             shareUrl.value = fileUrl.value
         }
     }
+    store.dispatch('setIsDrawingExportedOrShared', {
+        shared: true,
+        ...dispatcher,
+    })
 }
 async function updateAdminShareUrl() {
     if (adminUrl.value) {
@@ -97,6 +106,10 @@ async function updateAdminShareUrl() {
             adminShareUrl.value = adminUrl.value
         }
     }
+    store.dispatch('setIsDrawingExportedOrShared', {
+        shared: true,
+        ...dispatcher,
+    })
 }
 </script>
 
