@@ -171,6 +171,7 @@
     "draw_type_marker": "Linie / Fläche",
     "drawing_attached": "Zeichnung als Anhang hinzugefügt",
     "drawing_empty_cannot_edit_name": "Bitte fügen Sie der Zeichnung etwas hinzu, bevor Sie ihren Namen bearbeiten.",
+    "drawing_not_shared": "Achtung, Ihre Zeichnung wurde nicht geteilt.",
     "drawing_too_large": "Ihre Zeichnung ist zu gross, entfernen Sie einige Details.",
     "drop_invalid_url": "URL ist ungültig.",
     "drop_me_here": "Datei hier ablegen (KML, KMZ, GPX, COG)",

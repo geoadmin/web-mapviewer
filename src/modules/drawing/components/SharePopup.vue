@@ -1,11 +1,16 @@
 <script setup>
 import { computed, onUnmounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'SharePopup.vue' }
+
+const store = useStore()
 
 const props = defineProps({
     kmlLayer: {
@@ -60,6 +65,10 @@ async function copyShareUrl() {
     try {
         await navigator.clipboard.writeText(shareUrl.value)
         fileUrlCopied.value = true
+        store.dispatch('setIsDrawingShared', {
+            value: true,
+            ...dispatcher,
+        })
         fileTimeout = setTimeout(() => {
             fileUrlCopied.value = false
         }, 5000)
@@ -71,6 +80,10 @@ async function copyAdminShareUrl() {
     try {
         await navigator.clipboard.writeText(adminShareUrl.value)
         adminUrlCopied.value = true
+        store.dispatch('setIsDrawingShared', {
+            value: true,
+            ...dispatcher,
+        })
         adminTimeout = setTimeout(() => {
             adminUrlCopied.value = false
         }, 5000)
@@ -81,7 +94,7 @@ async function copyAdminShareUrl() {
 async function updateShareUrl() {
     if (fileUrl.value) {
         try {
-            shareUrl.value = await createShortLink(fileUrl.value)
+            shareUrl.value = await createShortLink(fileUrl.value, shareUrl.value)
         } catch (error) {
             // Fallback to normal url
             shareUrl.value = fileUrl.value

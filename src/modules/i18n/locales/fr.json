@@ -171,6 +171,7 @@
     "draw_type_marker": "Trait / surface",
     "drawing_attached": "Dessin ajouté en pièce jointe",
     "drawing_empty_cannot_edit_name": "Veuillez ajouter quelque chose au dessin avant de modifier son nom.",
+    "drawing_not_shared": "Attention, votre dessin n'a pas été partagé.",
     "drawing_too_large": "Ton dessin est trop grand, enlève quelques éléments",
     "drop_invalid_url": "URL non valide.",
     "drop_me_here": "Déposer le fichier ici (KML, KMZ, GPX, COG)",
