@@ -2,7 +2,6 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class.js'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
@@ -323,7 +322,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalGroupOfLayers({
+                pristineLayer: new ExternalWMSLayer({
                     id: 'fake.external.group',
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',

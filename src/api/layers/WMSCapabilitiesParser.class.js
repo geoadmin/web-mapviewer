@@ -3,7 +3,6 @@ import { WMSCapabilities } from 'ol/format'
 import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer, { WMSDimension } from '@/api/layers/ExternalWMSLayer.class'
 import { CapabilitiesError } from '@/api/layers/layers-external.api'
@@ -177,8 +176,7 @@ export default class WMSCapabilitiesParser {
      * @param {Object | null} [params=null] URL parameters to pass to WMS server. Default is `null`
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
-     * @returns {[ExternalWMSLayer | ExternalGroupOfLayers]} List of
-     *   ExternalWMSLayer|ExternalGroupOfLayers objects
+     * @returns {[ExternalWMSLayer]} List of ExternalWMSLayer objects
      */
     getAllExternalLayerObjects(
         projection,
@@ -232,8 +230,9 @@ export default class WMSCapabilitiesParser {
         }
 
         // Go through the child to get valid layers
+        let layers = []
         if (layer.Layer?.length) {
-            const layers = layer.Layer.map((l) =>
+            layers = layer.Layer.map((l) =>
                 this._getExternalLayerObject(
                     l,
                     [layer, ...parents],
@@ -245,22 +244,6 @@ export default class WMSCapabilitiesParser {
                     ignoreError
                 )
             ).filter((layer) => !!layer)
-            return new ExternalGroupOfLayers({
-                id: layerId,
-                name: title,
-                opacity,
-                visible,
-                baseUrl: url,
-                layers,
-                attributions,
-                abstract,
-                extent,
-                legends,
-                isLoading: false,
-                availableProjections,
-                getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
-                currentYear,
-            })
         }
         return new ExternalWMSLayer({
             id: layerId,
@@ -268,6 +251,7 @@ export default class WMSCapabilitiesParser {
             opacity,
             visible,
             baseUrl: url,
+            layers,
             attributions,
             wmsVersion: version,
             format: 'png',

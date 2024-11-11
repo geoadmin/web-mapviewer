@@ -1,7 +1,6 @@
 import { readFile } from 'fs/promises'
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
@@ -582,7 +581,7 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         let layers = capabilities.getAllExternalLayerObjects(LV95)
         expect(layers.length).toBe(1)
         expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layers[0]).toBeInstanceOf(ExternalGroupOfLayers)
+        expect(layers[0]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers.length).toBe(3)
         expect(layers[0].layers[0]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[0].id).toBe('ch.swisstopo-vd.official-survey-1')
@@ -646,7 +645,7 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         let layers = capabilities.getAllExternalLayerObjects(LV95)
         expect(layers.length).toBe(1)
         expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layers[0]).toBeInstanceOf(ExternalGroupOfLayers)
+        expect(layers[0]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers.length).toBe(3)
         expect(layers[0].layers[0]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[0].id).toBe('ch.swisstopo-vd.official-survey-1')
@@ -654,13 +653,13 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         expect(layers[0].layers[1]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[1].id).toBe('ch.swisstopo-vd.official-survey-2')
 
-        expect(layers[0].layers[2]).toBeInstanceOf(ExternalGroupOfLayers)
+        expect(layers[0].layers[2]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[2].id).toBe('ch.swisstopo-vd.official-survey-3')
 
         expect(layers[0].layers[2].layers[0]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[2].layers[0].id).toBe('ch.swisstopo-vd.official-survey-3-sub-1')
 
-        expect(layers[0].layers[2].layers[1]).toBeInstanceOf(ExternalGroupOfLayers)
+        expect(layers[0].layers[2].layers[1]).toBeInstanceOf(ExternalWMSLayer)
         expect(layers[0].layers[2].layers[1].id).toBe('ch.swisstopo-vd.official-survey-3-sub-2')
 
         expect(layers[0].layers[2].layers[1].layers[0]).toBeInstanceOf(ExternalWMSLayer)
