@@ -230,8 +230,9 @@ export default class WMSCapabilitiesParser {
         }
 
         // Go through the child to get valid layers
+        let layers = []
         if (layer.Layer?.length) {
-            const layers = layer.Layer.map((l) =>
+            layers = layer.Layer.map((l) =>
                 this._getExternalLayerObject(
                     l,
                     [layer, ...parents],
@@ -243,28 +244,6 @@ export default class WMSCapabilitiesParser {
                     ignoreError
                 )
             ).filter((layer) => !!layer)
-            return new ExternalWMSLayer({
-                id: layerId,
-                name: title,
-                opacity,
-                visible,
-                baseUrl: url,
-                layers,
-                attributions,
-                wmsVersion: version,
-                format: 'png',
-                abstract,
-                extent,
-                legends,
-                isLoading: false,
-                availableProjections,
-                hasTooltip: queryable,
-                getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
-                currentYear,
-                customAttributes: params,
-                dimensions: dimensions,
-                timeConfig: this._getTimeConfig(layerId, dimensions),
-            })
         }
         return new ExternalWMSLayer({
             id: layerId,
@@ -272,6 +251,7 @@ export default class WMSCapabilitiesParser {
             opacity,
             visible,
             baseUrl: url,
+            layers,
             attributions,
             wmsVersion: version,
             format: 'png',
