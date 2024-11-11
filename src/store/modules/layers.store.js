@@ -771,8 +771,14 @@ const actions = {
                 }
                 clone.isLoading = false
 
+                // Always clean up the error messages before doing the check
+                const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
+                const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
+                clone.removeErrorMessage(emptyFileErrorMessage)
+                clone.removeErrorMessage(outOfBoundsErrorMessage)
+
                 if (!extent) {
-                    clone.addErrorMessage(new ErrorMessage('kml_gpx_file_empty'))
+                    clone.addErrorMessage(emptyFileErrorMessage)
                 } else if (
                     !getExtentIntersectionWithCurrentProjection(
                         extent,
@@ -780,7 +786,7 @@ const actions = {
                         rootState.position.projection
                     )
                 ) {
-                    clone.addErrorMessage(new ErrorMessage('imported_file_out_of_bounds'))
+                    clone.addErrorMessage(outOfBoundsErrorMessage)
                 }
             }
             if (metadata) {
