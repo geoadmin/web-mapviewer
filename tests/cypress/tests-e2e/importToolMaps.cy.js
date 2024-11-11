@@ -272,7 +272,6 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the single layer has been added to the map')
-        // NOTE here below itemId-1 should be present once as a single layer only
         cy.checkOlLayer([bgLayer, itemId, `${itemId}-1`, singleLayerId])
 
         //-----------------------------------------------------------------------------------------
