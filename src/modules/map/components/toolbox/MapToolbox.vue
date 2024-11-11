@@ -49,7 +49,7 @@ const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
     >
         <FullScreenButton v-if="fullScreenButton" />
         <GeolocButton v-if="geolocButton" :compass-button="compassButton" />
-        <ZoomButtons />
+        <ZoomButtons class="hide-on-mobile" />
         <Toggle3dButton v-if="toggle3dButton" />
         <slot />
     </div>
@@ -85,6 +85,12 @@ const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
         &.dev-disclaimer-present.drawing-mode {
             top: $header-height;
         }
+    }
+}
+
+.hide-on-mobile {
+    @include respond-below(phone) {
+        display: none;
     }
 }
 </style>

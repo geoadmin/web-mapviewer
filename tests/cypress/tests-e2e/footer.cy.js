@@ -5,6 +5,7 @@ import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
+        cy.viewport(1920, 1080)
         cy.goToMapView({
             sr: WEBMERCATOR.epsgNumber,
         })
