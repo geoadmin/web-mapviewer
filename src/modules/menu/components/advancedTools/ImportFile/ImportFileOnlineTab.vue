@@ -79,11 +79,10 @@ async function loadFile() {
 
     try {
         await handleFileSource(fileUrl.value, false)
-        if (!fileUrl.value.match(/https:\/\//)) {
+        if (!fileUrl.value.match(/^https:\/\//)) {
             store.dispatch('addWarnings', {
-                warnings: [
-                    new WarningMessage('import_http_external_file_warning', { url: fileUrl.value }),
-                ],
+                warnings: [new WarningMessage('import_http_external_file_warning', {})],
+                dispatcher: 'Import File Online Tab',
             })
         }
         importSuccessMessage.value = 'file_imported_success'
