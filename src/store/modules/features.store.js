@@ -118,7 +118,9 @@ export const runIdentify = (config) => {
                 })
                 // filtering out duplicates
                 resolve(
-                    allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
+                    Array.from(
+                        new Map(allFeatures.map((feature) => [feature.id, feature])).values()
+                    )
                 )
             })
             .catch((error) => {

@@ -64,7 +64,7 @@ function getLayerName(layerId) {
         .map(
             (layer) => layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
         )
-        .reduce((previousValue, currentValue) => previousValue ?? currentValue)
+        .reduce((previousValue, currentValue) => previousValue ?? currentValue, null)
 }
 
 function loadMoreResultForLayer(layerId) {
