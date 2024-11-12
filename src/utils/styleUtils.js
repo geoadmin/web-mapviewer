@@ -3,6 +3,7 @@ import CircleStyle from 'ol/style/Circle.js'
 
 import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import variables from '@/scss/variables-admin.module.scss'
+import { MIN_PRINT_SCALE_SIZE } from '@/api/print.api'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
 
@@ -159,9 +160,9 @@ export const highlightPointStyle = new Style({
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
 export function adjustWidth(width, dpi) {
-    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
+    if (!width || isNaN(width) || width <= 0 || !dpi || isNaN(dpi) || dpi <= 0) {
         return 0
     }
 
-    return (width * PRINT_DPI_COMPENSATION) / dpi
+    return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
 }
