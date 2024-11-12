@@ -715,5 +715,67 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+
+        // Import multi segment GPX file and verify profile
+        cy.log('Test import multi segment GPX file and verify profile')
+        const gpxMultiSegmentFileName = 'external-gpx-file-multi-segment.gpx'
+        const gpxMultiSegmentFileFixture = `import-tool/${gpxMultiSegmentFileName}`
+
+        cy.reload()
+        cy.waitMapIsReady()
+        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
+        cy.openMenuIfMobile()
+        cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}-"]:visible`).click()
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // the menu should be automatically closed on opening import tool box
+        cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+        cy.get('[data-cy="import-file-content"]').should('be.visible')
+        cy.get('[data-cy="import-file-online-content"]').should('be.visible')
+
+        const validMultiSegmentOnlineUrl = 'https://example.com/valid-multi-segement-gpx-file.gpx'
+        createHeadAndGetIntercepts(
+            validMultiSegmentOnlineUrl,
+            'GpxFile',
+            {
+                fixture: gpxMultiSegmentFileFixture,
+            },
+            {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/gpx+xml' },
+            }
+        )
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="text-input"]:visible').type(validMultiSegmentOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+        const profileIntercept = '**/rest/services/profile.json**'
+        cy.intercept(profileIntercept, {
+            fixture: 'service-alti/profile.fixture.json',
+        }).as('profile')
+
+        cy.closeMenuIfMobile()
+
+        cy.get('[data-cy="window-close"]').click()
+        cy.get('[data-cy="ol-map"]').click(150, 250)
+
+        cy.get('[data-cy="show-profile"]').click()
+        Object.entries({
+            profile_elevation_difference: '0.00m',
+            profile_elevation_down: '0.10m',
+            profile_elevation_up: '0.10m',
+            profile_poi_down: "1'342m",
+            profile_poi_up: "1'342m",
+            profile_distance: '4.50m',
+            profile_slope_distance: '4.51m',
+        }).forEach(([key, value]) => {
+            cy.get(`[data-cy="profile-popup-info-${key}"]`).should('contain.text', value)
+        })
+        cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
+        cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
+        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
+        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
     })
 })

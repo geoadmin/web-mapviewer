@@ -17,17 +17,6 @@ import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-/** @param {SelectableFeature} feature */
-export function canFeatureShowProfile(feature) {
-    return (
-        feature?.geometry?.type &&
-        (['LineString', 'Polygon'].includes(feature.geometry.type) ||
-            // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
-            (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
-                feature.geometry.coordinates.length === 1))
-    )
-}
-
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
@@ -394,10 +383,7 @@ export default {
                     geometry,
                     dispatcher,
                 })
-                // if the feature can show a profile we need to trigger a profile data update
-                if (canFeatureShowProfile(selectedFeature)) {
-                    dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
-                }
+                dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
             }
         },
         /**
@@ -606,7 +592,7 @@ export default {
             if (feature === null) {
                 commit('setProfileFeature', { feature: null, dispatcher })
                 commit('setProfileData', { data: null, dispatcher })
-            } else if (canFeatureShowProfile(feature)) {
+            } else {
                 if (state.profileRequestError) {
                     commit('setProfileRequestError', { error: null, dispatcher })
                 }
@@ -627,9 +613,13 @@ export default {
                     } else {
                         coordinates = [...feature.geometry.coordinates]
                     }
-                    // unwrapping the first set of coordinates if they come from a multi-feature type geometry
-                    if (coordinates[0].some((coordinate) => Array.isArray(coordinate))) {
-                        coordinates = coordinates[0]
+                    // unwrapping the set of coordinates if they come from a multi-feature type geometry
+                    if (
+                        coordinates?.length &&
+                        coordinates.some(Array.isArray) &&
+                        coordinates[0].some((coordinate) => Array.isArray(coordinate))
+                    ) {
+                        coordinates = coordinates.flat()
                     }
                     getProfile(coordinates, rootState.position.projection)
                         .then((profileData) => {
@@ -640,8 +630,6 @@ export default {
                             commit('setProfileRequestError', { error: error, dispatcher })
                         })
                 }
-            } else {
-                log.warn('Geometry type not supported to show a profile, ignoring', feature)
             }
         },
         /**

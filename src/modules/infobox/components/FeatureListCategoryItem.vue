@@ -7,7 +7,6 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
-import { canFeatureShowProfile } from '@/store/modules/features.store'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
@@ -33,8 +32,6 @@ const { name, item, showContentByDefault } = toRefs(props)
 const content = ref(null)
 const featureTitle = ref(null)
 const showContent = ref(!!showContentByDefault.value)
-
-const canDisplayProfile = computed(() => canFeatureShowProfile(item.value))
 
 const store = useStore()
 const isHighlightedFeature = computed(
@@ -110,7 +107,7 @@ function showContentAndScrollIntoView(event) {
         @mouseleave.passive="clearHighlightedFeature"
     >
         <FeatureDetail :feature="item" />
-        <div v-if="canDisplayProfile" class="d-grid p-1">
+        <div class="d-grid p-1">
             <ShowGeometryProfileButton :feature="item" @click="showContentAndScrollIntoView" />
         </div>
     </div>
