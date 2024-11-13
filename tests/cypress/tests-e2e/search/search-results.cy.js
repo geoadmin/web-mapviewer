@@ -402,4 +402,54 @@ describe('Test the search bar result handling', () => {
         cy.readStoreValue('state.search.query').should('equal', '')
         cy.get('@locationSearchResults').should('not.exist')
     })
+    it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
+        cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+            body: { results: [] },
+        }).as('search-layers')
+        const coordinates = [2598633.75, 1200386.75]
+        cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
+            body: {
+                results: [
+                    {
+                        attrs: {
+                            detail: '1530 payerne 5822 payerne ch vd',
+                            label: '  <b>1530 Payerne</b>',
+                            lat: 46.954559326171875,
+                            lon: 7.420684814453125,
+                            y: coordinates[0],
+                            x: coordinates[1],
+                        },
+                    },
+                    {
+                        attrs: {
+                            detail: '1530 payerne 5822 payerne ch vd 2',
+                            label: '  <b>1530 Payerne</b> 2',
+                            lat: 46.954559326171875,
+                            lon: 7.420684814453125,
+                            y: coordinates[0],
+                            x: coordinates[1],
+                        },
+                    },
+                ],
+            },
+        }).as('search-locations')
+        cy.goToMapView(
+            {
+                swisssearch: '1530 Payerne',
+                swisssearch_autoselect: 'true',
+            },
+            false
+        )
+        cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
+        cy.url().should('not.contain', 'swisssearch')
+        cy.url().should('not.contain', 'swisssearch_autoselect')
+        const acceptableDelta = 0.25
+
+        cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
+            expect(feature).to.not.be.null
+            expect(feature).to.be.a('array').that.is.not.empty
+            expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
+            expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
+        })
+    })
 })

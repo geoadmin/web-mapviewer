@@ -29,11 +29,45 @@ const state = {
      * @type {SearchResult[]}
      */
     results: [],
+
+    /**
+     * If true, the first search result will be automatically selected
+     *
+     * @type {Boolean}
+     */
+    autoSelect: false,
 }
 
 const getters = {}
 
+/**
+ * Returns the appropriate result for autoselection from a list of search results.
+ *
+ * If there is only one result, it returns that result. Otherwise, it tries to find a result with
+ * the resultType of LOCATION. If such a result is found, it returns that result. If no result with
+ * resultType LOCATION is found, it returns the first result in the list.
+ *
+ * @param {SearchResult[]} results - The list of search results.
+ * @returns {SearchResult} - The selected search result for autoselection.
+ */
+function getResultForAutoselect(results) {
+    if (results.length === 1) {
+        return results[0]
+    }
+    // Try to find a result with resultType LOCATION
+    const locationResult = results.find(
+        (result) => result.resultType === SearchResultTypes.LOCATION
+    )
+
+    // If a location result is found, return it; otherwise, return the first result
+    return locationResult ?? results[0]
+}
+
 const actions = {
+    setAutoSelect: ({ commit }, { value = false, dispatcher }) => {
+        commit('setAutoSelect', { value, dispatcher })
+    },
+
     /**
      * @param {vuex} vuex
      * @param {Object} payload
@@ -41,7 +75,7 @@ const actions = {
      */
     setSearchQuery: async (
         { commit, rootState, dispatch, getters },
-        { query = '', shouldCenter = true, dispatcher }
+        { query = '', originUrlParam = false, shouldCenter = true, dispatcher }
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
@@ -135,7 +169,17 @@ const actions = {
                         queryString: query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
+                        limit: state.autoSelect ? 1 : null,
                     })
+                    if (
+                        (originUrlParam && results.length === 1) ||
+                        (originUrlParam && state.autoSelect && results.length >= 1)
+                    ) {
+                        dispatch('selectResultEntry', {
+                            dispatcher: `${dispatcher}/setSearchQuery`,
+                            entry: getResultForAutoselect(results),
+                        })
+                    }
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }
@@ -172,6 +216,7 @@ const actions = {
                         queryString: state.query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
+                        limit: state.autoSelect ? 1 : null,
                     })
                     if (resultIncludingLayerFeatures.length > state.results.length) {
                         commit('setSearchResults', {
@@ -235,6 +280,12 @@ const actions = {
 
                 break
         }
+        if (state.autoSelect) {
+            dispatch('setAutoSelect', {
+                value: false,
+                dispatcher: dispatcherSelectResultEntry,
+            })
+        }
     },
 }
 
@@ -264,6 +315,7 @@ function createLayerFeature(olFeature, layer) {
 }
 
 const mutations = {
+    setAutoSelect: (state, { value }) => (state.autoSelect = value),
     setSearchQuery: (state, { query }) => (state.query = query),
     setSearchResults: (state, { results }) => (state.results = results ?? []),
 }
