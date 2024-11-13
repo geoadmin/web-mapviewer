@@ -1,5 +1,5 @@
 <script setup>
-import { Feature } from 'ol'
+import { LineString } from 'ol/geom'
 import Overlay from 'ol/Overlay'
 import { onMounted, ref, watch } from 'vue'
 import { inject } from 'vue'
@@ -9,7 +9,7 @@ import AddVertexButton from './AddVertexButton.vue'
 
 const props = defineProps({
     lineString: {
-        type: Feature,
+        type: LineString,
         required: true,
     },
 })
@@ -23,7 +23,7 @@ const firstButtonCoordinate = ref(null)
 const lastButtonCoordinate = ref(null)
 
 const updateButtonPositions = () => {
-    const coordinates = props.lineString.geometry.coordinates
+    const coordinates = props.lineString.coordinates
     firstButtonCoordinate.value = coordinates[0]
     lastButtonCoordinate.value = coordinates[coordinates.length - 1]
     if (firstButtonOverlay.value) {
@@ -58,7 +58,7 @@ const onLastButtonMounted = (buttonElement) => {
 
 onMounted(() => {
     updateButtonPositions()
-    watch(() => props.lineString.geometry.coordinates, updateButtonPositions)
+    watch(() => props.lineString.coordinates, updateButtonPositions)
 })
 
 onUnmounted(() => {

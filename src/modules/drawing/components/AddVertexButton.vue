@@ -40,6 +40,13 @@ onMounted(() => {
     z-index: 99;
 }
 
+.btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
 .icon-circle {
     display: inline-block;
     width: 1.5rem;
@@ -50,6 +57,15 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     border: 1px solid black;
+    transition:
+        background-color 0.3s,
+        border-color 0.3s;
+}
+
+.btn:hover .icon-circle {
+    background-color: #e0e0e0; /* Darker background color */
+    border-color: black;
+    font-weight: bold;
 }
 
 .tooltip {

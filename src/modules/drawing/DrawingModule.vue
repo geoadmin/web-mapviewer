@@ -228,7 +228,7 @@ async function closeDrawing() {
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
             v-if="selectedLineString"
-            :line-string="selectedLineString"
+            :line-string="selectedLineString.geometry"
         ></AddVertexButtonOverlay>
     </div>
 </template>
