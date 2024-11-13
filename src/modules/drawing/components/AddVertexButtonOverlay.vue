@@ -39,7 +39,7 @@ const onFirstButtonMounted = (buttonElement) => {
         element: buttonElement,
         positioning: 'center-center',
         stopEvent: true,
-        // offset: [-50, -50], // TODO: make this dynamic according to the next point
+        offset: [-25, -25], // TODO: make this dynamic according to the next point
     })
     olMap.addOverlay(firstButtonOverlay.value)
     updateButtonPositions()
@@ -50,7 +50,7 @@ const onLastButtonMounted = (buttonElement) => {
         element: buttonElement,
         positioning: 'center-center',
         stopEvent: true,
-        // offset: [-50, -50], // TODO: make this dynamic according to the next point
+        offset: [-25, -25], // TODO: make this dynamic according to the next point
     })
     olMap.addOverlay(lastButtonOverlay.value)
     updateButtonPositions()
