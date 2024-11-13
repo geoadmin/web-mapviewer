@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
@@ -32,6 +33,20 @@ const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedLineString = computed(() => {
+    if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
+        const selectedFeature = selectedEditableFeatures.value[0]
+        if (selectedFeature.geometry.type === 'LineString') {
+            return selectedFeature
+        } else {
+            return null
+        }
+    } else {
+        return null
+    }
+})
+
 const hasKml = computed(() => {
     if (online.value) {
         return !!activeKmlLayer.value
@@ -211,5 +226,9 @@ async function closeDrawing() {
         <DrawingToolbox @remove-last-point="removeLastPoint" @close-drawing="closeDrawing" />
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
+        <AddVertexButtonOverlay
+            v-if="selectedLineString"
+            :line-string="selectedLineString"
+        ></AddVertexButtonOverlay>
     </div>
 </template>
