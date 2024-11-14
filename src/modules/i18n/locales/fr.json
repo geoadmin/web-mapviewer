@@ -496,6 +496,7 @@
     "profile_no_data": "Aucune donnée",
     "profile_poi_down": "Point le plus bas",
     "profile_poi_up": "Point culminant",
+    "profile_segment": "Segment {segmentNumber}",
     "profile_slope_distance": "Longeur chemin ",
     "profile_title": "Profil",
     "profile_too_many_points_error": "La demande de profil était trop volumineuse et n'a pas pu être traitée.",

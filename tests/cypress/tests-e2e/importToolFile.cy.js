@@ -777,5 +777,8 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
         cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
         cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
+        cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
+        cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
+        cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
     })
 })

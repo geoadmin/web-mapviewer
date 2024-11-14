@@ -5,14 +5,40 @@ import { LineString } from 'ol/geom'
  * calculation related to profile (hiking time, slop/distance, etc...)
  */
 export default class ElevationProfile {
-    /** @param {ElevationProfileSegment[]} segments */
+    /**
+     * Creates an instance of ElevationProfile.
+     *
+     * @param {ElevationProfileSegment[]} segments - An array of elevation profile segments.
+     * @param {number} _activeSegmentIndex - The index of the active segment.
+     */
     constructor(segments) {
-        /** @type {ElevationProfileSegment[]} */
         this.segments = [...segments]
+        this._activeSegmentIndex = 0
     }
 
     get points() {
         return this.segments.flatMap((segment) => segment.points)
+    }
+
+    get segmentPoints() {
+        return this.segments[this._activeSegmentIndex].points
+    }
+
+    /** @returns {Number} */
+    get segmentsCount() {
+        return this.segments.length
+    }
+
+    /** @returns {Number} */
+    get activeSegmentIndex() {
+        return this._activeSegmentIndex
+    }
+
+    set activeSegmentIndex(index) {
+        if (index < 0 || index >= this.segmentsCount) {
+            return
+        }
+        this._activeSegmentIndex = index
     }
 
     /** @returns {Number} */
@@ -38,7 +64,7 @@ export default class ElevationProfile {
         if (!this.hasDistanceData) {
             return 0
         }
-        return this.segments.slice(-1)[0].maxDist
+        return this.segments[this._activeSegmentIndex].maxDist
     }
 
     /** @returns {Number} */
@@ -46,7 +72,9 @@ export default class ElevationProfile {
         if (!this.hasElevationData) {
             return 0
         }
-        return Math.max(...this.points.map((point) => point.elevation))
+        return Math.max(
+            ...this.segments[this._activeSegmentIndex].points.map((point) => point.elevation)
+        )
     }
 
     /** @returns {Number} */
@@ -55,7 +83,9 @@ export default class ElevationProfile {
             return 0
         }
         return Math.min(
-            ...this.points.filter((point) => point.hasElevationData).map((point) => point.elevation)
+            ...this.segments[this._activeSegmentIndex].points
+                .filter((point) => point.hasElevationData)
+                .map((point) => point.elevation)
         )
     }
 
@@ -64,26 +94,23 @@ export default class ElevationProfile {
         if (!this.hasElevationData) {
             return 0
         }
-        return this.points.slice(-1)[0].elevation - this.points[0].elevation
+        return (
+            this.segments[this._activeSegmentIndex].points.slice(-1)[0].elevation -
+            this.segments[this._activeSegmentIndex].points[0].elevation
+        )
     }
 
     get totalAscent() {
-        return this.segments.reduce((totalAscent, currentSegment) => {
-            return totalAscent + currentSegment.totalAscent
-        }, 0)
+        return this.segments[this._activeSegmentIndex].totalAscent
     }
 
     get totalDescent() {
-        return this.segments.reduce((totalDescent, currentSegment) => {
-            return totalDescent + currentSegment.totalDescent
-        }, 0)
+        return this.segments[this._activeSegmentIndex].totalDescent
     }
 
     /** @returns {Number} Sum of slope/surface distances (distance on the ground) */
     get slopeDistance() {
-        return this.segments.reduce((slopeDistance, currentSegment) => {
-            return slopeDistance + currentSegment.slopeDistance
-        }, 0)
+        return this.segments[this._activeSegmentIndex].slopeDistance
     }
 
     get coordinates() {
@@ -105,8 +132,6 @@ export default class ElevationProfile {
      * @returns {number} Estimation of hiking time for this profile
      */
     get hikingTime() {
-        return this.segments.reduce((hikingTime, currentSegment) => {
-            return hikingTime + currentSegment.hikingTime
-        }, 0)
+        return this.segments[this._activeSegmentIndex].hikingTime
     }
 }

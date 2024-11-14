@@ -17,6 +17,11 @@ import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
+/** @param {SelectableFeature} feature */
+export function canFeatureShowProfile(feature) {
+    return feature?.geometry?.type && !['Point'].includes(feature.geometry.type)
+}
+
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
@@ -401,6 +406,11 @@ export default {
                 commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
             }
         },
+        setActiveSegmentIndex({ commit, state }, { index, dispatcher }) {
+            if (state.profileData && state.profileData.activeSegmentIndex !== index) {
+                commit('setActiveSegmentIndex', { index: index, dispatcher })
+            }
+        },
         /**
          * Changes the description of the feature. Only change the description if the feature is
          * editable and part of the currently selected features
@@ -592,7 +602,7 @@ export default {
             if (feature === null) {
                 commit('setProfileFeature', { feature: null, dispatcher })
                 commit('setProfileData', { data: null, dispatcher })
-            } else {
+            } else if (canFeatureShowProfile(feature)) {
                 if (state.profileRequestError) {
                     commit('setProfileRequestError', { error: null, dispatcher })
                 }
@@ -613,14 +623,6 @@ export default {
                     } else {
                         coordinates = [...feature.geometry.coordinates]
                     }
-                    // unwrapping the set of coordinates if they come from a multi-feature type geometry
-                    if (
-                        coordinates?.length &&
-                        coordinates.some(Array.isArray) &&
-                        coordinates[0].some((coordinate) => Array.isArray(coordinate))
-                    ) {
-                        coordinates = coordinates.flat()
-                    }
                     getProfile(coordinates, rootState.position.projection)
                         .then((profileData) => {
                             commit('setProfileData', { data: profileData, dispatcher })
@@ -630,6 +632,8 @@ export default {
                             commit('setProfileRequestError', { error: error, dispatcher })
                         })
                 }
+            } else {
+                log.warn('Geometry type not supported to show a profile, ignoring', feature)
             }
         },
         /**
@@ -701,6 +705,9 @@ export default {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
             state.selectedFeaturesByLayerId = layerFeaturesByLayerId
             state.selectedEditableFeatures = [...drawingFeatures]
+        },
+        setActiveSegmentIndex(state, { index }) {
+            state.profileData.activeSegmentIndex = index
         },
         addSelectedFeatures(state, { featuresForLayer, features, featureCountForMoreData = 0 }) {
             featuresForLayer.features.push(...features)
