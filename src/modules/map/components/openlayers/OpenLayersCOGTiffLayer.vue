@@ -40,11 +40,9 @@ const opacity = computed(() => parentLayerOpacity.value ?? geotiffConfig.value.o
 const layer = new WebGLTileLayer({
     source: createLayerSource(),
     opacity: opacity.value,
+    id: source.value.url,
 })
-// we need to set the id, otherwise it would be undefined and we could not work with the layer with some tools
-if (!layer.get('id')) {
-    layer.set('id', source.value.url)
-}
+
 useAddLayerToMap(layer, olMap, zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

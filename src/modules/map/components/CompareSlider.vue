@@ -1,27 +1,21 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { unByKey } from 'ol/Observable'
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { getRenderPixel } from 'ol/render'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getRenderPixel } from 'ol/render'
+import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
 
 const olMap = inject('olMap')
 
-const preRenderKey = ref(null)
-const postRenderKey = ref(null)
 const compareSliderOffset = ref(0)
 const showLayerName = ref(false)
-const context = ref(null)
 const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
 const clientWidth = computed(() => store.state.ui.width)
 const compareSliderPosition = computed(() => {
     return {
@@ -29,95 +23,98 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const visibleLayers = computed(() => store.getters.visibleLayers)
+const shouldUseWebGlContext = computed(
+    () => store.getters.visibleLayerOnTop.type === LayerTypes.COG
+)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
-    nextTick(slice)
+    olMap.render()
 })
 
-watch(visibleLayers, () => {
-    nextTick(slice)
-})
-
-watch(visibleLayerOnTop, () => {
-    context.value = null
+watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
+    unRegisterRenderingEvents(oldLayerOnTop.id)
+    olMap.renderSync()
+    registerRenderingEvents(newLayerOnTop.id)
+    olMap.renderSync()
 })
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
-    nextTick(slice)
-})
-
-onUnmounted(() => {
-    compareRatio.value = storeCompareRatio.value
-    context.value = null
-
-    nextTick(slice)
-})
-
-function slice() {
-    if (isCompareSliderActive.value) {
-        if (preRenderKey.value !== null && postRenderKey.value !== null) {
-            unByKey(preRenderKey.value)
-            unByKey(postRenderKey.value)
-            preRenderKey.value = null
-            postRenderKey.value = null
-        }
-        const topVisibleLayer = olMap
-            ?.getAllLayers()
-            .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
-            .find((layer) => layer.get('id') === visibleLayerOnTop.value?.id)
-        log.debug(`Compare slider slicing`, topVisibleLayer, visibleLayerOnTop.value)
-        if (topVisibleLayer && visibleLayerOnTop.value.type !== LayerTypes.COG) {
-            preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
-            postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
-        } else {
-            preRenderKey.value = topVisibleLayer.on('prerender', onWebGLPreRender)
-            postRenderKey.value = topVisibleLayer.on('postrender', onWebGLPostRender)
-        }
-    }
+    registerRenderingEvents(visibleLayerOnTop.value.id)
+    //register event
     olMap.render()
-}
-function onWebGLPreRender(event) {
-    if (!context.value) {
-        context.value = event.context
-    }
-    const mapSize = olMap.getSize()
-    // get render coordinates and dimensions given CSS coordinates
-    const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
-    const topRight = getRenderPixel(event, [mapSize[0], 0])
+})
 
-    let width = topRight[0] - bottomLeft[0]
-    const height = topRight[1] - bottomLeft[1]
-    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-        width = Math.round(width * compareRatio.value)
-    }
-    context.value.enable(context.value.SCISSOR_TEST)
+onBeforeUnmount(() => {
+    compareRatio.value = storeCompareRatio.value
+    unRegisterRenderingEvents(visibleLayerOnTop.value.id)
 
-    context.value.scissor(bottomLeft[0], bottomLeft[1], width, height)
+    olMap.render()
+})
+
+function registerRenderingEvents(layerId) {
+    const layer = getLayerFromMapById(layerId)
+    layer?.once('prerender', (event) => {
+        if (shouldUseWebGlContext.value) {
+            event.context.clear(event.context.COLOR_BUFFER_BIT)
+        }
+    })
+
+    layer?.on('prerender', onPreRender)
+    layer?.on('postrender', onPostRender)
 }
-function onWebGLPostRender(event) {
-    context.value.disable(context.value.SCISSOR_TEST)
+
+function unRegisterRenderingEvents(layerId) {
+    const layer = getLayerFromMapById(layerId)
+    layer?.un('prerender', onPreRender)
+    layer?.un('postrender', onPostRender)
 }
+
+function getLayerFromMapById(layerId) {
+    return olMap
+        ?.getAllLayers()
+        .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
+        .find((layer) => layer.get('id') === layerId)
+}
+
 function onPreRender(event) {
-    if (!context.value) {
-        context.value = event.context
-    }
-    // the offset is there to ensure we get to the slider line, and not the border of the element
-    let width = context.value.canvas.width
-    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-        width = context.value.canvas.width * compareRatio.value
-    }
+    const context = event.context
 
-    context.value.save()
-    context.value.beginPath()
-    context.value.rect(0, 0, width, context.value.canvas.height)
-    context.value.clip()
+    if (shouldUseWebGlContext.value) {
+        context.enable(context.SCISSOR_TEST)
+        const mapSize = olMap.getSize()
+        // get render coordinates and dimensions given CSS coordinates
+        const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
+        const topRight = getRenderPixel(event, [mapSize[0], 0])
+
+        let width = topRight[0] - bottomLeft[0]
+        const height = topRight[1] - bottomLeft[1]
+        if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
+            width = Math.round(width * compareRatio.value)
+        }
+        context.clear(context.COLOR_BUFFER_BIT)
+
+        context.scissor(bottomLeft[0], bottomLeft[1], width, height)
+    } else {
+        const width =
+            compareRatio.value > 0 && compareRatio.value < 1.0
+                ? compareRatio.value * context.canvas.width
+                : context.canvas.width
+        context.save()
+        context.beginPath()
+        context.rect(0, 0, width, context.canvas.height)
+        context.clip()
+    }
 }
 
 function onPostRender(event) {
-    context.value.restore()
+    const context = event.context
+    if (shouldUseWebGlContext.value) {
+        context.disable(context.SCISSOR_TEST)
+    } else {
+        context.restore()
+    }
 }
 
 function grabSlider(event) {
@@ -150,8 +147,7 @@ function listenToMouseMove(event) {
     }
 
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
-    nextTick(slice)
-    //olMap.render()
+    olMap.render()
 }
 
 function releaseSlider() {
