@@ -3,9 +3,9 @@
  * it here
  */
 
-import { loadKmlMetadata } from '@/api/files.api'
+import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { getOnlineFileContent } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -45,11 +45,25 @@ async function loadMetadata(store, kmlLayer) {
  */
 async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
-    // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
 
-    const { mimeType, loadedContent } = await getOnlineFileContent(kmlLayer.kmlFileUrl, {
-        responseType: 'arraybuffer',
-    })
+    // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
+    const { mimeType, supportsCORS, supportsHTTPS } = await checkOnlineFileCompliance(
+        kmlLayer.kmlFileUrl
+    )
+    let loadedContent = null
+    try {
+        if (supportsCORS && supportsHTTPS) {
+            loadedContent = await getFileContentFromUrl(kmlLayer.kmlFileUrl)
+        } else if (mimeType) {
+            loadedContent = await getFileContentThroughServiceProxy(kmlLayer.kmlFileUrl)
+        }
+    } catch (error) {
+        log.error(
+            '[load-kml-kmz-data] error while loading file content for',
+            kmlLayer.kmlFileUrl,
+            error
+        )
+    }
     if (!mimeType && !loadedContent) {
         log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
         store.dispatch('addLayerError', {
@@ -69,7 +83,6 @@ async function loadData(store, kmlLayer) {
                 currentProjection: store.state.position.projection,
             },
             {
-                allowServiceProxy: false,
                 mimeType,
                 loadedContent,
             }
@@ -92,7 +105,6 @@ async function loadData(store, kmlLayer) {
                 currentProjection: store.state.position.projection,
             },
             {
-                allowServiceProxy: false,
                 mimeType,
                 loadedContent,
             }

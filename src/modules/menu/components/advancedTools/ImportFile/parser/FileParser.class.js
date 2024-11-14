@@ -1,7 +1,5 @@
-import axios from 'axios'
-
-import { getContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { getFileFromUrl } from '@/api/files.api'
+import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
 import log from '@/utils/logging'
 
 /**
@@ -29,21 +27,31 @@ export default class FileParser {
      * @param {String[]} config.fileContentTypes Which MIME types are typically associated with this
      *   file type. Will be used with one HTTP HEAD request on the file URL (if online file) to
      *   assert if this parser is the valid candidate for the file.
+     * @param {Boolean} [config.shouldLoadOnlineContent=true] Flag telling if remote content should
+     *   be loaded by this parser to properly parse it. If set to false, no GET (or proxy) request
+     *   will be fired on the file URL. Default is `true`
      * @param {ValidateFileContent} [config.validateFileContent=null] Function receiving the content
      *   from a file (as ArrayBuffer), and assessing if it is a match for this parser. Default is
      *   `null`
+     * @param {Boolean} [config.allowServiceProxy=false] Flag telling if the content of the file can
+     *   be requested through service-proxy in case the server hosting the file doesn't support
+     *   CORS. Default is `false`
      */
     constructor(config = {}) {
         const {
             fileTypeLittleEndianSignature = [],
             fileExtensions = [],
             fileContentTypes = [],
+            shouldLoadOnlineContent = true,
             validateFileContent = null,
+            allowServiceProxy = false,
         } = config
         this.fileTypeLittleEndianSignature = fileTypeLittleEndianSignature
         this.fileExtensions = fileExtensions
         this.fileContentTypes = fileContentTypes
+        this.shouldLoadOnlineContent = shouldLoadOnlineContent
         this.validateFileContent = validateFileContent
+        this.allowServiceProxy = allowServiceProxy
     }
 
     /**
@@ -88,7 +96,7 @@ export default class FileParser {
      * @returns {Promise<AbstractLayer>}
      */
     async parseLocalFile(file, currentProjection) {
-        return this.parseFileContent(await file.arrayBuffer(), file.name, currentProjection)
+        return this.parseFileContent(await file.arrayBuffer(), file, currentProjection)
     }
 
     /**
@@ -108,21 +116,19 @@ export default class FileParser {
      *
      * @param {String} fileUrl
      * @param {Object} options
-     * @param {Boolean} [options.allowServiceProxy] Flag telling if the resource could be accessed
-     *   with the use of service-proxy if another means do not work (MIME type parsing or little
-     *   endian signature detection)
-     * @param {String} [options.mimeType] MIME type (from a Content-Type HTTP header) gathered from
-     *   a previous HEAD request (so no need to re-run a HEAD request to get this info)
+     * @param {OnlineFileCompliance} [options.fileCompliance=null] Compliance check results that
+     *   were previously gathered for this file. If not given, this function will run its own
+     *   compliance checks. Default is `null`
      * @param {ArrayBuffer} [options.loadedContent] File content already loaded (most likely by
      *   service-proxy). When given, no other request will be made on the file source, but this
      *   content will be used instead.
      * @returns {Promise<Boolean>}
      */
     async isOnlineFileParsingPossible(fileUrl, options = {}) {
-        const { allowServiceProxy = false, mimeType = null, loadedContent = null } = options
+        const { fileCompliance = null, loadedContent = null } = options
 
-        if (mimeType && !loadedContent) {
-            return this.fileContentTypes.includes(mimeType)
+        if (fileCompliance && this.fileContentTypes.includes(fileCompliance.mimeType)) {
+            return true
         }
 
         if (loadedContent) {
@@ -134,25 +140,39 @@ export default class FileParser {
             fileUrl,
             this.constructor.name
         )
-        // HEAD request wasn't run yet (we are not coming from the main parseLayerFromFile function)
+        // HEAD/GET request wasn't run yet (we are not coming from the main parseLayerFromFile function)
         // so we have to run all the requests ourselves
         try {
-            const headResponse = await axios.head(fileUrl)
-            return this.fileContentTypes.includes(headResponse.headers.get('content-type'))
-        } catch (error) {
-            if (allowServiceProxy) {
-                log.debug(
-                    `[FileParser][${this.constructor.name}] could not access resource through HEAD request, trying through service-proxy`,
-                    fileUrl
-                )
-                return this.isFileContentValid(await getContentThroughServiceProxy(fileUrl))
-            } else {
-                log.debug(
-                    `[FileParser][${this.constructor.name}] HEAD request failed, but service-proxy is not allowed for file, could not parse`,
-                    fileUrl,
-                    this.constructor.name
-                )
+            const { mimeType, supportsCORS, supportsHTTPS } =
+                await checkOnlineFileCompliance(fileUrl)
+            // if a MIME type match is found, then all good
+            if (this.fileContentTypes.includes(mimeType)) {
+                return true
             }
+            // if no MIME type match and file content can be checked, we load it now
+            if (this.shouldLoadOnlineContent) {
+                try {
+                    let loadedContent = null
+                    if (supportsCORS && supportsHTTPS) {
+                        loadedContent = await getFileContentFromUrl(fileUrl)
+                    } else {
+                        loadedContent = await getFileContentThroughServiceProxy(fileUrl)
+                    }
+                    return loadedContent && this.isFileContentValid(loadedContent)
+                } catch (error) {
+                    log.error(
+                        `[FileParser][${this.constructor.name}] Could not load file content for`,
+                        fileUrl,
+                        error
+                    )
+                }
+            }
+        } catch (error) {
+            log.warn(
+                `[FileParser][${this.constructor.name}] HEAD request failed, could not parse`,
+                fileUrl,
+                this.constructor.name
+            )
         }
         return false
     }
@@ -160,7 +180,7 @@ export default class FileParser {
     /**
      * @abstract
      * @param {ArrayBuffer} fileContent
-     * @param {String} fileSource
+     * @param {File | String} fileSource
      * @param {CoordinateSystem} currentProjection
      * @returns {Promise<AbstractLayer>}
      */
@@ -174,25 +194,40 @@ export default class FileParser {
      *   against the current projection (and raise OutOfBoundError in case no mutual data is
      *   available)
      * @param {Object} options
-     * @param {Number} [options.timeout] The timeout length (in milliseconds) to use when requesting
-     *   online file
+     * @param {ArrayBuffer} [options.loadedContent] File content already loaded (most likely by
+     *   service-proxy). When given, no other request will be made on the file source, but this
+     *   content will be used instead.
+     * @param {OnlineFileCompliance} [options.fileCompliance=null] Compliance check results that
+     *   were previously gathered for this file. If not given, this function will run its own
+     *   compliance checks. Default is `null`
      * @returns {Promise<AbstractLayer>}
      */
     async parseUrl(fileUrl, currentProjection, options = {}) {
-        const { loadedContent = null } = options
+        const { loadedContent = null, fileCompliance = null } = options
         if (loadedContent) {
             log.debug(
                 `[FileParser][${this.constructor.name}] preloaded content detected, won't create new requests`
             )
             return await this.parseFileContent(loadedContent, fileUrl, currentProjection)
+        } else if (this.shouldLoadOnlineContent) {
+            // no preloaded content, we load the file ourselves
+            // checking for CORS/HTTPS support
+            const { supportsCORS, supportsHTTPS } =
+                fileCompliance ?? (await checkOnlineFileCompliance(fileUrl))
+            let fileContent = null
+            if (supportsCORS && supportsHTTPS) {
+                fileContent = await getFileContentFromUrl(fileUrl)
+            } else if (this.allowServiceProxy) {
+                fileContent = await getFileContentThroughServiceProxy(fileUrl)
+            } else {
+                throw new Error(
+                    `[FileParser][${this.constructor.name}] could not load content for file ${fileUrl}`
+                )
+            }
+
+            return await this.parseFileContent(fileContent, fileUrl, currentProjection)
         }
-        // no preloaded content, we load the file itself
-        const fileContent = await getFileFromUrl(fileUrl, {
-            ...options,
-            // Reading zip archive as text is asking for trouble therefore we use ArrayBuffer (for KMZ)
-            responseType: 'arraybuffer',
-        })
-        return await this.parseFileContent(fileContent.data, fileUrl, currentProjection)
+        return await this.parseFileContent(null, fileUrl, currentProjection)
     }
 
     /**
@@ -204,11 +239,9 @@ export default class FileParser {
      * @param {Object} [options]
      * @param {Number} [options.timeout] The timeout length (in milliseconds) to use when requesting
      *   online file
-     * @param {Boolean} [options.allowServiceProxy=false] Flag telling if the resource could be
-     *   accessed with the use of service-proxy if another means do not work (MIME type parsing or
-     *   little endian signature detection). Default is `false`
-     * @param {String} [options.mimeType] MIME type (from a Content-Type HTTP header) gathered from
-     *   a previous HEAD request (so no need to re-run a HEAD request to get this info)
+     * @param {OnlineFileCompliance} [options.fileCompliance=null] Compliance check results that
+     *   were previously gathered for this file. If not given, this function will run its own
+     *   compliance checks. Default is `null`
      * @param {ArrayBuffer} [options.loadedContent] File content already loaded (most likely by
      *   service-proxy). When given, no other request will be made on the file source, but this
      *   content will be used instead.

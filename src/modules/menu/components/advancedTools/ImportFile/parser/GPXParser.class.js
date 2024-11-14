@@ -28,6 +28,7 @@ export default class GPXParser extends FileParser {
             fileExtensions: ['.gpx'],
             fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
             validateFileContent: isGpx,
+            allowServiceProxy: true,
         })
     }
 
@@ -49,7 +50,7 @@ export default class GPXParser extends FileParser {
             throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
         }
         return new GPXLayer({
-            gpxFileUrl: fileSource,
+            gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
             opacity: 1.0,
             gpxData: gpxAsText,
