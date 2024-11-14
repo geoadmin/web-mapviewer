@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
@@ -7,6 +8,7 @@ import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/us
 import TextInput from '@/utils/components/TextInput.vue'
 import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const props = defineProps({
     active: {
@@ -14,6 +16,7 @@ const props = defineProps({
         default: false,
     },
 })
+const store = useStore()
 const { active } = toRefs(props)
 
 const { handleFileSource } = useImportFile()
@@ -76,6 +79,12 @@ async function loadFile() {
 
     try {
         await handleFileSource(fileUrl.value, false)
+        if (!fileUrl.value.match(/^https:\/\//)) {
+            store.dispatch('addWarnings', {
+                warnings: [new WarningMessage('import_http_external_file_warning', {})],
+                dispatcher: 'Import File Online Tab',
+            })
+        }
         importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {

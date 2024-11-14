@@ -297,6 +297,7 @@
     "import_file_succeeded": "Success",
     "import_file_tooltip": "Importar ina datoteca esterna KML, KMZ, GPX u COG",
     "import_file_url_placeholder": "GPX KML KMZ COG URL",
+    "import_http_external_file_warning": "Il dossier che Vus avais importà deriva d'ina funtauna http. Quella na vegn betg pli sustegnida suenter ils 31-01-2025. Inditgai per plaschair tenor pussaivladad funtaunas da http.",
     "import_kml": "Importar KML",
     "import_maps": "Importar charta",
     "import_maps_tooltip": "Agiuntar in unitad da datas WMTS WMS externa",

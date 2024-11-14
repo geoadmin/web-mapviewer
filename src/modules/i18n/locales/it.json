@@ -299,6 +299,7 @@
     "import_file_succeeded": "Successo",
     "import_file_tooltip": "Importa un file KML, KMZ, GPX o COG esterno",
     "import_file_url_placeholder": "GPX KML KMZ COG URL",
+    "import_http_external_file_warning": "Il file che avete importato proviene da un sorgente http. Non sarà più supportato dopo il 31.01.2025. Fornisci sorgenti https quando possibile.",
     "import_kml": "Importare KML",
     "import_maps": "Importa mappe",
     "import_maps_tooltip": "Importare  dati WMTS WMS esterni",
