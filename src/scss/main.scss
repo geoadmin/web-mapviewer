@@ -7,7 +7,7 @@
 // properly therefore it is imported here in the un-scoped app styling.
 @import '@/scss/tippy-theme';
 
-@import 'node_modules/cesium/Build/Cesium/Widgets/widgets.css';
+@import 'node_modules/cesium/Build/Cesium/Widgets/widgets';
 
 body {
     // disabling double tap = zoom the UI on iOS
