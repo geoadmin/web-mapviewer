@@ -1,8 +1,9 @@
 <script setup>
-import { computed, inject, onBeforeUnmount, onMounted, toRefs } from 'vue'
+import { Cesium3DTileset } from 'cesium'
+import { computed, inject, toRefs } from 'vue'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
-import { loadTileSetAndApplyStyle } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
+import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 
 const props = defineProps({
     layerConfig: {
@@ -29,20 +30,8 @@ const url = computed(() => {
     return `${baseUrl.value}${rootFolder}${layerId.value}${timeFolder}/tileset.json`
 })
 
-let layer
-
-onMounted(async () => {
-    layer = getViewer().scene.primitives.add(
-        await loadTileSetAndApplyStyle(url.value, {
-            withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
-        })
-    )
-})
-onBeforeUnmount(() => {
-    const viewer = getViewer()
-    layer.show = false
-    viewer.scene.primitives.remove(layer)
-    viewer.scene.requestRender()
+useAddPrimitiveLayer(getViewer(), Cesium3DTileset.fromUrl(url.value), {
+    withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
 })
 </script>
 
