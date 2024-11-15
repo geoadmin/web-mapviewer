@@ -4,6 +4,7 @@ import proj4 from 'proj4'
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
+import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { removeZValues, unwrapGeometryCoordinates } from '@/utils/coordinates/coordinateUtils.js'
 import log from '@/utils/logging'
@@ -198,6 +199,7 @@ export default async (profileCoordinates, projection) => {
                 proj4(projection.epsg, LV95.epsg, coordinate)
             )
         }
+
         let coordinateChunks = splitIfTooManyPoints(
             LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
         )
@@ -207,6 +209,12 @@ export default async (profileCoordinates, projection) => {
             throw new ProfileError(
                 'No chunks found, no profile data could be fetched',
                 'could_not_generate_profile'
+            )
+        }
+        if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
+            log.error('Some chunks are out of bounds, no profile data could be fetched')
+            throw new OutOfBoundsError(
+                'Some chunks are out of bounds, no profile data could be fetched'
             )
         }
         let lastCoordinate = null
