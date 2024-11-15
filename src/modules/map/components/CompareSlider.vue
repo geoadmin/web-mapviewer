@@ -34,15 +34,12 @@ watch(storeCompareRatio, (newValue) => {
 
 watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
     unRegisterRenderingEvents(oldLayerOnTop.id)
-    olMap.renderSync()
     registerRenderingEvents(newLayerOnTop.id)
-    olMap.renderSync()
 })
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
     registerRenderingEvents(visibleLayerOnTop.value.id)
-    //register event
     olMap.render()
 })
 
@@ -55,6 +52,9 @@ onBeforeUnmount(() => {
 
 function registerRenderingEvents(layerId) {
     const layer = getLayerFromMapById(layerId)
+    // When loading a layer for the first time, we might need to clean the
+    // context to ensure it is also cut correctly upon activating the compare slider
+    // or loading a new COG layer on top.
     layer?.once('prerender', (event) => {
         if (shouldUseWebGlContext.value) {
             event.context.clear(event.context.COLOR_BUFFER_BIT)
@@ -93,6 +93,9 @@ function onPreRender(event) {
         if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
             width = Math.round(width * compareRatio.value)
         }
+        // We need to clear the color of the context. If we don't, the slider
+        // will leave the right side of the slider drawn on startup or when
+        // moving the slider.
         context.clear(context.COLOR_BUFFER_BIT)
 
         context.scissor(bottomLeft[0], bottomLeft[1], width, height)
