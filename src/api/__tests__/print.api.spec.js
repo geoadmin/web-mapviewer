@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
+import { MIN_PRINT_SCALE_SIZE, PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
 import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import { adjustWidth } from '@/utils/styleUtils'
 
@@ -78,6 +78,11 @@ describe('Print API unit tests', () => {
             expect(adjustWidth(100, 254)).to.be.closeTo(
                 (100 * PRINT_DPI_COMPENSATION) / 254,
                 1 / 254
+            )
+            // we check that the minimum print scale size is correctly enforced
+            expect(adjustWidth(MIN_PRINT_SCALE_SIZE / 1000, 254)).to.be.closeTo(
+                MIN_PRINT_SCALE_SIZE,
+                MIN_PRINT_SCALE_SIZE / 2
             )
         })
     })
