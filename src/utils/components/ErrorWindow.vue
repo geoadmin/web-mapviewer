@@ -24,9 +24,7 @@ const store = useStore()
 const showBody = ref(true)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
-const errorCount = computed(() =>
-    store.state.ui.errors.size > 1 ? `(${store.state.ui.errors.size})` : ''
-)
+const errorCount = computed(() => store.state.ui.errors.size)
 
 const i18n = useI18n()
 
@@ -45,7 +43,7 @@ const emit = defineEmits(['close'])
             data-cy="window-header"
         >
             <span v-if="title" class="me-auto text-truncate"
-                >{{ i18n.t(title) }}{{ errorCount }}</span
+                >{{ i18n.t(title) }}<span v-if="errorCount > 1"> ({{ errorCount }})</span></span
             >
             <span v-else class="me-auto" />
             <button
