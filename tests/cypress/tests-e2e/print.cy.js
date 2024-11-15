@@ -31,10 +31,6 @@ describe('Testing print', () => {
         }).as('printRequest')
     }
 
-    function interceptKml(fixture) {
-        cy.intercept('GET', '**/**.kml', { fixture }).as('kmlRequest')
-    }
-
     function interceptPrintStatus() {
         cy.intercept('GET', '**/status/**', (req) => {
             req.reply({
@@ -179,7 +175,11 @@ describe('Testing print', () => {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
-            interceptKml(kmlFixture)
+
+            cy.intercept('HEAD', '**/**.kml', {
+                headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
+            }).as('kmlHeadRequest')
+            cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
             cy.goToMapView(
                 {
@@ -188,7 +188,7 @@ describe('Testing print', () => {
                 },
                 true
             )
-            cy.wait('@kmlRequest')
+            cy.wait(['@kmlHeadRequest', '@kmlGetRequest'])
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
             cy.openMenuIfMobile()

@@ -36,12 +36,15 @@ export default class KMZParser extends FileParser {
 
     /**
      * @param {ArrayBuffer} data
-     * @param {String} fileSource
+     * @param {String | File} fileSource
      * @param {CoordinateSystem} currentProjection
      * @returns {Promise<KMLLayer>}
      */
     async parseFileContent(data, fileSource, currentProjection) {
-        const kmz = await unzipKmz(data, fileSource)
+        const kmz = await unzipKmz(
+            data,
+            this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        )
         return kmlParser.parseFileContent(kmz.kml, kmz.name, currentProjection, kmz.files)
     }
 }

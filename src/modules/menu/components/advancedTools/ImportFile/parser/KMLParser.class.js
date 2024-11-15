@@ -30,12 +30,13 @@ export class KMLParser extends FileParser {
                 'text/xml',
             ],
             validateFileContent: isKml,
+            allowServiceProxy: true,
         })
     }
 
     /**
      * @param {ArrayBuffer} fileContent
-     * @param fileSource
+     * @param {String | File} fileSource
      * @param currentProjection
      * @param {Map<string, ArrayBuffer>} [linkFiles] Used in the context of a KMZ to carry the
      *   embedded files with the layer
@@ -59,7 +60,7 @@ export class KMLParser extends FileParser {
             throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
         }
         return new KMLLayer({
-            kmlFileUrl: fileSource,
+            kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
             opacity: 1.0,
             adminId: null,

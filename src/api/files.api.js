@@ -5,7 +5,6 @@ import pako from 'pako'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import log from '@/utils/logging'
-import { isInternalUrl } from '@/utils/utils'
 
 /**
  * KML links
@@ -298,102 +297,61 @@ export function loadKmlMetadata(kmlLayer) {
 }
 
 /**
- * Loads the XML data from the file of a given KML layer, using the KML file URL of the layer.
- *
- * @param {KMLLayer} kmlLayer
- * @returns {Promise<ArrayBuffer>}
- */
-export function loadKmlData(kmlLayer) {
-    return new Promise((resolve, reject) => {
-        if (!kmlLayer) {
-            reject(new Error('Missing KML layer, cannot load data'))
-        }
-        if (!kmlLayer.kmlFileUrl) {
-            reject(
-                new Error(`No file URL defined in this KML layer, cannot load data ${kmlLayer.id}`)
-            )
-        }
-        // The file might be a KMZ file, which is a zip archive. Reading zip archive as text
-        // is asking for trouble therefore we use ArrayBuffer
-        getFileFromUrl(kmlLayer.kmlFileUrl, { responseType: 'arraybuffer' })
-            .then((response) => {
-                if (response.status === 200 && response.data) {
-                    resolve(response.data)
-                } else {
-                    const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.id}`
-                    log.error(msg, response)
-                    reject(new Error(msg))
-                }
-            })
-            .catch((error) => {
-                const msg = `Failed to load KML data: ${error}`
-                log.error(msg)
-                reject(new Error(msg))
-            })
-    })
-}
-
-/**
- * Generic function to load a file from a given URL.
- *
- * When the URL is not an internal url and it doesn't support CORS or use HTTP it is sent over a
- * proxy.
+ * Load content of a file from a given URL as ArrayBuffer.
  *
  * @param {string} url URL to fetch
- * @param {Object} [options]
- * @param {Number} [options.timeout] How long should the call wait before timing out
- * @param {string} [options.responseType] Type of data that the server will respond with. Options
- *   are 'arraybuffer', 'document', 'json', 'text', 'stream'. Default is `json`
- * @returns {Promise<AxiosResponse<any, any>>}
+ * @returns {Promise<ArrayBuffer>}
  */
-export async function getFileFromUrl(url, options = {}) {
-    const { timeout = null, responseType = null } = options
-    if (/^https?:\/\/localhost/.test(url) || isInternalUrl(url)) {
-        // don't go through proxy if it is on localhost or the internal server
-        return await axios.get(url, { timeout, responseType })
-    } else if (url.startsWith('http://')) {
-        // HTTP request goes through the proxy
-        return await axios.get(proxifyUrl(url), { timeout, responseType })
-    }
-
-    // For other urls we need to check if they support CORS
-    let supportCORS = false
-    try {
-        // unfortunately we cannot do a real preflight call using options because browser don't
-        // allow to set the Access-Control-* headers ! Also there is no way to find out if a request
-        // is failing due to network reason or due to CORS issue,
-        // see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors
-        // Therefore here we try to get the resource using head instead
-        await axios.head(url, { timeout })
-        supportCORS = true
-    } catch (error) {
-        log.error(
-            `URL ${url} failed with ${error}. It might be due to CORS issue, ` +
-                `therefore the request will be fallback to the service-proxy`
-        )
-    }
-
-    if (supportCORS) {
-        // Server support CORS
-        return await axios.get(url, { timeout, responseType })
-    }
-    // server don't support CORS use proxy
-    return await axios.get(proxifyUrl(url), { timeout, responseType })
+export async function getFileContentFromUrl(url) {
+    const response = await axios.get(url, { responseType: 'arraybuffer' })
+    return response.data
 }
 
 /**
- * Get a file MIME type through a HEAD request (and reading the Content-Type header returned by this
+ * @typedef OnlineFileCompliance
+ * @property {String | null} mimeType
+ * @property {Boolean} supportsCORS If `true` it means that a HEAD request could go through CORS
+ *   checks.
+ * @property {Boolean} supportsHTTPS
+ */
+
+/**
+ * Get a file MIME type through a HEAD request, and reading the Content-Type header returned by this
  * request. Returns `null` if the HEAD request failed, or if no Content-Type header is set.
  *
- * @param url
- * @returns {Promise<String | null>}
+ * Will attempt to get the HEAD request through service-proxy if the first HEAD request failed.
+ *
+ * Will return if the first HEAD request was successful through a boolean called `supportCORS`, if
+ * this is `true` it means that the first HEAD request could go through CORS checks.
+ *
+ * Also returns a flag telling if the file supports HTTPS or not.
+ *
+ * @param {String} url
+ * @returns {Promise<OnlineFileCompliance>}
  */
-export async function getFileMimeType(url) {
+export async function checkOnlineFileCompliance(url) {
+    const supportsHTTPS = url.startsWith('https://')
+    if (supportsHTTPS) {
+        try {
+            const headResponse = await axios.head(url)
+            return {
+                mimeType: headResponse.headers.get('content-type'),
+                supportsCORS: true,
+                supportsHTTPS,
+            }
+        } catch (error) {
+            log.error(`HEAD request on URL ${url} failed with`, error)
+        }
+    }
     try {
-        const headResponse = await axios.head(url)
-        return headResponse.headers.get('content-type')
-    } catch (error) {
-        log.error(`HEAD request on URL ${url} failed with`, error)
-        return null
+        const proxyHeadResponse = await axios.head(proxifyUrl(url))
+        return {
+            mimeType: proxyHeadResponse.headers.get('content-type'),
+            supportsCORS: false,
+            supportsHTTPS,
+        }
+    } catch (errorWithProxy) {
+        log.error('HEAD request through proxy failed for URL', url, errorWithProxy)
+        return { mimeType: null, supportsCORS: false, supportsHTTPS }
     }
 }

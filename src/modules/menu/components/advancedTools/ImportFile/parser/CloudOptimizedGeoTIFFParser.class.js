@@ -1,6 +1,7 @@
 import { fromBlob, fromUrl } from 'geotiff'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
+import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
@@ -11,6 +12,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.tif', '.tiff'],
+            fileTypeLittleEndianSignature: [0x49, 0x49, 0x2a, 0x00],
             fileContentTypes: [
                 'image/tiff',
                 'image/tiff;subtype=geotiff',
@@ -18,12 +20,21 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
                 'application=geotiff; profile=cloud-optimized',
                 'image/tiff; application=geotiff; profile=cloud-optimized',
             ],
+            // loading an entire COG is asking for memory crashes, some can weight more than a terabyte
+            shouldLoadOnlineContent: false,
+            allowServiceProxy: false,
         })
     }
 
-    async parseCOGLayer(fileSource, geoTIFFInstance, currentProjection) {
+    async parseFileContent(fileContent, fileSource, currentProjection) {
+        let geoTIFFInstance
+        if (this.isLocalFile(fileSource)) {
+            geoTIFFInstance = await fromBlob(fileSource)
+        } else {
+            geoTIFFInstance = await fromUrl(fileSource)
+        }
         if (!geoTIFFInstance) {
-            throw false
+            throw new InvalidFileContentError('Could not parse COG from file source')
         }
         const firstImage = await geoTIFFInstance.getImage()
         const imageGeoKey = firstImage.getGeoKeys()?.ProjectedCSTypeGeoKey
@@ -53,13 +64,5 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             noDataValue: firstImage.getGDALNoData(),
             extent: flattenExtent(intersection),
         })
-    }
-
-    async parseUrl(fileUrl, currentProjection, options) {
-        return this.parseCOGLayer(fileUrl, await fromUrl(fileUrl), currentProjection, options)
-    }
-
-    async parseLocalFile(file, currentProjection) {
-        return this.parseCOGLayer(file, await fromBlob(file), currentProjection)
     }
 }

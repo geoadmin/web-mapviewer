@@ -6,15 +6,10 @@ import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedT
 const cogParser = new CloudOptimizedGeoTIFFParser()
 
 async function loadExtentAndUpdateLayer(store, layer) {
-    const layerWithExtent = await cogParser.parse(
-        {
-            fileSource: layer.fileSource,
-            currentProjection: toValue(store.state.position.projection),
-        },
-        {
-            allowServiceProxy: false,
-        }
-    )
+    const layerWithExtent = await cogParser.parse({
+        fileSource: layer.fileSource,
+        currentProjection: toValue(store.state.position.projection),
+    })
     store.dispatch('updateLayer', {
         layerId: layer.id,
         values: {

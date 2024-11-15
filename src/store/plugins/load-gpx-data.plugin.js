@@ -20,15 +20,10 @@ const gpxParser = new GPXParser()
 async function loadGpx(store, gpxLayer) {
     log.debug(`Loading data for added GPX layer`, gpxLayer)
     try {
-        const updatedLayer = await gpxParser.parse(
-            {
-                fileSource: gpxLayer.gpxFileUrl,
-                currentProjection: store.state.position.projection,
-            },
-            {
-                allowServiceProxy: true,
-            }
-        )
+        const updatedLayer = await gpxParser.parse({
+            fileSource: gpxLayer.gpxFileUrl,
+            currentProjection: store.state.position.projection,
+        })
         store.dispatch('updateLayer', {
             layerId: updatedLayer.id,
             values: updatedLayer,

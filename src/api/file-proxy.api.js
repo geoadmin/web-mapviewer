@@ -74,7 +74,7 @@ export function unProxifyUrl(proxifiedUrl) {
  * @param {String} fileUrl
  * @returns {Promise<ArrayBuffer>}
  */
-export async function getContentThroughServiceProxy(fileUrl) {
+export async function getFileContentThroughServiceProxy(fileUrl) {
     const proxifyGetResponse = await axios.get(proxifyUrl(fileUrl), {
         responseType: 'arraybuffer',
     })
