@@ -393,7 +393,7 @@
     "meteoschweiz_service_link_href": "http://www.meteosvizzera.admin.ch",
     "meteoschweiz_service_link_label": "MeteoSvizzera",
     "mobile_redirect": "Versione mobile",
-    "modify_add_vertex": "Fare clic con il pulsante destro del mouse per aggiungere un nuovo punto alla feature selezionata",
+    "modify_add_vertex": "Aggiungi un nuovo punto per estendere la linea selezionata",
     "modify_color_label": "Colore",
     "modify_description": "Descrizione",
     "modify_existing_vertex_annotation": "Cliccare quindi trascinare per spostare il testo",

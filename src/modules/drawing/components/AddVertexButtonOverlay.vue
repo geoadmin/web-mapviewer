@@ -72,14 +72,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <AddVertexButton
-        reverse="true"
-        :tooltip-text="'Add vertex at start'"
-        @button-mounted="onFirstButtonMounted"
-    />
-    <AddVertexButton
-        :reverse="false"
-        oltip-text="'Add vertex at end'"
-        @button-mounted="onLastButtonMounted"
-    />
+    <AddVertexButton :reverse="true" @button-mounted="onFirstButtonMounted" />
+    <AddVertexButton :reverse="false" @button-mounted="onLastButtonMounted" />
 </template>

@@ -1,17 +1,19 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
+const i18n = useI18n()
 const store = useStore()
 
 const props = defineProps({
     tooltipText: {
         type: String,
-        default: 'Add new vertex', // TODO: use the same tooltip system
+        default: 'modify_add_vertex',
     },
     // If true, the button will add a vertex in the reverse direction
     reverse: {
@@ -42,7 +44,7 @@ onMounted(() => {
     <div id="addVertexButton" ref="buttonRef">
         <button
             class="toolbox-button d-print-none"
-            :data-tippy-content="props.tooltipText"
+            :data-tippy-content="i18n.t(props.tooltipText)"
             @click="addVertex"
         >
             <font-awesome-icon size="sm" :icon="['fas', 'plus']" />
