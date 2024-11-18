@@ -496,6 +496,7 @@
     "profile_no_data": "kein Datum",
     "profile_poi_down": "Tiefster Punkt",
     "profile_poi_up": "Höchster Punkt",
+    "profile_segment": "Segment {segmentNumber}",
     "profile_slope_distance": "Wegstrecke",
     "profile_title": "Profil",
     "profile_too_many_points_error": "Die Profilanfrage war zu gross und konnte nicht verarbeitet werden.",

@@ -19,13 +19,7 @@ import log from '@/utils/logging'
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
-    return (
-        feature?.geometry?.type &&
-        (['LineString', 'Polygon'].includes(feature.geometry.type) ||
-            // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
-            (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
-                feature.geometry.coordinates.length === 1))
-    )
+    return feature?.geometry?.type && !['Point'].includes(feature.geometry.type)
 }
 
 const getEditableFeatureWithId = (state, featureId) => {
@@ -394,10 +388,7 @@ export default {
                     geometry,
                     dispatcher,
                 })
-                // if the feature can show a profile we need to trigger a profile data update
-                if (canFeatureShowProfile(selectedFeature)) {
-                    dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
-                }
+                dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
             }
         },
         /**
@@ -413,6 +404,11 @@ export default {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
+            }
+        },
+        setActiveSegmentIndex({ commit, state }, { index, dispatcher }) {
+            if (state.profileData && state.profileData.activeSegmentIndex !== index) {
+                commit('setActiveSegmentIndex', { index: index, dispatcher })
             }
         },
         /**
@@ -627,10 +623,6 @@ export default {
                     } else {
                         coordinates = [...feature.geometry.coordinates]
                     }
-                    // unwrapping the first set of coordinates if they come from a multi-feature type geometry
-                    if (coordinates[0].some((coordinate) => Array.isArray(coordinate))) {
-                        coordinates = coordinates[0]
-                    }
                     getProfile(coordinates, rootState.position.projection)
                         .then((profileData) => {
                             commit('setProfileData', { data: profileData, dispatcher })
@@ -713,6 +705,9 @@ export default {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
             state.selectedFeaturesByLayerId = layerFeaturesByLayerId
             state.selectedEditableFeatures = [...drawingFeatures]
+        },
+        setActiveSegmentIndex(state, { index }) {
+            state.profileData.activeSegmentIndex = index
         },
         addSelectedFeatures(state, { featuresForLayer, features, featureCountForMoreData = 0 }) {
             featuresForLayer.features.push(...features)

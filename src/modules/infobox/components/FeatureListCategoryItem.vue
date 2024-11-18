@@ -33,7 +33,6 @@ const { name, item, showContentByDefault } = toRefs(props)
 const content = ref(null)
 const featureTitle = ref(null)
 const showContent = ref(!!showContentByDefault.value)
-
 const canDisplayProfile = computed(() => canFeatureShowProfile(item.value))
 
 const store = useStore()

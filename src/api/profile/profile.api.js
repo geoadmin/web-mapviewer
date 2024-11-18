@@ -166,56 +166,71 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
 /**
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
- * @param {[Number, Number][]} coordinates Coordinates, expressed in the given projection, from
- *   which we want the profile
+ * @param {[Number, Number][]} profileCoordinates Coordinates, expressed in the given projection,
+ *   from which we want the profile
  * @param {CoordinateSystem} projection The projection used to describe the coordinates
  * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
  *   profile
  * @throws ProfileError
  */
-export default async (coordinates, projection) => {
-    if (!coordinates || coordinates.length === 0) {
+export default async (profileCoordinates, projection) => {
+    if (!profileCoordinates || profileCoordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
         log.error(errorMessage)
         throw new ProfileError(errorMessage, 'could_not_generate_profile')
     }
-    // the service only works with LV95 coordinate, we have to transform them if they are not in this projection
-    // removing any 3d dimension that could come from OL
-    let coordinatesInLV95 = removeZValues(unwrapGeometryCoordinates(coordinates))
-    if (projection.epsg !== LV95.epsg) {
-        coordinatesInLV95 = coordinates.map((coordinate) =>
-            proj4(projection.epsg, LV95.epsg, coordinate)
-        )
-    }
     const segments = []
-    let coordinateChunks = splitIfTooManyPoints(LV95.bounds.splitIfOutOfBounds(coordinatesInLV95))
-    if (!coordinateChunks) {
-        log.error('No chunks found, no profile data could be fetched', coordinatesInLV95)
-        throw new ProfileError(
-            'No chunks found, no profile data could be fetched',
-            'could_not_generate_profile'
-        )
+    const hasDoubleNestedArray = (arr) =>
+        arr.some((item) => Array.isArray(item) && item.some((subItem) => Array.isArray(subItem)))
+
+    // if the profileCoordinates is not a double nested array, we make it one
+    // segmented files have a double nested array, but not all files or self made drawings
+    // so we have to make sure we have a double nested array and then iterate over it
+    if (!hasDoubleNestedArray(profileCoordinates)) {
+        profileCoordinates = [profileCoordinates]
     }
-    let lastCoordinate = null
-    let lastDist = 0
-    const requestsForChunks = coordinateChunks.map((chunk) =>
-        getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
-    )
-    for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
-        if (chunkResponse.status === 'fulfilled') {
-            const segment = parseProfileFromBackendResponse(
-                chunkResponse.value,
-                lastDist,
-                projection
+    for (const coordinates of profileCoordinates) {
+        // The service only works with LV95 coordinate, we have to transform them if they are not in this projection
+        // removing any 3d dimension that could come from OL
+        let coordinatesInLV95 = removeZValues(unwrapGeometryCoordinates(coordinates))
+        if (projection.epsg !== LV95.epsg) {
+            coordinatesInLV95 = coordinates.map((coordinate) =>
+                proj4(projection.epsg, LV95.epsg, coordinate)
             )
-            if (segment) {
-                const newSegmentLastPoint = segment.points.slice(-1)[0]
-                lastCoordinate = newSegmentLastPoint.coordinate
-                lastDist = newSegmentLastPoint.dist
-                segments.push(segment)
+        }
+        let coordinateChunks = splitIfTooManyPoints(
+            LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
+        )
+
+        if (!coordinateChunks) {
+            log.error('No chunks found, no profile data could be fetched', coordinatesInLV95)
+            throw new ProfileError(
+                'No chunks found, no profile data could be fetched',
+                'could_not_generate_profile'
+            )
+        }
+        let lastCoordinate = null
+        let lastDist = 0
+        const requestsForChunks = coordinateChunks.map((chunk) =>
+            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
+        )
+
+        for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
+            if (chunkResponse.status === 'fulfilled') {
+                const segment = parseProfileFromBackendResponse(
+                    chunkResponse.value,
+                    lastDist,
+                    projection
+                )
+                if (segment) {
+                    const newSegmentLastPoint = segment.points.slice(-1)[0]
+                    lastCoordinate = newSegmentLastPoint.coordinate
+                    lastDist = newSegmentLastPoint.dist
+                    segments.push(segment)
+                }
+            } else {
+                log.error('Error while getting profile for chunk', chunkResponse.reason?.message)
             }
-        } else {
-            log.error('Error while getting profile for chunk', chunkResponse.reason?.message)
         }
     }
     return new ElevationProfile(segments)

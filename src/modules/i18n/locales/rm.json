@@ -494,6 +494,7 @@
     "profile_no_data": "Nagina data",
     "profile_poi_down": "Punct il pli bass",
     "profile_poi_up": "Punct il pli aut",
+    "profile_segment": "Segment {segmentNumber}",
     "profile_slope_distance": "Traject",
     "profile_title": "Profil",
     "profile_too_many_points_error": "La dumonda dal profil era memia gronda e n'ha betg pudì vegnir elavurada.",
