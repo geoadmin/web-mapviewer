@@ -1,4 +1,6 @@
-import { Icon as olIcon } from 'ol/style'
+import { Feature } from 'ol'
+import { LineString } from 'ol/geom'
+import { Icon as olIcon, Stroke, Style } from 'ol/style'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
@@ -217,5 +219,41 @@ export default class EditableFeature extends SelectableFeature {
 
     set geodesicCoordinates(coordinates) {
         this._geodesicCoordinates = coordinates
+    }
+
+    /**
+     * Converts this EditableFeature to an OpenLayers Feature
+     *
+     * @returns {ol.Feature}
+     */
+    toOlFeature() {
+        if (this._featureType !== EditableFeatureTypes.LINEPOLYGON) {
+            throw new Error('Feature type must be LINEPOLYGON')
+        }
+        // Create LineString geometry from coordinates
+        const lineGeom = new LineString(this._coordinates)
+
+        // Create OpenLayers Feature
+        const olFeature = new Feature({
+            geometry: lineGeom,
+            name: this._title,
+            description: this._description,
+            id: this._id,
+        })
+
+        // Add style
+        olFeature.setStyle(
+            new Style({
+                stroke: new Stroke({
+                    color: this._fillColor,
+                    width: 2,
+                }),
+            })
+        )
+
+        // Set feature ID
+        olFeature.setId(this._id)
+
+        return olFeature
     }
 }

@@ -1,8 +1,12 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onMounted, ref } from 'vue'
+import { useStore } from 'vuex'
 
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+const dispatcher = { dispatcher: 'AddVertexButton.vue' }
+const store = useStore()
 
 const props = defineProps({
     tooltipText: {
@@ -16,7 +20,7 @@ const emit = defineEmits(['button-mounted'])
 const buttonRef = ref(null)
 
 function addVertex() {
-    console.log('addVertex')
+    store.dispatch('setDrawingMode', { mode: EditableFeatureTypes.LINEPOLYGON, ...dispatcher })
 }
 
 onMounted(() => {
