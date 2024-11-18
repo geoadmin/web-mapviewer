@@ -144,11 +144,7 @@ function onPointerMove(event) {
                 translationKeys = 'select_no_feature'
             }
         } else {
-            if (hasFeatureSelected) {
-                translationKeys = ['select_no_feature', 'modify_add_vertex']
-            } else {
-                translationKeys = 'select_no_feature'
-            }
+            translationKeys = 'select_no_feature'
         }
     }
 

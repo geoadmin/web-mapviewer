@@ -58,50 +58,12 @@ export default function useModifyInteraction(features) {
         modifyInteraction.on('modifystart', onModifyStart)
         modifyInteraction.on('modifyend', onModifyEnd)
         olMap.addInteraction(modifyInteraction)
-        olMap.on('contextmenu', onMapRightClick)
     })
     onBeforeUnmount(() => {
         olMap.removeInteraction(modifyInteraction)
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
-        olMap.un('contextmenu', onMapRightClick)
     })
-
-    function onMapRightClick(event) {
-        const newCoordinate = olMap.getEventCoordinate(event.originalEvent)
-
-        const [feature] = features.getArray()
-
-        if (feature) {
-            const geometry = feature.getGeometry()
-            if (geometry.getType() === 'LineString') {
-                geometry.appendCoordinate(newCoordinate)
-            } else if (geometry.getType() === 'Polygon') {
-                const coordinates = geometry.getCoordinates()
-                coordinates[0].push(newCoordinate)
-                geometry.setCoordinates(coordinates)
-            }
-
-            const storeFeature = feature.get('editableFeature')
-            store.dispatch('changeFeatureIsDragged', {
-                feature: storeFeature,
-                isDragged: false,
-                ...dispatcher,
-            })
-            store.dispatch('changeFeatureCoordinates', {
-                feature: storeFeature,
-                coordinates: extractOlFeatureCoordinates(feature),
-                geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-                ...dispatcher,
-            })
-            store.dispatch('changeFeatureGeometry', {
-                feature: storeFeature,
-                geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            })
-            olMap.getTarget().classList.remove(cursorGrabbingClass)
-            debounceSaveDrawing()
-        }
-    }
 
     function onModifyStart(event) {
         const [feature] = event.features.getArray()
