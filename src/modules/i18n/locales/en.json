@@ -476,6 +476,7 @@
     "parse_failed": "Parsing error!",
     "parse_succeeded": "Loading OK!",
     "parsing_file": "Loading file...",
+    "parts_out_of_bounds": "Some parts are out of bounds, no profile data could be fetched.",
     "paste_url": "Paste URL",
     "permalink": "Permalink",
     "plz": "ZIP",

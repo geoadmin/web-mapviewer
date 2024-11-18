@@ -780,5 +780,54 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
+
+        // Import file partially out of bounds
+        cy.log('Test import file partially out of bounds')
+        const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
+        const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
+
+        cy.reload()
+        cy.waitMapIsReady()
+        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
+        cy.openMenuIfMobile()
+        cy.get(
+            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`
+        ).click()
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // the menu should be automatically closed on opening import tool box
+        cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+        cy.get('[data-cy="import-file-content"]').should('be.visible')
+        cy.get('[data-cy="import-file-online-content"]').should('be.visible')
+
+        const validOutOfBoundsOnlineUrl = 'https://example.com/valid-out-of-bounds-gpx-file.gpx'
+        createHeadAndGetIntercepts(
+            validOutOfBoundsOnlineUrl,
+            'GpxFile',
+            {
+                fixture: gpxOutOfBoundsFileFixture,
+            },
+            {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/gpx+xml' },
+            }
+        )
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="text-input"]:visible').type(validOutOfBoundsOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+        cy.closeMenuIfMobile()
+
+        cy.get('[data-cy="window-close"]').click()
+        cy.get('[data-cy="ol-map"]').click(150, 250)
+
+        cy.log('Check that the error is displayed in the profile popup')
+        cy.get('[data-cy="show-profile"]').click()
+        cy.get('[data-cy="profile-popup-content"]').should('be.visible')
+        cy.get('[data-cy="profile-error-message"]').contains(
+            'Some parts are out of bounds, no profile data could be fetched'
+        )
     })
 })
