@@ -1,25 +1,21 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { unByKey } from 'ol/Observable'
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { getRenderPixel } from 'ol/render'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import log from '@/utils/logging'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
 
 const olMap = inject('olMap')
 
-const preRenderKey = ref(null)
-const postRenderKey = ref(null)
 const compareSliderOffset = ref(0)
 const showLayerName = ref(false)
-
 const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
 const clientWidth = computed(() => store.state.ui.width)
 const compareSliderPosition = computed(() => {
     return {
@@ -27,63 +23,116 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const visibleLayers = computed(() => store.getters.visibleLayers)
+const shouldUseWebGlContext = computed(
+    () => store.getters.visibleLayerOnTop.type === LayerTypes.COG
+)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
-    slice()
+    olMap.render()
 })
 
-watch(visibleLayers, () => {
-    nextTick(slice)
+watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
+    unRegisterRenderingEvents(oldLayerOnTop.id)
+
+    if (getLayerFromMapById(newLayerOnTop.id)) {
+        registerRenderingEvents(newLayerOnTop.id)
+    } else {
+        // The layer config is always modified before the map, which means the
+        // visible layer on top according to the config could not exist within
+        // the map. This is problematic with COG layers due to the webGL context
+
+        // to mitigate the issue, we use the precompose event (which is fired when
+        // the olMap changes due to a webGL layer being added or removed) to still add the
+        // rendering events to the top layer.
+        olMap?.once('precompose', () => {
+            registerRenderingEvents(newLayerOnTop.id)
+        })
+    }
+    olMap.render()
 })
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
-    nextTick(slice)
+    registerRenderingEvents(visibleLayerOnTop.value.id)
+    olMap.render()
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
     compareRatio.value = storeCompareRatio.value
-
-    slice()
+    unRegisterRenderingEvents(visibleLayerOnTop.value.id)
+    olMap.render()
 })
 
-function slice() {
-    if (preRenderKey.value !== null && postRenderKey.value !== null) {
-        unByKey(preRenderKey.value)
-        unByKey(postRenderKey.value)
-        preRenderKey.value = null
-        postRenderKey.value = null
-    }
-    const topVisibleLayer = olMap
+function registerRenderingEvents(layerId) {
+    const layer = getLayerFromMapById(layerId)
+
+    // When loading a layer for the first time, we might need to clean the
+    // context to ensure it is also cut correctly upon activating the compare slider
+    // or loading a new COG layer on top.
+    layer?.once('prerender', (event) => {
+        if (shouldUseWebGlContext.value) {
+            event.context.clear(event.context.COLOR_BUFFER_BIT)
+        }
+    })
+
+    layer?.on('prerender', onPreRender)
+    layer?.on('postrender', onPostRender)
+}
+
+function unRegisterRenderingEvents(layerId) {
+    const layer = getLayerFromMapById(layerId)
+    layer?.un('prerender', onPreRender)
+    layer?.un('postrender', onPostRender)
+}
+
+function getLayerFromMapById(layerId) {
+    return olMap
         ?.getAllLayers()
         .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
-        .find((layer) => layer.get('id') === visibleLayerOnTop.value?.id)
-    log.debug(`Compare slider slicing`, topVisibleLayer, visibleLayerOnTop.value)
-    if (topVisibleLayer && isCompareSliderActive.value) {
-        preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
-        postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
-    }
-    olMap.render()
+        .find((layer) => layer.get('id') === layerId)
 }
 
 function onPreRender(event) {
-    const ctx = event.context
-    // the offset is there to ensure we get to the slider line, and not the border of the element
-    let width = ctx.canvas.width
-    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-        width = ctx.canvas.width * compareRatio.value
-    }
+    const context = event.context
 
-    ctx.save()
-    ctx.beginPath()
-    ctx.rect(0, 0, width, ctx.canvas.height)
-    ctx.clip()
+    if (shouldUseWebGlContext.value) {
+        context.enable(context.SCISSOR_TEST)
+        const mapSize = olMap.getSize()
+        // get render coordinates and dimensions given CSS coordinates
+        const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
+        const topRight = getRenderPixel(event, [mapSize[0], 0])
+
+        let width = topRight[0] - bottomLeft[0]
+        const height = topRight[1] - bottomLeft[1]
+        if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
+            width = Math.round(width * compareRatio.value)
+        }
+        // We need to clear the color of the context. If we don't, the slider
+        // will leave the right side of the slider drawn on startup or when
+        // moving the slider.
+        context.clear(context.COLOR_BUFFER_BIT)
+
+        context.scissor(bottomLeft[0], bottomLeft[1], width, height)
+    } else {
+        const width =
+            compareRatio.value > 0 && compareRatio.value < 1.0
+                ? compareRatio.value * context.canvas.width
+                : context.canvas.width
+        context.save()
+        context.beginPath()
+        context.rect(0, 0, width, context.canvas.height)
+        context.clip()
+    }
 }
 
 function onPostRender(event) {
-    event.context.restore()
+    const context = event.context
+    if (shouldUseWebGlContext.value) {
+        context.disable(context.SCISSOR_TEST)
+    } else {
+        context.restore()
+    }
 }
 
 function grabSlider(event) {

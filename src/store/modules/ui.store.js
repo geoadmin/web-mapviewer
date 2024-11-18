@@ -139,12 +139,14 @@ export default {
          *
          * @type Boolean
          */
+
         isCompareSliderActive: false,
         /**
          * Flag telling if the time slider is currently active or not
          *
          * @type Boolean
          */
+
         isTimeSliderActive: false,
 
         /**
