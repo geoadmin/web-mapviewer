@@ -17,6 +17,9 @@ const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
 const clientWidth = computed(() => store.state.ui.width)
+const shouldUpdateCompareSlider = computed(
+    () => store.state.ui.isCompareSliderInNeedOfAForcedUpdate
+)
 const compareSliderPosition = computed(() => {
     return {
         left: compareRatio.value * 100 + '%',
@@ -35,6 +38,19 @@ watch(storeCompareRatio, (newValue) => {
 watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
     unRegisterRenderingEvents(oldLayerOnTop.id)
     registerRenderingEvents(newLayerOnTop.id)
+    olMap.render()
+})
+
+watch(shouldUpdateCompareSlider, (newValue) => {
+    // when importing COGTiffs, we update the layerconfig before the map,
+    // which means the 'visible layer on top' watcher tries to register the
+    // rendering events too soon. This watcher waits for a signal sent by the
+    // finally in the import file function to register the pre rendering again.
+    if (newValue) {
+        store.dispatch('forceCompareSliderUpdate', { shouldUpdate: false, ...dispatcher })
+        registerRenderingEvents(visibleLayerOnTop.value.id)
+        olMap.render()
+    }
 })
 
 onMounted(() => {
@@ -46,12 +62,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
     compareRatio.value = storeCompareRatio.value
     unRegisterRenderingEvents(visibleLayerOnTop.value.id)
-
     olMap.render()
 })
 
 function registerRenderingEvents(layerId) {
     const layer = getLayerFromMapById(layerId)
+
     // When loading a layer for the first time, we might need to clean the
     // context to ensure it is also cut correctly upon activating the compare slider
     // or loading a new COG layer on top.
