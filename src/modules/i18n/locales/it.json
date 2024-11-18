@@ -476,6 +476,7 @@
     "parse_failed": "Errore di parsing!",
     "parse_succeeded": "Caricamento OK!",
     "parsing_file": "Caricamento del file...",
+    "parts_out_of_bounds": "Alcune parti sono fuori dai limiti, non è stato possibile recuperare i dati del profilo.",
     "paste_url": "Incolla URL",
     "permalink": "Permalink",
     "plz": "NPA",

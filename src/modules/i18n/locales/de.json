@@ -476,6 +476,7 @@
     "parse_failed": "Parsing-Fehler",
     "parse_succeeded": "Laden erfolgreich",
     "parsing_file": "Laden...",
+    "parts_out_of_bounds": "Einige Teile sind nicht im zulässigen Bereich, es konnten keine Profildaten abgerufen werden.",
     "paste_url": "URL einfügen",
     "permalink": "Permalink",
     "plz": "PLZ",

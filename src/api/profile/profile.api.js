@@ -214,7 +214,8 @@ export default async (profileCoordinates, projection) => {
         if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
             log.error('Some chunks are out of bounds, no profile data could be fetched')
             throw new OutOfBoundsError(
-                'Some chunks are out of bounds, no profile data could be fetched'
+                'Some parts are out of bounds, no profile data could be fetched',
+                'parts_out_of_bounds'
             )
         }
         let lastCoordinate = null

@@ -827,7 +827,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="show-profile"]').click()
         cy.get('[data-cy="profile-popup-content"]').should('be.visible')
         cy.get('[data-cy="profile-error-message"]').contains(
-            'Some chunks are out of bounds, no profile data could be fetched'
+            'Some parts are out of bounds, no profile data could be fetched'
         )
     })
 })
