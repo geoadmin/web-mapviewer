@@ -43,11 +43,11 @@ onMounted(() => {
 <template>
     <div id="addVertexButton" ref="buttonRef">
         <button
-            class="toolbox-button d-print-none"
+            class="overlay-button d-print-none"
             :data-tippy-content="i18n.t(props.tooltipText)"
             @click="addVertex"
         >
-            <font-awesome-icon size="sm" :icon="['fas', 'plus']" />
+            <font-awesome-icon :icon="['fas', 'plus']" />
         </button>
     </div>
 </template>
