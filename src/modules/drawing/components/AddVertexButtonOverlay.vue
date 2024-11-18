@@ -22,15 +22,45 @@ const lastButtonOverlay = ref(null)
 const firstButtonCoordinate = ref(null)
 const lastButtonCoordinate = ref(null)
 
+const calculateOffset = (point1, point2, distance = 35) => {
+    if (!point1 || !point2) {
+        return [distance, -distance]
+    }
+
+    // Vector from point1 to point2
+    const dx = point2[0] - point1[0]
+    const dy = point2[1] - point1[1]
+
+    // Normalize the vector
+    const length = Math.sqrt(dx * dx + dy * dy)
+    if (length === 0) return [distance, -distance]
+
+    // Get unit vector in opposite direction
+    const ux = -dx / length
+    const uy = -dy / length
+
+    // There is minus in y-direction because the y-axis is inverted in the map
+    return [ux * distance, -uy * distance]
+}
+
 const updateButtonPositions = () => {
     const coordinates = props.lineString.coordinates
     firstButtonCoordinate.value = coordinates[0]
     lastButtonCoordinate.value = coordinates[coordinates.length - 1]
+
+    const firstOffset = calculateOffset(coordinates[0], coordinates[1])
+    const lastOffset = calculateOffset(
+        coordinates[coordinates.length - 1],
+        coordinates[coordinates.length - 2]
+    )
+
     if (firstButtonOverlay.value) {
         firstButtonOverlay.value.setPosition(firstButtonCoordinate.value)
+        firstButtonOverlay.value.setOffset(firstOffset)
     }
     if (lastButtonOverlay.value) {
         lastButtonOverlay.value.setPosition(lastButtonCoordinate.value)
+        lastButtonOverlay.value.setOffset(lastOffset)
     }
 }
 
