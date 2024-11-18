@@ -52,11 +52,6 @@ export default function useImportFile() {
                 requester: source.name ?? source,
                 ...dispatcher,
             })
-            // When importing file, the compare slider sometimes doesn't update
-            // correctly, as it checks for the changes in the layers config before
-            // the map is registered in the openlayers Map itself. So we need to send a flag to tell
-            // the compare slider to update itself.
-            store.dispatch('forceCompareSliderUpdate', { shouldUpdate: true, ...dispatcher })
         }
     }
 

@@ -139,14 +139,8 @@ export default {
          *
          * @type Boolean
          */
+
         isCompareSliderActive: false,
-        /**
-         * Flag telling if we need to enforce a compare slider update, as sometimes the order in
-         * which some events occur won't let the compare slider update correctly
-         *
-         * @type Boolean
-         */
-        isCompareSliderInNeedOfAForcedUpdate: false,
         /**
          * Flag telling if the time slider is currently active or not
          *
@@ -366,11 +360,6 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
-        forceCompareSliderUpdate({ commit, state }, args) {
-            commit('forceCompareSliderUpdate', {
-                shouldUpdate: state.isCompareSliderActive && args?.shouldUpdate,
-            })
-        },
         setFeatureInfoPosition({ commit, state }, { position, dispatcher }) {
             let featurePosition = FeatureInfoPositions[position?.toUpperCase()]
             if (!featurePosition) {
@@ -513,9 +502,6 @@ export default {
         },
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
-        },
-        forceCompareSliderUpdate(state, { shouldUpdate }) {
-            state.isCompareSliderInNeedOfAForcedUpdate = !!shouldUpdate
         },
         setTimeSliderActive(state, { timeSliderActive }) {
             state.isTimeSliderActive = timeSliderActive

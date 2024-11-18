@@ -17,9 +17,6 @@ const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
 const clientWidth = computed(() => store.state.ui.width)
-const shouldUpdateCompareSlider = computed(
-    () => store.state.ui.isCompareSliderInNeedOfAForcedUpdate
-)
 const compareSliderPosition = computed(() => {
     return {
         left: compareRatio.value * 100 + '%',
@@ -37,20 +34,22 @@ watch(storeCompareRatio, (newValue) => {
 
 watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
     unRegisterRenderingEvents(oldLayerOnTop.id)
-    registerRenderingEvents(newLayerOnTop.id)
-    olMap.render()
-})
 
-watch(shouldUpdateCompareSlider, (newValue) => {
-    // when importing COGTiffs, we update the layerconfig before the map,
-    // which means the 'visible layer on top' watcher tries to register the
-    // rendering events too soon. This watcher waits for a signal sent by the
-    // finally in the import file function to register the pre rendering again.
-    if (newValue) {
-        store.dispatch('forceCompareSliderUpdate', { shouldUpdate: false, ...dispatcher })
-        registerRenderingEvents(visibleLayerOnTop.value.id)
-        olMap.render()
+    if (getLayerFromMapById(newLayerOnTop.id)) {
+        registerRenderingEvents(newLayerOnTop.id)
+    } else {
+        // The layer config is always modified before the map, which means the
+        // visible layer on top according to the config could not exist within
+        // the map. This is problematic with COG layers due to the webGL context
+
+        // to mitigate the issue, we use the precompose event (which is fired when
+        // the olMap changes due to a webGL layer being added or removed) to still add the
+        // rendering events to the top layer.
+        olMap?.once('precompose', () => {
+            registerRenderingEvents(newLayerOnTop.id)
+        })
     }
+    olMap.render()
 })
 
 onMounted(() => {
