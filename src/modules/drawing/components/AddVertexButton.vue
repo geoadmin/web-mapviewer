@@ -13,6 +13,11 @@ const props = defineProps({
         type: String,
         default: 'Add new vertex', // TODO: use the same tooltip system
     },
+    // If true, the button will add a vertex in the reverse direction
+    reverse: {
+        type: Boolean,
+        default: false,
+    },
 })
 useTippyTooltip('#addVertexButton [data-tippy-content]', { placement: 'left' })
 const emit = defineEmits(['button-mounted'])
@@ -20,6 +25,10 @@ const emit = defineEmits(['button-mounted'])
 const buttonRef = ref(null)
 
 function addVertex() {
+    store.dispatch('setReverseLineStringExtension', {
+        reverseLineStringExtension: props.reverse,
+        ...dispatcher,
+    })
     store.dispatch('setDrawingMode', { mode: EditableFeatureTypes.LINEPOLYGON, ...dispatcher })
 }
 

@@ -76,7 +76,9 @@ export default function useDrawingModeInteraction({
             )
             if (selectedFeature) {
                 interaction = continueDrawingInteraction
-                interaction.extend(selectedFeature.toOlFeature())
+                const reverse = store.state.drawing.reverseLineStringExtension
+                const lineFeature = selectedFeature.toOlFeature(reverse)
+                interaction.extend(lineFeature)
             }
         }
 

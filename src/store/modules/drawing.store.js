@@ -69,6 +69,13 @@ export default {
          * @type {String | null}
          */
         name: null,
+        /**
+         * If true, continue the line string from the starting vertex, else it will continue from
+         * the last vertex
+         *
+         * @type {Boolean | null}
+         */
+        reverseLineStringExtension: false,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -127,6 +134,9 @@ export default {
         setDrawingName({ commit }, { name, dispatcher }) {
             commit('setDrawingName', { name, dispatcher })
         },
+        setReverseLineStringExtension({ commit }, { reverseLineStringExtension, dispatcher }) {
+            commit('setReverseLineStringExtension', { reverseLineStringExtension, dispatcher })
+        },
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
@@ -143,6 +153,9 @@ export default {
         },
         setDrawingName(state, { name }) {
             state.name = name
+        },
+        setReverseLineStringExtension(state, { reverseLineStringExtension }) {
+            state.reverseLineStringExtension = reverseLineStringExtension
         },
     },
 }

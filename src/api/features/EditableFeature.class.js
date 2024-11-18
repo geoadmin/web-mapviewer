@@ -224,14 +224,16 @@ export default class EditableFeature extends SelectableFeature {
     /**
      * Converts this EditableFeature to an OpenLayers Feature
      *
+     * @param {boolean} reverse If true, the geometry is reversed. Default is false.
      * @returns {ol.Feature}
      */
-    toOlFeature() {
+    toOlFeature(reverse = false) {
         if (this._featureType !== EditableFeatureTypes.LINEPOLYGON) {
             throw new Error('Feature type must be LINEPOLYGON')
         }
         // Create LineString geometry from coordinates
-        const lineGeom = new LineString(this._coordinates)
+        const coordinates = reverse ? [...this._coordinates].reverse() : this._coordinates
+        const lineGeom = new LineString(coordinates)
 
         // Create OpenLayers Feature
         const olFeature = new Feature({
