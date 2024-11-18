@@ -46,6 +46,9 @@ const selectedLineString = computed(() => {
         return null
     }
 })
+const showAddVertexButton = computed(() => {
+    return !!selectedLineString.value && store.state.drawing.mode === null
+})
 
 const hasKml = computed(() => {
     if (online.value) {
@@ -227,7 +230,7 @@ async function closeDrawing() {
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
-            v-if="selectedLineString"
+            v-if="showAddVertexButton"
             :line-string="selectedLineString.geometry"
         ></AddVertexButtonOverlay>
     </div>

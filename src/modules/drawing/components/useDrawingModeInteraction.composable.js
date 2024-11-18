@@ -212,6 +212,10 @@ export default function useDrawingModeInteraction({
         interaction.finishDrawing()
         store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
+        store.dispatch('setReverseLineStringExtension', {
+            reverseLineStringExtension: null,
+            ...dispatcher,
+        })
         if (drawEndCallback) {
             drawEndCallback(feature)
         }
