@@ -20,7 +20,6 @@ import { adjustWidth } from '@/utils/styleUtils'
 
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
-
 const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
