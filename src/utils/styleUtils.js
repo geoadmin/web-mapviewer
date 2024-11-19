@@ -1,8 +1,7 @@
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle.js'
 
-import { MIN_PRINT_SCALE_SIZE } from '@/api/print.api'
-import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
+import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables

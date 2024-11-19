@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { MIN_PRINT_SCALE_SIZE, PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
-import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
+import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
+import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import { adjustWidth } from '@/utils/styleUtils'
 
 describe('Print API unit tests', () => {
