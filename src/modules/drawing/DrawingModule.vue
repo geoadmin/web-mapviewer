@@ -37,8 +37,6 @@ const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineString = computed(() => {
-    // eslint-disable-next-line no-unused-vars
-    const currentEditingMode = store.state.drawing.editingMode
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (

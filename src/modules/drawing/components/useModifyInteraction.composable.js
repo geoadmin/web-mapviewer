@@ -149,11 +149,22 @@ export default function useModifyInteraction(features) {
 
     function onExtendEnd(event) {
         log.debug('onExtendEnd', event)
+        const feature = event.feature
         // Update the original feature with new coordinates
-        const newCoords = event.feature.getGeometry().getCoordinates()
-        log.debug('drawend coordinate', newCoords)
-        log.debug('selectedFeature', features)
-        store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
-        debounceSaveDrawing()
+        if (feature) {
+            const storeFeature = feature.get('editableFeature')
+            store.dispatch('changeFeatureCoordinates', {
+                feature: storeFeature,
+                coordinates: extractOlFeatureCoordinates(feature),
+                geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+                ...dispatcher,
+            })
+            store.dispatch('changeFeatureGeometry', {
+                feature: storeFeature,
+                geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+            })
+            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
+            debounceSaveDrawing()
+        }
     }
 }
