@@ -14,10 +14,11 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
-    featureStyleFunction,
+    geoadminStyleFunction,
     getFeatureStyleColor,
     getStyle,
     getTextColor,
@@ -363,12 +364,11 @@ export function getFillColor(style, geometryType, iconArgs) {
  * Get the geoadmin editable feature for the given open layer KML feature
  *
  * @param {Feature} kmlFeature Open layer KML feature
- * @param {kmlLayer} kmlLayer Open layer KML layer
  * @param {DrawingIconSet[]} availableIconSets
  * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
  *   feature
  */
-export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
+export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
         return null
@@ -531,16 +531,13 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    // we do not force our DrawingModule styling (especially colors) to external/non-drawing KMLs
-    if (!kmlLayer.isExternal) {
+    if (kmlLayer.style === KmlStyles.GEOADMIN) {
         features.forEach((olFeature) => {
-            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
-
+            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
             if (editableFeature) {
                 // Set the EditableFeature coordinates from the olFeature geometry
                 editableFeature.setCoordinatesFromFeature(olFeature)
                 olFeature.set('editableFeature', editableFeature)
-                olFeature.setStyle(featureStyleFunction)
 
                 if (editableFeature.isLineOrMeasure()) {
                     /* The featureStyleFunction uses the geometries calculated in the geodesic object
@@ -550,6 +547,7 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
                     olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
                 }
             }
+            olFeature.setStyle(geoadminStyleFunction)
         })
     }
 

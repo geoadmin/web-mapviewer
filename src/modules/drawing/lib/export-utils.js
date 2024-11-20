@@ -6,7 +6,7 @@ import Style from 'ol/style/Style'
 
 import i18n from '@/modules/i18n/index'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
@@ -87,7 +87,7 @@ export function generateKmlString(projection, features = [], fileName) {
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        const styles = featureStyleFunction(clone)
+        const styles = geoadminStyleFunction(clone)
         const newStyle = {
             fill: styles[0].getFill(),
             stroke: styles[0].getStroke(),

@@ -1,5 +1,6 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
@@ -35,6 +36,7 @@ export default class KMLLayer extends AbstractLayer {
      *   files are usually sent with the kml inside a KMZ archive and can be referenced inside the
      *   KML (e.g. icon, image, ...). Default is `Map()`
      * @param {[Number, Number, Number, Number] | null} kmlLayerData.extent
+     * @param {KmlStyles} kmlLayerData.style
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -51,6 +53,7 @@ export default class KMLLayer extends AbstractLayer {
             kmlMetadata = null,
             linkFiles = new Map(),
             extent = null,
+            style = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -96,6 +99,16 @@ export default class KMLLayer extends AbstractLayer {
         this.kmlData = kmlData
         this.linkFiles = linkFiles
         this.extent = extent
+        if (style === null) {
+            // if no style was given, we select the default style depending on the origin of the KML
+            if (isExternal) {
+                this.style = KmlStyles.DEFAULT
+            } else {
+                this.style = KmlStyles.GEOADMIN
+            }
+        } else {
+            this.style = style
+        }
     }
 
     /**
