@@ -6,12 +6,15 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class.js'
+import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -58,13 +61,20 @@ const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLaye
 const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
 
 const store = useStore()
+const { t } = useI18n()
 
 useTippyTooltip('.menu-layer-item [data-tippy-content]')
 
 const layerUpButton = ref(null)
 const layerDownButton = ref(null)
 const transparencySlider = ref(null)
+const currentKmlStyle = ref(layer.value?.style ?? null)
 const id = computed(() => layer.value.id)
+
+const kmlStylesAsDropdownItems = computed(() =>
+    allKmlStyles.map((style) => new DropdownItem(style, style.toLowerCase(), style))
+)
+
 const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
 const hasDataDisclaimer = computed(() =>
     store.getters.hasDataDisclaimer(id.value, layer.value.isExternal, layer.value.baseUrl)
@@ -77,9 +87,8 @@ const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
-const isLayerKmlOrGpx = computed(
-    () => layer.value instanceof KMLLayer || layer.value instanceof GPXLayer
-)
+const isLayerKml = computed(() => layer.value instanceof KMLLayer)
+const isLayerKmlOrGpx = computed(() => isLayerKml.value || layer.value instanceof GPXLayer)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -133,6 +142,17 @@ function showLayerDescriptionPopup() {
 
 function duplicateLayer() {
     store.dispatch('addLayer', { layer: layer.value.clone(), ...dispatcher })
+}
+
+function changeStyle(newStyle) {
+    store.dispatch('updateLayer', {
+        layerId: id.value,
+        values: {
+            style: newStyle.value,
+        },
+        ...dispatcher,
+    })
+    currentKmlStyle.value = newStyle.value
 }
 </script>
 
@@ -224,67 +244,77 @@ function duplicateLayer() {
                 <FontAwesomeIcon icon="cog" />
             </button>
         </div>
-        <div
-            v-show="showLayerDetail"
-            class="menu-layer-item-details"
-            :data-cy="`div-layer-settings-${id}-${index}`"
-        >
-            <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
-                {{ $t('transparency') }}
-            </label>
-            <input
-                :id="`transparency-${id}`"
-                ref="transparencySlider"
-                :disabled="isLayerKmlOrGpx && is3dActive"
-                class="menu-layer-transparency-slider ms-2 me-4"
-                type="range"
-                min="0.0"
-                max="1.0"
-                step="0.01"
-                :value="1.0 - layer.opacity"
-                :data-cy="`slider-transparency-layer-${id}-${index}`"
-                @mouseup="onTransparencyCommit"
-                @input="debounceTransparencyChange"
-            />
-            <button
-                v-if="hasMultipleTimestamps"
-                class="btn d-flex align-items-center"
-                :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-duplicate-layer-${id}-${index}`"
-                data-tippy-content="duplicate_layer"
-                @click.prevent="duplicateLayer()"
-            >
-                <FontAwesomeIcon :icon="['far', 'copy']" />
-            </button>
-            <button
-                ref="layerUpButton"
-                class="btn-layer-up-down btn d-flex align-items-center"
-                :class="{ 'btn-lg': !compact }"
-                :disabled="isTopLayer"
-                :data-cy="`button-raise-order-layer-${id}-${index}`"
-                @click.prevent="emit('moveLayer', index, index + 1)"
-            >
-                <FontAwesomeIcon icon="arrow-up" />
-            </button>
-            <button
-                ref="layerDownButton"
-                class="btn-layer-up-down btn d-flex align-items-center"
-                :class="{ 'btn-lg': !compact }"
-                :disabled="isBottomLayer"
-                :data-cy="`button-lower-order-layer-${id}-${index}`"
-                @click.prevent="emit('moveLayer', index, index - 1)"
-            >
-                <FontAwesomeIcon icon="arrow-down" />
-            </button>
-            <button
-                v-if="showLayerDescriptionIcon"
-                class="btn d-flex align-items-center"
-                :class="{ 'btn-lg': !compact }"
-                :data-cy="`button-show-description-layer-${id}-${index}`"
-                @click="showLayerDescriptionPopup"
-            >
-                <FontAwesomeIcon icon="info-circle" />
-            </button>
+        <div v-show="showLayerDetail" :data-cy="`div-layer-settings-${id}-${index}`">
+            <div class="menu-layer-item-details">
+                <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
+                    {{ $t('transparency') }}
+                </label>
+                <input
+                    :id="`transparency-${id}`"
+                    ref="transparencySlider"
+                    :disabled="isLayerKmlOrGpx && is3dActive"
+                    class="menu-layer-transparency-slider ms-2 me-4"
+                    type="range"
+                    min="0.0"
+                    max="1.0"
+                    step="0.01"
+                    :value="1.0 - layer.opacity"
+                    :data-cy="`slider-transparency-layer-${id}-${index}`"
+                    @mouseup="onTransparencyCommit"
+                    @input="debounceTransparencyChange"
+                />
+                <button
+                    v-if="hasMultipleTimestamps"
+                    class="btn d-flex align-items-center"
+                    :class="{ 'btn-lg': !compact }"
+                    :data-cy="`button-duplicate-layer-${id}-${index}`"
+                    data-tippy-content="duplicate_layer"
+                    @click.prevent="duplicateLayer()"
+                >
+                    <FontAwesomeIcon :icon="['far', 'copy']" />
+                </button>
+                <button
+                    ref="layerUpButton"
+                    class="btn-layer-up-down btn d-flex align-items-center"
+                    :class="{ 'btn-lg': !compact }"
+                    :disabled="isTopLayer"
+                    :data-cy="`button-raise-order-layer-${id}-${index}`"
+                    @click.prevent="emit('moveLayer', index, index + 1)"
+                >
+                    <FontAwesomeIcon icon="arrow-up" />
+                </button>
+                <button
+                    ref="layerDownButton"
+                    class="btn-layer-up-down btn d-flex align-items-center"
+                    :class="{ 'btn-lg': !compact }"
+                    :disabled="isBottomLayer"
+                    :data-cy="`button-lower-order-layer-${id}-${index}`"
+                    @click.prevent="emit('moveLayer', index, index - 1)"
+                >
+                    <FontAwesomeIcon icon="arrow-down" />
+                </button>
+                <button
+                    v-if="showLayerDescriptionIcon"
+                    class="btn d-flex align-items-center"
+                    :class="{ 'btn-lg': !compact }"
+                    :data-cy="`button-show-description-layer-${id}-${index}`"
+                    @click="showLayerDescriptionPopup"
+                >
+                    <FontAwesomeIcon icon="info-circle" />
+                </button>
+            </div>
+            <div v-if="isLayerKml" v-show="showLayerDetail" class="menu-layer-item-details mt-n1">
+                <label class="menu-layer-transparency-title me-2">
+                    {{ t('vector_feedback_select_style') }}
+                </label>
+                <DropdownButton
+                    :title="currentKmlStyle.toLowerCase()"
+                    :items="kmlStylesAsDropdownItems"
+                    :current-value="currentKmlStyle"
+                    small
+                    @select:item="changeStyle"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -313,7 +343,10 @@ function duplicateLayer() {
     padding-bottom: 0.4rem;
 }
 .menu-layer-transparency-title {
-    font-size: 0.9em;
+    $smallerFont: 0.9em;
+    font-size: $smallerFont;
+    // also setting the line height, so that vertical alignment isn't broken
+    line-height: $smallerFont;
 }
 .menu-layer-transparency-slider {
     display: flex;

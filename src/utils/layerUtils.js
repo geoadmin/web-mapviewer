@@ -3,7 +3,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { normalizeExtent } from '@/utils/extentUtils'
 
@@ -42,6 +42,8 @@ import { normalizeExtent } from '@/utils/extentUtils'
  *   feature IDs to select. Default is `undefined`
  * @property {String | undefined} [customAttributes.adminId=undefined] KML admin ID required to edit
  *   a KML drawing. Default is `undefined`
+ * @property {KmlStyles | undefined} [customAttributes.style=undefined] KML style to be applied to
+ *   its features, can be one of the value from KmlStyles.enum.js. Default is `undefined`
  */
 
 /**

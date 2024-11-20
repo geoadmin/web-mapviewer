@@ -59,6 +59,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
                 adminId: adminId,
+                style: parsedLayer.customAttributes?.style,
             })
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
@@ -312,6 +313,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setLayers',
                 'setSelectedFeatures',
                 'addSelectedFeatures',
+                'updateLayer',
             ],
             setValuesInStore: dispatchLayersFromUrlIntoStore,
             extractValueFromStore: generateLayerUrlParamFromStoreValues,

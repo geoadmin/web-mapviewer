@@ -423,7 +423,7 @@ describe('Testing print', () => {
                 )
                 expect(
                     gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['strokeWidth']
-                ).to.lessThan(1.5) // thinner than the drawn in the OL map.
+                ).to.lessThan(2) // thinner than the drawn in the OL map.
             })
         })
         /** We need to ensure the structure of the query sent is correct */

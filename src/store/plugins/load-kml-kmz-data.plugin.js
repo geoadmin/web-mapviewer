@@ -39,17 +39,45 @@ async function loadMetadata(store, kmlLayer) {
 }
 
 /**
+ * @param store
+ * @param {KMLLayer} layer
+ */
+function sendLayerToStore(store, layer) {
+    store.dispatch('updateLayer', {
+        layerId: layer.id,
+        values: {
+            name: layer.name,
+            kmlData: layer.kmlData,
+            extent: layer.extent,
+            extentProjection: layer.extentProjection,
+            linkFiles: layer.linkFiles,
+            isLoading: false,
+        },
+        ...dispatcher,
+    })
+}
+
+/**
  * @param {Vuex.Store} store
  * @param {KMLLayer} kmlLayer
  * @returns {Promise<void>}
  */
 async function loadData(store, kmlLayer) {
-    log.debug(`Loading data for added KML layer`, kmlLayer)
+    log.debug(`[load-kml-kmz-data] Loading data for added KML layer`, kmlLayer)
 
     // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
-    const { mimeType, supportsCORS, supportsHTTPS } = await checkOnlineFileCompliance(
-        kmlLayer.kmlFileUrl
-    )
+    let complianceCheck = null
+    try {
+        complianceCheck = await checkOnlineFileCompliance(kmlLayer.kmlFileUrl)
+    } catch (error) {
+        log.error(
+            `[load-kml-kmz-data] Error while checking online file compliance for ${kmlLayer.kmlFileUrl}`,
+            error
+        )
+        throw error
+    }
+
+    const { mimeType, supportsCORS, supportsHTTPS } = complianceCheck
     let loadedContent = null
     try {
         if (supportsCORS && supportsHTTPS) {
@@ -87,15 +115,12 @@ async function loadData(store, kmlLayer) {
                 loadedContent,
             }
         )
-        store.dispatch('updateLayer', {
-            layerId: kmlLayer.id,
-            values: kmz,
-            ...dispatcher,
-        })
+        sendLayerToStore(store, kmz)
         // avoiding going below in the KML parsing
         return
     } catch (error) {
         // not a KMZ layer, we proceed below to check if it is a KML
+        log.debug('[load-kml-kmz-data] error while parsing KMZ file', error)
     }
 
     try {
@@ -109,18 +134,11 @@ async function loadData(store, kmlLayer) {
                 loadedContent,
             }
         )
-        store.dispatch('updateLayer', {
-            layerId: kmlLayer.id,
-            values: {
-                ...kml,
-                // we have to pass the adminId (when defined) as it won't be read by the KML parser
-                // meaning it will be updated to null if it was previously defined
-                adminId: kmlLayer.adminId,
-            },
-            ...dispatcher,
-        })
+        sendLayerToStore(store, kml)
     } catch (error) {
-        log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
+        log.error(
+            `[load-kml-kmz-data] Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`
+        )
         store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
