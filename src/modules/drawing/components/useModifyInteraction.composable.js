@@ -80,6 +80,10 @@ export default function useModifyInteraction(features) {
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
                 olMap.on('contextmenu', onMapRightClick)
+            } else if (newValue === EditMode.MODIFY) {
+                modifyInteraction.setActive(true)
+                continueDrawingInteraction.setActive(false)
+                olMap.on('contextmenu', onMapRightClick) // Keep right-click listener
             } else {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
@@ -108,7 +112,20 @@ export default function useModifyInteraction(features) {
     })
 
     function onMapRightClick(_event) {
-        continueDrawingInteraction.removeLastPoint()
+        if (continueDrawingInteraction.getActive()) {
+            continueDrawingInteraction.removeLastPoint()
+        } else if (modifyInteraction.getActive() && features.getArray().length > 0) {
+            const feature = features.getArray()[0]
+            const geometry = feature.getGeometry()
+            const coordinates = geometry.getCoordinates()
+            if (coordinates.length > 2) {
+                // Keep at least 2 points
+                coordinates.pop()
+                geometry.setCoordinates(coordinates)
+            }
+            // Updating the store feature
+            updateStoreFeatureCoordinatesGeometry(feature)
+        }
     }
 
     function onModifyStart(event) {
@@ -138,16 +155,7 @@ export default function useModifyInteraction(features) {
                 isDragged: false,
                 ...dispatcher,
             })
-            store.dispatch('changeFeatureCoordinates', {
-                feature: storeFeature,
-                coordinates: extractOlFeatureCoordinates(feature),
-                geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-                ...dispatcher,
-            })
-            store.dispatch('changeFeatureGeometry', {
-                feature: storeFeature,
-                geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            })
+            updateStoreFeatureCoordinatesGeometry(feature)
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
@@ -158,19 +166,25 @@ export default function useModifyInteraction(features) {
         const feature = event.feature
         // Update the original feature with new coordinates
         if (feature) {
-            const storeFeature = feature.get('editableFeature')
-            store.dispatch('changeFeatureCoordinates', {
-                feature: storeFeature,
-                coordinates: extractOlFeatureCoordinates(feature),
-                geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-                ...dispatcher,
-            })
-            store.dispatch('changeFeatureGeometry', {
-                feature: storeFeature,
-                geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            })
+            updateStoreFeatureCoordinatesGeometry(feature)
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
             debounceSaveDrawing()
         }
+    }
+
+    // Update the store feature with the new coordinates and geometry
+    function updateStoreFeatureCoordinatesGeometry(feature) {
+        const storeFeature = feature.get('editableFeature')
+        store.dispatch('changeFeatureCoordinates', {
+            feature: storeFeature,
+            coordinates: extractOlFeatureCoordinates(feature),
+            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+            ...dispatcher,
+        })
+        store.dispatch('changeFeatureGeometry', {
+            feature: storeFeature,
+            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+            ...dispatcher,
+        })
     }
 }
