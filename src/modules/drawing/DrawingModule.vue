@@ -36,6 +36,8 @@ const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineString = computed(() => {
+    // eslint-disable-next-line no-unused-vars
+    const x = store.state.drawing.extendingLineString
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
@@ -51,6 +53,9 @@ const selectedLineString = computed(() => {
     }
 })
 const showAddVertexButton = computed(() => {
+    if (store.state.drawing.extendingLineString) {
+        return false
+    }
     return !!selectedLineString.value && store.state.drawing.mode === null
 })
 

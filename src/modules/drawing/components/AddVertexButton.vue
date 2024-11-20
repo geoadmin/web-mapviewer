@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+// import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 const i18n = useI18n()
@@ -31,7 +31,7 @@ function addVertex() {
         reverseLineStringExtension: props.reverse,
         ...dispatcher,
     })
-    store.dispatch('setDrawingMode', { mode: EditableFeatureTypes.LINEPOLYGON, ...dispatcher })
+    store.dispatch('setExtendingLineString', { extendingLineString: true, ...dispatcher })
 }
 
 onMounted(() => {

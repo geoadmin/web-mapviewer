@@ -1,7 +1,8 @@
-import { noModifierKeys, singleClick } from 'ol/events/condition'
+import { noModifierKeys, primaryAction, singleClick } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
+import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
-import { inject, onBeforeUnmount, onMounted } from 'vue'
+import { inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import {
@@ -9,9 +10,10 @@ import {
     extractOlFeatureGeodesicCoordinates,
 } from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
+import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
+import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -54,15 +56,47 @@ export default function useModifyInteraction(features) {
         wrapX: true,
     })
 
+    const continueDrawingInteraction = new DrawInteraction({
+        style: drawLineStyle,
+        type: 'LineString', // Only works for LineString
+        minPoints: 2,
+        stopClick: true,
+        // only left-click to draw (primaryAction)
+        condition: (e) => primaryAction(e),
+        wrapX: true,
+    })
+
+    watch(
+        () => store.state.drawing.extendingLineString,
+        (newValue) => {
+            if (newValue && features.getArray().length > 0) {
+                const selectedFeature = features.getArray()[0]
+                continueDrawingInteraction.extend(selectedFeature)
+                continueDrawingInteraction.setActive(true)
+                modifyInteraction.setActive(false)
+            } else {
+                modifyInteraction.setActive(true)
+                continueDrawingInteraction.setActive(false)
+            }
+        },
+        { immediate: true }
+    )
+
     onMounted(() => {
         modifyInteraction.on('modifystart', onModifyStart)
         modifyInteraction.on('modifyend', onModifyEnd)
         olMap.addInteraction(modifyInteraction)
+
+        continueDrawingInteraction.on('drawend', onExtendEnd)
+        olMap.addInteraction(continueDrawingInteraction)
+        continueDrawingInteraction.setActive(false)
     })
     onBeforeUnmount(() => {
         olMap.removeInteraction(modifyInteraction)
+        olMap.removeInteraction(continueDrawingInteraction)
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
+        continueDrawingInteraction.un('drawend', onExtendEnd)
     })
 
     function onModifyStart(event) {
@@ -105,5 +139,18 @@ export default function useModifyInteraction(features) {
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
+    }
+
+    function onExtendEnd(event) {
+        log.debug('onExtendEnd', event)
+        // Update the original feature with new coordinates
+        const newCoords = event.feature.getGeometry().getCoordinates()
+        log.debug('drawend coordinate', newCoords)
+        log.debug('selectedFeature', features)
+        store.dispatch('setExtendingLineString', {
+            extendingLineString: false,
+            ...dispatcher,
+        })
+        debounceSaveDrawing()
     }
 }

@@ -76,6 +76,8 @@ export default {
          * @type {Boolean | null}
          */
         reverseLineStringExtension: false,
+
+        extendingLineString: false,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -137,6 +139,9 @@ export default {
         setReverseLineStringExtension({ commit }, { reverseLineStringExtension, dispatcher }) {
             commit('setReverseLineStringExtension', { reverseLineStringExtension, dispatcher })
         },
+        setExtendingLineString({ commit }, { extendingLineString, dispatcher }) {
+            commit('setExtendingLineString', { extendingLineString, dispatcher })
+        },
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
@@ -156,6 +161,9 @@ export default {
         },
         setReverseLineStringExtension(state, { reverseLineStringExtension }) {
             state.reverseLineStringExtension = reverseLineStringExtension
+        },
+        setExtendingLineString(state, { extendingLineString }) {
+            state.extendingLineString = extendingLineString
         },
     },
 }

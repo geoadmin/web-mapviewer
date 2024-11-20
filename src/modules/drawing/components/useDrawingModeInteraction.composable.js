@@ -66,14 +66,13 @@ export default function useDrawingModeInteraction({
     const snapInteraction = new SnapInteraction({
         source: drawingLayer.getSource(),
     })
+    let selectedFeatureId = null
+    let selectedFeature = null
 
     onMounted(() => {
-        const selectedFeatureId = store.state.features.selectedEditableFeatures[0]?.id
+        selectedFeatureId = store.state.features.selectedEditableFeatures[0]?.id
         if (selectedFeatureId) {
-            const selectedFeature = getEditableFeatureWithId(
-                store.state.features,
-                selectedFeatureId
-            )
+            selectedFeature = getEditableFeatureWithId(store.state.features, selectedFeatureId)
             if (selectedFeature) {
                 interaction = continueDrawingInteraction
                 const reverse = store.state.drawing.reverseLineStringExtension
