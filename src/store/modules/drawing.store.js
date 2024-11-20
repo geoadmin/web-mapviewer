@@ -9,6 +9,13 @@ const defaultDrawingTitle = 'draw_mode_title'
  * @property {string} featureId
  */
 
+/** @enum */
+export const EditMode = {
+    OFF: 'OFF',
+    MODIFY: 'MODIFY', // Mode for modifying existing features
+    EXTEND: 'EXTEND', // Mode for extending existing features (for line only)
+}
+
 export default {
     state: {
         /**
@@ -77,7 +84,12 @@ export default {
          */
         reverseLineStringExtension: false,
 
-        extendingLineString: false,
+        /**
+         * Current editing mode. See {@link EditMode}
+         *
+         * @type {String | null}
+         */
+        editingMode: EditMode.OFF,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -139,8 +151,12 @@ export default {
         setReverseLineStringExtension({ commit }, { reverseLineStringExtension, dispatcher }) {
             commit('setReverseLineStringExtension', { reverseLineStringExtension, dispatcher })
         },
-        setExtendingLineString({ commit }, { extendingLineString, dispatcher }) {
-            commit('setExtendingLineString', { extendingLineString, dispatcher })
+        setEditingMode({ commit }, { mode, dispatcher }) {
+            if (mode in EditMode) {
+                commit('setEditingMode', { mode, dispatcher })
+            } else {
+                commit('setEditingMode', { mode: EditMode.OFF, dispatcher })
+            }
         },
     },
     mutations: {
@@ -162,8 +178,6 @@ export default {
         setReverseLineStringExtension(state, { reverseLineStringExtension }) {
             state.reverseLineStringExtension = reverseLineStringExtension
         },
-        setExtendingLineString(state, { extendingLineString }) {
-            state.extendingLineString = extendingLineString
-        },
+        setEditingMode: (state, { mode }) => (state.editingMode = mode),
     },
 }

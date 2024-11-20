@@ -13,6 +13,7 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
@@ -37,7 +38,7 @@ const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineString = computed(() => {
     // eslint-disable-next-line no-unused-vars
-    const x = store.state.drawing.extendingLineString
+    const currentEditingMode = store.state.drawing.editingMode
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
@@ -53,10 +54,7 @@ const selectedLineString = computed(() => {
     }
 })
 const showAddVertexButton = computed(() => {
-    if (store.state.drawing.extendingLineString) {
-        return false
-    }
-    return !!selectedLineString.value && store.state.drawing.mode === null
+    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineString.value
 })
 
 const hasKml = computed(() => {
@@ -134,7 +132,15 @@ watch(availableIconSets, () => {
         }
     })
 })
-
+watch(selectedEditableFeatures, (newValue) => {
+    if (newValue) {
+        if (store.state.drawing.editingMode === EditMode.OFF) {
+            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
+        }
+    } else {
+        store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
+    }
+})
 onMounted(() => {
     if (noFeatureInfo.value) {
         // Left clicking while in drawing mode has its own logic not covered in click-on-map-management.plugin.js

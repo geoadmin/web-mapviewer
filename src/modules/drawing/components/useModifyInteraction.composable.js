@@ -12,6 +12,7 @@ import {
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
@@ -29,7 +30,6 @@ export default function useModifyInteraction(features) {
     const store = useStore()
 
     const olMap = inject('olMap')
-
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
     const modifyInteraction = new ModifyInteraction({
@@ -67,9 +67,9 @@ export default function useModifyInteraction(features) {
     })
 
     watch(
-        () => store.state.drawing.extendingLineString,
+        () => store.state.drawing.editingMode,
         (newValue) => {
-            if (newValue && features.getArray().length > 0) {
+            if (newValue === EditMode.EXTEND && features.getArray().length > 0) {
                 const selectedFeature = features.getArray()[0]
                 if (store.state.drawing.reverseLineStringExtension) {
                     selectedFeature
@@ -97,6 +97,7 @@ export default function useModifyInteraction(features) {
         continueDrawingInteraction.setActive(false)
     })
     onBeforeUnmount(() => {
+        store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
         olMap.removeInteraction(modifyInteraction)
         olMap.removeInteraction(continueDrawingInteraction)
         modifyInteraction.un('modifyend', onModifyEnd)
@@ -152,10 +153,7 @@ export default function useModifyInteraction(features) {
         const newCoords = event.feature.getGeometry().getCoordinates()
         log.debug('drawend coordinate', newCoords)
         log.debug('selectedFeature', features)
-        store.dispatch('setExtendingLineString', {
-            extendingLineString: false,
-            ...dispatcher,
-        })
+        store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
         debounceSaveDrawing()
     }
 }
