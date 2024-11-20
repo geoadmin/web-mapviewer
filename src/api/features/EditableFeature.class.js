@@ -1,6 +1,4 @@
-import { Feature } from 'ol'
-import { LineString } from 'ol/geom'
-import { Icon as olIcon, Stroke, Style } from 'ol/style'
+import { Icon as olIcon } from 'ol/style'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
@@ -219,43 +217,5 @@ export default class EditableFeature extends SelectableFeature {
 
     set geodesicCoordinates(coordinates) {
         this._geodesicCoordinates = coordinates
-    }
-
-    /**
-     * Converts this EditableFeature to an OpenLayers Feature
-     *
-     * @param {boolean} reverse If true, the geometry is reversed. Default is false.
-     * @returns {ol.Feature}
-     */
-    toOlFeature(reverse = false) {
-        if (this._featureType !== EditableFeatureTypes.LINEPOLYGON) {
-            throw new Error('Feature type must be LINEPOLYGON')
-        }
-        // Create LineString geometry from coordinates
-        const coordinates = reverse ? [...this._coordinates].reverse() : this._coordinates
-        const lineGeom = new LineString(coordinates)
-
-        // Create OpenLayers Feature
-        const olFeature = new Feature({
-            geometry: lineGeom,
-            name: this._title,
-            description: this._description,
-            id: this._id,
-        })
-
-        // Add style
-        olFeature.setStyle(
-            new Style({
-                stroke: new Stroke({
-                    color: this._fillColor,
-                    width: 2,
-                }),
-            })
-        )
-
-        // Set feature ID
-        olFeature.setId(this._id)
-
-        return olFeature
     }
 }

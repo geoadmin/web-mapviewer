@@ -12,7 +12,6 @@ import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { getEditableFeatureWithId } from '@/store/modules/features.store'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
@@ -39,7 +38,7 @@ export default function useDrawingModeInteraction({
     const store = useStore()
     const projection = computed(() => store.state.position.projection)
 
-    const drawFromScratchInteraction = new DrawInteraction({
+    const interaction = new DrawInteraction({
         style: editingStyle,
         type: geometryType,
         source: drawingLayer.getSource(),
@@ -49,38 +48,11 @@ export default function useDrawingModeInteraction({
         condition: (e) => primaryAction(e),
         wrapX: true,
     })
-
-    const continueDrawingInteraction = new DrawInteraction({
-        style: editingStyle,
-        type: 'LineString', // Only works for LineString
-        source: drawingLayer.getSource(),
-        minPoints: 2,
-        stopClick: true,
-        // only left-click to draw (primaryAction)
-        condition: (e) => primaryAction(e),
-        wrapX: true,
-    })
-
-    let interaction = drawFromScratchInteraction
-
     const snapInteraction = new SnapInteraction({
         source: drawingLayer.getSource(),
     })
-    let selectedFeatureId = null
-    let selectedFeature = null
 
     onMounted(() => {
-        selectedFeatureId = store.state.features.selectedEditableFeatures[0]?.id
-        if (selectedFeatureId) {
-            selectedFeature = getEditableFeatureWithId(store.state.features, selectedFeatureId)
-            if (selectedFeature) {
-                interaction = continueDrawingInteraction
-                const reverse = store.state.drawing.reverseLineStringExtension
-                const lineFeature = selectedFeature.toOlFeature(reverse)
-                interaction.extend(lineFeature)
-            }
-        }
-
         interaction.setActive(true)
 
         interaction.getOverlay().getSource().on('addfeature', onAddFeature)
@@ -211,10 +183,6 @@ export default function useDrawingModeInteraction({
         interaction.finishDrawing()
         store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
-        store.dispatch('setReverseLineStringExtension', {
-            reverseLineStringExtension: null,
-            ...dispatcher,
-        })
         if (drawEndCallback) {
             drawEndCallback(feature)
         }

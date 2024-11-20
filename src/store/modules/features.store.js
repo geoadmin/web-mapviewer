@@ -22,7 +22,7 @@ export function canFeatureShowProfile(feature) {
     return feature?.geometry?.type && !['Point'].includes(feature.geometry.type)
 }
 
-export const getEditableFeatureWithId = (state, featureId) => {
+const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
     )
