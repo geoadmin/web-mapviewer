@@ -79,9 +79,11 @@ export default function useModifyInteraction(features) {
                 continueDrawingInteraction.extend(selectedFeature)
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
+                olMap.on('contextmenu', onMapRightClick)
             } else {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
+                olMap.un('contextmenu', onMapRightClick)
             }
         },
         { immediate: true }
@@ -104,6 +106,10 @@ export default function useModifyInteraction(features) {
         modifyInteraction.un('modifystart', onModifyStart)
         continueDrawingInteraction.un('drawend', onExtendEnd)
     })
+
+    function onMapRightClick(_event) {
+        continueDrawingInteraction.removeLastPoint()
+    }
 
     function onModifyStart(event) {
         const [feature] = event.features.getArray()
