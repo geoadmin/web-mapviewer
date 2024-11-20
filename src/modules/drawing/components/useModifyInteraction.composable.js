@@ -71,6 +71,11 @@ export default function useModifyInteraction(features) {
         (newValue) => {
             if (newValue && features.getArray().length > 0) {
                 const selectedFeature = features.getArray()[0]
+                if (store.state.drawing.reverseLineStringExtension) {
+                    selectedFeature
+                        .getGeometry()
+                        .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
+                }
                 continueDrawingInteraction.extend(selectedFeature)
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
