@@ -4,6 +4,7 @@ import Overlay from 'ol/Overlay'
 import { computed, onMounted, ref, watch } from 'vue'
 import { inject } from 'vue'
 import { onUnmounted } from 'vue'
+import { useStore } from 'vuex'
 
 import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
 
@@ -24,7 +25,17 @@ const lastButtonOverlay = ref(null)
 const firstButtonCoordinate = ref(null)
 const lastButtonCoordinate = ref(null)
 
-const calculateOffset = (point1, point2, distance = 35) => {
+const store = useStore()
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedFeatureType = computed(() => {
+    if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
+        const selectedFeature = selectedEditableFeatures.value[0]
+        return selectedFeature.featureType
+    }
+    return null
+})
+
+const calculateOffset = (point1, point2, distance) => {
     if (!point1 || !point2) {
         return [distance, -distance]
     }
@@ -50,8 +61,17 @@ const updateButtonPositions = () => {
     firstButtonCoordinate.value = coords[0]
     lastButtonCoordinate.value = coords[coords.length - 1]
 
-    const firstOffset = calculateOffset(coords[0], coords[1])
-    const lastOffset = calculateOffset(coords[coords.length - 1], coords[coords.length - 2])
+    let distance = 35
+    const firstOffset = calculateOffset(coords[0], coords[1], distance)
+    // adding this so that the button is not on top of the measure line label
+    if (selectedFeatureType.value === 'MEASURE') {
+        distance = distance + 40
+    }
+    const lastOffset = calculateOffset(
+        coords[coords.length - 1],
+        coords[coords.length - 2],
+        distance
+    )
 
     if (firstButtonOverlay.value) {
         firstButtonOverlay.value.setPosition(firstButtonCoordinate.value)
@@ -68,7 +88,6 @@ const onFirstButtonMounted = (buttonElement) => {
         element: buttonElement,
         positioning: 'center-center',
         stopEvent: true,
-        offset: [-25, -25],
     })
     olMap.addOverlay(firstButtonOverlay.value)
     updateButtonPositions()
@@ -79,7 +98,6 @@ const onLastButtonMounted = (buttonElement) => {
         element: buttonElement,
         positioning: 'center-center',
         stopEvent: true,
-        offset: [-25, -25],
     })
     olMap.addOverlay(lastButtonOverlay.value)
     updateButtonPositions()
