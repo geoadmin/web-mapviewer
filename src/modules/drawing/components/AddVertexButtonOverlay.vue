@@ -1,7 +1,7 @@
 <script setup>
 import { LineString } from 'ol/geom'
 import Overlay from 'ol/Overlay'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { inject } from 'vue'
 import { onUnmounted } from 'vue'
 
@@ -13,6 +13,8 @@ const props = defineProps({
         required: true,
     },
 })
+
+const coordinates = computed(() => props.lineString.coordinates)
 
 const olMap = inject('olMap')
 
@@ -44,15 +46,12 @@ const calculateOffset = (point1, point2, distance = 35) => {
 }
 
 const updateButtonPositions = () => {
-    const coordinates = props.lineString.coordinates
-    firstButtonCoordinate.value = coordinates[0]
-    lastButtonCoordinate.value = coordinates[coordinates.length - 1]
+    const coords = coordinates.value
+    firstButtonCoordinate.value = coords[0]
+    lastButtonCoordinate.value = coords[coords.length - 1]
 
-    const firstOffset = calculateOffset(coordinates[0], coordinates[1])
-    const lastOffset = calculateOffset(
-        coordinates[coordinates.length - 1],
-        coordinates[coordinates.length - 2]
-    )
+    const firstOffset = calculateOffset(coords[0], coords[1])
+    const lastOffset = calculateOffset(coords[coords.length - 1], coords[coords.length - 2])
 
     if (firstButtonOverlay.value) {
         firstButtonOverlay.value.setPosition(firstButtonCoordinate.value)
@@ -86,9 +85,10 @@ const onLastButtonMounted = (buttonElement) => {
     updateButtonPositions()
 }
 
+watch(coordinates, updateButtonPositions)
+
 onMounted(() => {
     updateButtonPositions()
-    watch(() => props.lineString.coordinates, updateButtonPositions)
 })
 
 onUnmounted(() => {
