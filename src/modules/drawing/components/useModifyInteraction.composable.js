@@ -2,7 +2,7 @@ import { noModifierKeys, primaryAction, singleClick } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
-import { inject, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import {
@@ -28,6 +28,11 @@ const cursorGrabbingClass = 'cursor-grabbing'
  */
 export default function useModifyInteraction(features) {
     const store = useStore()
+
+    const editMode = computed(() => store.state.drawing.editingMode)
+    const reverseLineStringExtension = computed(
+        () => store.state.drawing.reverseLineStringExtension
+    )
 
     const olMap = inject('olMap')
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
@@ -67,11 +72,11 @@ export default function useModifyInteraction(features) {
     })
 
     watch(
-        () => store.state.drawing.editingMode,
+        editMode,
         (newValue) => {
             if (newValue === EditMode.EXTEND && features.getArray().length > 0) {
                 const selectedFeature = features.getArray()[0]
-                if (store.state.drawing.reverseLineStringExtension) {
+                if (reverseLineStringExtension.value) {
                     selectedFeature
                         .getGeometry()
                         .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
