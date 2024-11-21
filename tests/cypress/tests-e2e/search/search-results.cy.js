@@ -73,9 +73,10 @@ describe('Test the search bar result handling', () => {
                         expectedCenterDefaultProjection[1] + 500
                     })`,
                     label: expectedLocationLabel,
+                    origin: 'kantone',
                 },
             },
-            { attrs: { label: 'Test location #2' } },
+            { attrs: { label: 'Test location #2', origin: 'district' } },
             { attrs: { label: 'Test location #3' } },
         ],
     }
@@ -155,6 +156,8 @@ describe('Test the search bar result handling', () => {
 
     it('search different type of entries correctly', () => {
         cy.goToMapView()
+        cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+
         cy.get(searchbarSelector).paste('test')
         cy.wait(['@search-locations', '@search-layers'])
 
@@ -163,20 +166,20 @@ describe('Test the search bar result handling', () => {
             .as('locationSearchResults')
             .first()
             .invoke('text')
-            .should('eq', expectedLocationLabel.replaceAll(/<\/?b>/g, ''))
+            .should('eq', `Ct. ${expectedLocationLabel.replaceAll(/<\/?b>/g, '')}`)
+        cy.get('@locationSearchResults')
+            .eq(1)
+            .invoke('text')
+            .should('eq', `District Test location #2`)
 
-        cy.log('Checking that it adds the search query as swisssearch URL param')
-        cy.url().should('contain', 'swisssearch=test')
+        cy.log('Checking that it does not add the search query as swisssearch URL param')
+        cy.url().should('not.contain', 'swisssearch')
 
         cy.log(
             'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
         )
-        cy.reload()
-        cy.waitMapIsReady()
-        cy.wait(['@search-locations', '@search-layers'])
+
         cy.readStoreValue('state.search.query').should('eq', 'test')
-        cy.get('@locationSearchResults').should('not.be.visible')
-        cy.get(searchbarSelector).click()
         cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('Checking that it displays layer results with info-buttons')
@@ -208,12 +211,11 @@ describe('Test the search bar result handling', () => {
                 expect(legend.innerHTML).to.contain(expectedLegendContent)
             })
         // closing legend
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         cy.log('Testing keyboard navigation')
-        cy.goToMapView()
         cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
+        cy.wait([`@search-locations`, '@search-layers'])
 
         cy.log('Clearing the search result with ESC')
         cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
@@ -223,7 +225,7 @@ describe('Test the search bar result handling', () => {
         cy.log('Toggling the search result with caret button')
         cy.viewport(600, 600)
         cy.get(searchbarSelector).paste('test')
-        cy.wait(`@search-locations`)
+        cy.wait([`@search-locations`, '@search-layers'])
         cy.get('[data-cy="searchbar-toggle-result"]').should('be.visible').click()
         cy.get('[data-cy="search-results"]').should('not.be.visible')
         cy.get('[data-cy="searchbar-toggle-result"]').should('be.visible').click()
@@ -290,10 +292,11 @@ describe('Test the search bar result handling', () => {
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
         cy.readStoreValue('state.map.pinnedLocation').should('be.null')
-        cy.get(searchbarSelector).paste('test')
-        cy.wait(['@search-locations', '@search-layers'])
 
         cy.log('Testing previewing the location or layer on hover')
+
+        cy.get(searchbarSelector).paste('test')
+        cy.wait(['@search-locations', '@search-layers'])
 
         // Location - Enter
         cy.get('@locationSearchResults').first().trigger('mouseenter')
@@ -318,7 +321,10 @@ describe('Test the search bar result handling', () => {
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
+        cy.get(searchbarSelector).should('have.value', 'test')
         cy.get('@locationSearchResults').first().realClick()
+        // search bar should not take element's title as value, but stays with the user search query
+        cy.get(searchbarSelector).should('have.value', 'test')
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
@@ -335,6 +341,7 @@ describe('Test the search bar result handling', () => {
                 0.2
             )
         }
+
         // checking that a dropped pin has been placed at the feature's location
         cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
             checkLocation(expectedCenterDefaultProjection, pinnedLocation)
@@ -367,6 +374,8 @@ describe('Test the search bar result handling', () => {
             .should('be.hidden')
         // adding the layer through the search results
         cy.get('@layerSearchResults').first().click()
+        // should re-run a search to include potential layer features
+        cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
         // checking that the layer has been added to the map
         cy.checkOlLayer([
             'test.background.layer2', // bg layer
@@ -379,5 +388,68 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
 
         cy.get('@layerFeatureSearchCategory').should('be.visible')
+
+        cy.get(searchbarSelector).click()
+        cy.get('@locationSearchResults').should('not.be.visible')
+
+        cy.log('Checking that the swisssearch url param is not present after reloading the page')
+        cy.reload()
+        cy.waitMapIsReady()
+        cy.wait(['@layers', '@topics', '@topic-ech'])
+        cy.wait('@routeChange')
+
+        cy.url().should('not.contain', 'swisssearch')
+        cy.readStoreValue('state.search.query').should('equal', '')
+        cy.get('@locationSearchResults').should('not.exist')
+    })
+    it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
+        cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+            body: { results: [] },
+        }).as('search-layers')
+        const coordinates = [2598633.75, 1200386.75]
+        cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
+            body: {
+                results: [
+                    {
+                        attrs: {
+                            detail: '1530 payerne 5822 payerne ch vd',
+                            label: '  <b>1530 Payerne</b>',
+                            lat: 46.954559326171875,
+                            lon: 7.420684814453125,
+                            y: coordinates[0],
+                            x: coordinates[1],
+                        },
+                    },
+                    {
+                        attrs: {
+                            detail: '1530 payerne 5822 payerne ch vd 2',
+                            label: '  <b>1530 Payerne</b> 2',
+                            lat: 46.954559326171875,
+                            lon: 7.420684814453125,
+                            y: coordinates[0],
+                            x: coordinates[1],
+                        },
+                    },
+                ],
+            },
+        }).as('search-locations')
+        cy.goToMapView(
+            {
+                swisssearch: '1530 Payerne',
+                swisssearch_autoselect: 'true',
+            },
+            false
+        )
+        cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
+        cy.url().should('not.contain', 'swisssearch')
+        cy.url().should('not.contain', 'swisssearch_autoselect')
+        const acceptableDelta = 0.25
+
+        cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
+            expect(feature).to.not.be.null
+            expect(feature).to.be.a('array').that.is.not.empty
+            expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
+            expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
+        })
     })
 })

@@ -247,7 +247,7 @@ export function isValidEmail(email) {
  * @returns {String} Human readable size
  */
 export function humanFileSize(size) {
-    const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
+    const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
 }
 
@@ -259,22 +259,4 @@ export function humanFileSize(size) {
  */
 export function isInternalUrl(url) {
     return internalDomainRegex.test(url)
-}
-
-/**
- * Check if the input is a zipfile content or not
- *
- * @param {ArrayBuffer} content
- * @returns {boolean} Return true if the content is a zipfile content
- */
-export function isZipContent(content) {
-    // Check the first 4 bytes for the ZIP file signature
-    const zipSignature = [0x50, 0x4b, 0x03, 0x04]
-    const view = new Uint8Array(content.slice(0, 4))
-    for (let i = 0; i < zipSignature.length; i++) {
-        if (view[i] !== zipSignature[i]) {
-            return false
-        }
-    }
-    return true
 }

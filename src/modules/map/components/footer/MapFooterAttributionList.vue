@@ -6,6 +6,7 @@
                 v-if="source.hasDataDisclaimer"
                 :source-name="source.name"
                 :complete-disclaimer-on-click="!source.url"
+                :is-local-file="source.isLocalFile"
             >
                 <MapFooterAttributionItem
                     :source-id="source.id"
@@ -38,9 +39,13 @@ export default {
     computed: {
         ...mapState({
             layersConfig: (state) => state.layers.config,
-            currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
         }),
-        ...mapGetters(['visibleLayers', 'hasDataDisclaimer']),
+        ...mapGetters([
+            'visibleLayers',
+            'hasDataDisclaimer',
+            'isLocalFile',
+            'currentBackgroundLayer',
+        ]),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here
@@ -61,7 +66,12 @@ export default {
                                 id: attribution.name.replace(/[._]/g, '-'),
                                 name: attribution.name,
                                 url: attribution.url,
-                                hasDataDisclaimer: this.hasDataDisclaimer(layer.id),
+                                hasDataDisclaimer: this.hasDataDisclaimer(
+                                    layer.id,
+                                    layer.isExternal,
+                                    layer.baseUrl
+                                ),
+                                isLocalFile: this.isLocalFile(layer),
                             }
                         })
                     })

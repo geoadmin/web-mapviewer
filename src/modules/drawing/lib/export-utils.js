@@ -6,7 +6,7 @@ import Style from 'ol/style/Style'
 
 import i18n from '@/modules/i18n/index'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
@@ -72,9 +72,10 @@ export function generateGpxString(projection, features = []) {
  *
  * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to KML format
+ * @param fileName {String} name of the file
  * @returns {string}
  */
-export function generateKmlString(projection, features = []) {
+export function generateKmlString(projection, features = [], fileName) {
     log.debug(`Generate KML for ${features.length} features`)
     if (!projection) {
         log.error('Cannot generate KML string without projection')
@@ -86,7 +87,7 @@ export function generateKmlString(projection, features = []) {
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        const styles = featureStyleFunction(clone)
+        const styles = geoadminStyleFunction(clone)
         const newStyle = {
             fill: styles[0].getFill(),
             stroke: styles[0].getStroke(),
@@ -131,10 +132,9 @@ export function generateKmlString(projection, features = []) {
 
         // Remove empty placemark added to have <Document> tag
         kmlString = kmlString.replace(/<Placemark\/>/g, '')
-
         kmlString = kmlString.replace(
             /<Document>/,
-            `<Document><name>${i18n.global.t('draw_layer_label')}</name>`
+            `<Document><name>${fileName ? fileName : i18n.global.t('draw_layer_label')}</name>`
         )
     }
     return kmlString

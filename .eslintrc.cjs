@@ -30,6 +30,7 @@ module.exports = {
         'simple-import-sort/imports': 'error',
         'simple-import-sort/exports': 'error',
         'mocha/no-exclusive-tests': 'error', // Do not allow it.only() tests
+        eqeqeq: ['error', 'always'],
     },
     globals: {
         VITE_ENVIRONMENT: true,

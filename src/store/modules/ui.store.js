@@ -7,6 +7,7 @@ import {
 } from '@/config/staging.config'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
+import { isNumber } from '@/utils/numberUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
@@ -138,12 +139,14 @@ export default {
          *
          * @type Boolean
          */
+
         isCompareSliderActive: false,
         /**
          * Flag telling if the time slider is currently active or not
          *
          * @type Boolean
          */
+
         isTimeSliderActive: false,
 
         /**
@@ -389,14 +392,20 @@ export default {
         setShowDisclaimer({ commit }, { showDisclaimer, dispatcher }) {
             commit('setShowDisclaimer', { showDisclaimer, dispatcher })
         },
-        addError({ commit, state }, { error, dispatcher }) {
-            if (!(error instanceof ErrorMessage)) {
-                throw new Error(
-                    `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
+        addErrors({ commit, state }, { errors, dispatcher }) {
+            if (errors instanceof Array && errors.every((error) => error instanceof ErrorMessage)) {
+                errors = errors.filter(
+                    (error) =>
+                        // we only add the errors that are not existing within the store
+                        ![...state.errors].some((otherError) => error.isEquals(otherError))
                 )
-            }
-            if (!state.errors.has(error)) {
-                commit('addError', { error, dispatcher })
+                if (errors.length > 0) {
+                    commit('addErrors', { errors, dispatcher })
+                }
+            } else {
+                throw new Error(
+                    `Error ${errors} dispatched by ${dispatcher} is not of type ErrorMessage, or not an Array of ErrorMessages`
+                )
             }
         },
 
@@ -410,14 +419,23 @@ export default {
                 commit('removeError', { error, dispatcher })
             }
         },
-        addWarning({ commit, state }, { warning, dispatcher }) {
-            if (!(warning instanceof WarningMessage)) {
-                throw new Error(
-                    `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
+        addWarnings({ commit, state }, { warnings, dispatcher }) {
+            if (
+                warnings instanceof Array &&
+                warnings.every((warning) => warning instanceof WarningMessage)
+            ) {
+                warnings = warnings.filter(
+                    (warning) =>
+                        // we only add the warnings that are not existing within the store
+                        ![...state.warnings].some((otherWarning) => warning.isEquals(otherWarning))
                 )
-            }
-            if (!state.warnings.has(warning)) {
-                commit('addWarning', { warning, dispatcher })
+                if (warnings.length > 0) {
+                    commit('addWarnings', { warnings, dispatcher })
+                }
+            } else {
+                throw new Error(
+                    `Warning ${warnings} dispatched by ${dispatcher} is not of type WarningMessage, or not an Array of WarningMessages`
+                )
             }
         },
         removeWarning({ commit, state }, { warning, dispatcher }) {
@@ -450,7 +468,7 @@ export default {
         },
         setShowLoadingBar(state, { requester, loading }) {
             if (loading) {
-                if (state.loadingBarRequesters[requester] == null) {
+                if (!isNumber(state.loadingBarRequesters[requester])) {
                     state.loadingBarRequesters[requester] = 0
                 }
                 state.loadingBarRequesters[requester] += 1
@@ -492,9 +510,13 @@ export default {
             state.featureInfoPosition = position
         },
         setShowDisclaimer: (state, { showDisclaimer }) => (state.showDisclaimer = showDisclaimer),
-        addError: (state, { error }) => state.errors.add(error),
+        addErrors: (state, { errors }) => {
+            errors.forEach((error) => state.errors.add(error))
+        },
         removeError: (state, { error }) => state.errors.delete(error),
-        addWarning: (state, { warning }) => state.warnings.add(warning),
+        addWarnings: (state, { warnings }) => {
+            warnings.forEach((warning) => state.warnings.add(warning))
+        },
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),

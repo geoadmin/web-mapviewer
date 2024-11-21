@@ -21,15 +21,17 @@ import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
 import clickOnMapManagementPlugin from '@/store/plugins/click-on-map-management.plugin'
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import geolocationManagementPlugin from '@/store/plugins/geolocation-management.plugin'
+import loadCOGExtent from '@/store/plugins/load-cog-extent.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
 import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
-import loadKmlDataAndMetadata from '@/store/plugins/load-kml-data.plugin'
+import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
 import loadLayersConfigOnLangChange from '@/store/plugins/load-layersconfig-on-lang-change'
-import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin.js'
+import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin'
 import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.plugin'
 import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
+import updateSelectedFeaturesPlugin from '@/store/plugins/update-selected-features.plugin'
 
 const store = createStore({
     // Do not run strict mode on production has it has performance cost
@@ -50,6 +52,8 @@ const store = createStore({
         loadGeojsonStyleAndData,
         loadKmlDataAndMetadata,
         loadGpxDataAndMetadata,
+        loadCOGExtent,
+        updateSelectedFeaturesPlugin,
     ],
     modules: {
         app,

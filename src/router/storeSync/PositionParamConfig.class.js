@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -15,7 +16,11 @@ export function readCenterFromUrlParam(urlParamValue) {
 function dispatchCenterFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const center = readCenterFromUrlParam(urlParamValue)
-    if (center) {
+
+    // Quick explanation here: we use the 'center' parameter to center when
+    // - there is no swisssearch parameter (as it takes priority) or
+    // - there is a swisssearch parameter and a crosshair (it happens when we share positions)
+    if (center && (!to.query.swisssearch || to.query.crosshair)) {
         promisesForAllDispatch.push(
             store.dispatch('setCenter', { center, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
         )
@@ -32,6 +37,18 @@ function generateCenterUrlParamFromStoreValues(store) {
     return null
 }
 
+function validateUrlInput(store, query) {
+    if (query) {
+        const center = query.split(',')
+        return getStandardValidationResponse(
+            query,
+            center.length === 2 && store.state.position.projection.isInBounds(center[0], center[1]),
+            this.urlParamName
+        )
+    }
+    return getStandardValidationResponse(query, false, this.urlParamName)
+}
+
 /**
  * Describe the position (center) of the map in the URL. It will make sure that the URL values are
  * read as floating numbers.
@@ -45,6 +62,7 @@ export default class PositionParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCenterUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

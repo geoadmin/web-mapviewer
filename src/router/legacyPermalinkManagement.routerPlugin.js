@@ -49,7 +49,6 @@ const handleLegacyParam = (
 ) => {
     const { projection } = store.state.position
     let newValue
-
     let key = param
     switch (param) {
         case 'zoom':
@@ -158,9 +157,10 @@ const handleLegacyParam = (
         // When receiving a query, the application will encode the URI components
         // We decode those so that the new query won't encode encoded character
         // for example, we avoid having " " becoming %2520 in the URI
-        newQuery[key] = decodeURIComponent(newValue)
+        // But we don't decode the value if it's a layer, as it's already encoded in transformLayerIntoUrlString function
+        newQuery[key] = param === 'layers' ? newValue : decodeURIComponent(newValue)
         log.info(
-            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${decodeURIComponent(newValue)}`,
+            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${newQuery[key]}`,
             newQuery
         )
     } else {

@@ -14,7 +14,7 @@ import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
+import { normalizeExtent } from '@/utils/extentUtils'
 import log from '@/utils/logging'
 
 /**
@@ -86,7 +86,7 @@ export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection =
  */
 export function transformIntoTurfEquivalent(geoJsonData, fromProjection = null) {
     const geometryWGS84 = reprojectGeoJsonData(
-        geoJsonData.type == 'GeometryCollection' ? geoJsonData.geometries[0] : geoJsonData,
+        geoJsonData.type === 'GeometryCollection' ? geoJsonData.geometries[0] : geoJsonData,
         WGS84,
         fromProjection
     )

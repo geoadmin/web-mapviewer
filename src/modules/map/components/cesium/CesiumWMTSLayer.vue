@@ -17,8 +17,8 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { getWmtsXyzUrl } from '@/utils/layerUtils'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import ErrorMessage from '@/utils/ErrorMessage.class'
+import { getTimestampFromConfig, getWmtsXyzUrl } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
@@ -27,7 +27,7 @@ const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
-const threeDErrorKey = '3d_unsupported_projection'
+const threeDError = new ErrorMessage('3d_unsupported_projection')
 
 export default {
     mixins: [addImageryLayerMixins],
@@ -74,9 +74,11 @@ export default {
                 log.error(
                     `External layer ${this.wmtsLayerConfig.id} does not support ${this.projection.epsg}`
                 )
-                this.addLayerErrorKey({
+                this.addLayerError({
                     layerId: this.wmtsLayerConfig.id,
-                    errorKey: threeDErrorKey,
+                    isExternal: this.wmtsLayerConfig.isExternal,
+                    baseUrl: this.wmtsLayerConfig.baseUrl,
+                    error: threeDError,
                     ...dispatcher,
                 })
             }
@@ -118,16 +120,18 @@ export default {
         },
     },
     unmounted() {
-        if (this.wmtsLayerConfig.hasErrorKey(threeDErrorKey)) {
-            this.removeLayerErrorKey({
+        if (this.wmtsLayerConfig.containErrorMessage(threeDError)) {
+            this.removeLayerError({
                 layerId: this.wmtsLayerConfig.id,
-                errorKey: threeDErrorKey,
+                isExternal: this.wmtsLayerConfig.isExternal,
+                baseUrl: this.wmtsLayerConfig.baseUrl,
+                error: threeDError,
                 ...dispatcher,
             })
         }
     },
     methods: {
-        ...mapActions(['addLayerErrorKey', 'removeLayerErrorKey']),
+        ...mapActions(['addLayerError', 'removeLayerError']),
         createImagery(url) {
             const options = {
                 alpha: this.opacity,

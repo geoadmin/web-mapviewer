@@ -1,7 +1,11 @@
+import GeoJSON from 'ol/format/GeoJSON'
+
+import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
+import { normalizeExtent } from '@/utils/extentUtils'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -38,6 +42,8 @@ import { getBaseUrlOverride } from '@/config/baseUrl.config'
  *   feature IDs to select. Default is `undefined`
  * @property {String | undefined} [customAttributes.adminId=undefined] KML admin ID required to edit
  *   a KML drawing. Default is `undefined`
+ * @property {KmlStyles | undefined} [customAttributes.style=undefined] KML style to be applied to
+ *   its features, can be one of the value from KmlStyles.enum.js. Default is `undefined`
  */
 
 /**
@@ -96,4 +102,40 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
         return projection.getResolutions().length
     }
     return indexOfResolution
+}
+
+/**
+ * Creates a LayerFeature object from an OpenLayers feature and a layer.
+ *
+ * @param {ol.Feature} olFeature - The OpenLayers feature to convert.
+ * @param {AbstractLayer} layer - The layer associated with the feature.
+ * @returns {LayerFeature | null} The created LayerFeature object or null if the feature has no
+ *   geometry.
+ */
+export function createLayerFeature(olFeature, layer, coordinates, geometry) {
+    if (!olFeature?.getGeometry() || geometry) {
+        return null
+    }
+    geometry = geometry ?? new GeoJSON().writeGeometryObject(olFeature.getGeometry())
+    return new LayerFeature({
+        layer: layer,
+        id: olFeature.getId(),
+        name:
+            olFeature.get('label') ??
+            // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+            // some of their layers are
+            // - ch.meteoschweiz.messwerte-niederschlag-10min
+            // - ch.meteoschweiz.messwerte-lufttemperatur-10min
+            olFeature.get('station_name') ??
+            // GPX track feature don't have an ID but have a name !
+            olFeature.get('name') ??
+            olFeature.getId(),
+        data: {
+            title: olFeature.get('name'),
+            description: olFeature.get('description'),
+        },
+        coordinates: coordinates ? coordinates : olFeature.getGeometry().getCoordinates(),
+        geometry: geometry,
+        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+    })
 }

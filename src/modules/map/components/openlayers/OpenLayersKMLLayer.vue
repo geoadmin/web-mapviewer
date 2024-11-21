@@ -44,12 +44,14 @@ const layerName = computed(() => kmlLayerConfig.value.name)
 const opacity = computed(() => parentLayerOpacity.value ?? kmlLayerConfig.value.opacity)
 const url = computed(() => kmlLayerConfig.value.baseUrl)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
+const kmlStyle = computed(() => kmlLayerConfig.value.style)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
 watch(iconsArePresent, createSourceForProjection)
 watch(availableIconSets, createSourceForProjection)
 watch(kmlData, createSourceForProjection)
+watch(kmlStyle, createSourceForProjection)
 
 /* We cannot directly let the vectorSource load the URL. We need to run the deserialize
 function on each feature before it is added to the vectorsource, as it may overwrite
@@ -84,15 +86,31 @@ onUnmounted(() => {
 })
 
 function iconUrlProxy(url) {
-    return iconUrlProxyFy(url, (url) => {
-        store.dispatch('addWarning', {
-            warning: new WarningMessage('kml_icon_url_cors_issue', {
-                layerName: layerName.value,
-                url: url,
-            }),
-            dispatcher: 'kmlUtils.js',
-        })
-    })
+    return iconUrlProxyFy(
+        url,
+        (url) => {
+            store.dispatch('addWarnings', {
+                warnings: [
+                    new WarningMessage('kml_icon_url_cors_issue', {
+                        layerName: layerName.value,
+                        url: url,
+                    }),
+                ],
+                ...dispatcher,
+            })
+        },
+        (url) => {
+            store.dispatch('addWarnings', {
+                warnings: [
+                    new WarningMessage('kml_icon_url_scheme_http', {
+                        layerName: layerName.value,
+                        url: url,
+                    }),
+                ],
+                ...dispatcher,
+            })
+        }
+    )
 }
 
 function createSourceForProjection() {

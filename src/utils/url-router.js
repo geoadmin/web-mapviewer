@@ -127,7 +127,7 @@ export function stringifyQuery(query) {
     for (let key in query) {
         const value = query[key]
         key = encodeQueryKey(key)
-        if (value == null) {
+        if (value === null) {
             // only null adds the value
             if (value !== undefined) {
                 search += (search.length ? '&' : '') + key
@@ -145,7 +145,7 @@ export function stringifyQuery(query) {
             if (value !== undefined) {
                 // only append & with non-empty search
                 search += (search.length ? '&' : '') + key
-                if (value != null) {
+                if (value !== null) {
                     search += '=' + value
                 }
             }

@@ -5,6 +5,7 @@ import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
+        cy.viewport(1920, 1080)
         cy.goToMapView({
             sr: WEBMERCATOR.epsgNumber,
         })
@@ -28,7 +29,7 @@ describe('Testing the footer content / tools', () => {
     it('has a functional background wheel', () => {
         function testBackgroundWheel() {
             // first, checking that the current bgLayer is the void layer
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null')
+            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
 
             // opening the background wheel
             cy.get('[data-cy="background-selector-open-wheel-button"]').click()
@@ -42,7 +43,7 @@ describe('Testing the footer content / tools', () => {
                         // checking that clicking on the wheel buttons changes the bgLayer of the app accordingly
                         cy.waitUntilState(
                             (state) =>
-                                state.layers.currentBackgroundLayer?.id === bgLayer.serverLayerName
+                                state.layers.currentBackgroundLayerId === bgLayer.serverLayerName
                         )
                         // reopening the BG wheel
                         cy.get('[data-cy="background-selector-open-wheel-button"]').click()
@@ -51,7 +52,7 @@ describe('Testing the footer content / tools', () => {
 
             // reverting to void layer
             cy.get('[data-cy="background-selector-void"]').click()
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null')
+            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
         }
 
         cy.goToMapView({

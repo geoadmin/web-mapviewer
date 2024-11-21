@@ -13,7 +13,7 @@ export const WGS84 = new WGS84CoordinateSystem()
 export const WEBMERCATOR = new WebMercatorCoordinateSystem()
 
 /** Representation of many (available in this app) projection systems */
-const allCoordinateSystems = [LV95, LV03, WGS84, WEBMERCATOR]
+export const allCoordinateSystems = [LV95, LV03, WGS84, WEBMERCATOR]
 setupProj4(allCoordinateSystems)
 
 // register any custom projection in OpenLayers

@@ -2,6 +2,11 @@ import { onMounted, ref, toValue } from 'vue'
 
 const defaultPadding = 4 // px
 
+const MovementSource = Object.freeze({
+    MOUSE_DRAG: 'mouse_drag',
+    WINDOW_RESIZE: 'window_resize',
+})
+
 /**
  * Makes an element movable on the whole screen, making sure it won't go out of the screen (it will
  * be constrained by the screen borders)
@@ -16,9 +21,12 @@ const defaultPadding = 4 // px
  * @param {{ top: Number; bottom: Number; left: Number; right: Number }} [options.offset] Offset in
  *   pixels with the border of the screen to constrain element movements. A default padding of 4
  *   pixel will be applied if no offset is given.
+ * @param {string[]} [options.initialPositionClasses] Initial position classes to remove when the
+ *   element is being moved
  */
 export function useMovableElement(element, options = {}) {
-    const { grabElement = null, offset = null } = options
+    const { grabElement = null, offset = null, initialPositionClasses = [] } = options
+    let firstMovement = true
 
     const padding = ref({
         top: toValue(offset)?.top ?? defaultPadding,
@@ -26,6 +34,7 @@ export function useMovableElement(element, options = {}) {
         left: toValue(offset)?.left ?? defaultPadding,
         right: toValue(offset)?.right ?? defaultPadding,
     })
+
     const viewport = ref({
         bottom: window.innerHeight - padding.value.bottom,
         left: padding.value.left,
@@ -99,7 +108,6 @@ export function useMovableElement(element, options = {}) {
             top: toValue(element).offsetTop,
         }
         const elementSize = toValue(element).getBoundingClientRect()
-
         // check to make sure the element will be within our viewport boundary
         let newLeft = elementOffset.left - currentMousePosition.left
         let newTop = elementOffset.top - currentMousePosition.top
@@ -123,7 +131,7 @@ export function useMovableElement(element, options = {}) {
         if (newLeft + elementSize.width > viewportRight) {
             newLeft = viewportRight - elementSize.width
         }
-        placeElementAt(newTop, newLeft)
+        placeElementAt(newTop, newLeft, MovementSource.MOUSE_DRAG)
     }
 
     function closeDragElement() {
@@ -131,10 +139,27 @@ export function useMovableElement(element, options = {}) {
         document.removeEventListener('mousemove', elementDrag)
     }
 
-    function placeElementAt(top, left) {
-        const htmlElementStyle = toValue(element).style
-        htmlElementStyle.top = `${top}px`
-        htmlElementStyle.left = `${left}px`
+    function placeElementAt(top, left, movementSource = MovementSource.MOUSE_DRAG) {
+        const htmlElement = toValue(element)
+        const htmlElementStyle = htmlElement.style
+
+        // In case the original element has CSS class that affects its position, we remove them first if the user is dragging the element
+        if (
+            firstMovement &&
+            initialPositionClasses.length > 0 &&
+            movementSource === MovementSource.MOUSE_DRAG
+        ) {
+            const rect = element.getBoundingClientRect()
+            initialPositionClasses.forEach((className) => {
+                htmlElement.classList.remove(className)
+            })
+            htmlElementStyle.top = `${rect.top}px`
+            htmlElementStyle.left = `${rect.left}px`
+        } else {
+            htmlElementStyle.top = `${top}px`
+            htmlElementStyle.left = `${left}px`
+        }
+        firstMovement = false
     }
 
     /**
@@ -171,7 +196,11 @@ export function useMovableElement(element, options = {}) {
             currentPosition.top !== positionConstrainedByNewLimits.top ||
             currentPosition.left !== positionConstrainedByNewLimits.left
         ) {
-            placeElementAt(positionConstrainedByNewLimits.top, positionConstrainedByNewLimits.left)
+            placeElementAt(
+                positionConstrainedByNewLimits.top,
+                positionConstrainedByNewLimits.left,
+                MovementSource.WINDOW_RESIZE
+            )
         }
     }
 }

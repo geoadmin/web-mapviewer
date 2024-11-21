@@ -286,7 +286,7 @@ describe('Drawing module tests', () => {
                 const media_description = 'description'
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(20, 160)
+                cy.get('[data-cy="ol-map"]').click(20, 260)
 
                 cy.log('Open hyperlink popup')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -322,7 +322,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Entering no description should use link as description')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(60, 160)
+                cy.get('[data-cy="ol-map"]').click(60, 260)
                 cy.get('[data-cy="drawing-style-link-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
@@ -335,7 +335,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Open image embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(100, 160)
+                cy.get('[data-cy="ol-map"]').click(100, 260)
                 cy.get('[data-cy="drawing-style-image-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -351,7 +351,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Open video embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(140, 160)
+                cy.get('[data-cy="ol-map"]').click(140, 260)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -366,7 +366,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(180, 160)
+                cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
@@ -374,7 +374,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                cy.get('[data-cy="ol-map"]').click(220, 160)
+                cy.get('[data-cy="ol-map"]').click(220, 260)
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(
                     valid_whitelisted_url
@@ -390,7 +390,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Hyperlink exists after sanitize')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(20, 160)
+                cy.get('[data-cy="ol-map"]').click(20, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
                     .find('a')
@@ -408,10 +408,11 @@ describe('Drawing module tests', () => {
                     .find('a')
                     .invoke('attr', 'rel')
                     .should('eq', 'noopener')
+                cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Image link exists after sanitize')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(100, 160)
+                cy.get('[data-cy="ol-map"]').click(100, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
                     .find('img')
@@ -420,7 +421,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Video link has disclaimer')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(140, 160)
+                cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('be.visible')
                 cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('not.exist')
 
@@ -451,14 +452,14 @@ describe('Drawing module tests', () => {
 
                 cy.log('Closing disclaimer persists when selecting different marker')
                 cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
-                cy.get('[data-cy="ol-map"]').click(180, 160)
+                cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Disclaimer should not appear when host is whitelisted')
                 cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
-                cy.get('[data-cy="ol-map"]').click(220, 160)
+                cy.get('[data-cy="ol-map"]').click(220, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             })
         })
@@ -546,19 +547,19 @@ describe('Drawing module tests', () => {
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(100, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 280)
 
             // checking that we can delete the last point by either clicking the button or using right-click
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(150, 280)
 
             cy.get('[data-cy="ol-map"]').rightclick()
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(150, 280)
 
             // should create a polygon by re-clicking the first point
-            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="ol-map"]').click(100, 250)
 
             let kmlId = null
             cy.wait('@post-kml').then((interception) => {
@@ -614,12 +615,13 @@ describe('Drawing module tests', () => {
                     )
                 )
 
+            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
+            cy.closeDrawingMode()
+            cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             // Now creating a line, and finishing it by double-clicking the same spot
-            cy.get('[data-cy="close-popover-button"]').click()
-            cy.get('[data-cy="infobox-close"]').click()
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(120, 220)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            cy.get('[data-cy="ol-map"]').click(120, 270)
+            cy.get('[data-cy="ol-map"]').dblclick(120, 290)
             cy.wait('@update-kml')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
@@ -640,23 +642,25 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('74998 m2')
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 380)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="feature-area-information"]')
+                .should('be.visible')
+                .contains('9999.8 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
-            cy.get('[data-cy="ol-map"]').click(200, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(200, 250)
+            cy.get('[data-cy="ol-map"]').click(250, 250)
             cy.get('[data-cy="ol-map"]').click(150, 300)
-            cy.get('[data-cy="ol-map"]').click(200, 200)
+            cy.get('[data-cy="ol-map"]').click(200, 250)
 
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
-                .contains('0.24999 km2')
+                .contains('0.125 km2')
         })
     })
     context('KML management', () => {
@@ -734,7 +738,7 @@ describe('Drawing module tests', () => {
                 cy.log('Reload the page')
                 cy.reload()
                 cy.waitMapIsReady()
-                cy.wait('@get-kml')
+                cy.wait(['@head-kml', '@get-kml'])
                 cy.openMenuIfMobile()
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
@@ -891,6 +895,12 @@ describe('Drawing module tests', () => {
                 const adminId = await getKmlAdminIdFromRequest(req)
                 req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
             }).as('update-kml')
+            cy.intercept('HEAD', kmlFileUrl, {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.google-earth.kml+xml',
+                },
+            }).as('head-legacy-kml')
             cy.intercept('GET', kmlFileUrl, {
                 statusCode: 200,
                 fixture: 'service-kml/legacy-mf-geoadmin3.kml',
@@ -898,8 +908,14 @@ describe('Drawing module tests', () => {
 
             // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
-            cy.wait('@get-kml-metadata-by-admin-id')
-            cy.wait('@get-legacy-kml')
+            cy.wait([
+                '@get-kml-metadata-by-admin-id',
+                // as we come from outside any import tool, all file parser will be tried consecutively, and each of them
+                // will try to get a HEAD response. As it starts with KMZ, there will be two HEAD request (one for KMZ parser on for KML)
+                '@head-legacy-kml',
+                '@head-legacy-kml',
+                '@get-legacy-kml',
+            ])
             cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL
@@ -962,11 +978,11 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 360)
+            cy.get('[data-cy="ol-map"]').click(150, 380)
             // clicking on the same spot as the first, it should close the polygon
-            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.get('[data-cy="ol-map"]').click(140, 360)
 
             cy.wait('@post-kml')
 
@@ -983,13 +999,42 @@ describe('Drawing module tests', () => {
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
-            cy.get('[data-cy="infobox-close"]').should('be.visible').click()
+            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
+            cy.closeDrawingMode()
+            cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
+            // it changes the name of the KML file
+            cy.log('Check that the KML file can be renamed')
+            const newKmlName = 'new kml name'
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]').clear()
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newKmlName)
+            cy.wait('@update-kml')
+            cy.wait('@update-kml')
+            // it exports KML when clicking on the export button (without choosing format)
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
+            ).click()
+            checkFiles('kml', (content) => {
+                expect(content).to.contains(`<Document><name>${newKmlName}</name>`)
+                expect(content).to.contains(
+                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLocaleLowerCase()}</value></Data></ExtendedData>`,
+                    `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
+                )
+            })
+            cy.task('clearFolder', downloadsFolder)
+            // it changes the name of the KML file with sanitization
+            cy.log('Check that the KML file can be renamed with sanitization')
+            const newDirtyKmlName = `${newKmlName}<`
+            const newDirtyKmlNameSanitized = `${newKmlName}&lt;`
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]').clear()
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newDirtyKmlName)
+            cy.wait('@update-kml')
 
             // it exports KML when clicking on the export button (without choosing format)
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
             ).click()
             checkFiles('kml', (content) => {
+                expect(content).to.contains(`<Document><name>${newDirtyKmlNameSanitized}</name>`)
                 expect(content).to.contains(
                     `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLocaleLowerCase()}</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
@@ -1122,9 +1167,9 @@ describe('Drawing module tests', () => {
             cy.intercept(profileIntercept, []).as('empty-profile')
 
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            cy.get('[data-cy="ol-map"]').click(100, 240)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').dblclick(120, 260)
             cy.wait('@empty-profile')
 
             // the profile info container shouldn't show up if there's no data for this profile
@@ -1141,9 +1186,9 @@ describe('Drawing module tests', () => {
             }).as('profile')
 
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(100, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="ol-map"]').dblclick(120, 240)
+            cy.get('[data-cy="ol-map"]').click(100, 240)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').dblclick(120, 270)
             cy.wait('@profile')
 
             // checking all the information found in the info container
@@ -1168,7 +1213,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
             cy.log('check that profile gets updated when feature is modified')
-            cy.get('[data-cy="ol-map"]').click(150, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.wait('@profile')
 
             // clicking on the header of the profile container
@@ -1183,13 +1228,17 @@ describe('Drawing module tests', () => {
             // the content should now be visible again
             cy.get('[data-cy="infobox-content"]').should('be.visible')
 
-            // clicking the X button of the popup
-            cy.get('[data-cy="infobox-close"]').click()
-            // it is now closed
-            cy.get('[data-cy="infobox"]').should('not.exist')
+            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
+            cy.closeDrawingMode()
+            cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
-            // re-opening
-            cy.get('[data-cy="ol-map"]').click(100, 200)
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(200, 290)
+            // open info box
+            cy.get('[data-cy="ol-map"]').click(200, 290)
+            cy.get('[data-cy="infobox"]').should('be.visible')
+            // // re-opening
+            cy.get('[data-cy="ol-map"]').click(200, 290)
             cy.get('[data-cy="infobox"]').should('be.visible')
 
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
@@ -1230,11 +1279,11 @@ describe('Drawing module tests', () => {
             // same test, but this time with a line
             // (the placement of the popup is a bit trickier and different from a single coordinate marker)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-            cy.get('[data-cy="ol-map"]').click(120, 200)
-            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(120, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 260)
             // finishing the line by click the same spot
-            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 260)
             testEditPopupFloatingToggle()
 
             cy.log('Infobox closes when drawing tool is selected')

@@ -117,15 +117,17 @@ function urlQueryWatcher(store, to, from) {
     const newQuery = { ...to.query }
     // if this module did not trigger the route change, we need to check if a store change is needed
     storeSyncConfig.forEach((paramConfig) => {
-        const queryValue = paramConfig.readValueFromQuery(to.query)
+        const queryValue = paramConfig.readValueFromQuery(to.query, store)
         const storeValue = paramConfig.readValueFromStore(store)
 
         const setValueInStore = async (paramConfig, store, value) => {
             await paramConfig.populateStoreWithQueryValue(to, store, value)
+            await paramConfig.afterPopulateStore()
         }
 
         if (
-            queryValue &&
+            // when the query value is an empty string, queryValue is false.
+            (queryValue || queryValue === '') &&
             queryValue !== storeValue &&
             // if the query is undefined and the store is null, we also don't dispatch it, as we want
             // to avoid changing the store value for no reason.

@@ -158,7 +158,9 @@ export default {
     },
     mounted() {
         const iconSetNameToLookup = this.feature?.icon ? this.feature.icon.iconSetName : 'default'
-        this.currentIconSet = this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup)
+        this.currentIconSet =
+            this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ||
+            this.iconSets.find((iconSet) => iconSet.name === 'default')
     },
     methods: {
         /**
@@ -209,7 +211,7 @@ export default {
             if (description) {
                 let str = ''
                 for (const [key, value] of Object.entries(description)) {
-                    str = str + `<div>${lang == key ? `<strong>${value}</strong>` : value}</div>`
+                    str = str + `<div>${lang === key ? `<strong>${value}</strong>` : value}</div>`
                     if (!SUPPORTED_LANG.includes(key)) {
                         log.error('Language key provided is not supported: ', key)
                     }
@@ -220,7 +222,7 @@ export default {
         },
         onImageLoad() {
             this.loadedImages = this.loadedImages + 1
-            if (this.loadedImages == this.currentIconSet.icons.length) {
+            if (this.loadedImages === this.currentIconSet.icons.length) {
                 this.loadedImages = 0
                 if (this.currentIconSet.hasDescription && this.showAllSymbols) {
                     this.refreshTippyAttachment()

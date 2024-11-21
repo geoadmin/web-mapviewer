@@ -1,3 +1,4 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -72,6 +73,14 @@ export default class CameraParamConfig extends AbstractParamConfig {
             extractValueFromStore: generateCameraUrlParamFromStoreValues,
             keepInUrlWhenDefault: false,
             valueType: String,
+            validateUrlInput: (store, query) =>
+                getStandardValidationResponse(
+                    query,
+                    query &&
+                        query.split(',').length === 6 &&
+                        query.split(',').every((value) => value === '' || !isNaN(value)),
+                    this.urlParamName
+                ),
         })
     }
 }

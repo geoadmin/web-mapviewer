@@ -1,4 +1,5 @@
 // NOTE: This is exported but should only be used in this module, if the value is needed outside
+
 // of this module we should use the string directly to avoid module dependencies.
 export const STORE_DISPATCHER_ROUTER_PLUGIN = 'storeSync.routerPlugin'
 
@@ -26,6 +27,8 @@ export default class AbstractParamConfig {
      *   added to the URL even though its value is set to the default value of the param.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      * @param {Boolean | Number | String | null} defaultValue
+     * @param {Function} afterSetValuesInStore A function that will be called after the store values
+     *   have been set
      */
     constructor({
         urlParamName,
@@ -35,6 +38,8 @@ export default class AbstractParamConfig {
         keepInUrlWhenDefault = true,
         valueType = String,
         defaultValue = null,
+        validateUrlInput = null,
+        afterSetValuesInStore = null,
     } = {}) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
@@ -48,6 +53,8 @@ export default class AbstractParamConfig {
             // value is falsy
             this.defaultValue = false
         }
+        this.validateUrlInput = validateUrlInput
+        this.afterSetValuesInStore = afterSetValuesInStore
     }
 
     /**
@@ -58,18 +65,46 @@ export default class AbstractParamConfig {
      * @returns {undefined | number | string | boolean} The value casted in the type given to the
      *   config (see constructor)
      */
-    readValueFromQuery(query) {
+    readValueFromQuery(query, store) {
         if (!query) {
             return undefined
         }
-        if (!(this.urlParamName in query)) {
+
+        if (!(this.urlParamName in query) || query[this.urlParamName] === undefined) {
             if (!this.keepInUrlWhenDefault) {
                 return this.defaultValue
             } else {
                 return undefined
             }
         }
+
         const queryValue = query[this.urlParamName]
+        // we don't need to validate again if the content of the store is the same as the query
+        // we need the store check to avoid self recursion
+        if (store && this.valuesAreDifferentBetweenQueryAndStore(query, store)) {
+            let inputValidation = this.validateUrlInput
+                ? this.validateUrlInput(store, queryValue)
+                : { valid: true }
+
+            // if there are no errors, we want to avoid dispatching and commiting, as it is costly
+            if (inputValidation.errors) {
+                store.dispatch('addErrors', {
+                    errors: inputValidation.errors,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
+
+            if (inputValidation.warnings) {
+                store.dispatch('addWarnings', {
+                    warnings: inputValidation.warnings,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
+            if (!inputValidation.valid) {
+                return undefined
+            }
+        }
+
         if (this.valueType === Boolean) {
             // Edge case here in Javascript with Boolean constructor, Boolean('false') returns true as the "object"
             // we passed to the constructor is valid and non-null. So we manage that "the old way" for booleans
@@ -153,6 +188,10 @@ export default class AbstractParamConfig {
     populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
             if (store && this.setValuesInStore) {
+                // when removing a parameter from the URL, this sends a query to populate the store with
+                // the query value, with the param being absent from the query. In this case, we don't
+                // try to validate the input.
+
                 const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
                 if (promiseSetValuesInStore) {
                     promiseSetValuesInStore.then(() => {
@@ -165,5 +204,17 @@ export default class AbstractParamConfig {
                 reject('Query, store or setter functions is not set')
             }
         })
+    }
+
+    /**
+     * Triggers an action after the store has been populated with the query value. Returns a promise
+     *
+     * @returns {Promise<any>}
+     */
+    async afterPopulateStore() {
+        if (!this.afterSetValuesInStore) {
+            return
+        }
+        return await this.afterSetValuesInStore()
     }
 }

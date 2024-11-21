@@ -249,6 +249,7 @@ describe('Test on legacy param import', () => {
             cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
                 body: { results: [] },
             }).as('search-layers')
+            const coordinates = [2598633.75, 1200386.75]
             cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
                 body: {
                     results: [
@@ -256,6 +257,10 @@ describe('Test on legacy param import', () => {
                             attrs: {
                                 detail: '1530 payerne 5822 payerne ch vd',
                                 label: '  <b>1530 Payerne</b>',
+                                lat: 46.954559326171875,
+                                lon: 7.420684814453125,
+                                y: coordinates[0],
+                                x: coordinates[1],
                             },
                         },
                     ],
@@ -268,9 +273,18 @@ describe('Test on legacy param import', () => {
                 false
             )
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
-            cy.url().should('include', 'swisssearch=1530+Payerne')
+            cy.url().should('not.contain', 'swisssearch')
             cy.get('[data-cy="searchbar"]').click()
-            cy.get('[data-cy="search-results-locations"]').should('be.visible')
+            const acceptableDelta = 0.25
+
+            // selects the result if it is only one
+            cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
+                expect(feature).to.not.be.null
+                expect(feature).to.be.a('array').that.is.not.empty
+                expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
+                expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
+            })
+            cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'

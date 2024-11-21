@@ -14,10 +14,11 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
-    featureStyleFunction,
+    geoadminStyleFunction,
     getFeatureStyleColor,
     getStyle,
     getTextColor,
@@ -42,6 +43,8 @@ export const EMPTY_KML_DATA = '<kml></kml>'
 // See https://github.com/openlayers/openlayers/pull/12695
 export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
 
+const kmlReader = new KML({ extractStyles: false })
+
 /**
  * Read the KML name
  *
@@ -49,9 +52,7 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
  * @returns {string} Return KML name
  */
 export function parseKmlName(content) {
-    const kml = new KML({ extractStyles: false })
-
-    return kml.readName(content)
+    return kmlReader.readName(content)
 }
 
 /**
@@ -61,8 +62,7 @@ export function parseKmlName(content) {
  * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
  */
 export function getKmlExtent(content) {
-    const kml = new KML({ extractStyles: false })
-    const features = kml.readFeatures(content, {
+    const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
     })
@@ -280,7 +280,7 @@ function generateIconFromStyle(iconStyle, iconArgs) {
  * @param {DrawingIconSet[] | null} availableIconSets
  * @returns {DrawingIcon | null} Return the drawing icon or null in case of non geoadmin icon
  */
-export function getIcon(iconArgs, iconStyle, availableIconSets) {
+export function getIcon(iconArgs, iconStyle, availableIconSets, iconNotFoundCallback = null) {
     if (!iconArgs) {
         return null
     }
@@ -299,7 +299,11 @@ export function getIcon(iconArgs, iconStyle, availableIconSets) {
     }
     const iconSet = availableIconSets.find((drawingIconSet) => drawingIconSet.name === iconArgs.set)
     if (!iconSet) {
-        log.error(`Iconset ${iconArgs.set} not found, fallback to default icon`)
+        if (iconNotFoundCallback) {
+            iconNotFoundCallback()
+        } else {
+            log.error(`Iconset ${iconArgs.set} not found, fallback to default icon`)
+        }
         return generateIconFromStyle(iconStyle, iconArgs)
     }
 
@@ -360,12 +364,11 @@ export function getFillColor(style, geometryType, iconArgs) {
  * Get the geoadmin editable feature for the given open layer KML feature
  *
  * @param {Feature} kmlFeature Open layer KML feature
- * @param {kmlLayer} kmlLayer Open layer KML layer
  * @param {DrawingIconSet[]} availableIconSets
  * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
  *   feature
  */
-export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, availableIconSets) {
+export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
     if (!(kmlFeature instanceof Feature)) {
         log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
         return null
@@ -453,9 +456,13 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, kmlLayer, available
 }
 
 const nonGeoadminIconUrls = new Set()
-export function iconUrlProxyFy(url, corsIssueCallback = null) {
+export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack = null) {
     // We only proxyfy URL that are not from our backend.
     if (!/^(https:\/\/[^/]*(bgdi\.ch|geo\.admin\.ch)|https?:\/\/localhost)/.test(url)) {
+        if (url.startsWith('http:') && httpIssueCallBack) {
+            log.warn(`KML Icon url ${url} has an http scheme`)
+            httpIssueCallBack(url)
+        }
         const proxyUrl = proxifyUrl(url)
         // Only perform the CORS check if we have a callback and it has not yet been done
         if (!nonGeoadminIconUrls.has(url) && corsIssueCallback) {
@@ -524,16 +531,13 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    // we do not force our DrawingModule styling (especially colors) to external/non-drawing KMLs
-    if (!kmlLayer.isExternal) {
+    if (kmlLayer.style === KmlStyles.GEOADMIN) {
         features.forEach((olFeature) => {
-            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, kmlLayer, iconSets)
-
+            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
             if (editableFeature) {
                 // Set the EditableFeature coordinates from the olFeature geometry
                 editableFeature.setCoordinatesFromFeature(olFeature)
                 olFeature.set('editableFeature', editableFeature)
-                olFeature.setStyle(featureStyleFunction)
 
                 if (editableFeature.isLineOrMeasure()) {
                     /* The featureStyleFunction uses the geometries calculated in the geodesic object
@@ -543,13 +547,13 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
                     olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
                 }
             }
+            olFeature.setStyle(geoadminStyleFunction)
         })
     }
 
     return features
 }
 
-export class EmptyKMLError extends Error {}
 export class KMZError extends Error {}
 
 /**
@@ -559,7 +563,7 @@ export class KMZError extends Error {}
  *
  * @class
  * @property {string} name Name of the KMZ archive
- * @property {string} kml Content of the KML file within the KMZ archive (unzipped)
+ * @property {ArrayBuffer} kml Content of the KML file within the KMZ archive (unzipped)
  * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
  *   their unzipped content as ArrayBuffer
  */
@@ -577,7 +581,7 @@ export class KMZObject {
  *
  * See https://developers.google.com/kml/documentation/kmzarchives
  *
- * @param {string} kmzContent KMZ archive content as string
+ * @param {ArrayBuffer} kmzContent KMZ archive content
  * @param {string} kmzFileName KMZ archive name
  * @returns {KMZObject} Returns a KMZ unzip object
  */
@@ -593,7 +597,7 @@ export async function unzipKmz(kmzContent, kmzFileName) {
 
     try {
         // Valid KMZ archive must have 1 KML file with .kml extension
-        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('text')
+        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('arraybuffer')
     } catch (error) {
         log.error(`Failed to get KML file from KMZ archive ${kmzFileName}: ${error}`)
         throw new KMZError(`Failed to get KML file from KMZ archive ${kmzFileName}`)

@@ -4,6 +4,7 @@
 // @ts-nocheck
 
 /** @module ol/format/KML */
+import DOMPurify from 'dompurify'
 import { extend } from 'ol/array'
 import { asArray } from 'ol/color'
 import Feature from 'ol/Feature'
@@ -664,12 +665,18 @@ class KML extends XMLFeature {
         }
         if (typeof source === 'string') {
             const doc = parse(source)
-            return this.readNameFromDocument(doc)
+            return DOMPurify.sanitize(this.readNameFromDocument(doc), {
+                USE_PROFILES: { xml: true },
+            })
         }
         if (isDocument(source)) {
-            return this.readNameFromDocument(/** @type {Document} */ (source))
+            return DOMPurify.sanitize(this.readNameFromDocument(/** @type {Document} */(source)), {
+                USE_PROFILES: { xml: true },
+            })
         }
-        return this.readNameFromNode(/** @type {Element} */ (source))
+        return DOMPurify.sanitize(this.readNameFromNode(/** @type {Element} */(source)), {
+            USE_PROFILES: { xml: true },
+        })
     }
 
     /**
@@ -679,7 +686,7 @@ class KML extends XMLFeature {
     readNameFromDocument(doc) {
         for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
-                const name = this.readNameFromNode(/** @type {Element} */ (n))
+                const name = this.readNameFromNode(/** @type {Element} */(n))
                 if (name) {
                     return name
                 }
@@ -731,10 +738,10 @@ class KML extends XMLFeature {
         } else if (isDocument(source)) {
             extend(
                 networkLinks,
-                this.readNetworkLinksFromDocument(/** @type {Document} */ (source))
+                this.readNetworkLinksFromDocument(/** @type {Document} */(source))
             )
         } else {
-            extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */ (source)))
+            extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */(source)))
         }
         return networkLinks
     }
@@ -747,7 +754,7 @@ class KML extends XMLFeature {
         const networkLinks = []
         for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
-                extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */ (n)))
+                extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */(n)))
             }
         }
         return networkLinks
@@ -928,8 +935,8 @@ class KML extends XMLFeature {
         kml.setAttributeNS(XML_SCHEMA_INSTANCE_URI, 'xsi:schemaLocation', SCHEMA_LOCATION)
 
         const /** @type {import('../xml.js').NodeStackItem} */ context = {
-                node: kml,
-            }
+            node: kml,
+        }
         /** @type {!Object<string, Feature[] | Feature | undefined>} */
         const properties = {}
         if (features.length > 1) {
@@ -1571,7 +1578,7 @@ const GX_TRACK_PARSERS = makeStructureNS(
  */
 function readGxTrack(node, objectStack) {
     const gxTrackObject = pushParseAndPop(
-        /** @type {GxTrackObject} */ ({
+        /** @type {GxTrackObject} */({
             coordinates: [],
             whens: [],
         }),
@@ -1785,7 +1792,7 @@ const FLAT_LINEAR_RINGS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  */
 function readPolygon(node, objectStack) {
     const properties = pushParseAndPop(
-        /** @type {Object<string, any>} */ ({}),
+        /** @type {Object<string, any>} */({}),
         EXTRUDE_AND_ALTITUDE_MODE_PARSERS,
         node,
         objectStack
@@ -2177,7 +2184,7 @@ const INNER_BOUNDARY_IS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  */
 function innerBoundaryIsParser(node, objectStack) {
     const innerBoundaryFlatLinearRings = pushParseAndPop(
-        /** @type {number[][]} */ ([]),
+        /** @type {number[][]} */([]),
         INNER_BOUNDARY_IS_PARSERS,
         node,
         objectStack
@@ -2246,7 +2253,7 @@ function writeColorTextNode(node, color) {
     /** @type {(string | number)[]} */
     const abgr = [opacity * 255, rgba[2], rgba[1], rgba[0]]
     for (let i = 0; i < 4; ++i) {
-        const hex = Math.floor(/** @type {number} */ (abgr[i])).toString(16)
+        const hex = Math.floor(/** @type {number} */(abgr[i])).toString(16)
         abgr[i] = hex.length == 1 ? '0' + hex : hex
     }
     writeStringTextNode(node, abgr.join(''))
@@ -2554,11 +2561,11 @@ function writeIconStyle(node, style, objectStack) {
 
         if (anchor && (anchor[0] !== size[0] / 2 || anchor[1] !== size[1] / 2)) {
             const /** @type {Vec2} */ hotSpot = {
-                    x: anchor[0],
-                    xunits: 'pixels',
-                    y: size[1] - anchor[1],
-                    yunits: 'pixels',
-                }
+                x: anchor[0],
+                xunits: 'pixels',
+                y: size[1] - anchor[1],
+                yunits: 'pixels',
+            }
             properties['hotSpot'] = hotSpot
         }
     }
@@ -2785,14 +2792,14 @@ function writeMultiGeometry(node, geometry, objectStack) {
             .forEach(function (geometry) {
                 const type = geometry.getType()
                 if (type === 'MultiPoint') {
-                    geometries = geometries.concat(/** @type {MultiPoint} */ (geometry).getPoints())
+                    geometries = geometries.concat(/** @type {MultiPoint} */(geometry).getPoints())
                 } else if (type === 'MultiLineString') {
                     geometries = geometries.concat(
-                        /** @type {MultiLineString} */ (geometry).getLineStrings()
+                        /** @type {MultiLineString} */(geometry).getLineStrings()
                     )
                 } else if (type === 'MultiPolygon') {
                     geometries = geometries.concat(
-                        /** @type {MultiPolygon} */ (geometry).getPolygons()
+                        /** @type {MultiPolygon} */(geometry).getPolygons()
                     )
                 } else if (type === 'Point' || type === 'LineString' || type === 'Polygon') {
                     geometries.push(geometry)
@@ -2900,7 +2907,7 @@ function writePlacemark(node, feature, objectStack) {
 
     // set id
     if (feature.getId()) {
-        node.setAttribute('id', /** @type {string} */ (feature.getId()))
+        node.setAttribute('id', /** @type {string} */(feature.getId()))
     }
 
     // serialize properties (properties unknown to KML are not serialized)
@@ -2947,7 +2954,7 @@ function writePlacemark(node, feature, objectStack) {
                         return type === 'Point' || type === 'MultiPoint'
                     }
                 })
-                ;('Point')
+                    ; ('Point')
             }
             if (this.writeStyles_) {
                 let lineStyles = styleArray

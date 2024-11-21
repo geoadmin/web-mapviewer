@@ -66,7 +66,6 @@ const showItem = computed(() => {
     }
     return true
 })
-const activeLayers = computed(() => store.state.layers.activeLayers)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
@@ -94,9 +93,14 @@ const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
     return item.value && !(item.value instanceof GeoAdminGroupOfLayers)
 })
-const isPresentInActiveLayers = computed(() =>
-    activeLayers.value.find((layer) => layer.id === item.value.id)
-)
+const isPresentInActiveLayers = computed(() => {
+    const layers = store.getters.getActiveLayersById(
+        item.value.id,
+        item.value.isExternal,
+        item.value.baseUrl
+    )
+    return layers.length > 0
+})
 
 // When search text is entered, update the children collapsing if needed.
 watch(hasChildrenMatchSearch, (newValue) => {
@@ -137,10 +141,16 @@ function startLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const layers = store.getters.getActiveLayersById(item.value.id)
+    const layers = store.getters.getActiveLayersById(
+        item.value.id,
+        item.value.isExternal,
+        item.value.baseUrl
+    )
     if (layers.length > 0) {
         store.dispatch('removeLayer', {
             layerId: item.value.id,
+            isExternal: item.value.isExternal,
+            baseUrl: item.value.baseUrl,
             ...dispatcher,
         })
     } else if (item.value.isExternal) {

@@ -30,6 +30,10 @@ const props = defineProps({
         type: Function,
         default: () => {},
     },
+    deselectAfterSelect: {
+        type: Boolean,
+        default: false,
+    },
 })
 const { position, markerStyle, zIndex } = toRefs(props)
 
@@ -49,7 +53,12 @@ const features = computed(() => {
 })
 
 const olMap = inject('olMap')
-useVectorLayer(olMap, features, zIndex, highlightFeatureStyle, props.selectFeatureCallback)
+useVectorLayer(olMap, features, {
+    zIndex: zIndex,
+    styleFunction: highlightFeatureStyle,
+    onFeatureSelectCallback: props.selectFeatureCallback,
+    deselectAfterSelect: props.deselectAfterSelect,
+})
 
 watch(markerStyle, (newStyle) => {
     const olStyle = getMarkerStyle(newStyle)

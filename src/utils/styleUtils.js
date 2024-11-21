@@ -1,7 +1,7 @@
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle.js'
 
-import { PRINT_DPI_COMPENSATION } from '@/config/print.config'
+import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
@@ -17,6 +17,8 @@ function hexToRgba(hexValue, alpha = 1.0) {
     ]
 }
 
+const STROKE_WIDTH = 3
+
 export const whiteSketchFill = new Fill({
     color: hexToRgba(white, 0.4),
 })
@@ -26,23 +28,23 @@ export const redFill = new Fill({
 })
 /** Standard line styling */
 export const redStroke = new Stroke({
-    width: 3,
+    width: STROKE_WIDTH,
     color: hexToRgba(red),
 })
 
 export const malibuStroke = new Stroke({
-    width: 3,
+    width: STROKE_WIDTH,
     color: hexToRgba(malibu),
 })
 
 /** Styling specific for measurement, with a dashed red line */
 export const dashedRedStroke = new Stroke({
     color: hexToRgba(red),
-    width: 3,
+    width: STROKE_WIDTH,
     lineDash: [8],
 })
 
-export const gpxStrokeStyle = new Stroke({ width: 1.5, color: hexToRgba(red, 1) })
+export const gpxStrokeStyle = new Stroke({ width: STROKE_WIDTH, color: hexToRgba(red, 1) })
 
 export const pointStyle = {
     radius: 7,
@@ -78,7 +80,7 @@ export const gpxStyles = {
 
 export const geolocationPointWidth = 10
 export const geolocationPointFillColor = hexToRgba(red, 0.9)
-export const geolocationPointBorderWidth = 3
+export const geolocationPointBorderWidth = STROKE_WIDTH
 export const geolocationPointBorderColor = hexToRgba(white, 1.0)
 
 export const geolocationPointStyle = new Style({
@@ -118,7 +120,7 @@ export const highlightedFill = new Fill({
 })
 export const highlightedStroke = new Stroke({
     color: hexToRgba(mocassinToRed2, 1.0),
-    width: 3,
+    width: STROKE_WIDTH,
 })
 
 export const hoveredFill = new Fill({
@@ -126,7 +128,7 @@ export const hoveredFill = new Fill({
 })
 export const hoveredStroke = new Stroke({
     color: hexToRgba(red, 1.0),
-    width: 3,
+    width: STROKE_WIDTH,
 })
 
 export const hoveredLinePolygonStyle = new Style({
@@ -159,9 +161,9 @@ export const highlightPointStyle = new Style({
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
 export function adjustWidth(width, dpi) {
-    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
+    if (!width || isNaN(width) || width <= 0.0 || !dpi || isNaN(dpi) || dpi <= 0) {
         return 0
     }
 
-    return (width * PRINT_DPI_COMPENSATION) / dpi
+    return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
 }

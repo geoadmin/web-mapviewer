@@ -1,12 +1,34 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getExtentForProjection } from '@/utils/extentUtils.js'
-import { getGpxExtent } from '@/utils/gpxUtils.js'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import ErrorMessage from '@/utils/ErrorMessage.class'
+import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
+import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
-const getActiveLayersById = (state, layerId) =>
-    state.activeLayers.filter((layer) => layer.id === layerId)
+/**
+ * Check if a layer match with the layerId, isExternal, and baseUrl
+ *
+ * @param {string} layerId ID of the layer to compare
+ * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+ * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+ * @param {AbstractLayer} layerToMatch Layer to compare with
+ * @returns {boolean}
+ */
+function matchTwoLayers(layerId, isExternal = null, baseUrl = null, layerToMatch) {
+    if (layerToMatch === null) {
+        return false
+    }
+    const matchesLayerId = layerToMatch.id === layerId
+    const matchesIsExternal = isExternal === null || layerToMatch.isExternal === isExternal
+    const matchesBaseUrl = baseUrl === null || layerToMatch.baseUrl === baseUrl
+    return matchesLayerId && matchesIsExternal && matchesBaseUrl
+}
+
+const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) => {
+    return state.activeLayers.filter((layer) => matchTwoLayers(layerId, isExternal, baseUrl, layer))
+}
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
@@ -33,11 +55,11 @@ const cloneActiveLayerConfig = (getters, layer) => {
 
 const state = {
     /**
-     * Current background layer
+     * Current background layer ID
      *
-     * @type AbstractLayer
+     * @type string
      */
-    currentBackgroundLayer: null,
+    currentBackgroundLayerId: null,
     /**
      * Currently active layers (that have been selected by the user from the search bar or the layer
      * tree)
@@ -81,6 +103,14 @@ const state = {
 }
 
 const getters = {
+    /**
+     * Return the current background layer from the list of layers via ID
+     *
+     * @returns {AbstractLayer} The current background layer
+     */
+    currentBackgroundLayer: (state, getters) => {
+        return getters.getLayerConfigById(state.currentBackgroundLayerId)
+    },
     /**
      * Filter all the active layers and gives only those who are visible on the map.
      *
@@ -137,6 +167,16 @@ const getters = {
         ) ?? null,
 
     /**
+     * Get index of active layer by ID.
+     *
+     * When there exists no layer with this ID then -1 is returned.
+     *
+     * @returns {number}
+     */
+    getIndexOfActiveLayerById: (state) => (layerId) =>
+        state.activeLayers.findIndex((layer) => layer.id === layerId),
+
+    /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
      *
@@ -154,29 +194,44 @@ const getters = {
         state.config.find((layer) => layer.id === geoAdminLayerId) ?? null,
 
     /**
-     * Retrieves active layer(s) by ID
+     * Retrieves active layer(s) by layerID, isExternal, and baseUrl.
      *
      * @param {string} layerId ID of the layer(s) to retrieve
-     * @returns {[AbstractLayer]} All active layers matching the ID
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+     *   baseUrl
+     * @returns {[AbstractLayer]} All active layers matching the ID, isExternal, and baseUrl
      */
-    getActiveLayersById: (state) => (layerId) =>
-        state.activeLayers.filter((layer) => layer.id === layerId),
+    getActiveLayersById:
+        (state) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            return state.activeLayers.filter((layer) =>
+                matchTwoLayers(layerId, isExternal, baseUrl, layer)
+            )
+        },
 
     /**
-     * Retrieves layer(s) by ID.
+     * Retrieves layer(s) by ID, isExternal, and baseUrl properties.
      *
      * Search in active layer and in preview layer
      *
      * @param {string} layerId ID of the layer(s) to retrieve
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
+     *   baseUrl
      * @returns {[AbstractLayer]} All active layers matching the ID
      */
-    getLayersById: (state) => (layerId) => {
-        const layers = state.activeLayers.filter((layer) => layer.id === layerId)
-        if (state.previewLayer?.id === layerId) {
-            layers.push(state.previewLayer)
-        }
-        return layers
-    },
+    getLayersById:
+        (state) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            const layers = state.activeLayers.filter((layer) =>
+                matchTwoLayers(layerId, isExternal, baseUrl, layer)
+            )
+            if (matchTwoLayers(layerId, isExternal, baseUrl, state.previewLayer)) {
+                layers.push(state.previewLayer)
+            }
+            return layers
+        },
 
     /**
      * Retrieves active layer by index
@@ -185,7 +240,7 @@ const getters = {
      * @returns {AbstractLayer | null} Active layer or null if the index is invalid
      */
     getActiveLayerByIndex: (state) => (index) => {
-        if (index < 0 || index == null) {
+        if (index < 0 || index === undefined || index === null) {
             throw new Error(`Failed to get ActiveLayer by index: invalid index ${index}`)
         }
         return state.activeLayers.at(index) ?? null
@@ -209,9 +264,41 @@ const getters = {
      * @param {string} layerId Layer ID of the layer to check for data disclaimer
      * @returns {Boolean}
      */
-    hasDataDisclaimer: (state) => (layerId) => {
-        const layer = state.activeLayers.find((layer) => layer.id === layerId)
-        return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+    hasDataDisclaimer:
+        (state, getters) =>
+        (layerId, isExternal = null, baseUrl = null) => {
+            const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
+            return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+        },
+
+    /**
+     * Returns true if the layer comes from a third party (external layer or KML layer) which has
+     * been imported from a local file.
+     *
+     * KML layer are treated as external when they are generated by another user (no adminId).
+     *
+     * @param {AbstractLayer | null} layer Layer to check for data disclaimer
+     * @returns {Boolean}
+     */
+    isLocalFile: () => (layer) => {
+        if (!layer) return false
+        const isBaseUrlValidUrl = /^\w+:\/\//.test(layer?.baseUrl)
+        return (
+            !isBaseUrlValidUrl &&
+            (layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId))
+        )
+    },
+
+    /**
+     * Returns true if any layer comes from a third party (external layer or KML layer) which has
+     * been imported from a local file.
+     *
+     * KML layer are treated as external when they are generated by another user (no adminId).
+     *
+     * @returns {Boolean}
+     */
+    hasAnyLocalFile: (state, getters) => () => {
+        return state.activeLayers.some((layer) => getters.isLocalFile(layer))
     },
 }
 
@@ -220,22 +307,16 @@ const actions = {
      * Will set the background to the given layer (or layer ID), but only if this layer's
      * configuration states that this layer can be a background layer (isBackground flag)
      *
-     * @param {String | AbstractLayer} bgLayer Either the background layer id or an AbstractLayer
-     *   object
+     * @param {String | null} bgLayerId The background layer id object
      * @param {string} dispatcher Action dispatcher name
      */
-    setBackground({ commit, getters }, { bgLayer, dispatcher }) {
-        const layerIdOrObject = bgLayer
-        let futureBackground
-        if (typeof layerIdOrObject === 'string') {
-            futureBackground = getters.getLayerConfigById(layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
-            futureBackground = getters.getLayerConfigById(layerIdOrObject.id)
+    setBackground({ commit, getters }, { bgLayerId }) {
+        if (bgLayerId === null) {
+            // setting it to no background
+            commit('setBackground', { bgLayerId: null })
         }
-        if (futureBackground?.isBackground) {
-            commit('setBackground', { bgLayer: futureBackground, dispatcher })
-        } else {
-            commit('setBackground', { bgLayer: null, dispatcher })
+        if (getters.getLayerConfigById(bgLayerId)?.isBackground) {
+            commit('setBackground', { bgLayerId: bgLayerId })
         }
     },
 
@@ -283,11 +364,12 @@ const actions = {
      * @param {AbstractLayer} layer
      * @param {String} layerId
      * @param {ActiveLayerConfig} layerConfig
+     * @param {Boolean} zoomToLayerExtent
      * @param {string} dispatcher Action dispatcher name
      */
     addLayer(
-        { commit, getters },
-        { layer = null, layerId = null, layerConfig = null, dispatcher }
+        { commit, dispatch, getters },
+        { layer = null, layerId = null, layerConfig = null, zoomToLayerExtent = false, dispatcher }
     ) {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
@@ -303,6 +385,12 @@ const actions = {
         }
         if (clone) {
             commit('addLayer', { layer: clone, dispatcher })
+            if (zoomToLayerExtent && layer.extent) {
+                dispatch('zoomToExtent', {
+                    extent: layer.extent,
+                    dispatcher,
+                })
+            }
         } else {
             log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
         }
@@ -330,7 +418,7 @@ const actions = {
                 }
                 return clone
             })
-            .filter((layer) => layer != null)
+            .filter((layer) => layer !== null)
         commit('setLayers', { layers: clones, dispatcher })
     },
 
@@ -342,10 +430,13 @@ const actions = {
      * @param {number} index Index of the layer to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayer({ commit }, { index = null, layerId = null, dispatcher }) {
+    removeLayer(
+        { commit },
+        { index = null, layerId = null, isExternal = null, baseUrl = null, dispatcher }
+    ) {
         if (layerId) {
-            commit('removeLayersById', { layerId, dispatcher })
-        } else if (index != null) {
+            commit('removeLayersById', { layerId, isExternal, baseUrl, dispatcher })
+        } else if (index !== null) {
             commit('removeLayerByIndex', { index, dispatcher })
         } else {
             log.error(
@@ -357,31 +448,13 @@ const actions = {
     /**
      * Full or partial update of a layer at index in the active layer list
      *
-     * @param {number} index Index of the layer to update
-     * @param {AbstractLayer | { any: any }} layer Full layer object (AbstractLayer) to update or an
-     *   object with the properties to update (partial update)
+     * @param {String} layerId ID of the layer we want to update
+     * @param {AbstractLayer | { any: any }} values Full layer object (AbstractLayer) to update or
+     *   an object with the properties to update (partial update)
      * @param {string} dispatcher Action dispatcher name
      */
-    updateLayer({ commit, getters }, { index, layer, dispatcher }) {
-        if (layer instanceof AbstractLayer) {
-            commit('updateLayer', { index, layer, dispatcher })
-        } else {
-            // Partial update of a layer
-            const layer2Update = getters.getActiveLayerByIndex(index)
-            if (!layer2Update) {
-                throw new Error(`Failed to updateLayer: invalid layer index ${index}`)
-            }
-            if (layer.id && layer.id !== layer2Update.id) {
-                throw new Error(
-                    `Failed to updateLayer "${layer2Update.id}" at index ${index}: not allowed to update layer ID to "${layer.id}"`
-                )
-            }
-
-            const updatedLayer = layer2Update.clone()
-            Object.entries(layer).forEach((entry) => (updatedLayer[entry[0]] = entry[1]))
-
-            commit('updateLayer', { index, layer: updatedLayer, dispatcher })
-        }
+    updateLayer({ commit }, { layerId, values, dispatcher }) {
+        commit('updateLayer', { layerId, values, dispatcher })
     },
 
     /**
@@ -399,7 +472,11 @@ const actions = {
                 if (layer instanceof AbstractLayer) {
                     return layer
                 } else {
-                    const layers2Update = getters.getActiveLayersById(layer.id)
+                    const layers2Update = getters.getActiveLayersById(
+                        layer.id,
+                        layer.isExternal,
+                        layer.baseUrl
+                    )
                     if (!layers2Update) {
                         throw new Error(
                             `Failed to updateLayers: "${layer.id}" not found in active layers`
@@ -575,14 +652,17 @@ const actions = {
     /**
      * Add a layer error translation key.
      *
-     * NOTE: This set the error key to all layers matching the ID.
+     * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
+     * properties.
      *
      * @param {string} layerId Layer ID of the layer to set the error
-     * @param {string} errorKey Error translation key to add
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
+     * @param {ErrorMessage} error Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    addLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const layers = getters.getLayersById(layerId)
+    addLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
+        const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
                 `Failed to add layer error key "${layerId}", layer not found in active layers`
@@ -590,7 +670,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.addErrorKey(errorKey)
+            clone.addErrorMessage(error)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
@@ -602,14 +682,17 @@ const actions = {
     /**
      * Remove a layer error translation key.
      *
-     * NOTE: This set the error key to all layers matching the ID.
+     * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
+     * properties.
      *
      * @param {string} layerId Layer ID of the layer to set the error
-     * @param {string} errorKey Error translation key to remove
+     * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
+     * @param {string | null} baseUrl Base URL of the layer(s). If null, accept all
+     * @param {ErrorMessage} error Error translation key to remove
      * @param {string} dispatcher Action dispatcher name
      */
-    removeLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
-        const layers = getters.getLayersById(layerId)
+    removeLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
+        const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(
                 `Failed to remove layer error key "${layerId}", layer not found in active layers`
@@ -617,7 +700,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.removeErrorKey(errorKey)
+            clone.removeErrorMessage(error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -631,7 +714,7 @@ const actions = {
      * @param {string} layerId Layer ID of the layer to clear the error keys
      * @param {string} dispatcher Action dispatcher name
      */
-    clearLayerErrorKeys({ commit, getters }, { layerId, dispatcher }) {
+    clearLayerErrors({ commit, getters }, { layerId, dispatcher }) {
         const layers = getters.getLayerById(layerId)
         if (layers.length === 0) {
             throw new Error(
@@ -640,7 +723,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = layer.clone()
-            clone.clearErrorKeys()
+            clone.clearErrorMessages()
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -675,7 +758,10 @@ const actions = {
             if (data) {
                 let extent
                 if (clone.type === LayerTypes.KML) {
-                    clone.name = parseKmlName(data) || 'KML'
+                    clone.name = parseKmlName(data)
+                    if (!clone.name || clone.name === '') {
+                        clone.name = clone.kmlFileUrl
+                    }
                     clone.kmlData = data
                     extent = getKmlExtent(data)
                 } else if (clone.type === LayerTypes.GPX) {
@@ -685,10 +771,22 @@ const actions = {
                 }
                 clone.isLoading = false
 
+                // Always clean up the error messages before doing the check
+                const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
+                const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
+                clone.removeErrorMessage(emptyFileErrorMessage)
+                clone.removeErrorMessage(outOfBoundsErrorMessage)
+
                 if (!extent) {
-                    clone.addErrorKey('kml_gpx_file_empty')
-                } else if (!getExtentForProjection(rootState.position.projection, extent)) {
-                    clone.addErrorKey('kml_gpx_file_out_of_bounds')
+                    clone.addErrorMessage(emptyFileErrorMessage)
+                } else if (
+                    !getExtentIntersectionWithCurrentProjection(
+                        extent,
+                        WGS84,
+                        rootState.position.projection
+                    )
+                ) {
+                    clone.addErrorMessage(outOfBoundsErrorMessage)
                 }
             }
             if (metadata) {
@@ -751,8 +849,8 @@ const actions = {
 }
 
 const mutations = {
-    setBackground(state, { bgLayer }) {
-        state.currentBackgroundLayer = bgLayer
+    setBackground(state, { bgLayerId }) {
+        state.currentBackgroundLayerId = bgLayerId
     },
     setLayerConfig(state, { config }) {
         state.config = config
@@ -763,28 +861,27 @@ const mutations = {
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
-    updateLayer(state, { index, layer }) {
-        const layer2Update = getActiveLayerByIndex(state, index)
-        if (!layer2Update) {
-            throw new Error(`Failed to update layer at index ${index}: invalid index`)
+    updateLayer(state, { layerId, values }) {
+        const layer2Update = state.activeLayers.find((layer) => layer.id === layerId)
+        if (!(layer2Update instanceof AbstractLayer)) {
+            throw new Error(`Failed to updateLayer: no layer found with ID ${layerId}`)
         }
-        if (layer.id && layer.id !== layer2Update.id) {
-            throw new Error(
-                `Failed to update layer at index ${index}: layer id "${layer2Update.id}" at index ${index} don't match given id "${layer.id}"`
-            )
-        }
-        Object.assign(layer2Update, layer)
+        Object.assign(layer2Update, values)
     },
     updateLayers(state, { layers }) {
         layers.forEach((layer) => {
-            getActiveLayersById(state, layer.id).forEach((layer2Update) => {
-                log.debug(`update layer`, layer2Update, layer)
-                Object.assign(layer2Update, layer)
-            })
+            getActiveLayersById(state, layer.id, layer.isExternal, layer.baseUrl).forEach(
+                (layer2Update) => {
+                    log.debug(`update layer`, layer2Update, layer)
+                    Object.assign(layer2Update, layer)
+                }
+            )
         })
     },
-    removeLayersById(state, { layerId }) {
-        state.activeLayers = state.activeLayers.filter((layer) => layer.id !== layerId)
+    removeLayersById(state, { layerId, isExternal = null, baseUrl = null }) {
+        state.activeLayers = state.activeLayers.filter(
+            (layer) => !matchTwoLayers(layerId, isExternal, baseUrl, layer)
+        )
     },
     removeLayerByIndex(state, { index }) {
         state.activeLayers.splice(index, 1)

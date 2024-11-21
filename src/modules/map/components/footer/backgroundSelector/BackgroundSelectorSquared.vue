@@ -1,15 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
 const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
 
 const emit = defineEmits({
-    selectBackground: (backgroundLayer) => {
-        return backgroundLayer === null || backgroundLayer instanceof AbstractLayer
+    selectBackground: (backgroundLayerId) => {
+        return backgroundLayerId === null || typeof backgroundLayerId === 'string'
     },
 })
 
@@ -30,7 +29,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer)"
+                @click="onSelectBackground(backgroundLayer?.id || null)"
             >
                 <span class="bg-selector-squared-wheel-button-image-cropper">
                     <img

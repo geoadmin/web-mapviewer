@@ -1,3 +1,8 @@
+import GeoJSON from 'ol/format/GeoJSON'
+
+import getFeature from '@/api/features/features.api'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -6,6 +11,9 @@ import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateS
 import { LV03 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectAndRound } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
+import { parseGpx } from '@/utils/gpxUtils'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const state = {
@@ -21,11 +29,45 @@ const state = {
      * @type {SearchResult[]}
      */
     results: [],
+
+    /**
+     * If true, the first search result will be automatically selected
+     *
+     * @type {Boolean}
+     */
+    autoSelect: false,
 }
 
 const getters = {}
 
+/**
+ * Returns the appropriate result for autoselection from a list of search results.
+ *
+ * If there is only one result, it returns that result. Otherwise, it tries to find a result with
+ * the resultType of LOCATION. If such a result is found, it returns that result. If no result with
+ * resultType LOCATION is found, it returns the first result in the list.
+ *
+ * @param {SearchResult[]} results - The list of search results.
+ * @returns {SearchResult} - The selected search result for autoselection.
+ */
+function getResultForAutoselect(results) {
+    if (results.length === 1) {
+        return results[0]
+    }
+    // Try to find a result with resultType LOCATION
+    const locationResult = results.find(
+        (result) => result.resultType === SearchResultTypes.LOCATION
+    )
+
+    // If a location result is found, return it; otherwise, return the first result
+    return locationResult ?? results[0]
+}
+
 const actions = {
+    setAutoSelect: ({ commit }, { value = false, dispatcher }) => {
+        commit('setAutoSelect', { value, dispatcher })
+    },
+
     /**
      * @param {vuex} vuex
      * @param {Object} payload
@@ -33,7 +75,7 @@ const actions = {
      */
     setSearchQuery: async (
         { commit, rootState, dispatch, getters },
-        { query = '', shouldCenter = true, dispatcher }
+        { query = '', originUrlParam = false, shouldCenter = true, dispatcher }
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
@@ -127,7 +169,17 @@ const actions = {
                         queryString: query,
                         lang: rootState.i18n.lang,
                         layersToSearch: getters.visibleLayers,
+                        limit: state.autoSelect ? 1 : null,
                     })
+                    if (
+                        (originUrlParam && results.length === 1) ||
+                        (originUrlParam && state.autoSelect && results.length >= 1)
+                    ) {
+                        dispatch('selectResultEntry', {
+                            dispatcher: `${dispatcher}/setSearchQuery`,
+                            entry: getResultForAutoselect(results),
+                        })
+                    }
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }
@@ -137,57 +189,133 @@ const actions = {
         }
         commit('setSearchResults', { results, dispatcher: `${dispatcher}/setSearchQuery` })
     },
-    setSearchResults: ({ commit }, { results, dispatcher }) =>
-        commit('setSearchResults', { results, dispatcher }),
     /**
      * @param commit
      * @param dispatch
      * @param {SearchResult} entry
      */
-    selectResultEntry: ({ dispatch, getters }, { entry, dispatcher }) => {
-        const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
+    selectResultEntry: async ({ dispatch, getters, rootState, commit }, { entry, dispatcher }) => {
+        const dispatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case SearchResultTypes.LAYER:
-                if (getters.getActiveLayersById(entry.layerId).length === 0) {
+                if (getters.getActiveLayersById(entry.layerId, false).length === 0) {
                     dispatch('addLayer', {
                         layerConfig: { id: entry.layerId, visible: true },
-                        dispatcher: dipsatcherSelectResultEntry,
+                        dispatcher: dispatcherSelectResultEntry,
                     })
                 } else {
                     dispatch('updateLayers', {
                         layers: [{ id: entry.layerId, visible: true }],
-                        dispatcher: dipsatcherSelectResultEntry,
+                        dispatcher: dispatcherSelectResultEntry,
                     })
+                }
+                // launching a new search to get (potential) layer features
+                try {
+                    const resultIncludingLayerFeatures = await search({
+                        outputProjection: rootState.position.projection,
+                        queryString: state.query,
+                        lang: rootState.i18n.lang,
+                        layersToSearch: getters.visibleLayers,
+                        limit: state.autoSelect ? 1 : null,
+                    })
+                    if (resultIncludingLayerFeatures.length > state.results.length) {
+                        commit('setSearchResults', {
+                            results: resultIncludingLayerFeatures,
+                            ...dispatcher,
+                        })
+                    }
+                } catch (error) {
+                    log.error(`Search failed`, error)
                 }
                 break
             case SearchResultTypes.LOCATION:
-            case SearchResultTypes.FEATURE:
-                if (entry.extent.length === 2) {
-                    dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
-                } else if (entry.zoom) {
-                    dispatch('setCenter', {
-                        center: entry.coordinate,
-                        dispatcher: dipsatcherSelectResultEntry,
-                    })
-                    dispatch('setZoom', {
-                        zoom: entry.zoom,
-                        dispatcher: dipsatcherSelectResultEntry,
-                    })
-                }
+                zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry)
                 dispatch('setPinnedLocation', {
                     coordinates: entry.coordinate,
-                    dispatcher: dipsatcherSelectResultEntry,
+                    dispatcher: dispatcherSelectResultEntry,
                 })
                 break
+            case SearchResultTypes.FEATURE:
+                zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry)
+
+                // Automatically select the feature
+                try {
+                    if (entry.layer.getTopicForIdentifyAndTooltipRequests) {
+                        getFeature(entry.layer, entry.featureId, rootState.position.projection, {
+                            lang: rootState.i18n.lang,
+                            screenWidth: rootState.ui.width,
+                            screenHeight: rootState.ui.height,
+                            mapExtent: flattenExtent(getters.extent),
+                            coordinate: entry.coordinate,
+                        }).then((feature) => {
+                            dispatch('setSelectedFeatures', {
+                                features: [feature],
+                                dispatcher,
+                            })
+                        })
+                    } else {
+                        // For imported KML and GPX files
+                        let features = []
+                        if (entry.layer.type === LayerTypes.KML) {
+                            features = parseKml(entry.layer, rootState.position.projection, [])
+                        }
+                        if (entry.layer.type === LayerTypes.GPX) {
+                            features = parseGpx(
+                                entry.layer.gpxData,
+                                rootState.position.projection,
+                                []
+                            )
+                        }
+                        const layerFeatures = features
+                            .map((feature) => createLayerFeature(feature, entry.layer))
+                            .filter((feature) => !!feature && feature.data.title === entry.title)
+                        dispatch('setSelectedFeatures', {
+                            features: layerFeatures,
+                            dispatcher,
+                        })
+                    }
+                } catch (error) {
+                    log.error('Error getting feature:', error)
+                }
+
+                break
         }
-        dispatch('setSearchQuery', {
-            query: entry.sanitizedTitle,
-            dispatcher: dipsatcherSelectResultEntry,
-        })
+        if (state.autoSelect) {
+            dispatch('setAutoSelect', {
+                value: false,
+                dispatcher: dispatcherSelectResultEntry,
+            })
+        }
     },
 }
 
+function createLayerFeature(olFeature, layer) {
+    if (!olFeature.getGeometry()) return null
+    return new LayerFeature({
+        layer: layer,
+        id: olFeature.getId(),
+        name:
+            olFeature.get('label') ??
+            // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
+            // some of their layers are
+            // - ch.meteoschweiz.messwerte-niederschlag-10min
+            // - ch.meteoschweiz.messwerte-lufttemperatur-10min
+            olFeature.get('station_name') ??
+            // GPX track feature don't have an ID but have a name !
+            olFeature.get('name') ??
+            olFeature.getId(),
+        data: {
+            title: olFeature.get('name'),
+            description: olFeature.get('description'),
+        },
+        coordinates: olFeature.getGeometry().getCoordinates(),
+        geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
+        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+    })
+}
+
 const mutations = {
+    setAutoSelect: (state, { value }) => (state.autoSelect = value),
     setSearchQuery: (state, { query }) => (state.query = query),
     setSearchResults: (state, { results }) => (state.results = results ?? []),
 }
@@ -197,4 +325,19 @@ export default {
     getters,
     actions,
     mutations,
+}
+
+function zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry) {
+    if (entry.extent.length === 2) {
+        dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
+    } else if (entry.zoom) {
+        dispatch('setCenter', {
+            center: entry.coordinate,
+            dispatcher: dispatcherSelectResultEntry,
+        })
+        dispatch('setZoom', {
+            zoom: entry.zoom,
+            dispatcher: dispatcherSelectResultEntry,
+        })
+    }
 }

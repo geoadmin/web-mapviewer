@@ -1,4 +1,6 @@
+import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
+import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
@@ -13,9 +15,11 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils.js'
+import ErrorMessage from '@/utils/ErrorMessage.class'
+import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 /**
  * Parse layers such as described in
@@ -55,6 +59,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
                 visible: parsedLayer.visible,
                 opacity: parsedLayer.opacity ?? defaultOpacity,
                 adminId: adminId,
+                style: parsedLayer.customAttributes?.style,
             })
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
@@ -71,6 +76,16 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
+        }
+    } else if (parsedLayer.type === LayerTypes.COG) {
+        // format is GEOTIFF|FILE_URL
+        if (parsedLayer.baseUrl.startsWith('http')) {
+            layer = new CloudOptimizedGeoTIFFLayer({
+                fileSource: parsedLayer.baseUrl,
+                visible: parsedLayer.visible,
+                opacity: parsedLayer.opacity ?? defaultOpacity,
+                isLoading: false,
+            })
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
@@ -244,6 +259,44 @@ function generateLayerUrlParamFromStoreValues(store) {
         .join(';')
 }
 
+// this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
+// which layer won't render. It's basic, which means it will only tells the user when he gives a non
+// external layer that doesn't exist, or when he forgets the scheme for its external layer.
+function validateUrlInput(store, query) {
+    if (query === '') {
+        return {
+            valid: true,
+            errors: null,
+        }
+    }
+    const parsed = parseLayersParam(query)
+    const url_matcher = /https?:\/\//
+    const faultyLayers = []
+    const localLayers = []
+    parsed
+        .filter((layer) => !store.getters.getLayerConfigById(layer.id))
+        .forEach((layer) => {
+            if (!layer.baseUrl) {
+                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+            } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
+                localLayers.push(
+                    new WarningMessage('url_external_layer_no_scheme_warning', {
+                        layer: `${layer.type}|${layer.baseUrl}`,
+                    })
+                )
+            }
+        })
+    const valid = faultyLayers.length < parsed.length
+    if (!valid) {
+        return getStandardValidationResponse(query, valid, this.urlParamName)
+    }
+    return {
+        valid,
+        errors: faultyLayers.length === 0 ? null : faultyLayers,
+        warnings: localLayers.length === 0 ? null : localLayers,
+    }
+}
+
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super({
@@ -260,11 +313,13 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setLayers',
                 'setSelectedFeatures',
                 'addSelectedFeatures',
+                'updateLayer',
             ],
             setValuesInStore: dispatchLayersFromUrlIntoStore,
             extractValueFromStore: generateLayerUrlParamFromStoreValues,
             keepInUrlWhenDefault: true,
             valueType: String,
+            validateUrlInput: validateUrlInput,
         })
     }
 }

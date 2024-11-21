@@ -1,3 +1,4 @@
+import simplify from '@turf/simplify'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
 
@@ -9,20 +10,16 @@ import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+    GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
 } from '@/config/map.config'
-import { flattenExtent } from '@/utils/coordinates/coordinateUtils'
+import { flattenExtent } from '@/utils/extentUtils'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
+import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
-    return (
-        feature?.geometry?.type &&
-        (['LineString', 'Polygon'].includes(feature.geometry.type) ||
-            // if MultiLineString or MultiPolygon but only contains one "feature", that's fine too (mislabeled as "multi")
-            (['MultiLineString', 'MultiPolygon'].includes(feature.geometry.type) &&
-                feature.geometry.coordinates.length === 1))
-    )
+    return feature?.geometry?.type && !['Point'].includes(feature.geometry.type)
 }
 
 const getEditableFeatureWithId = (state, featureId) => {
@@ -31,7 +28,7 @@ const getEditableFeatureWithId = (state, featureId) => {
     )
 }
 
-function getFeatureCountForCoordinate(coordinate) {
+export function getFeatureCountForCoordinate(coordinate) {
     return coordinate.length === 2
         ? DEFAULT_FEATURE_COUNT_SINGLE_POINT
         : DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION
@@ -55,7 +52,7 @@ function getFeatureCountForCoordinate(coordinate) {
  * @returns {Promise<LayerFeature[]>} A promise that will contain all feature identified by the
  *   different requests (won't be grouped by layer)
  */
-const runIdentify = (config) => {
+export const runIdentify = (config) => {
     const {
         layers,
         coordinate,
@@ -92,24 +89,12 @@ const runIdentify = (config) => {
                     !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
             )
             .forEach((layer) => {
-                if (layer.layers) {
-                    // for group of layers, we fire a request per sublayer
-                    layer.layers.forEach((sublayer) => {
-                        pendingRequests.push(
-                            identify({
-                                layer: sublayer,
-                                ...commonParams,
-                            })
-                        )
+                pendingRequests.push(
+                    identify({
+                        layer,
+                        ...commonParams,
                     })
-                } else {
-                    pendingRequests.push(
-                        identify({
-                            layer,
-                            ...commonParams,
-                        })
-                    )
-                }
+                )
             })
         // grouping all features from the different requests
         Promise.allSettled(pendingRequests)
@@ -127,7 +112,9 @@ const runIdentify = (config) => {
                 })
                 // filtering out duplicates
                 resolve(
-                    allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
+                    Array.from(
+                        new Map(allFeatures.map((feature) => [feature.id, feature])).values()
+                    )
                 )
             })
             .catch((error) => {
@@ -401,10 +388,7 @@ export default {
                     geometry,
                     dispatcher,
                 })
-                // if the feature can show a profile we need to trigger a profile data update
-                if (canFeatureShowProfile(selectedFeature)) {
-                    dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
-                }
+                dispatch('setProfileFeature', { feature: selectedFeature, dispatcher })
             }
         },
         /**
@@ -420,6 +404,11 @@ export default {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
+            }
+        },
+        setActiveSegmentIndex({ commit, state }, { index, dispatcher }) {
+            if (state.profileData && state.profileData.activeSegmentIndex !== index) {
+                commit('setActiveSegmentIndex', { index: index, dispatcher })
             }
         },
         /**
@@ -601,9 +590,14 @@ export default {
          * @param {SelectableFeature | null} feature A feature which has a LineString or Polygon
          *   geometry, and for which we want to show a height profile (or `null` if the profile
          *   should be cleared/hidden)
+         * @param {Boolean} simplifyGeometry If set to true, the geometry of the feature will be
+         *   simplified before being sent to the profile backend. This is useful in case the data
+         *   comes from an unfiltered GPS source (GPX track), and not simplifying the track could
+         *   lead to a coastal paradox (meaning the hiking time will be way of the charts because of
+         *   all the small jumps due to GPS errors)
          * @param dispatcher
          */
-        setProfileFeature(store, { feature = null, dispatcher }) {
+        setProfileFeature(store, { feature = null, simplifyGeometry = false, dispatcher }) {
             const { state, commit, rootState } = store
             if (feature === null) {
                 commit('setProfileFeature', { feature: null, dispatcher })
@@ -615,10 +609,19 @@ export default {
                 commit('setProfileFeature', { feature: feature, dispatcher })
                 commit('setProfileData', { data: null, dispatcher })
                 if (feature?.geometry) {
-                    let coordinates = [...feature.geometry.coordinates]
-                    // unwrapping the first set of coordinates if they come from a multi-feature type geometry
-                    if (coordinates[0].some((coordinage) => Array.isArray(coordinage))) {
-                        coordinates = coordinates[0]
+                    let coordinates
+                    if (simplifyGeometry) {
+                        // using TurfJS instead of OL here, as we receive geometry as GeoJSON.
+                        // Using OL would mean parsing all features as OL features once again.
+                        // Both OL and TurfJS use a Ramer-Douglas-Peucker algorithm, so output will be very similar
+                        const turfGeom = transformIntoTurfEquivalent(feature.geometry)
+                        coordinates = [
+                            ...simplify(turfGeom, {
+                                tolerance: GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
+                            }).geometry.coordinates,
+                        ]
+                    } else {
+                        coordinates = [...feature.geometry.coordinates]
                     }
                     getProfile(coordinates, rootState.position.projection)
                         .then((profileData) => {
@@ -702,6 +705,9 @@ export default {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
             state.selectedFeaturesByLayerId = layerFeaturesByLayerId
             state.selectedEditableFeatures = [...drawingFeatures]
+        },
+        setActiveSegmentIndex(state, { index }) {
+            state.profileData.activeSegmentIndex = index
         },
         addSelectedFeatures(state, { featuresForLayer, features, featureCountForMoreData = 0 }) {
             featuresForLayer.features.push(...features)

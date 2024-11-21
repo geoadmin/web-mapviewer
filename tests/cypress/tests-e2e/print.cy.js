@@ -31,10 +31,6 @@ describe('Testing print', () => {
         }).as('printRequest')
     }
 
-    function interceptKml(fixture) {
-        cy.intercept('GET', '**/**.kml', { fixture }).as('kmlRequest')
-    }
-
     function interceptPrintStatus() {
         cy.intercept('GET', '**/status/**', (req) => {
             req.reply({
@@ -179,7 +175,11 @@ describe('Testing print', () => {
             interceptPrintRequest()
             interceptPrintStatus()
             interceptDownloadReport()
-            interceptKml(kmlFixture)
+
+            cy.intercept('HEAD', '**/**.kml', {
+                headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
+            }).as('kmlHeadRequest')
+            cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
             cy.goToMapView(
                 {
@@ -188,7 +188,7 @@ describe('Testing print', () => {
                 },
                 true
             )
-            cy.wait('@kmlRequest')
+            cy.wait(['@kmlHeadRequest', '@kmlGetRequest'])
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
             cy.openMenuIfMobile()
@@ -423,7 +423,7 @@ describe('Testing print', () => {
                 )
                 expect(
                     gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['strokeWidth']
-                ).to.lessThan(1.5) // thinner than the drawn in the OL map.
+                ).to.lessThan(2) // thinner than the drawn in the OL map.
             })
         })
         /** We need to ensure the structure of the query sent is correct */

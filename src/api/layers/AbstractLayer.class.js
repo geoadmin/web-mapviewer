@@ -127,33 +127,47 @@ export default class AbstractLayer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        this.errorKeys = new Set()
+        /** @type {Set<ErrorMessage>} */
+        this.errorMessages = new Set()
         this.hasError = false
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
     }
 
-    hasErrorKey(key) {
-        return this.errorKeys.has(key)
+    /**
+     * @param {ErrorMessage} errorMessage
+     * @returns {boolean}
+     */
+    containErrorMessage(errorMessage) {
+        return this.errorMessages.has(errorMessage)
     }
 
-    getFirstErrorKey() {
-        return this.errorKeys.values().next().value
+    /** @returns {ErrorMessage} */
+    getFirstErrorMessage() {
+        return this.errorMessages.values().next().value
     }
 
-    addErrorKey(key) {
-        this.errorKeys.add(key)
+    /** @param {ErrorMessage} errorMessage */
+    addErrorMessage(errorMessage) {
+        this.errorMessages.add(errorMessage)
         this.hasError = true
     }
 
-    removeErrorKey(key) {
-        this.errorKeys.delete(key)
-        this.hasError = !!this.errorKeys.size
+    /** @param {ErrorMessage} errorMessage */
+    removeErrorMessage(errorMessage) {
+        // We need to find the error message that equals to remove it
+        for (let msg of this.errorMessages) {
+            if (msg.isEquals(errorMessage)) {
+                this.errorMessages.delete(msg)
+                break
+            }
+        }
+        this.hasError = !!this.errorMessages.size
     }
 
-    clearErrorKeys() {
-        this.errorKeys.clear()
+    clearErrorMessages() {
+        this.errorMessages.clear()
         this.hasError = false
     }
 

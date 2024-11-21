@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { isString } from 'lodash'
 
 import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
@@ -55,4 +56,27 @@ export function proxifyUrl(url) {
         throw new Error(`Malformed URL: ${url}, can't proxify`)
     }
     return `${getServiceProxyBaseUrl()}${fileAsPath}`
+}
+
+export function unProxifyUrl(proxifiedUrl) {
+    if (
+        (typeof proxified_url === 'string' || proxifiedUrl instanceof String) &&
+        proxifiedUrl.startsWith(getServiceProxyBaseUrl())
+    ) {
+        let url = proxifiedUrl.replace(getServiceProxyBaseUrl(), '')
+        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1])}`
+    }
+
+    return proxifiedUrl
+}
+
+/**
+ * @param {String} fileUrl
+ * @returns {Promise<ArrayBuffer>}
+ */
+export async function getFileContentThroughServiceProxy(fileUrl) {
+    const proxifyGetResponse = await axios.get(proxifyUrl(fileUrl), {
+        responseType: 'arraybuffer',
+    })
+    return proxifyGetResponse.data
 }

@@ -45,36 +45,39 @@ const secondLayer = new GeoAdminWMSLayer({
 
 const resetStore = () => {
     store.dispatch('clearLayers', dispatcher)
-    store.dispatch('setBackground', { bgLayer: null, ...dispatcher })
+    store.dispatch('setBackground', { bgLayerId: null, ...dispatcher })
     store.dispatch('setLayerConfig', { config: [], ...dispatcher })
 }
 
 describe('Background layer is correctly set', () => {
-    const getBackgroundLayer = () => store.state.layers.currentBackgroundLayer
+    const getBackgroundLayer = () => store.getters.currentBackgroundLayer
+    const getBackgroundLayerId = () => store.state.layers.currentBackgroundLayerId
 
     beforeEach(() => {
         resetStore()
     })
 
     it('does not have a background selected by default', () => {
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
     it('does not select a background if the one given is not present in the config', () => {
-        store.dispatch('setBackground', { bgLayer: bgLayer.id, ...dispatcher })
+        store.dispatch('setBackground', { bgLayerId: bgLayer.id })
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
     it('does select the background if it is present in the config', () => {
         store.dispatch('setLayerConfig', { config: [bgLayer], ...dispatcher })
-        store.dispatch('setBackground', { bgLayer: bgLayer.id, ...dispatcher })
+        store.dispatch('setBackground', { bgLayerId: bgLayer.id })
+        expect(getBackgroundLayerId()).to.be.a('string')
         expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
+        expect(getBackgroundLayerId()).to.eq(bgLayer.id)
         expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
     it('does not permit to select a background that has not the flag isBackground set to true', () => {
         store.dispatch('setLayerConfig', { config: [firstLayer], ...dispatcher })
-        store.dispatch('setBackground', {
-            bgLayer: firstLayer.id,
-            ...dispatcher,
-        })
+        store.dispatch('setBackground', { bgLayerId: firstLayer.id })
+        expect(getBackgroundLayerId()).to.be.null
         expect(getBackgroundLayer()).to.be.null
     })
 })
@@ -150,7 +153,7 @@ describe('Update layer', () => {
             ...dispatcher,
         })
     })
-    it('Update a single layer by index with a full layer object', () => {
+    it('Update a single layer by ID with a full layer object', () => {
         const clone = secondLayer.clone()
         clone.name = 'Update second layer name'
         clone.visible = false
@@ -158,29 +161,29 @@ describe('Update layer', () => {
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
-        store.dispatch('updateLayer', { index: 1, layer: clone, ...dispatcher })
+        store.dispatch('updateLayer', { layerId: secondLayer.id, values: clone, ...dispatcher })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
         expect(store.state.layers.activeLayers[1].visible).to.be.false
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(1900)
     })
-    it('Update a single layer with invalid index', () => {
+    it('Update a single layer with invalid layer ID', () => {
         expect(() =>
             store.dispatch('updateLayer', {
-                index: 5,
-                layer: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                layerId: 'some.non.existant.layer',
+                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
-                layer: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
-                index: -1,
-                layer: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                layerId: -1,
+                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()

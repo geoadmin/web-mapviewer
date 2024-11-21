@@ -1,23 +1,24 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, inject, ref } from 'vue'
+import DOMPurify from 'dompurify'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
+import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-
-import DrawingHeader from './DrawingHeader.vue'
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
-
 const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
 const i18n = useI18n()
 const store = useStore()
@@ -38,7 +39,10 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-
+const drawingName = computed({
+    get: () => store.state.drawing.name,
+    set: (value) => debounceSaveDrawingName(value),
+})
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
@@ -67,9 +71,27 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     }
 }
+
+const { removeTippy: removeNoActiveKmlWarning } = useTippyTooltip('#drawing-name-container')
+
+onMounted(() => {
+    // if there's already an active KML layer, we can remove the tippy (as it will be empty, see template below)
+    if (activeKmlLayer.value) {
+        removeNoActiveKmlWarning()
+    }
+})
+
+watch(activeKmlLayer, () => {
+    if (activeKmlLayer.value) {
+        // no need for the message telling the user the drawing is empty, and he can't edit the drawing name
+        removeNoActiveKmlWarning()
+    }
+})
+
 function closeDrawing() {
     emits('closeDrawing')
 }
+
 function selectDrawingMode(drawingMode) {
     store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
 }
@@ -77,6 +99,17 @@ function selectDrawingMode(drawingMode) {
 function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
+
+const debounceSaveDrawingName = debounce(async (newName) => {
+    await store.dispatch('setDrawingName', {
+        // sanitizing to avoid any XSS vector
+        name: DOMPurify.sanitize(newName, {
+            USE_PROFILES: { xml: true },
+        }).trim(),
+        ...dispatcher,
+    })
+    debounceSaveDrawing()
+}, 200)
 </script>
 
 <template>
@@ -87,6 +120,27 @@ function onDeleteLastPoint() {
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
+                <div
+                    id="drawing-name-container"
+                    class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
+                    :data-tippy-content="
+                        !activeKmlLayer ? i18n.t('drawing_empty_cannot_edit_name') : ''
+                    "
+                >
+                    <label for="drawing-name" class="text-nowrap">
+                        {{ i18n.t('file_name') }}
+                    </label>
+                    <input
+                        id="drawing-name"
+                        v-model="drawingName"
+                        type="text"
+                        class="form-control"
+                        data-cy="drawing-toolbox-file-name-input"
+                        :placeholder="`${i18n.t('draw_layer_label')}`"
+                        :disabled="!activeKmlLayer"
+                    />
+                </div>
+
                 <div class="card-body position-relative container">
                     <div
                         class="row justify-content-start g-2"

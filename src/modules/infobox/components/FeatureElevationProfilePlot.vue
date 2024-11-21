@@ -5,6 +5,21 @@
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
+        <div v-if="elevationProfile.segmentsCount > 1" class="d-flex gap-1 segment-container">
+            <button
+                v-for="(_, index) in elevationProfile.segments"
+                :key="index"
+                class="btn text-nowrap"
+                :class="{
+                    'btn-primary': index === elevationProfile.activeSegmentIndex,
+                    'btn-light': index !== elevationProfile.activeSegmentIndex,
+                }"
+                :data-cy="`profile-segment-button-${index}`"
+                @click="() => activateSegmentIndex(index)"
+            >
+                {{ $t('profile_segment', { segmentNumber: index + 1 }) }}
+            </button>
+        </div>
         <!-- Here below we need to set the w-100 in order to have proper PDF print of the Chart -->
         <LineChart
             ref="chart"
@@ -66,7 +81,7 @@
 <script>
 import { resetZoom } from 'chartjs-plugin-zoom'
 import { Line as LineChart } from 'vue-chartjs'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import FeatureElevationProfilePlotCesiumBridge from '@/modules/infobox/FeatureElevationProfilePlotCesiumBridge.vue'
@@ -85,6 +100,7 @@ const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
  * @property {Number} elevation
  * @property {Boolean} hasElevationData
  */
+const dispatcher = { dispatcher: 'FeatureElevationProfilePlot.vue' }
 
 /**
  * Encapsulate ChartJS profile plot generation.
@@ -213,7 +229,7 @@ export default {
                 datasets: [
                     {
                         label: `${this.$t('elevation')}`,
-                        data: this.elevationProfile.points,
+                        data: this.elevationProfile.segmentPoints,
                         parsing: {
                             xAxisKey: 'dist',
                             yAxisKey: 'elevation',
@@ -384,6 +400,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions(['setActiveSegmentIndex']),
         startPositionTracking() {
             this.track = true
         },
@@ -404,6 +421,12 @@ export default {
         },
         resizeChart() {
             this.$refs.chart.chart.resize()
+        },
+        activateSegmentIndex(index) {
+            this.setActiveSegmentIndex({
+                index,
+                ...dispatcher,
+            })
         },
     },
 }
@@ -426,6 +449,7 @@ $tooltip-width: 170px;
 
 .profile-graph {
     width: 100%;
+    flex-direction: column;
 
     &-container {
         overflow: hidden;
@@ -434,6 +458,11 @@ $tooltip-width: 170px;
         pointer-events: auto;
     }
 }
+
+.segment-container {
+    overflow-x: auto;
+}
+
 .profile-tooltip {
     width: $tooltip-width;
     height: $tooltip-height;

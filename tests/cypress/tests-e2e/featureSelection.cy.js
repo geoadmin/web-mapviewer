@@ -250,16 +250,31 @@ describe('Testing the feature selection', () => {
         })
     })
     context('Feature identification on the map', () => {
-        function drawRectangleOnMap(pixelsFromCenter) {
-            cy.get('@olMap').realMouseDown({ ctrlKey: true, position: 'center' })
-            cy.get('@olMap').realMouseMove(pixelsFromCenter.x, pixelsFromCenter.y, {
-                ctrlKey: true,
-                position: 'center',
-            })
+        function drawRectangleOnMap(pixelsAroundCenter) {
             cy.get('@olMap').then((olMapElement) => {
+                const elementSize = {
+                    width: olMapElement.width(),
+                    height: olMapElement.height(),
+                }
+                cy.get('@olMap').realMouseDown({
+                    x: elementSize.width / 2.0 - pixelsAroundCenter.x / 2.0,
+                    y: elementSize.height / 2.0 - pixelsAroundCenter.y / 2.0,
+                    position: 'center',
+                    ctrlKey: true,
+                })
+                cy.get('@olMap').realMouseMove(
+                    pixelsAroundCenter.x / 2.0,
+                    pixelsAroundCenter.y / 2.0,
+                    {
+                        x: elementSize.width / 2.0 - pixelsAroundCenter.x / 2.0,
+                        y: elementSize.height / 2.0 - pixelsAroundCenter.y / 2.0,
+                        position: 'center',
+                        ctrlKey: true,
+                    }
+                )
                 cy.get('@olMap').realMouseUp({
-                    x: olMapElement.width() / 2.0 + pixelsFromCenter.x,
-                    y: olMapElement.height() / 2.0 + pixelsFromCenter.y,
+                    x: elementSize.width / 2.0 + pixelsAroundCenter.x / 2.0,
+                    y: elementSize.height / 2.0 + pixelsAroundCenter.y / 2.0,
                     position: 'center',
                     ctrlKey: true,
                 })
@@ -267,18 +282,53 @@ describe('Testing the feature selection', () => {
         }
 
         it('can select an area to identify features inside it', () => {
-            cy.goToMapView({
-                layers: 'test.wms.layer',
+            // Import KML file
+            const fileName = 'external-kml-file.kml'
+            const localKmlFile = `import-tool/${fileName}`
+            cy.goToMapView(
+                {
+                    layers: 'test.wms.layer',
+                },
+                true
+            )
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+
+            const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+            cy.fixture(localKmlFile, null).as('kmlFixture')
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+                force: true,
             })
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
+
+            cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
+            cy.get('[data-cy="import-file-close-button"]:visible').realClick()
+            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
+            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+
+            cy.closeMenuIfMobile()
+
+            cy.checkOlLayer([
+                'test.background.layer2',
+                { id: 'test.wms.layer', opacity: 0.75 },
+                fileName,
+            ])
+
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.log(
                 'Selecting a rectangle (by click&drag) while pressing SHIFT, should start a rectangle identification of features'
             )
             drawRectangleOnMap({
                 x: 100,
-                y: -100,
+                y: 100,
             })
-            cy.log('making sure 50 items are requested when selecting a dragbox on the map')
+
+            cy.log('making sure 51 items are requested when selecting a dragbox on the map') // including the one from the kml file
             cy.wait('@identify')
                 .its('request.query.limit')
                 .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
@@ -299,11 +349,12 @@ describe('Testing the feature selection', () => {
             cy.log('checking that each feature has been rendered in the list')
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
+                .should('have.length', featureCountWithKml)
             cy.get('@highlightedFeatures').scrollTo('bottom')
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
             cy.get('@loadMore').click()
+            cy.wait('@routeChange')
             cy.wait('@identify')
                 .its('request.query')
                 .should((query) => {
@@ -321,7 +372,7 @@ describe('Testing the feature selection', () => {
             }
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
-                .should('have.length', 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION)
+                .should('have.length', 2 * DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1)
 
             cy.log('Sending an empty response for further identify')
             cy.intercept('**identify**', {
@@ -335,18 +386,37 @@ describe('Testing the feature selection', () => {
             cy.get('@loadMore').should('not.exist')
 
             cy.log(
+                'verify that the feature selection is cleared for the layer when the layer is toggled off'
+            )
+            cy.openMenuIfMobile()
+            cy.get(`[data-cy^="button-toggle-visibility-layer-${'test.wms.layer'}-0"]`).click()
+            cy.closeMenuIfMobile()
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
+            cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
+            cy.wait('@routeChange')
+
+            cy.log(
                 'sending a single feature as response, checking that the "Load more" button is not added'
             )
+            cy.goToMapView(
+                {
+                    layers: 'test.wms.layer',
+                },
+                true
+            )
+            cy.wait('@routeChange')
+
             cy.intercept('**identify**', {
                 fixture: 'features/features.fixture',
             }).as('identifySingleFeature')
 
             drawRectangleOnMap({
                 x: 30,
-                y: -80,
+                y: 100,
             })
-            cy.wait('@identifySingleFeature')
-            cy.wait(`@htmlPopup`)
+            cy.wait(['@identifySingleFeature', '@htmlPopup'])
 
             cy.get('@highlightedFeatures').should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
@@ -360,10 +430,20 @@ describe('Testing the feature selection', () => {
             }).as('emptyIdentify')
             drawRectangleOnMap({
                 x: 100,
-                y: -100,
+                y: 100,
             })
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
+
+            cy.get('@routeChange.all').should('have.length', 6)
+            cy.get('@layers.all').should('have.length', 1)
+            cy.get('@topics.all').should('have.length', 1)
+            cy.get('@topic-ech.all').should('have.length', 1)
+            cy.get('@htmlPopup.all').should('have.length', 101)
+            cy.get('@noMoreResults.all').should('have.length', 1)
+            cy.get('@identify.all').should('have.length', 2)
+            cy.get('@identifySingleFeature.all').should('have.length', 1)
+            cy.get('@emptyIdentify.all').should('have.length', 1)
         })
     })
 })

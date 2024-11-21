@@ -1,27 +1,29 @@
-import GeoJSON from 'ol/format/GeoJSON'
 import { DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { normalizeExtent, OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
-import ErrorMessage from '@/utils/ErrorMessage.class'
-import { EmptyGPXError } from '@/utils/gpxUtils'
-import { EmptyKMLError } from '@/utils/kmlUtils'
+import { createLayerFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const dispatcher = {
     dispatcher: 'useMapInteractions.composable',
 }
+const longPressEvents = [
+    'touch',
+    'pen',
+    '', // This is necessary for IoS support
+]
 
 export default function useMapInteractions(map) {
+    const { handleFileSource } = useImportFile()
+
     const store = useStore()
 
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
@@ -133,32 +135,7 @@ export default function useMapInteractions(map) {
                             layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
                             hitTolerance: DRAWING_HIT_TOLERANCE,
                         })
-                        .map(
-                            (olFeature) =>
-                                new LayerFeature({
-                                    layer: vectorLayer,
-                                    id: olFeature.getId(),
-                                    name:
-                                        olFeature.get('label') ??
-                                        // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
-                                        // some of their layers are
-                                        // - ch.meteoschweiz.messwerte-niederschlag-10min
-                                        // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-                                        olFeature.get('station_name') ??
-                                        // GPX track feature don't have an ID but have a name !
-                                        olFeature.get('name') ??
-                                        olFeature.getId(),
-                                    data: {
-                                        title: olFeature.get('name'),
-                                        description: olFeature.get('description'),
-                                    },
-                                    coordinates: olFeature.getGeometry().getCoordinates(),
-                                    geometry: new GeoJSON().writeGeometryObject(
-                                        olFeature.getGeometry()
-                                    ),
-                                    extent: normalizeExtent(olFeature.getGeometry().getExtent()),
-                                })
-                        )
+                        .map((olFeature) => createLayerFeature(olFeature, vectorLayer))
                         // unique filter on features (OL sometimes return twice the same features)
                         .filter(
                             (feature, index, self) =>
@@ -184,6 +161,7 @@ export default function useMapInteractions(map) {
 
     function onMapRightClick(event) {
         clearTimeout(longClickTimeout)
+        longClickTriggered = event.updateLongClickTriggered ?? event.type === 'contextmenu'
         store.dispatch('click', {
             clickInfo: new ClickInfo({
                 coordinate: event.coordinate,
@@ -211,8 +189,12 @@ export default function useMapInteractions(map) {
             // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
             // LocationPopup by touching the same-ish spot for 500ms
             longClickTimeout = setTimeout(() => {
-                if (!mapHasMoved) {
-                    longClickTriggered = true
+                // we need to ensure long mouse clicks don't trigger this.
+                if (
+                    !mapHasMoved &&
+                    (longPressEvents.includes(event.originalEvent?.pointerType) ||
+                        longPressEvents.includes(event.pointerType))
+                ) {
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
                     const pixel = map.getEventPixel(event)
                     const coordinate = map.getCoordinateFromPixel(pixel)
@@ -220,6 +202,7 @@ export default function useMapInteractions(map) {
                         ...event,
                         pixel,
                         coordinate,
+                        updateLongClickTriggered: true,
                     })
                 }
                 mapHasMoved = false
@@ -243,36 +226,6 @@ export default function useMapInteractions(map) {
         mapElement.removeEventListener('dragleave', onDragLeave)
     }
 
-    function readFileContent(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onload = (event) => resolve(event.target.result)
-            reader.onerror = (error) => reject(error)
-            // The file might be a KMZ file, which is a zip archive. Reading zip archive as text
-            // is asking for trouble therefore we use ArrayBuffer
-            reader.readAsArrayBuffer(file)
-        })
-    }
-
-    async function handleFile(file) {
-        try {
-            const fileContent = await readFileContent(file)
-            handleFileContent(store, fileContent, file.name)
-        } catch (error) {
-            let errorKey
-            log.error(`Error loading file`, file.name, error)
-            if (error instanceof OutOfBoundsError) {
-                errorKey = 'kml_gpx_file_out_of_bounds'
-            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
-                errorKey = 'kml_gpx_file_empty'
-            } else {
-                errorKey = 'invalid_kml_gpx_file_error'
-                log.error(`Failed to load file`, error)
-            }
-            store.dispatch('addError', { error: new ErrorMessage(errorKey, null), ...dispatcher })
-        }
-    }
-
     function onDragOver(event) {
         event.preventDefault()
         store.dispatch('setShowDragAndDropOverlay', { showDragAndDropOverlay: true, ...dispatcher })
@@ -286,19 +239,15 @@ export default function useMapInteractions(map) {
         })
 
         if (event.dataTransfer.items) {
-            // Use DataTransferItemList interface to access the file(s)
-            for (let i = 0; i < event.dataTransfer.items.length; i++) {
+            for (/** @type {DataTransferItem} */ const item of event.dataTransfer.items) {
                 // If dropped items aren't files, reject them
-                if (event.dataTransfer.items[i].kind === 'file') {
-                    const file = event.dataTransfer.items[i].getAsFile()
-                    handleFile(file)
+                if (item.kind === 'file') {
+                    handleFileSource(item.getAsFile())
                 }
             }
         } else {
-            // Use DataTransfer interface to access the file(s)
-            for (let i = 0; i < event.dataTransfer.files.length; i++) {
-                const file = event.dataTransfer.files[i]
-                handleFile(file)
+            for (/** @type {File} */ const file of event.dataTransfer.files) {
+                handleFileSource(file)
             }
         }
     }

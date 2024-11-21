@@ -6,10 +6,10 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'external-layers.plugin' }
@@ -24,9 +24,7 @@ export default function loadExternalLayerAttributes(store) {
         const externalLayers = layers.filter(
             (layer) =>
                 layer.isLoading &&
-                (layer instanceof ExternalWMSLayer ||
-                    layer instanceof ExternalGroupOfLayers ||
-                    layer instanceof ExternalWMTSLayer)
+                (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
         )
         if (externalLayers.length > 0) {
             // We get first the capabilities
@@ -66,12 +64,7 @@ function getWMSCababilitiesForLayers(layers) {
     // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
     // for example when adding several layers from the same source.
     new Set(
-        layers
-            .filter(
-                (layer) =>
-                    layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers
-            )
-            .map((layer) => layer.baseUrl)
+        layers.filter((layer) => layer instanceof ExternalWMSLayer).map((layer) => layer.baseUrl)
     ).forEach((url) => {
         capabilities[url] = readWmsCapabilities(url)
     })
@@ -111,9 +104,11 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
         return updated
     } catch (error) {
         log.error(`Failed to update external layer ${layer.id}: `, error)
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: layer.id,
-            errorKey: error.key ? error.key : 'error',
+            isExternal: layer.isExternal,
+            baseUrl: layer.baseUrl,
+            error: new ErrorMessage(error.key ?? 'error'),
             ...dispatcher,
         })
         return null

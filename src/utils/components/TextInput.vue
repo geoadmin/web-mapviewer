@@ -53,7 +53,7 @@ const props = defineProps({
      *
      * NOTE: this should be a translation key
      *
-     * @type {string}
+     * @type {String}
      */
     placeholder: {
         type: String,
@@ -83,10 +83,10 @@ const props = defineProps({
         default: null,
     },
     /**
-     * Valid message Message that will be added in green below the field once the validation has
-     * been done and the field is valid.
+     * Valid message that will be added in green below the field once the validation has been done
+     * and the field is valid.
      *
-     * @type {Sting}
+     * @type {String}
      */
     validMessage: {
         type: String,
@@ -107,17 +107,27 @@ const props = defineProps({
         default: null,
     },
     /**
-     * Invalid message Message that will be added in red below the field once the validation has
-     * been done and the field is invalid.
+     * Invalid message that will be added in red below the field once the validation has been done
+     * and the field is invalid.
      *
      * NOTE: this message is overwritten if the internal validation failed (not allow file type or
      * file too big or required empty file)
      *
-     * @type {Sting}
+     * @type {String}
      */
     invalidMessage: {
         type: String,
         default: '',
+    },
+    /**
+     * Parameters for replacing any placeholder within an invalid message translated text (will be
+     * passed to Vue I18N when translating the invalid message).
+     *
+     * @type {Object | null}
+     */
+    invalidMessageParams: {
+        type: [Object, null],
+        default: null,
     },
     /**
      * Mark the field has validated.
@@ -148,7 +158,7 @@ const props = defineProps({
         default: '',
     },
 })
-const { placeholder, disabled, label, description } = toRefs(props)
+const { placeholder, disabled, label, description, invalidMessageParams } = toRefs(props)
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
@@ -222,7 +232,7 @@ defineExpose({ focus })
                 class="invalid-feedback"
                 data-cy="text-input-invalid-feedback"
             >
-                {{ i18n.t(invalidMessage) }}
+                {{ i18n.t(invalidMessage, invalidMessageParams) }}
             </div>
             <div v-if="validMessage" class="valid-feedback" data-cy="text-input-valid-feedback">
                 {{ i18n.t(validMessage) }}

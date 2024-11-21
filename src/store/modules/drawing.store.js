@@ -9,6 +9,13 @@ const defaultDrawingTitle = 'draw_mode_title'
  * @property {string} featureId
  */
 
+/** @enum */
+export const EditMode = {
+    OFF: 'OFF',
+    MODIFY: 'MODIFY', // Mode for modifying existing features
+    EXTEND: 'EXTEND', // Mode for extending existing features (for line only)
+}
+
 export default {
     state: {
         /**
@@ -63,6 +70,26 @@ export default {
          * @type {String | null}
          */
         temporaryKmlId: null,
+        /**
+         * The name of the drawing, or null if no drawing is currently edited.
+         *
+         * @type {String | null}
+         */
+        name: null,
+        /**
+         * If true, continue the line string from the starting vertex, else it will continue from
+         * the last vertex
+         *
+         * @type {Boolean | null}
+         */
+        reverseLineStringExtension: false,
+
+        /**
+         * Current editing mode. See {@link EditMode}
+         *
+         * @type {String | null}
+         */
+        editingMode: EditMode.OFF,
     },
     getters: {
         isDrawingEmpty(state) {
@@ -118,6 +145,23 @@ export default {
                 dispatcher,
             })
         },
+        setDrawingName({ commit }, { name, dispatcher }) {
+            commit('setDrawingName', { name, dispatcher })
+        },
+        setEditingMode({ commit }, { mode, reverseLineStringExtension, dispatcher }) {
+            if (mode in EditMode) {
+                if (mode !== EditMode.EXTEND) {
+                    reverseLineStringExtension = null
+                }
+                commit('setEditingMode', { mode, reverseLineStringExtension, dispatcher })
+            } else {
+                commit('setEditingMode', {
+                    mode: EditMode.OFF,
+                    reverseLineStringExtension: null,
+                    dispatcher,
+                })
+            }
+        },
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
@@ -131,6 +175,13 @@ export default {
             state.drawingOverlay.title = title
             state.online = online
             state.temporaryKmlId = kmlId
+        },
+        setDrawingName(state, { name }) {
+            state.name = name
+        },
+        setEditingMode: (state, { mode, reverseLineStringExtension }) => {
+            state.editingMode = mode
+            state.reverseLineStringExtension = reverseLineStringExtension
         },
     },
 }

@@ -43,3 +43,19 @@
     font-size: smaller;
     text-align: center;
 }
+
+.overlay-button {
+    @extend .toolbox-button;
+    height: $map-button-diameter * 0.75;
+    width: $map-button-diameter * 0.75;
+    border-radius: $map-button-diameter * 0.5;
+
+    &-icon {
+        height: ($map-button-diameter - 25px);
+    }
+
+    &-inner-circle,
+    .svg-inline--fa {
+        height: $map-button-inner-icon-diameter * 0.75;
+    }
+}

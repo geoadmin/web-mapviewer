@@ -1,5 +1,6 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
@@ -17,6 +18,8 @@ import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
  */
 export default class KMLLayer extends AbstractLayer {
     /**
+     * @param {String} [kmlLayerData.name] The name for this KML layer. If none is given, 'KML' will
+     *   be used.
      * @param {String} kmlLayerData.kmlFileUrl The URL to access the KML data.
      * @param {Boolean} [kmlLayerData.visible=true] If the layer is visible on the map (or hidden).
      *   When `null` is given, then it uses the default value. Default is `true`
@@ -32,6 +35,8 @@ export default class KMLLayer extends AbstractLayer {
      * @param {Map<string, ArrayBuffer>} [kmlLayerData.linkFiles=Map()] Map of KML link files. Those
      *   files are usually sent with the kml inside a KMZ archive and can be referenced inside the
      *   KML (e.g. icon, image, ...). Default is `Map()`
+     * @param {[Number, Number, Number, Number] | null} kmlLayerData.extent
+     * @param {KmlStyles} kmlLayerData.style
      * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -39,6 +44,7 @@ export default class KMLLayer extends AbstractLayer {
             throw new InvalidLayerDataError('Missing KML layer data', kmlLayerData)
         }
         const {
+            name = null,
             kmlFileUrl = null,
             visible = true,
             opacity = 1.0,
@@ -46,6 +52,8 @@ export default class KMLLayer extends AbstractLayer {
             kmlData = null,
             kmlMetadata = null,
             linkFiles = new Map(),
+            extent = null,
+            style = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -54,7 +62,7 @@ export default class KMLLayer extends AbstractLayer {
         const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
         const isExternal = kmlFileUrl.indexOf(getServiceKmlBaseUrl()) === -1
         super({
-            name: 'KML',
+            name: name ?? 'KML',
             id: kmlFileUrl,
             type: LayerTypes.KML,
             baseUrl: kmlFileUrl,
@@ -78,12 +86,29 @@ export default class KMLLayer extends AbstractLayer {
         this.kmlMetadata = kmlMetadata
         if (kmlData) {
             this.name = parseKmlName(kmlData)
+            if (!this.name || this.name === '') {
+                this.name = isLocalFile
+                    ? kmlFileUrl
+                    : // only keeping what is after the last slash
+                      kmlFileUrl.split('/').pop()
+            }
             this.isLoading = false
         } else {
             this.isLoading = true
         }
         this.kmlData = kmlData
         this.linkFiles = linkFiles
+        this.extent = extent
+        if (style === null) {
+            // if no style was given, we select the default style depending on the origin of the KML
+            if (isExternal) {
+                this.style = KmlStyles.DEFAULT
+            } else {
+                this.style = KmlStyles.GEOADMIN
+            }
+        } else {
+            this.style = style
+        }
     }
 
     /**

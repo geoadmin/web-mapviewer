@@ -86,66 +86,62 @@ function onPointerMove(event) {
     let featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
     let translationKeys
 
-    if (hoveringSelectedFeature) {
-        mapElement.classList.add(cssGrab)
-        mapElement.classList.remove(cssPointer)
+    if (drawingMode.value) {
+        if (this.currentlySketchedFeature && !pointFeatureTypes.includes(drawingMode.value)) {
+            let hoveringFirstVertex = false
+            let hoveringLastVertex = false
+            // The last two coordinates seem to be some OL internal points we don't need.
+            let coordinates = getVertexCoordinates(this.currentlySketchedFeature).slice(0, -2)
 
-        let hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
-            let pixel = olMap.getPixelFromCoordinate(coordinate)
-            return pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)
-        })
+            coordinates.some((coordinate, index) => {
+                let pixel = olMap.getPixelFromCoordinate(coordinate)
+                if (pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)) {
+                    hoveringFirstVertex = index === 0
+                    hoveringLastVertex = index === coordinates.length - 1
+                    // Abort loop. We have what we need.
+                    return true
+                }
+            })
 
-        // Display a help tooltip when modifying
-        if (hoveringVertex || pointFeatureTypes.includes(featureDrawingMode)) {
-            translationKeys = `modify_existing_vertex_${featureDrawingMode}`
+            if (hoveringFirstVertex && coordinates.length > 2) {
+                translationKeys = `draw_snap_first_point_${drawingMode.value}`
+            } else if (hoveringLastVertex && coordinates.length > 1) {
+                translationKeys = `draw_snap_last_point_${drawingMode.value}`
+            } else {
+                translationKeys = `draw_next_${drawingMode.value}`
+            }
+
+            if (coordinates.length > 1) {
+                translationKeys = [translationKeys, 'draw_delete_last_point']
+            }
         } else {
-            translationKeys = `modify_new_vertex_${featureDrawingMode}`
-        }
-    } else if (hoveringSelectableFeature) {
-        mapElement.classList.add(cssPointer)
-        mapElement.classList.remove(cssGrab)
-
-        // Display a help tooltip when selecting
-        if (drawingMode.value) {
-            translationKeys = `select_feature_${drawingMode.value}`
-        } else {
-            translationKeys = 'select_no_feature'
+            translationKeys = `draw_start_${drawingMode.value}`
         }
     } else {
-        mapElement.classList.remove(cssPointer)
-        mapElement.classList.remove(cssGrab)
+        if (hoveringSelectedFeature) {
+            let hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
+                let pixel = olMap.getPixelFromCoordinate(coordinate)
+                return pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)
+            })
+            translationKeys = `select_feature_${featureDrawingMode}`
 
-        // Display a help tooltip when drawing
-        if (drawingMode.value) {
-            if (this.currentlySketchedFeature && !pointFeatureTypes.includes(drawingMode.value)) {
-                let hoveringFirstVertex = false
-                let hoveringLastVertex = false
-                // The last two coordinates seem to be some OL internal points we don't need.
-                let coordinates = getVertexCoordinates(this.currentlySketchedFeature).slice(0, -2)
-
-                coordinates.some((coordinate, index) => {
-                    let pixel = olMap.getPixelFromCoordinate(coordinate)
-                    if (pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)) {
-                        hoveringFirstVertex = index === 0
-                        hoveringLastVertex = index === coordinates.length - 1
-                        // Abort loop. We have what we need.
-                        return true
-                    }
-                })
-
-                if (hoveringFirstVertex && coordinates.length > 2) {
-                    translationKeys = `draw_snap_first_point_${drawingMode.value}`
-                } else if (hoveringLastVertex && coordinates.length > 1) {
-                    translationKeys = `draw_snap_last_point_${drawingMode.value}`
-                } else {
-                    translationKeys = `draw_next_${drawingMode.value}`
-                }
-
-                if (coordinates.length > 1) {
-                    translationKeys = [translationKeys, 'draw_delete_last_point']
-                }
+            if (hoveringVertex) {
+                translationKeys = `modify_existing_vertex_${featureDrawingMode}`
+                mapElement.classList.remove(cssPointer)
+                mapElement.classList.add(cssGrab)
             } else {
-                translationKeys = `draw_start_${drawingMode.value}`
+                mapElement.classList.add(cssPointer)
+                mapElement.classList.remove(cssGrab)
+            }
+        } else if (hoveringSelectableFeature) {
+            mapElement.classList.add(cssPointer)
+            mapElement.classList.remove(cssGrab)
+
+            // Display a help tooltip when selecting
+            if (featureDrawingMode) {
+                translationKeys = `select_feature_${featureDrawingMode}`
+            } else {
+                translationKeys = 'select_no_feature'
             }
         } else {
             translationKeys = 'select_no_feature'

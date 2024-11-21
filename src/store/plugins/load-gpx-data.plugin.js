@@ -3,13 +3,14 @@
  * it here
  */
 
-import GPX from 'ol/format/GPX'
-
-import { getFileFromUrl } from '@/api/files.api'
 import GPXLayer from '@/api/layers/GPXLayer.class'
+import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
+
+const gpxParser = new GPXParser()
 
 /**
  * @param {Vuex.Store} store
@@ -19,21 +20,21 @@ const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
 async function loadGpx(store, gpxLayer) {
     log.debug(`Loading data for added GPX layer`, gpxLayer)
     try {
-        const response = await getFileFromUrl(gpxLayer.gpxFileUrl)
-        const gpxContent = response.data
-        const gpxParser = new GPX()
-        const metadata = gpxParser.readMetadata(gpxContent)
-        store.dispatch('setKmlGpxLayerData', {
-            layerId: gpxLayer.id,
-            metadata,
-            data: gpxContent,
-            ...dispatcher,
+        const updatedLayer = await gpxParser.parse({
+            fileSource: gpxLayer.gpxFileUrl,
+            currentProjection: store.state.position.projection,
+        })
+        store.dispatch('updateLayer', {
+            layerId: updatedLayer.id,
+            values: updatedLayer,
         })
     } catch (error) {
         log.error(`Error while fetching GPX data for layer ${gpxLayer?.id}`)
-        store.dispatch('addLayerErrorKey', {
+        store.dispatch('addLayerError', {
             layerId: gpxLayer.id,
-            errorKey: `loading_error_network_failure`,
+            isExternal: gpxLayer.isExternal,
+            baseUrl: gpxLayer.baseUrl,
+            error: new ErrorMessage('loading_error_network_failure'),
             ...dispatcher,
         })
     }
@@ -48,7 +49,7 @@ async function loadGpx(store, gpxLayer) {
 export default function loadGpxDataAndMetadata(store) {
     store.subscribe((mutation) => {
         const addLayerSubscriber = (layer) => {
-            if (layer instanceof GPXLayer && !layer?.gpxData) {
+            if (layer instanceof GPXLayer && !layer.gpxData) {
                 loadGpx(store, layer)
             }
         }

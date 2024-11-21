@@ -589,7 +589,7 @@ class AutoSplitArray {
         //Push to lineString (border of the shape)
         this.lineStrings[this.lineStrNr].push(coord)
         //Push to polygons (To color the area of the shape)
-        if (this.polygons[polygonId] == null) {
+        if (this.polygons[polygonId] === undefined) {
             this.polygons[polygonId] = []
         }
         this.polygons[polygonId].push(coord)

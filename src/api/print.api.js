@@ -8,6 +8,7 @@ import {
 import axios from 'axios'
 import { Circle } from 'ol/style'
 
+import { unProxifyUrl } from '@/api/file-proxy.api'
 import {
     getApi3BaseUrl,
     getViewerDedicatedServicesBaseUrl,
@@ -19,7 +20,6 @@ import { adjustWidth } from '@/utils/styleUtils'
 
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
 const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
-
 const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
@@ -116,6 +116,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (symbolizer.externalGraphic) {
             size = image.getSize()
             anchor = image.getAnchor()
+            // service print can't handle a proxied url, so we ensure we're
+            // giving the original url for the print job.
+            symbolizer.externalGraphic = unProxifyUrl(symbolizer.externalGraphic)
         } else if (image instanceof Circle) {
             const radius = image.getRadius()
             const width = adjustWidth(2 * radius, this.printResolution)

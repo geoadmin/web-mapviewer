@@ -72,7 +72,7 @@ describe('Topics', () => {
                 expect(layers.length).to.eq(0)
             })
             // we expect background layer to have switched to the one of the topic
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should((bgLayer) => {
+            cy.readStoreValue('getters.currentBackgroundLayer').should((bgLayer) => {
                 expect(bgLayer).to.not.be.null
                 expect(bgLayer.id).to.eq(topicStandard.defaultBackground)
             })
@@ -134,7 +134,7 @@ describe('Topics', () => {
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
             })
-            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null') // void layer
+            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null') // void layer
         })
 
         //---------------------------------------------------------------------
@@ -190,7 +190,7 @@ describe('Topics', () => {
         ).as('legend')
         cy.get('[data-cy="catalogue-tree-item-info-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="layer-description-popup"]').should('be.visible').contains(expectedContent)
-        cy.get('[data-cy="modal-close-button"]:visible').click()
+        cy.get('[data-cy="window-close"]:visible').click()
 
         //---------------------------------------------------------------------
         cy.log('previews the layer on hover')

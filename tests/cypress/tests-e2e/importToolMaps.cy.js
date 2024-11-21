@@ -96,7 +96,7 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the group of layer has been added to the map')
-        cy.checkOlLayer([bgLayer, `${itemId}-1`, `${itemId}-2`, `${itemId}-3`])
+        cy.checkOlLayer([bgLayer, itemId])
 
         //---------------------------------------------------------------------------------
         cy.log('Toggle the sub layers')
@@ -179,16 +179,14 @@ describe('The Import Maps Tool', () => {
         const lastSubItemTitle = 'OpenData-AV 3'
         cy.get(`[data-cy="catalogue-tree-item-info-${lastSubItemId}"]`).should('be.visible').click()
         cy.wait('@getLegendOfficialSurvey3')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
-            .should('be.visible')
-            .contains(lastSubItemTitle)
+        cy.get(`[data-cy="simple-window-title"]`).should('be.visible').contains(lastSubItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
         cy.get(`[data-cy="layer-description-popup-description-body"]`)
             .should('be.visible')
             .contains('OpenData-AV 3 abstract')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend with only abstract')
@@ -198,7 +196,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .click()
 
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
+        cy.get(`[data-cy="simple-window-title"]`)
             .should('be.visible')
             .contains(legendAbstractOnlyItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
@@ -207,7 +205,7 @@ describe('The Import Maps Tool', () => {
             .contains('Nitrates are an essential food for plants.')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('not.exist')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('not.exist')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer show legend without abstract')
@@ -232,14 +230,14 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .click()
         cy.wait('@getLegendOfficialSurvey2')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`)
+        cy.get(`[data-cy="simple-window-title"]`)
             .should('be.visible')
             .contains(legendWithoutAbstractItemTitle)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('not.exist')
         cy.get(`[data-cy="layer-description-popup-description-body"]`).should('not.exist')
         cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
         cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //-----------------------------------------------------------------------------------------
         cy.log('Second external layer should be a single layer')
@@ -274,16 +272,7 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the single layer has been added to the map')
-        // NOTE here below itemId-1 should be present twice, one from the group of layer itemId and
-        // once as single layer
-        cy.checkOlLayer([
-            bgLayer,
-            `${itemId}-1`,
-            `${itemId}-2`,
-            `${itemId}-3`,
-            `${itemId}-1`,
-            singleLayerId,
-        ])
+        cy.checkOlLayer([bgLayer, itemId, `${itemId}-1`, singleLayerId])
 
         //-----------------------------------------------------------------------------------------
         cy.log('Toggle import menu')
@@ -334,7 +323,7 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon"]')
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 3)
             .first()
             .should('be.visible')
@@ -465,7 +454,7 @@ describe('The Import Maps Tool', () => {
         }).as('wmts-legend')
         cy.get(`[data-cy="catalogue-tree-item-info-${layer1Id}"]`).should('be.visible').click()
         cy.wait('@wmts-legend')
-        cy.get(`[data-cy="modal-with-backdrop-title"]`).should('be.visible').contains(layer1Name)
+        cy.get(`[data-cy="simple-window-title"]`).should('be.visible').contains(layer1Name)
         cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
         cy.get(`[data-cy="layer-description-popup-description-body"]`)
             .should('be.visible')
@@ -475,12 +464,12 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .find('img')
             .should('be.visible')
-        cy.get('[data-cy="modal-close-button"]').click()
+        cy.get('[data-cy="window-close"]').click()
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon"]')
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 2)
             .first()
             .should('be.visible')

@@ -1,5 +1,4 @@
 <script setup>
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
@@ -7,7 +6,7 @@ const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLa
 
 const emit = defineEmits({
     selectBackground: (backgroundLayer) => {
-        return backgroundLayer === null || backgroundLayer instanceof AbstractLayer
+        return backgroundLayer === null || typeof backgroundLayer === 'string'
     },
 })
 
@@ -28,7 +27,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer)"
+                @click="onSelectBackground(backgroundLayer?.id || null)"
             >
                 <span class="bg-selector-rounded-wheel-button-image-cropper">
                     <img
