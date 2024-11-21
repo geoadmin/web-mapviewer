@@ -41,7 +41,8 @@ const selectedLineString = computed(() => {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
             selectedFeature.geometry.type === 'LineString' &&
-            selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+            (selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON ||
+                selectedFeature.featureType === EditableFeatureTypes.MEASURE)
         ) {
             return selectedFeature
         }
