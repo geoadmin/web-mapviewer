@@ -35,11 +35,11 @@ onMounted(() => {
 })
 
 function addVertex() {
-    store.dispatch('setReverseLineStringExtension', {
+    store.dispatch('setEditingMode', {
+        mode: EditMode.EXTEND,
         reverseLineStringExtension: props.reverse,
         ...dispatcher,
     })
-    store.dispatch('setEditingMode', { mode: EditMode.EXTEND, ...dispatcher })
 }
 </script>
 

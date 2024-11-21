@@ -148,14 +148,18 @@ export default {
         setDrawingName({ commit }, { name, dispatcher }) {
             commit('setDrawingName', { name, dispatcher })
         },
-        setReverseLineStringExtension({ commit }, { reverseLineStringExtension, dispatcher }) {
-            commit('setReverseLineStringExtension', { reverseLineStringExtension, dispatcher })
-        },
-        setEditingMode({ commit }, { mode, dispatcher }) {
+        setEditingMode({ commit }, { mode, reverseLineStringExtension, dispatcher }) {
             if (mode in EditMode) {
-                commit('setEditingMode', { mode, dispatcher })
+                if (mode !== EditMode.EXTEND) {
+                    reverseLineStringExtension = null
+                }
+                commit('setEditingMode', { mode, reverseLineStringExtension, dispatcher })
             } else {
-                commit('setEditingMode', { mode: EditMode.OFF, dispatcher })
+                commit('setEditingMode', {
+                    mode: EditMode.OFF,
+                    reverseLineStringExtension: null,
+                    dispatcher,
+                })
             }
         },
     },
@@ -175,9 +179,9 @@ export default {
         setDrawingName(state, { name }) {
             state.name = name
         },
-        setReverseLineStringExtension(state, { reverseLineStringExtension }) {
+        setEditingMode: (state, { mode, reverseLineStringExtension }) => {
+            state.editingMode = mode
             state.reverseLineStringExtension = reverseLineStringExtension
         },
-        setEditingMode: (state, { mode }) => (state.editingMode = mode),
     },
 }
