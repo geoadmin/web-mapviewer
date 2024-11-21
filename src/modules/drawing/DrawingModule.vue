@@ -44,12 +44,9 @@ const selectedLineString = computed(() => {
             selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
         ) {
             return selectedFeature
-        } else {
-            return null
         }
-    } else {
-        return null
     }
+    return null
 })
 const showAddVertexButton = computed(() => {
     return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineString.value
@@ -245,6 +242,6 @@ async function closeDrawing() {
         <AddVertexButtonOverlay
             v-if="showAddVertexButton"
             :line-string="selectedLineString.geometry"
-        ></AddVertexButtonOverlay>
+        />
     </div>
 </template>

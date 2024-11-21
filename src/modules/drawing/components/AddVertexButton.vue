@@ -5,11 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditMode } from '@/store/modules/drawing.store'
-// import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
-const i18n = useI18n()
-const store = useStore()
 
 const props = defineProps({
     tooltipText: {
@@ -22,10 +19,20 @@ const props = defineProps({
         default: false,
     },
 })
-useTippyTooltip('#addVertexButton [data-tippy-content]', { placement: 'left' })
+
 const emit = defineEmits(['button-mounted'])
 
 const buttonRef = ref(null)
+
+const i18n = useI18n()
+const store = useStore()
+
+useTippyTooltip('#addVertexButton [data-tippy-content]', { placement: 'left' })
+
+onMounted(() => {
+    // Emit an event to notify the parent component that the button is mounted
+    emit('button-mounted', buttonRef.value)
+})
 
 function addVertex() {
     store.dispatch('setReverseLineStringExtension', {
@@ -34,11 +41,6 @@ function addVertex() {
     })
     store.dispatch('setEditingMode', { mode: EditMode.EXTEND, ...dispatcher })
 }
-
-onMounted(() => {
-    // Emit an event to notify the parent component that the button is mounted
-    emit('button-mounted', buttonRef.value)
-})
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import { onMounted, ref, watch } from 'vue'
 import { inject } from 'vue'
 import { onUnmounted } from 'vue'
 
-import AddVertexButton from './AddVertexButton.vue'
+import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
 
 const props = defineProps({
     lineString: {
