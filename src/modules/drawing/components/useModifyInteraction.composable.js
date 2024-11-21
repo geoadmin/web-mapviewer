@@ -171,15 +171,18 @@ export default function useModifyInteraction(features) {
         const feature = event.feature
         // Update the original feature with new coordinates
         if (feature) {
-            updateStoreFeatureCoordinatesGeometry(feature)
+            updateStoreFeatureCoordinatesGeometry(feature, reverseLineStringExtension.value)
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
             debounceSaveDrawing()
         }
     }
 
     // Update the store feature with the new coordinates and geometry
-    function updateStoreFeatureCoordinatesGeometry(feature) {
+    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
         const storeFeature = feature.get('editableFeature')
+        if (reverse) {
+            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
+        }
         store.dispatch('changeFeatureCoordinates', {
             feature: storeFeature,
             coordinates: extractOlFeatureCoordinates(feature),
