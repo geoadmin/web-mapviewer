@@ -5,12 +5,15 @@ import { computed, inject, onBeforeUnmount, onMounted, provide, ref, watch } fro
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
@@ -32,6 +35,24 @@ const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedLineString = computed(() => {
+    if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
+        const selectedFeature = selectedEditableFeatures.value[0]
+        if (
+            selectedFeature.geometry.type === 'LineString' &&
+            (selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON ||
+                selectedFeature.featureType === EditableFeatureTypes.MEASURE)
+        ) {
+            return selectedFeature
+        }
+    }
+    return null
+})
+const showAddVertexButton = computed(() => {
+    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineString.value
+})
+
 const hasKml = computed(() => {
     if (online.value) {
         return !!activeKmlLayer.value
@@ -107,7 +128,15 @@ watch(availableIconSets, () => {
         }
     })
 })
-
+watch(selectedEditableFeatures, (newValue) => {
+    if (newValue) {
+        if (store.state.drawing.editingMode === EditMode.OFF) {
+            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
+        }
+    } else {
+        store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
+    }
+})
 onMounted(() => {
     if (noFeatureInfo.value) {
         // Left clicking while in drawing mode has its own logic not covered in click-on-map-management.plugin.js
@@ -211,5 +240,9 @@ async function closeDrawing() {
         <DrawingToolbox @remove-last-point="removeLastPoint" @close-drawing="closeDrawing" />
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
+        <AddVertexButtonOverlay
+            v-if="showAddVertexButton"
+            :line-string="selectedLineString.geometry"
+        />
     </div>
 </template>
