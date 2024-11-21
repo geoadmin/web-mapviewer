@@ -24,6 +24,8 @@ const store = useStore()
 const showBody = ref(true)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
+const warningCount = computed(() => store.state.ui.warnings.size)
+
 const i18n = useI18n()
 
 const emit = defineEmits(['close'])
@@ -40,7 +42,10 @@ const emit = defineEmits(['close'])
             class="card-header d-flex align-items-center justify-content-sm-end"
             data-cy="window-header"
         >
-            <span v-if="title" class="me-auto text-truncate">{{ i18n.t(title) }}</span>
+            <span v-if="title" class="me-auto text-truncate"
+                >{{ i18n.t(title) }}<span v-if="warningCount > 1"> ({{ warningCount }})</span></span
+            >
+
             <span v-else class="me-auto" />
             <button class="btn btn-sm btn-light me-2" @click.stop="showBody = !showBody">
                 <FontAwesomeIcon :icon="`caret-${showBody ? 'down' : 'right'}`" />
@@ -58,46 +63,3 @@ const emit = defineEmits(['close'])
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import '@/scss/variables.module';
-@import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
-
-.simple-window {
-    $top-margin: calc(2 * $header-height + 2rem);
-    z-index: calc($zindex-menu - 1);
-    position: fixed;
-    top: $top-margin;
-    right: 4rem;
-    width: max-content;
-    max-width: 400px;
-    max-height: calc(100vh - $top-margin);
-
-    @include respond-below(phone) {
-        $top-margin: $header-height;
-
-        top: $top-margin;
-        left: 50%;
-        right: unset;
-        transform: translate(-50%, 0%);
-        max-height: calc(100vh - $top-margin);
-        max-width: 100vw;
-
-        &.dev-disclaimer-present {
-            $top-margin: calc($header-height + $dev-disclaimer-height);
-        }
-    }
-    .card-body {
-        // Allow text selection
-        @extend .clear-no-ios-long-press;
-        overflow-y: auto;
-
-        &.hide {
-            visibility: hidden;
-            height: 0px;
-            padding: 0px;
-        }
-    }
-}
-</style>
