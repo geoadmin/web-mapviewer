@@ -57,20 +57,47 @@ export function splitIfTooManyPoints(chunks = null) {
     })
 }
 
+/**
+ * Transform a segment of points into a profile segment
+ *
+ * @param {Array[Object] | Object} backendResponse When there is altimetric data, we receive an
+ *   Array or points with the following structure : [{ alts: { COMB: Number, DTM2: Number, DTM25:
+ *   Number, }, dist: Number, easting: Number northing: Number}, ...] When there is no altimetric
+ *   data, instead we receive an object with the following structure: {points: [ {coordinate:
+ *   [Number, Number], elevation: null, hasElevationData: false}, ... ]}
+ * @param {Number} startingDist
+ * @param {SwissCoordinateSystem} outputProjection
+ * @returns {ElevationProfileSegment}
+ */
 function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []
-    backendResponse.forEach((rawData) => {
-        let coordinate = [rawData.easting, rawData.northing]
-        if (outputProjection.epsg !== LV95.epsg) {
-            coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
-        }
-        points.push({
-            coordinate,
-            dist: startingDist + rawData.dist,
-            elevation: rawData.alts.COMB,
-            hasElevationData: rawData.alts.COMB !== null,
+    if (backendResponse.points) {
+        backendResponse.points.forEach((point) => {
+            let coordinate = point.coordinate
+            if (outputProjection.epsg !== LV95.epsg) {
+                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
+            }
+            points.push({
+                coordinate,
+                dist: startingDist + point.dist,
+                elevation: point.elevation,
+                hasElevationData: point.hasElevationData,
+            })
         })
-    })
+    } else {
+        backendResponse.forEach((rawData) => {
+            let coordinate = [rawData.easting, rawData.northing]
+            if (outputProjection.epsg !== LV95.epsg) {
+                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
+            }
+            points.push({
+                coordinate,
+                dist: startingDist + rawData.dist,
+                elevation: rawData.alts.COMB,
+                hasElevationData: rawData.alts.COMB !== null,
+            })
+        })
+    }
     return new ElevationProfileSegment(points)
 }
 
@@ -211,12 +238,14 @@ export default async (profileCoordinates, projection) => {
                 'could_not_generate_profile'
             )
         }
-        if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
-            log.error('Some chunks are out of bounds, no profile data could be fetched')
+        if (coordinateChunks.every((chunk) => !chunk.isWithinBounds)) {
+            log.error('Every chunk are out of bounds, no profile data could be fetched')
             throw new OutOfBoundsError(
                 'Some parts are out of bounds, no profile data could be fetched',
                 'parts_out_of_bounds'
             )
+        } else if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
+            log.warn('Some chunks are out of bond, we fetch an empty profile for those')
         }
         let lastCoordinate = null
         let lastDist = 0
