@@ -7,6 +7,13 @@ import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 
 describe('Test extent utils', () => {
     describe('reproject and cut extent within projection bounds', () => {
+        function expectExtentIs(toBeTested, expected, acceptableDelta = 0.5) {
+            expect(toBeTested).to.be.an('Array').lengthOf(4)
+            expected.forEach((value, index) => {
+                expect(toBeTested[index]).to.be.approximately(value, acceptableDelta)
+            })
+        }
+
         it('handles well wrong inputs and returns null', () => {
             expect(getExtentIntersectionWithCurrentProjection()).to.be.null
             expect(getExtentIntersectionWithCurrentProjection(null, null, null)).to.be.null
@@ -18,7 +25,7 @@ describe('Test extent utils', () => {
             const singleCoordinate = [8.2, 47.5]
             const singleCoordinateInLV95 = reprojectAndRound(WGS84, LV95, singleCoordinate)
             const extent = [singleCoordinate, singleCoordinate].flat()
-            expect(getExtentIntersectionWithCurrentProjection(extent, WGS84, LV95)).to.deep.equal([
+            expectExtentIs(getExtentIntersectionWithCurrentProjection(extent, WGS84, LV95), [
                 ...singleCoordinateInLV95,
                 ...singleCoordinateInLV95,
             ])
@@ -33,15 +40,21 @@ describe('Test extent utils', () => {
             expect(getExtentIntersectionWithCurrentProjection(extent, WGS84, LV95)).to.be.null
         })
         it('reproject and cut an extent that is greater than LV95 extent on all sides', () => {
-            const projectedExtent = getExtentIntersectionWithCurrentProjection(
-                [-2.4, 35, 21.3, 51.7],
-                WGS84,
-                LV95
+            expectExtentIs(
+                getExtentIntersectionWithCurrentProjection([-2.4, 35, 21.3, 51.7], WGS84, LV95),
+                [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight]
             )
-            expect(projectedExtent).to.deep.equal([
-                ...LV95.bounds.bottomLeft,
-                ...LV95.bounds.topRight,
-            ])
+        })
+        it('reproject and cut an extent that is partially bigger than LV95 bounds', () => {
+            expectExtentIs(
+                getExtentIntersectionWithCurrentProjection(
+                    // extent of file linked to PB-1221
+                    [-122.08, -33.85, 151.21, 51.5],
+                    WGS84,
+                    LV95
+                ),
+                [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight]
+            )
         })
         it('only gives back the portion of an extent that is within LV95 bounds', () => {
             const singleCoordinateInsideLV95 = [7.54, 48.12]
@@ -51,9 +64,10 @@ describe('Test extent utils', () => {
                 singleCoordinateInsideLV95
             )
             const overlappingExtent = [0, 0, ...singleCoordinateInsideLV95]
-            expect(
-                getExtentIntersectionWithCurrentProjection(overlappingExtent, WGS84, LV95)
-            ).to.deep.equal([...LV95.bounds.bottomLeft, ...singleCoordinateInLV95])
+            expectExtentIs(
+                getExtentIntersectionWithCurrentProjection(overlappingExtent, WGS84, LV95),
+                [...LV95.bounds.bottomLeft, ...singleCoordinateInLV95]
+            )
         })
     })
 })

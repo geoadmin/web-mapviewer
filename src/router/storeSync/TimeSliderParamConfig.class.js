@@ -48,9 +48,11 @@ function validateUrlInput(store, query) {
     )
 
     if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length === 0) {
-        validationObject['warnings'] = new WarningMessage(
-            'time_slider_no_time_layer_active_url_warning',
-            {}
+        if (!validationObject.warnings) {
+            validationObject.warnings = []
+        }
+        validationObject.warnings.push(
+            new WarningMessage('time_slider_no_time_layer_active_url_warning', {})
         )
     }
     return validationObject

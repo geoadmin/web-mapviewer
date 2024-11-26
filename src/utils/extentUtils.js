@@ -84,26 +84,35 @@ export function getExtentIntersectionWithCurrentProjection(
     ) {
         return null
     }
-    let extentInCurrentProjection = flattenExtent(extent)
+    let currentProjectionAsExtentProjection = currentProjection.bounds.flatten
     if (extentProjection.epsg !== currentProjection.epsg) {
-        extentInCurrentProjection = projExtent(
-            extentProjection,
+        // we used to reproject the extent here, but there's problem arising if current projection is LV95 and
+        // the extent is going a little bit out of Switzerland.
+        // As LV95 is quite location-locked, the further we get, the bigger the mathematical errors start growing.
+        // So to counteract that, we transform the current projection bounds in the extent projection to do the comparison.
+        currentProjectionAsExtentProjection = projExtent(
             currentProjection,
-            extentInCurrentProjection
+            extentProjection,
+            currentProjectionAsExtentProjection
         )
     }
-    extentInCurrentProjection = getExtentIntersection(
-        extentInCurrentProjection,
-        currentProjection.bounds.flatten
+    let finalExtent = getExtentIntersection(
+        flattenExtent(extent),
+        currentProjectionAsExtentProjection
     )
     if (
-        !extentInCurrentProjection ||
+        !finalExtent ||
         // OL now populates the extent with Infinity when nothing is in common, instead returning a null value
-        extentInCurrentProjection.every((value) => Math.abs(value) === Infinity)
+        finalExtent.every((value) => Math.abs(value) === Infinity)
     ) {
         return null
     }
-    return flattenExtent(extentInCurrentProjection)
+    if (extentProjection.epsg !== currentProjection.epsg) {
+        // if we transformed the current projection extent above, we now need to output the correct proj
+        finalExtent = projExtent(extentProjection, currentProjection, finalExtent)
+    }
+
+    return flattenExtent(finalExtent)
 }
 
 /**

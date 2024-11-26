@@ -127,6 +127,22 @@ describe('Testing layersParamParser', () => {
                 )
             })
         })
+        it('parses correctly a pre-selected feature on a layer', () => {
+            const layerId = 'fake-layer-id'
+            const featureId = '1234.050' // some of our IDs end with 0, we have to make sure they are treated as string and not numbers
+            const result = parseLayersParam(`${layerId}@features=${featureId}`)
+            checkParsedLayer(result[0], layerId, true, undefined, {
+                features: featureId,
+            })
+        })
+        it('parses correctly multiple pre-selected features on a single layer', () => {
+            const layerId = 'fake-layer-id'
+            const featureIds = ['1234.560', 'iAmSomeId']
+            const result = parseLayersParam(`${layerId}@features=${featureIds.join(':')}`)
+            checkParsedLayer(result[0], layerId, true, undefined, {
+                features: featureIds.join(':'),
+            })
+        })
 
         describe('Visibility/Opacity parsing', () => {
             it('Parses correctly the visible when specified', () => {
