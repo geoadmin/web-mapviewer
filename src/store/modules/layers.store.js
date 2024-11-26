@@ -338,6 +338,7 @@ const actions = {
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
+                clone.customAttributes = layer.customAttributes
                 if (layer.timeConfig) {
                     clone.timeConfig.updateCurrentTimeEntry(
                         clone.timeConfig.getTimeEntryForYear(layer.timeConfig.currentYear)
