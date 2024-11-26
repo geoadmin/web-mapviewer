@@ -64,11 +64,11 @@ export default {
     },
     methods: {
         ...mapActions([
-            'generateShortLinks',
-            'clearShortLinks',
-            'toggleShareMenuSection',
-            'closeShareMenuAndRemoveShortLinks',
             'addWarnings',
+            'clearShortLinks',
+            'closeShareMenuAndRemoveShortLinks',
+            'generateShortLinks',
+            'toggleShareMenuSection',
         ]),
         toggleShareMenu() {
             this.toggleShareMenuSection(dispatcher)
