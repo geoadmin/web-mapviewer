@@ -24,12 +24,13 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuShareSection.vue' }
 
@@ -59,6 +60,7 @@ export default {
             isTrackingGeolocation: (state) =>
                 state.geolocation.active && state.geolocation.tracking,
         }),
+        ...mapGetters(['hasAnyLocalFile']),
     },
     methods: {
         ...mapActions([
@@ -66,10 +68,15 @@ export default {
             'clearShortLinks',
             'toggleShareMenuSection',
             'closeShareMenuAndRemoveShortLinks',
+            'addWarnings',
         ]),
         toggleShareMenu() {
             this.toggleShareMenuSection(dispatcher)
             if (!this.shortLink) {
+                if (this.hasAnyLocalFile()) {
+                    const warnings = [new WarningMessage('warn_share_local_file')]
+                    this.addWarnings({ warnings, ...dispatcher })
+                }
                 this.generateShortLinks({
                     withCrosshair: this.isTrackingGeolocation,
                     ...dispatcher,
