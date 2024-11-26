@@ -115,6 +115,10 @@ export function parseLayersParam(queryValue) {
                     let parsedValue
                     if (value === 'true' || value === 'false') {
                         parsedValue = 'true' === value
+                    } else if (key === 'features') {
+                        // some IDs are "numbers", such as 1314.070, but we NEED the trailing zero
+                        // (they shouldn't be parsed as numbers)
+                        parsedValue = value
                     } else if (isNumber(value)) {
                         parsedValue = Number(value)
                     } else if (key === 'year' && value.toLowerCase() === 'none') {
