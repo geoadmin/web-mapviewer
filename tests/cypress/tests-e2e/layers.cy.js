@@ -1368,4 +1368,20 @@ describe('Test of layer handling', () => {
             cy.wait('@geojson-data', { timeout: 5000 })
         })
     })
+    context('Custom url attributes', () => {
+        it('Keep custom attributes when changing language', () => {
+            cy.goToMapView({
+                lang: 'fr',
+            })
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.goToMapView({
+                lang: 'en',
+                bgLayer: 'ch.swisstopo.pixelkarte-farbe',
+                topic: 'ech',
+                layers: 'WMS|https://wms.geo.admin.ch/?item=2024-10-30t103151|test.background.layer@item=2024-10-30t103151',
+            })
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.url().should('contain', 'item=2024-10-30t103151')
+        })
+    })
 })
