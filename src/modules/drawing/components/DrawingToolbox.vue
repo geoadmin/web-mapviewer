@@ -40,19 +40,32 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
-const isSelectedALine = computed(() => {
+const selectedLineString = computed(() => {
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
-        return (
+        if (
             selectedFeature.geometry.type === 'LineString' &&
             (selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON ||
                 selectedFeature.featureType === EditableFeatureTypes.MEASURE)
-        )
+        ) {
+            return selectedFeature
+        }
     }
-    return false
+    return null
+})
+const selectedLineCoordinates = computed(() => {
+    if (selectedLineString.value) {
+        return selectedLineString.value.geometry.coordinates
+    }
+    return null
 })
 const editMode = computed(() => store.state.drawing.editingMode)
-const isEditingLineMode = computed(() => editMode.value !== EditMode.OFF && isSelectedALine.value)
+const isAllowDeletePointOnSelectedLine = computed(
+    () =>
+        editMode.value !== EditMode.OFF &&
+        selectedLineString.value &&
+        selectedLineCoordinates.value?.length > 2
+)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const drawingName = computed({
     get: () => store.state.drawing.name,
@@ -223,7 +236,10 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDrawingLineOrMeasure || isEditingLineMode" class="row mt-2">
+                    <div
+                        v-if="isDrawingLineOrMeasure || isAllowDeletePointOnSelectedLine"
+                        class="row mt-2"
+                    >
                         <div class="col d-grid">
                             <button
                                 data-cy="drawing-delete-last-point-button"
