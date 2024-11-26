@@ -38,6 +38,7 @@ function removeLastPoint() {
     if (currentInteraction.value?.removeLastPoint) {
         currentInteraction.value.removeLastPoint()
     }
+    selectInteraction.value.removeLastPoint()
 }
 defineExpose({
     removeLastPoint,

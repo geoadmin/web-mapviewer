@@ -116,7 +116,7 @@ export default function useModifyInteraction(features) {
         continueDrawingInteraction.un('drawend', onExtendEnd)
     })
 
-    function onMapRightClick(_event) {
+    function removeLastPoint() {
         if (continueDrawingInteraction.getActive()) {
             continueDrawingInteraction.removeLastPoint()
         } else if (modifyInteraction.getActive() && features.getArray().length > 0) {
@@ -131,6 +131,10 @@ export default function useModifyInteraction(features) {
             // Updating the store feature
             updateStoreFeatureCoordinatesGeometry(feature)
         }
+    }
+
+    function onMapRightClick(_event) {
+        removeLastPoint()
     }
 
     function onModifyStart(event) {
@@ -194,5 +198,9 @@ export default function useModifyInteraction(features) {
             geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
             ...dispatcher,
         })
+    }
+
+    return {
+        removeLastPoint,
     }
 }
