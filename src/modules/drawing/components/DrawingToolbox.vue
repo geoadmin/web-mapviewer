@@ -12,6 +12,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
@@ -38,6 +39,20 @@ const isDrawingLineOrMeasure = computed(() =>
         currentDrawingMode.value
     )
 )
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const isSelectedALine = computed(() => {
+    if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
+        const selectedFeature = selectedEditableFeatures.value[0]
+        return (
+            selectedFeature.geometry.type === 'LineString' &&
+            (selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON ||
+                selectedFeature.featureType === EditableFeatureTypes.MEASURE)
+        )
+    }
+    return false
+})
+const editMode = computed(() => store.state.drawing.editingMode)
+const isEditingLineMode = computed(() => editMode.value !== EditMode.OFF && isSelectedALine.value)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const drawingName = computed({
     get: () => store.state.drawing.name,
@@ -208,7 +223,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDrawingLineOrMeasure" class="row mt-2">
+                    <div v-if="isDrawingLineOrMeasure || isEditingLineMode" class="row mt-2">
                         <div class="col d-grid">
                             <button
                                 data-cy="drawing-delete-last-point-button"

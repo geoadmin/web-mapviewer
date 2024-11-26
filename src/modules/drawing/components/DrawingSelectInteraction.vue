@@ -30,7 +30,7 @@ const selectInteraction = new SelectInteraction({
     // to select. We will try to add a bigger hit tolerance to mitigate that.
     hitTolerance: DRAWING_HIT_TOLERANCE,
 })
-useModifyInteraction(selectInteraction.getFeatures())
+const { removeLastPoint } = useModifyInteraction(selectInteraction.getFeatures())
 
 /** OpenLayers feature currently selected */
 const currentlySelectedFeature = ref(null)
@@ -116,6 +116,7 @@ function selectFeature(feature) {
 
 defineExpose({
     selectFeature,
+    removeLastPoint,
 })
 </script>
 
