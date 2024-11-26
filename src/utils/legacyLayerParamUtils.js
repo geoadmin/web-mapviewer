@@ -243,7 +243,10 @@ export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
                     // if there are no layers parameters at all, we need to create one
                     newQuery.layers = ''
                 }
-                newQuery.layers += `;${layerId}@features=${featuresIds.split(',').join(':')}`
+                if (newQuery.layers.length > 0) {
+                    newQuery.layers += ';'
+                }
+                newQuery.layers += `${layerId}@features=${featuresIds.split(',').join(':')}`
             }
         })
 }
