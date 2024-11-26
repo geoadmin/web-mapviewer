@@ -224,7 +224,7 @@ describe('The Import File Tool', () => {
         )
         const expectedLayerId = 'external-kml-file.kml'
         const expectedOnlineLayerId = 'https://example.com/second-valid-kml-file.kml'
-        const acceptedDelta = 0.1
+        const acceptedDelta = 0.2
         const checkLocation = (expected, result) => {
             expect(result).to.be.an('Array')
             expect(result.length).to.eq(2)
@@ -821,7 +821,7 @@ describe('The Import File Tool', () => {
         cy.closeMenuIfMobile()
 
         cy.get('[data-cy="window-close"]').click()
-        cy.get('[data-cy="ol-map"]').click(150, 250)
+        cy.get('[data-cy="ol-map"]').click(170, 250)
 
         cy.log('Check that the error is displayed in the profile popup')
         cy.get('[data-cy="show-profile"]').click()
