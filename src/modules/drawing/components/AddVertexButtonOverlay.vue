@@ -1,5 +1,4 @@
 <script setup>
-import { LineString } from 'ol/geom'
 import Overlay from 'ol/Overlay'
 import { computed, onMounted, ref, watch } from 'vue'
 import { inject } from 'vue'
@@ -8,14 +7,22 @@ import { useStore } from 'vuex'
 
 import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
 
+const BASE_OFFSET_DISTANCE = 35
+const MEASURE_ADDITIONAL_OFFSET = 40 // additional offset for not covering the measure line label
+
 const props = defineProps({
-    lineString: {
-        type: LineString,
+    coordinates: {
+        type: Array,
         required: true,
+        validator: (value) => {
+            return (
+                Array.isArray(value) &&
+                value.length >= 2 &&
+                value.every((coord) => Array.isArray(coord) && coord.length === 2)
+            )
+        },
     },
 })
-
-const coordinates = computed(() => props.lineString.coordinates)
 
 const olMap = inject('olMap')
 
@@ -26,6 +33,7 @@ const firstButtonCoordinate = ref(null)
 const lastButtonCoordinate = ref(null)
 
 const store = useStore()
+const coordinates = computed(() => props.coordinates)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeatureType = computed(() => {
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
@@ -61,12 +69,13 @@ const updateButtonPositions = () => {
     firstButtonCoordinate.value = coords[0]
     lastButtonCoordinate.value = coords[coords.length - 1]
 
-    let distance = 35
-    const firstOffset = calculateOffset(coords[0], coords[1], distance)
+    const firstOffset = calculateOffset(coords[0], coords[1], BASE_OFFSET_DISTANCE)
+
     // adding this so that the button is not on top of the measure line label
-    if (selectedFeatureType.value === 'MEASURE') {
-        distance = distance + 40
-    }
+    const distance =
+        selectedFeatureType.value === 'MEASURE'
+            ? BASE_OFFSET_DISTANCE + MEASURE_ADDITIONAL_OFFSET
+            : BASE_OFFSET_DISTANCE
     const lastOffset = calculateOffset(
         coords[coords.length - 1],
         coords[coords.length - 2],
