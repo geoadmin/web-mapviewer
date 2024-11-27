@@ -63,6 +63,7 @@ onMounted(async () => {
         :title="title"
         movable
         allow-print
+        resizeable
         initial-position="top-left"
         @close="emit('close', layerId)"
     >
