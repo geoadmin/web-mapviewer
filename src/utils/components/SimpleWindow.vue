@@ -25,6 +25,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    resizeable: {
+        type: Boolean,
+        default: false,
+    },
     allowPrint: {
         type: Boolean,
         default: false,
@@ -83,7 +87,11 @@ onMounted(() => {
             class="simple-window card"
             :class="[
                 initialPositionClass,
-                { 'dev-disclaimer-present': hasDevSiteWarning, wide: wide },
+                {
+                    'dev-disclaimer-present': hasDevSiteWarning,
+                    wide: wide,
+                    resizable: resizeable && showBody,
+                },
             ]"
         >
             <div
@@ -126,9 +134,18 @@ onMounted(() => {
     right: 4rem;
     width: max-content;
     max-width: 400px;
-    max-height: calc(100vh - $top-margin);
+    max-height: max-content;
 
     @include respond-above(phone) {
+        &.resizable {
+            min-width: min-content;
+            width: min-content;
+            height: min(500px, calc(100vh - $top-margin));
+            max-width: max-content;
+            resize: both;
+            overflow: auto;
+        }
+
         &.wide {
             max-width: calc(100vw - $menu-tray-width - 2rem);
             min-width: 50vw;
