@@ -132,13 +132,15 @@ onMounted(() => {
     position: fixed;
     top: $top-margin;
     right: 4rem;
-    min-width: min-content;
-    width: min-content;
-    height: min(500px, calc(100vh - $top-margin));
-    max-width: max-content;
+    width: max-content;
+    max-width: 400px;
     max-height: max-content;
 
     &.resizable {
+        min-width: min-content;
+        width: min-content;
+        height: min(500px, calc(100vh - $top-margin));
+        max-width: max-content;
         resize: both;
         overflow: auto;
     }
