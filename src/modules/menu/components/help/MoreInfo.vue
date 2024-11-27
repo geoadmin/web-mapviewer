@@ -22,7 +22,7 @@ function openCmsLink() {
 </script>
 
 <template>
-    <HeaderLink :show-as-button="showAsButton" @click="openCmsLink">
+    <HeaderLink :show-as-button="showAsButton" data-cy="header-cms-link" @click="openCmsLink">
         {{ t('cms_link_button_title') }}
     </HeaderLink>
 </template>
