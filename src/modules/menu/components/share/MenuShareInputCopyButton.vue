@@ -5,13 +5,15 @@
             <input
                 type="text"
                 class="form-control input-text-to-copy"
+                :class="{ 'border-warning text-warning': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
                 @focus="$event.target.select()"
             />
             <button
-                class="btn btn-outline-group"
+                class="btn"
+                :class="{ 'btn-outline-warning': hasWarning, 'btn-outline-group': !hasWarning }"
                 data-cy="menu-share-input-copy-button"
                 @click="copyInputToClipboard"
             >
@@ -46,6 +48,10 @@ export default {
         labelText: {
             type: String,
             default: null,
+        },
+        hasWarning: {
+            type: Boolean,
+            default: false,
         },
     },
     setup() {
