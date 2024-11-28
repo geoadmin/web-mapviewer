@@ -20,13 +20,14 @@ const header = ref(null)
 const store = useStore()
 const { t } = useI18n()
 
+const currentBackground = computed(() => store.state.layers.currentBackgroundLayerId)
 const currentLang = computed(() => store.state.i18n.lang)
-const currentTopicId = computed(() => store.state.topics.current)
 const currentTopic = computed(() => store.getters.currentTopic)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const currentTopicId = computed(() => store.state.topics.current)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
 const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 onMounted(() => {
     nextTick(() => {
@@ -51,7 +52,8 @@ function updateHeaderHeight() {
 function resetApp() {
     // an app reset means we keep the lang, the current topic, and its default background layer but everything else is thrown away
     // We keep the default background layer of the current topic because the app always set to `ech` topic and its default background layer before we can even get the topic from the URL
-    const defaultBackgroundLayerId = currentTopic.value?.defaultBackgroundLayer?.id
+    const defaultBackgroundLayerId =
+        currentTopic.value?.defaultBackgroundLayer?.id ?? currentBackground.value
     window.location = `${window.location.origin}?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
 }
 </script>
