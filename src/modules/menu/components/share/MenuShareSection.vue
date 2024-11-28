@@ -17,6 +17,7 @@
                 :copied-text="'copy_success'"
                 class="p-2"
                 :small="compact"
+                :has-warning="hasAnyLocalFile()"
             />
         </div>
         <MenuShareEmbed class="menu-share-embed border-top" />
@@ -30,7 +31,6 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuShareSection.vue' }
 
@@ -64,7 +64,6 @@ export default {
     },
     methods: {
         ...mapActions([
-            'addWarnings',
             'clearShortLinks',
             'closeShareMenuAndRemoveShortLinks',
             'generateShortLinks',
@@ -73,10 +72,6 @@ export default {
         toggleShareMenu() {
             this.toggleShareMenuSection(dispatcher)
             if (!this.shortLink) {
-                if (this.hasAnyLocalFile()) {
-                    const warnings = [new WarningMessage('warn_share_local_file')]
-                    this.addWarnings({ warnings, ...dispatcher })
-                }
                 this.generateShortLinks({
                     withCrosshair: this.isTrackingGeolocation,
                     ...dispatcher,
