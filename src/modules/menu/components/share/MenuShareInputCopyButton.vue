@@ -1,5 +1,9 @@
 <template>
-    <div v-if="inputText">
+    <div
+        v-if="inputText"
+        id="input-copy-button"
+        :data-tippy-content="hasWarning ? 'warn_share_local_file' : ''"
+    >
         <label v-if="labelText">{{ $t(labelText) }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
@@ -25,6 +29,8 @@
 
 <script>
 import { useI18n } from 'vue-i18n'
+
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 /** Simple input with a helper button to copy the input value to the clipboard */
 export default {
@@ -56,8 +62,18 @@ export default {
     },
     setup() {
         const i18n = useI18n()
+
+        const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
+            '#input-copy-button[data-tippy-content]',
+            {
+                placement: 'right',
+            }
+        )
+
         return {
             i18n,
+            refreshTippyAttachment,
+            removeTippy,
         }
     },
     data() {
@@ -80,6 +96,12 @@ export default {
     },
     beforeUnmount() {
         clearTimeout(this.timeoutCopied)
+    },
+    mounted() {
+        this.refreshTippyAttachment()
+        if (!this.hasWarning) {
+            this.removeTippy()
+        }
     },
     methods: {
         clearIsCopiedInClipboard() {
