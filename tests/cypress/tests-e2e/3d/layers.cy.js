@@ -2,15 +2,8 @@ import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test of layer handling in 3D', () => {
-    const visibleLayerIds = [
-        'test.wms.layer',
-        'test.wmts.layer',
-        'test.timeenabled.wmts.layer',
-        'test.geojson.layer',
-    ]
-
     it('add layer from search bar', () => {
-        const expectedLayerId = visibleLayerIds[1]
+        const expectedLayerId = 'test.wmts.layer'
         cy.intercept(`**/1.0.0/${expectedLayerId}/default/**`, {
             statusCode: 200,
         }).as('get-wmts-layer')
@@ -56,19 +49,38 @@ describe('Test of layer handling in 3D', () => {
             )
         })
     })
-    it('sets the opacity to the value defined in the layers URL param', () => {
+    it('sets the opacity to the value defined in the layers URL param or menu UI', () => {
+        cy.log('checking a WMTS layer without 3D specific configuration')
+        const wmtsLayerIdWithout3DConfig = 'test.timeenabled.wmts.layer'
         cy.goToMapView({
             '3d': true,
-            layers: `${visibleLayerIds[0]},,0.5`,
+            layers: `${wmtsLayerIdWithout3DConfig},,0.5`,
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const layers = viewer.scene.imageryLayers
             expect(layers.get(1).alpha).to.eq(0.5)
         })
+
+        cy.log('Checking that using the menu also changes the opacity correctly')
+        cy.openMenuIfMobile()
+        cy.openLayerSettings(wmtsLayerIdWithout3DConfig)
+        cy.get(`[data-cy^="slider-transparency-layer-${wmtsLayerIdWithout3DConfig}-"]`).as(
+            `opacitySlider-${wmtsLayerIdWithout3DConfig}`
+        )
+        // couldn't find a better way to interact with the slider other than setting the value directly
+        let newSliderPosition = 0.3
+        cy.get(`@opacitySlider-${wmtsLayerIdWithout3DConfig}`)
+            .should('be.visible')
+            .invoke('val', newSliderPosition)
+            .trigger('input')
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            const layers = viewer.scene.imageryLayers
+            expect(layers.get(1).alpha).to.eq(1.0 - newSliderPosition)
+        })
     })
     it('sets the timestamp of a layer when specified in the layers URL param', () => {
-        const timeEnabledLayerId = visibleLayerIds[2]
+        const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
         cy.fixture('layers.fixture.json').then((layersMetadata) => {
             const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
             cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestampFromLayer) => {
@@ -89,7 +101,8 @@ describe('Test of layer handling in 3D', () => {
         })
     })
     it('reorders visible layers when corresponding buttons are pressed', () => {
-        const [firstLayerId, secondLayerId] = visibleLayerIds
+        const firstLayerId = 'test.wms.layer'
+        const secondLayerId = 'test.wmts.layer'
         cy.goToMapView(
             {
                 '3d': true,
@@ -125,9 +138,10 @@ describe('Test of layer handling in 3D', () => {
         })
     })
     it('add GeoJson layer with opacity from URL param', () => {
+        const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
             '3d': true,
-            layers: `${visibleLayerIds[3]},,0.5`,
+            layers: `${geojsonlayerId},,0.5`,
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
@@ -152,9 +166,10 @@ describe('Test of layer handling in 3D', () => {
         })
     })
     it('removes a layer from the visible layers when the "remove" button is pressed', () => {
+        const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
             '3d': true,
-            layers: `${visibleLayerIds[3]}`,
+            layers: `${geojsonlayerId}`,
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
@@ -162,13 +177,27 @@ describe('Test of layer handling in 3D', () => {
             expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
         })
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${visibleLayerIds[3]}-"]`)
-            .should('be.visible')
-            .click()
+        cy.get(`[data-cy^="button-remove-layer-${geojsonlayerId}-"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
         })
     })
+    it('uses the 3D configuration of a layer if one exists', () => {
+        cy.goToMapView({
+            '3d': true,
+            layers: 'test.background.layer,,0.8',
+        })
+        cy.waitUntilCesiumTilesLoaded()
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            const layer = viewer.scene.imageryLayers.get(1)
+            // the opacity of the parent 2D layer must be applied to the 3D counterpart
+            expect(layer?.alpha).to.eq(0.8)
+
+            const provider = layer?.imageryProvider
+            expect(provider?.url).to.contain('test.background.layer_3d')
+        })
+    })
+
     // TODO: PB-284 This test is flaky and not always pass on the CI (but is working locally).
     // re-enable the test and modify it to test the feature selection instead of cesium internal
     it.skip('add KML layer from drawing', () => {

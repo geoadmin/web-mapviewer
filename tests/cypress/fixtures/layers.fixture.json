@@ -92,6 +92,26 @@
         "hasLegend": true,
         "label": "WMS test layer 4",
         "type": "wms",
+        "serverLayerName": "test-4.wms.layer",
+        "config3d": "test-4.wms.layer-3d"
+    },
+    "test-4.wms.layer-3d": {
+        "opacity": 0.75,
+        "wmsLayers": "test-4.wms.layer_internal1,test-4.wms.layer_internal2",
+        "attribution": "attribution.test-4.wms.layer-3d",
+        "background": false,
+        "searchable": false,
+        "format": "png",
+        "topics": "ech,test-topic-standard",
+        "wmsUrl": "https://wms.geo.admin.ch",
+        "tooltip": true,
+        "timeEnabled": false,
+        "singleTile": false,
+        "highlightable": true,
+        "chargeable": false,
+        "hasLegend": true,
+        "label": "WMS test layer 4 for 3D",
+        "type": "wms",
         "serverLayerName": "test-4.wms.layer"
     },
     "test.wmts.layer": {
@@ -168,7 +188,37 @@
         "hasLegend": true,
         "label": "Time enabled WMTS test layer",
         "type": "wmts",
-        "serverLayerName": "test.timeenabled.wmts.layer"
+        "serverLayerName": "test.timeenabled.wmts.layer",
+        "config3d": "test.timeenabled.wmts.layer.2_3d"
+    },
+    "test.timeenabled.wmts.layer.2_3d": {
+        "opacity": 0.7,
+        "attribution": "attribution.timeenabled.wmts.layer",
+        "background": false,
+        "searchable": true,
+        "format": "png",
+        "queryableAttributes": ["id", "name"],
+        "topics": "ech,test-topic-standard",
+        "attributionUrl": "THIS_IS_NOT_A_VALID_URL",
+        "tooltip": true,
+        "highlightable": true,
+        "chargeable": false,
+        "timeEnabled": true,
+        "timestamps": [
+            "20230101",
+            "20210101",
+            "20190101",
+            "20170101",
+            "20150101",
+            "20130101",
+            "20110101",
+            "20090101"
+        ],
+        "timeBehaviour": "20110101",
+        "hasLegend": true,
+        "label": "Time enabled WMTS test layer specific for 3D",
+        "type": "wmts",
+        "serverLayerName": "test.timeenabled.wmts.layer_3d"
     },
     "test.timeenabled.wmts.layer.3": {
         "opacity": 0.7,
@@ -237,7 +287,7 @@
         ],
         "label": "Background test layer",
         "type": "wmts",
-        "serverLayerName": "test.background.layer"
+        "serverLayerName": "test.background.layer_3d"
     },
     "test.background.layer2": {
         "attribution": "attribution.test.wmts.layer",
