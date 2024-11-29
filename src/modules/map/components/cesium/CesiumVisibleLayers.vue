@@ -21,9 +21,14 @@ const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D
 const visibleImageryLayers = computed(() =>
     visibleLayers.value.filter(isImageryLayer).map((imageryLayer) => {
         if (imageryLayer.idIn3d) {
-            return (
-                layersConfig.value.find((layer) => layer.id === imageryLayer.idIn3d) ?? imageryLayer
-            )
+            // in order to have the correct opacity, we need to clone the 3D config and give it the 2D opacity
+            // (we can't just modify the 3D config without cloning it, as it comes directly from the store)
+            let configIn3d = layersConfig.value.find((layer) => layer.id === imageryLayer.idIn3d)
+            if (configIn3d) {
+                configIn3d = configIn3d.clone()
+                configIn3d.opacity = imageryLayer.opacity
+                return configIn3d
+            }
         }
         return imageryLayer
     })

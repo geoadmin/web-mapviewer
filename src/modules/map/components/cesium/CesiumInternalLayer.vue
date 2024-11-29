@@ -3,14 +3,13 @@
     <CesiumWMTSLayer
         v-if="layerConfig.type === LayerTypes.WMTS"
         :wmts-layer-config="layerConfig"
-        :projection="projection"
         :parent-layer-opacity="parentLayerOpacity"
         :z-index="zIndex"
-        :is-time-slider-active="isTimeSliderActive"
     />
     <CesiumWMSLayer
         v-if="layerConfig.type === LayerTypes.WMS"
         :wms-layer-config="layerConfig"
+        :parent-layer-opacity="parentLayerOpacity"
         :projection="projection"
         :z-index="zIndex"
         :is-time-slider-active="isTimeSliderActive"

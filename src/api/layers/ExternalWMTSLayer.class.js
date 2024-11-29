@@ -92,7 +92,8 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   Default is `REST`
      * @param {String | null} [externalWmtsData.urlTemplate=''] WMTS Get Tile url template for REST
      *   encoding. Default is `''`
-     * @param {String} [externalWmtsData.style='default'] WMTS layer style. Default is `'default'`
+     * @param {String} [externalWmtsData.style=null] WMTS layer style. If no style is given here,
+     *   and no style is found in the options, the 'default' style will be used. Default is `null`
      * @param {[TileMatrixSet]} [externalWmtsData.tileMatrixSets=[]] WMTS tile matrix sets
      *   identifiers. Default is `[]`
      * @param {[WMTSDimension]} [externalWmtsData.dimensions=[]] WMTS tile dimensions. Default is
@@ -123,7 +124,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             options = null,
             getTileEncoding = WMTSEncodingTypes.REST,
             urlTemplate = '',
-            style = 'default',
+            style = null,
             tileMatrixSets = [],
             dimensions = [],
             timeConfig = null,
@@ -149,7 +150,13 @@ export default class ExternalWMTSLayer extends ExternalLayer {
         this.options = options
         this.getTileEncoding = getTileEncoding
         this.urlTemplate = urlTemplate
-        this.style = style
+        if (style) {
+            this.style = style
+        } else if (options?.style) {
+            this.style = options.style
+        } else {
+            this.style = 'default'
+        }
         this.tileMatrixSets = tileMatrixSets
         this.dimensions = dimensions
     }
