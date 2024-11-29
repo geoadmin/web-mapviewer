@@ -485,6 +485,59 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) 
     }
 })
 
+/**
+ * Click on the map at the given coordinates
+ *
+ * @param {string} selector The selector of the element
+ * @param {Number} x X coordinate
+ * @param {Number} y Y coordinate
+ * @param {Number} button Mouse button to use
+ * @see https://docs.cypress.io/api/commands/trigger#Trigger-a-mousedown-from-a-specific-mouse-button
+ */
+Cypress.Commands.add('dragMouse', (selector, x, y, button = 0) => {
+    cy.get(selector).trigger('mousedown', { button })
+    cy.get(selector).trigger('mousemove', { button, clientX: 0, clientY: 0 }) // this is needed to make the drag work
+    cy.get(selector).trigger('mousemove', { button, clientX: x, clientY: y })
+    cy.get(selector).trigger('mouseup', { button })
+})
+
+/**
+ * Resize an element by dragging the bottom right corner If using the startXY coordinates, the
+ * startPosition should be undefined and the same for endXY X and Y coordinates are relative to the
+ * top left corner of the element
+ *
+ * @param {Object} options - Options for resizing.
+ * @param {string} options.selector - The selector of the element.
+ * @param {string} options.startPosition - The start position for dragging.
+ * @param {string} options.endPosition - The end position for dragging.
+ * @param {Object} options.startXY - The start coordinates for dragging.
+ * @param {Object} options.endXY - The end coordinates for dragging.
+ * @param {string} options.button - Mouse button to use.
+ * @see https://github.com/dmtrKovalenko/cypress-real-events?tab=readme-ov-file#cyrealmousedown
+ * @see https://github.com/dmtrKovalenko/cypress-real-events/blob/main/src/commands/mouseDown.ts
+ */
+Cypress.Commands.add(
+    'resizeElement',
+    ({
+        selector = '',
+        startPosition = 'bottomRight',
+        endPosition = undefined,
+        startXY = undefined,
+        endXY = { x: 100, y: 100 },
+        button = 'left',
+    } = {}) => {
+        cy.get(selector).realMouseDown({
+            button,
+            ...(startXY ? { x: startXY.x, y: startXY.y } : { position: startPosition }),
+        })
+        cy.get(selector).realMouseDown({
+            button,
+            ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
+        })
+        cy.get(selector).realMouseUp({ button })
+    }
+)
+
 Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false } = {}) => {
     cy.waitUntilState(
         (state, getters) => {
