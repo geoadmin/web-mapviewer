@@ -106,6 +106,7 @@ const storeSyncConfig = [
                 query,
                 // in cypress, the backgroundLayers is undefined, so we skip this check
                 IS_TESTING_WITH_CYPRESS ||
+                    query === 'void' ||
                     store.getters.backgroundLayers?.map((layer) => layer.id).includes(query),
                 'bgLayer'
             ),
