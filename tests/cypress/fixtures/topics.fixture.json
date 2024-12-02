@@ -2,7 +2,10 @@
     "topics": [
         {
             "activatedLayers": [],
-            "backgroundLayers": ["test.background.layer", "test.background.layer2"],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
             "defaultBackground": "test.background.layer2",
             "groupId": 1,
             "id": "ech",
@@ -11,7 +14,10 @@
         },
         {
             "activatedLayers": [],
-            "backgroundLayers": ["test.background.layer", "test.background.layer2"],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
             "defaultBackground": "test.background.layer2",
             "groupId": 1,
             "id": "test-topic-standard",
@@ -19,8 +25,13 @@
             "selectedLayers": []
         },
         {
-            "activatedLayers": ["test.wmts.layer"],
-            "backgroundLayers": ["test.background.layer", "test.background.layer2"],
+            "activatedLayers": [
+                "test.wmts.layer"
+            ],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
             "defaultBackground": "test.background.layer2",
             "groupId": 1,
             "id": "test-topic-with-active-layers",
@@ -28,21 +39,44 @@
             "selectedLayers": []
         },
         {
-            "activatedLayers": ["test.wmts.layer", "test.wms.layer"],
-            "backgroundLayers": ["test.background.layer", "test.background.layer2"],
+            "activatedLayers": [
+                "test.wmts.layer",
+                "test.wms.layer"
+            ],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
             "defaultBackground": "test.background.layer2",
             "groupId": 1,
             "id": "test-topic-with-active-and-visible-layers",
             "plConfig": null,
-            "selectedLayers": ["test.wmts.layer"]
+            "selectedLayers": [
+                "test.wmts.layer"
+            ]
         },
         {
             "activatedLayers": [],
-            "backgroundLayers": ["test.background.layer", "test.background.layer2"],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
             "defaultBackground": "test.background.layer",
             "groupId": 2,
             "id": "test-complex-topic",
             "plConfig": "bgLayer=voidLayer&layers=test.wmts.layer,test.wms.layer&layers_opacity=0.6,0.8&layers_visibility=true,false",
+            "selectedLayers": []
+        },
+        {
+            "activatedLayers": [],
+            "backgroundLayers": [
+                "test.background.layer",
+                "test.background.layer2"
+            ],
+            "defaultBackground": "test.background.layer",
+            "groupId": 1,
+            "id": "test-topic-standard-different-default-background",
+            "plConfig": null,
             "selectedLayers": []
         }
     ]
