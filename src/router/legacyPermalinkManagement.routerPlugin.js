@@ -145,6 +145,9 @@ const handleLegacyParam = (
             newValue =
                 legacyValue === 'true' ? FeatureInfoPositions.DEFAULT : FeatureInfoPositions.NONE
             break
+        case 'bgLayer':
+            newValue = legacyValue === 'voidLayer' ? 'void' : legacyValue
+            break
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
             // NOTE: legacyValue is parsed using URLSearchParams which don't make any difference
