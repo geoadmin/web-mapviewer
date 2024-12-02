@@ -127,6 +127,7 @@ describe('Test functions for the header / search bar', () => {
             checkLangAndTopic('en', 'test-topic-standard')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         })
+
         if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
@@ -135,6 +136,14 @@ describe('Test functions for the header / search bar', () => {
                 clickOnConfederationText()
                 checkLangAndTopic('en', 'test-topic-standard')
                 cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+            })
+            // This test is not working because clicking the news button crashes cypress
+            // see https://github.com/cypress-io/cypress/issues/24084 for more information
+            it('should show the news website when clicking on the News button', () => {
+                cy.goToMapView()
+                cy.get('[data-cy="header-cms-link"]').click()
+
+                cy.url().should('equal', 'https://www.geo.admin.ch/en/#News')
             })
         }
     })

@@ -392,6 +392,16 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).click()
         cy.get('@locationSearchResults').should('not.be.visible')
 
+        cy.log('Testing layer feature search')
+        cy.get(searchbarSelector).click()
+        cy.get('[data-cy="search-results-featuresearch"] [data-cy="search-result-entry"]').click()
+        cy.url().should((url) => {
+            const center = new URLSearchParams(url.split('map')[1]).get('center')
+            const [x, y] = center.split(',').map(parseFloat)
+            expect(x).to.be.closeTo(expectedCenterDefaultProjection[0], 1)
+            expect(y).to.be.closeTo(expectedCenterDefaultProjection[1], 1)
+        })
+
         cy.log('Checking that the swisssearch url param is not present after reloading the page')
         cy.reload()
         cy.waitMapIsReady()

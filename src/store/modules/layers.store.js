@@ -311,7 +311,7 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     setBackground({ commit, getters }, { bgLayerId }) {
-        if (bgLayerId === null) {
+        if (bgLayerId === null || bgLayerId === 'void') {
             // setting it to no background
             commit('setBackground', { bgLayerId: null })
         }
