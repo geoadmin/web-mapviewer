@@ -34,6 +34,9 @@ const layerResults = computed(() =>
 const layerFeatureResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
 )
+const geocatResults = computed(() =>
+    results.value.filter((result) => result.resultType === SearchResultTypes.GEOCAT)
+)
 
 const categories = computed(() => {
     return [
@@ -48,6 +51,10 @@ const categories = computed(() => {
         {
             id: 'featuresearch',
             results: layerFeatureResults.value,
+        },
+        {
+            id: 'metadata',
+            results: geocatResults.value,
         },
     ]
 })
@@ -112,6 +119,11 @@ const setPreviewDebounced = debounce((entry) => {
         if (previewedPinnedLocation.value) {
             store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
         }
+    } else if (entry.resultType === SearchResultTypes.GEOCAT) {
+        store.dispatch('setPreviewLayer', {
+            layer: entry.layer,
+            ...dispatcher,
+        })
     } else if (entry.coordinate) {
         store.dispatch('setPreviewedPinnedLocation', {
             coordinates: entry.coordinate,
