@@ -1,4 +1,9 @@
-import { execSync } from 'child_process'
+import { exec as execCallback } from 'node:child_process'
+import { promisify } from 'node:util'
+
+import gitconfig from 'gitconfig'
+
+const exec = promisify(execCallback)
 
 /**
  * Javascriptifaction of
@@ -11,8 +16,8 @@ import { execSync } from 'child_process'
  * @param {String} gitHash The current git hash
  * @returns {String} The git branch without "origin/" or "refs/" portion
  */
-function getGitBranch(gitHash) {
-    const headRefs = execSync('git show-ref --heads').toString().trim().split('\n')
+async function getGitBranch(gitHash) {
+    const headRefs = (await exec('git show-ref --heads')).stdout.trim().split('\n')
     // we now do a grep-like operation, only keeping refs that have the hash found in gitHash
     // we also have to remove all prefixes on the branch, i.e. /refs/tags or /origin/ etc...
     const branches = headRefs
@@ -22,13 +27,21 @@ function getGitBranch(gitHash) {
     return branches[0]
 }
 
+async function getGitUser() {
+    return await gitconfig.get('user.name', { location: 'global' })
+}
+
+async function getGitUserEmail() {
+    return await gitconfig.get('user.email', { location: 'global' })
+}
+
 /**
  * Small Rollout / Vite plugin that writes a JSON containing build information, such as date or app
  * version.
  *
  * The app version is received as parameter of the plugin (when added to vite plugin array)
  */
-export default function generateBuildInfo(version) {
+export default function generateBuildInfo(staging, version) {
     return {
         name: 'vite-plugin-generate-build-info',
         buildEnd: {
@@ -37,31 +50,45 @@ export default function generateBuildInfo(version) {
                 if (process.env.TEST) {
                     return
                 }
-                const currentHash = execSync('git rev-parse HEAD').toString().trim()
+                const currentHash = (await exec('git rev-parse HEAD')).stdout.trim()
 
                 // We take the version from GIT_BRANCH but if not set, then take it from git show-ref
                 let gitBranch = process.env.GIT_BRANCH
                 if (!gitBranch) {
-                    gitBranch = getGitBranch(currentHash)
+                    gitBranch = await getGitBranch(currentHash)
                 }
 
                 const now = new Date()
-                const localChanges = execSync('git status --porcelain').toString().trim()
+                const localChanges = (await exec('git status --porcelain')).stdout.trim()
+
+                let author = process.env.COMMIT_INFO_AUTHOR
+                if (!author) {
+                    author = await getGitUser()
+                }
+                let authorEmail = process.env.COMMIT_INFO_EMAIL
+                if (!authorEmail) {
+                    authorEmail = await getGitUserEmail()
+                }
+
                 this.emitFile({
                     type: 'asset',
                     fileName: `${version}/info.json`,
                     source: JSON.stringify(
                         {
+                            project: 'web-mapviewer',
+                            staging,
                             version: version,
                             build: {
                                 date: now.toISOString(),
-                                author: process.env.USER,
+                                author,
+                                authorEmail,
                             },
                             git: {
                                 branch: gitBranch,
                                 hash: currentHash,
                                 dirty: !!localChanges,
                                 localChanges: localChanges,
+                                prNumber: process.env.PULL_REQUEST_ID,
                             },
                         },
                         null,
