@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
+import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const dispatcher = { dispatcher: 'DebugToolbar.vue' }
@@ -12,6 +13,7 @@ const store = useStore()
 
 const showDebugTool = ref(false)
 const showBaseUrlOverride = ref(false)
+const showLayerFinder = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
@@ -40,6 +42,9 @@ function toggleShowLayerExtents() {
 }
 function toggleShowBaseUrlOverride() {
     showBaseUrlOverride.value = !showBaseUrlOverride.value
+}
+function toggleShowLayerFinder() {
+    showLayerFinder.value = !showLayerFinder.value
 }
 </script>
 
@@ -110,11 +115,23 @@ function toggleShowBaseUrlOverride() {
                             </button>
                             <label class="toolbox-button-label">Backends</label>
                         </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: showLayerFinder }"
+                                @click="toggleShowLayerFinder"
+                            >
+                                <FontAwesomeIcon icon="magnifying-glass" />
+                            </button>
+                            <label class="toolbox-button-label">Find a layer</label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <BaseUrlOverrideModal v-if="showBaseUrlOverride" @close="toggleShowBaseUrlOverride" />
+        <DebugLayerFinder v-if="showLayerFinder" @close="toggleShowLayerFinder" />
     </div>
 </template>
 
