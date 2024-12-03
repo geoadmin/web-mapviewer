@@ -1,9 +1,90 @@
+<script setup>
+import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+
+const props = defineProps({
+    inputText: {
+        type: String,
+        default: null,
+    },
+    small: {
+        type: Boolean,
+        default: true,
+    },
+    copyText: {
+        type: String,
+        default: 'copy_cta',
+    },
+    copiedText: {
+        type: String,
+        default: 'copy_done',
+    },
+    labelText: {
+        type: String,
+        default: null,
+    },
+    hasWarning: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const copiedInClipboard = ref(false)
+const timeoutCopied = ref(null)
+
+const i18n = useI18n()
+const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
+    '#input-copy-button[data-tippy-content]',
+    {
+        placement: 'right',
+    }
+)
+
+const buttonText = computed(() => {
+    return i18n
+        .t(copiedInClipboard.value ? props.copiedText : props.copyText)
+        .replace('&nbsp;', '\xa0')
+})
+
+const clearIsCopiedInClipboard = () => {
+    copiedInClipboard.value = false
+    clearTimeout(timeoutCopied.value)
+}
+
+const copyInputToClipboard = () => {
+    navigator.clipboard.writeText(props.inputText)
+    copiedInClipboard.value = true
+    timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
+}
+
+watch(
+    () => props.inputText,
+    () => {
+        clearIsCopiedInClipboard()
+    }
+)
+
+onMounted(() => {
+    refreshTippyAttachment()
+})
+
+onBeforeUnmount(() => {
+    clearTimeout(timeoutCopied.value)
+})
+
+onUpdated(() => {
+    if (!props.hasWarning) {
+        removeTippy()
+    } else {
+        refreshTippyAttachment()
+    }
+})
+</script>
+
 <template>
-    <div
-        v-if="inputText"
-        id="input-copy-button"
-        :data-tippy-content="hasWarning ? 'warn_share_local_file' : ''"
-    >
+    <div v-if="inputText" id="input-copy-button" data-tippy-content="warn_share_local_file">
         <label v-if="labelText">{{ $t(labelText) }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
@@ -26,96 +107,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { useI18n } from 'vue-i18n'
-
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
-
-/** Simple input with a helper button to copy the input value to the clipboard */
-export default {
-    props: {
-        inputText: {
-            type: String,
-            default: null,
-        },
-        small: {
-            type: Boolean,
-            default: true,
-        },
-        copyText: {
-            type: String,
-            default: 'copy_cta', // 'copy_url',
-        },
-        copiedText: {
-            type: String,
-            default: 'copy_done', // 'copy_success',
-        },
-        labelText: {
-            type: String,
-            default: null,
-        },
-        hasWarning: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    setup() {
-        const i18n = useI18n()
-
-        const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-            '#input-copy-button[data-tippy-content]',
-            {
-                placement: 'right',
-            }
-        )
-
-        return {
-            i18n,
-            refreshTippyAttachment,
-            removeTippy,
-        }
-    },
-    data() {
-        return {
-            copiedInClipboard: false,
-            timeoutCopied: null,
-        }
-    },
-    computed: {
-        buttonText() {
-            return this.i18n
-                .t(this.copiedInClipboard ? this.copiedText : this.copyText)
-                .replace('&nbsp;', '\xa0')
-        },
-    },
-    watch: {
-        inputText() {
-            this.clearIsCopiedInClipboard()
-        },
-    },
-    beforeUnmount() {
-        clearTimeout(this.timeoutCopied)
-    },
-    mounted() {
-        this.refreshTippyAttachment()
-        if (!this.hasWarning) {
-            this.removeTippy()
-        }
-    },
-    methods: {
-        clearIsCopiedInClipboard() {
-            this.copiedInClipboard = false
-            clearTimeout(this.timeoutCopied)
-        },
-        copyInputToClipboard() {
-            navigator.clipboard.writeText(this.inputText)
-            this.copiedInClipboard = true
-            this.timeoutCopied = setTimeout(this.clearIsCopiedInClipboard, 2500)
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 .input-text-to-copy {
