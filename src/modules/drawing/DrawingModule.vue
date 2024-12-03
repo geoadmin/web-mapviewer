@@ -34,6 +34,7 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
+const currentDrawingMode = computed(() => store.state.drawing.mode)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineFeature = computed(() => {
@@ -200,7 +201,10 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    drawingInteractions.value.removeLastPoint()
+    // Only active on drawing mode
+    if (currentDrawingMode.value) {
+        drawingInteractions.value.removeLastPoint()
+    }
 }
 
 function removeLastPointOnDeleteKeyUp(event) {
