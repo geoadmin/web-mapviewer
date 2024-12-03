@@ -47,6 +47,44 @@ describe('Testing the share menu', () => {
             // checking that the share menu has been closed
             cy.get('[data-cy="share-menu-opened"]').should('not.exist')
         })
+        it('gives warning when trying to generate a short link while having a local file imported', () => {
+            const localKmlFile = 'import-tool/external-kml-file.kml'
+
+            // Open import local file menu
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
+            // Load the local KML file
+            cy.fixture(localKmlFile, null).as('kmlFixture')
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+                force: true,
+            })
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+            // Close the import file menu
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
+            cy.get('[data-cy="import-file-content"]').should('not.exist')
+
+            // Open the share menu
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-share-section"]').click()
+            cy.wait('@shortLink')
+            cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
+
+            // Check if there is a warning class in the share link
+            cy.get('[data-cy="menu-share-input"]').should('have.class', 'bg-warning')
+            cy.get('[data-cy="menu-share-input"]').should('have.class', 'darker-warning-border')
+            cy.get('[data-cy="menu-share-copy-button"]').should('have.class', 'bg-warning')
+            cy.get('[data-cy="menu-share-copy-button"]').should(
+                'have.class',
+                'darker-warning-border'
+            )
+            // Check tooltip
+            cy.get('[data-cy="input-copy-button"]').realHover()
+            cy.get('[data-cy="tippy-input-copy-button"]').should('be.visible')
+        })
         context(
             'Geolocation management while generating share links',
             {

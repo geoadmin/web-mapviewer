@@ -84,7 +84,12 @@ onUpdated(() => {
 </script>
 
 <template>
-    <div v-if="inputText" id="input-copy-button" data-tippy-content="warn_share_local_file">
+    <div
+        v-if="inputText"
+        id="input-copy-button"
+        data-tippy-content="warn_share_local_file"
+        data-cy="input-copy-button"
+    >
         <label v-if="labelText">{{ $t(labelText) }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
@@ -93,7 +98,7 @@ onUpdated(() => {
                 :class="{ 'darker-warning-border bg-warning': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
-                data-cy="menu-share-input-copy-button"
+                data-cy="menu-share-input"
                 @focus="$event.target.select()"
             />
             <button
@@ -102,7 +107,7 @@ onUpdated(() => {
                     'darker-warning-border bg-warning': hasWarning,
                     'btn-outline-group': !hasWarning,
                 }"
-                data-cy="menu-share-input-copy-button"
+                data-cy="menu-share-copy-button"
                 @click="copyInputToClipboard"
             >
                 {{ buttonText }}
