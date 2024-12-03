@@ -22,6 +22,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const cesiumSource = `${__dirname}/node_modules/cesium/Source`
 const cesiumStaticDir = `./${appVersion}/cesium/`
 
+const stagings = {
+    development: 'dev',
+    integration: 'int',
+    production: 'prod',
+}
+
 /**
  * We use manual chunks to reduce the size of the final index.js file to improve startup
  * performance.
@@ -43,7 +49,7 @@ export default defineConfig(({ mode }) => {
         build: {
             emptyOutDir: true,
             assetsDir: `${appVersion}/assets`,
-            outDir: `./dist/${mode}`,
+            outDir: `./dist/${stagings[mode]}`,
             rollupOptions: {
                 output: {
                     manualChunks,
@@ -72,7 +78,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-            generateBuildInfo(appVersion),
+            generateBuildInfo(stagings[mode], appVersion),
             // CesiumJS requires static files from the following 4 folders to be included in the build
             // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
             viteStaticCopy({
