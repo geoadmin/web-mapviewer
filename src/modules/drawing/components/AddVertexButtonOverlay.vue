@@ -129,6 +129,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <AddVertexButton :reverse="true" @button-mounted="onFirstButtonMounted" />
-    <AddVertexButton :reverse="false" @button-mounted="onLastButtonMounted" />
+    <AddVertexButton
+        :reverse="true"
+        data-cy="extend-from-first-node-button"
+        @button-mounted="onFirstButtonMounted"
+    />
+    <AddVertexButton
+        :reverse="false"
+        data-cy="extend-from-last-node-button"
+        @button-mounted="onLastButtonMounted"
+    />
 </template>
