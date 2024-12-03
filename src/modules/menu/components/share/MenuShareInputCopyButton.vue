@@ -90,7 +90,7 @@ onUpdated(() => {
             <input
                 type="text"
                 class="form-control input-text-to-copy"
-                :class="{ 'border-warning text-warning': hasWarning }"
+                :class="{ 'darker-warning-border bg-warning': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
@@ -98,7 +98,10 @@ onUpdated(() => {
             />
             <button
                 class="btn"
-                :class="{ 'btn-outline-warning': hasWarning, 'btn-outline-group': !hasWarning }"
+                :class="{
+                    'darker-warning-border bg-warning': hasWarning,
+                    'btn-outline-group': !hasWarning,
+                }"
                 data-cy="menu-share-input-copy-button"
                 @click="copyInputToClipboard"
             >
@@ -109,7 +112,12 @@ onUpdated(() => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/webmapviewer-bootstrap-theme';
 .input-text-to-copy {
     width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
+}
+
+.darker-warning-border {
+    border-color: $yellow-600;
 }
 </style>
