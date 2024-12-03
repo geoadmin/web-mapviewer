@@ -28,7 +28,7 @@ function getGitBranch(gitHash) {
  *
  * The app version is received as parameter of the plugin (when added to vite plugin array)
  */
-export default function generateBuildInfo(version) {
+export default function generateBuildInfo(staging, version) {
     return {
         name: 'vite-plugin-generate-build-info',
         buildEnd: {
@@ -52,6 +52,8 @@ export default function generateBuildInfo(version) {
                     fileName: `${version}/info.json`,
                     source: JSON.stringify(
                         {
+                            project: 'web-mapviewer',
+                            staging,
                             version: version,
                             build: {
                                 date: now.toISOString(),
