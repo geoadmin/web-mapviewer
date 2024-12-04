@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -57,7 +57,10 @@ const emit = defineEmits(['close'])
 const windowRef = ref(null)
 const headerRef = ref(null)
 const contentRef = ref(null)
+const size = ref({ width: 0, height: 0 })
+const lastClick = ref({ x: 0, y: 0 })
 
+let resizeObserver = ref(null)
 const initialPositionClass = computed(() => {
     if (accepetedInitialPositions.includes(props.initialPosition)) {
         return props.initialPosition
@@ -67,6 +70,15 @@ const initialPositionClass = computed(() => {
 })
 
 onMounted(() => {
+    resizeObserver.value = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+            const { width, height } = entry.contentRect
+            size.value = { width, height }
+        }
+    })
+    if (windowRef.value) {
+        resizeObserver.value.observe(windowRef.value)
+    }
     if (props.movable) {
         const windowElement = windowRef.value
         const headerElement = headerRef.value
@@ -77,6 +89,19 @@ onMounted(() => {
         })
     }
 })
+onBeforeUnmount(() => {
+    if (resizeObserver.value) resizeObserver.value.disconnect()
+})
+watch(size, (newSize) => {
+    console.log('Size:', newSize)
+})
+const logClick = (event) => {
+    lastClick.value = {
+        x: event.offsetX,
+        y: event.offsetY,
+    }
+    console.log('Click coordinates relative to the element:', lastClick.value, event.type)
+}
 </script>
 
 <template>
@@ -93,6 +118,10 @@ onMounted(() => {
                     resizable: resizeable && showBody,
                 },
             ]"
+            data-cy="simple-window"
+            @click="logClick"
+            @mousedown="logClick"
+            @mouseup="logClick"
         >
             <div
                 ref="headerRef"
