@@ -37,7 +37,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     delete newQuery.adminId
 }
 
-const handleLegacyParam = (
+export const handleLegacyParam = (
     params,
     param,
     legacyValue,
