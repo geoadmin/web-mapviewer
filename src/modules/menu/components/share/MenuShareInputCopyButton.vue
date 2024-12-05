@@ -98,7 +98,7 @@ onUpdated(() => {
                 :class="{ 'darker-warning-border bg-warning': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
-                data-cy="menu-share-input"
+                data-cy="menu-share-input-copy-button"
                 @focus="$event.target.select()"
             />
             <button
@@ -107,7 +107,7 @@ onUpdated(() => {
                     'darker-warning-border bg-warning': hasWarning,
                     'btn-outline-group': !hasWarning,
                 }"
-                data-cy="menu-share-copy-button"
+                data-cy="menu-share-input-copy-button"
                 @click="copyInputToClipboard"
             >
                 {{ buttonText }}
