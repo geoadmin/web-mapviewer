@@ -95,7 +95,7 @@ onUpdated(() => {
             <input
                 type="text"
                 class="form-control input-text-to-copy"
-                :class="{ 'darker-warning-border bg-warning': hasWarning }"
+                :class="{ 'warning-input': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
@@ -104,7 +104,7 @@ onUpdated(() => {
             <button
                 class="btn"
                 :class="{
-                    'darker-warning-border bg-warning': hasWarning,
+                    'warning-input': hasWarning,
                     'btn-outline-group': !hasWarning,
                 }"
                 data-cy="menu-share-input-copy-button"
@@ -122,7 +122,8 @@ onUpdated(() => {
     width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
 }
 
-.darker-warning-border {
+.warning-input {
     border-color: $yellow-600;
+    background-color: $warning;
 }
 </style>
