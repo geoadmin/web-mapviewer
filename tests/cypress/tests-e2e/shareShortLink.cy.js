@@ -80,8 +80,8 @@ describe('Testing the share menu', () => {
                 'darker-warning-border'
             )
             // Check tooltip
-            cy.get('[data-cy="menu-share-input-copy-button"]').realHover()
-            cy.get('[data-cy="tippy-menu-share-input-copy-button"]').should('be.visible')
+            cy.get('[data-cy="input-copy-button"]').realHover()
+            cy.get('[data-cy="tippy-input-copy-button"]').should('be.visible')
         })
         context(
             'Geolocation management while generating share links',
