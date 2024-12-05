@@ -74,11 +74,7 @@ describe('Testing the share menu', () => {
             cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
 
             // Check if there is a warning class in the share link
-            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'bg-warning')
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
-                'have.class',
-                'darker-warning-border'
-            )
+            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'warning-input')
             // Check tooltip
             cy.get('[data-cy="input-copy-button"]').realHover()
             cy.get('[data-cy="tippy-input-copy-button"]').should('be.visible')
