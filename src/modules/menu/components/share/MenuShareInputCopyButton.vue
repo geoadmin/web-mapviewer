@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+// import { useStore } from 'vuex'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
@@ -35,10 +35,16 @@ const props = defineProps({
 const copiedInClipboard = ref(false)
 const timeoutCopied = ref(null)
 
-const store = useStore()
+// const store = useStore()
 const i18n = useI18n()
+// const store = useStore()
+
 const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-    '#input-copy-button[data-tippy-content]'
+    '#input-copy-button[data-tippy-content]',
+    {
+        placement: 'top',
+        offset: [0, -20],
+    }
 )
 
 const buttonText = computed(() => {
@@ -46,7 +52,7 @@ const buttonText = computed(() => {
         .t(copiedInClipboard.value ? props.copiedText : props.copyText)
         .replace('&nbsp;', '\xa0')
 })
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+// const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 const clearIsCopiedInClipboard = () => {
     copiedInClipboard.value = false
@@ -75,6 +81,7 @@ onBeforeUnmount(() => {
 })
 
 onUpdated(() => {
+    refreshTippyAttachment()
     if (!props.hasWarning) {
         removeTippy()
     } else {
@@ -89,7 +96,6 @@ onUpdated(() => {
         id="input-copy-button"
         data-tippy-content="warn_share_local_file"
         data-cy="input-copy-button"
-        :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
     >
         <label v-if="labelText">{{ $t(labelText) }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
