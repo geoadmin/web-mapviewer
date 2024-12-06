@@ -38,7 +38,7 @@ const i18n = useI18n()
 const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
     '#input-copy-button[data-tippy-content]',
     {
-        placement: 'right',
+        placement: 'auto',
     }
 )
 
