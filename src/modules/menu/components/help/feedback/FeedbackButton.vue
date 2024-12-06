@@ -57,11 +57,10 @@ async function sendFeedback() {
     }
     request.value.pending = true
     try {
-        let subject = '[web-mapviewer]'
+        let subject = '[User Feedback]'
         if (feedback.value.rating && maxRating.value) {
             subject += ` [rating: ${feedback.value.rating}/${maxRating.value}]`
         }
-        subject += ' User feedback'
         const feedbackSentSuccessfully = await sendFeedbackApi(subject, feedback.value.message, {
             kmlFileUrl: activeKmlLayer.value?.kmlFileUrl,
             email: feedback.value.email,
