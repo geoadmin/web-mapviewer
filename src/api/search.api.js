@@ -43,6 +43,7 @@ export const SearchResultTypes = {
     LAYER: 'LAYER',
     LOCATION: 'LOCATION',
     FEATURE: 'FEATURE',
+    GEOCAT: 'GEOCAT',
 }
 
 // comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
@@ -97,6 +98,12 @@ export function sanitizeTitle(title = '') {
  * @extends LocationSearchResult
  * @typedef {Object} LayerFeatureSearchResult
  * @param {GeoAdminLayer} layer The layer of this feature.
+ */
+
+/**
+ * @extends SearchResult
+ * @typedef {Object} GeocatSearchResult
+ * @param {AbstractLayer} layer
  */
 
 /**

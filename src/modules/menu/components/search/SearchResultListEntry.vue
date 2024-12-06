@@ -7,6 +7,7 @@ import { useStore } from 'vuex'
 import { SearchResultTypes } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
 
@@ -32,6 +33,14 @@ const emits = defineEmits([
 const { index, entry } = toRefs(props)
 
 const resultType = computed(() => entry.value.resultType)
+const extent = computed(() => {
+    const entryExtent = entry.value.extent
+    if (Array.isArray(entryExtent) && entryExtent.length === 4) {
+        console.log('geocat extent', entryExtent)
+        return entryExtent
+    }
+    return null
+})
 const showLayerDescription = ref(false)
 
 const item = ref(null)
@@ -121,6 +130,7 @@ defineExpose({
                 <FontAwesomeIcon size="lg" :icon="['fas', 'info-circle']" />
             </button>
         </div>
+        <ZoomToExtentButton v-if="extent" :extent="extent" />
         <LayerDescriptionPopup
             v-if="showLayerDescription"
             :layer-id="entry.layerId"

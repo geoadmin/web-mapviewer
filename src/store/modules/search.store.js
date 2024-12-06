@@ -2,6 +2,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
+import { searchOnGeocat } from '@/api/geocat.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
@@ -171,6 +172,18 @@ const actions = {
                         layersToSearch: getters.visibleLayers,
                         limit: state.autoSelect ? 1 : null,
                     })
+                    const firstLocationMatch = results.find(
+                        (result) => result.resultType === SearchResultTypes.LOCATION
+                    )
+                    const geocatResults = await searchOnGeocat(
+                        query,
+                        firstLocationMatch?.extent
+                            ? flattenExtent(firstLocationMatch?.extent)
+                            : null
+                    )
+                    if (geocatResults?.length > 0) {
+                        results.push(...geocatResults)
+                    }
                     if (
                         (originUrlParam && results.length === 1) ||
                         (originUrlParam && state.autoSelect && results.length >= 1)
@@ -278,6 +291,14 @@ const actions = {
                     log.error('Error getting feature:', error)
                 }
 
+                break
+
+            case SearchResultTypes.GEOCAT:
+                console.log('geocat entry selected', entry)
+                dispatch('addLayer', {
+                    layer: entry.layer,
+                    dispatcher,
+                })
                 break
         }
         if (state.autoSelect) {
