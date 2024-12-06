@@ -5,6 +5,7 @@ import { useStore } from 'vuex'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
+import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
@@ -119,7 +120,7 @@ async function sendReportProblem() {
     request.value.pending = true
     try {
         const feedbackSentSuccessfully = await sendFeedback(
-            '[Problem Report]', // subject
+            FEEDBACK_EMAIL_SUBJECT,
             feedback.value.message,
             {
                 category: feedback.value.category,
