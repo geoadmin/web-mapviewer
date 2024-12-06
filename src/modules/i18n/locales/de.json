@@ -237,7 +237,7 @@
     "feedback_error_message": "Problem: Meldung konnte nicht übermittelt werden",
     "feedback_invalid_email": "ungültige E-Mail",
     "feedback_kml_attached": "Die aktuelle Zeichung wird übermittelt. ",
-    "feedback_mail": "4. Ihre E-Mail Adresse* :",
+    "feedback_mail": "4. Ihre E-Mail Adresse :",
     "feedback_modify_drawing": "Zeichnung editieren",
     "feedback_permalink": "Folgender Link wird übermittelt: ",
     "feedback_placeholder": "Fügen Sie eine .pdf, .zip, .jpg, .jpeg, .kml, .kmz oder .gpx Datei hinzu",

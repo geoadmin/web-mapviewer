@@ -290,6 +290,7 @@ function selectItem(dropdownItem) {
                     v-model="feedback.email"
                     label="feedback_mail"
                     :disabled="request.pending"
+                    :description="'no_email_feedback'"
                     :activate-validation="activateValidation"
                     data-cy="report-problem"
                     @validate="onEmailValidate"
@@ -319,7 +320,6 @@ function selectItem(dropdownItem) {
                     <small v-html="i18n.t('feedback_disclaimer')" />
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
-                <div class="small">* {{ i18n.t('no_email_feedback') }}</div>
             </div>
             <SendActionButtons
                 class="text-end"

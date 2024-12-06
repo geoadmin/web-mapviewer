@@ -237,7 +237,7 @@
     "feedback_error_message": "Problème lors de l'envoi",
     "feedback_invalid_email": "e-mail invalide",
     "feedback_kml_attached": "Le dessin actuel va être envoyé. ",
-    "feedback_mail": "4. Votre email* :",
+    "feedback_mail": "4. Votre email :",
     "feedback_modify_drawing": "Modifier le dessin",
     "feedback_permalink": "Le lien suivant sera transféré: ",
     "feedback_placeholder": "Joindre un pdf, zip, jpg, jpeg, kml, kmz ou gpx",
