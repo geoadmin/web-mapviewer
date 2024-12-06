@@ -48,7 +48,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="share-menu-opened"]').should('not.exist')
         })
         it('gives warning when trying to generate a short link while having a local file imported', () => {
-            const localKmlFile = 'import-tool/external-kml-file.kml'
+            const localKmlFile = 'import-tool/second-external-kml-file.kml'
 
             // Open import local file menu
             cy.openMenuIfMobile()
@@ -57,8 +57,8 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
             // Load the local KML file
-            cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+            cy.fixture(localKmlFile, null).as('localKmlFileFixture')
+            cy.get('[data-cy="file-input"]').selectFile('@localKmlFileFixture', {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
