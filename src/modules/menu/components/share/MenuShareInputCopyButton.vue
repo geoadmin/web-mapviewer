@@ -37,9 +37,7 @@ const timeoutCopied = ref(null)
 
 const store = useStore()
 const i18n = useI18n()
-const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-    '#input-copy-button[data-tippy-content]'
-)
+const { refreshTippyAttachment } = useTippyTooltip('#input-copy-button[data-tippy-content]')
 
 const buttonText = computed(() => {
     return i18n
@@ -75,11 +73,12 @@ onBeforeUnmount(() => {
 })
 
 onUpdated(() => {
-    if (!props.hasWarning) {
-        removeTippy()
-    } else {
-        refreshTippyAttachment()
-    }
+    refreshTippyAttachment()
+    // if (!props.hasWarning ) {
+    //     removeTippy()
+    // } else {
+    //     refreshTippyAttachment()
+    // }
 })
 </script>
 
