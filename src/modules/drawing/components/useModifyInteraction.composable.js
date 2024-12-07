@@ -35,6 +35,7 @@ export default function useModifyInteraction(features) {
     )
 
     const olMap = inject('olMap')
+    let rightClickDeleteActive = false // to make sure only one listener is active
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
     const modifyInteraction = new ModifyInteraction({
@@ -84,15 +85,15 @@ export default function useModifyInteraction(features) {
                 continueDrawingInteraction.extend(selectedFeature)
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
-                olMap.on('contextmenu', onMapRightClick)
+                activateRightClickDelete()
             } else if (newValue === EditMode.MODIFY) {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
-                olMap.on('contextmenu', onMapRightClick) // Keep right-click listener
+                activateRightClickDelete()
             } else {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
-                olMap.un('contextmenu', onMapRightClick)
+                deactivateRightClickDelete()
             }
         },
         { immediate: true }
@@ -114,9 +115,26 @@ export default function useModifyInteraction(features) {
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
         continueDrawingInteraction.un('drawend', onExtendEnd)
+        deactivateRightClickDelete()
     })
 
-    function onMapRightClick(_event) {
+    function activateRightClickDelete() {
+        if (rightClickDeleteActive) {
+            return
+        }
+        olMap.on('contextmenu', removeLastPoint)
+        rightClickDeleteActive = true
+    }
+
+    function deactivateRightClickDelete() {
+        olMap.un('contextmenu', removeLastPoint)
+        rightClickDeleteActive = false
+    }
+
+    function removeLastPoint() {
+        if (editMode.value === EditMode.OFF) {
+            return
+        }
         if (continueDrawingInteraction.getActive()) {
             continueDrawingInteraction.removeLastPoint()
         } else if (modifyInteraction.getActive() && features.getArray().length > 0) {
@@ -194,5 +212,9 @@ export default function useModifyInteraction(features) {
             geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
             ...dispatcher,
         })
+    }
+
+    return {
+        removeLastPoint,
     }
 }

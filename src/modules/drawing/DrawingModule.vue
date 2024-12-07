@@ -34,9 +34,10 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
+const currentDrawingMode = computed(() => store.state.drawing.mode)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
-const selectedLineString = computed(() => {
+const selectedLineFeature = computed(() => {
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
@@ -50,7 +51,7 @@ const selectedLineString = computed(() => {
     return null
 })
 const showAddVertexButton = computed(() => {
-    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineString.value
+    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
 })
 
 const hasKml = computed(() => {
@@ -200,7 +201,10 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    drawingInteractions.value.removeLastPoint()
+    // Only active on drawing mode
+    if (currentDrawingMode.value) {
+        drawingInteractions.value.removeLastPoint()
+    }
 }
 
 function removeLastPointOnDeleteKeyUp(event) {
@@ -242,7 +246,7 @@ async function closeDrawing() {
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
             v-if="showAddVertexButton"
-            :line-string="selectedLineString.geometry"
+            :coordinates="selectedLineFeature.geometry.coordinates"
         />
     </div>
 </template>

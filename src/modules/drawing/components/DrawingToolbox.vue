@@ -12,6 +12,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
@@ -37,6 +38,31 @@ const isDrawingLineOrMeasure = computed(() =>
     [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
         currentDrawingMode.value
     )
+)
+const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const selectedLineString = computed(() => {
+    return selectedEditableFeatures.value.find((feature) => {
+        return (
+            feature.geometry.type === 'LineString' &&
+            [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+                feature.featureType
+            )
+        )
+    })
+})
+
+const selectedLineCoordinates = computed(() => {
+    if (selectedLineString.value) {
+        return selectedLineString.value.geometry.coordinates
+    }
+    return null
+})
+const editMode = computed(() => store.state.drawing.editingMode)
+const isAllowDeletePointOnSelectedLine = computed(
+    () =>
+        editMode.value !== EditMode.OFF &&
+        selectedLineString.value &&
+        selectedLineCoordinates.value?.length > 2
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const drawingName = computed({
@@ -208,7 +234,10 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDrawingLineOrMeasure" class="row mt-2">
+                    <div
+                        v-if="isDrawingLineOrMeasure || isAllowDeletePointOnSelectedLine"
+                        class="row mt-2"
+                    >
                         <div class="col d-grid">
                             <button
                                 data-cy="drawing-delete-last-point-button"
