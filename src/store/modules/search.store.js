@@ -280,6 +280,9 @@ const actions = {
 
                 break
         }
+        if (entry.resultType === SearchResultTypes.LOCATION) {
+            commit('setSearchQuery', { query: entry.sanitizedTitle.trim(), dispatcher })
+        }
         if (state.autoSelect) {
             dispatch('setAutoSelect', {
                 value: false,
