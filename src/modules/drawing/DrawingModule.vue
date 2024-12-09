@@ -36,7 +36,7 @@ const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
-const selectedLineString = computed(() => {
+const selectedLineFeature = computed(() => {
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
@@ -50,7 +50,7 @@ const selectedLineString = computed(() => {
     return null
 })
 const showAddVertexButton = computed(() => {
-    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineString.value
+    return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
 })
 
 const hasKml = computed(() => {
@@ -129,7 +129,7 @@ watch(availableIconSets, () => {
     })
 })
 watch(selectedEditableFeatures, (newValue) => {
-    if (newValue) {
+    if (newValue.length > 0) {
         if (store.state.drawing.editingMode === EditMode.OFF) {
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
         }
@@ -171,7 +171,7 @@ onMounted(() => {
 
     // listening for "Delete" keystroke (to remove last point when drawing lines or measure)
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
-    document.addEventListener('contextmenu', removeLastPoint, { passive: true })
+    document.addEventListener('contextmenu', removeLastPointOnRightClick, { passive: true })
 
     if (IS_TESTING_WITH_CYPRESS) {
         window.drawingLayer = drawingLayer
@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
     drawingLayer.getSource().clear()
     olMap.removeLayer(drawingLayer)
 
-    document.removeEventListener('contextmenu', removeLastPoint)
+    document.removeEventListener('contextmenu', removeLastPointOnRightClick)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
 
     if (IS_TESTING_WITH_CYPRESS) {
@@ -200,7 +200,11 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    drawingInteractions.value.removeLastPoint()
+    drawingInteractions.value?.removeLastPoint()
+}
+
+function removeLastPointOnRightClick(_event) {
+    removeLastPoint()
 }
 
 function removeLastPointOnDeleteKeyUp(event) {
@@ -242,7 +246,7 @@ async function closeDrawing() {
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
             v-if="showAddVertexButton"
-            :line-string="selectedLineString.geometry"
+            :coordinates="selectedLineFeature.geometry.coordinates"
         />
     </div>
 </template>
