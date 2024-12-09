@@ -8,6 +8,7 @@ import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarker
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
 import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelectInteraction.vue'
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
+import { EditMode } from '@/store/modules/drawing.store'
 
 // DOM References
 const selectInteraction = ref(null)
@@ -15,6 +16,7 @@ const currentInteraction = ref(null)
 
 const store = useStore()
 const currentDrawingMode = computed(() => store.state.drawing.mode)
+const editMode = computed(() => store.state.drawing.editingMode)
 
 const specializedInteractionComponent = computed(() => {
     switch (currentDrawingMode.value) {
@@ -38,7 +40,9 @@ function removeLastPoint() {
     if (currentInteraction.value?.removeLastPoint) {
         currentInteraction.value.removeLastPoint()
     }
-    selectInteraction.value.removeLastPoint()
+    if (editMode.value !== EditMode.OFF) {
+        selectInteraction.value.removeLastPoint()
+    }
 }
 defineExpose({
     removeLastPoint,

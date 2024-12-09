@@ -597,6 +597,10 @@ describe('Drawing module tests', () => {
             // Delete the last node by right click
             cy.get('[data-cy="ol-map"]').rightclick()
             checkLinestringNumberOfPoints(10)
+
+            // Delete the last node by clicking the delete button
+            cy.get('[data-cy="drawing-delete-last-point-button"]').click()
+            checkLinestringNumberOfPoints(9)
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)

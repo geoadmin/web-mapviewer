@@ -34,7 +34,6 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
-const currentDrawingMode = computed(() => store.state.drawing.mode)
 const online = computed(() => store.state.drawing.online)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineFeature = computed(() => {
@@ -130,7 +129,7 @@ watch(availableIconSets, () => {
     })
 })
 watch(selectedEditableFeatures, (newValue) => {
-    if (newValue) {
+    if (newValue.length > 0) {
         if (store.state.drawing.editingMode === EditMode.OFF) {
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
         }
@@ -172,7 +171,7 @@ onMounted(() => {
 
     // listening for "Delete" keystroke (to remove last point when drawing lines or measure)
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
-    document.addEventListener('contextmenu', removeLastPoint, { passive: true })
+    document.addEventListener('contextmenu', removeLastPointOnRightClick, { passive: true })
 
     if (IS_TESTING_WITH_CYPRESS) {
         window.drawingLayer = drawingLayer
@@ -185,7 +184,7 @@ onBeforeUnmount(() => {
     drawingLayer.getSource().clear()
     olMap.removeLayer(drawingLayer)
 
-    document.removeEventListener('contextmenu', removeLastPoint)
+    document.removeEventListener('contextmenu', removeLastPointOnRightClick)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
 
     if (IS_TESTING_WITH_CYPRESS) {
@@ -201,10 +200,11 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    // Only active on drawing mode
-    if (currentDrawingMode.value) {
-        drawingInteractions.value.removeLastPoint()
-    }
+    drawingInteractions.value?.removeLastPoint()
+}
+
+function removeLastPointOnRightClick(_event) {
+    removeLastPoint()
 }
 
 function removeLastPointOnDeleteKeyUp(event) {

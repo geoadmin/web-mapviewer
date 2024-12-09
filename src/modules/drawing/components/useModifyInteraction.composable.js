@@ -35,7 +35,6 @@ export default function useModifyInteraction(features) {
     )
 
     const olMap = inject('olMap')
-    let rightClickDeleteActive = false // to make sure only one listener is active
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
     const modifyInteraction = new ModifyInteraction({
@@ -85,15 +84,12 @@ export default function useModifyInteraction(features) {
                 continueDrawingInteraction.extend(selectedFeature)
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
-                activateRightClickDelete()
             } else if (newValue === EditMode.MODIFY) {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
-                activateRightClickDelete()
             } else {
                 modifyInteraction.setActive(true)
                 continueDrawingInteraction.setActive(false)
-                deactivateRightClickDelete()
             }
         },
         { immediate: true }
@@ -115,21 +111,7 @@ export default function useModifyInteraction(features) {
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
         continueDrawingInteraction.un('drawend', onExtendEnd)
-        deactivateRightClickDelete()
     })
-
-    function activateRightClickDelete() {
-        if (rightClickDeleteActive) {
-            return
-        }
-        olMap.on('contextmenu', removeLastPoint)
-        rightClickDeleteActive = true
-    }
-
-    function deactivateRightClickDelete() {
-        olMap.un('contextmenu', removeLastPoint)
-        rightClickDeleteActive = false
-    }
 
     function removeLastPoint() {
         if (editMode.value === EditMode.OFF) {
