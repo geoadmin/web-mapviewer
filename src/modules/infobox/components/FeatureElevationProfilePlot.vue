@@ -330,7 +330,6 @@ function resizeChart() {
 function activateSegmentIndex(index) {
     store.dispatch('setActiveSegmentIndex', { index, ...dispatcher })
 }
-// TODO : ref for 'chart'
 </script>
 <template>
     <div
@@ -393,6 +392,7 @@ function activateSegmentIndex(index) {
                     </small>
                 </div>
             </div>
+
             <div
                 ref="profileTooltipArrow"
                 class="profile-tooltip-arrow"
@@ -408,6 +408,17 @@ function activateSegmentIndex(index) {
                 :tracking-point-color="trackingPointColor"
                 :coordinates="pointBeingHovered?.coordinates"
             />
+        </div>
+        <div
+            v-show="track && !pointBeingHovered"
+            ref="profileTooltipNoData"
+            class="no-profile-tooltip position-fixed card user-select-none warning"
+            :style="tooltipStyle"
+            data-cy="profile-popup-tooltip-no-data"
+        >
+            <div v-if="!pointBeingHovered" class="profile-tooltip-inner p-1 m-auto">
+                <span>{{ $t('parts_out_of_bounds') }}</span>
+            </div>
         </div>
     </div>
 </template>
@@ -465,5 +476,13 @@ $tooltip-width: 170px;
             border-color: #fff transparent;
         }
     }
+}
+.no-profile-tooltip {
+    width: $tooltip-width;
+    pointer-events: none;
+    user-select: none;
+    background-color: orange;
+    left: calc(50% - calc($tooltip-width / 2));
+    bottom: 15%;
 }
 </style>
