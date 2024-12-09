@@ -323,8 +323,8 @@ describe('Test the search bar result handling', () => {
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
         cy.get(searchbarSelector).should('have.value', 'test')
         cy.get('@locationSearchResults').first().realClick()
-        // search bar should not take element's title as value, but stays with the user search query
-        cy.get(searchbarSelector).should('have.value', 'test')
+        // search bar should take element's title as value if it's a location
+        cy.get(searchbarSelector).should('have.value', 'Test location')
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
@@ -368,12 +368,17 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('It adds a search for layers features if a visible layers is set to be searchable')
+        cy.get(searchbarSelector).clear()
+        cy.get(searchbarSelector).type('test')
+        cy.wait(['@search-locations', '@search-layers'])
         // the layer feature category should not be present (no searchable layer added yet)
         cy.get('[data-cy="search-results-featuresearch"]')
             .as('layerFeatureSearchCategory')
             .should('be.hidden')
         // adding the layer through the search results
         cy.get('@layerSearchResults').first().click()
+        // search bar should not take element's title as value, but stays with the user search query
+        cy.get(searchbarSelector).should('have.value', 'test')
         // should re-run a search to include potential layer features
         cy.wait(['@search-locations', '@search-layers', '@search-layer-features'])
         // checking that the layer has been added to the map
