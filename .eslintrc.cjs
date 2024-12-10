@@ -35,6 +35,7 @@ module.exports = {
     globals: {
         VITE_ENVIRONMENT: true,
         __APP_VERSION__: true,
+        __CESIUM_STATIC_PATH__: true,
         defineModel: 'readonly',
     },
     overrides: [

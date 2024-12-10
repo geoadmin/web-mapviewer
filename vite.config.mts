@@ -21,6 +21,7 @@ if (!appVersion) {
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const cesiumSource = `${__dirname}/node_modules/cesium/Source`
 const cesiumWorkers = '../Build/Cesium/Workers'
+const cesiumStaticDir = `./${appVersion}/cesium/`
 
 /**
  * We use manual chunks to reduce the size of the final index.js file to improve startup
@@ -79,19 +80,19 @@ export default defineConfig(({ mode }) => {
                 targets: [
                     {
                         src: normalizePath(`${cesiumSource}/${cesiumWorkers}`),
-                        dest: `./`,
+                        dest: cesiumStaticDir,
                     },
                     {
                         src: normalizePath(`${cesiumSource}/Assets/`),
-                        dest: `./`,
+                        dest: cesiumStaticDir,
                     },
                     {
                         src: normalizePath(`${cesiumSource}/Widgets/`),
-                        dest: `./`,
+                        dest: cesiumStaticDir,
                     },
                     {
                         src: normalizePath(`${cesiumSource}/ThirdParty/`),
-                        dest: `./`,
+                        dest: cesiumStaticDir,
                     },
                 ],
             }),
@@ -106,6 +107,7 @@ export default defineConfig(({ mode }) => {
         define: {
             __APP_VERSION__: JSON.stringify(appVersion),
             VITE_ENVIRONMENT: JSON.stringify(mode),
+            __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
         },
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
