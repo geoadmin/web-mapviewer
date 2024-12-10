@@ -77,3 +77,10 @@ export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
  * @type {Number}
  */
 export const GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE = 12.5 // meters
+
+/**
+ * Path to the cesium static assets
+ *
+ * @type {string}
+ */
+export const CESIUM_STATIC_PATH = __CESIUM_STATIC_PATH__
