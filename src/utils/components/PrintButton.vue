@@ -30,6 +30,7 @@ function onHideParentModal(hide) {
     <button
         class="print-button btn btn-light btn-sm d-flex align-items-center"
         data-tippy-content="print"
+        data-cy="print-button"
         @click="printContent"
     >
         <FontAwesomeIcon icon="print" />
