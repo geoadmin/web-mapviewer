@@ -22,6 +22,14 @@ function setCenterIfInBounds(store, center) {
                 center: center,
                 ...dispatcher,
             })
+
+            if (firstTimeActivatingGeolocation) {
+                firstTimeActivatingGeolocation = !firstTimeActivatingGeolocation
+                store.dispatch('setZoom', {
+                    zoom: store.state.position.projection.get1_25000ZoomLevel(),
+                    ...dispatcher,
+                })
+            }
         }
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
