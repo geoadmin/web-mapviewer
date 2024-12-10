@@ -74,7 +74,7 @@ import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { get3dTilesBaseUrl, getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { CESIUM_STATIC_PATH, DEFAULT_PROJECTION } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -207,7 +207,7 @@ export default {
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
         // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
-        window['CESIUM_BASE_URL'] = '.'
+        window['CESIUM_BASE_URL'] = CESIUM_STATIC_PATH
 
         // required for ol-cesium
         window['Cesium'] = cesium
