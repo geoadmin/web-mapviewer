@@ -113,6 +113,7 @@ function loadMoreResultForLayer(layerId) {
     }
     &:not(.fluid) {
         max-height: 33vh;
+        overflow-x: hidden;
         overflow-y: auto;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax($overlay-width, 1fr));
