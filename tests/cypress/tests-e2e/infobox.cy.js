@@ -141,5 +141,44 @@ describe('The infobox', () => {
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             })
         })
+        it('verifies the "More Information" button in the infobox and the information page that is shown', () => {
+            const infoboxFixture = 'infobox.fixture.html'
+            cy.intercept('GET', 'https://api3.geo.admin.ch/**', {
+                fixture: infoboxFixture,
+            }).as('infobox')
+
+            cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            cy.get('[data-cy="more-info-link"]')
+                .should('exist')
+                .should('contain', 'More info')
+                .click({ force: true })
+
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech', '@infobox'])
+
+            cy.origin('https://api3.geo.admin.ch', () => {
+                cy.url().should((url) => {
+                    expect(url).to.eq(
+                        'https://api3.geo.admin.ch/rest/services/ech/MapServer/ch.bav.haltestellen-oev/8577026/extendedHtmlPopup'
+                    )
+                })
+                cy.get('.chsdi-htmlpopup-container').should('be.visible')
+                cy.get('.htmlpopup-header').should('be.visible').contains('Public transport stops')
+                cy.get('.htmlpopup-content')
+                    .should('be.visible')
+                    .should('contain', 'Number')
+                    .should('contain', '8577026')
+                    .should('contain', 'Name')
+                    .should('contain', 'Rubigen, Bahnhof')
+                    .should('contain', 'Abreviation')
+                    .should('contain', '-')
+                    .should('contain', 'TO')
+                    .should('contain', 'SVB')
+                    .should('contain', 'Type')
+                    .should('contain', 'Haltestelle')
+                    .should('contain', 'Means of transport')
+                    .should('contain', 'Bus')
+                    .should('contain', 'Link to object')
+            })
+        })
     })
 })
