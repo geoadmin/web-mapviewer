@@ -364,7 +364,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
             const localKmlFileName = 'external-kml-file.kml'
-            const localKmlFile = `import-tool/${localKmlFileName}`
+            const localKmlFile = `tests/cypress/fixtures/import-tool/${localKmlFileName}`
 
             // Test local import
             cy.log('Switch to local import')
@@ -373,7 +373,7 @@ describe('Testing print', () => {
 
             // Attach a local KML file
             cy.log('Test add a local KML file')
-            cy.fixture(localKmlFile, null).as('kmlFixture')
+            cy.readFile(localKmlFile, null).as('kmlFixture')
             cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
                 force: true,
             })
@@ -449,7 +449,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-content"]').should('be.visible')
             cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
-            const localGpxlFile = 'print/line-and-marker.gpx'
+            const localGpxlFile = 'tests/cypress/fixtures/print/line-and-marker.gpx'
 
             // Test local import
             cy.log('Switch to local import')
@@ -458,7 +458,7 @@ describe('Testing print', () => {
 
             // Attach a local GPX file
             cy.log('Test add a local GPX file')
-            cy.fixture(localGpxlFile, null).as('gpxFixture')
+            cy.readFile(localGpxlFile, null).as('gpxFixture')
             cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
                 force: true,
             })
