@@ -59,7 +59,6 @@ describe('Testing print', () => {
             body: { shorturl: shortUrl, success: true },
         }).as('shortlink')
     }
-
     context('Print UI', () => {
         it('should populate the UI with the capabilities from mapfishprint', () => {
             cy.goToMapView()
