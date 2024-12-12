@@ -350,7 +350,7 @@ function activateSegmentIndex(index) {
                 :data-cy="`profile-segment-button-${index}`"
                 @click="() => activateSegmentIndex(index)"
             >
-                {{ $t('profile_segment', { segmentNumber: index + 1 }) }}
+                {{ i18n.t('profile_segment', { segmentNumber: index + 1 }) }}
             </button>
         </div>
         <!-- Here below we need to set the w-100 in order to have proper PDF print of the Chart -->
@@ -376,7 +376,7 @@ function activateSegmentIndex(index) {
             >
                 <div>
                     <small>
-                        <strong>{{ $t('profile_x_label') }}: </strong>
+                        <strong>{{ i18n.t('profile_x_label') }}: </strong>
                         <span class="distance">
                             {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
                         </span>
@@ -384,11 +384,11 @@ function activateSegmentIndex(index) {
                 </div>
                 <div>
                     <small>
-                        <strong>{{ $t('profile_y_label') }}: </strong>
+                        <strong>{{ i18n.t('profile_y_label') }}: </strong>
                         <span v-if="pointBeingHovered.elevation > 0" class="elevation">
                             {{ pointBeingHovered.elevation }} m
                         </span>
-                        <span v-else>{{ $t('not_available') }}</span>
+                        <span v-else>{{ i18n.t('not_available') }}</span>
                     </small>
                 </div>
             </div>
@@ -417,7 +417,7 @@ function activateSegmentIndex(index) {
             data-cy="profile-popup-tooltip-no-data"
         >
             <div v-if="!pointBeingHovered" class="profile-tooltip-inner p-1 m-auto">
-                <span>{{ $t('parts_out_of_bounds') }}</span>
+                <span>{{ i18n.t('parts_out_of_bounds') }}</span>
             </div>
         </div>
     </div>
