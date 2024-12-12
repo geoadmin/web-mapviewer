@@ -1,6 +1,5 @@
 <script setup>
 import { computed, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
@@ -18,7 +17,6 @@ const props = defineProps({
 })
 const { compact } = toRefs(props)
 const store = useStore()
-const i18n = useI18n()
 const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
 const showImportFile = computed(() => store.state.ui.importFile)
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
@@ -73,7 +71,7 @@ function onToggleImportFile() {
         >
             <SimpleWindow
                 v-if="showImportFile"
-                :title="i18n.t('import_file')"
+                :title="'import_file'"
                 movable
                 initial-position="top-left"
                 wide
