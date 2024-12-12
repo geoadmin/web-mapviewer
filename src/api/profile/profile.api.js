@@ -240,7 +240,6 @@ export default async (profileCoordinates, projection) => {
         const requestsForChunks = coordinateChunks.map((chunk) =>
             getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
         )
-
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {
                 const segment = parseProfileFromBackendResponse(
@@ -259,7 +258,7 @@ export default async (profileCoordinates, projection) => {
             }
         }
     }
-    if (segments.length === 0) {
+    if (segments.length === 0 || segments.every((segment) => !segment.hasElevationData)) {
         // in some situations, we could have every point within the general extent, but still have no altimetry data available at all. We need to send an error to display the profile error message in these situations.
         throw new OutOfBoundsError(
             'The features are out of bounds, no profile data could be fetched',
