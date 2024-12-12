@@ -271,5 +271,12 @@ export default async (profileCoordinates, projection) => {
             }
         }
     }
+    if (segments.length === 0) {
+        // in some situations, we could have every point within the general extent, but still have no altimetry data available at all. We need to send an error to display the profile error message in these situations.
+        throw new OutOfBoundsError(
+            'Some parts are out of bounds, no profile data could be fetched',
+            'parts_out_of_bounds'
+        )
+    }
     return new ElevationProfile(segments)
 }
