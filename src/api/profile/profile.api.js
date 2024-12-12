@@ -71,33 +71,21 @@ export function splitIfTooManyPoints(chunks = null) {
  */
 function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []
-    if (backendResponse.points) {
-        backendResponse.points.forEach((point) => {
-            let coordinate = point.coordinate
-            if (outputProjection.epsg !== LV95.epsg) {
-                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
-            }
-            points.push({
-                coordinate,
-                dist: startingDist + point.dist,
-                elevation: point.elevation,
-                hasElevationData: point.hasElevationData,
-            })
+    // we can receive an array of coordinates, or a dict
+    const backendResponsePoints = backendResponse.points ?? backendResponse
+    backendResponsePoints.forEach((point) => {
+        console.error(point)
+        let coordinate = point.coordinate ?? [point.easting, point.northing]
+        if (outputProjection.epsg !== LV95.epsg) {
+            coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
+        }
+        points.push({
+            coordinate,
+            dist: startingDist + point.dist,
+            elevation: point.elevation !== undefined ? point.elevation : point.alts.COMB,
+            hasElevationData: point.hasElevationData ?? point.alts.COMB !== null,
         })
-    } else {
-        backendResponse.forEach((rawData) => {
-            let coordinate = [rawData.easting, rawData.northing]
-            if (outputProjection.epsg !== LV95.epsg) {
-                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
-            }
-            points.push({
-                coordinate,
-                dist: startingDist + rawData.dist,
-                elevation: rawData.alts.COMB,
-                hasElevationData: rawData.alts.COMB !== null,
-            })
-        })
-    }
+    })
     return new ElevationProfileSegment(points)
 }
 
@@ -241,8 +229,8 @@ export default async (profileCoordinates, projection) => {
         if (coordinateChunks.every((chunk) => !chunk.isWithinBounds)) {
             log.error('Every chunk are out of bounds, no profile data could be fetched')
             throw new OutOfBoundsError(
-                'Some parts are out of bounds, no profile data could be fetched',
-                'parts_out_of_bounds'
+                'The features are out of bounds, no profile data could be fetched',
+                'profile_out_of_bounds_error'
             )
         } else if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
             log.warn('Some chunks are out of bond, we fetch an empty profile for those')
@@ -252,7 +240,6 @@ export default async (profileCoordinates, projection) => {
         const requestsForChunks = coordinateChunks.map((chunk) =>
             getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
         )
-
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {
                 const segment = parseProfileFromBackendResponse(
@@ -271,11 +258,11 @@ export default async (profileCoordinates, projection) => {
             }
         }
     }
-    if (segments.length === 0) {
+    if (segments.length === 0 || segments.every((segment) => !segment.hasElevationData)) {
         // in some situations, we could have every point within the general extent, but still have no altimetry data available at all. We need to send an error to display the profile error message in these situations.
         throw new OutOfBoundsError(
-            'Some parts are out of bounds, no profile data could be fetched',
-            'parts_out_of_bounds'
+            'The features are out of bounds, no profile data could be fetched',
+            'profile_out_of_bounds_error'
         )
     }
     return new ElevationProfile(segments)
