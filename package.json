@@ -126,6 +126,7 @@
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "eslint-plugin-vue": "^9.28.0",
         "git-describe": "^4.1.1",
+        "gitconfig": "^2.0.8",
         "googleapis": "^142.0.0",
         "jsdom": "^25.0.1",
         "mime-types": "^2.1.35",
