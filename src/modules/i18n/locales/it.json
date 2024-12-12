@@ -496,6 +496,7 @@
     "profile_elevation_up": "Salita",
     "profile_hike_time": "Tempo di percorrenza",
     "profile_no_data": "Nessun dato",
+    "profile_out_of_bounds_error": "Gli oggetti sono fuori limite, non è stato possibile recuperare i dati del profilo",
     "profile_poi_down": "Punto più basso",
     "profile_poi_up": "Punto più alto",
     "profile_segment": "Segmento {segmentNumber}",
