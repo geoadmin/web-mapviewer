@@ -93,6 +93,7 @@ onMounted(() => {
                     resizable: resizeable && showBody,
                 },
             ]"
+            data-cy="simple-window"
         >
             <div
                 ref="headerRef"
