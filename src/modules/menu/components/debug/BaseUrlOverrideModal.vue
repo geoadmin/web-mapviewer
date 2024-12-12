@@ -18,12 +18,17 @@ const store = useStore()
 const wmsUrlOverride = ref(getBaseUrlOverride('wms'))
 const wmtsUrlOverride = ref(getBaseUrlOverride('wmts'))
 const api3UrlOverride = ref(getBaseUrlOverride('api3'))
+const viewerDedicatedServicesUrlOverride = ref(getBaseUrlOverride('viewerDedicatedServices'))
 
 function onModalClose(withConfirmation) {
     if (withConfirmation) {
         setBaseUrlOverrides('wms', wmsUrlOverride.value ?? null)
         setBaseUrlOverrides('wmts', wmtsUrlOverride.value ?? null)
         setBaseUrlOverrides('api3', api3UrlOverride.value ?? null)
+        setBaseUrlOverrides(
+            'viewerDedicatedServices',
+            viewerDedicatedServicesUrlOverride.value ?? null
+        )
     }
     store.dispatch('setHasBaseUrlOverrides', {
         hasOverrides: hasBaseUrlOverrides(),
@@ -90,6 +95,28 @@ function onModalClose(withConfirmation) {
                         type="button"
                         :disabled="api3UrlOverride === null"
                         @click="api3UrlOverride = null"
+                    >
+                        <FontAwesomeIcon icon="times" />
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="viewerDedicatedServicesUrlOverride" class="form-label"
+                    >sys-map base URL</label
+                >
+                <div class="input-group">
+                    <input
+                        id="viewerDedicatedServicesUrlOverride"
+                        v-model="viewerDedicatedServicesUrlOverride"
+                        type="url"
+                        class="form-control"
+                        :placeholder="`default: ${getDefaultBaseUrl('viewerDedicatedServices')}`"
+                    />
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        :disabled="viewerDedicatedServicesUrlOverride === null"
+                        @click="viewerDedicatedServicesUrlOverride = null"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>
