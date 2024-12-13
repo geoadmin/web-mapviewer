@@ -1,4 +1,4 @@
-import { setWmsGetCapParams, setWmtsGetCapParams } from '@/api/layers/layers-external.api'
+import { setWmsGetCapParams, setWmsGetMapParams, setWmtsGetCapParams, setWmtsTileParams } from '@/api/layers/layers-external.api'
 
 /**
  * Checks if file has WMS Capabilities XML content
@@ -56,4 +56,15 @@ export function guessExternalLayerUrl(provider, language) {
     }
     // By default if the URL service type cannot be guessed we use WMS
     return setWmsGetCapParams(new URL(provider), language)
+}
+export function guessExternalGetMapUrl(provider, layer, tileMatrixSet, tileMatrix, tileMatrixRow, tileMatrixCol) {
+    if (isWmtsUrl(provider)) {
+        return setWmtsTileParams(new URL(provider), layer, tileMatrixSet, tileMatrix, tileMatrixRow, tileMatrixCol)
+    }
+    if (isWmsUrl(provider)) {
+        return setWmsGetMapParams(new URL(provider), layer)
+    }
+    // // By default if the URL service type cannot be guessed we use WMS
+    // return setWmsGetCapParams(new URL(provider), layer)
+    return setWmsGetMapParams(new URL(provider), layer)
 }

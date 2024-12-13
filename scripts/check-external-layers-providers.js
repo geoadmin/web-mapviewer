@@ -21,6 +21,7 @@ import {
     parseWmtsCapabilities,
 } from '@/api/layers/layers-external.api'
 import {
+    guessExternalGetMapUrl,
     guessExternalLayerUrl,
     isWmsGetCap,
     isWmtsGetCap,
@@ -79,7 +80,61 @@ function compareCaseInsensitive(a, b) {
     return 0
 }
 
-async function checkProvider(provider, result) {
+async function checkProviderGetMap (provider, response, parser, result) {
+    // console.log('Checking provider:', response)
+
+    const xmlDoc = parser.parseFromString(response.data, 'text/xml')
+    let layer
+    let tileMatrixSetDetails
+    let tileMatrixSet
+    let tileMatrix
+    let tileMatrixRow
+    let tileMatrixCol
+    if (xmlDoc.querySelector('WMS_Capabilities')) {
+        const layerElements = xmlDoc.querySelector('Layer > Name')
+        // console.log('layerElements:', layerElements.textContent)
+
+        layer = layerElements.textContent
+    } else if (xmlDoc.querySelector('Capabilities')) {
+        // const layerElements = xmlDoc.querySelectorAll('Layer > Identifier')
+        const layerElements = xmlDoc.querySelector('Layer > ows\\:Identifier, Layer > Identifier')
+        const tileMatrixSetElements = xmlDoc.querySelector('Layer > TileMatrixSetLink > TileMatrixSet');
+        tileMatrix = xmlDoc.querySelector('Layer > TileMatrixSetLink > TileMatrixSetLimits > TileMatrixLimits > TileMatrix')?.textContent
+        tileMatrixRow = xmlDoc.querySelector('Layer > TileMatrixSetLink > TileMatrixSetLimits > TileMatrixLimits > MinTileRow')?.textContent;
+        tileMatrixCol = xmlDoc.querySelector('Layer > TileMatrixSetLink > TileMatrixSetLimits > TileMatrixLimits > MinTileCol')?.textContent;
+        tileMatrixSet = tileMatrixSetElements?.textContent || '';
+        // console.log('TileMatrixSet:', tileMatrixSet);
+        // console.log('tileMatrix:', tileMatrix);
+        // console.log('tileMatrixRow:', tileMatrixRow);
+        // console.log('tileMatrixCol:', tileMatrixCol);
+
+        tileMatrixSetDetails = Array.from(
+            xmlDoc.querySelectorAll(`TileMatrixSet > ows\\:Identifier, TileMatrixSet > Identifier`)
+        ).map((el) => el.textContent);
+        // console.log('TileMatrixSet Details:', tileMatrixSetDetails);
+        layer = layerElements.textContent
+    }
+    // console.log('Layers:', layer)
+
+    const getMapUrl = guessExternalGetMapUrl(provider, layer, tileMatrixSet, tileMatrix, tileMatrixRow, tileMatrixCol).toString()
+    // console.log('getMapUrl', getMapUrl)
+    const responseGetMap = await axios.get(getMapUrl, {
+        headers: {
+            Origin: 'https://map.geo.admin.ch',
+            Referer: 'https://map.geo.admin.ch',
+            'Sec-Fetch-Site': 'cross-site',
+        },
+        timeout: EXTERNAL_SERVER_TIMEOUT,
+    // }).catch((error) => {
+    //     console.log('Error:', error)
+    // })
+})
+    // console.log('Checking getMap:', responseGetMap)
+    const isProviderMapValid = checkProviderMapResponse(provider, getMapUrl, responseGetMap, result)
+    return isProviderMapValid
+}
+
+async function checkProvider(provider, result, parser) {
     const url = guessExternalLayerUrl(provider, 'en').toString()
     try {
         const response = await axios.get(url, {
@@ -90,7 +145,14 @@ async function checkProvider(provider, result) {
             },
             timeout: EXTERNAL_SERVER_TIMEOUT,
         })
-        checkProviderResponse(provider, url, response, result)
+        const isProviderValid = true
+        // const isProviderValid = checkProviderResponse(provider, url, response, result)
+        const isProviderMapValid = await checkProviderGetMap(provider, response, parser, result)
+        // const isProviderMapValid = true
+        // const isProviderMapValid = checkProviderMapResponse(provider, getMapUrl, responseGetMap, result)
+        if (isProviderValid && isProviderMapValid) {
+            result.valid_providers.push(provider)
+        }
     } catch (error) {
         if (error instanceof AxiosError) {
             console.error(`Provider ${provider} is not accessible: ${error}`)
@@ -143,8 +205,59 @@ function checkProviderResponse(provider, url, response, result) {
         })
     } else if (checkProviderResponseContent(provider, url, response, result)) {
         console.log(`Provider ${provider} is OK`)
-        result.valid_providers.push(provider)
+        // result.valid_providers.push(provider)
+        return true
     }
+
+    return false
+}
+
+function checkProviderMapResponse(provider, url, response, result) {
+    if (![200, 201].includes(response.status)) {
+        console.error(`Provider ${provider} is not valid: status=${response.status}`)
+        result.invalid_providers.push({
+            provider: provider,
+            url: url,
+            status: response.status,
+        })
+    } else if (!response.headers.has('access-control-allow-origin')) {
+        console.error(
+            `Provider ${provider} does not support CORS: status=${response.status}, ` +
+                `missing access-control-allow-origin header`
+        )
+        result.invalid_cors.push({
+            provider: provider,
+            url: url,
+            status: response.status,
+            headers: response.headers.toJSON(),
+        })
+    } else if (
+        !['*', 'https://map.geo.admin.ch'].includes(
+            response.headers.get('access-control-allow-origin').toString()?.trim()
+        )
+    ) {
+        console.error(
+            `Provider ${provider} does not have geoadmin in its CORS: status=${
+                response.status
+            }, Access-Control-Allow-Origin=${response.headers.get('access-control-allow-origin')}`
+        )
+        result.invalid_cors.push({
+            provider: provider,
+            url: url,
+            status: response.status,
+            headers: response.headers.toJSON(),
+        })
+    } else {
+        console.log(`Provider ${provider} is OK`)
+        // result.valid_providers.push(provider)
+        return true
+    }
+
+    return false
+    // } else if (checkProviderResponseContent(provider, url, response, result)) {
+    //     console.log(`Provider ${provider} is OK`)
+    //     result.valid_providers.push(provider)
+    // }
 }
 
 function checkProviderResponseContent(provider, url, response, result) {
@@ -207,8 +320,68 @@ function checkProviderResponseContent(provider, url, response, result) {
     return isValid
 }
 
-async function checkProviders(providers, result) {
-    return Promise.all(providers.map(async (provider) => checkProvider(provider, result)))
+function checkProviderResponseContentGetMap(provider, url, response, result) {
+    const content = response.data
+    let isValid = true
+
+    if (isWmsGetCap(content)) {
+        try {
+            const capabilities = parseWmsCapabilities(content, url)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* throw Error in case of  error */
+            )
+            if (layers.length === 0) {
+                throw new Error(`No valid WMS layers found`)
+            }
+        } catch (error) {
+            isValid = false
+            console.error(`Invalid provider ${provider}, WMS get Cap parsing failed: ${error}`)
+            result.invalid_wms.push({
+                provider: provider,
+                url: url,
+                error: `${error}`,
+                content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+            })
+        }
+    } else if (isWmtsGetCap(content)) {
+        try {
+            const capabilities = parseWmtsCapabilities(content, url)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* throw Error in case of  error */
+            )
+            if (layers.length === 0) {
+                throw new Error(`No valid WMTS layers found`)
+            }
+        } catch (error) {
+            isValid = false
+            console.error(`Invalid provider ${provider}, WMTS get Cap parsing failed: ${error}`)
+            result.invalid_wmts.push({
+                provider: provider,
+                url: url,
+                error: `${error}`,
+                content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+            })
+        }
+    } else {
+        isValid = false
+        console.error(`Invalid provider ${url}; file type not recognized`)
+        result.invalid_content.push({
+            provider: provider,
+            url: url,
+            content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+        })
+    }
+    return isValid
+}
+
+async function checkProviders(providers, result, parser) {
+    return Promise.all(providers.map(async (provider) => checkProvider(provider, result, parser)))
 }
 
 async function writeResult(result) {
@@ -266,8 +439,11 @@ async function main() {
     } else {
         providers = JSON.parse(await fs.readFile(options.input, { encoding: 'utf-8' }))
     }
+    const parser = new DOMParser()
 
-    await checkProviders(providers, result)
+    await checkProviders(providers, result, parser)
+    // await checkProviders([providers[0]], result, parser)
+    // await checkProviders([providers[96]], result, parser)
     console.log(`Done checking all ${providers.length} providers, writing results...`)
     try {
         await writeResult(result)

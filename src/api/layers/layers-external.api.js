@@ -44,6 +44,45 @@ export function setWmsGetCapParams(url, language) {
     }
     return url
 }
+export function setWmsGetMapParams(url, layer) {
+    // Mandatory params
+    url.searchParams.set('SERVICE', 'WMS')
+    url.searchParams.set('REQUEST', 'GetMap')
+    // Currently openlayers only supports version 1.3.0 !
+    url.searchParams.set('VERSION', '1.1.0')
+    url.searchParams.set('LAYERS', layer)
+    // url.searchParams.set('LAYERS', '1')
+    url.searchParams.set('STYLES', 'default')
+    url.searchParams.set('SRS', 'EPSG:4326')
+    //4326
+    // url.searchParams.set('CRS', 'EPSG:21781')
+    url.searchParams.set('BBOX', '10.0,10.0,10.0001,10.0001')
+    url.searchParams.set('WIDTH', '1')
+    url.searchParams.set('HEIGHT', '1')
+    // Optional params
+    url.searchParams.set('FORMAT', 'image/png')
+    return url
+}
+
+export function setWmtsTileParams(url, layer, tileMatrixSet, tileMatrix, tileMatrixRow, tileMatrixCol) {
+    // Mandatory params for WMTS
+    url.searchParams.set('SERVICE', 'WMTS');
+    url.searchParams.set('REQUEST', 'GetTile');
+    url.searchParams.set('VERSION', '1.1.0');
+    url.searchParams.set('LAYER', layer);
+    // url.searchParams.set('STYLE', 'default');
+    url.searchParams.set('TILEMATRIXSET', tileMatrixSet);
+    // url.searchParams.set('TILEMATRIXSET', 'defaultMatrixSet');
+    url.searchParams.set('TILEMATRIX', tileMatrix);
+    // url.searchParams.set('TILEMATRIX', 'EPSG:3857:0');
+    url.searchParams.set('TILEROW', tileMatrixRow);
+    url.searchParams.set('TILECOL', tileMatrixCol);
+
+    // Optional parameters
+    url.searchParams.set('FORMAT', 'image/png')
+
+    return url
+}
 
 /**
  * Read and parse WMS GetCapabilities
