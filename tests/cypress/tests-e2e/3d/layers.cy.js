@@ -1,12 +1,22 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
+function expectLayerCountToBe(viewer, layerCount) {
+    const layers = viewer.scene.imageryLayers
+    const layerUrls = []
+    for (let i = 0; i < layers.length; i++) {
+        layerUrls.push(layers.get(i).imageryProvider.url)
+    }
+    expect(layers.length).to.eq(
+        layerCount,
+        `Wrong layer count. Expected ${layerCount} but got ${layers.length}. Layers: \n${layerUrls.join('\n')}`
+    )
+}
+
 describe('Test of layer handling in 3D', () => {
     it('add layer from search bar', () => {
-        const expectedLayerId = 'test.wmts.layer'
-        cy.intercept(`**/1.0.0/${expectedLayerId}/default/**`, {
-            statusCode: 200,
-        }).as('get-wmts-layer')
+        cy.log('Search and add a WMTS layer through the search bar')
+        const expectedWmtsLayerId = 'test.wmts.layer'
         cy.mockupBackendResponse(
             '**rest/services/ech/SearchServer*?type=layers*',
             {
@@ -15,13 +25,13 @@ describe('Test of layer handling in 3D', () => {
                         id: 4321,
                         weight: 1,
                         attrs: {
-                            label: '<b>Test layer</b>',
-                            layer: expectedLayerId,
+                            label: '<b>Test WMTS layer</b>',
+                            layer: expectedWmtsLayerId,
                         },
                     },
                 ],
             },
-            'search-layers'
+            'search-wmts-layers'
         )
         cy.mockupBackendResponse(
             '**rest/services/ech/SearchServer*?type=locations*',
@@ -33,20 +43,46 @@ describe('Test of layer handling in 3D', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.openMenuIfMobile()
-        cy.get('[data-cy="searchbar"]').paste('test')
-        cy.wait(['@search-locations', '@search-layers'])
+        cy.get('[data-cy="searchbar"]').as('searchBar').paste('test wmts')
+        cy.wait(['@search-locations', '@search-wmts-layers'])
         cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            const layers = viewer.scene.imageryLayers
-            expect(layers.length).to.eq(
-                2,
-                'There should be the background layer + the layer added through the search'
+            expectLayerCountToBe(viewer, 2)
+            const wmtsLayer = viewer.scene.imageryLayers.get(1)
+            expect(wmtsLayer.show).to.eq(true)
+            expect(wmtsLayer.imageryProvider.url).to.have.string(
+                `1.0.0/${expectedWmtsLayerId}/default/current/3857/{z}/{x}/{y}.png`
             )
-            expect(layers.get(1).show).to.eq(true)
-            expect(layers.get(1).imageryProvider.url).to.have.string(
-                `1.0.0/${expectedLayerId}/default/current/3857/{z}/{x}/{y}.png`
-            )
+        })
+
+        cy.log('Search and add a WMS layer through the search bar')
+        const expectedWmsLayerId = 'test.wms.layer'
+        cy.mockupBackendResponse(
+            '**rest/services/ech/SearchServer*?type=layers*',
+            {
+                results: [
+                    {
+                        id: 5678,
+                        weight: 1,
+                        attrs: {
+                            label: '<b>Test WMS layer</b>',
+                            layer: expectedWmsLayerId,
+                        },
+                    },
+                ],
+            },
+            'search-wms-layers'
+        )
+        cy.get('@searchBar').clear()
+        cy.get('@searchBar').paste('test wms')
+        cy.wait(['@search-locations', '@search-wms-layers'])
+        cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            expectLayerCountToBe(viewer, 3)
+            const wmsLayer = viewer.scene.imageryLayers.get(2)
+            expect(wmsLayer.show).to.eq(true)
+            expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
         })
     })
     it('sets the opacity to the value defined in the layers URL param or menu UI', () => {
@@ -59,7 +95,14 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const layers = viewer.scene.imageryLayers
-            expect(layers.get(1).alpha).to.eq(0.5)
+            expect(layers.length).to.eq(
+                2,
+                'There should be the background layer + the WMTS layer added through the URL'
+            )
+            expect(layers.get(1).alpha).to.eq(
+                0.5,
+                'The opacity must come from the URL and not the default value from layers config'
+            )
         })
 
         cy.log('Checking that using the menu also changes the opacity correctly')
@@ -76,7 +119,24 @@ describe('Test of layer handling in 3D', () => {
             .trigger('input')
         cy.readWindowValue('cesiumViewer').should((viewer) => {
             const layers = viewer.scene.imageryLayers
-            expect(layers.get(1).alpha).to.eq(1.0 - newSliderPosition)
+            expect(layers.get(1).alpha).to.eq(
+                1.0 - newSliderPosition,
+                'Changing the transparency in the menu must change the opacity of the 3D layer'
+            )
+        })
+
+        cy.log('checking a WMS layer without 3D specific configuration')
+        const wmsLayerIdWithout3DConfig = 'test.wms.layer'
+        // closing the 3D menu section to have more room to manipulate the catalog section
+        cy.get('[data-cy="menu-tray-3d-section"] > [data-cy="menu-section-header"]').click()
+        cy.get('[data-cy="menu-topic-section"]').click()
+        cy.get('[data-cy="catalogue-tree-item-2"]').click()
+        cy.get('[data-cy="catalogue-tree-item-5"]').click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${wmsLayerIdWithout3DConfig}"]`).click()
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expectLayerCountToBe(viewer, 3)
+            const wmsLayer = viewer.scene.imageryLayers.get(2)
+            expect(wmsLayer.imageryProvider.layers).to.have.string(wmsLayerIdWithout3DConfig)
         })
     })
     it('sets the timestamp of a layer when specified in the layers URL param', () => {

@@ -139,6 +139,13 @@ function startLayerPreview() {
     }
 }
 
+function stopLayerPreview() {
+    store.dispatch('setPreviewLayer', {
+        layer: null,
+        ...dispatcher,
+    })
+}
+
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
     const layers = store.getters.getActiveLayersById(
@@ -164,6 +171,7 @@ function addRemoveLayer() {
             ...dispatcher,
         })
     }
+    stopLayerPreview()
 }
 
 function onItemClick() {
