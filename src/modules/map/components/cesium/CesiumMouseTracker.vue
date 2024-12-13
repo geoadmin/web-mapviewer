@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 const mousePosition = ref(null)
@@ -58,7 +59,7 @@ function setupHandler() {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            let coordinate = proj4('EPSG:4326', projection.value.getCode(), [longitude, latitude])
+            let coordinate = proj4(WGS84.epsg, projection.value.epsg, [longitude, latitude])
             coordinate.push(cartographic.height)
 
             mousePosition.value.textContent = formatCoordinate(coordinate)
