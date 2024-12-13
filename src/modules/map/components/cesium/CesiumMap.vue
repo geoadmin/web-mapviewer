@@ -161,8 +161,8 @@ provide('getViewer', () => viewer)
                 class="position-absolute start-50 translate-middle-x cesium-compass"
             />
         </template>
-        <slot />
     </div>
+    <slot />
 </template>
 
 <style lang="scss" scoped>
