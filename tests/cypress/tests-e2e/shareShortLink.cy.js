@@ -74,7 +74,7 @@ describe('Testing the share menu', () => {
             cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
 
             // Check if there is a warning class in the share link
-            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'warning-input')
+            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'bg-warning')
             // Check tooltip
             // Notes: realhover only works locally, mouseenter work both locally and in CI
             cy.get('[data-cy="input-copy-button').trigger('mouseenter')

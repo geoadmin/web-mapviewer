@@ -2,7 +2,6 @@
 import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// import { useStore } from 'vuex'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const props = defineProps({
@@ -35,9 +34,7 @@ const props = defineProps({
 const copiedInClipboard = ref(false)
 const timeoutCopied = ref(null)
 
-// const store = useStore()
 const i18n = useI18n()
-// const store = useStore()
 
 const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
     '#input-copy-button[data-tippy-content]',
@@ -52,7 +49,6 @@ const buttonText = computed(() => {
         .t(copiedInClipboard.value ? props.copiedText : props.copyText)
         .replace('&nbsp;', '\xa0')
 })
-// const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 const clearIsCopiedInClipboard = () => {
     copiedInClipboard.value = false
@@ -102,7 +98,7 @@ onUpdated(() => {
             <input
                 type="text"
                 class="form-control input-text-to-copy"
-                :class="{ 'warning-input': hasWarning }"
+                :class="{ 'bg-warning': hasWarning }"
                 readonly="readonly"
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
@@ -111,7 +107,7 @@ onUpdated(() => {
             <button
                 class="btn"
                 :class="{
-                    'warning-input': hasWarning,
+                    'btn-warning': hasWarning,
                     'btn-outline-group': !hasWarning,
                 }"
                 data-cy="menu-share-input-copy-button"
@@ -127,10 +123,5 @@ onUpdated(() => {
 @import '@/scss/webmapviewer-bootstrap-theme';
 .input-text-to-copy {
     width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
-}
-
-.warning-input {
-    border-color: $yellow-600;
-    background-color: $warning;
 }
 </style>
