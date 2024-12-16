@@ -70,8 +70,13 @@ export default function useDrawingModeInteraction({
         } else {
             interaction.on('drawstart', onDrawStart)
             interaction.on('drawend', onDrawEnd)
+            interaction.getOverlay().getSource().on('addfeature', onAddFeature)
         }
-        interaction.getOverlay().getSource().on('addfeature', onAddFeature)
+        console.log(
+            '[useDrawingModeInteraction] overlay layer:',
+            interaction.getOverlay(),
+            interaction.getOverlay().getSource()
+        )
 
         if (isExtending) {
             console.log('[useDrawingModeInteraction] starting feature:', startingFeature)
@@ -183,12 +188,37 @@ export default function useDrawingModeInteraction({
 
     function onModifyStart(_event) {
         console.log('[useDrawingModeInteraction] onModifyStart', _event)
-        willModify()
+        const theDrawingLayer = interaction.getOverlay().getSource()
+        const sketchFeature = interaction.sketchFeature_
+        console.log(
+            '[useDrawingModeInteraction] onModifyStart theDrawingLayer:',
+            theDrawingLayer.ol_uid,
+            theDrawingLayer.getFeatures()
+        )
+        console.log(
+            '[useDrawingModeInteraction] onModifyStart original drawingLayer:',
+            drawingLayer.getSource().ol_uid,
+            drawingLayer.getSource().getFeatures()
+        )
+        console.log('[useDrawingModeInteraction] onModifyStart sketchFeature:', sketchFeature)
+        // willModify()
     }
 
     function onModifyEnd(event) {
         console.log('[useDrawingModeInteraction] onModifyEnd', event)
+
+        const theDrawingLayer = interaction.getOverlay().getSource()
         const sketchFeature = interaction.sketchFeature_
+        console.log(
+            '[useDrawingModeInteraction] onModifyEnd theDrawingLayer:',
+            theDrawingLayer.ol_uid,
+            theDrawingLayer.getFeatures()
+        )
+        console.log(
+            '[useDrawingModeInteraction] onModifyEnd original drawingLayer:',
+            drawingLayer.getSource().ol_uid,
+            drawingLayer.getSource().getFeatures()
+        )
         console.log('[useDrawingModeInteraction] onModifyEnd sketchFeature:', sketchFeature)
         const feature = event.feature
 
@@ -197,7 +227,17 @@ export default function useDrawingModeInteraction({
             console.log('[useDrawingModeInteraction] modified feature:', feature)
             updateStoreFeatureCoordinatesGeometry(feature, reverseLineStringExtension.value)
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
-            interaction.finishDrawing()
+            // interaction.finishDrawing()
+            const modifiedFeature = drawingLayer.getSource().getFeatureById(feature.getId())
+            console.log(
+                '[useDrawingModeInteraction] modifiedFeature before modified:',
+                modifiedFeature
+            )
+            modifiedFeature.setGeometry(feature.getGeometry())
+            console.log(
+                '[useDrawingModeInteraction] modifiedFeature after modified:',
+                modifiedFeature
+            )
             debounceSaveDrawing()
         } else {
             console.log('[useDrawingModeInteraction] no feature')
@@ -220,7 +260,19 @@ export default function useDrawingModeInteraction({
 
     function onDrawEnd(event) {
         console.log('[useDrawingModeInteraction] onDrawEnd', event)
+
+        const theDrawingLayer = interaction.getOverlay().getSource()
         const sketchFeature = interaction.sketchFeature_
+        console.log(
+            '[useDrawingModeInteraction] onDrawEnd theDrawingLayer BEFORE:',
+            theDrawingLayer.ol_uid,
+            theDrawingLayer.getFeatures()
+        )
+        console.log(
+            '[useDrawingModeInteraction] onDrawEnd original drawingLayer BEFORE:',
+            drawingLayer.getSource().ol_uid,
+            drawingLayer.getSource().getFeatures()
+        )
         console.log('[useDrawingModeInteraction] onDrawEnd sketchFeature:', sketchFeature)
         // deactivating the interaction (so that the user doesn't create another feature right after this one)
         // this does not change the state, for that we will bubble the event so that the parent will then
@@ -265,6 +317,16 @@ export default function useDrawingModeInteraction({
         // Here we need to save work in next tick to have the drawingLayer source updated.
         // Otherwise, the source might not yet be updated with the new/updated/deleted feature
         nextTick().then(debounceSaveDrawing)
+        console.log(
+            '[useDrawingModeInteraction] onDrawEnd theDrawingLayer AFTER:',
+            theDrawingLayer.ol_uid,
+            theDrawingLayer.getFeatures()
+        )
+        console.log(
+            '[useDrawingModeInteraction] onDrawEnd original drawingLayer:',
+            drawingLayer.getSource().ol_uid,
+            drawingLayer.getSource().getFeatures()
+        )
     }
     function checkIfSnapping(event) {
         const feature = event.feature

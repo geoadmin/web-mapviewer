@@ -187,7 +187,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     }
 
     async function debounceSaveDrawing({ debounceTime = 2000, retryOnError = true } = {}) {
-        log.debug(
+        log.info(
             `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${differSaveDrawingTimeout}`
         )
         clearPendingSaveDrawing()
@@ -204,6 +204,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 )
             })
         }
+
         const savePromise = saveDrawing({ retryOnError, drawingName })
         savesInProgress.value.push(savePromise)
         await savePromise
