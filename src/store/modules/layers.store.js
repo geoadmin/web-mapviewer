@@ -1,5 +1,6 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
@@ -300,6 +301,25 @@ const getters = {
     hasAnyLocalFile: (state, getters) => () => {
         return state.activeLayers.some((layer) => getters.isLocalFile(layer))
     },
+
+    youngestYear: (state) =>
+        state.config.reduce((youngestYear, layer) => {
+            if (layer.hasMultipleTimestamps && youngestYear < layer.timeConfig.years[0]) {
+                return layer.timeConfig.years[0]
+            }
+            return youngestYear
+        }, DEFAULT_YOUNGEST_YEAR),
+
+    oldestYear: (state) =>
+        state.config.reduce((oldestYear, layer) => {
+            if (
+                layer.hasMultipleTimestamps &&
+                oldestYear > layer.timeConfig.years[layer.timeConfig.years.length - 1]
+            ) {
+                return layer.timeConfig.years[layer.timeConfig.years.length - 1]
+            }
+            return oldestYear
+        }, DEFAULT_OLDEST_YEAR),
 }
 
 const actions = {

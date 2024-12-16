@@ -1,6 +1,13 @@
 /// <reference types="cypress" />
 
 describe('Testing the embed view', () => {
+    function checkUrlParams(urlToCheck, validationUrl) {
+        const href = new URLSearchParams(urlToCheck.replace('#map', ''))
+        const validation = new URLSearchParams(validationUrl.replace('#map', ''))
+        for (const key of validation.keys()) {
+            expect(validation.get(key)).to.equal(href.get(key))
+        }
+    }
     it('Open in embed mode and can jump to the non embed mode', () => {
         cy.goToEmbedView()
 
@@ -29,13 +36,14 @@ describe('Testing the embed view', () => {
         cy.log(`Check the link url`)
         cy.get('[data-cy="open-full-app-link"]').should('be.visible').should('contain', 'View on ')
         cy.get('[data-cy="open-full-app-link-anchor"]', { timeout: 20000 })
-            .should(
-                'have.attr',
-                'href',
-                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
-            )
             .should('have.attr', 'target', '_blank')
-
+            .invoke('attr', 'href')
+            .should((href) =>
+                checkUrlParams(
+                    href,
+                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
+                )
+            )
         cy.log('Test mouse zoom scrolling')
         cy.location('hash').should('contain', 'z=1')
         cy.get('[data-cy="scaleline"]').should('contain', '50 km')
@@ -84,12 +92,14 @@ describe('Testing the embed view', () => {
         cy.log(`Check the link url`)
         cy.get('[data-cy="open-full-app-link"]').should('be.visible').should('contain', 'View on ')
         cy.get('[data-cy="open-full-app-link-anchor"]')
-            .should(
-                'have.attr',
-                'href',
-                `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=1.667&bgLayer=test.background.layer2&topic=ech`
-            )
             .should('have.attr', 'target', '_blank')
+            .invoke('attr', 'href')
+            .should((href) =>
+                checkUrlParams(
+                    href,
+                    `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=1.667&bgLayer=test.background.layer2&topic=ech`
+                )
+            )
     })
     it('Open in legacy embed mode and can jump to the non embed mode', () => {
         cy.log(`Open in legacy mode without parameters`)
@@ -120,12 +130,14 @@ describe('Testing the embed view', () => {
         cy.log(`Check the link url`)
         cy.get('[data-cy="open-full-app-link"]').should('be.visible').should('contain', 'View on ')
         cy.get('[data-cy="open-full-app-link-anchor"]')
-            .should(
-                'have.attr',
-                'href',
-                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
-            )
             .should('have.attr', 'target', '_blank')
+            .invoke('attr', 'href')
+            .should((href) =>
+                checkUrlParams(
+                    href,
+                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
+                )
+            )
 
         cy.log('Test mouse zoom scrolling')
         cy.location('hash').should('contain', 'z=1')
@@ -181,11 +193,13 @@ describe('Testing the embed view', () => {
         cy.log(`Check the link url`)
         cy.get('[data-cy="open-full-app-link"]').should('be.visible').should('contain', 'View on ')
         cy.get('[data-cy="open-full-app-link-anchor"]')
-            .should(
-                'have.attr',
-                'href',
-                `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1`
-            )
             .should('have.attr', 'target', '_blank')
+            .invoke('attr', 'href')
+            .should((href) =>
+                checkUrlParams(
+                    href,
+                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1`
+                )
+            )
     })
 })

@@ -166,7 +166,7 @@ function checkOpenSections(openSections) {
     sections
         .filter((section) => openSections.includes(section.name))
         .forEach((section) => {
-            cy.get(section.selector).should('be.visible')
+            cy.get(section.selector).should('exist')
         })
     sections
         .filter((section) => !openSections.includes(section.name))
@@ -217,7 +217,7 @@ describe('Test menu tray ui', () => {
         init(30, 30)
         checkOpenSections(['topics', 'activeLayers'])
         measureMenu(true)
-        checkScrollbarVisibility(true, true)
+        checkScrollbarVisibility(false, false)
 
         cy.get(menuActiveLayersHeaderSelector).click()
         waitForAnimationsToFinish()
@@ -249,11 +249,16 @@ describe('Test menu tray ui', () => {
         checkOpenSections(['topics'])
         measureMenu(true)
     })
-    it('Each open menu section has a minimal height, even if there is a high discrepancy between their original heights', () => {
+    it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
         init(30, 2)
         checkOpenSections(['topics', 'activeLayers'])
         measureMenu(true)
-        checkScrollbarVisibility(true, false)
+        checkScrollbarVisibility(false, false)
+
+        cy.get('[data-cy="menu-tray"]').then(($body) => {
+            cy.wrap($body).invoke('outerHeight').should('eq', 498)
+            cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
+        })
     })
     it('no scrolling if menus are small enough', () => {
         init(3, 2)

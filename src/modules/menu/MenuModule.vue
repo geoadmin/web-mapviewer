@@ -177,6 +177,14 @@ $openCloseButtonHeight: 2.5rem;
         }
     }
 }
+
+@include respond-below(phone) {
+    .menu {
+        .menu-tray {
+            overflow: auto;
+        }
+    }
+}
 // transition definitions
 .fade-in-out-enter-active,
 .fade-in-out-leave-active {

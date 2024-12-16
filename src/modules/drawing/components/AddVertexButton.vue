@@ -1,7 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditMode } from '@/store/modules/drawing.store'
@@ -24,7 +23,6 @@ const emit = defineEmits(['button-mounted'])
 
 const buttonRef = ref(null)
 
-const i18n = useI18n()
 const store = useStore()
 
 useTippyTooltip('#addVertexButton [data-tippy-content]', { placement: 'left' })
@@ -47,7 +45,7 @@ function addVertex() {
     <div id="addVertexButton" ref="buttonRef">
         <button
             class="overlay-button d-print-none"
-            :data-tippy-content="i18n.t(props.tooltipText)"
+            :data-tippy-content="props.tooltipText"
             @click="addVertex"
         >
             <font-awesome-icon :icon="['fas', 'plus']" />

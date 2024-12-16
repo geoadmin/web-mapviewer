@@ -27,6 +27,29 @@ export default defineConfig({
 
     e2e: {
         setupNodeEvents(on, config) {
+            on('before:browser:launch', (browser = {}, launchOptions) => {
+                // see https://www.bigbinary.com/blog/how-we-fixed-the-cypress-out-of-memory-error-in-chromium-browsers
+                if (['chrome', 'edge'].includes(browser.name)) {
+                    if (browser.isHeadless) {
+                        // Chromium browsers sandbox the pages, which increases the memory usage.
+                        // Since we're running the Cypress tests on trusted sites,
+                        // we can enable the --no-sandbox flag to reduce memory consumption
+                        launchOptions.args.push('--no-sandbox')
+                        // When running Cypress tests in headless mode,
+                        // we can disable the WebGL graphics on the rendered pages
+                        // to avoid additional memory usage by passing the --disable-gl-drawing-for-tests flag.
+                        launchOptions.args.push('--disable-gl-drawing-for-tests')
+                        // When running tests on low-resource machines,
+                        // using hardware acceleration can impact performance.
+                        // To avoid this, we can pass the --disable-gpu flag.
+                        launchOptions.args.push('--disable-gpu')
+                    }
+                    // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
+                    launchOptions.args.push('--js-flags=--max-old-space-size=3500')
+                }
+                return launchOptions
+            })
+
             // setup Vite as the preprocessor for Cypress (it will automatically read vite.config.mts from the root of the project)
             // this way we can import helper functions in Cypress tests through @/ notation
             on(

@@ -1,5 +1,4 @@
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -11,8 +10,8 @@ function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
         urlParamValue &&
         !isNaN(urlParamValue) &&
         Number.isInteger(urlParamValue) &&
-        OLDEST_YEAR <= urlParamValue &&
-        YOUNGEST_YEAR >= urlParamValue
+        store.getters.oldestYear <= urlParamValue &&
+        store.getters.youngestYear >= urlParamValue
     ) {
         promisesForAllDispatch.push(
             store.dispatch('setPreviewYear', {
@@ -42,8 +41,8 @@ function validateUrlInput(store, query) {
         query,
         !isNaN(query) &&
             Number.isInteger(Number(query)) &&
-            OLDEST_YEAR <= query &&
-            YOUNGEST_YEAR >= query,
+            store.getters.oldestYear <= query &&
+            store.getters.youngestYear >= query,
         this.urlParamName
     )
 

@@ -231,10 +231,24 @@ describe('The Import File Tool', () => {
             expect(result[0]).to.approximately(expected[0], acceptedDelta)
             expect(result[1]).to.approximately(expected[1], acceptedDelta)
         }
+        const emptySearchResponse = {
+            results: [],
+        }
+        cy.mockupBackendResponse(
+            'rest/services/ech/SearchServer*?type=layers*',
+            emptySearchResponse,
+            'search-layers'
+        )
+        cy.mockupBackendResponse(
+            'rest/services/ech/SearchServer*?type=locations*',
+            emptySearchResponse,
+            'search-locations'
+        )
 
         cy.log('Test search for a feature in the local KML file')
         cy.closeMenuIfMobile()
         cy.get('[data-cy="searchbar"]').paste('placemark')
+        cy.wait(['@search-layers', '@search-locations'])
         cy.get('[data-cy="search-results"]').should('be.visible')
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
@@ -252,6 +266,7 @@ describe('The Import File Tool', () => {
         cy.log('Test search for a feature in the online KML file')
         cy.get('[data-cy="searchbar-clear"]').click()
         cy.get('[data-cy="searchbar"]').paste('another sample')
+        cy.wait(['@search-layers', '@search-locations'])
         cy.get('[data-cy="search-results"]').should('be.visible')
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 1)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Another Sample Placemark')

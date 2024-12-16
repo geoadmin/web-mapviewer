@@ -261,28 +261,28 @@ describe('Testing of the compare slider', () => {
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
                 it('stays "active" when we remove the last layer', () => {
-                    cy.goToMapView({ layers: 'test-1.wms.layer', compareRatio: '0.3' }, true)
-                    cy.openMenuIfMobile()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    const compareRatioValue = 0.3
+                    cy.goToMapView(
+                        { layers: 'test-1.wms.layer', compareRatio: `${compareRatioValue}` },
+                        true
+                    )
 
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(true)
-                    })
+                    cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
+                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
+
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
 
+                    cy.openMenuIfMobile()
                     cy.get(`[data-cy^="button-remove-layer-test-1.wms.layer-"]`)
                         .should('be.visible')
                         .click()
+                    cy.closeMenuIfMobile()
 
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
+                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
 
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(true)
-                    })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
                 it('appears and is functional when layers are present in 2d', () => {

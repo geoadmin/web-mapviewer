@@ -6,8 +6,8 @@ import { useStore } from 'vuex'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
-import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { createLayerFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -22,8 +22,6 @@ const longPressEvents = [
 ]
 
 export default function useMapInteractions(map) {
-    const { handleFileSource } = useImportFile()
-
     const store = useStore()
 
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
@@ -68,12 +66,10 @@ export default function useMapInteractions(map) {
     })
 
     registerPointerEvents()
-    registerDragAndDropEvent()
     map.addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()
-        unregisterDragAndDropEvent()
     })
 
     /*
@@ -155,6 +151,7 @@ export default function useMapInteractions(map) {
                 pixelCoordinate: pixel,
                 features,
                 clickType: ClickType.LEFT_SINGLECLICK,
+                ...dispatcher,
             }),
         })
     }
@@ -168,6 +165,7 @@ export default function useMapInteractions(map) {
                 pixelCoordinate: event.pixel,
                 features: [],
                 clickType: ClickType.CONTEXTMENU,
+                ...dispatcher,
             }),
         })
     }
@@ -210,52 +208,5 @@ export default function useMapInteractions(map) {
         }
     }
 
-    function registerDragAndDropEvent() {
-        log.debug(`Register drag and drop events`)
-        const mapElement = map.getTargetElement()
-        mapElement.addEventListener('dragover', onDragOver)
-        mapElement.addEventListener('drop', onDrop)
-        mapElement.addEventListener('dragleave', onDragLeave)
-    }
-
-    function unregisterDragAndDropEvent() {
-        log.debug(`Unregister drag and drop events`)
-        const mapElement = map.getTargetElement()
-        mapElement.removeEventListener('dragover', onDragOver)
-        mapElement.removeEventListener('drop', onDrop)
-        mapElement.removeEventListener('dragleave', onDragLeave)
-    }
-
-    function onDragOver(event) {
-        event.preventDefault()
-        store.dispatch('setShowDragAndDropOverlay', { showDragAndDropOverlay: true, ...dispatcher })
-    }
-
-    function onDrop(event) {
-        event.preventDefault()
-        store.dispatch('setShowDragAndDropOverlay', {
-            showDragAndDropOverlay: false,
-            ...dispatcher,
-        })
-
-        if (event.dataTransfer.items) {
-            for (/** @type {DataTransferItem} */ const item of event.dataTransfer.items) {
-                // If dropped items aren't files, reject them
-                if (item.kind === 'file') {
-                    handleFileSource(item.getAsFile())
-                }
-            }
-        } else {
-            for (/** @type {File} */ const file of event.dataTransfer.files) {
-                handleFileSource(file)
-            }
-        }
-    }
-
-    function onDragLeave() {
-        store.dispatch('setShowDragAndDropOverlay', {
-            showDragAndDropOverlay: false,
-            ...dispatcher,
-        })
-    }
+    useDragFileOverlay(map.getTargetElement())
 }

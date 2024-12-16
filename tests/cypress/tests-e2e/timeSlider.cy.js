@@ -1,4 +1,4 @@
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
+import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
 /// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {
@@ -16,31 +16,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
         }
         const preSelectedYear = 2019
         const standard_layer = 'test.wmts.layer'
-        const timestamps = {}
-        const time_layer_std = 'test.timeenabled.wmts.layer' // years 2021 - 2015
-
-        timestamps[time_layer_std] = [
-            '20210101',
-            '20200101',
-            '20190101',
-            '20180101',
-            '20170101',
-            '20160101',
-            '20150101',
-        ]
-        const time_layer_odd = 'test.timeenabled.wmts.layer.2' // odd years 2023 - 2009
-        timestamps[time_layer_odd] = [
-            '20230101',
-            '20210101',
-            '20190101',
-            '20170101',
-            '20150101',
-            '20130101',
-            '20110101',
-            '20090101',
-        ]
-        const time_layer_with_all = 'test.timeenabled.wmts.layer.3' // years = all (9999), 2010 2009
-        timestamps[time_layer_with_all] = ['99990101', '20100101', '20090101']
+        const timedLayerId = 'test.timeenabled.wmts.layer' // years 1800, 2021...2015, 2050
+        const timedLayerIdWithOddYear = 'test.timeenabled.wmts.layer.2' // odd years 2023 to 2009
+        const timedLayerIdWithAllYear = 'test.timeenabled.wmts.layer.3' // years = all (9999), 2010 and 2009
         // those three classes are supposed to be mutually exclusive
         function isPrimaryBtn(classList) {
             return (
@@ -61,7 +39,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             //----------------------------------------------------------------------------------------------------
             cy.log(': Invisible time layer given. time slider button should not appear')
             cy.goToMapView({
-                layers: `${time_layer_std},f`,
+                layers: `${timedLayerId},f`,
             })
             cy.get('[data-cy="time-slider-button"]').should('not.exist')
 
@@ -76,7 +54,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log('The following few tests use the same goToMapView call')
             cy.log('With a visible time enabled Layer, the button should be visible')
             cy.goToMapView({
-                layers: `${time_layer_std}@year=${preSelectedYear}`,
+                layers: `${timedLayerId}@year=${preSelectedYear}`,
             })
             cy.get('[data-cy="time-slider-button"]').should('be.visible')
             // ----------------------------------------------------------------------------------------------------
@@ -97,10 +75,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
 
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should(
-                'contain',
-                preSelectedYear
-            )
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', preSelectedYear)
 
             // ----------------------------------------------------------------------------------------------------
             cy.log(
@@ -124,7 +99,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
 
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', newYear)
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', newYear)
 
             // ------------------------------------------------------------------------------------------------
             cy.log(
@@ -134,7 +109,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.openMenuIfMobile()
 
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', `${newYear}`)
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', newYear)
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', newYear)
 
             // ------------------------------------------------------------------------------------------------
             cy.log('When clicking on the time slider bar, we should go to that year')
@@ -145,10 +120,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'have.value',
                 `${preSelectedYear}`
             )
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should(
-                'contain',
-                preSelectedYear
-            )
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', preSelectedYear)
 
             // ------------------------------------------------------------------------------------------------
             cy.log('Afterwards, the changes in the year should also be kept in the layers')
@@ -158,10 +130,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
 
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should(
-                'contain',
-                preSelectedYear
-            )
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', preSelectedYear)
         })
         it('checks that the time slider is functional and behave correctly with the timeSlider param at startup', () => {
             // ----------------------------------------------------------------------------------------------------
@@ -170,111 +139,147 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             )
 
             cy.goToMapView({
-                layers: `${time_layer_std}@year=2019,f,;${time_layer_odd}@year=2009;${time_layer_with_all}@year=2009`,
+                layers: `${timedLayerId}@year=2019,f,;${timedLayerIdWithOddYear}@year=2009;${timedLayerIdWithAllYear}@year=2009`,
                 timeSlider: 2013,
             })
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '2013')
+            cy.get('[data-cy="time-slider-bar-cursor-year"]')
+                .as('timeSliderYearCursor')
+                .should('have.value', '2013')
             // ----------------------------------------------------------------------------------------------------
             cy.log('shows that the CSS is correct for all time enable layers')
             cy.log(' time selector years shown ')
             cy.openMenuIfMobile()
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2019)
-            cy.log(`${time_layer_std} : CSS of time selectors on an invisible layer`)
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).click()
-            timestamps[time_layer_std].forEach((timestamp) => {
-                cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                    const classList = Array.from(element[0].classList)
-                    // in the invisible layer, the year is set to 2019 : it should still be 2019 and everything else
-                    // should be a light button
-                    return timestamp === '20190101'
-                        ? isPrimaryBtn(classList)
-                        : isLightBtn(classList)
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', 2019)
+            cy.log(`${timedLayerId} : CSS of time selectors on an invisible layer`)
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).click()
+            cy.fixture('layers.fixture').then((layers) => {
+                const timedLayerConfig = layers[timedLayerId]
+                timedLayerConfig.timestamps.forEach((timestamp) => {
+                    cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
+                        const classList = Array.from(element[0].classList)
+                        // in the invisible layer, the year is set to 2019 : it should still be 2019 and everything else
+                        // should be a light button
+                        return timestamp === '20190101'
+                            ? isPrimaryBtn(classList)
+                            : isLightBtn(classList)
+                    })
                 })
-            })
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            cy.log(
-                `${time_layer_odd} : CSS of time selectors on a layer with data on the preview Year selected`
-            )
-            cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).should('contain', 2013)
-            cy.get(`[data-cy="time-selector-${time_layer_odd}-1"]`).click()
-            timestamps[time_layer_odd].forEach((timestamp) => {
-                cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                    const classList = Array.from(element[0].classList)
-                    // in the odd layer, the year is set to 2009 and the time slider to 2013:
-                    // it should show 2013 as primary, 2009 as outline and everything else
-                    // should be a light button
-                    if (timestamp === '20130101') {
-                        return isPrimaryBtn(classList)
-                    } else {
-                        return isLightBtn(classList)
-                    }
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                cy.log(
+                    `${timedLayerIdWithOddYear} : CSS of time selectors on a layer with data on the preview Year selected`
+                )
+                cy.get(`[data-cy="time-selector-${timedLayerIdWithOddYear}-1"]`).should(
+                    'contain',
+                    2013
+                )
+                cy.get(`[data-cy="time-selector-${timedLayerIdWithOddYear}-1"]`).click()
+                const oddTimestampLayer = layers[timedLayerIdWithOddYear]
+                oddTimestampLayer.timestamps.forEach((timestamp) => {
+                    cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
+                        const classList = Array.from(element[0].classList)
+                        // in the odd layer, the year is set to 2009 and the time slider to 2013:
+                        // it should show 2013 as primary, 2009 as outline and everything else
+                        // should be a light button
+                        if (timestamp === '20130101') {
+                            return isPrimaryBtn(classList)
+                        } else {
+                            return isLightBtn(classList)
+                        }
+                    })
                 })
-            })
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).should('contain', '-')
-            cy.get(`[data-cy="time-selector-${time_layer_with_all}-2"]`).click()
-            timestamps[time_layer_with_all].forEach((timestamp) => {
-                cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                    const classList = Array.from(element[0].classList)
-                    return isLightBtn(classList)
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                cy.get(`[data-cy="time-selector-${timedLayerIdWithAllYear}-2"]`).should(
+                    'contain',
+                    '-'
+                )
+                cy.get(`[data-cy="time-selector-${timedLayerIdWithAllYear}-2"]`).click()
+                const allYearLayer = layers[timedLayerIdWithAllYear]
+                allYearLayer.timestamps.forEach((timestamp) => {
+                    cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
+                        const classList = Array.from(element[0].classList)
+                        return isLightBtn(classList)
+                    })
                 })
             })
             // ---------------------------------------------------------------------------------------------------
             cy.log(
-                'When using the timeSlider with multiple layers, if there is data common to all layers, the time slider goes to the youngest year in common'
+                'If there is data common to all layers, the time slider goes to the youngest year in common'
             )
-            cy.get('[data-cy="menu-swiss-flag"').click()
-            cy.goToMapView({ layers: `${time_layer_std};${time_layer_odd}` })
-            cy.get('[data-cy="time-slider-button"]').click()
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '2021')
+            cy.get('[data-cy="menu-swiss-flag"]').as('swissFlag').click()
+            cy.goToMapView({ layers: `${timedLayerId};${timedLayerIdWithOddYear}` })
+            cy.get('[data-cy="time-slider-button"]').as('timeSliderButton').click()
+            cy.get('@timeSliderYearCursor').should('have.value', '2021')
             cy.url().should((url) => url.includes('timeSlider=2021'))
             // ---------------------------------------------------------------------------------------------------
             cy.log(
                 'invisible time layer and timeSlider as parameter : time slider button should not appear and the parameter should not be in URL'
             )
 
-            cy.get('[data-cy="menu-swiss-flag"').click()
+            cy.get('@swissFlag').click()
             cy.goToMapView({
-                layers: `${time_layer_std},f`,
+                layers: `${timedLayerId},f`,
                 timeSlider: 2003,
             })
-            cy.get('[data-cy="time-slider-button"]').should('not.exist')
+            cy.get('@timeSliderButton').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
             // ---------------------------------------------------------------------------------------------------
 
             cy.log(
-                'When using the timeSlider with multiple layers, if there are no data common to all layers, the time slider should be set to the youngest year with data'
+                'If there are no data common to all layers, the time slider should be set to the youngest year with data'
             )
 
-            cy.get('[data-cy="menu-swiss-flag"').click()
+            cy.get('@swissFlag').click()
             cy.goToMapView({
-                layers: `${time_layer_std};${time_layer_odd};${time_layer_with_all}`,
+                layers: `${timedLayerId};${timedLayerIdWithOddYear};${timedLayerIdWithAllYear}`,
             })
-            cy.get('[data-cy="time-slider-button"]').click()
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', '2023')
-            cy.url().should((url) => url.includes('timeSlider=2023'))
+            cy.get('@timeSliderButton').click()
+
+            cy.fixture('layers.fixture').then((layers) => {
+                const layerConfig = layers[timedLayerId]
+                const youngestYearInConfig = layerConfig.timestamps[0].substring(0, 4)
+                const oldestYearInConfig = layerConfig.timestamps[
+                    layerConfig.timestamps.length - 1
+                ].substring(0, 4)
+                cy.get('@timeSliderYearCursor').should('have.value', youngestYearInConfig)
+                cy.url().should((url) => url.includes(`timeSlider=${youngestYearInConfig}`))
+
+                cy.log('Time slider should incorporate years older than default if present in data')
+                cy.get('[data-cy="time-slider-dropdown-input"]').click()
+                cy.get(`[data-cy="time-slider-dropdown-entry-${oldestYearInConfig}"]`).should(
+                    'exist'
+                )
+
+                cy.log(
+                    'Loading the app with a time slider value present in config but outside of default range should work without raising errors'
+                )
+                cy.get('@swissFlag').click()
+                cy.goToMapView({ layers: timedLayerId, timeSlider: oldestYearInConfig })
+                cy.get('@timeSliderYearCursor').should('have.value', oldestYearInConfig)
+                cy.url().should((url) => !url.includes('timeSlider='))
+
+                cy.get('@swissFlag').click()
+                cy.goToMapView({ layers: timedLayerId, timeSlider: youngestYearInConfig })
+                cy.get('@timeSliderYearCursor').should('have.value', youngestYearInConfig)
+                cy.url().should((url) => !url.includes('timeSlider='))
+            })
 
             // ---------------------------------------------------------------------------------------------------
-            cy.log(
-                'When using a wrong Time Slider Parameter, the time slider should not appear and the url should not show the parameter'
-            )
+            cy.log('The time slider should not appear and the url should not show the parameter')
 
-            cy.get('[data-cy="menu-swiss-flag"').click()
-            cy.goToMapView({ layers: time_layer_std, timeSlider: OLDEST_YEAR - 1250 })
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('not.exist') // time-slider-bar-cursor-year
+            cy.get('@swissFlag').click()
+            cy.goToMapView({ layers: timedLayerId, timeSlider: DEFAULT_OLDEST_YEAR - 1250 })
+            cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
-            cy.get('[data-cy="menu-swiss-flag"').click()
-            cy.goToMapView({ layers: time_layer_std, timeSlider: YOUNGEST_YEAR + 1250 })
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('not.exist')
+            cy.goToMapView({ layers: timedLayerId, timeSlider: DEFAULT_YOUNGEST_YEAR + 1250 })
+            cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
-            cy.get('[data-cy="menu-swiss-flag"').click()
-            cy.goToMapView({ layers: time_layer_std, timeSlider: 'aCompletelyInvalidValue' })
-            cy.get('[data-cy="time-slider-bar-cursor-year"]').should('not.exist')
+            cy.goToMapView({ layers: timedLayerId, timeSlider: 'aCompletelyInvalidValue' })
+            cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
             // ---------------------------------------------------------------------------------------------------
@@ -285,12 +290,12 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
         it('behaves correctly when years are being entered in the input', () => {
             cy.viewport(1920, 1080)
-            cy.goToMapView({ layers: `${time_layer_std}@year=2019`, timeSlider: 2017 })
-            cy.get(`[data-cy="button-open-visible-layer-settings-${time_layer_std}-0"]`).click()
-            cy.get(`[data-cy="button-duplicate-layer-${time_layer_std}-0"]`).click()
-            cy.get(`[data-cy="button-toggle-visibility-layer-${time_layer_std}-0"]`).click()
-            cy.get(`[data-cy="time-selector-${time_layer_std}-0"]`).should('contain', 2017)
-            cy.get(`[data-cy="time-selector-${time_layer_std}-1"]`).should('contain', 2017)
+            cy.goToMapView({ layers: `${timedLayerId}@year=2019`, timeSlider: 2017 })
+            cy.get(`[data-cy="button-open-visible-layer-settings-${timedLayerId}-0"]`).click()
+            cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-0"]`).click()
+            cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-0"]`).click()
+            cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', 2017)
+            cy.get(`[data-cy="time-selector-${timedLayerId}-1"]`).should('contain', 2017)
 
             // ---------------------------------------------------------------------------------------------------
             cy.log('Check time slider year cursor text input')
@@ -350,7 +355,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             // ----------------------------------------------------------------------------------------------------
             cy.log('Going to the map, the dropdown appears')
             cy.goToMapView({
-                layers: `${time_layer_std}@year=${preSelectedYear}`,
+                layers: `${timedLayerId}@year=${preSelectedYear}`,
                 timeSlider: preSelectedYear,
             })
             cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
@@ -366,9 +371,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
             cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')
 
-            cy.get('[data-cy="time-slider-dropdown"]')
-                .get('[data-cy="searchable-dropdown"] input')
-                .type('1999{downArrow}{enter}')
+            cy.get('[data-cy="time-slider-dropdown-input"]').type('1999{downArrow}{enter}')
 
             cy.log(
                 'When resizing back to lg screens, the chosen year from the dropdown should be correct in the time slider'

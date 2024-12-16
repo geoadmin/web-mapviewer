@@ -285,12 +285,9 @@ describe('Testing the feature selection', () => {
             // Import KML file
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
-            cy.goToMapView(
-                {
-                    layers: 'test.wms.layer',
-                },
-                true
-            )
+            cy.goToMapView({
+                layers: 'test.wms.layer',
+            })
             cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
 
             const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
@@ -298,16 +295,19 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
-            cy.fixture(localKmlFile, null).as('kmlFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
-                force: true,
-            })
+
+            cy.fixture(localKmlFile).as('kmlFile')
+            cy.get('[data-cy="file-input"]').selectFile(
+                { contents: '@kmlFile', fileName: fileName },
+                { force: true }
+            )
+
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
-            cy.get('[data-cy="import-file-close-button"]:visible').realClick()
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
             cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
             cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
 
@@ -400,12 +400,9 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'sending a single feature as response, checking that the "Load more" button is not added'
             )
-            cy.goToMapView(
-                {
-                    layers: 'test.wms.layer',
-                },
-                true
-            )
+            cy.goToMapView({
+                layers: 'test.wms.layer',
+            })
             cy.wait('@routeChange')
 
             cy.intercept('**identify**', {
@@ -444,6 +441,84 @@ describe('Testing the feature selection', () => {
             cy.get('@identify.all').should('have.length', 2)
             cy.get('@identifySingleFeature.all').should('have.length', 1)
             cy.get('@emptyIdentify.all').should('have.length', 1)
+        })
+
+        it('can print feature information', () => {
+            // Import KML file
+            const fileName = 'external-kml-file.kml'
+            const localKmlFile = `import-tool/${fileName}`
+            cy.goToMapView({
+                layers: 'test.wms.layer',
+            })
+            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+
+            cy.fixture(localKmlFile).as('kmlFile')
+            cy.get('[data-cy="file-input"]').selectFile(
+                { contents: '@kmlFile', fileName: fileName },
+                { force: true }
+            )
+
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+            cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
+
+            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
+
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
+            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
+            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+
+            cy.closeMenuIfMobile()
+
+            cy.checkOlLayer([
+                'test.background.layer2',
+                { id: 'test.wms.layer', opacity: 0.75 },
+                fileName,
+            ])
+
+            // olMap is used in drawRectangleOnMap
+            cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
+            cy.log(
+                'Selecting a rectangle (by click&drag) while pressing SHIFT, should start a rectangle identification of features'
+            )
+            drawRectangleOnMap({
+                x: 10,
+                y: 10,
+            })
+
+            cy.log('making sure 51 items are requested when selecting a dragbox on the map') // including the one from the kml file
+            cy.wait('@identify')
+                .its('request.query.limit')
+                .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+            // waiting for each feature detail to be loaded (can take a while with the stubbing, so it can lead to timeouts
+            // with further selectors if not properly waited)
+            for (
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
+            ) {
+                cy.wait(`@htmlPopup`)
+            }
+            cy.window().then((win) => {
+                cy.stub(win, 'print').as('print')
+            })
+            cy.get('[data-cy=print-button]').should('be.visible').click()
+            // The print window is opened and the content is present in the window and in the normal view therefore it is shown twice
+            cy.get('[data-cy=highlighted-features]').should('have.length', 2)
+            cy.get('[data-cy=feature-item]')
+                .should('have.length', 102)
+                .should('contain', 'Sample Placemark')
+            cy.get('.htmlpopup-container')
+                .should('have.length', 2)
+                .should('contain', 'Title')
+                .should('contain', 'Sample Placemark')
+                .should('contain', 'Description')
+                .should('contain', 'This is a sample KML Placemark.')
+            cy.get('@print').should('be.calledOnce')
         })
     })
 })
