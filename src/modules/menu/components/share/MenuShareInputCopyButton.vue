@@ -41,6 +41,7 @@ const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
     {
         placement: 'top',
         offset: [0, -20],
+        theme: 'warning',
     }
 )
 
