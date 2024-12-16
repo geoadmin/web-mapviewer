@@ -9,9 +9,14 @@ import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/api/features/features.api'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
@@ -26,6 +31,7 @@ export default function useDrawingModeInteraction({
     useGeodesicDrawing = false,
     snapping = false,
     drawEndCallback = null,
+    startingFeature = null,
 }) {
     const counterLinePolyPoints = ref(0)
     const isSnappingOnFirstPoint = ref(false)
@@ -33,10 +39,13 @@ export default function useDrawingModeInteraction({
     const drawingLayer = inject('drawingLayer')
     const olMap = inject('olMap')
 
-    const { debounceSaveDrawing } = useSaveKmlOnChange()
+    const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
     const store = useStore()
     const projection = computed(() => store.state.position.projection)
+    const reverseLineStringExtension = computed(
+        () => store.state.drawing.reverseLineStringExtension
+    )
 
     const interaction = new DrawInteraction({
         style: editingStyle,
@@ -52,13 +61,24 @@ export default function useDrawingModeInteraction({
         source: drawingLayer.getSource(),
     })
 
+    let isExtending = startingFeature ? true : false
+
     onMounted(() => {
-        interaction.setActive(true)
-
+        if (isExtending) {
+            interaction.on('drawstart', onModifyStart)
+            interaction.on('drawend', onModifyEnd)
+        } else {
+            interaction.on('drawstart', onDrawStart)
+            interaction.on('drawend', onDrawEnd)
+        }
         interaction.getOverlay().getSource().on('addfeature', onAddFeature)
-        interaction.on('drawstart', onDrawStart)
-        interaction.on('drawend', onDrawEnd)
 
+        if (isExtending) {
+            console.log('[useDrawingModeInteraction] starting feature:', startingFeature)
+            interaction.extend(startingFeature)
+        }
+
+        interaction.setActive(true)
         olMap.addInteraction(interaction)
         if (snapping) {
             olMap.addInteraction(snapInteraction)
@@ -79,10 +99,15 @@ export default function useDrawingModeInteraction({
     function deactivate() {
         olMap.removeInteraction(interaction)
 
-        interaction.un('drawend', onDrawEnd)
-        interaction.un('drawstart', onDrawStart)
-        interaction.getOverlay().getSource().un('addfeature', onAddFeature)
+        if (isExtending) {
+            interaction.un('drawstart', onModifyStart)
+            interaction.un('drawend', onModifyEnd)
+        } else {
+            interaction.un('drawstart', onDrawStart)
+            interaction.un('drawend', onDrawEnd)
+        }
 
+        interaction.getOverlay().getSource().un('addfeature', onAddFeature)
         interaction.setActive(false)
     }
 
@@ -135,7 +160,55 @@ export default function useDrawingModeInteraction({
         counterLinePolyPoints.value = 0
     }
 
+    // Update the store feature with the new coordinates and geometry
+    // TODO(IS): this function is duplicated in useModifyInteraction.composable.js
+    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
+        console.log('[useDrawingModeInteraction] updateStoreFeatureCoordinatesGeometry', feature)
+        const storeFeature = feature.get('editableFeature')
+        if (reverse) {
+            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
+        }
+        store.dispatch('changeFeatureCoordinates', {
+            feature: storeFeature,
+            coordinates: extractOlFeatureCoordinates(feature),
+            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+            ...dispatcher,
+        })
+        store.dispatch('changeFeatureGeometry', {
+            feature: storeFeature,
+            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+            ...dispatcher,
+        })
+    }
+
+    function onModifyStart(_event) {
+        console.log('[useDrawingModeInteraction] onModifyStart', _event)
+        willModify()
+    }
+
+    function onModifyEnd(event) {
+        console.log('[useDrawingModeInteraction] onModifyEnd', event)
+        const sketchFeature = interaction.sketchFeature_
+        console.log('[useDrawingModeInteraction] onModifyEnd sketchFeature:', sketchFeature)
+        const feature = event.feature
+
+        // Update the original feature with new coordinates
+        if (feature) {
+            console.log('[useDrawingModeInteraction] modified feature:', feature)
+            updateStoreFeatureCoordinatesGeometry(feature, reverseLineStringExtension.value)
+            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
+            interaction.finishDrawing()
+            debounceSaveDrawing()
+        } else {
+            console.log('[useDrawingModeInteraction] no feature')
+        }
+        if (drawEndCallback) {
+            drawEndCallback(feature)
+        }
+    }
+
     function onDrawStart(event) {
+        console.log('[useDrawingModeInteraction] onDrawStart', event)
         const feature = event.feature
         log.debug(`onDrawStart feature ${feature.getId()}`)
         if (useGeodesicDrawing) {
@@ -146,6 +219,9 @@ export default function useDrawingModeInteraction({
     }
 
     function onDrawEnd(event) {
+        console.log('[useDrawingModeInteraction] onDrawEnd', event)
+        const sketchFeature = interaction.sketchFeature_
+        console.log('[useDrawingModeInteraction] onDrawEnd sketchFeature:', sketchFeature)
         // deactivating the interaction (so that the user doesn't create another feature right after this one)
         // this does not change the state, for that we will bubble the event so that the parent will then
         // dispatch changes to the store

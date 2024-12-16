@@ -86,16 +86,25 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     async function saveDrawing({ retryOnError = true }) {
         try {
-            log.debug(
+            log.info(
                 `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${differSaveDrawingTimeout}`
             )
             clearPendingSaveDrawing()
             saveState.value = DrawingState.SAVING
+            console.log(
+                '[useKmlDataManagement] features',
+                // drawingLayer,
+                // drawingLayer.getSource(),
+                drawingLayer.getSource().getFeatures(),
+                // projection.value,
+                drawingName.value
+            )
             const kmlData = generateKmlString(
                 projection.value,
                 drawingLayer.getSource().getFeatures(),
                 drawingName.value
             )
+            console.log('kmlData', kmlData)
             if (online.value) {
                 await saveOnlineDrawing(kmlData)
             } else {
