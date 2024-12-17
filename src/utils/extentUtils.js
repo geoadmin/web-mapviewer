@@ -6,6 +6,7 @@ import proj4 from 'proj4'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class.js'
 import { round } from '@/utils/numberUtils'
 
 /**
@@ -83,6 +84,10 @@ export function getExtentIntersectionWithCurrentProjection(
         !(currentProjection instanceof CoordinateSystem)
     ) {
         return null
+    }
+    // if current projection is a world-wide system, we simply return the extent (as it will inevitably intersect with a world-wide coordinate system...)
+    if (currentProjection instanceof StandardCoordinateSystem) {
+        return flattenExtent(extent)
     }
     let currentProjectionAsExtentProjection = currentProjection.bounds.flatten
     if (extentProjection.epsg !== currentProjection.epsg) {
