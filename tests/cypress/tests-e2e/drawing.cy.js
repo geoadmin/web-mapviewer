@@ -66,6 +66,19 @@ describe('Drawing module tests', () => {
                 .its('request')
                 .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
         }
+
+        // Check that the linestring has the expected number of points
+        // Only works for line string drawing
+        function checkLinestringNumberOfPoints(numberOfPoints) {
+            cy.readWindowValue('drawingLayer')
+                .then((drawingLayer) => drawingLayer.getSource().getFeatures())
+                .should((features) => {
+                    expect(features).to.be.an('Array').lengthOf(1)
+                    const [feature] = features
+                    const lineStringCoordinates = feature.getGeometry().getCoordinates()
+                    expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                })
+        }
         beforeEach(() => {
             cy.goToDrawing()
         })
@@ -544,6 +557,50 @@ describe('Drawing module tests', () => {
             // eslint-disable-next-line cypress/no-unnecessary-waiting
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
+        })
+        it('can create line, extend it, and delete the last node by right click', () => {
+            cy.viewport(1920, 1080)
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+
+            const lineCoordinates = [
+                [500, 500],
+                [550, 550],
+                [600, 600],
+                [700, 600],
+                [800, 600],
+                [800, 400],
+                [900, 400],
+                [1000, 400],
+            ]
+            lineCoordinates.forEach((coordinate) => {
+                cy.get('[data-cy="ol-map"]').click(...coordinate)
+            })
+            // should create a line by re-clicking the last point
+            cy.get('[data-cy="ol-map"]').click(...lineCoordinates.at(lineCoordinates.length - 1))
+            checkLinestringNumberOfPoints(8)
+
+            // Extend from the last node of line
+            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(1100, 450)
+            // finish extending the line by clicking the last point
+            cy.get('[data-cy="ol-map"]').click(1100, 450)
+            checkLinestringNumberOfPoints(9)
+
+            // Extend from the first node of line
+            cy.get('[data-cy="extend-from-first-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(500, 450)
+            cy.get('[data-cy="ol-map"]').click(600, 450)
+            // finish extending the line by clicking the last point
+            cy.get('[data-cy="ol-map"]').click(600, 450)
+            checkLinestringNumberOfPoints(11)
+
+            // Delete the last node by right click
+            cy.get('[data-cy="ol-map"]').rightclick()
+            checkLinestringNumberOfPoints(10)
+
+            // Delete the last node by clicking the delete button
+            cy.get('[data-cy="drawing-delete-last-point-button"]').click()
+            checkLinestringNumberOfPoints(9)
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)

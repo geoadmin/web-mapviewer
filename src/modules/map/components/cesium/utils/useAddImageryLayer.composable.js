@@ -15,7 +15,7 @@ import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
  * @param {Function<ImageryProvider>} createProvider
  * @param {Ref<Number>} zIndex
  * @param {Ref<Number>} opacity
- * @returns {{ layer: ImageryLayer; refreshLayer: Function }}
+ * @returns {{ refreshLayer: Function }}
  */
 export default function useAddImageryLayer(cesiumViewer, createProvider, zIndex, opacity) {
     let layer
@@ -26,10 +26,7 @@ export default function useAddImageryLayer(cesiumViewer, createProvider, zIndex,
         }
         const provider = createProvider()
         if (provider) {
-            layer = cesiumViewer.scene.imageryLayers.addImageryProvider(
-                createProvider(),
-                toValue(zIndex)
-            )
+            layer = cesiumViewer.scene.imageryLayers.addImageryProvider(provider, toValue(zIndex))
         }
     }
 

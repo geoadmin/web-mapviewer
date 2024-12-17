@@ -60,7 +60,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     compareRatio.value = storeCompareRatio.value
-    unRegisterRenderingEvents(visibleLayerOnTop.value.id)
+    if (visibleLayerOnTop.value) {
+        unRegisterRenderingEvents(visibleLayerOnTop.value.id)
+    }
     olMap.render()
 })
 

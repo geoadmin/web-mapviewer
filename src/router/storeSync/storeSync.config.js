@@ -86,6 +86,28 @@ const storeSyncConfig = [
         defaultValue: false,
     }),
     new SimpleUrlParamConfig({
+        urlParamName: 'topic',
+        mutationsToWatch: ['changeTopic'],
+        dispatchName: 'changeTopic',
+        dispatchValueName: 'topicId',
+        extractValueFromStore: (store) => store.state.topics.current,
+        keepInUrlWhenDefault: true,
+        valueType: String,
+        defaultValue: null,
+        validateUrlInput: (store, query) =>
+            getStandardValidationResponse(
+                query,
+                store.state.topics.config.map((topic) => topic.id).includes(query),
+                'topic'
+            ),
+    }),
+    new CrossHairParamConfig(),
+    new CompareSliderParamConfig(),
+    new LayerParamConfig(),
+    // For now, bgLayer must be after layers, as it could cause an issue where it would reload the application
+    // without the layers when previewing the embed view to be shared, causing those layers to disappear from the
+    // link sharing.
+    new SimpleUrlParamConfig({
         urlParamName: 'bgLayer',
         mutationsToWatch: ['setBackground'],
         dispatchName: 'setBackground',
@@ -111,25 +133,6 @@ const storeSyncConfig = [
                 'bgLayer'
             ),
     }),
-    new SimpleUrlParamConfig({
-        urlParamName: 'topic',
-        mutationsToWatch: ['changeTopic'],
-        dispatchName: 'changeTopic',
-        dispatchValueName: 'topicId',
-        extractValueFromStore: (store) => store.state.topics.current,
-        keepInUrlWhenDefault: true,
-        valueType: String,
-        defaultValue: null,
-        validateUrlInput: (store, query) =>
-            getStandardValidationResponse(
-                query,
-                store.state.topics.config.map((topic) => topic.id).includes(query),
-                'topic'
-            ),
-    }),
-    new CrossHairParamConfig(),
-    new CompareSliderParamConfig(),
-    new LayerParamConfig(),
     new SimpleUrlParamConfig({
         urlParamName: 'featureInfo',
         mutationsToWatch: ['setFeatureInfoPosition'],

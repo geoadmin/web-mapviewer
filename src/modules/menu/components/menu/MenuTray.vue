@@ -188,6 +188,12 @@ function addRefBySectionId(el) {
     font-size: 0.825rem;
 }
 
+@include respond-below(phone) {
+    .menu-tray-inner {
+        overflow: unset;
+    }
+}
+
 @include respond-above(lg) {
     .help-section {
         // See HeaderWithSearch.vue css where the help-section is enable below lg

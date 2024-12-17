@@ -71,14 +71,15 @@ defineExpose({ goToFirst, goToSpecific })
                 v-for="(entry, key) in entries"
                 :key="entry"
                 :tabindex="key"
+                :data-cy="`time-slider-dropdown-entry-${entry.year}`"
                 class="entries-list-item px-2 py-1 text-nowrap"
                 @keydown.up.prevent="goToPrevious(key)"
                 @keydown.down.prevent="() => goToNext(key)"
                 @keydown.home.prevent="goToFirst"
                 @keydown.end.prevent="goToLast"
                 @keydown.esc.prevent="showList = false"
-                @keydown.enter.prevent="emit('chooseEntry', entry.url)"
-                @click="emit('chooseEntry', entry.url)"
+                @keydown.enter.prevent="emit('chooseEntry', entry.year)"
+                @click="emit('chooseEntry', entry.year)"
             >
                 <TextSearchMarker :text="entry.htmlDisplay" :search="entry.emphasize" />
             </div>

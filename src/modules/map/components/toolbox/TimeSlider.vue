@@ -5,7 +5,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { OLDEST_YEAR, YOUNGEST_YEAR } from '@/config/time.config'
+import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
 import log from '@/utils/logging'
@@ -16,21 +16,12 @@ import { useRangeTippy } from './useRangeTippy'
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const i18n = useI18n()
 
-const ALL_YEARS = (() => {
-    const years = []
-    for (let year = OLDEST_YEAR; year <= YOUNGEST_YEAR; year++) {
-        years.push(year)
-    }
-    return years
-})()
-
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
 // dynamic internal data
 const sliderWidth = ref(0)
-const allYears = ref(ALL_YEARS)
-const currentYear = ref(YOUNGEST_YEAR)
+const currentYear = ref(DEFAULT_YOUNGEST_YEAR)
 // used to hold the value in case the entered year is invalid
 const falseYear = ref(null)
 let cursorX = 0
@@ -53,12 +44,23 @@ const screenWidth = computed(() => store.state.ui.width)
 const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() => store.getters.visibleLayersWithTimeConfig)
 const activeLayers = computed(() => store.state.layers.activeLayers)
+const youngestYear = computed(() => store.getters.youngestYear)
+const oldestYear = computed(() => store.getters.oldestYear)
 const previewYear = computed(() => store.state.layers.previewYear)
+
+const allYears = computed(() => {
+    const years = []
+    for (let year = oldestYear.value; year <= youngestYear.value; year++) {
+        years.push(year)
+    }
+    return years
+})
 
 const isInputYearValid = ref(true)
 
 const tippyYearOutsideRangeContent = computed(
-    () => `${i18n.t('outside_valid_year_range')} ${ALL_YEARS[0]}-${ALL_YEARS[ALL_YEARS.length - 1]}`
+    () =>
+        `${i18n.t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
 )
 
 const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
@@ -108,14 +110,14 @@ const yearsShownAsLabel = computed(() => {
     } else if (amountOfLabelsOnScreen < 16) {
         yearThreshold = 25
     }
-    return ALL_YEARS.filter((year) => year % yearThreshold === 0)
+    return allYears.value.filter((year) => year % yearThreshold === 0)
 })
 const innerBarStyle = computed(() => {
     return { width: `${sliderWidth.value}px` }
 })
 
 const yearPositionOnSlider = computed(
-    () => (1 + ALL_YEARS.indexOf(currentYear.value)) * distanceBetweenLabels.value + 42
+    () => (1 + allYears.value.indexOf(currentYear.value)) * distanceBetweenLabels.value + 42
 )
 
 const cursorPosition = computed(() => {
@@ -132,7 +134,7 @@ const cursorArrowPosition = computed(() => {
         left: `${yearPositionOnSlider.value - 4.5}px`, // 4.5 is half the arrow width of 9px
     }
 })
-const distanceBetweenLabels = computed(() => sliderWidth.value / ALL_YEARS.length)
+const distanceBetweenLabels = computed(() => sliderWidth.value / allYears.value.length)
 const innerBarStepStyle = computed(() => {
     return {
         width: `${distanceBetweenLabels.value}px`,
@@ -191,7 +193,7 @@ onMounted(() => {
         // initialize the current year from the timeConfig layers
         if (
             layersWithTimestamps.value.length === 1 &&
-            ALL_YEARS.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
+            allYears.value.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
         ) {
             currentYear.value = layersWithTimestamps.value[0].timeConfig.currentYear
         } else if (yearsWithData.value.yearsJoint.length > 0) {
@@ -282,7 +284,7 @@ function setSliderWidth() {
 }
 
 function positionNodeLabel(year) {
-    const timestampIndex = ALL_YEARS.indexOf(year) ?? 1
+    const timestampIndex = allYears.value.indexOf(year) ?? 1
     const leftPosition = Math.max(
         LABEL_WIDTH / 2.0,
         timestampIndex * distanceBetweenLabels.value -
@@ -312,15 +314,15 @@ function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
     const deltaX = cursorX - currentPosition
     if (Math.abs(deltaX) >= distanceBetweenLabels.value) {
-        let futureYearIndex = ALL_YEARS.indexOf(currentYear.value)
+        let futureYearIndex = allYears.value.indexOf(currentYear.value)
 
         // maybe we must skip multiple indexes, checking how wide is the delta
         const absoluteDeltaIndex = Math.floor(Math.abs(deltaX) / distanceBetweenLabels.value)
         if (deltaX < 0) {
-            if (ALL_YEARS.length > futureYearIndex + absoluteDeltaIndex) {
+            if (allYears.value.length > futureYearIndex + absoluteDeltaIndex) {
                 // we can skip steps
                 futureYearIndex += absoluteDeltaIndex
-            } else if (ALL_YEARS.length > futureYearIndex + 1) {
+            } else if (allYears.value.length > futureYearIndex + 1) {
                 // we can't skip steps
                 futureYearIndex++
             }
@@ -331,7 +333,7 @@ function listenToMouseMove(event) {
                 futureYearIndex--
             }
         }
-        const futureYear = ALL_YEARS[futureYearIndex]
+        const futureYear = allYears.value[futureYearIndex]
         // reset of the starting position for delta calculation
         cursorX = currentPosition
         currentYear.value = futureYear
@@ -349,11 +351,12 @@ function releaseCursor() {
 function togglePlayYearsWithData() {
     playYearsWithData.value = !playYearsWithData.value
     if (playYearsWithData.value) {
-        let yearsWithDataForPlayer = ALL_YEARS.filter(
-            (year) =>
-                yearsWithData.value.yearsJoint.includes(year) ||
-                yearsWithData.value.yearsSeparate.includes(year)
-        )
+        let yearsWithDataForPlayer = allYears.value
+            .filter(
+                (year) =>
+                    yearsWithData.value.yearsJoint.includes(year) ||
+                    yearsWithData.value.yearsSeparate.includes(year)
+            )
             .sort()
             .reverse()
         // if current year is the last (most recent) one, or we're not on a year with data, we set the starting year for our

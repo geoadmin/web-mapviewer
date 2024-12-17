@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -27,6 +27,8 @@ const props = defineProps({
     },
 })
 
+const { modelValue, entries, isPlaying } = toRefs(props)
+
 const isDropdownOpen = ref(false)
 const inputValue = ref('')
 // reference to the component
@@ -36,8 +38,8 @@ const searchList = ref(null)
 const input = ref(null)
 
 function tooltipContent() {
-    const firstEntry = props.entries[0]
-    const lastEntry = props.entries[props.entries.length - 1]
+    const firstEntry = entries.value[0]
+    const lastEntry = entries.value[entries.value.length - 1]
     return `${t('outside_valid_year_range')} ${firstEntry}-${lastEntry}`
 }
 
@@ -50,9 +52,8 @@ const displayEntry = computed({
     get() {
         if (isDropdownOpen.value) {
             return inputValue.value
-        } else {
-            return props.modelValue
         }
+        return modelValue.value
     },
     set(value) {
         inputValue.value = value
@@ -60,19 +61,12 @@ const displayEntry = computed({
 })
 
 const dropdownEntries = computed(() => {
-    return props.entries
-        .filter((entry) => {
-            if (inputValue.value) {
-                return entry.toString().includes(inputValue.value)
-            } else {
-                // nothing searching, return all
-                return true
-            }
-        })
+    return entries.value
+        .filter((entry) => !inputValue.value || entry.toString().includes(inputValue.value))
         .map((entry) => ({
             htmlDisplay: entry.toString(),
-            emphasize: inputValue.value?.toString() || '',
-            url: entry,
+            emphasize: inputValue.value?.toString() ?? '',
+            year: entry,
         }))
 })
 
@@ -103,12 +97,12 @@ function focusSearchlist() {
     if (inputValue.value) {
         searchList.value.goToFirst()
     } else {
-        searchList.value.goToSpecific(props.modelValue)
+        searchList.value.goToSpecific(modelValue.value)
     }
 }
 
 function onEnter() {
-    if (props.entries.includes(parseInt(inputValue.value))) {
+    if (entries.value.includes(parseInt(inputValue.value))) {
         chooseEntry(inputValue.value)
         input.value.blur()
     } else {
@@ -140,7 +134,7 @@ watch(
             <form
                 action=""
                 class="input-group input-group-append"
-                data-cy="searchable-dropdown"
+                data-cy="time-slider-dropdown"
                 @submit.prevent
             >
                 <input
@@ -148,6 +142,7 @@ watch(
                     :value="displayEntry"
                     class="form-control rounded-end-0"
                     :class="{ 'rounded-bottom-0': isDropdownOpen }"
+                    data-cy="time-slider-dropdown-input"
                     @input="inputValue = $event.target.value"
                     @focusin="openList"
                     @focusout="onFocusOut"
@@ -163,7 +158,6 @@ watch(
                             'url-input-dropdown-open': isDropdownOpen,
                         }"
                         type="button"
-                        data-cy="import-catalogue-providers-toggle"
                         @click="toggleList"
                     >
                         <FontAwesomeIcon

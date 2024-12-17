@@ -85,6 +85,13 @@ describe('Test functions for the header / search bar', () => {
                 expect(currentTopic).to.eq(expectedTopicId)
             })
         }
+        const checkCurrentBackgroundLayer = (expectedLayerId) => {
+            cy.readStoreValue('state.layers.currentBackgroundLayerId').then(
+                (currentBackgroundLayerId) => {
+                    expect(currentBackgroundLayerId).to.eq(expectedLayerId)
+                }
+            )
+        }
         const selectTopicStandardAndAddLayerFromTopicTree = () => {
             if (width < BREAKPOINT_TABLET) {
                 // mobile/tablet only
@@ -97,6 +104,7 @@ describe('Test functions for the header / search bar', () => {
             cy.get('[data-cy="catalogue-tree-item-title-test.wms.layer"]').click()
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         }
+
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
             cy.goToMapView({
                 lang: 'fr',
@@ -118,7 +126,7 @@ describe('Test functions for the header / search bar', () => {
                 checkLangAndTopic('fr', 'test-topic-standard')
             })
         }
-        it("resets layers added to the default topic's layers when clicking on the logo", () => {
+        it("resets layers added to the default topic's layers and default background layer when clicking on the logo", () => {
             cy.goToMapView()
             selectTopicStandardAndAddLayerFromTopicTree()
             // now clicking on the swiss flag, this should reload the page without the active layer
@@ -126,6 +134,21 @@ describe('Test functions for the header / search bar', () => {
             clickOnLogo()
             checkLangAndTopic('en', 'test-topic-standard')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+
+            // Check if the background layer is changed, when reset the app, the default background layer should be used
+            // We go to different topic and change the background layer (that is different from the default one)
+            cy.goToMapView({
+                lang: 'en',
+                topic: 'test-topic-standard-different-default-background',
+                bgLayer: 'test.background.layer2',
+            })
+            checkLangAndTopic('en', 'test-topic-standard-different-default-background')
+            checkCurrentBackgroundLayer('test.background.layer2')
+            // now clicking on the swiss flag, this should reload the page without the active layer
+            // we just selected (so only the topic and lang must be carried over) and switch to the default background layer
+            clickOnLogo()
+            checkLangAndTopic('en', 'test-topic-standard-different-default-background')
+            checkCurrentBackgroundLayer('test.background.layer')
         })
 
         if (width >= BREAKPOINT_TABLET) {
