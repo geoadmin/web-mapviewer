@@ -6,7 +6,11 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
-import { flattenExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
+import {
+    flattenExtent,
+    getExtentIntersectionWithCurrentProjection,
+    projExtent,
+} from '@/utils/extentUtils'
 
 export class CloudOptimizedGeoTIFFParser extends FileParser {
     constructor() {

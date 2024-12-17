@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
+import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class.js'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
@@ -44,7 +45,8 @@ function isImageryLayer(layer) {
         layer instanceof GeoAdminWMTSLayer ||
         layer instanceof GeoAdminWMSLayer ||
         layer instanceof GeoAdminAggregateLayer ||
-        layer instanceof ExternalLayer
+        layer instanceof ExternalLayer ||
+        layer instanceof CloudOptimizedGeoTIFFLayer
     )
 }
 

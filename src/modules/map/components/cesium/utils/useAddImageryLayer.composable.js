@@ -12,7 +12,7 @@ import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
  * that the layer will be removed and re-added with a new call to `createProvider` function.
  *
  * @param {Viewer} cesiumViewer
- * @param {Function<ImageryProvider>} createProvider
+ * @param {Function<ImageryProvider> | Function<Promise<ImageryProvider>>} createProvider
  * @param {Ref<Number>} zIndex
  * @param {Ref<Number>} opacity
  * @returns {{ refreshLayer: Function }}
@@ -20,11 +20,11 @@ import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 export default function useAddImageryLayer(cesiumViewer, createProvider, zIndex, opacity) {
     let layer
 
-    function refreshLayer() {
+    async function refreshLayer() {
         if (layer) {
             cesiumViewer.scene.imageryLayers.remove(layer)
         }
-        const provider = createProvider()
+        const provider = await createProvider()
         if (provider) {
             layer = cesiumViewer.scene.imageryLayers.addImageryProvider(provider, toValue(zIndex))
         }

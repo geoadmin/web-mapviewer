@@ -34,6 +34,11 @@
             />
         </div>
     </div>
+    <CesiumCOGTiffLayer
+        v-if="layerConfig.type === LayerTypes.COG"
+        :geotiff-config="layerConfig"
+        :z-index="zIndex"
+    />
     <CesiumGeoJSONLayer
         v-if="layerConfig.type === LayerTypes.GEOJSON && !layerConfig.isLoading"
         :geo-json-config="layerConfig"
@@ -54,6 +59,7 @@ import { mapGetters } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import CesiumCOGTiffLayer from '@/modules/map/components/cesium/CesiumCOGTiffLayer.vue'
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
@@ -70,6 +76,7 @@ import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
 export default {
     name: 'CesiumInternalLayer',
     components: {
+        CesiumCOGTiffLayer,
         CesiumVectorLayer,
         CesiumGPXLayer,
         CesiumKMLLayer,
