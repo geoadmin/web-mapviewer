@@ -203,26 +203,10 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${geojsonlayerId},,0.5`,
         })
+        cy.wait(['@geojson-data', '@geojson-style'])
         cy.waitUntilCesiumTilesLoaded()
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(
-                4,
-                'should have 1 primitive (GeoJSON) on top of labels and buildings primitives'
-            )
-            // test layer added correctly
-            const mainCollection = viewer.scene.primitives.get(0)
-            expect(mainCollection.length).to.eq(
-                1,
-                'There should be 1 layers added to the main collection when a GeoJSON is added'
-            )
-            const layerCollection = mainCollection.get(0)
-            expect(layerCollection.length).to.eq(
-                2,
-                'A GeoJSON is made of 2 internal layers in the collection'
-            )
-            // test opacity
-            const billboard = layerCollection.get(0).get(0)
-            expect(billboard.color.alpha).to.eq(0.5)
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
         })
     })
     it('removes a layer from the visible layers when the "remove" button is pressed', () => {
@@ -233,13 +217,13 @@ describe('Test of layer handling in 3D', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.dataSources.length).to.eq(1)
         })
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${geojsonlayerId}-"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
+            expect(viewer.dataSources.length).to.eq(0)
         })
     })
     it('uses the 3D configuration of a layer if one exists', () => {

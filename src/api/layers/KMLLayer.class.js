@@ -37,7 +37,13 @@ export default class KMLLayer extends AbstractLayer {
      *   KML (e.g. icon, image, ...). Default is `Map()`
      * @param {[Number, Number, Number, Number] | null} kmlLayerData.extent
      * @param {KmlStyles} kmlLayerData.style
-     * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
+     * @param {Boolean} [kmlLayerData.clampToGround] Flag defining if the KML should be clamped to
+     *   the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
+     *   true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
+     *   tracks) that were not clamped to the ground (they are providing height values), and others
+     *   wanted to have their flat surface visible on the ground, so that is the way to please both
+     *   crowds.
+     * @throws InvalidLayerDataError if no `kmlLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
         if (!kmlLayerData) {
@@ -54,6 +60,7 @@ export default class KMLLayer extends AbstractLayer {
             linkFiles = new Map(),
             extent = null,
             style = null,
+            clampToGround = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -109,6 +116,8 @@ export default class KMLLayer extends AbstractLayer {
         } else {
             this.style = style
         }
+        // if clampToGround isn't defined, we set it to true in case we are dealing with a geoadmin KML
+        this.clampToGround = clampToGround === null ? !isExternal : clampToGround
     }
 
     /**
