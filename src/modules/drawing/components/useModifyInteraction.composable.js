@@ -2,6 +2,7 @@ import { noModifierKeys, primaryAction, singleClick } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
+import SnapInteraction from 'ol/interaction/Snap'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -34,6 +35,7 @@ export default function useModifyInteraction(features) {
         () => store.state.drawing.reverseLineStringExtension
     )
 
+    const drawingLayer = inject('drawingLayer')
     const olMap = inject('olMap')
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
@@ -70,6 +72,9 @@ export default function useModifyInteraction(features) {
         condition: (e) => primaryAction(e),
         wrapX: true,
     })
+    const snapInteraction = new SnapInteraction({
+        source: drawingLayer.getSource(),
+    })
 
     watch(
         editMode,
@@ -98,19 +103,26 @@ export default function useModifyInteraction(features) {
     onMounted(() => {
         modifyInteraction.on('modifystart', onModifyStart)
         modifyInteraction.on('modifyend', onModifyEnd)
+
         olMap.addInteraction(modifyInteraction)
+        olMap.addInteraction(continueDrawingInteraction)
 
         continueDrawingInteraction.on('drawend', onExtendEnd)
-        olMap.addInteraction(continueDrawingInteraction)
         continueDrawingInteraction.setActive(false)
+
+        olMap.addInteraction(snapInteraction)
     })
     onBeforeUnmount(() => {
         store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
+
         olMap.removeInteraction(modifyInteraction)
         olMap.removeInteraction(continueDrawingInteraction)
+
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
         continueDrawingInteraction.un('drawend', onExtendEnd)
+
+        olMap.removeInteraction(snapInteraction)
     })
 
     function removeLastPoint() {
