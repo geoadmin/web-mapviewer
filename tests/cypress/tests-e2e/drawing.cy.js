@@ -68,15 +68,28 @@ describe('Drawing module tests', () => {
         }
 
         // Check that the linestring has the expected number of points
-        // Only works for line string drawing
-        function checkLinestringNumberOfPoints(numberOfPoints) {
+        function checkDrawnLineString(numberOfPoints) {
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.be.an('Array').lengthOf(1)
                     const [feature] = features
+                    expect(feature.getGeometry().getType()).to.eq('LineString')
                     const lineStringCoordinates = feature.getGeometry().getCoordinates()
                     expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                })
+        }
+
+        function checkDrawnPolygon(numberOfPoints) {
+            cy.readWindowValue('drawingLayer')
+                .then((drawingLayer) => drawingLayer.getSource().getFeatures())
+                .should((features) => {
+                    expect(features).to.be.an('Array').lengthOf(1)
+                    const [feature] = features
+                    expect(feature.getGeometry().getType()).to.eq('Polygon')
+                    const polygonCoordinates = feature.getGeometry().getCoordinates()
+                    expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
+                    expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
                 })
         }
         beforeEach(() => {
@@ -577,30 +590,40 @@ describe('Drawing module tests', () => {
             })
             // should create a line by re-clicking the last point
             cy.get('[data-cy="ol-map"]').click(...lineCoordinates.at(lineCoordinates.length - 1))
-            checkLinestringNumberOfPoints(8)
+            checkDrawnLineString(8)
 
             // Extend from the last node of line
             cy.get('[data-cy="extend-from-last-node-button"]').click()
             cy.get('[data-cy="ol-map"]').click(1100, 450)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(1100, 450)
-            checkLinestringNumberOfPoints(9)
+            checkDrawnLineString(9)
 
             // Extend from the first node of line
             cy.get('[data-cy="extend-from-first-node-button"]').click()
-            cy.get('[data-cy="ol-map"]').click(500, 450)
-            cy.get('[data-cy="ol-map"]').click(600, 450)
+            cy.get('[data-cy="ol-map"]').click(500, 250)
+            cy.get('[data-cy="ol-map"]').click(600, 250)
             // finish extending the line by clicking the last point
-            cy.get('[data-cy="ol-map"]').click(600, 450)
-            checkLinestringNumberOfPoints(11)
+            cy.get('[data-cy="ol-map"]').click(600, 250)
+            checkDrawnLineString(11)
 
             // Delete the last node by right click
             cy.get('[data-cy="ol-map"]').rightclick()
-            checkLinestringNumberOfPoints(10)
+            checkDrawnLineString(10)
 
             // Delete the last node by clicking the delete button
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            checkLinestringNumberOfPoints(9)
+            checkDrawnLineString(9)
+
+            // Extend to make a polygon
+            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(750, 350)
+            // Click the first node to finish the polygon
+            cy.get('[data-cy="ol-map"]').click(600, 250)
+            checkDrawnPolygon(11)
+            // No extend button for polygon
+            cy.get('[data-cy="drawing-delete-first-point-button"]').should('not.exist')
+            cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
