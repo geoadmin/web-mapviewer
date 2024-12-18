@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, onUpdated, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -33,6 +33,7 @@ const props = defineProps({
 
 const copiedInClipboard = ref(false)
 const timeoutCopied = ref(null)
+const { inputText } = toRefs(props)
 
 const i18n = useI18n()
 
@@ -62,12 +63,9 @@ const copyInputToClipboard = () => {
     timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
 }
 
-watch(
-    () => props.inputText,
-    () => {
-        clearIsCopiedInClipboard()
-    }
-)
+watch(inputText, () => {
+    clearIsCopiedInClipboard()
+})
 
 onMounted(() => {
     refreshTippyAttachment()
