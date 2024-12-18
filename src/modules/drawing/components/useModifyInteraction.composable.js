@@ -14,7 +14,7 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
-import { segmentExtent, subsegments } from '@/utils/geodesicManager'
+import { GeodesicGeometries, segmentExtent, subsegments } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
@@ -31,6 +31,7 @@ export default function useModifyInteraction(features) {
     const store = useStore()
 
     const editMode = computed(() => store.state.drawing.editingMode)
+    const projection = computed(() => store.state.position.projection)
     const reverseLineStringExtension = computed(
         () => store.state.drawing.reverseLineStringExtension
     )
@@ -65,7 +66,8 @@ export default function useModifyInteraction(features) {
 
     const continueDrawingInteraction = new DrawInteraction({
         style: drawLineStyle,
-        type: 'LineString', // Only works for LineString
+        source: drawingLayer.getSource(),
+        type: 'Polygon',
         minPoints: 2,
         stopClick: true,
         // only left-click to draw (primaryAction)
@@ -86,7 +88,10 @@ export default function useModifyInteraction(features) {
                         .getGeometry()
                         .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
                 }
-                continueDrawingInteraction.extend(selectedFeature)
+                // continueDrawingInteraction.extend(selectedFeature)
+                continueDrawingInteraction.appendCoordinates(
+                    selectedFeature.getGeometry().getCoordinates()
+                )
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
             } else if (newValue === EditMode.MODIFY) {
@@ -107,6 +112,7 @@ export default function useModifyInteraction(features) {
         olMap.addInteraction(modifyInteraction)
         olMap.addInteraction(continueDrawingInteraction)
 
+        continueDrawingInteraction.on('drawstart', onExtendStart)
         continueDrawingInteraction.on('drawend', onExtendEnd)
         continueDrawingInteraction.setActive(false)
 
@@ -120,6 +126,8 @@ export default function useModifyInteraction(features) {
 
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
+
+        continueDrawingInteraction.un('drawstart', onExtendStart)
         continueDrawingInteraction.un('drawend', onExtendEnd)
 
         olMap.removeInteraction(snapInteraction)
@@ -176,6 +184,15 @@ export default function useModifyInteraction(features) {
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
+    }
+
+    function onExtendStart(event) {
+        // TODO(IS): copied from useDrawingModeInteraction.composable.js
+        const feature = event.feature
+        log.debug(`onExtendStart feature ${feature.getId()}`)
+        feature.set('geodesic', new GeodesicGeometries(feature, projection.value))
+        // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
+        feature.set('isDrawing', true)
     }
 
     function onExtendEnd(event) {
