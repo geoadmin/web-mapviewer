@@ -15,7 +15,6 @@ import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
 import { GeodesicGeometries, segmentExtent, subsegments } from '@/utils/geodesicManager'
-import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -66,7 +65,6 @@ export default function useModifyInteraction(features) {
 
     const continueDrawingInteraction = new DrawInteraction({
         style: drawLineStyle,
-        source: drawingLayer.getSource(),
         type: 'Polygon',
         minPoints: 2,
         stopClick: true,
@@ -172,6 +170,7 @@ export default function useModifyInteraction(features) {
         }
 
         const [feature] = event.features.getArray()
+        console.log(`onModifyEnd feature ${feature.getId()}`, feature)
 
         if (feature) {
             const storeFeature = feature.get('editableFeature')
@@ -189,18 +188,38 @@ export default function useModifyInteraction(features) {
     function onExtendStart(event) {
         // TODO(IS): copied from useDrawingModeInteraction.composable.js
         const feature = event.feature
-        log.debug(`onExtendStart feature ${feature.getId()}`)
+        console.log(`onExtendStart feature ${feature.getId()}`)
         feature.set('geodesic', new GeodesicGeometries(feature, projection.value))
         // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
         feature.set('isDrawing', true)
     }
 
     function onExtendEnd(event) {
-        log.debug('onExtendEnd', event)
-        const feature = event.feature
+        console.log('onExtendEnd', event)
+        const drawnFeature = event.feature
+
+        drawnFeature.setId(features.getArray()[0].getId())
+        drawnFeature.set('isDrawing', false)
+
+        console.log(`onExtendEnd drawnFeature id: ${drawnFeature.getId()}`)
+        console.log('onExtendEnd drawnFeature', drawnFeature.getGeometry().getType(), drawnFeature)
+
+        const [selectedFeature] = features.getArray()
+
+        // Update the selected feature with the new geometry
+        // TODO(IS): need to check if it's line or polygon
+        selectedFeature.setGeometry(drawnFeature.getGeometry())
+
+        console.log(`onExtendEnd selected feature id: ${selectedFeature.getId()}`)
+        console.log(
+            'onExtendEnd, selected feature',
+            selectedFeature.getGeometry().getType(),
+            selectedFeature
+        )
+
         // Update the original feature with new coordinates
-        if (feature) {
-            updateStoreFeatureCoordinatesGeometry(feature, reverseLineStringExtension.value)
+        if (selectedFeature) {
+            updateStoreFeatureCoordinatesGeometry(selectedFeature, reverseLineStringExtension.value)
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
             debounceSaveDrawing()
         }
