@@ -7,12 +7,17 @@ import SnapInteraction from 'ol/interaction/Snap'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
 } from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib/style'
+import {
+    drawLineStyle,
+    drawMeasureStyle,
+    editingVertexStyleFunction,
+} from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
@@ -90,10 +95,19 @@ export default function useModifyInteraction(features) {
                         .getGeometry()
                         .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
                 }
-                // continueDrawingInteraction.extend(selectedFeature)
                 continueDrawingInteraction.appendCoordinates(
                     selectedFeature.getGeometry().getCoordinates()
                 )
+
+                const selectedEditableFeature = selectedFeature.get('editableFeature')
+                const isMeasurementLine =
+                    selectedEditableFeature.featureType === EditableFeatureTypes.MEASURE
+                if (isMeasurementLine) {
+                    continueDrawingInteraction.setProperties({ style: drawMeasureStyle })
+                } else {
+                    continueDrawingInteraction.setProperties({ style: drawLineStyle })
+                }
+
                 continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
             } else if (newValue === EditMode.MODIFY) {
