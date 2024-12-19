@@ -1,14 +1,10 @@
 import { noModifierKeys, singleClick } from 'ol/events/condition'
-import GeoJSON from 'ol/format/GeoJSON'
 import ModifyInteraction from 'ol/interaction/Modify'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
+import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
@@ -110,7 +106,7 @@ export default function useModifyInteraction(features) {
                 geometry.setCoordinates(coordinates)
             }
             // Updating the store feature
-            updateStoreFeatureCoordinatesGeometry(feature)
+            updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher)
         }
     }
 
@@ -141,29 +137,10 @@ export default function useModifyInteraction(features) {
                 isDragged: false,
                 ...dispatcher,
             })
-            updateStoreFeatureCoordinatesGeometry(feature)
+            updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher)
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
-    }
-
-    // Update the store feature with the new coordinates and geometry
-    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
-        const storeFeature = feature.get('editableFeature')
-        if (reverse) {
-            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
-        }
-        store.dispatch('changeFeatureCoordinates', {
-            feature: storeFeature,
-            coordinates: extractOlFeatureCoordinates(feature),
-            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-            ...dispatcher,
-        })
-        store.dispatch('changeFeatureGeometry', {
-            feature: storeFeature,
-            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            ...dispatcher,
-        })
     }
 
     return {

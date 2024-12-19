@@ -9,11 +9,8 @@ import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
+import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
@@ -78,8 +75,6 @@ export default function useDrawingModeInteraction({
             interaction.getOverlay().getSource().on('addfeature', checkIfSnapping)
         }
         if (isExtending) {
-            window.f = startingFeature
-            console.log('startingFeature', startingFeature)
             interaction.appendCoordinates(startingFeature.getGeometry().getCoordinates())
         }
     })
@@ -151,12 +146,7 @@ export default function useDrawingModeInteraction({
         counterLinePolyPoints.value = 0
     }
 
-    function onExtendStart(event) {
-        console.log('onExtendStart', event)
-    }
-
     function onExtendEnd(event) {
-        console.log('onExtendEnd', event)
         // We only need the drawn feature, as the starting feature is already in the store / layer source
         // no need to insert the drawn feature in the layer source
         interaction.abortDrawing()
@@ -186,30 +176,15 @@ export default function useDrawingModeInteraction({
 
         // Update the selected feature with new coordinates
         if (selectedFeature) {
-            updateStoreFeatureCoordinatesGeometry(selectedFeature, reverseLineStringExtension.value)
+            updateStoreFeatureCoordinatesGeometry(
+                store,
+                selectedFeature,
+                dispatcher,
+                reverseLineStringExtension.value
+            )
             store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
             debounceSaveDrawing()
         }
-    }
-
-    // TODO: This function is copied from useModifyInteraction.composable.js
-    // Update the store feature with the new coordinates and geometry
-    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
-        const storeFeature = feature.get('editableFeature')
-        if (reverse) {
-            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
-        }
-        store.dispatch('changeFeatureCoordinates', {
-            feature: storeFeature,
-            coordinates: extractOlFeatureCoordinates(feature),
-            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-            ...dispatcher,
-        })
-        store.dispatch('changeFeatureGeometry', {
-            feature: storeFeature,
-            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            ...dispatcher,
-        })
     }
 
     function onDrawStart(event) {
@@ -220,59 +195,62 @@ export default function useDrawingModeInteraction({
         }
         // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
         feature.set('isDrawing', true)
-        if (isExtending) {
-            onExtendStart(event)
-        }
     }
 
     function onDrawEnd(event) {
-        // deactivating the interaction (so that the user doesn't create another feature right after this one)
-        // this does not change the state, for that we will bubble the event so that the parent will then
-        // dispatch changes to the store
-        // deactivate()
-        // grabbing the drawn feature so that we send it through the event
-        if (isExtending) {
-            onExtendEnd(event)
-            return
-        }
         const feature = event.feature
         log.debug(`Drawing ended ${feature.getId()}`, feature)
-        // checking if drawing was finished while linking the first point with the last
-        // (if snapping occurred while placing the last point)
-        const coordinates = getFeatureCoordinatesWithoutExtraPoint(feature)
-        if (snapping && !isSnappingOnFirstPoint.value && coordinates.length > 1) {
-            // if not the same ending point, it is not a polygon (the user didn't finish drawing by closing it)
-            // so we transform the drawn polygon into a linestring
-            feature.setGeometry(new LineString(coordinates))
-        }
-        /* Normalize the coordinates, as the modify interaction is configured to operate only
+
+        if (isExtending) {
+            onExtendEnd(event)
+        } else {
+            // deactivating the interaction (so that the user doesn't create another feature right after this one)
+            // this does not change the state, for that we will bubble the event so that the parent will then
+            // dispatch changes to the store
+            // deactivate()
+            // grabbing the drawn feature so that we send it through the event
+
+            // checking if drawing was finished while linking the first point with the last
+            // (if snapping occurred while placing the last point)
+            const coordinates = getFeatureCoordinatesWithoutExtraPoint(feature)
+            if (snapping && !isSnappingOnFirstPoint.value && coordinates.length > 1) {
+                // if not the same ending point, it is not a polygon (the user didn't finish drawing by closing it)
+                // so we transform the drawn polygon into a linestring
+                feature.setGeometry(new LineString(coordinates))
+            }
+            /* Normalize the coordinates, as the modify interaction is configured to operate only
         between -180 and 180 deg (so that the features can be modified even if the view is of
         by 360deg) */
-        const geometry = feature.getGeometry()
-        const normalizedCoords = wrapXCoordinates(geometry.getCoordinates(), projection.value, true)
-        geometry.setCoordinates(normalizedCoords)
+            const geometry = feature.getGeometry()
+            const normalizedCoords = wrapXCoordinates(
+                geometry.getCoordinates(),
+                projection.value,
+                true
+            )
+            geometry.setCoordinates(normalizedCoords)
 
-        const editableFeature = feature.get('editableFeature')
-        editableFeature.setCoordinatesFromFeature(feature)
-        // setting the geometry too so that the floating popup can be placed correctly on the map
-        editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
+            const editableFeature = feature.get('editableFeature')
+            editableFeature.setCoordinatesFromFeature(feature)
+            // setting the geometry too so that the floating popup can be placed correctly on the map
+            editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
 
-        // removing the flag we've set above in onDrawStart (this feature is now drawn)
-        feature.unset('isDrawing')
-        // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
-        // This function will be automatically recalled every time the feature object is modified or rerendered.
-        // (so there is no need to recall setstyle after modifying an extended property)
-        feature.setStyle(geoadminStyleFunction)
-        // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
-        interaction.finishDrawing()
-        store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })
-        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
-        if (drawEndCallback) {
-            drawEndCallback(feature)
+            // removing the flag we've set above in onDrawStart (this feature is now drawn)
+            feature.unset('isDrawing')
+            // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
+            // This function will be automatically recalled every time the feature object is modified or rerendered.
+            // (so there is no need to recall setstyle after modifying an extended property)
+            feature.setStyle(geoadminStyleFunction)
+            // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
+            interaction.finishDrawing()
+            store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })
+            store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
+            if (drawEndCallback) {
+                drawEndCallback(feature)
+            }
+            // Here we need to save work in next tick to have the drawingLayer source updated.
+            // Otherwise, the source might not yet be updated with the new/updated/deleted feature
+            nextTick().then(debounceSaveDrawing)
         }
-        // Here we need to save work in next tick to have the drawingLayer source updated.
-        // Otherwise, the source might not yet be updated with the new/updated/deleted feature
-        nextTick().then(debounceSaveDrawing)
     }
     function checkIfSnapping(event) {
         const feature = event.feature

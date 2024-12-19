@@ -19,11 +19,6 @@ const currentDrawingMode = computed(() => store.state.drawing.mode)
 const editMode = computed(() => store.state.drawing.editingMode)
 let selectedLineFeature = null
 const specializedInteractionComponent = computed(() => {
-    console.log(
-        '[DrawingInteractions] currentDrawingMode, editMode',
-        currentDrawingMode.value,
-        editMode.value
-    )
     switch (currentDrawingMode.value) {
         case EditableFeatureTypes.ANNOTATION:
             return DrawingTextInteraction
@@ -35,7 +30,6 @@ const specializedInteractionComponent = computed(() => {
             return DrawingMeasureInteraction
     }
     if (editMode.value === EditMode.EXTEND) {
-        console.log('[DrawingInteractions] Returning ExtendLineInteraction', selectedLineFeature)
         const isMeasure =
             selectedLineFeature?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.MEASURE
@@ -48,7 +42,6 @@ const specializedInteractionComponent = computed(() => {
     return null
 })
 function onDrawEnd(feature) {
-    console.log('[DrawingInteractions] onDrawEnd', feature)
     selectInteraction.value.selectFeature(feature)
     selectedLineFeature = feature
 }
