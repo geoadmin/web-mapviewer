@@ -37,7 +37,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     delete newQuery.adminId
 }
 
-const handleLegacyParam = (
+export const handleLegacyParam = (
     params,
     param,
     legacyValue,
@@ -56,7 +56,7 @@ const handleLegacyParam = (
             if (!(projection instanceof SwissCoordinateSystem)) {
                 newValue = LV95.transformCustomZoomLevelToStandard(legacyValue)
                 if (projection instanceof CustomCoordinateSystem) {
-                    newValue = projection.transformStandardZoomLevelToCustom(newValue)
+                    newValue = projection.transformStandardZoomLevelToCustom(newValue) // FIXME: the function transformStandardZoomLevelToCustom is not implemented in CustomCoordinateSystem
                 }
             } else {
                 newValue = legacyValue
