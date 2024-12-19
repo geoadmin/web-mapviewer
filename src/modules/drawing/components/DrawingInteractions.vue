@@ -19,27 +19,38 @@ const currentDrawingMode = computed(() => store.state.drawing.mode)
 const editMode = computed(() => store.state.drawing.editingMode)
 let selectedLineFeature = null
 const specializedInteractionComponent = computed(() => {
+    let selectedInteraction = null
     switch (currentDrawingMode.value) {
         case EditableFeatureTypes.ANNOTATION:
-            return DrawingTextInteraction
+            selectedInteraction = DrawingTextInteraction
+            break
         case EditableFeatureTypes.LINEPOLYGON:
-            return DrawingLineInteraction
+            selectedInteraction = DrawingLineInteraction
+            break
         case EditableFeatureTypes.MARKER:
-            return DrawingMarkerInteraction
+            selectedInteraction = DrawingMarkerInteraction
+            break
         case EditableFeatureTypes.MEASURE:
-            return DrawingMeasureInteraction
+            selectedInteraction = DrawingMeasureInteraction
+            break
     }
     if (editMode.value === EditMode.EXTEND) {
         const isMeasure =
             selectedLineFeature?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.MEASURE
         if (isMeasure) {
-            return ExtendMeasureInteraction
+            selectedInteraction = ExtendMeasureInteraction
         } else {
-            return ExtendLineInteraction
+            selectedInteraction = ExtendLineInteraction
         }
     }
-    return null
+    // Make sure that the modify interaction is disabled when we are in draw / extend mode
+    if (selectedInteraction) {
+        selectInteraction.value?.setActive(false)
+    } else {
+        selectInteraction.value?.setActive(true)
+    }
+    return selectedInteraction
 })
 function onDrawEnd(feature) {
     selectInteraction.value.selectFeature(feature)
