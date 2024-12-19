@@ -2,7 +2,7 @@
 import Feature from 'ol/Feature'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import useContinueLineInteraction from '@/modules/drawing/components/useContinueLineInteraction.composable'
+import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const emits = defineEmits({
         return payload instanceof Feature
     },
 })
-const { removeLastPoint } = useContinueLineInteraction({
+const { removeLastPoint } = useExtendLineInteraction({
     featureType: EditableFeatureTypes.MEASURE,
     style: drawMeasureStyle,
     drawEndCallback: (feature) => {

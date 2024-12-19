@@ -1,7 +1,7 @@
 <script setup>
 import Feature from 'ol/Feature'
 
-import useContinueLineInteraction from '@/modules/drawing/components/useContinueLineInteraction.composable'
+import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 const props = defineProps({
     startingFeature: Feature,
 })
@@ -10,7 +10,7 @@ const emits = defineEmits({
         return payload instanceof Feature
     },
 })
-const { removeLastPoint } = useContinueLineInteraction({
+const { removeLastPoint } = useExtendLineInteraction({
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)
     },
