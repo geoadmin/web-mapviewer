@@ -1,4 +1,10 @@
+import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
+
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/api/features/features.api'
 
 /**
  * Checks if point is at target within tolerance.
@@ -43,4 +49,29 @@ export function getVertexCoordinates(feature) {
     }
 
     return normalized
+}
+/**
+ * Update the store feature with the new coordinates.
+ *
+ * @param {Store} store The Vuex store.
+ * @param {ol.Feature} feature The feature to extract from.
+ * @param {string} dispatcher The dispatcher object.
+ * @param {Boolean} [reverse=false] If the coordinates should be reversed. Default is `false`
+ */
+export function updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher, reverse = false) {
+    const storeFeature = feature.get('editableFeature')
+    if (reverse) {
+        feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
+    }
+    store.dispatch('changeFeatureCoordinates', {
+        feature: storeFeature,
+        coordinates: extractOlFeatureCoordinates(feature),
+        geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+        ...dispatcher,
+    })
+    store.dispatch('changeFeatureGeometry', {
+        feature: storeFeature,
+        geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+        ...dispatcher,
+    })
 }
