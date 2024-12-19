@@ -496,6 +496,7 @@
     "profile_elevation_up": "Montée",
     "profile_hike_time": "Temps de marche à pied",
     "profile_no_data": "Aucune donnée",
+    "profile_out_of_bounds_error": "Les objets sont hors limites, aucune donnée de profil n'a pu être récupérée",
     "profile_poi_down": "Point le plus bas",
     "profile_poi_up": "Point culminant",
     "profile_segment": "Segment {segmentNumber}",

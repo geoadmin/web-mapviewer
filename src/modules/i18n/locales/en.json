@@ -496,6 +496,7 @@
     "profile_elevation_up": "Ascent",
     "profile_hike_time": "Walking time",
     "profile_no_data": "No data",
+    "profile_out_of_bounds_error": "The features are out of bounds, no profile data could be fetched",
     "profile_poi_down": "Lowest point",
     "profile_poi_up": "Highest point",
     "profile_segment": "Segment {segmentNumber}",

@@ -251,6 +251,7 @@ describe('The Import File Tool', () => {
         cy.wait(['@search-layers', '@search-locations'])
         cy.get('[data-cy="search-results"]').should('be.visible')
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
+
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
         cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
@@ -262,7 +263,6 @@ describe('The Import File Tool', () => {
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
         )
-
         cy.log('Test search for a feature in the online KML file')
         cy.get('[data-cy="searchbar-clear"]').click()
         cy.get('[data-cy="searchbar"]').paste('another sample')
@@ -795,20 +795,15 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
-
+    })
+    it('Import GPX files for which service-alti has no data', () => {
         // Import file partially out of bounds
         cy.log('Test import file partially out of bounds')
         const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
         const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
-
-        cy.reload()
-        cy.waitMapIsReady()
-        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
-        cy.openMenuIfMobile()
-        cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`
-        ).click()
+        cy.goToMapView({}, true)
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -839,10 +834,18 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="ol-map"]').click(170, 250)
 
         cy.log('Check that the error is displayed in the profile popup')
+        /*
+            Issue : when we request the profile, since at least one feature is within the LV95 bounds (but outside profile bounds), it requests the profile, and the intercepts gives us an in bound answer.
+            TO DO : intercepts this for another fixture which gives an 'out of bounds' thing
+        */
+        const profileIntercept = '**/rest/services/profile.json**'
+        cy.intercept(profileIntercept, {
+            fixture: 'service-alti/profile.fixture.out.of.bounds.json',
+        }).as('profile')
         cy.get('[data-cy="show-profile"]').click()
         cy.get('[data-cy="profile-popup-content"]').should('be.visible')
         cy.get('[data-cy="profile-error-message"]').contains(
-            'Some parts are out of bounds, no profile data could be fetched'
+            'The features are out of bounds, no profile data could be fetched'
         )
     })
 })

@@ -494,6 +494,7 @@
     "profile_elevation_up": "Ascensiun",
     "profile_hike_time": "Temp da viandar",
     "profile_no_data": "Nagina data",
+    "profile_out_of_bounds_error": "Ils objects n'èn betg limitads, naginas enconuschientschas dal profil n'han pudì vegnir retratgas",
     "profile_poi_down": "Punct il pli bass",
     "profile_poi_up": "Punct il pli aut",
     "profile_segment": "Segment {segmentNumber}",
