@@ -3,6 +3,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Polygon } from 'ol/geom'
 import DrawInteraction from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
+import { Style } from 'ol/style'
 import { getUid } from 'ol/util'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
@@ -59,6 +60,7 @@ export default function useDrawingModeInteraction({
     })
 
     let isExtending = startingFeature ? true : false
+    let previousStyle = null // to store the previous style of the starting feature
 
     onMounted(() => {
         interaction.setActive(true)
@@ -173,7 +175,7 @@ export default function useDrawingModeInteraction({
         geometry.setCoordinates(normalizedCoords)
 
         selectedFeature.setGeometry(drawnFeature.getGeometry())
-
+        selectedFeature.setStyle(previousStyle)
         // Update the selected feature with new coordinates
         if (selectedFeature) {
             updateStoreFeatureCoordinatesGeometry(
@@ -188,6 +190,11 @@ export default function useDrawingModeInteraction({
     }
 
     function onDrawStart(event) {
+        if (isExtending) {
+            // hide the starting feature and store its style to restore it later
+            previousStyle = startingFeature.getStyle()
+            startingFeature.setStyle(new Style())
+        }
         const feature = event.feature
         log.debug(`onDrawStart feature ${feature.getId()}`)
         if (useGeodesicDrawing) {
