@@ -16,6 +16,7 @@ import { EditMode } from '@/store/modules/drawing.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
@@ -34,6 +35,7 @@ const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const currentDrawingMode = computed(() => store.state.drawing.mode)
+const isDrawingExportedOrShared = computed(() => store.getters.isDrawingExportedOrShared)
 const isDrawingLineOrMeasure = computed(() =>
     [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
         currentDrawingMode.value
@@ -115,6 +117,12 @@ watch(activeKmlLayer, () => {
 })
 
 function closeDrawing() {
+    if (!isDrawingExportedOrShared.value) {
+        store.dispatch('addWarnings', {
+            warnings: [new WarningMessage('drawing_not_exported_or_shared')],
+            ...dispatcher,
+        })
+    }
     emits('closeDrawing')
 }
 

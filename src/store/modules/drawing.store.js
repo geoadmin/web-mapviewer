@@ -90,10 +90,22 @@ export default {
          * @type {String | null}
          */
         editingMode: EditMode.OFF,
+
+        /**
+         * Flag to indicate if the drawing is exported or shared
+         *
+         * @type {{ exported: boolean; shared: boolean }}
+         */
+        isDrawingExportedOrShared: { exported: true, shared: false },
     },
     getters: {
         isDrawingEmpty(state) {
             return state.featureIds.length === 0
+        },
+        isDrawingExportedOrShared(state) {
+            return (
+                state.isDrawingExportedOrShared.exported || state.isDrawingExportedOrShared.shared
+            )
         },
     },
     actions: {
@@ -101,6 +113,16 @@ export default {
             if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', { mode, dispatcher })
             }
+        },
+        setIsDrawingExportedOrShared(
+            { commit, state },
+            { exported = null, shared = null, dispatcher }
+        ) {
+            commit('setIsDrawingExportedOrShared', {
+                exported: exported === null ? state.isDrawingExportedOrShared.exported : exported,
+                shared: shared === null ? state.isDrawingExportedOrShared.shared : shared,
+                dispatcher,
+            })
         },
         async loadAvailableIconSets({ commit }, { dispatcher }) {
             const iconSets = await loadAllIconSetsFromBackend()
@@ -165,6 +187,10 @@ export default {
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
+        setIsDrawingExportedOrShared: (state, { exported, shared }) => {
+            state.isDrawingExportedOrShared.exported = exported
+            state.isDrawingExportedOrShared.shared = shared
+        },
         setIconSets: (state, { iconSets }) => (state.iconSets = iconSets),
         addDrawingFeature: (state, { featureId }) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, { featureId }) =>

@@ -1058,6 +1058,18 @@ describe('Drawing module tests', () => {
             })
             // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
             cy.closeDrawingMode()
+            cy.closeMenuIfMobile()
+
+            cy.log(
+                'Check that the warning window is displayed when closing the drawing module without exporting or sharing'
+            )
+            cy.get('[data-cy="warning-window-body"]').contains(
+                'Attention, your drawing has not been exported or shared.'
+            )
+            cy.get('[data-cy="warning-window-close"]').click({ force: true }) // force is needed because the warning window is covered by the Testsite banner
+
+            cy.openMenuIfMobile()
+
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             // it changes the name of the KML file
             cy.log('Check that the KML file can be renamed')
@@ -1127,6 +1139,13 @@ describe('Drawing module tests', () => {
             })
 
             cy.task('clearFolder', downloadsFolder)
+            cy.closeDrawingMode()
+            cy.closeMenuIfMobile()
+
+            cy.log(
+                'Check that the warning window is not displayed when closing the drawing module when the drawing got exported or shared'
+            )
+            cy.get('[data-cy="warning-window-body"]').should('not.exist')
         })
         it('generates short links when sharing a drawing', () => {
             const publicShortlink = 'https://s.geo.admin.ch/public-shortlink'
