@@ -1,72 +1,62 @@
+<script setup>
+import { GeoJsonDataSource } from 'cesium'
+import { cloneDeep } from 'lodash'
+import { reproject } from 'reproject'
+import { computed, inject, toRef, toRefs } from 'vue'
+
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
+import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
+import { LV03, LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
+
+const props = defineProps({
+    geoJsonConfig: {
+        type: GeoAdminGeoJsonLayer,
+        required: true,
+    },
+})
+
+const { geoJsonConfig } = toRefs(props)
+
+const getViewer = inject('getViewer')
+const viewer = getViewer()
+
+const layerId = computed(() => geoJsonConfig.value.id)
+const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
+const opacity = computed(() => geoJsonConfig.value.opacity)
+
+/** @returns {Promise<GeoJsonDataSource>} */
+async function createSource() {
+    let geoJsonDataInMercator = geoJsonConfig.value.geoJsonData
+    if ([LV95.epsg, LV03.epsg].includes(geoJsonData.value?.crs?.properties?.name)) {
+        log.debug(`[Cesium] GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`)
+        const reprojectedData = reproject(
+            cloneDeep(geoJsonData.value),
+            geoJsonData.value.crs.properties.name,
+            WGS84.epsg
+        )
+        delete reprojectedData.crs
+        geoJsonDataInMercator = reprojectedData
+    }
+    try {
+        return await GeoJsonDataSource.load(geoJsonDataInMercator)
+    } catch (error) {
+        log.error(`[Cesium] Error while parsing GeoJSON data for layer ${layerId.value}`, error)
+        throw error
+    }
+}
+
+useAddDataSourceLayer(
+    viewer,
+    createSource(),
+    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value, opacity),
+    toRef(opacity),
+    toRef(layerId)
+)
+</script>
+
 <template>
     <slot />
 </template>
-
-<script>
-import axios from 'axios'
-import GeoJSON from 'ol/format/GeoJSON'
-import { Vector as VectorSource } from 'ol/source'
-
-import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
-import log from '@/utils/logging'
-
-import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
-
-/** Adds a GeoJSON layer to the Cesium viewer */
-export default {
-    mixins: [addPrimitiveFromOLLayerMixins],
-    props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        geojsonUrl: {
-            type: String,
-            required: true,
-        },
-        styleUrl: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 0.9,
-        },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
-    },
-    methods: {
-        loadDataInOLLayer() {
-            return Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
-                .then((responses) => {
-                    const geojsonData = responses[0].data
-                    const geojsonStyleLiterals = responses[1].data
-                    const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
-                    this.olLayer.setSource(
-                        new VectorSource({
-                            features: new GeoJSON().readFeatures(
-                                reprojectGeoJsonData(geojsonData, this.projection)
-                            ),
-                        })
-                    )
-                    this.olLayer.setStyle(function (feature, res) {
-                        return style.getFeatureStyle(feature, res)
-                    })
-                })
-                .catch((error) => {
-                    log.error(
-                        `Error while fetching GeoJSON data/style for layer ${this.layerId}`,
-                        error
-                    )
-                    throw new Error(
-                        `Error while fetching GeoJSON data/style for layer ${this.layerId}`
-                    )
-                })
-        },
-    },
-}
-</script>

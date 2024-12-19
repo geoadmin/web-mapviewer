@@ -4,7 +4,6 @@ import proj4 from 'proj4'
 import { computed, inject, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
-import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -62,6 +61,13 @@ function onClick(event) {
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
     let objects = viewer.scene.drillPick(event.position)
+
+    log.debug(
+        '[Cesium] click caught at',
+        { pixel: event.position, coordinates },
+        'with objects',
+        objects
+    )
     const kmlFeatures = {}
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     visiblePrimitiveLayers.value
@@ -78,25 +84,17 @@ function onClick(event) {
         })
     visiblePrimitiveLayers.value
         .filter((l) => l instanceof KMLLayer)
-        .forEach((KMLLayer) => {
+        .forEach((kmlLayer) => {
             objects
-                .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.id)
-                .forEach((obj) => {
-                    const feature = obj.primitive.olFeature
-                    if (!kmlFeatures[feature.getId()]) {
-                        const editableFeature = feature.get('editableFeature')
-                        if (editableFeature) {
-                            editableFeature.geodesicCoordinates =
-                                extractOlFeatureGeodesicCoordinates(feature)
-                            editableFeature.geometry = feature.getGeometry()
-                            kmlFeatures[feature.getId()] = editableFeature
-                        } else {
-                            // TODO
-                            log.debug(
-                                'KMLs which are not editable Features are not supported for selection'
-                            )
-                        }
-                    }
+                .filter((obj) => obj.id.layerId === kmlLayer.id)
+                .forEach((kmlFeature) => {
+                    log.debug(
+                        '[Cesium] KML feature click detection',
+                        kmlFeature,
+                        'for KML layer',
+                        kmlLayer
+                    )
+                    // TODO PB-1300 implement KML features selection here
                 })
             features.push(...Object.values(kmlFeatures))
         })

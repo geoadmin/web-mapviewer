@@ -1,9 +1,1059 @@
 {
-    "crs": {
-        "properties": { "name": "EPSG:2056" }
+  "features": [
+    {
+      "type": "Feature",
+      "id": 21,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2746161,
+          1269999
+        ]
+      },
+      "properties": {
+        "id": "2032",
+        "name": "Bodensee (Obersee) - Romanshorn",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2032' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
     },
-    "features": [
-        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [2701702, 1265811] } }
-    ],
-    "type": "FeatureCollection"
+    {
+      "type": "Feature",
+      "id": 25,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2718577,
+          1281728
+        ]
+      },
+      "properties": {
+        "id": "2043",
+        "name": "Bodensee (Untersee) - Berlingen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2043' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 63,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2734452,
+          1219548
+        ]
+      },
+      "properties": {
+        "id": "2118",
+        "name": "Walensee - Murg",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2118' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 102,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2684012,
+          1245454
+        ]
+      },
+      "properties": {
+        "id": "2209",
+        "name": "Zürichsee - Zürich",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2209' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 100,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2666944,
+          1211918
+        ]
+      },
+      "properties": {
+        "id": "2207",
+        "name": "Vierwaldstättersee - Luzern",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2207' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 13,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2635139,
+          1172341
+        ]
+      },
+      "properties": {
+        "id": "2023",
+        "name": "Brienzersee - Ringgenberg",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2023' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 49,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2617287,
+          1171756
+        ]
+      },
+      "properties": {
+        "id": "2093",
+        "name": "Thunersee - Spiez, Kraftwerk BKW",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2093' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 1,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2575503,
+          1197793
+        ]
+      },
+      "properties": {
+        "id": "2004",
+        "name": "Murtensee - Murten",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2004' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 235,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2562913,
+          1205165
+        ]
+      },
+      "properties": {
+        "id": "2642",
+        "name": "Lac de Neuchâtel - Neuchâtel, Nid-du-Crô",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2642' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 101,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2578320,
+          1215670
+        ]
+      },
+      "properties": {
+        "id": "2208",
+        "name": "Bielersee - Ligerz, Klein Twann",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2208' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 52,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2717071,
+          1091656
+        ]
+      },
+      "properties": {
+        "id": "2101",
+        "name": "Lago di Lugano - Melide, Ferrera",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2101' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 12,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2705485,
+          1113376
+        ]
+      },
+      "properties": {
+        "id": "2022",
+        "name": "Lago Maggiore - Locarno",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2022' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 16,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2524982,
+          1148505
+        ]
+      },
+      "properties": {
+        "id": "2027",
+        "name": "Lac Léman - St-Prex",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2027' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 1,
+        "w-type": "Lake"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 212,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2753890,
+          1189374
+        ]
+      },
+      "properties": {
+        "id": "2602",
+        "name": "Rhein - Domat/Ems",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2602' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 191,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2766305,
+          1250371
+        ]
+      },
+      "properties": {
+        "id": "2473",
+        "name": "Rhein - Diepoldsau, Rietbrücke",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2473' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 124,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2689140,
+          1281987
+        ]
+      },
+      "properties": {
+        "id": "2288",
+        "name": "Rhein - Neuhausen, Flurlingerbrücke",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2288' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 74,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2667045,
+          1269233
+        ]
+      },
+      "properties": {
+        "id": "2143",
+        "name": "Rhein - Rekingen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2143' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 48,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2627189,
+          1267845
+        ]
+      },
+      "properties": {
+        "id": "2091",
+        "name": "Rhein - Rheinfelden, Messstation",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2091' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 125,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2613389,
+          1267678
+        ]
+      },
+      "properties": {
+        "id": "2289",
+        "name": "Rhein - Basel, Rheinhalle",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2289' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 91,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2733558,
+          1263185
+        ]
+      },
+      "properties": {
+        "id": "2181",
+        "name": "Thur - Halden",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2181' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 26,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2693500,
+          1272506
+        ]
+      },
+      "properties": {
+        "id": "2044",
+        "name": "Thur - Andelfingen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2044' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 54,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2725173,
+          1221385
+        ]
+      },
+      "properties": {
+        "id": "2104",
+        "name": "Linth - Weesen, Biäsche",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2104' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 89,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2682137,
+          1246891
+        ]
+      },
+      "properties": {
+        "id": "2176",
+        "name": "Sihl - Zürich, Sihlhölzli",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2176' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 51,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2682058,
+          1249430
+        ]
+      },
+      "properties": {
+        "id": "2099",
+        "name": "Limmat - Zürich, Unterhard",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2099' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 109,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2665650,
+          1258684
+        ]
+      },
+      "properties": {
+        "id": "2243",
+        "name": "Limmat - Baden, Limmatpromenade",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2243' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 28,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2690083,
+          1193233
+        ]
+      },
+      "properties": {
+        "id": "2056",
+        "name": "Reuss - Seedorf",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2056' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 77,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2665335,
+          1211792
+        ]
+      },
+      "properties": {
+        "id": "2152",
+        "name": "Reuss - Luzern, Geissmattbrücke",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2152' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 8,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2662835,
+          1252577
+        ]
+      },
+      "properties": {
+        "id": "2018",
+        "name": "Reuss - Mellingen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2018' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 231,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2663698,
+          1213656
+        ]
+      },
+      "properties": {
+        "id": "2634",
+        "name": "Kleine Emme - Emmen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2634' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 182,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2633731,
+          1171508
+        ]
+      },
+      "properties": {
+        "id": "2457",
+        "name": "Aare - Ringgenberg, Goldswil",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2457' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 19,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2613235,
+          1179279
+        ]
+      },
+      "properties": {
+        "id": "2030",
+        "name": "Aare - Thun",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2030' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 70,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2600725,
+          1197996
+        ]
+      },
+      "properties": {
+        "id": "2135",
+        "name": "Aare - Bern, Schönau",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2135' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 44,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2580675,
+          1211650
+        ]
+      },
+      "properties": {
+        "id": "2085",
+        "name": "Aare - Hagneck",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2085' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 18,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2588218,
+          1219018
+        ]
+      },
+      "properties": {
+        "id": "2029",
+        "name": "Aare - Brügg, Aegerten",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2029' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 30,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2629658,
+          1235141
+        ]
+      },
+      "properties": {
+        "id": "2063",
+        "name": "Aare - Murgenthal",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2063' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 6,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2656959,
+          1259353
+        ]
+      },
+      "properties": {
+        "id": "2016",
+        "name": "Aare - Brugg",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2016' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 98,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2659967,
+          1263103
+        ]
+      },
+      "properties": {
+        "id": "2205",
+        "name": "Aare - Untersiggenthal, Stilli",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2205' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 150,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2703102,
+          1113894
+        ]
+      },
+      "properties": {
+        "id": "2368",
+        "name": "Maggia - Locarno, Solduno",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2368' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 104,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2584454,
+          1195370
+        ]
+      },
+      "properties": {
+        "id": "2215",
+        "name": "Saane - Laupen",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2215' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 180,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2575336,
+          1201450
+        ]
+      },
+      "properties": {
+        "id": "2447",
+        "name": "Canal de la Broye - Sugiez",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2447' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 179,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2569241,
+          1207849
+        ]
+      },
+      "properties": {
+        "id": "2446",
+        "name": "Zihlkanal - Gampelen, Zihlbrücke",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2446' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Water level",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 79,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2608228,
+          1223238
+        ]
+      },
+      "properties": {
+        "id": "2155",
+        "name": "Emme - Wiler, Limpachmündung, nur Hauptstation",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2155' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 32,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2830602,
+          1197093
+        ]
+      },
+      "properties": {
+        "id": "2067",
+        "name": "Inn - Martina",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2067' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 207,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2716163,
+          1135318
+        ]
+      },
+      "properties": {
+        "id": "2494",
+        "name": "Ticino - Pollegio, Campagna",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2494' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 10,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2721260,
+          1117079
+        ]
+      },
+      "properties": {
+        "id": "2020",
+        "name": "Ticino - Bellinzona",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2020' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 85,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2709581,
+          1092143
+        ]
+      },
+      "properties": {
+        "id": "2167",
+        "name": "Tresa - Ponte Tresa, Rocchetta",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2167' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 140,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2641347,
+          1129701
+        ]
+      },
+      "properties": {
+        "id": "2346",
+        "name": "Rhone - Brig",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2346' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 4,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2593742,
+          1118631
+        ]
+      },
+      "properties": {
+        "id": "2011",
+        "name": "Rhône - Sion",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2011' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 14,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2573140,
+          1108298
+        ]
+      },
+      "properties": {
+        "id": "2024",
+        "name": "Rhône - Branson",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2024' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2557649,
+          1133284
+        ]
+      },
+      "properties": {
+        "id": "2009",
+        "name": "Rhône - Porte du Scex",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2009' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 88,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2486603,
+          1112335
+        ]
+      },
+      "properties": {
+        "id": "2174",
+        "name": "Rhône - Chancy, Aux Ripes",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2174' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 56,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2613571,
+          1263084
+        ]
+      },
+      "properties": {
+        "id": "2106",
+        "name": "Birs - Münchenstein, Hofmatt",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2106' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 23,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2561671,
+          1187319
+        ]
+      },
+      "properties": {
+        "id": "2034",
+        "name": "Broye - Payerne, Caserne d'aviation",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2034' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 87,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2501212,
+          1115123
+        ]
+      },
+      "properties": {
+        "id": "2170",
+        "name": "Arve - Genève, Bout du Monde",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2170' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 103,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2572555,
+          1244458
+        ]
+      },
+      "properties": {
+        "id": "2210",
+        "name": "Doubs - Ocourt",
+        "description": "\u003ca href='https://www.hydrodaten.admin.ch/en/2210' target='blank'\u003eTo station page\u003c/a\u003e",
+        "param": "Discharge",
+        "vorhersage-class": 0,
+        "w-type": "River"
+      }
+    }
+  ],
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:2056"
+    }
+  },
+  "name": "hydro_swisstopo_forecast_map",
+  "mapname": "ch.bafu.hydroweb-messstationen_vorhersage",
+  "timestamp": "16.12.2024 18:05"
 }
