@@ -3,12 +3,13 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import DrawingContinueInteraction from '@/modules/drawing/components/DrawingContinueInteraction.vue'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
 import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelectInteraction.vue'
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
+import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
+import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import { EditMode } from '@/store/modules/drawing.store'
 // DOM References
 const selectInteraction = ref(null)
@@ -34,7 +35,15 @@ const specializedInteractionComponent = computed(() => {
             return DrawingMeasureInteraction
     }
     if (editMode.value === EditMode.EXTEND) {
-        return DrawingContinueInteraction
+        console.log('[DrawingInteractions] Returning ExtendLineInteraction', selectedLineFeature)
+        const isMeasure =
+            selectedLineFeature?.get('editableFeature')?.featureType ===
+            EditableFeatureTypes.MEASURE
+        if (isMeasure) {
+            return ExtendMeasureInteraction
+        } else {
+            return ExtendLineInteraction
+        }
     }
     return null
 })
