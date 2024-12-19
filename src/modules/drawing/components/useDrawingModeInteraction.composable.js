@@ -9,9 +9,14 @@ import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/api/features/features.api'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { EditMode } from '@/store/modules/drawing.store'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
@@ -26,6 +31,7 @@ export default function useDrawingModeInteraction({
     useGeodesicDrawing = false,
     snapping = false,
     drawEndCallback = null,
+    startingFeature = null,
 }) {
     const counterLinePolyPoints = ref(0)
     const isSnappingOnFirstPoint = ref(false)
@@ -37,6 +43,9 @@ export default function useDrawingModeInteraction({
 
     const store = useStore()
     const projection = computed(() => store.state.position.projection)
+    const reverseLineStringExtension = computed(
+        () => store.state.drawing.reverseLineStringExtension
+    )
 
     const interaction = new DrawInteraction({
         style: editingStyle,
@@ -52,6 +61,8 @@ export default function useDrawingModeInteraction({
         source: drawingLayer.getSource(),
     })
 
+    let isExtending = startingFeature ? true : false
+
     onMounted(() => {
         interaction.setActive(true)
 
@@ -65,6 +76,11 @@ export default function useDrawingModeInteraction({
             // registering events on the interaction created by the other mixin
             interaction.on('drawstart', onDrawStartResetPointCounter)
             interaction.getOverlay().getSource().on('addfeature', checkIfSnapping)
+        }
+        if (isExtending) {
+            window.f = startingFeature
+            console.log('startingFeature', startingFeature)
+            interaction.appendCoordinates(startingFeature.getGeometry().getCoordinates())
         }
     })
     onBeforeUnmount(() => {
@@ -135,6 +151,67 @@ export default function useDrawingModeInteraction({
         counterLinePolyPoints.value = 0
     }
 
+    function onExtendStart(event) {
+        console.log('onExtendStart', event)
+    }
+
+    function onExtendEnd(event) {
+        console.log('onExtendEnd', event)
+        // We only need the drawn feature, as the starting feature is already in the store / layer source
+        // no need to insert the drawn feature in the layer source
+        interaction.abortDrawing()
+
+        const drawnFeature = event.feature
+        const selectedFeature = startingFeature
+
+        drawnFeature.setId(selectedFeature.getId())
+        drawnFeature.unset('isDrawing')
+
+        // We need the coordinates of the drawn feature to update the selected feature
+        const coordinates = getFeatureCoordinatesWithoutExtraPoint(drawnFeature)
+        if (snapping && !isSnappingOnFirstPoint.value && coordinates.length > 1) {
+            // if not the same ending point, it is not a polygon (the user didn't finish drawing by closing it)
+            // so we transform the drawn polygon into a linestring
+            drawnFeature.setGeometry(new LineString(coordinates))
+        }
+
+        /* Normalize the coordinates, as the modify interaction is configured to operate only
+        between -180 and 180 deg (so that the features can be modified even if the view is of
+        by 360deg) */
+        const geometry = drawnFeature.getGeometry()
+        const normalizedCoords = wrapXCoordinates(geometry.getCoordinates(), projection.value, true)
+        geometry.setCoordinates(normalizedCoords)
+
+        selectedFeature.setGeometry(drawnFeature.getGeometry())
+
+        // Update the selected feature with new coordinates
+        if (selectedFeature) {
+            updateStoreFeatureCoordinatesGeometry(selectedFeature, reverseLineStringExtension.value)
+            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
+            debounceSaveDrawing()
+        }
+    }
+
+    // TODO: This function is copied from useModifyInteraction.composable.js
+    // Update the store feature with the new coordinates and geometry
+    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
+        const storeFeature = feature.get('editableFeature')
+        if (reverse) {
+            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
+        }
+        store.dispatch('changeFeatureCoordinates', {
+            feature: storeFeature,
+            coordinates: extractOlFeatureCoordinates(feature),
+            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+            ...dispatcher,
+        })
+        store.dispatch('changeFeatureGeometry', {
+            feature: storeFeature,
+            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+            ...dispatcher,
+        })
+    }
+
     function onDrawStart(event) {
         const feature = event.feature
         log.debug(`onDrawStart feature ${feature.getId()}`)
@@ -143,6 +220,9 @@ export default function useDrawingModeInteraction({
         }
         // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
         feature.set('isDrawing', true)
+        if (isExtending) {
+            onExtendStart(event)
+        }
     }
 
     function onDrawEnd(event) {
@@ -151,6 +231,10 @@ export default function useDrawingModeInteraction({
         // dispatch changes to the store
         // deactivate()
         // grabbing the drawn feature so that we send it through the event
+        if (isExtending) {
+            onExtendEnd(event)
+            return
+        }
         const feature = event.feature
         log.debug(`Drawing ended ${feature.getId()}`, feature)
         // checking if drawing was finished while linking the first point with the last
