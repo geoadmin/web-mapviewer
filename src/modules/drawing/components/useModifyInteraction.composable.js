@@ -1,27 +1,18 @@
-import { noModifierKeys, primaryAction, singleClick } from 'ol/events/condition'
+import { noModifierKeys, singleClick } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
-import { LineString, Polygon } from 'ol/geom'
-import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
-import SnapInteraction from 'ol/interaction/Snap'
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
 } from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import {
-    drawLineStyle,
-    drawMeasureStyle,
-    editingVertexStyleFunction,
-} from '@/modules/drawing/lib/style'
+import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
-import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
-import { GeodesicGeometries, segmentExtent, subsegments } from '@/utils/geodesicManager'
+import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -34,17 +25,13 @@ const cursorGrabbingClass = 'cursor-grabbing'
  * them through a prop coupling)
  */
 export default function useModifyInteraction(features) {
-    const counterLinePolyPoints = ref(0)
-    const isSnappingOnFirstPoint = ref(false)
     const store = useStore()
 
     const editMode = computed(() => store.state.drawing.editingMode)
-    const projection = computed(() => store.state.position.projection)
     const reverseLineStringExtension = computed(
         () => store.state.drawing.reverseLineStringExtension
     )
 
-    const drawingLayer = inject('drawingLayer')
     const olMap = inject('olMap')
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
 
@@ -72,19 +59,6 @@ export default function useModifyInteraction(features) {
         wrapX: true,
     })
 
-    const continueDrawingInteraction = new DrawInteraction({
-        style: drawLineStyle,
-        type: 'Polygon',
-        minPoints: 2,
-        stopClick: true,
-        // only left-click to draw (primaryAction)
-        condition: (e) => primaryAction(e),
-        wrapX: true,
-    })
-    const snapInteraction = new SnapInteraction({
-        source: drawingLayer.getSource(),
-    })
-
     watch(
         editMode,
         (newValue) => {
@@ -95,27 +69,12 @@ export default function useModifyInteraction(features) {
                         .getGeometry()
                         .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
                 }
-                continueDrawingInteraction.appendCoordinates(
-                    selectedFeature.getGeometry().getCoordinates()
-                )
 
-                const selectedEditableFeature = selectedFeature.get('editableFeature')
-                const isMeasurementLine =
-                    selectedEditableFeature.featureType === EditableFeatureTypes.MEASURE
-                if (isMeasurementLine) {
-                    continueDrawingInteraction.setProperties({ style: drawMeasureStyle })
-                } else {
-                    continueDrawingInteraction.setProperties({ style: drawLineStyle })
-                }
-
-                continueDrawingInteraction.setActive(true)
                 modifyInteraction.setActive(false)
             } else if (newValue === EditMode.MODIFY) {
                 modifyInteraction.setActive(true)
-                continueDrawingInteraction.setActive(false)
             } else {
                 modifyInteraction.setActive(true)
-                continueDrawingInteraction.setActive(false)
             }
         },
         { immediate: true }
@@ -126,45 +85,22 @@ export default function useModifyInteraction(features) {
         modifyInteraction.on('modifyend', onModifyEnd)
 
         olMap.addInteraction(modifyInteraction)
-        olMap.addInteraction(continueDrawingInteraction)
-
-        continueDrawingInteraction.on('drawstart', onExtendStart)
-        continueDrawingInteraction.on('drawstart', onDrawStartResetPointCounter)
-        continueDrawingInteraction.on('drawend', onExtendEnd)
-        continueDrawingInteraction.getOverlay().getSource().on('addfeature', checkIfSnapping)
-
-        continueDrawingInteraction.setActive(false)
-
-        olMap.addInteraction(snapInteraction)
     })
     onBeforeUnmount(() => {
         store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
 
         olMap.removeInteraction(modifyInteraction)
-        olMap.removeInteraction(continueDrawingInteraction)
 
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
-
-        continueDrawingInteraction.un('drawstart', onExtendStart)
-        continueDrawingInteraction.un('drawstart', onDrawStartResetPointCounter)
-        continueDrawingInteraction.un('drawend', onExtendEnd)
-        continueDrawingInteraction.getOverlay().getSource().un('addfeature', checkIfSnapping)
-
-        olMap.removeInteraction(snapInteraction)
     })
-
-    function onDrawStartResetPointCounter() {
-        counterLinePolyPoints.value = 0
-    }
 
     function removeLastPoint() {
         if (editMode.value === EditMode.OFF) {
             return
         }
-        if (continueDrawingInteraction.getActive()) {
-            continueDrawingInteraction.removeLastPoint()
-        } else if (modifyInteraction.getActive() && features.getArray().length > 0) {
+
+        if (modifyInteraction.getActive() && features.getArray().length > 0) {
             const feature = features.getArray()[0]
             const geometry = feature.getGeometry()
             const coordinates = geometry.getCoordinates()
@@ -211,58 +147,6 @@ export default function useModifyInteraction(features) {
         }
     }
 
-    function onExtendStart(event) {
-        // TODO(IS): copied from useDrawingModeInteraction.composable.js
-        const feature = event.feature
-        feature.set('geodesic', new GeodesicGeometries(feature, projection.value))
-        // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
-        feature.set('isDrawing', true)
-    }
-
-    /**
-     * As OL thinks it is drawing a polygon, it will always add the first point as the last, even if
-     * not finished, so we remove it before performing our checks
-     */
-    function getFeatureCoordinatesWithoutExtraPoint(feature) {
-        if (Array.isArray(feature.getGeometry().getCoordinates()[0])) {
-            return feature.getGeometry().getCoordinates()[0].slice(0, -1)
-        }
-        return feature.getGeometry().getCoordinates()
-    }
-
-    function onExtendEnd(event) {
-        const drawnFeature = event.feature
-
-        drawnFeature.setId(features.getArray()[0].getId())
-        drawnFeature.set('isDrawing', false)
-
-        const [selectedFeature] = features.getArray()
-
-        // Update the selected feature with the new geometry
-        // TODO(IS): taken from useDrawingModeInteraction.composable.js
-        const coordinates = getFeatureCoordinatesWithoutExtraPoint(drawnFeature)
-        if (!isSnappingOnFirstPoint.value && coordinates.length > 1) {
-            // if not the same ending point, it is not a polygon (the user didn't finish drawing by closing it)
-            // so we transform the drawn polygon into a linestring
-            drawnFeature.setGeometry(new LineString(coordinates))
-        }
-        /* Normalize the coordinates, as the modify interaction is configured to operate only
-        between -180 and 180 deg (so that the features can be modified even if the view is of
-        by 360deg) */
-        const geometry = drawnFeature.getGeometry()
-        const normalizedCoords = wrapXCoordinates(geometry.getCoordinates(), projection.value, true)
-        geometry.setCoordinates(normalizedCoords)
-
-        selectedFeature.setGeometry(drawnFeature.getGeometry())
-
-        // Update the selected feature with new coordinates
-        if (selectedFeature) {
-            updateStoreFeatureCoordinatesGeometry(selectedFeature, reverseLineStringExtension.value)
-            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
-            debounceSaveDrawing()
-        }
-    }
-
     // Update the store feature with the new coordinates and geometry
     function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
         const storeFeature = feature.get('editableFeature')
@@ -280,34 +164,6 @@ export default function useModifyInteraction(features) {
             geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
             ...dispatcher,
         })
-    }
-
-    // TODO(IS): copied from useDrawingModeInteraction.composable.js
-    function checkIfSnapping(event) {
-        const feature = event.feature
-        // only checking if the geom is a polygon (it as more than one point)
-        if (feature.getGeometry() instanceof Polygon) {
-            const lineCoords = getFeatureCoordinatesWithoutExtraPoint(feature)
-            // if point count isn't the same, we update it
-            if (counterLinePolyPoints.value !== lineCoords.length) {
-                // A point is added or removed, updating sketch points counter
-                counterLinePolyPoints.value = lineCoords.length
-            } else if (lineCoords.length > 1) {
-                const firstPoint = lineCoords[0]
-                const lastPoint = lineCoords[lineCoords.length - 1]
-                const sketchPoint = lineCoords[lineCoords.length - 2]
-
-                // Checks is snapped to first point of geom
-                const isSnapOnFirstPoint =
-                    lastPoint[0] === firstPoint[0] && lastPoint[1] === firstPoint[1]
-
-                // Checks is snapped to last point of geom
-                const isSnapOnLastPoint =
-                    lastPoint[0] === sketchPoint[0] && lastPoint[1] === sketchPoint[1]
-
-                isSnappingOnFirstPoint.value = !isSnapOnLastPoint && isSnapOnFirstPoint
-            }
-        }
     }
 
     return {
