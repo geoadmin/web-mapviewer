@@ -90,10 +90,25 @@ export default {
          * @type {String | null}
          */
         editingMode: EditMode.OFF,
+
+        /**
+         * Flag to indicate if the drawing is exported or shared
+         *
+         * @type {{ exported: boolean; shared: boolean }}
+         */
+        isDrawingShared: false,
+
+        isDrawingModified: false,
+
+        isVisitWithAdminId: false,
     },
     getters: {
         isDrawingEmpty(state) {
             return state.featureIds.length === 0
+        },
+
+        showWarningUnsharedDrawing(state) {
+            return !state.isVisitWithAdminId && !state.isDrawingShared && state.isDrawingModified
         },
     },
     actions: {
@@ -101,6 +116,24 @@ export default {
             if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', { mode, dispatcher })
             }
+        },
+        setIsDrawingShared({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsDrawingShared', {
+                value: value === null ? state.isDrawingShared : value,
+                dispatcher,
+            })
+        },
+        setIsDrawingModified({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsDrawingModified', {
+                value: value === null ? state.isDrawingModified : value,
+                dispatcher,
+            })
+        },
+        setIsVisitWithAdminId({ commit, state }, { value = null, dispatcher }) {
+            commit('setIsVisitWithAdminId', {
+                value: value === null ? state.isVisitWithAdminId : value,
+                dispatcher,
+            })
         },
         async loadAvailableIconSets({ commit }, { dispatcher }) {
             const iconSets = await loadAllIconSetsFromBackend()
@@ -165,6 +198,9 @@ export default {
     },
     mutations: {
         setDrawingMode: (state, { mode }) => (state.mode = mode),
+        setIsDrawingShared: (state, { value }) => (state.isDrawingShared = value),
+        setIsDrawingModified: (state, { value }) => (state.isDrawingModified = value),
+        setIsVisitWithAdminId: (state, { value }) => (state.isVisitWithAdminId = value),
         setIconSets: (state, { iconSets }) => (state.iconSets = iconSets),
         addDrawingFeature: (state, { featureId }) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, { featureId }) =>

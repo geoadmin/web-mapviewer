@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineAsyncComponent, onMounted } from 'vue'
+import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 
 import I18nModule from '@/modules/i18n/I18nModule.vue'
@@ -20,6 +20,9 @@ import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
+
+const dispatcher = { dispatcher: 'MavView.vue' }
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
@@ -31,7 +34,7 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
-
+const showWarningUnsharedDrawing = computed(() => store.getters.showWarningUnsharedDrawing)
 const loadDrawingModule = computed(() => {
     return (
         (!activeKmlLayer.value || activeKmlLayer.value?.kmlData) &&
@@ -42,6 +45,23 @@ const loadDrawingModule = computed(() => {
 
 onMounted(() => {
     log.info(`Map view mounted`)
+    window.addEventListener('beforeunload', beforeUnloadHandler)
+})
+
+const beforeUnloadHandler = (event) => {
+    if (showWarningUnsharedDrawing.value) {
+        store.dispatch('addWarnings', {
+            warnings: [new WarningMessage('drawing_not_shared')],
+            ...dispatcher,
+        })
+        event.returnValue = true
+        event.preventDefault()
+        return
+    }
+}
+
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
 </script>
 

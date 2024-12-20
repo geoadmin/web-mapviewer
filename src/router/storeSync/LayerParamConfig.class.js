@@ -191,6 +191,13 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
                             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                         })
                     )
+
+                    promisesForAllDispatch.push(
+                        store.dispatch('setIsVisitWithAdminId', {
+                            value: true,
+                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                        })
+                    )
                 }
                 log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
             }

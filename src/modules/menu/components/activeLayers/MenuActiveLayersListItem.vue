@@ -22,6 +22,7 @@ import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
 import log from '@/utils/logging'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
@@ -88,7 +89,9 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
 const isLayerKml = computed(() => layer.value instanceof KMLLayer)
+const activeKmlLayerId = computed(() => store.getters.activeKmlLayer?.id)
 const isLayerKmlOrGpx = computed(() => isLayerKml.value || layer.value instanceof GPXLayer)
+const showWarningUnsharedDrawing = computed(() => store.getters.showWarningUnsharedDrawing)
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -107,6 +110,13 @@ onMounted(() => {
 })
 
 function onRemoveLayer() {
+    if (activeKmlLayerId.value === layer.value.id && showWarningUnsharedDrawing.value) {
+        store.dispatch('addWarnings', {
+            warnings: [new WarningMessage('drawing_not_shared')],
+            ...dispatcher,
+        })
+        return
+    }
     store.dispatch('removeLayer', { index: index.value, ...dispatcher })
 }
 
