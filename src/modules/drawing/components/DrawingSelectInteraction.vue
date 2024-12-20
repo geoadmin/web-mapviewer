@@ -113,10 +113,14 @@ function selectFeature(feature) {
     }
     currentlySelectedFeature.value = feature
 }
+function setActive(active) {
+    selectInteraction.setActive(active)
+}
 
 defineExpose({
     selectFeature,
     removeLastPoint,
+    setActive,
 })
 </script>
 
