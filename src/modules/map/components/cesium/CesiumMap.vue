@@ -125,11 +125,6 @@ async function createViewer() {
 
     viewerCreated.value = true
 
-    if (compassElement.value) {
-        compassElement.value.scene = viewer.scene
-        compassElement.value.clock = viewer.clock
-    }
-
     if (IS_TESTING_WITH_CYPRESS) {
         window.cesiumViewer = viewer
         // reduce screen space error to downgrade visual quality but speed up tests
@@ -140,6 +135,11 @@ async function createViewer() {
         isViewerReady: true,
         ...dispatcher,
     })
+
+    if (compassElement.value) {
+        compassElement.value.scene = viewer.scene
+        compassElement.value.clock = viewer.clock
+    }
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
 
