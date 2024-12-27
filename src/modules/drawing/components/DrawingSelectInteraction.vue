@@ -15,6 +15,8 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 
+const emit = defineEmits(['feature-selected'])
+
 const dispatcher = { dispatcher: 'DrawingSelectInteraction.vue' }
 
 const drawingLayer = inject('drawingLayer')
@@ -70,6 +72,10 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         // editableFeature was removed from the state just before, so we can edit it directly again.
         oldFeature.get('editableFeature').removeListener('change:style', onFeatureChange)
     }
+})
+
+watch(currentlySelectedFeature, (newFeature) => {
+    emit('feature-selected', newFeature)
 })
 
 onMounted(() => {

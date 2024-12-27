@@ -11,13 +11,16 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import { EditMode } from '@/store/modules/drawing.store'
+import log from '@/utils/logging'
 // DOM References
 const selectInteraction = ref(null)
 const currentInteraction = ref(null)
 const store = useStore()
 const currentDrawingMode = computed(() => store.state.drawing.mode)
 const editMode = computed(() => store.state.drawing.editingMode)
+
 let selectedLineFeature = null
+
 const specializedInteractionComponent = computed(() => {
     let selectedInteraction = null
     switch (currentDrawingMode.value) {
@@ -38,10 +41,17 @@ const specializedInteractionComponent = computed(() => {
         const isMeasure =
             selectedLineFeature?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.MEASURE
+        const isLine =
+            selectedLineFeature?.get('editableFeature')?.featureType ===
+            EditableFeatureTypes.LINEPOLYGON
         if (isMeasure) {
             selectedInteraction = ExtendMeasureInteraction
-        } else {
+        } else if (isLine) {
             selectedInteraction = ExtendLineInteraction
+        } else {
+            log.error('Invalid feature type for extend mode')
+
+            selectedInteraction = null
         }
     }
     // Make sure that the modify interaction is disabled when we are in draw / extend mode
@@ -52,10 +62,11 @@ const specializedInteractionComponent = computed(() => {
     }
     return selectedInteraction
 })
+
 function onDrawEnd(feature) {
     selectInteraction.value.selectFeature(feature)
-    selectedLineFeature = feature
 }
+
 function removeLastPoint() {
     if (currentInteraction.value?.removeLastPoint) {
         currentInteraction.value.removeLastPoint()
@@ -64,12 +75,20 @@ function removeLastPoint() {
         selectInteraction.value.removeLastPoint()
     }
 }
+
+function featureSelected(feature) {
+    if (feature.getGeometry().getType() === 'LineString') {
+        selectedLineFeature = feature
+    } else {
+        selectedLineFeature = null
+    }
+}
 defineExpose({
     removeLastPoint,
 })
 </script>
 <template>
-    <DrawingSelectInteraction ref="selectInteraction" />
+    <DrawingSelectInteraction ref="selectInteraction" @feature-selected="featureSelected" />
     <component
         :is="specializedInteractionComponent"
         v-if="specializedInteractionComponent"
