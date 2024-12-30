@@ -67,31 +67,48 @@ describe('Drawing module tests', () => {
                 .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
         }
 
-        // Check that the linestring has the expected number of points
-        function checkDrawnLineString(numberOfPoints) {
+        function addDecription(description) {
+            cy.get('[data-cy="drawing-style-feature-description"]').type(description)
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                description
+            )
+            cy.wait('@update-kml').then(() => {
+                cy.readStoreValue('getters.selectedFeatures[0].description').should(
+                    'eq',
+                    description
+                )
+            })
+        }
+
+        // we use the description to identify the feature and check its
+        // geometry type, number of points and type (measure or linepolygon)
+        function checkDrawnFeature(description, numberOfPoints, featureType, type) {
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
-                    expect(features).to.be.an('Array').lengthOf(1)
-                    const [feature] = features
-                    expect(feature.getGeometry().getType()).to.eq('LineString')
-                    const lineStringCoordinates = feature.getGeometry().getCoordinates()
-                    expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                    console.log(description)
+                    console.log(features)
+                    features.forEach((feature) => {
+                        console.log(feature.get('description'))
+                    })
+                    const matchingFeature = features.find(
+                        (feature) => feature.get('description') === description
+                    )
+                    expect(matchingFeature).to.not.be.undefined
+                    expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
+                    expect(matchingFeature.get('type')).to.eq(type.toLowerCase())
+                    if (featureType === 'LineString') {
+                        const lineStringCoordinates = matchingFeature.getGeometry().getCoordinates()
+                        expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                    } else if (featureType === 'Polygon') {
+                        const polygonCoordinates = matchingFeature.getGeometry().getCoordinates()
+                        expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
+                        expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
+                    }
                 })
         }
 
-        function checkDrawnPolygon(numberOfPoints) {
-            cy.readWindowValue('drawingLayer')
-                .then((drawingLayer) => drawingLayer.getSource().getFeatures())
-                .should((features) => {
-                    expect(features).to.be.an('Array').lengthOf(1)
-                    const [feature] = features
-                    expect(feature.getGeometry().getType()).to.eq('Polygon')
-                    const polygonCoordinates = feature.getGeometry().getCoordinates()
-                    expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
-                    expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
-                })
-        }
         beforeEach(() => {
             cy.goToDrawing()
         })
@@ -571,7 +588,8 @@ describe('Drawing module tests', () => {
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
-        it('can create line, extend it, and delete the last node by right click', () => {
+
+        it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
@@ -590,14 +608,27 @@ describe('Drawing module tests', () => {
             })
             // should create a line by re-clicking the last point
             cy.get('[data-cy="ol-map"]').click(...lineCoordinates.at(lineCoordinates.length - 1))
-            checkDrawnLineString(8)
+            const firstFeatureDescription = 'first feature'
+            addDecription(firstFeatureDescription)
+
+            checkDrawnFeature(
+                firstFeatureDescription,
+                8,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Extend from the last node of line
             cy.get('[data-cy="extend-from-last-node-button"]').click()
             cy.get('[data-cy="ol-map"]').click(1100, 450)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(1100, 450)
-            checkDrawnLineString(9)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Extend from the first node of line
             cy.get('[data-cy="extend-from-first-node-button"]').click()
@@ -605,25 +636,95 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(600, 250)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(600, 250)
-            checkDrawnLineString(11)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Delete the last node by right click
             cy.get('[data-cy="ol-map"]').rightclick()
-            checkDrawnLineString(10)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                10,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Delete the last node by clicking the delete button
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            checkDrawnLineString(9)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Extend to make a polygon
             cy.get('[data-cy="extend-from-last-node-button"]').click()
             cy.get('[data-cy="ol-map"]').click(750, 350)
             // Click the first node to finish the polygon
             cy.get('[data-cy="ol-map"]').click(600, 250)
-            checkDrawnPolygon(11)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'Polygon',
+                EditableFeatureTypes.LINEPOLYGON
+            )
             // No extend button for polygon
             cy.get('[data-cy="drawing-delete-first-point-button"]').should('not.exist')
             cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
+
+            // Create measurement line
+            cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
+
+            const measurementCoordinates = [
+                [1000, 500],
+                [1050, 550],
+                [1100, 600],
+                [1200, 600],
+                [1250, 600],
+                [1250, 400],
+                [1300, 400],
+                [1400, 400],
+            ]
+            measurementCoordinates.forEach((coordinate) => {
+                cy.get('[data-cy="ol-map"]').click(...coordinate)
+            })
+            // should create a line by re-clicking the last point
+            cy.get('[data-cy="ol-map"]').click(
+                ...measurementCoordinates.at(measurementCoordinates.length - 1)
+            )
+            const secondFeatureDescription = 'second feature'
+            addDecription(secondFeatureDescription)
+
+            checkDrawnFeature(
+                secondFeatureDescription,
+                8,
+                'LineString',
+                EditableFeatureTypes.MEASURE
+            )
+
+            // Extend from the last node of line
+            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(1400, 450)
+            // finish extending the line by clicking the last point
+            cy.get('[data-cy="ol-map"]').click(1400, 450)
+            checkDrawnFeature(
+                secondFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.MEASURE
+            )
+
+            // check if the first feature still there
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'Polygon',
+                EditableFeatureTypes.LINEPOLYGON
+            )
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
