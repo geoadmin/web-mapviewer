@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
+
 describe('Open Time and Compare Slider together', () => {
     context('Open Time and Compare Slider together', () => {
         const preSelectedYear = 2019
@@ -54,15 +56,6 @@ describe('Open Time and Compare Slider together', () => {
             cy.get(`[data-cy^="button-toggle-visibility-layer-${layerId}-"]`)
                 .should('be.visible')
                 .click()
-        }
-
-        function moveTimeSlider(x) {
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { which: 1 })
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
-                screenX: Math.abs(x),
-                screenY: 0,
-            })
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mouseup', { force: true })
         }
 
         function removeLayer(layerId) {
