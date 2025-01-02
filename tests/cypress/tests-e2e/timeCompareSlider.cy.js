@@ -65,6 +65,10 @@ describe('Open Time and Compare Slider together', () => {
             cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mouseup', { force: true })
         }
 
+        function removeLayer(layerId) {
+            cy.get(`[data-cy^="button-remove-layer-${layerId}-"]`).should('be.visible').click()
+        }
+
         it('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
 
@@ -155,6 +159,45 @@ describe('Open Time and Compare Slider together', () => {
             toggleTimeSlider() // Open time slider again
             checkCompareSlider(true, initialRatio)
             checkTimeSlider(true, newSelectedYear) // Keep the selected year
+        })
+
+        it('testing sliders behaviour when layers are removed', () => {
+            cy.viewport(1920, 1080)
+
+            cy.goToMapView({
+                layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
+                    ';'
+                ),
+            })
+
+            // Initial state, no slider should be active
+            checkTimeSlider(false)
+            checkCompareSlider(false)
+
+            toggleTimeSlider() // Open time slider
+            checkTimeSlider(true, preSelectedYear)
+            checkCompareSlider(false)
+
+            cy.log('Open compare slider, see if time slider is still active')
+            cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+            toggleCompareSlider() // Open compare slider
+            checkCompareSlider(true, initialRatio)
+            checkTimeSlider(true, preSelectedYear)
+
+            // Open the active layers menu
+            cy.get(`[data-cy="menu-active-layers"]`).should('be.visible').click()
+
+            removeLayer(testLayer1)
+            checkCompareSlider(true, initialRatio)
+            checkTimeSlider(true, preSelectedYear)
+
+            removeLayer(timedLayerId)
+            checkCompareSlider(true, initialRatio)
+            checkTimeSlider(false)
+
+            removeLayer(testLayer2)
+            checkCompareSlider(true, initialRatio, false)
+            checkTimeSlider(false)
         })
     })
 })
