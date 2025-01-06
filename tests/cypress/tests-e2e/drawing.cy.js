@@ -87,11 +87,6 @@ describe('Drawing module tests', () => {
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
-                    console.log(description)
-                    console.log(features)
-                    features.forEach((feature) => {
-                        console.log(feature.get('description'))
-                    })
                     const matchingFeature = features.find(
                         (feature) => feature.get('description') === description
                     )
