@@ -204,7 +204,7 @@ function releaseSlider() {
         />
         <div v-if="showLayerName" class="compare-slider-layer-name text-break">
             <FontAwesomeIcon icon="arrow-left" class="me-1" />
-            <strong>{{ visibleLayerOnTop.name }}</strong>
+            <strong data-cy="comparedLayerName">{{ visibleLayerOnTop.name }}</strong>
         </div>
     </div>
 </template>

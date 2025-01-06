@@ -28,7 +28,12 @@ describe('Open Time and Compare Slider together', () => {
             }
         }
 
-        function checkCompareSlider(active, ratio = null, hasVisibleLayers = true) {
+        function checkCompareSlider(
+            active,
+            ratio = null,
+            hasVisibleLayers = true,
+            visibleLayerName = null
+        ) {
             // Check the store
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
 
@@ -41,6 +46,14 @@ describe('Open Time and Compare Slider together', () => {
                 }
             } else {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
+            }
+
+            // Check the visible layer name of the compared layer
+            if (visibleLayerName) {
+                cy.get('[data-cy="compareSlider"]').trigger('mouseenter')
+                cy.get('[data-cy="comparedLayerName"]')
+                    .should('be.visible')
+                    .and('contain.text', visibleLayerName)
             }
         }
 
@@ -191,6 +204,31 @@ describe('Open Time and Compare Slider together', () => {
             removeLayer(testLayer2)
             checkCompareSlider(true, initialRatio, false)
             checkTimeSlider(false)
+        })
+
+        it('testing sliders behaviour when time enabled layer duplicated', () => {
+            cy.viewport(1920, 1080)
+            const newSelectedTimeStamp = '20200101'
+            cy.goToMapView({
+                layers: [`${timedLayerId}@year=${preSelectedYear}`].join(';'),
+            })
+
+            // Duplicate the time enabled layer
+            cy.get(`[data-cy^="button-open-visible-layer-settings-${timedLayerId}-0"]`)
+                .should('be.visible')
+                .click()
+            cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-0"]`)
+                .should('be.visible')
+                .click()
+
+            // Update the year of the duplicated layer
+            cy.get(`[data-cy="time-selector-${timedLayerId}-1"]`).should('be.visible').click()
+            cy.get(`[data-cy="time-select-${newSelectedTimeStamp}"]`).should('be.visible').click()
+
+            // Open the compare slider
+            cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+            toggleCompareSlider() // Open compare slider
+            checkCompareSlider(true, initialRatio, true, 'Time enabled WMTS test layer')
         })
     })
 })
