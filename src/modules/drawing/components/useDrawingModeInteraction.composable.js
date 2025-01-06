@@ -22,6 +22,25 @@ import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'useDrawingModeIntercation.composable' }
 
+/**
+ * Custom hook to handle drawing mode interaction.
+ *
+ * @param {Object} options - Options for the drawing mode interaction.
+ * @param {string} [options.geometryType='Point'] - The type of geometry to be drawn. Default is
+ *   `'Point'`
+ * @param {Object} [options.editingStyle=editingFeatureStyleFunction] - The style to be applied to
+ *   the feature being edited. Default is `editingFeatureStyleFunction`
+ * @param {Object} [options.editableFeatureArgs={}] - Additional arguments for the editable feature.
+ *   Default is `{}`
+ * @param {boolean} [options.useGeodesicDrawing=false] - Whether to use geodesic drawing. Default is
+ *   `false`
+ * @param {boolean} [options.snapping=false] - Whether to enable snapping. Default is `false`
+ * @param {Function} [options.drawEndCallback=null] - Callback function to be called when drawing
+ *   ends. Default is `null`
+ * @param {Object} [options.startingFeature=null] - The starting feature for the drawing. Default is
+ *   `null`
+ * @returns {Object} - An object containing the removeLastPoint function.
+ */
 export default function useDrawingModeInteraction({
     geometryType = 'Point',
     editingStyle = editingFeatureStyleFunction,

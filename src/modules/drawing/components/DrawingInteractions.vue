@@ -55,11 +55,7 @@ const specializedInteractionComponent = computed(() => {
         }
     }
     // Make sure that the modify interaction is disabled when we are in draw / extend mode
-    if (selectedInteraction) {
-        selectInteraction.value?.setActive(false)
-    } else {
-        selectInteraction.value?.setActive(true)
-    }
+    selectInteraction.value?.setActive(!selectedInteraction)
     return selectedInteraction
 })
 
