@@ -13,7 +13,11 @@ import {
     GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
 } from '@/config/map.config'
 import { flattenExtent } from '@/utils/extentUtils'
-import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    allStylingTextPlacementsWithUnknown,
+} from '@/utils/featureStyleUtils'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
@@ -474,6 +478,30 @@ export default {
                 })
             }
         },
+
+        /**
+         * Changes the text placement of the title of the feature. Only changes the text placement
+         * if the feature is editable and part of the currently selected features
+         *
+         * @param commit
+         * @param state
+         * @param {EditableFeature} feature
+         * @param {TextPlacement} textPlacement
+         * @param dispatcher
+         */
+        changeFeatureTextPlacement({ commit, state }, { feature, textPlacement, dispatcher }) {
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
+            const wantedPlacement = allStylingTextPlacementsWithUnknown.find(
+                (position) => position === textPlacement
+            )
+            if (wantedPlacement && selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureTextPlacement', {
+                    feature: selectedFeature,
+                    textPlacement: wantedPlacement,
+                    dispatcher,
+                })
+            }
+        },
         /**
          * Changes the text offset of the feature. Only change the text offset if the feature is
          * editable and part of the currently selected features
@@ -734,6 +762,9 @@ export default {
         },
         changeFeatureTextSize(state, { feature, textSize }) {
             feature.textSize = textSize
+        },
+        changeFeatureTextPlacement(state, { feature, textPlacement }) {
+            feature.textPlacement = textPlacement
         },
         changeFeatureTextOffset(state, { feature, textOffset }) {
             feature.textOffset = textOffset
