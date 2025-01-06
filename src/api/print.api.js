@@ -361,8 +361,7 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-    const printExtent = store.state.print.printExtent
-    const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
+    const customizer = new GeoAdminCustomizer(store.state.print.printExtent, excludedLayerIDs, dpi)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
 
