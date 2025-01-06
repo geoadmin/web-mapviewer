@@ -164,6 +164,8 @@ export function adjustWidth(width, dpi) {
     if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
         return 0
     }
-
+    if (width <= 0) {
+        return -adjustWidth(-width, dpi)
+    }
     return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
 }

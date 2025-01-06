@@ -134,9 +134,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
                   )
                 : 0
             // don't ask why it works, but that's the best I could do.
-            // Note(IS): I'm not sure if this is the best way to handle the Y offset. Need to be tested of different case.
-            // Per issue 1278, it's correct. But Martin did it differently, but all test is pass.
-            symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
+            symbolizer.graphicYOffset = Math.round(symbolizer.graphicYOffset) ?? 0
         }
         if (size) {
             symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
