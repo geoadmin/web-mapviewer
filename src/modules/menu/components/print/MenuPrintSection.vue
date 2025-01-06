@@ -19,9 +19,10 @@ const emits = defineEmits(['openMenuSection'])
 const isSectionShown = ref(false)
 const printGrid = ref(false)
 const printLegend = ref(false)
+const printServer = ref('http://localhost:5555/puppeteer/print_sync')
 
 const olMap = inject('olMap')
-const { printStatus, print, abortCurrentJob } = usePrint(olMap)
+const { printStatus, print, printPup, abortCurrentJob } = usePrint(olMap)
 
 const i18n = useI18n()
 const store = useStore()
@@ -91,12 +92,21 @@ function close() {
 
 async function printMap() {
     try {
-        const documentUrl = await print(printGrid.value, printLegend.value)
+        let documentUrl = ''
+        if (printServer.value !== '') {
+            documentUrl = await printPup(printServer.value)
+        } else {
+            documentUrl = await print(printGrid.value, printLegend.value)
+        }
         if (documentUrl) {
             if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
                 window.open(documentUrl)
             } else {
-                window.location = documentUrl
+                const link = document.createElement('a')
+                link.href = documentUrl
+                link.download = 'map.pdf'
+                link.click()
+                // window.location = documentUrl
             }
         } else {
             if (printStatus.value === PrintStatus.FINISHED_ABORTED) {
@@ -149,7 +159,7 @@ defineExpose({
                     @click="selectLayout(layout)"
                 >
                     <!-- on the backend the layout are enumerated to keep the ordering, but here we don't want the
-                 enumeration therefore we remove it -->
+               enumeration therefore we remove it -->
                     {{ layout.name.replace(/^\d+\.\s*/, '') }}
                 </option>
             </select>
@@ -186,6 +196,10 @@ defineExpose({
                 />
                 <label class="form-check-label" for="checkboxGrid">{{ i18n.t('graticule') }}</label>
             </div>
+            <label for="printServer" class="col-form-label fw-bold me-2">{{
+                i18n.t('print_srv_url')
+            }}</label>
+            <input id="printServer" v-model="printServer" class="form-control" />
             <div class="full-width">
                 <input
                     hidden

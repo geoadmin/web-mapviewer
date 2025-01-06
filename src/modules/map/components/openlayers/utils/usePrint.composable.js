@@ -33,6 +33,40 @@ export function usePrint(map) {
 
     const hostname = computed(() => store.state.ui.hostname)
 
+    async function printPup(server) {
+        try {
+            store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
+            if (currentJobReference.value) {
+                await abortCurrentJob()
+            }
+            printStatus.value = PrintStatus.PRINTING
+            const searchParams = new URLSearchParams(location.hash.split('?')[1])
+            const resolution = store.state.print.selectedScale / 25.4 / 96
+            const w_3857 = 40075016.68557849
+            const z = Math.log(w_3857 / 256 / resolution) / Math.log(2) + 1
+            searchParams.set('z', z)
+            searchParams.set('px', store.getters.selectedDPI / 96)
+            searchParams.set('scale', store.state.print.selectedScale)
+            const layoutParts = store.state.print.selectedLayout.name.split(' ')
+            searchParams.set('pdf', `${layoutParts[1]}_${layoutParts[2][0].toUpperCase()}`)
+            const printUrl = `${server}?${searchParams.toString()}`
+            console.log(printUrl)
+            currentJobReference.value = '111'
+            const result = await fetch(printUrl)
+            printStatus.value = PrintStatus.FINISHED_SUCCESSFULLY
+            return URL.createObjectURL(await result.blob())
+        } catch (error) {
+            log.error('Error while printing', error)
+            if (printStatus.value === PrintStatus.PRINTING) {
+                printStatus.value = PrintStatus.FINISHED_FAILED
+            }
+            return null
+        } finally {
+            store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
+            currentJobReference.value = null
+        }
+    }
+
     /**
      * @param {Boolean} printGrid Print the coordinate grid on the finished PDF, true or false
      * @param {Boolean} printLegend Print all visible layer legend (if they have one) on the map,
@@ -113,6 +147,7 @@ export function usePrint(map) {
 
     return {
         print,
+        printPup,
         abortCurrentJob,
         printStatus,
     }
