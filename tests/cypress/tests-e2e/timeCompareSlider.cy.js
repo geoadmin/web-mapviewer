@@ -28,12 +28,8 @@ describe('Open Time and Compare Slider together', () => {
             }
         }
 
-        function checkCompareSlider(
-            active,
-            ratio = null,
-            hasVisibleLayers = true,
-            visibleLayerName = null
-        ) {
+        function checkCompareSlider(active, config = {}) {
+            const { ratio = null, hasVisibleLayers = true, visibleLayerName = null } = config
             // Check the store
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
 
@@ -95,7 +91,7 @@ describe('Open Time and Compare Slider together', () => {
             cy.log('Open compare slider, see if time slider is still active')
             cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
             toggleCompareSlider() // Open compare slider
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, preSelectedYear)
 
             cy.log('Close compare slider, see if time slider is still active')
@@ -104,66 +100,66 @@ describe('Open Time and Compare Slider together', () => {
             checkTimeSlider(true, preSelectedYear)
 
             toggleCompareSlider() // Open compare slider
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, preSelectedYear)
 
             cy.log('Hide timed layer, see if time slider is still active')
             cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
 
             toggleLayerVisibility(timedLayerId) // Hide timed layer
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleLayerVisibility(timedLayerId) // Show timed layer again
             // Time slider will be inactive
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleTimeSlider() // Open time slider again
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, preSelectedYear)
 
             cy.log('Hide layers, see if time and compare slider is still active')
             toggleLayerVisibility(testLayer2)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, preSelectedYear)
 
             toggleLayerVisibility(testLayer1)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, preSelectedYear)
 
             toggleLayerVisibility(timedLayerId)
             // Time slider will still be active, but there is no active layer anymore
-            checkCompareSlider(true, initialRatio, false)
+            checkCompareSlider(true, { ratio: initialRatio, hasVisibleLayers: false })
             checkTimeSlider(false)
 
             toggleLayerVisibility(testLayer2)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleLayerVisibility(testLayer1)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleLayerVisibility(timedLayerId)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleTimeSlider() // Open time slider again
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
 
             cy.log('Move the time slider')
             const newSelectedYear = 2020
             moveTimeSlider(newSelectedYear)
             checkTimeSlider(true, newSelectedYear)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
 
             toggleTimeSlider() // Close time slider
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(false)
 
             toggleTimeSlider() // Open time slider again
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, { ratio: initialRatio })
             checkTimeSlider(true, newSelectedYear) // Keep the selected year
         })
 
@@ -187,22 +183,31 @@ describe('Open Time and Compare Slider together', () => {
             cy.log('Open compare slider, see if time slider is still active')
             cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
             toggleCompareSlider() // Open compare slider
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, {
+                ratio: initialRatio,
+                visibleLayerName: 'WMS test layer 2',
+            })
             checkTimeSlider(true, preSelectedYear)
 
             // Open the active layers menu
             cy.get(`[data-cy="menu-active-layers"]`).should('be.visible').click()
 
-            removeLayer(testLayer1)
-            checkCompareSlider(true, initialRatio)
+            removeLayer(testLayer2)
+            checkCompareSlider(true, {
+                ratio: initialRatio,
+                visibleLayerName: 'WMS test layer 1',
+            })
             checkTimeSlider(true, preSelectedYear)
 
             removeLayer(timedLayerId)
-            checkCompareSlider(true, initialRatio)
+            checkCompareSlider(true, {
+                ratio: initialRatio,
+                visibleLayerName: 'WMS test layer 1',
+            })
             checkTimeSlider(false)
 
-            removeLayer(testLayer2)
-            checkCompareSlider(true, initialRatio, false)
+            removeLayer(testLayer1)
+            checkCompareSlider(true, { ratio: initialRatio, hasVisibleLayers: false })
             checkTimeSlider(false)
         })
 
@@ -228,7 +233,10 @@ describe('Open Time and Compare Slider together', () => {
             // Open the compare slider
             cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
             toggleCompareSlider() // Open compare slider
-            checkCompareSlider(true, initialRatio, true, 'Time enabled WMTS test layer')
+            checkCompareSlider(true, {
+                ratio: initialRatio,
+                visibleLayerName: 'Time enabled WMTS test layer',
+            })
         })
     })
 })
