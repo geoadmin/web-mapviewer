@@ -19,7 +19,7 @@ const store = useStore()
 const currentDrawingMode = computed(() => store.state.drawing.mode)
 const editMode = computed(() => store.state.drawing.editingMode)
 
-let selectedLineFeature = null
+const selectedLineFeature = ref(null)
 
 const specializedInteractionComponent = computed(() => {
     let selectedInteraction = null
@@ -39,10 +39,10 @@ const specializedInteractionComponent = computed(() => {
     }
     if (editMode.value === EditMode.EXTEND) {
         const isMeasure =
-            selectedLineFeature?.get('editableFeature')?.featureType ===
+            selectedLineFeature.value?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.MEASURE
         const isLine =
-            selectedLineFeature?.get('editableFeature')?.featureType ===
+            selectedLineFeature.value?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.LINEPOLYGON
         if (isMeasure) {
             selectedInteraction = ExtendMeasureInteraction
@@ -74,9 +74,9 @@ function removeLastPoint() {
 
 function featureSelected(feature) {
     if (feature.getGeometry().getType() === 'LineString') {
-        selectedLineFeature = feature
+        selectedLineFeature.value = feature
     } else {
-        selectedLineFeature = null
+        selectedLineFeature.value = null
     }
 }
 defineExpose({
