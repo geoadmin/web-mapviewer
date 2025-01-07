@@ -1,20 +1,14 @@
-import { noModifierKeys, primaryAction, singleClick } from 'ol/events/condition'
-import GeoJSON from 'ol/format/GeoJSON'
-import DrawInteraction from 'ol/interaction/Draw'
+import { noModifierKeys, singleClick } from 'ol/events/condition'
 import ModifyInteraction from 'ol/interaction/Modify'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import { drawLineStyle, editingVertexStyleFunction } from '@/modules/drawing/lib/style'
+import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
+import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
-import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -61,16 +55,6 @@ export default function useModifyInteraction(features) {
         wrapX: true,
     })
 
-    const continueDrawingInteraction = new DrawInteraction({
-        style: drawLineStyle,
-        type: 'LineString', // Only works for LineString
-        minPoints: 2,
-        stopClick: true,
-        // only left-click to draw (primaryAction)
-        condition: (e) => primaryAction(e),
-        wrapX: true,
-    })
-
     watch(
         editMode,
         (newValue) => {
@@ -81,15 +65,12 @@ export default function useModifyInteraction(features) {
                         .getGeometry()
                         .setCoordinates(selectedFeature.getGeometry().getCoordinates().reverse())
                 }
-                continueDrawingInteraction.extend(selectedFeature)
-                continueDrawingInteraction.setActive(true)
+
                 modifyInteraction.setActive(false)
             } else if (newValue === EditMode.MODIFY) {
                 modifyInteraction.setActive(true)
-                continueDrawingInteraction.setActive(false)
             } else {
                 modifyInteraction.setActive(true)
-                continueDrawingInteraction.setActive(false)
             }
         },
         { immediate: true }
@@ -98,28 +79,24 @@ export default function useModifyInteraction(features) {
     onMounted(() => {
         modifyInteraction.on('modifystart', onModifyStart)
         modifyInteraction.on('modifyend', onModifyEnd)
-        olMap.addInteraction(modifyInteraction)
 
-        continueDrawingInteraction.on('drawend', onExtendEnd)
-        olMap.addInteraction(continueDrawingInteraction)
-        continueDrawingInteraction.setActive(false)
+        olMap.addInteraction(modifyInteraction)
     })
     onBeforeUnmount(() => {
         store.dispatch('setEditingMode', { mode: EditMode.OFF, ...dispatcher })
+
         olMap.removeInteraction(modifyInteraction)
-        olMap.removeInteraction(continueDrawingInteraction)
+
         modifyInteraction.un('modifyend', onModifyEnd)
         modifyInteraction.un('modifystart', onModifyStart)
-        continueDrawingInteraction.un('drawend', onExtendEnd)
     })
 
     function removeLastPoint() {
         if (editMode.value === EditMode.OFF) {
             return
         }
-        if (continueDrawingInteraction.getActive()) {
-            continueDrawingInteraction.removeLastPoint()
-        } else if (modifyInteraction.getActive() && features.getArray().length > 0) {
+
+        if (modifyInteraction.getActive() && features.getArray().length > 0) {
             const feature = features.getArray()[0]
             const geometry = feature.getGeometry()
             const coordinates = geometry.getCoordinates()
@@ -129,7 +106,7 @@ export default function useModifyInteraction(features) {
                 geometry.setCoordinates(coordinates)
             }
             // Updating the store feature
-            updateStoreFeatureCoordinatesGeometry(feature)
+            updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher)
         }
     }
 
@@ -160,40 +137,10 @@ export default function useModifyInteraction(features) {
                 isDragged: false,
                 ...dispatcher,
             })
-            updateStoreFeatureCoordinatesGeometry(feature)
+            updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher)
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()
         }
-    }
-
-    function onExtendEnd(event) {
-        log.debug('onExtendEnd', event)
-        const feature = event.feature
-        // Update the original feature with new coordinates
-        if (feature) {
-            updateStoreFeatureCoordinatesGeometry(feature, reverseLineStringExtension.value)
-            store.dispatch('setEditingMode', { mode: EditMode.MODIFY, ...dispatcher })
-            debounceSaveDrawing()
-        }
-    }
-
-    // Update the store feature with the new coordinates and geometry
-    function updateStoreFeatureCoordinatesGeometry(feature, reverse = false) {
-        const storeFeature = feature.get('editableFeature')
-        if (reverse) {
-            feature.getGeometry().setCoordinates(feature.getGeometry().getCoordinates().reverse())
-        }
-        store.dispatch('changeFeatureCoordinates', {
-            feature: storeFeature,
-            coordinates: extractOlFeatureCoordinates(feature),
-            geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
-            ...dispatcher,
-        })
-        store.dispatch('changeFeatureGeometry', {
-            feature: storeFeature,
-            geometry: new GeoJSON().writeGeometryObject(feature.getGeometry()),
-            ...dispatcher,
-        })
     }
 
     return {

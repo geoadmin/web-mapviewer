@@ -15,6 +15,8 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 
+const emit = defineEmits(['feature-selected'])
+
 const dispatcher = { dispatcher: 'DrawingSelectInteraction.vue' }
 
 const drawingLayer = inject('drawingLayer')
@@ -72,6 +74,10 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     }
 })
 
+watch(currentlySelectedFeature, (newFeature) => {
+    emit('feature-selected', newFeature)
+})
+
 onMounted(() => {
     selectInteraction.setActive(true)
     selectInteraction.on('select', onSelectChange)
@@ -113,10 +119,14 @@ function selectFeature(feature) {
     }
     currentlySelectedFeature.value = feature
 }
+function setActive(active) {
+    selectInteraction.setActive(active)
+}
 
 defineExpose({
     selectFeature,
     removeLastPoint,
+    setActive,
 })
 </script>
 
