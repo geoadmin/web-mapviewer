@@ -43,6 +43,11 @@ export function usePrint(map) {
             }
             printStatus.value = PrintStatus.PRINTING
             const searchParams = new URLSearchParams(location.hash.split('?')[1])
+            const sr = searchParams.get('sr') || '2056'
+            if (sr === '2056') {
+                searchParams.set('novector', true)
+            }
+            searchParams.delete('sr')
             const resolution = store.state.print.selectedScale / 25.4 / 96
             const w_3857 = 40075016.68557849
             const z = Math.log(w_3857 / 256 / resolution) / Math.log(2) + 1
