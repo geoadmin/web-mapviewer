@@ -6,6 +6,7 @@ import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+const { GeolocationPositionError } = window
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
@@ -91,7 +92,7 @@ const handlePositionError = (error, store, state, options = {}) => {
     const { reactivate = false } = options
     log.error('Geolocation activation failed', error)
     switch (error.code) {
-        case error.PERMISSION_DENIED:
+        case GeolocationPositionError.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', {
                 denied: true,
                 ...dispatcher,
@@ -101,7 +102,7 @@ const handlePositionError = (error, store, state, options = {}) => {
                 ...dispatcher,
             })
             break
-        case error.TIMEOUT:
+        case GeolocationPositionError.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
             store.dispatch('addErrors', {
                 errors: [new ErrorMessage('geoloc_time_out', null)],
@@ -109,12 +110,15 @@ const handlePositionError = (error, store, state, options = {}) => {
             })
             break
         default:
-            if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
-                // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
-                // we don't raise an error as it's "normal" in Electron to have this error raised (this API doesn't work
-                // on Electron embedded in Cypress : no Geolocation hardware detected, etc...)
-                // the position will be returned by a mocked up function by Cypress we can ignore this error
-                // we do nothing...
+            if (
+                IS_TESTING_WITH_CYPRESS &&
+                error.code === GeolocationPositionError.POSITION_UNAVAILABLE
+            ) {
+                store.dispatch('setGeolocation', { active: false, ...dispatcher })
+                store.dispatch('addErrors', {
+                    errors: [new ErrorMessage('geoloc_unknown', null)],
+                    ...dispatcher,
+                })
             } else {
                 // It can happen that the position is not yet available so we retry the api call silently for the first
                 // 3 call

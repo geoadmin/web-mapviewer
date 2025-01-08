@@ -5,11 +5,26 @@ import proj4 from 'proj4'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { SWISS_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+const { GeolocationPositionError } = window
 
 const geolocationButtonSelector = '[data-cy="geolocation-button"]'
 
 function getGeolocationButtonAndClickIt() {
     cy.get(geolocationButtonSelector).should('be.visible').click()
+}
+
+function testErrorMessage(message) {
+    // Check error in store
+    cy.readStoreValue('state.ui.errors').then((errors) => {
+        expect(errors).to.be.an('Set')
+        expect(errors.size).to.eq(1)
+
+        const error = errors.values().next().value
+        expect(error.msg).to.eq(message)
+    })
+    // Check error in UI
+    cy.get('[data-cy="error-window"]').should('be.visible')
+    cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
 }
 
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
@@ -121,60 +136,33 @@ describe('Geolocation cypress', () => {
             it('access from outside Switzerland shows an error message', () => {
                 // null island
                 cy.goToMapView({}, true, { latitude: 0, longitude: 0 })
-
                 getGeolocationButtonAndClickIt()
-
-                // Check error in store
-                cy.readStoreValue('state.ui.errors').then((errors) => {
-                    expect(errors).to.be.an('Set')
-                    expect(errors.size).to.eq(1)
-
-                    const error = errors.values().next().value
-                    expect(error.msg).to.eq('geoloc_out_of_bounds')
-                })
-                // Check error in UI
-                cy.get('[data-cy="error-window"]').should('be.visible')
-                cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+                testErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
                 cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
-
                 getGeolocationButtonAndClickIt()
-
-                // Check error in store
-                cy.readStoreValue('state.ui.errors').then((errors) => {
-                    expect(errors).to.be.an('Set')
-                    expect(errors.size).to.eq(1)
-
-                    const error = errors.values().next().value
-                    expect(error.msg).to.eq('geoloc_out_of_bounds')
-                })
-                // Check error in UI
-                cy.get('[data-cy="error-window"]').should('be.visible')
-                cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+                testErrorMessage('geoloc_out_of_bounds')
             })
         }
     )
 
-    context(
-        'Test geolocation when geolocation is unauthorized',
-        {
-            env: {
-                browserPermissions: {
-                    geolocation: 'block',
-                },
-            },
-        },
-        () => {
-            it('shows an alert telling the user geolocation is unauthorized when the geolocation button is clicked', () => {
-                cy.goToMapView()
-                getGeolocationButtonAndClickIt()
-                cy.on('window:alert', (txt) => {
-                    expect(txt).to.contains(
-                        'The acquisition of the position failed because your browser settings does not allow it. Allow your browser /this website to use your location. Deactivate the "private" mode of your browser'
-                    )
-                })
-            })
-        }
-    )
+    context('Test geolocation when geolocation is failed to be retrieved', () => {
+        it('shows an error telling the user geolocation is denied', () => {
+            cy.goToMapView({}, true, { errorCode: GeolocationPositionError.PERMISSION_DENIED })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_time_out')
+        })
+
+        it('shows an alert telling the user geolocation is not able to be retrieved due to time out', () => {
+            cy.goToMapView({}, true, { errorCode: GeolocationPositionError.TIMEOUT })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_time_out')
+        })
+        it('shows an alert telling the user geolocation is not available for other reason', () => {
+            cy.goToMapView({}, true, { errorCode: GeolocationPositionError.POSITION_UNAVAILABLE })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_unknown')
+        })
+    })
 })
