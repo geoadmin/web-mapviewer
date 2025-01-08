@@ -46,6 +46,31 @@ export function setWmsGetCapParams(url, language) {
 }
 
 /**
+ * Sets the WMS GetMap url parameters
+ *
+ * @param {URL} url Url to set
+ * @param {string} layer Layer to use
+ * @param {string} crs CRS/SRS to use
+ * @param {string} style Style to use
+ * @returns {URL} Url with wms parameter
+ */
+export function setWmsGetMapParams(url, layer, crs, style) {
+    // Mandatory params
+    url.searchParams.set('SERVICE', 'WMS')
+    url.searchParams.set('REQUEST', 'GetMap')
+    url.searchParams.set('VERSION', '1.1.0')
+    url.searchParams.set('LAYERS', layer)
+    url.searchParams.set('STYLES', style)
+    url.searchParams.set('SRS', crs)
+    url.searchParams.set('BBOX', '10.0,10.0,10.0001,10.0001')
+    url.searchParams.set('WIDTH', '1')
+    url.searchParams.set('HEIGHT', '1')
+    // Optional params
+    url.searchParams.set('FORMAT', 'image/png')
+    return url
+}
+
+/**
  * Read and parse WMS GetCapabilities
  *
  * @param {string} baseUrl Base URL for the WMS server
