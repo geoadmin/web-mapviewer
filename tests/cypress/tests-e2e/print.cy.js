@@ -13,6 +13,14 @@ describe('Testing print', () => {
 
         interceptCapabilities()
         interceptShortLink()
+
+        interceptPrintRequest()
+        interceptPrintStatus()
+        interceptDownloadReport()
+
+        interceptPrintRequest()
+        interceptPrintStatus()
+        interceptDownloadReport()
     })
 
     function interceptCapabilities() {
@@ -83,9 +91,6 @@ describe('Testing print', () => {
             cy.goToMapView()
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
         })
 
         it('should send a print request to mapfishprint (basic parameters)', () => {
@@ -174,10 +179,6 @@ describe('Testing print', () => {
     })
     context('Send print request with layers', () => {
         function startPrintWithKml(kmlFixture) {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
@@ -204,9 +205,6 @@ describe('Testing print', () => {
         }
 
         it('should send a print request to mapfishprint (with layers added)', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
             cy.goToMapView({
                 layers: [
                     'test-1.wms.layer',
@@ -333,10 +331,6 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
             cy.goToMapView({}, true)
             cy.readStoreValue('state.layers.activeLayers').should('be.empty')
             cy.openMenuIfMobile()
@@ -661,9 +655,6 @@ describe('Testing print', () => {
         })
 
         it('prints external WMS correctly', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
             const fakeWmsLayerOpacity2 = 0.8
             const fakeWmsLayerOpacity4 = 0.4
             const layers = [
@@ -760,10 +751,6 @@ describe('Testing print', () => {
             })
         })
         it('prints external WMTS correctly', () => {
-            interceptPrintRequest()
-            interceptPrintStatus()
-            interceptDownloadReport()
-
             const layers = [
                 fakeWmtsLayerUrlId1,
                 encodeLayerParam(fakeWmtsLayerUrlId2),
