@@ -89,23 +89,24 @@ describe('Geolocation cypress', () => {
                 })
                 // Check error in UI
                 cy.get('[data-cy="error-window"]').should('be.visible')
-                cy.get('[data-cy="error-window-close"]').should('be.visible').click()
+                cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
 
                 // Java island
-                // cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
+                cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
 
-                // getGeolocationButtonAndClickIt()
+                getGeolocationButtonAndClickIt()
 
-                // // Check error in store
-                // cy.readStoreValue('state.ui.errors').then((errors) => {
-                //     expect(errors).to.be.an('Set')
-                //     expect(errors.size).to.eq(1)
+                // Check error in store
+                cy.readStoreValue('state.ui.errors').then((errors) => {
+                    expect(errors).to.be.an('Set')
+                    expect(errors.size).to.eq(1)
 
-                //     const error = errors.values().next().value
-                //     expect(error.msg).to.eq('geoloc_out_of_bounds')
-                // })
-                // // Check error in UI
-                // cy.get('[data-cy="error-window"]').should('be.visible')
+                    const error = errors.values().next().value
+                    expect(error.msg).to.eq('geoloc_out_of_bounds')
+                })
+                // Check error in UI
+                cy.get('[data-cy="error-window"]').should('be.visible')
+                cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
             })
         }
     )
