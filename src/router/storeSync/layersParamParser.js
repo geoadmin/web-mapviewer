@@ -193,6 +193,15 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         if (layer.style !== defaultKmlStyle) {
             layerUrlString += `@style=${layer.style.toLowerCase()}`
         }
+        // only show clamp to ground flag when needed, meaning :
+        // - when style is geoadmin, and clamp to ground is false
+        // - when style is default, and clamp to ground is true
+        if (
+            (layer.style === KmlStyles.DEFAULT && layer.clampToGround) ||
+            (layer.style === KmlStyles.GEOADMIN && !layer.clampToGround)
+        ) {
+            layerUrlString += `@clampToGround=${layer.clampToGround}`
+        }
     }
 
     // Add custom attributes if any

@@ -1,15 +1,15 @@
 import { Cesium3DTileStyle } from 'cesium'
 
 /**
- * Style to apply to our labels in 3D. It is a complete rip-off of
- * https://github.com/geoadmin/mf-geoadmin3/blob/6a7b99a2cc9980eec27b394ee709305a239549f1/src/components/StylesService.js#L159-L233
+ * Custom style for our tileset ch.swisstopo.swissnames3d.3d.
  *
- * @type {Cesium3DTileStyle}
+ * @type {module:cesium.Cesium3DTileStyle}
  */
-export default new Cesium3DTileStyle({
+export const CESIUM_SWISSNAMES3D_STYLE = new Cesium3DTileStyle({
     show: true,
     labelStyle: 2,
     labelText: '${DISPLAY_TEXT}',
+    // no depth test for labels
     disableDepthTestDistance: Number.POSITIVE_INFINITY,
     anchorLineEnabled: true,
     anchorLineColor: "color('white')",

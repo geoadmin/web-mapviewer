@@ -35,11 +35,17 @@
         </div>
     </div>
     <CesiumGeoJSONLayer
-        v-if="layerConfig.type === LayerTypes.GEOJSON"
+        v-if="layerConfig.type === LayerTypes.GEOJSON && !layerConfig.isLoading"
         :geo-json-config="layerConfig"
     />
-    <CesiumKMLLayer v-if="layerConfig.type === LayerTypes.KML" :kml-layer-config="layerConfig" />
-    <CesiumGPXLayer v-if="layerConfig.type === LayerTypes.GPX" :gpx-layer-config="layerConfig" />
+    <CesiumKMLLayer
+        v-if="layerConfig.type === LayerTypes.KML && !layerConfig.isLoading"
+        :kml-layer-config="layerConfig"
+    />
+    <CesiumGPXLayer
+        v-if="layerConfig.type === LayerTypes.GPX && !layerConfig.isLoading"
+        :gpx-layer-config="layerConfig"
+    />
     <slot />
 </template>
 
