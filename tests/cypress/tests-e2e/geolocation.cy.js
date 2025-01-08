@@ -49,18 +49,9 @@ describe('Geolocation cypress', () => {
             },
         },
         () => {
-            // lon/lat to mock up the Geolocation API (see beforeEach)
-            const latitude = 47.5
-            const longitude = 6.8
-            // same position but in EPSG:2056 (default projection of the app)
-            const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
-
-            beforeEach(() => {
-                cy.goToMapView({}, true, { latitude, longitude })
-                getGeolocationButtonAndClickIt()
-            })
-
             it("Doesn't prompt the user if geolocation has previously been authorized", () => {
+                cy.goToMapView({}, true)
+                getGeolocationButtonAndClickIt()
                 cy.on('window:alert', () => {
                     throw new Error('Should not prompt for geolocation API permission again')
                 })
@@ -68,12 +59,53 @@ describe('Geolocation cypress', () => {
             })
 
             it('Uses the values given by the Geolocation API to feed the store', () => {
+                const latitude = 47.5
+                const longitude = 6.8
+                // same position but in EPSG:2056 (default projection of the app)
+                const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
+                cy.goToMapView({}, true, { latitude, longitude })
+
+                getGeolocationButtonAndClickIt()
                 cy.readStoreValue('state.geolocation.position').then((position) => {
                     expect(position).to.be.an('Array')
                     expect(position.length).to.eq(2)
                     expect(position[0]).to.approximately(x, 0.1)
                     expect(position[1]).to.approximately(y, 0.1)
                 })
+            })
+            it('access from outside Switzerland shows an error message', () => {
+                // null island
+                cy.goToMapView({}, true, { latitude: 0, longitude: 0 })
+
+                getGeolocationButtonAndClickIt()
+
+                // Check error in store
+                cy.readStoreValue('state.ui.errors').then((errors) => {
+                    expect(errors).to.be.an('Set')
+                    expect(errors.size).to.eq(1)
+
+                    const error = errors.values().next().value
+                    expect(error.msg).to.eq('geoloc_out_of_bounds')
+                })
+                // Check error in UI
+                cy.get('[data-cy="error-window"]').should('be.visible')
+                cy.get('[data-cy="error-window-close"]').should('be.visible').click()
+
+                // Java island
+                // cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
+
+                // getGeolocationButtonAndClickIt()
+
+                // // Check error in store
+                // cy.readStoreValue('state.ui.errors').then((errors) => {
+                //     expect(errors).to.be.an('Set')
+                //     expect(errors.size).to.eq(1)
+
+                //     const error = errors.values().next().value
+                //     expect(error.msg).to.eq('geoloc_out_of_bounds')
+                // })
+                // // Check error in UI
+                // cy.get('[data-cy="error-window"]').should('be.visible')
             })
         }
     )
