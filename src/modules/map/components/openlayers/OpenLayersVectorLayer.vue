@@ -13,6 +13,7 @@ import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import { Source } from 'ol/source'
 import { computed, inject, toRefs, watch } from 'vue'
 
+import { sendMapReadyEventToParent } from '@/api/iframeFeatureEvent.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
@@ -48,6 +49,8 @@ const layer = new MapLibreLayer({
         attribution: [vectorLayerConfig.value.attribution],
     }),
 })
+// for vector tile print POC, we provide another map ready event here
+layer.once('load', sendMapReadyEventToParent)
 
 const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
