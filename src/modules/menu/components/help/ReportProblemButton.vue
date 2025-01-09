@@ -5,8 +5,10 @@ import { useStore } from 'vuex'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { createShortLink } from '@/api/shortlink.api'
+import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
+import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -20,6 +22,28 @@ const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.km
 
 const i18n = useI18n()
 const store = useStore()
+const feedbackCategories = [
+    new DropdownItem(
+        'feedback_category_background_map',
+        i18n.t('feedback_category_background_map'),
+        'feedback_category_background_map'
+    ),
+    new DropdownItem(
+        'feedback_category_thematic_map',
+        i18n.t('feedback_category_thematic_map'),
+        'feedback_category_thematic_map'
+    ),
+    new DropdownItem(
+        'feedback_category_application_service',
+        i18n.t('feedback_category_application_service'),
+        'feedback_category_application_service'
+    ),
+    new DropdownItem(
+        'feedback_category_other',
+        i18n.t('feedback_category_other'),
+        'feedback_category_other'
+    ),
+]
 
 const props = defineProps({
     showAsLink: {
@@ -37,6 +61,7 @@ const reportProblemCloseSuccessful = ref(null)
 const showReportProblemForm = ref(false)
 const feedback = ref({
     message: null,
+    category: null,
     kml: null,
     email: null,
     file: null,
@@ -63,6 +88,7 @@ const isTemporaryKmlValid = computed(
 )
 const isFormValid = computed(
     () =>
+        feedback.value.category &&
         isMessageValid.value &&
         isEmailValid.value &&
         isAttachmentValid.value &&
@@ -94,9 +120,10 @@ async function sendReportProblem() {
     request.value.pending = true
     try {
         const feedbackSentSuccessfully = await sendFeedback(
-            '[web-mapviewer] Problem report', // subject
+            FEEDBACK_EMAIL_SUBJECT,
             feedback.value.message,
             {
+                category: feedback.value.category,
                 email: feedback.value.email,
                 attachment: feedback.value.file,
                 kml: feedback.value.kml,
@@ -168,6 +195,10 @@ function toggleDrawingOverlay() {
         ...dispatcher,
     })
 }
+
+function selectItem(dropdownItem) {
+    feedback.value.category = dropdownItem.value
+}
 </script>
 
 <template>
@@ -192,6 +223,29 @@ function toggleDrawingOverlay() {
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="report-problem" data-cy="report-problem-form">
+            <div class="mb-2 fw-bold">
+                {{ i18n.t('feedback_category') }}
+            </div>
+            <div
+                class="my-2"
+                :class="{
+                    'is-valid': feedback.category,
+                    'is-invalid': !feedback.category && activateValidation,
+                }"
+                data-cy="report-feedback-category-dropdown"
+            >
+                <DropdownButton
+                    label="feedback_description"
+                    :title="i18n.t(feedback.category ?? 'select_category')"
+                    :current-value="feedback.category"
+                    :items="feedbackCategories"
+                    @select:item="selectItem"
+                />
+            </div>
+            <div class="invalid-feedback" data-cy="text-area-input-invalid-feedback">
+                {{ i18n.t('category_not_selected_warning') }}
+            </div>
+
             <div class="my-3">
                 <TextAreaInput
                     ref="feedbackMessageTextArea"
@@ -205,7 +259,6 @@ function toggleDrawingOverlay() {
                     @validate="onTextValidate"
                 />
             </div>
-
             <div>
                 <div class="mb-2">
                     {{ i18n.t('feedback_drawing') }}
@@ -237,6 +290,7 @@ function toggleDrawingOverlay() {
                     v-model="feedback.email"
                     label="feedback_mail"
                     :disabled="request.pending"
+                    :description="'no_email_feedback'"
                     :activate-validation="activateValidation"
                     data-cy="report-problem"
                     @validate="onEmailValidate"
