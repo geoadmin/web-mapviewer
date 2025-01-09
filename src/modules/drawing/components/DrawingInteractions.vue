@@ -73,7 +73,7 @@ function removeLastPoint() {
 }
 
 function featureSelected(feature) {
-    if (feature.getGeometry().getType() === 'LineString') {
+    if (feature?.getGeometry()?.getType() === 'LineString') {
         selectedLineFeature.value = feature
     } else {
         selectedLineFeature.value = null
