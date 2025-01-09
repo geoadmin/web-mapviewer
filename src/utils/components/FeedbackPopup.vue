@@ -59,16 +59,15 @@ const warning = computed(() => {
     flex-direction: column;
     @include respond-below(phone) {
         $top-margin: $header-height;
+        &.dev-disclaimer-present {
+            $top-margin: calc($header-height + $dev-disclaimer-height + 1rem);
+        }
         top: $top-margin;
         left: 50%;
         right: unset;
         transform: translate(-50%, 0%);
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
-
-        &.dev-disclaimer-present {
-            $top-margin: calc($header-height + $dev-disclaimer-height);
-        }
     }
 }
 </style>

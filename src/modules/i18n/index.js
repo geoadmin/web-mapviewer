@@ -30,7 +30,7 @@ const defaultLocal =
         ?.find((navigatorLang) => SUPPORTED_LANG.find((lang) => navigatorLang.startsWith(lang)))
         ?.split('-')[0] ?? SUPPORTED_LANG[0]
 log.info(
-    `Default local set to ${defaultLocal}, navigator langagues`,
+    `Default local set to ${defaultLocal}, navigator languages`,
     navigator.languages,
     `supported language`,
     SUPPORTED_LANG

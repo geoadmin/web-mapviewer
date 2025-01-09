@@ -300,14 +300,34 @@ export function getDefaultFixturesAndIntercepts() {
 /**
  * Geolocation mockup
  *
- * @param {Cypress.AUTWindow} win A reference to the window object.
- * @param {GeolocationCoordinates} coords The fake coordinates to pass along.
+ * @param {Cypress.AUTWindow} win - A reference to the window object.
+ * @param {Object} options - Configuration object for the mock geolocation.
+ * @param {number} [options.latitude=47] - The latitude to use for the mock position. Default is
+ *   `47`
+ * @param {number} [options.longitude=7] - The longitude to use for the mock position. Default is
+ *   `7`
+ * @param {number} [options.errorCode=null] - The error code to simulate, if any. Default is `null`
  * @see https://github.com/cypress-io/cypress/issues/2671
  */
-const mockGeolocation = (win, coords) => {
-    const handler = (callback) => callback({ coords })
-    cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
-    cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
+const mockGeolocation = (win, options) => {
+    const { latitude = 47, longitude = 7, errorCode = null } = options
+
+    if (errorCode) {
+        const error = { code: errorCode, message: 'Error' }
+
+        cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake((_, errorCallback) => {
+            errorCallback(error)
+        })
+
+        cy.stub(win.navigator.geolocation, 'watchPosition').callsFake((_, errorCallback) => {
+            errorCallback(error)
+        })
+    } else {
+        const coords = { latitude, longitude }
+        const handler = (callback) => callback({ coords })
+        cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
+        cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
+    }
 }
 
 /**
@@ -325,7 +345,7 @@ Cypress.Commands.add(
     (
         queryParams = {},
         withHash = true,
-        geolocationMockupOptions = { latitude: 47, longitude: 7 },
+        geolocationMockupOptions = { latitude: 47, longitude: 7, errorCode: null },
         fixturesAndIntercepts = {}
     ) => {
         // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
