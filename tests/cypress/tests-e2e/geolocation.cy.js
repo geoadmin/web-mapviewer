@@ -148,18 +148,22 @@ describe('Geolocation cypress', () => {
     )
 
     context('Test geolocation when geolocation is failed to be retrieved', () => {
-        it('shows an error telling the user geolocation is denied', () => {
-            cy.goToMapView({}, true, { errorCode: GeolocationPositionError.PERMISSION_DENIED })
-            getGeolocationButtonAndClickIt()
-            testErrorMessage('geoloc_time_out')
-        })
-
-        it('shows an alert telling the user geolocation is not able to be retrieved due to time out', () => {
+        it('shows an error telling the user geolocation is denied or time out', () => {
+            // Timeout
             cy.goToMapView({}, true, { errorCode: GeolocationPositionError.TIMEOUT })
             getGeolocationButtonAndClickIt()
             testErrorMessage('geoloc_time_out')
+
+            cy.reload() // to reset the stub
+
+            // Permission denied
+            cy.goToMapView({}, true, { errorCode: GeolocationPositionError.PERMISSION_DENIED })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_permission_denied')
         })
-        it('shows an alert telling the user geolocation is not available for other reason', () => {
+        it('shows an error when geolocation is not available / other error', () => {
+            // Unfortunately, I need to put this position unavailable in a separate it block
+            // cy.reload doesn't fix the issue, even restore the stub doesn't work
             cy.goToMapView({}, true, { errorCode: GeolocationPositionError.POSITION_UNAVAILABLE })
             getGeolocationButtonAndClickIt()
             testErrorMessage('geoloc_unknown')
