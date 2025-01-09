@@ -46,6 +46,7 @@
 
 <script>
 import { Dropdown } from 'bootstrap'
+import { useI18n } from 'vue-i18n'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { randomIntBetween } from '@/utils/numberUtils'
@@ -62,12 +63,16 @@ export class DropdownItem {
         this._description = description
     }
 
+    _translate(title) {
+        return useI18n().t(title)
+    }
+
     get id() {
         return this._id
     }
 
     get title() {
-        return this._title
+        return this._translate(this._title)
     }
     get value() {
         return this._value

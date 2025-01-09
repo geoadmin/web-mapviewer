@@ -25,22 +25,22 @@ const store = useStore()
 const feedbackCategories = [
     new DropdownItem(
         'feedback_category_background_map',
-        i18n.t('feedback_category_background_map'),
+        'feedback_category_background_map',
         'feedback_category_background_map'
     ),
     new DropdownItem(
         'feedback_category_thematic_map',
-        i18n.t('feedback_category_thematic_map'),
+        'feedback_category_thematic_map',
         'feedback_category_thematic_map'
     ),
     new DropdownItem(
         'feedback_category_application_service',
-        i18n.t('feedback_category_application_service'),
+        'feedback_category_application_service',
         'feedback_category_application_service'
     ),
     new DropdownItem(
         'feedback_category_other',
-        i18n.t('feedback_category_other'),
+        'feedback_category_other',
         'feedback_category_other'
     ),
 ]
