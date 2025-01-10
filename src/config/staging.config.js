@@ -24,6 +24,13 @@ export const IS_TESTING_WITH_CYPRESS = typeof window !== 'undefined' ? !!window.
 export const APP_VERSION = __APP_VERSION__
 
 /**
+ * The Github Repository.
+ *
+ * @type {String}
+ */
+
+export const GITHUB_REPOSITORY = 'https://github.com/geoadmin/web-mapviewer'
+/**
  * Display a big development banner on all but these hosts.
  *
  * @type {String[]}
