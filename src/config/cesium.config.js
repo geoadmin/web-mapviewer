@@ -50,3 +50,5 @@ export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 1.2742018 * 10 ** 7 // Diam
  * @type {number}
  */
 export const MINIMUM_DISTANCE_TO_SHOW_TOOLTIP = 110000
+
+export const GPX_BILLBOARD_RADIUS = 8
