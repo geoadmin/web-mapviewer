@@ -187,6 +187,13 @@ export default {
          * @type Boolean
          */
         isOpeningNewTab: false,
+        /*
+         * Flag telling if the last imported layer is partially out of bounds. It will be used for
+         * the message and CSS of the import file popup
+         *
+         * @type Boolean
+         */
+        lastImportedLayerIsPartiallyOutOfBounds: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -466,6 +473,15 @@ export default {
         setIsOpeningNewTab({ commit }, { isOpeningNewTab, dispatcher }) {
             commit('setIsOpeningNewTab', { isOpeningNewTab, dispatcher })
         },
+        setLastImportedLayerIsPartiallyOutOfBounds(
+            { commit },
+            { lastImportedLayerIsPartiallyOutOfBounds, dispatcher }
+        ) {
+            commit('setLastImportedLayerIsPartiallyOutOfBounds', {
+                lastImportedLayerIsPartiallyOutOfBounds,
+                dispatcher,
+            })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -537,5 +553,11 @@ export default {
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
         setIsOpeningNewTab: (state, { isOpeningNewTab }) =>
             (state.isOpeningNewTab = isOpeningNewTab),
+        setLastImportedLayerIsPartiallyOutOfBounds: (
+            state,
+            { lastImportedLayerIsPartiallyOutOfBounds }
+        ) =>
+            (state.lastImportedLayerIsPartiallyOutOfBounds =
+                lastImportedLayerIsPartiallyOutOfBounds),
     },
 }
