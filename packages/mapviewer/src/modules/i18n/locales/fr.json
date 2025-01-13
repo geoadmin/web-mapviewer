@@ -255,6 +255,7 @@
     "feedback_unsupported_format": "Le format du fichier n’est pas pris en charge, merci d’utiliser un autre format pour votre pièce jointe.",
     "field_required": "Ce champ est requis",
     "file_imported_success": "Fichier importé avec succès",
+    "file_imported_partially_out_of_bounds": "Le fichier importé n'est pas entièrement à l'intérieur des frontières suisses. Certaines fonctionnalités peuvent ne pas être disponibles.",
     "file_is_not_kml": "Ce fichier n'est pas un fichier KML.",
     "file_name": "Nom du dessin",
     "file_too_large": "Ce fichier est trop volumineux (taille maximale autorisée : {maxFileSize})",
