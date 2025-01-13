@@ -466,5 +466,18 @@ describe('Test the search bar result handling', () => {
             expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
             expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
         })
+
+        cy.get('[data-cy="search-results-locations"] [data-cy="search-result-entry"]')
+            .as('locationSearchResults')
+            .first()
+            .invoke('text')
+            .then((text) => text.trim())
+            .should('eq', '1530 Payerne')
+
+        // For https://jira.swisstopo.ch/browse/PB-400
+        cy.log('Clicking the result, will hide the dropdown of the search result')
+        cy.get('@locationSearchResults').should('be.visible')
+        cy.get('@locationSearchResults').first().click()
+        cy.get('@locationSearchResults').should('not.be.visible')
     })
 })
