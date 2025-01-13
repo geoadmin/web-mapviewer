@@ -134,10 +134,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
                   )
                 : 0
             // don't ask why it works, but that's the best I could do.
-
-            symbolizer.graphicYOffset = symbolizer.graphicYOffset
-                ? (symbolizer.graphicYOffset = adjustWidth(-size[1], this.printResolution))
-                : 0
+            symbolizer.gaphicYOffset = Math.round(1000 * symbolizer.gaphicYOffset ?? 0) / 1000
         }
         if (size) {
             symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
