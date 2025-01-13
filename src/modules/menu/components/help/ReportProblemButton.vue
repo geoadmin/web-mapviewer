@@ -8,7 +8,7 @@ import { createShortLink } from '@/api/shortlink.api'
 import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -22,27 +22,24 @@ const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.km
 
 const i18n = useI18n()
 const store = useStore()
+/** @type {DropdownItem[]} */
 const feedbackCategories = [
-    new DropdownItem(
-        'feedback_category_background_map',
-        'feedback_category_background_map',
-        'feedback_category_background_map'
-    ),
-    new DropdownItem(
-        'feedback_category_thematic_map',
-        'feedback_category_thematic_map',
-        'feedback_category_thematic_map'
-    ),
-    new DropdownItem(
-        'feedback_category_application_service',
-        'feedback_category_application_service',
-        'feedback_category_application_service'
-    ),
-    new DropdownItem(
-        'feedback_category_other',
-        'feedback_category_other',
-        'feedback_category_other'
-    ),
+    {
+        id: 'background_map',
+        title: 'feedback_category_background_map',
+    },
+    {
+        id: 'thematic_map',
+        title: 'feedback_category_thematic_map',
+    },
+    {
+        id: 'application_service',
+        title: 'feedback_category_application_service',
+    },
+    {
+        id: 'other',
+        title: 'feedback_category_other',
+    },
 ]
 
 const props = defineProps({
@@ -236,7 +233,7 @@ function selectItem(dropdownItem) {
             >
                 <DropdownButton
                     label="feedback_description"
-                    :title="i18n.t(feedback.category ?? 'select_category')"
+                    :title="feedback.category ?? 'select_category'"
                     :current-value="feedback.category"
                     :items="feedbackCategories"
                     @select:item="selectItem"

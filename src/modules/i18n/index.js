@@ -55,6 +55,9 @@ const i18n = createI18n({
     messages: languages,
     legacy: false,
     datetimeFormats,
+    // no error if missing translation, just display the input untranslated.
+    missingWarn: false,
+    fallbackWarn: false,
 })
 
 export default i18n

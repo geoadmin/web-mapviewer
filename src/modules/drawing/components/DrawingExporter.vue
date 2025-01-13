@@ -1,20 +1,22 @@
 <script setup>
 import { saveAs } from 'file-saver'
 import { computed, inject, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import { generateFilename } from '@/utils/utils'
 
-const exportOptions = [new DropdownItem('kml', 'KML'), new DropdownItem('gpx', 'GPX')]
+/** @type {DropdownItem[]} */
+const exportOptions = [
+    { id: 'kml', title: 'KML' },
+    { id: 'gpx', title: 'GPX' },
+]
 
 const drawingLayer = inject('drawingLayer')
 
 const exportSelection = ref('KML')
 
-const i18n = useI18n()
 const store = useStore()
 
 const projection = computed(() => store.state.position.projection)
@@ -47,7 +49,7 @@ function exportDrawing() {
 
 <template>
     <DropdownButton
-        :title="i18n.t('export_kml')"
+        title="export_kml"
         :current-value="exportSelection"
         :items="exportOptions"
         :disabled="isDrawingEmpty"
