@@ -119,6 +119,14 @@ const props = defineProps({
         default: '',
     },
     /**
+     * Message displayed when the imported file is valid, but has some issues that we should notify
+     * the user. Most common issue is when we have a layer which is partially out of bound
+     */
+    warningMessage: {
+        type: String,
+        default: '',
+    },
+    /**
      * Mark the field as invalid
      *
      * This can be used if the field requires some external validation. When not set or set to null
@@ -297,6 +305,13 @@ function onFileSelected(evt) {
             >
                 {{ t(validMessage) }}
             </div>
+            <div
+                v-if="warningMessage"
+                class="warning-feedback"
+                data-cy="file-input-warning-feedback"
+            >
+                {{ i18n.t(warningMessage) }}
+            </div>
         </div>
         <div
             v-if="description"
@@ -313,5 +328,13 @@ function onFileSelected(evt) {
 
 .local-file-input {
     cursor: pointer;
+}
+
+.warning-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: $warning;
 }
 </style>

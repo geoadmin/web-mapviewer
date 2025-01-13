@@ -176,6 +176,17 @@ export default {
          * @type Boolean
          */
         showDragAndDropOverlay: false,
+
+        /**
+         * Flag set to true when the app is opening a new tab.
+         *
+         * This helps us decide to show or not show a warning popup for lost changes if the user
+         * closes the tab. In some cases, we are opening a new tab ourselves (print result) and
+         * don't want this popup to show up.
+         *
+         * @type Boolean
+         */
+        isOpeningNewTab: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -452,6 +463,21 @@ export default {
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
+<<<<<<< HEAD
+=======
+        setIsOpeningNewTab({ commit }, { isOpeningNewTab, dispatcher }) {
+            commit('setIsOpeningNewTab', { isOpeningNewTab, dispatcher })
+        },
+        setLastImportedLayerIsPartiallyOutOfBounds(
+            { commit },
+            { lastImportedLayerIsPartiallyOutOfBounds, dispatcher }
+        ) {
+            commit('setLastImportedLayerIsPartiallyOutOfBounds', {
+                lastImportedLayerIsPartiallyOutOfBounds,
+                dispatcher,
+            })
+        },
+>>>>>>> 632c1d3b (PB-1151: Notify user when imported file is not all in extent)
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -521,5 +547,16 @@ export default {
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
+<<<<<<< HEAD
+=======
+        setIsOpeningNewTab: (state, { isOpeningNewTab }) =>
+            (state.isOpeningNewTab = isOpeningNewTab),
+        setLastImportedLayerIsPartiallyOutOfBounds: (
+            state,
+            { lastImportedLayerIsPartiallyOutOfBounds }
+        ) =>
+            (state.lastImportedLayerIsPartiallyOutOfBounds =
+                lastImportedLayerIsPartiallyOutOfBounds),
+>>>>>>> 632c1d3b (PB-1151: Notify user when imported file is not all in extent)
     },
 }

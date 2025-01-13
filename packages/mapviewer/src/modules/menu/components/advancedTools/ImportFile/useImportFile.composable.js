@@ -30,11 +30,30 @@ export default function useImportFile() {
         })
         try {
             const layer = await parseLayerFromFile(source, projection.value)
+
             // checking that the same layer is not already present before adding it
             if (store.getters.getActiveLayersById(layer.id).length === 0) {
                 await store.dispatch('addLayer', {
                     layer,
                     zoomToLayerExtent: true,
+                    ...dispatcher,
+                })
+                const extent =
+                    layer.extent.length === 4
+                        ? layer.extent
+                        : [...layer.extent[0], ...layer.extent[1]]
+                const lastImportedLayerIsPartiallyOutOfBounds =
+                    projection.value.bounds.lowerX > extent[0] ||
+                    projection.value.bounds.lowerX > extent[2] ||
+                    projection.value.bounds.upperX < extent[0] ||
+                    projection.value.bounds.upperX < extent[2] ||
+                    projection.value.bounds.lowerY > extent[1] ||
+                    projection.value.bounds.lowerY > extent[3] ||
+                    projection.value.bounds.upperY < extent[1] ||
+                    projection.value.bounds.upperY < extent[3]
+
+                await store.dispatch('setLastImportedLayerIsPartiallyOutOfBounds', {
+                    lastImportedLayerIsPartiallyOutOfBounds,
                     ...dispatcher,
                 })
             }

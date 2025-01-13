@@ -1,6 +1,7 @@
 <script setup>
 import log from '@geoadmin/log'
 import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
@@ -25,9 +26,12 @@ const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const importSuccessMessage = ref('')
-
+const warningSuccessMessage = ref(null)
+const store = useStore()
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
-
+const layerNotFullyWithinBounds = computed(
+    () => store.state.ui.lastImportedLayerIsPartiallyOutOfBounds
+)
 // Methods
 async function loadFile() {
     importSuccessMessage.value = ''
@@ -38,7 +42,12 @@ async function loadFile() {
     if (isFormValid.value && selectedFile.value) {
         try {
             await handleFileSource(selectedFile.value, false)
-            importSuccessMessage.value = 'file_imported_success'
+            importSuccessMessage.value = layerNotFullyWithinBounds.value
+                ? ''
+                : 'file_imported_success'
+            warningSuccessMessage.value = layerNotFullyWithinBounds.value
+                ? 'file_imported_partially_out_of_bounds'
+                : ''
         } catch (error) {
             errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
             log.error(`Failed to load file`, error)
@@ -75,13 +84,10 @@ function validateForm(valid) {
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
             :valid-message="importSuccessMessage"
+            :warning-message="warningSuccessMessage"
             @validate="validateForm"
         />
-        <ImportFileButtons
-            class="mt-2"
-            :button-state="buttonState"
-            @load-file="loadFile"
-        />
+        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>
 
