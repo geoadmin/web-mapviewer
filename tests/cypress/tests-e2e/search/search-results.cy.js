@@ -467,6 +467,8 @@ describe('Test the search bar result handling', () => {
             expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
         })
 
+        // ----------------------------------------------------------------------
+        cy.log('Ensuring the search dialog closes once you have selected an item')
         cy.get('[data-cy="search-results-locations"] [data-cy="search-result-entry"]')
             .as('locationSearchResults')
             .first()
@@ -474,7 +476,6 @@ describe('Test the search bar result handling', () => {
             .then((text) => text.trim())
             .should('eq', '1530 Payerne')
 
-        // For https://jira.swisstopo.ch/browse/PB-400
         cy.log('Clicking the result, will hide the dropdown of the search result')
         cy.get('@locationSearchResults').should('be.visible')
         cy.get('@locationSearchResults').first().click()
