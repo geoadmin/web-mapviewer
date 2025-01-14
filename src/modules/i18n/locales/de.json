@@ -241,6 +241,8 @@
     "feedback_kml_attached": "Die aktuelle Zeichung wird übermittelt. ",
     "feedback_mail": "4. Ihre E-Mail Adresse :",
     "feedback_modify_drawing": "Zeichnung editieren",
+    "feedback_more_info_text":"Weitere Informationen zu den Kategorien",
+    "feedback_more_info_url":"https://geo.admin.ch/de/problem-melden-feedback-aktualisierung",
     "feedback_permalink": "Folgender Link wird übermittelt: ",
     "feedback_placeholder": "Fügen Sie eine .pdf, .zip, .jpg, .jpeg, .kml, .kmz oder .gpx Datei hinzu",
     "feedback_rating_text": "Teilen Sie uns mit, wie Sie sich mit unserem Kartenviewer fühlen",

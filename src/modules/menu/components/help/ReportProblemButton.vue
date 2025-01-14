@@ -242,6 +242,13 @@ function selectItem(dropdownItem) {
                 }"
                 @select-item="selectItem"
             />
+                <a
+                    :href="i18n.t('feedback_more_info_url')"
+                    target="_blank"
+                    class="more-info-link"
+                    >{{ i18n.t('feedback_more_info_text') }}</a
+                >
+            </div>
             <div class="invalid-feedback" data-cy="text-area-input-invalid-feedback">
                 {{ i18n.t('category_not_selected_warning') }}
             </div>

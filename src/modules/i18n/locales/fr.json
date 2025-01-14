@@ -241,6 +241,8 @@
     "feedback_kml_attached": "Le dessin actuel va être envoyé. ",
     "feedback_mail": "4. Votre email :",
     "feedback_modify_drawing": "Modifier le dessin",
+    "feedback_more_info_text":"Plus d'information sur les catégories",
+    "feedback_more_info_url":"https://geo.admin.ch/fr/annoncer-probleme-feedback-actualisation",
     "feedback_permalink": "Le lien suivant sera transféré: ",
     "feedback_placeholder": "Joindre un pdf, zip, jpg, jpeg, kml, kmz ou gpx",
     "feedback_rating_text": "Faites-nous part de votre avis sur notre nouveau visualiseur de carte",
