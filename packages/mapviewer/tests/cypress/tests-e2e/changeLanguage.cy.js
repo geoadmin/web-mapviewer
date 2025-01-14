@@ -21,24 +21,56 @@ function checkLanguage(lang) {
                 expect(text).to.be.equal(lang.toUpperCase())
             })
     } else {
-        //  TODO: Implement this test
+        cy.get('[data-cy="menu-lang-selector"]')
+            .find('button')
+            .each((button) => {
+                // Get the text of each button
+                cy.wrap(button)
+                    .invoke('text')
+                    .then((text) => {
+                        // Check if the text is the current language
+                        if (text.trim() === lang.toUpperCase()) {
+                            // The text should be bold (primary) if it is the current language
+                            cy.wrap(button).should('have.class', 'text-primary')
+                        } else {
+                            // The text should be black if it is not the current language
+                            cy.wrap(button).should('have.class', 'text-black')
+                        }
+                    })
+            })
     }
     // Check the translation of the menu button (in english: close)
-    const closeTranslations = {
+    const closeTranslationsMobile = {
         de: 'Schliessen',
         fr: 'Fermer',
         it: 'Chiudere',
         rm: 'Serrar',
         en: 'Close',
     }
-    cy.get('[data-cy="menu-button"]').invoke('text').should('eq', closeTranslations[lang])
+    const closeTranslationsDesktop = {
+        de: 'Menü schliessen',
+        fr: 'Fermer menu',
+        it: 'Chiudere menu',
+        rm: 'Serrar menu',
+        en: 'Close menu',
+    }
+    if (isMobile()) {
+        cy.get('[data-cy="menu-button"]')
+            .invoke('text')
+            .should('contain', closeTranslationsMobile[lang])
+    } else {
+        cy.get('[data-cy="menu-button"]')
+            .invoke('text')
+            .should('contain', closeTranslationsDesktop[lang])
+    }
 }
 
 describe('Change language', () => {
     context('in mobile view', () => {
         it('should change the language', () => {
             cy.goToMapView()
-            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', false)
+            expect(isMobile()).to.be.true
+
             checkLanguage('en') // Initial language is 'en'
 
             // Check for all available languages
@@ -49,11 +81,28 @@ describe('Change language', () => {
                 checkLanguage(lang)
             })
         })
-        it('Open with language parameter set', () => {
-            // Open the app with a language parameter set
-        })
     })
-    context('in desktop view', () => {
-        // TODO: Implement this test
-    })
+    context(
+        'in desktop view',
+        {
+            viewportWidth: 1920,
+            viewportHeight: 1080,
+        },
+        () => {
+            it('should change the language', () => {
+                cy.goToMapView()
+                expect(isMobile()).to.be.false
+
+                checkLanguage('en') // Initial language is 'en'
+
+                // Check for all available languages
+                const availableLanguages = ['de', 'fr', 'it', 'rm', 'en']
+
+                availableLanguages.forEach((lang) => {
+                    cy.clickOnLanguage(lang)
+                    checkLanguage(lang)
+                })
+            })
+        }
+    )
 })
