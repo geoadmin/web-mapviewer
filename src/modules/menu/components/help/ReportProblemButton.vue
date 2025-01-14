@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
+import { getKmlUrl } from '@/api/files.api'
 import { createShortLink } from '@/api/shortlink.api'
 import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
@@ -16,7 +17,7 @@ import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
-const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
+const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
 
@@ -159,6 +160,7 @@ function closeAndCleanForm() {
     request.value.completed = false
     if (temporaryKml.value) {
         store.dispatch('removeSystemLayer', { layerId: temporaryKmlId, ...dispatcher })
+        store.dispatch('clearDrawingFeatures', dispatcher)
     }
 }
 

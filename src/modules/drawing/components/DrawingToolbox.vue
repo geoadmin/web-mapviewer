@@ -171,6 +171,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <div
+                    v-if="online"
                     id="drawing-name-container"
                     class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
                     :data-tippy-content="

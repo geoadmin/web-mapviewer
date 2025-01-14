@@ -246,7 +246,70 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="menu-help-section"]:visible').click()
         }
 
+        cy.log(
+            'Cancel the report and open the drawing mode to verify that there is no drawing layer after closing it'
+        )
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
+        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
+        cy.get('[data-cy="report-problem-drawing-button"]')
+            .as('reportDrawing')
+            .should('be.visible')
+            .click()
+        cy.log('Draw some features')
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="ol-map"]').click('center')
+
+        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.get('[data-cy="ol-map"]').then(($el) => {
+            const mapWidth = $el.width()
+            const mapHeight = $el.height()
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
+        })
+
+        cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
+        cy.get('@reportForm').should('be.visible')
+        cy.get('[data-cy="drawing-header-title"]').should('not.exist')
+
+        cy.get('[data-cy="window-close"]').should('be.visible').click()
+        cy.get('[data-cy="menu-button"]').should('be.visible').click()
+
+        cy.get('[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]').click()
+        cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
+        cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+            expect(layers).to.have.length(0)
+        })
+        cy.get('[data-cy="menu-help-section"]:visible').click()
+        cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
+        cy.get('@reportForm').should('be.visible')
+        cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').should('be.visible')
+
+        cy.log('Redo the drawing in the report problem form')
+        cy.get('@reportDrawing').click()
+
+        cy.log('Draw some features')
+        cy.viewport('macbook-11')
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="ol-map"]').click('center')
+
+        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.get('[data-cy="ol-map"]').then(($el) => {
+            const mapWidth = $el.width()
+            const mapHeight = $el.height()
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
+        })
+        // we need to increase the timeout here below because, upon opening the drawing mode for the
+        // first time in e2e tests, the loading of the library can take time
+        cy.get('[data-cy="drawing-header-title"]', { timeout: 15000 })
+            .should('be.visible')
+            .contains('3. Indicate the appropriate location on the map :')
+        cy.get('[data-cy="drawing-toolbox-share-button"]').should('not.exist')
+        cy.get('[data-cy="drawing-toolbox-disclaimer"]').should('not.exist')
+        cy.get('[data-cy="drawing-toolbox-file-name-input"]').should('not.exist')
+
+        cy.log(`Exit drawing mode`)
+        cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
+
+        cy.log('Verify report problem form with drawing attachment')
         cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
 
         cy.log('Select category')
@@ -267,35 +330,6 @@ describe('Testing the report problem form', () => {
             .should('be.visible')
         cy.get('@emailInput').type(validEmail)
 
-        cy.log('Enter the drawing mode')
-        cy.viewport('macbook-11')
-        cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').should('be.visible')
-        cy.get('@reportDrawing').click()
-        cy.get('@reportForm').should('not.be.visible')
-        // we need to increase the timeout here below because, upon opening the drawing mode for the
-        // first time in e2e tests, the loading of the library can take time
-        cy.get('[data-cy="drawing-header-title"]', { timeout: 15000 })
-            .should('be.visible')
-            .contains('3. Indicate the appropriate location on the map :')
-        cy.get('[data-cy="drawing-toolbox-share-button"]').should('not.exist')
-        cy.get('[data-cy="drawing-toolbox-disclaimer"]').should('not.exist')
-
-        cy.log('Draw some features')
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-        cy.get('[data-cy="ol-map"]').click('center')
-
-        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
-        cy.get('[data-cy="ol-map"]').then(($el) => {
-            const mapWidth = $el.width()
-            const mapHeight = $el.height()
-            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
-        })
-
-        cy.log(`Exit drawing mode`)
-        cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
-        cy.get('[data-cy="drawing-share-admin-close"]').click()
-        cy.get('@reportForm').should('be.visible')
-        cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('@textArea').should('be.visible').should('have.value', text)
         cy.get('@emailInput').should('be.visible').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]').scrollIntoView()
@@ -341,7 +375,6 @@ describe('Testing the report problem form', () => {
         })
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
-        cy.get('[data-cy="drawing-share-admin-close"]').should('be.visible').click()
         cy.get('@categoryDropdown').scrollIntoView()
         cy.get('@reportForm').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
