@@ -18,6 +18,9 @@ import KmlStyles from '@/api/layers/KmlStyles.enum'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
+    allStylingTextPlacements,
+    calculateTextOffsetFromPlacement,
+    calculateTextXYOffset,
     geoadminStyleFunction,
     getFeatureStyleColor,
     getStyle,
@@ -25,6 +28,7 @@ import {
     getTextSize,
     RED,
     SMALL,
+    UNKNOWN,
 } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
@@ -413,7 +417,14 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
 
     const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
-
+    const textPlacement = detectTextPlacement(
+        textScale,
+        iconStyle?.getScale(),
+        icon?.anchor,
+        icon?.size,
+        title,
+        textOffset
+    )
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
         // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others
@@ -452,7 +463,44 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         fillColor,
         icon,
         iconSize,
+        textPlacement,
     })
+}
+
+/**
+ * Detect the feature text placement based on the icon and text size
+ *
+ * @param {Number} textScale Text scaling
+ * @param {Number} iconScale Icon scaling
+ * @param {Array} anchor Relative position of Anchor
+ * @param {Array} iconSize Absolute size of icon in pixel
+ * @param {String} text Text to display
+ * @param {Array} currentTextOffset Current text offset of the kml feature
+ * @returns {TextPlacement} Returns the text placement or undefined if the icon is not a marker
+ */
+function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, currentTextOffset) {
+    if (!text || !textScale || !iconScale || !anchor || !iconSize) {
+        return UNKNOWN
+    }
+    const [textPlacementX, textPlacementY] = calculateTextXYOffset(
+        textScale,
+        iconScale,
+        anchor,
+        iconSize,
+        text
+    )
+
+    for (let placementOption of allStylingTextPlacements) {
+        const [xOffset, yOffset] = calculateTextOffsetFromPlacement(
+            textPlacementX,
+            textPlacementY,
+            placementOption
+        )
+        if (xOffset === currentTextOffset[0] && yOffset === currentTextOffset[1]) {
+            return placementOption
+        }
+    }
+    return UNKNOWN
 }
 
 const nonGeoadminIconUrls = new Set()

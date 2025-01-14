@@ -10,6 +10,7 @@ import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStyleMediaLink from '@/modules/infobox/components/styling/DrawingStyleMediaLink.vue'
+import DrawingStylePositionSelector from '@/modules/infobox/components/styling/DrawingStylePlacementSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
@@ -36,7 +37,6 @@ const { feature, readOnly } = toRefs(props)
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
 const mediaPopovers = ref(null)
-
 const isEditingText = computed(() => {
     const titleElement = document.getElementById('drawing-style-feature-title')
     const descriptionElement = document.getElementById('drawing-style-feature-description')
@@ -95,6 +95,10 @@ function updateFeatureTitle() {
         title: title.value.trim(),
         ...dispatcher,
     })
+    // Update the text offset if the feature is a marker
+    if (feature.value.featureType === EditableFeatureTypes.MARKER) {
+        updateTextOffset()
+    }
 }
 
 function updateFeatureDescription() {
@@ -129,6 +133,14 @@ function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
     updateTextOffset()
 }
+function onPlacementChange(textPlacement) {
+    store.dispatch('changeFeatureTextPlacement', {
+        feature: feature.value,
+        textPlacement,
+        ...dispatcher,
+    })
+    updateTextOffset()
+}
 function onTextColorChange(textColor) {
     store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
 }
@@ -157,7 +169,9 @@ function updateTextOffset() {
             feature.value.textSize.textScale,
             feature.value.iconSize.iconScale,
             feature.value.icon.anchor,
-            feature.value.icon.size
+            feature.value.icon.size,
+            feature.value.textPlacement,
+            title.value
         )
 
         store.dispatch('changeFeatureTextOffset', {
@@ -274,6 +288,12 @@ function mediaTypes() {
                             class="mb-3"
                             :current-size="feature.textSize"
                             @change="onTextSizeChange"
+                        />
+                        <DrawingStylePositionSelector
+                            v-if="isFeatureMarker"
+                            class="mb-3"
+                            :current-placement="feature.textPlacement"
+                            @change="onPlacementChange"
                         />
                         <DrawingStyleTextColorSelector
                             :current-color="feature.textColor"

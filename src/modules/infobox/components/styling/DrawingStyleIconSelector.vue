@@ -18,7 +18,6 @@
                 />
             </div>
         </div>
-
         <DrawingStyleColorSelector
             v-if="currentIconSet && currentIconSet.isColorable"
             class="mb-3"

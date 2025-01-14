@@ -4,7 +4,14 @@ import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api
 import SelectableFeature from '@/api/features/SelectableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    allStylingTextPlacementsWithUnknown,
+    MEDIUM,
+    RED,
+    TOP,
+} from '@/utils/featureStyleUtils'
 
 /** @enum */
 export const EditableFeatureTypes = {
@@ -33,6 +40,19 @@ export default class EditableFeature extends SelectableFeature {
      * @param {DrawingIcon} featureData.icon Icon that will be covering this feature, can be null
      * @param {FeatureStyleSize} featureData.iconSize Size of the icon (if defined) that will be
      *   covering this feature
+     *
+     * @typedef {'top-left'
+     *     | 'top'
+     *     | 'top-right'
+     *     | 'left'
+     *     | 'center'
+     *     | 'right'
+     *     | 'bottom-left'
+     *     | 'bottom'
+     *     | 'bottom-right'
+     *     | 'unknown'} TextPlacement
+     * @param {TextPlacement} featureData.textPlacement Size of the icon (if defined) that will be
+     *   covering this feature
      */
     constructor(featureData) {
         const {
@@ -48,6 +68,7 @@ export default class EditableFeature extends SelectableFeature {
             fillColor = RED,
             icon = null,
             iconSize = MEDIUM,
+            textPlacement = TOP,
         } = featureData
         super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
@@ -59,6 +80,7 @@ export default class EditableFeature extends SelectableFeature {
         this._iconSize = iconSize
         this._geodesicCoordinates = null
         this._isDragged = false
+        this._textPlacement = textPlacement
     }
 
     /**
@@ -105,6 +127,22 @@ export default class EditableFeature extends SelectableFeature {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
             this._textColor = newColor
             this.emitStylingChangeEvent('textColor')
+        }
+    }
+
+    /** @returns {TextPlacement} */
+    get textPlacement() {
+        return this._textPlacement
+    }
+
+    /** @param newPlacement {TextPlacement} */
+    set textPlacement(newPlacement) {
+        if (
+            newPlacement &&
+            allStylingTextPlacementsWithUnknown.find((placement) => placement === newPlacement)
+        ) {
+            this._textPlacement = newPlacement
+            this.emitStylingChangeEvent('textPlacement')
         }
     }
 

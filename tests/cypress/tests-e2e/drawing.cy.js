@@ -238,6 +238,32 @@ describe('Drawing module tests', () => {
                 // changing/editing the title of this marker
                 testTitleEdit()
 
+                // changing text placement
+                cy.log('Test text placement and offset')
+                cy.get('[data-cy="drawing-style-text-button"]').click()
+                cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
+                cy.readStoreValue('getters.selectedFeatures[0].textPlacement').should(
+                    'eq',
+                    'top-left'
+                )
+                cy.readStoreValue('getters.selectedFeatures[0].textOffset').then((offset) => {
+                    cy.wrap(offset[0]).should('be.lessThan', 0)
+                    cy.wrap(offset[1]).should('be.lessThan', 0)
+                })
+
+                cy.wait('@update-kml')
+                    .its('request')
+                    .should((request) =>
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<Data name="textOffset"><value>` +
+                                    `(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)` + // Test if both values are floats
+                                    `</value></Data>`
+                            ),
+                        ])
+                    )
+                cy.get('[data-cy="drawing-style-text-button"]').click()
+
                 // changing/editing the description of this marker
                 const description = 'A description for this marker'
                 cy.get('[data-cy="drawing-style-feature-description"]').type(description)
@@ -520,6 +546,7 @@ describe('Drawing module tests', () => {
 
             // Opening text style edit popup
             cy.get('[data-cy="drawing-style-text-button"]').click()
+            cy.get('[data-cy="drawing-style-placement-selector-top-left"]').should('not.exist')
             cy.get('[data-cy="drawing-style-text-popup"]').should('be.visible')
 
             // all available colors must have a dedicated element/button
