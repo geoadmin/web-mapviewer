@@ -128,7 +128,7 @@ export default {
                 this.$emit('close')
                 return
             }
-            const cartesianCoords = SceneTransforms.wgs84ToWindowCoordinates(
+            const cartesianCoords = SceneTransforms.worldToWindowCoordinates(
                 this.getViewer().scene,
                 Cartesian3.fromDegrees(
                     this.wgs84Coordinates[0],
