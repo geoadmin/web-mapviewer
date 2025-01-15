@@ -144,7 +144,7 @@ function selectItem(item) {
                     class="dropdown-item"
                     :class="{ active: currentValue === item.value }"
                     :data-tippy-content="item.description"
-                    :data-cy="`dropdown-item-${item.title}`"
+                    :data-cy="`dropdown-item-${item.id}`"
                     @click="selectItem(item)"
                 >
                     {{ t(item.title) }}

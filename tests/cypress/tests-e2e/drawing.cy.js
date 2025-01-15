@@ -1305,7 +1305,7 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
             cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-KML"]'
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]'
             ).click()
             checkFiles('kml', (content) => {
                 expect(content).to.contains(
@@ -1320,7 +1320,7 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
             cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-GPX"]'
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]'
             ).click()
             checkFiles('gpx', (content) => {
                 // 1 <rte> (routes), for the single LINEPOLYGON
