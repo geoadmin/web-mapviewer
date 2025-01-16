@@ -239,6 +239,8 @@
     "feedback_kml_attached": "Trametter dissegn actual",
     "feedback_mail": "4. Voss e-mail:",
     "feedback_modify_drawing": "Editar la dissegn",
+    "feedback_more_info_text":"Ulteriuras infurmaziuns davart las categorias",
+    "feedback_more_info_url":"https://geo.admin.ch/de/problem-melden-feedback-aktualisierung",
     "feedback_permalink": "Il suandant link vegn transmess:",
     "feedback_placeholder": "Agiuntai ina datoteca .pdf, .zip, .jpg, .jpeg, .kml, .kmz u .gpx",
     "feedback_rating_text": "Teilen Sie uns Ihre Meinung zu unserem neuen Kartenviewer mit",
