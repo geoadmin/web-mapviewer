@@ -13,7 +13,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -70,8 +70,9 @@ const transparencySlider = ref(null)
 const currentKmlStyle = ref(layer.value?.style ?? null)
 const id = computed(() => layer.value.id)
 
+/** @type {ComputedRef<DropdownItem[]>} */
 const kmlStylesAsDropdownItems = computed(() =>
-    allKmlStyles.map((style) => new DropdownItem(style, style.toLowerCase(), style))
+    allKmlStyles.map((style) => ({ id: style, title: style.toLowerCase(), value: style }))
 )
 
 const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
@@ -338,7 +339,7 @@ function changeStyle(newStyle) {
                         :items="kmlStylesAsDropdownItems"
                         :current-value="currentKmlStyle"
                         small
-                        @select:item="changeStyle"
+                        @select-item="changeStyle"
                     />
                 </div>
             </div>

@@ -1,23 +1,27 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
+
 <template>
     <div>
         <label class="form-label" for="drawing-style-text-size-selector">
-            {{ $t('modify_text_size_label') }}
+            {{ t('modify_text_size_label') }}
         </label>
         <DropdownButton
             id="drawing-style-text-size-selector"
             data-cy="drawing-style-size-selector"
             :current-value="currentSize"
-            :title="$t(sizeLabel)"
+            :title="sizeLabel"
             :items="dropdownItems"
-            @select:item="onSizeSelect"
+            @select-item="onSizeSelect"
         />
     </div>
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n'
-
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 export default {
@@ -29,12 +33,6 @@ export default {
         },
     },
     emits: ['change'],
-    setup() {
-        const i18n = useI18n()
-        return {
-            i18n,
-        }
-    },
     data() {
         return {
             sizes: allStylingSizes,
@@ -47,9 +45,10 @@ export default {
             }
             return this.currentSize.label
         },
+        /** @returns {DropdownItem[]} */
         dropdownItems() {
             return this.sizes.map((size) => {
-                return new DropdownItem(size.label, this.i18n.t(size.label), size)
+                return { id: size.label, title: size.label, value: size }
             })
         },
     },

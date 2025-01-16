@@ -13,112 +13,150 @@ const validEmail = 'this.is.a.valid@email.com'
 
 describe('Testing the report problem form', () => {
     function closeForm() {
-        cy.get('[data-cy="window-close"]').should('be.visible').click()
+        cy.get('[data-cy="report-problem-window"] [data-cy="window-close"]:visible').click()
     }
 
     function openForm() {
-        cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('[data-cy="report-problem-button"]:visible').as('reportProblemButton').click()
+        cy.get('[data-cy="report-problem-form"]').as('reportProblemForm').should('be.visible')
     }
 
-    it('test the report problem form UI, validations, and it backend interaction', () => {
-        interceptFeedback(false)
+    it('places the "report a problem" correctly', () => {
         cy.goToMapView()
-        cy.get('[data-cy="menu-button"]').should('be.visible').click()
-        cy.get('[data-cy="menu-help-section"]').should('be.visible').click()
 
+        // Mobile view
+        cy.viewport(320, 568)
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.log('The button should be in the header as a link on mobile')
-        cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('[data-cy="report-problem-button"]:visible').click()
+        cy.get('[data-cy="report-problem-form"]').as('feedbackForm').should('be.visible')
+
+        cy.log('can minimize the window in order to see the map')
+        cy.get('[data-cy="report-problem-window"] [data-cy="simple-window-minimize"]:visible')
+            .as('minimizeButton')
+            .click()
+        cy.get('@feedbackForm').should('be.hidden')
+        cy.get('@minimizeButton').click()
+        cy.get('@feedbackForm').should('be.visible')
         closeForm()
+        cy.closeMenuIfMobile()
 
         cy.log('The button should be in the header as a link on desktop')
         cy.viewport(1920, 1080)
-        cy.get('[data-cy="report-problem-link-button"]').should('be.visible').click()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('[data-cy="report-problem-link-button"]:visible').click()
+        cy.get('@feedbackForm').should('be.visible')
+
+        cy.log('can minimize the window in order to see the map')
+        cy.get('@minimizeButton').click()
+        cy.get('@feedbackForm').should('be.hidden')
+        cy.get('@minimizeButton').click()
+        cy.get('@feedbackForm').should('be.visible')
         closeForm()
-
-        // Reset back to mobile view
-        cy.viewport(320, 568)
-
-        cy.log('It validates the report problem form properly')
+    })
+    it('test the report problem form UI, validations, and it backend interaction', () => {
+        interceptFeedback(false)
+        cy.goToMapView()
 
         cy.log('It is not possible to report a problem without a category')
         cy.openMenuIfMobile()
+        if (isMobile()) {
+            cy.get('[data-cy="menu-help-section"]:visible').click()
+        }
         openForm()
-        cy.get('[data-cy="dropdown-main-button"').should('contain.text', 'Select a category')
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"]').type(validEmail)
-        cy.get('[data-cy="submit-button"]:visible').click()
-        cy.get('[data-cy="report-feedback-category-dropdown"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="report-problem-category"] [data-cy="dropdown-main-button"]')
+            .as('categoryDropdown')
+            .should('be.visible')
+            .should('contain.text', 'Select a category')
+
+        cy.get('[data-cy="report-problem-text-area"] [data-cy="text-area-input"]')
+            .as('textArea')
+            .should('be.visible')
+        cy.get('@textArea').type(text)
+
+        cy.get('[data-cy="report-problem-email"] [data-cy="email-input"]')
+            .as('emailInput')
+            .should('be.visible')
+        cy.get('@emailInput').type(validEmail)
+
+        cy.get('[data-cy="submit-button"]').as('submit').should('be.visible')
+        cy.get('@submit').click()
+
+        cy.get('[data-cy="report-problem-category"]').should('have.class', 'is-invalid')
         cy.get('[data-cy="report-problem-failed-text"]').should('not.exist')
         closeForm()
 
         cy.log('It is possible to report a problem without specifying an email address')
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="dropdown-main-button"').should('contain.text', 'Select a category')
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"').should('be.empty')
-        cy.get('[data-cy="submit-button"]').should('be.enabled')
+        cy.get('@categoryDropdown').click()
+        cy.get('[data-cy="dropdown-item-other"]:visible').as('categoryOther').click()
+        cy.get('@textArea').type(text)
+        cy.get('@emailInput').should('be.empty')
+        cy.get('@submit').should('be.enabled')
         closeForm()
 
         cy.log('It is not possible to report a problem with a malformed email')
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"]').type('this.is.not.a.valid@email')
-        cy.get('[data-cy="submit-button"]:visible').click()
-        cy.get('[data-cy="email-input"]').should('have.class', 'is-invalid')
+        cy.get('@categoryDropdown').click()
+        cy.get('@categoryOther').click()
+        cy.get('@textArea').type(text)
+        cy.get('@emailInput').type('this.is.not.a.valid@email')
+        cy.get('@submit').click()
+        cy.get('@emailInput').should('have.class', 'is-invalid')
         cy.get('[data-cy="report-problem-failed-text"]').should('not.exist')
         closeForm()
 
         cy.log('It validates email before enabling the user to report a problem')
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"').type(validEmail)
-        cy.get('[data-cy="submit-button"]').should('be.enabled')
+        cy.get('@categoryDropdown').click()
+        cy.get('[data-cy="dropdown-item-background_map"]:visible')
+            .as('categoryBackgroundMap')
+            .click()
+        cy.get('@textArea').type(text)
+        cy.get('@emailInput').type(validEmail)
+        cy.get('@submit').should('be.enabled')
         closeForm()
 
         cy.log('It is not possible to report a problem without filling the message')
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').should('be.empty')
-        cy.get('[data-cy="email-input"]').type(validEmail)
-        cy.get('[data-cy="submit-button"]:visible').click()
-        cy.get('[data-cy="email-input"]').should('have.class', 'is-valid')
-        cy.get('[data-cy="text-area-input"]').should('have.class', 'is-invalid')
+        cy.get('@categoryDropdown').click()
+        cy.get('@categoryOther').click()
+        cy.get('@textArea').should('be.empty')
+        cy.get('@emailInput').type(validEmail)
+        cy.get('@submit').click()
+        cy.get('@emailInput').should('have.class', 'is-valid')
+        cy.get('@textArea').should('have.class', 'is-invalid')
         cy.get('[data-cy="report-problem-failed-text"]').should('not.exist')
         closeForm()
 
         cy.log('It generates a complete request to service-feedback')
         cy.openMenuIfMobile()
         openForm()
-        interceptFeedback(true)
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="email-input"]').type(validEmail)
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="submit-button"]').scrollIntoView()
-        cy.get('[data-cy="submit-button"]').click()
+        interceptFeedback(true, {
+            // waiting a bit longer to ensure we get to catch the pending icon while testing
+            delay: 3000,
+            alias: 'longAnswer',
+        })
+        cy.get('@categoryDropdown').click()
+        cy.get('[data-cy="dropdown-item-thematic_map"]:visible').click()
+        cy.get('@emailInput').type(validEmail)
+        cy.get('@textArea').type(text)
+        cy.get('@submit').scrollIntoView()
+        cy.get('@submit').click()
 
         cy.log(
             'it shows the user the feedback was well received with a checkmark in the submit button'
         )
         cy.get('[data-cy="submit-button"] [data-cy="submit-pending-icon"]').should('be.visible')
-        cy.wait('@feedback').then((interception) => {
+        cy.wait('@longAnswer').then((interception) => {
             ;[
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
+                { name: 'category', contains: 'thematic_map' },
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'email', contains: validEmail },
@@ -130,27 +168,30 @@ describe('Testing the report problem form', () => {
             })
         })
 
-        cy.get('[data-cy="report-problem-form"]').should('not.exist')
+        cy.get('@reportProblemForm').should('not.exist')
         cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
-        cy.get('[data-cy="report-problem-close-successful"]').should('be.focused')
+        cy.get('[data-cy="report-problem-close-successful"]')
+            .as('closeSuccessButton')
+            .should('be.focused')
 
         cy.log('Closes the modal if the close button is clicked')
-        cy.get('[data-cy="report-problem-close-successful"]').click()
+        cy.get('@closeSuccessButton').click()
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
         // Form is already closed at this point
 
         cy.log('It send the correct version when the email is empty and attach a file')
+        interceptFeedback(true)
         cy.openMenuIfMobile()
         openForm()
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').type(text)
+        cy.get('@categoryDropdown').should('be.visible').click()
+        cy.get('[data-cy="dropdown-item-other"]').should('be.visible').click()
+        cy.get('@textArea').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
         cy.fixture(localKmlFile, null).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
-        cy.get('[data-cy="submit-button"]').click()
+        cy.get('@submit').click()
         cy.get('[data-cy="file-input-text"]').should('have.class', 'is-valid')
 
         cy.wait('@feedback').then((interception) => {
@@ -158,6 +199,7 @@ describe('Testing the report problem form', () => {
             ;[
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
+                { name: 'category', contains: 'other' },
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
             ].forEach((param) => {
@@ -183,11 +225,11 @@ describe('Testing the report problem form', () => {
         cy.openMenuIfMobile()
         openForm()
         interceptFeedback(false)
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"]').type(validEmail)
-        cy.get('[data-cy="submit-button"]').click()
+        cy.get('@categoryDropdown').should('be.visible').click()
+        cy.get('[data-cy="dropdown-item-other"]').should('be.visible').click()
+        cy.get('@textArea').type(text)
+        cy.get('@emailInput').type(validEmail)
+        cy.get('@submit').click()
 
         cy.wait('@feedback')
         cy.get('[data-cy="submit-button"] [data-cy="report-problem-success-icon"]').should(
@@ -199,28 +241,39 @@ describe('Testing the report problem form', () => {
     it('reports a problem with drawing attachment', () => {
         cy.goToMapView()
         interceptFeedback(true)
+        cy.openMenuIfMobile()
         if (isMobile()) {
-            cy.get('[data-cy="menu-button"]').should('be.visible').click()
-            cy.get('[data-cy="menu-help-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-help-section"]:visible').click()
         }
 
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
 
         cy.log('Select category')
-        cy.get('[data-cy="dropdown-main-button"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-item-feedback_category_other"]').should('be.visible').click()
+        cy.get('[data-cy="report-problem-category"] [data-cy="dropdown-main-button"]')
+            .as('categoryDropdown')
+            .should('be.visible')
+        cy.get('@categoryDropdown').click()
+        cy.get('[data-cy="dropdown-item-other"]:visible').click()
 
         cy.log('Write description and email')
-        cy.get('[data-cy="text-area-input"]').type(text)
-        cy.get('[data-cy="email-input"]').type(validEmail)
+        cy.get('[data-cy="report-problem-text-area"] [data-cy="text-area-input"]')
+            .as('textArea')
+            .should('be.visible')
+        cy.get('@textArea').type(text)
+
+        cy.get('[data-cy="report-problem-email"] [data-cy="email-input"]')
+            .as('emailInput')
+            .should('be.visible')
+        cy.get('@emailInput').type(validEmail)
 
         cy.log('Enter the drawing mode')
         cy.viewport('macbook-11')
-        cy.get('[data-cy="report-problem-drawing-button"]').should('be.visible').click()
-        cy.get('[data-cy="report-problem-form"]').should('not.be.visible')
-        // we need to increase the timeout here below because upon opening the drawing mode for the
-        // first time in e2e tests, the loading of the library can takes time
+        cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').should('be.visible')
+        cy.get('@reportDrawing').click()
+        cy.get('@reportForm').should('not.be.visible')
+        // we need to increase the timeout here below because, upon opening the drawing mode for the
+        // first time in e2e tests, the loading of the library can take time
         cy.get('[data-cy="drawing-header-title"]', { timeout: 15000 })
             .should('be.visible')
             .contains('3. Indicate the appropriate location on the map :')
@@ -241,30 +294,32 @@ describe('Testing the report problem form', () => {
         cy.log(`Exit drawing mode`)
         cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
         cy.get('[data-cy="drawing-share-admin-close"]').click()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('@reportForm').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="text-area-input"]').should('be.visible').should('have.value', text)
-        cy.get('[data-cy="email-input"]').should('be.visible').should('have.value', validEmail)
+        cy.get('@textArea').should('be.visible').should('have.value', text)
+        cy.get('@emailInput').should('be.visible').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]')
             .should('be.visible')
             .should('have.class', 'valid-feedback')
 
         cy.log('Clear drawing')
-        cy.get('[data-cy="report-problem-drawing-button"]').should('be.visible').click()
-        cy.get('[data-cy="drawing-toolbox-delete-button"]').should('be.visible').click()
-        cy.get('[data-cy="modal-confirm-button"]').should('be.visible').click()
-        cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
+        cy.get('@reportDrawing').should('be.visible')
+        cy.get('@reportDrawing').click()
+        cy.get('[data-cy="drawing-toolbox-delete-button"]:visible').click()
+        cy.get('[data-cy="modal-confirm-button"]:visible').click()
+        cy.get('[data-cy="drawing-header-close-button"]:visible').click()
         cy.viewport('iphone-3')
 
-        cy.get('[data-cy="report-feedback-category-dropdown"]').should('be.visible')
+        cy.get('[data-cy="report-problem-category"]').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="text-area-input"]').should('have.value', text)
-        cy.get('[data-cy="email-input"]').should('have.value', validEmail)
+        cy.get('@textArea').should('have.value', text)
+        cy.get('@emailInput').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]').should('not.be.visible')
 
         cy.log('Draw some more features')
-        cy.get('[data-cy="report-problem-drawing-button"]').scrollIntoView()
-        cy.get('[data-cy="report-problem-drawing-button"]').should('be.visible').click()
+        cy.get('@reportDrawing').scrollIntoView()
+        cy.get('@reportDrawing').should('be.visible')
+        cy.get('@reportDrawing').click()
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
         cy.get('[data-cy="ol-map"]').click()
 
@@ -286,15 +341,16 @@ describe('Testing the report problem form', () => {
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
         cy.get('[data-cy="drawing-share-admin-close"]').should('be.visible').click()
-        cy.get('[data-cy="dropdown-main-button"]').scrollIntoView()
-        cy.get('[data-cy="report-problem-form"]').should('be.visible')
+        cy.get('@categoryDropdown').scrollIntoView()
+        cy.get('@reportForm').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
-        cy.get('[data-cy="text-area-input"]').should('have.value', text)
-        cy.get('[data-cy="email-input"]').should('have.value', validEmail)
+        cy.get('@textArea').should('have.value', text)
+        cy.get('@emailInput').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]')
+            .as('reportDrawingFeedback')
             .should('be.visible')
             .should('have.class', 'valid-feedback')
-            .contains('Drawing added as attachment')
+        cy.get('@reportDrawingFeedback').contains('Drawing added as attachment')
 
         cy.log('Send the feedback')
         cy.get('[data-cy="submit-button"]').click()
