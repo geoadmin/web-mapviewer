@@ -36,13 +36,21 @@ export function parseFormData(request) {
     )
 }
 
-export function interceptFeedback(success) {
+/**
+ * @param {Boolean} success
+ * @param {Object} [options]
+ * @param {Number} [options.delay] How long the delay before answering should last (in ms). Default
+ *   to 1 second.
+ * @param {String} [options.alias] How to name the intercept. Default to 'feedback'.
+ */
+export function interceptFeedback(success, options = {}) {
+    const { delay = 1000, alias = 'feedback' } = options
     cy.intercept('POST', '**/api/feedback', (req) => {
         req.reply({
             body: {
                 success,
             },
-            delay: 1000,
+            delay,
         })
-    }).as('feedback')
+    }).as(alias)
 }

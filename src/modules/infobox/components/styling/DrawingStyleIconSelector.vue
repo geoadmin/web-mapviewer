@@ -14,7 +14,7 @@
                     :items="iconSetDropdownItems"
                     :current-value="currentIconSet"
                     data-cy="drawing-style-icon-set-button"
-                    @select:item="changeDisplayedIconSet"
+                    @select-item="changeDisplayedIconSet"
                 />
             </div>
         </div>

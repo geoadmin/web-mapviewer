@@ -339,7 +339,7 @@ function changeStyle(newStyle) {
                         :items="kmlStylesAsDropdownItems"
                         :current-value="currentKmlStyle"
                         small
-                        @select:item="changeStyle"
+                        @select-item="changeStyle"
                     />
                 </div>
             </div>

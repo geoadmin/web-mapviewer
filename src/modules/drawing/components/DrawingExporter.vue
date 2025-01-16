@@ -15,7 +15,7 @@ const exportOptions = [
 
 const drawingLayer = inject('drawingLayer')
 
-const exportSelection = ref('KML')
+const exportSelection = ref(exportOptions[0].title)
 
 const store = useStore()
 
@@ -24,7 +24,7 @@ const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 
 function onExportOptionSelected(dropdownItem) {
-    exportSelection.value = dropdownItem.value
+    exportSelection.value = dropdownItem.title
     exportDrawing()
 }
 function exportDrawing() {
@@ -55,7 +55,7 @@ function exportDrawing() {
         :disabled="isDrawingEmpty"
         with-toggle-button
         data-cy="drawing-toolbox-export-button"
-        @select:item="onExportOptionSelected"
+        @select-item="onExportOptionSelected"
         @click="exportDrawing()"
     />
 </template>

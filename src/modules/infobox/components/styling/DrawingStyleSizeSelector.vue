@@ -15,7 +15,7 @@ const { t } = useI18n()
             :current-value="currentSize"
             :title="sizeLabel"
             :items="dropdownItems"
-            @select:item="onSizeSelect"
+            @select-item="onSizeSelect"
         />
     </div>
 </template>

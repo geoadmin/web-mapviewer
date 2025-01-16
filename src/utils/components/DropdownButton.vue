@@ -64,7 +64,7 @@ const props = defineProps({
 })
 const { title, currentValue, items, withToggleButton, disabled, small } = toRefs(props)
 
-const emits = defineEmits(['click', 'select:item'])
+const emits = defineEmits({ click: () => true, selectItem: (item) => item?.id && item?.title })
 
 const { t } = useI18n()
 
@@ -104,7 +104,7 @@ function onMainButtonClick() {
 }
 
 function selectItem(item) {
-    emits('select:item', item)
+    emits('selectItem', item)
 }
 </script>
 
@@ -142,7 +142,7 @@ function selectItem(item) {
             <li v-for="item in items" :key="item.id">
                 <a
                     class="dropdown-item"
-                    :class="{ active: currentValue === item.value }"
+                    :class="{ active: currentValue === (item.value ?? item.title) }"
                     :data-tippy-content="item.description"
                     :data-cy="`dropdown-item-${item.id}`"
                     @click="selectItem(item)"
