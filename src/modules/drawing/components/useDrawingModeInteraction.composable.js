@@ -252,6 +252,7 @@ export default function useDrawingModeInteraction({
             drawnFeature.setStyle(geoadminStyleFunction)
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             interaction.finishDrawing()
+            store.dispatch('setIsDrawingModified', { value: true, ...dispatcher })
             store.dispatch('addDrawingFeature', { featureId: drawnFeature.getId(), ...dispatcher })
             store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
             if (drawEndCallback) {

@@ -19,9 +19,9 @@ const props = defineProps({
     },
 })
 const { kmlLayer } = toRefs(props)
+const emits = defineEmits(['accept'])
 
 const adminUrlCopied = ref(false)
-const fileUrlCopied = ref(false)
 const shareUrl = ref(' ')
 const adminShareUrl = ref(' ')
 
@@ -61,17 +61,10 @@ onUnmounted(() => {
     clearTimeout(fileTimeout)
 })
 
-async function copyShareUrl() {
-    try {
-        await navigator.clipboard.writeText(shareUrl.value)
-        fileUrlCopied.value = true
-        fileTimeout = setTimeout(() => {
-            fileUrlCopied.value = false
-        }, 5000)
-    } catch (error) {
-        log.error(`Failed to copy: `, error)
-    }
+function onAccept() {
+    emits('accept')
 }
+
 async function copyAdminShareUrl() {
     try {
         await navigator.clipboard.writeText(adminShareUrl.value)
@@ -90,7 +83,7 @@ async function copyAdminShareUrl() {
 async function updateShareUrl() {
     if (fileUrl.value) {
         try {
-            shareUrl.value = await createShortLink(fileUrl.value)
+            shareUrl.value = await createShortLink(fileUrl.value, shareUrl.value)
         } catch (error) {
             // Fallback to normal url
             shareUrl.value = fileUrl.value
@@ -111,27 +104,9 @@ async function updateAdminShareUrl() {
 
 <template>
     <div class="ga-share">
-        <div class="form-group">
-            <label>{{ $t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
-                <input
-                    type="text"
-                    class="form-control"
-                    :value="shareUrl"
-                    readonly
-                    @focus="$event.target.select()"
-                    @click="copyShareUrl(false)"
-                />
-                <button
-                    class="btn btn-outline-group"
-                    type="button"
-                    data-cy="drawing-share-normal-link"
-                    @click="copyShareUrl(false)"
-                >
-                    {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
-                </button>
-            </div>
-        </div>
+        <p data-cy="drawing-not-shared-admin-warning">
+            {{ $t('drawing_not_shared_admin_warning') }}
+        </p>
         <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
             <div class="input-group input-group mb-3 share-link-input">
@@ -153,6 +128,9 @@ async function updateAdminShareUrl() {
                 </button>
             </div>
         </div>
+        <button data-cy="drawing-share-admin-close" class="btn btn-dark" @click="onAccept()">
+            {{ $t('close') }}
+        </button>
     </div>
 </template>
 

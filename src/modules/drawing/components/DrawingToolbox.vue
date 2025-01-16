@@ -10,6 +10,7 @@ import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
+import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
@@ -29,7 +30,9 @@ const emits = defineEmits(['removeLastPoint', 'closeDrawing'])
 const drawMenuOpen = ref(true)
 const showClearConfirmationModal = ref(false)
 const showShareModal = ref(false)
-
+const showNotSharedDrawingWarningModal = ref(false)
+const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
+const isClosingDrawing = ref(false)
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
@@ -92,6 +95,8 @@ function onCloseClearConfirmation(confirmed) {
     if (confirmed) {
         store.dispatch('clearDrawingFeatures', dispatcher)
         store.dispatch('clearAllSelectedFeatures', dispatcher)
+        store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
+        store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
         drawingLayer.getSource().clear()
         debounceSaveDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
@@ -115,7 +120,22 @@ watch(activeKmlLayer, () => {
 })
 
 function closeDrawing() {
+    isClosingDrawing.value = true
+    if (showNotSharedDrawingWarning.value) {
+        showNotSharedDrawingWarningModal.value = true
+    } else {
+        emits('closeDrawing')
+    }
+}
+
+function onAcceptWarningModal() {
+    showNotSharedDrawingWarningModal.value = false
     emits('closeDrawing')
+}
+
+function onCloseWarningModal() {
+    isClosingDrawing.value = false
+    showNotSharedDrawingWarningModal.value = false
 }
 
 function selectDrawingMode(drawingMode) {
@@ -140,7 +160,11 @@ const debounceSaveDrawingName = debounce(async (newName) => {
 
 <template>
     <teleport to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="isDesktopMode" @close="closeDrawing" />
+        <DrawingHeader
+            v-if="isDesktopMode"
+            :is-closing-in-toolbox="isClosingDrawing"
+            @close="closeDrawing"
+        />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
@@ -286,6 +310,14 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             @close="showShareModal = false"
         >
             <SharePopup :kml-layer="activeKmlLayer" />
+        </ModalWithBackdrop>
+        <ModalWithBackdrop
+            v-if="showNotSharedDrawingWarningModal"
+            fluid
+            :title="$t('warning')"
+            @close="onCloseWarningModal()"
+        >
+            <ShareWarningPopup :kml-layer="activeKmlLayer" @accept="onAcceptWarningModal()" />
         </ModalWithBackdrop>
     </teleport>
 </template>

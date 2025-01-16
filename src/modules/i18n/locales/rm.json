@@ -173,6 +173,7 @@
     "draw_type_marker": "Lingia / surfatscha",
     "drawing_attached": "Dissegn è agiuntà sco agiunta.",
     "drawing_empty_cannot_edit_name": "Bitte fügen Sie der Zeichnung etwas hinzu, bevor Sie ihren Namen bearbeiten.",
+    "drawing_not_shared_admin_warning": "Attenziun, Vus n'avais betg copià/salvà il link che permetta d'elavurar pli tard Voss dissegn. Vus ristgais da betg pudair elavurar Voss dissegn, sche Vus chargiais sin la pagina u serrais quella.",
     "drawing_too_large": "Tes dissegn è memia grond, stizza intgins detagls",
     "drop_invalid_url": "URL è nunvalid",
     "drop_me_here": "Dar giu la datoteca (KML, KMZ, GPX, COG)",
