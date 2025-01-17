@@ -95,6 +95,7 @@ export default function generateBuildInfo(staging, version) {
                         2
                     ),
                 })
+                // eslint-disable-next-line no-console
                 console.log(`Created ${version}/info.json`)
             },
         },
