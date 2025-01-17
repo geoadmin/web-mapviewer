@@ -27,6 +27,7 @@ module.exports = {
                 destructuredArrayIgnorePattern: '^_',
             },
         ],
+        'no-console': 'error',
         'simple-import-sort/imports': 'error',
         'simple-import-sort/exports': 'error',
         'mocha/no-exclusive-tests': 'error', // Do not allow it.only() tests
@@ -43,6 +44,13 @@ module.exports = {
             files: ['tests/**/*.{js,ts,jsx,tsx}', 'src/**/__test__/**/*.spec.js'],
             rules: {
                 'no-prototype-builtins': 'off',
+                'no-console': 'off',
+            },
+        },
+        {
+            files: ['scripts/**'],
+            rules: {
+                'no-console': 'off',
             },
         },
         {

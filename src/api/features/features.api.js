@@ -288,7 +288,7 @@ function parseOGCWMSFeatureInfoResponse(response) {
     // Check for parsing errors
     const parserError = xmlDoc.getElementsByTagName('parsererror')
     if (parserError.length > 0) {
-        console.error('Error parsing OGC WMS XML response')
+        log.error('Error parsing OGC WMS XML response')
         return null
     }
 

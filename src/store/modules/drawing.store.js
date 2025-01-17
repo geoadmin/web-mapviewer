@@ -117,17 +117,8 @@ export default {
             return state.featureIds.length === 0
         },
 
-        showNotSharedDrawingWarning(state) {
-            console.log(
-                'showNotSharedDrawingWarning',
-                !state.isVisitWithAdminId,
-                !state.isDrawingEditShared,
-                state.isDrawingModified
-            )
-            return (
-                !state.isVisitWithAdminId && !state.isDrawingEditShared && state.isDrawingModified
-            )
-        },
+        showNotSharedDrawingWarning: (state) =>
+            !state.isVisitWithAdminId && !state.isDrawingEditShared && state.isDrawingModified,
     },
     actions: {
         setDrawingMode({ commit }, { mode, dispatcher }) {
