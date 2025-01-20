@@ -187,6 +187,12 @@ function changeStyle(newStyle) {
                 :index="index"
                 class="me-2"
             />
+            <WarningButton
+                v-else-if="layer.hasWarning"
+                :compact="compact"
+                :warning-message="layer.getFirstWarningMessage()"
+                :data-cy="`button-warning-${id}-${index}`"
+            />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
                 :layer-index="index"
