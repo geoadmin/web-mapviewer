@@ -67,6 +67,8 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (symbolizer.strokeWidth) {
             symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         }
+        symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
+        symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
     }
 
     /**
