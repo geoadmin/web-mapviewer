@@ -49,6 +49,7 @@ export default class GPXParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
         }
+        //TO DO HERE : add warning if extent is not the same
         return new GPXLayer({
             gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
