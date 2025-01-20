@@ -1,6 +1,6 @@
 <script setup>
 import { Cesium3DTileset } from 'cesium'
-import { computed, inject, toRefs } from 'vue'
+import { computed, inject, toRef, toRefs } from 'vue'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
@@ -17,6 +17,7 @@ const getViewer = inject('getViewer')
 
 const baseUrl = computed(() => layerConfig.value.baseUrl)
 const layerId = computed(() => layerConfig.value.id)
+const opacity = computed(() => layerConfig.value.opacity)
 
 const url = computed(() => {
     let rootFolder = ''
@@ -30,7 +31,7 @@ const url = computed(() => {
     return `${baseUrl.value}${rootFolder}${layerId.value}${timeFolder}/tileset.json`
 })
 
-useAddPrimitiveLayer(getViewer(), Cesium3DTileset.fromUrl(url.value), {
+useAddPrimitiveLayer(getViewer(), Cesium3DTileset.fromUrl(url.value), toRef(opacity), {
     withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
 })
 </script>

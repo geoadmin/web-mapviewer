@@ -4,9 +4,12 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
+import { getKmlUrl } from '@/api/files.api'
 import { createShortLink } from '@/api/shortlink.api'
+import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -14,12 +17,35 @@ import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
-const temporaryKmlId = 'temporary-kml-for-reporting-a-problem'
+const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
 
 const i18n = useI18n()
 const store = useStore()
+/** @type {DropdownItem[]} */
+const feedbackCategories = [
+    {
+        id: 'background_map',
+        title: 'feedback_category_background_map',
+        value: 'background_map',
+    },
+    {
+        id: 'thematic_map',
+        title: 'feedback_category_thematic_map',
+        value: 'thematic_map',
+    },
+    {
+        id: 'application_service',
+        title: 'feedback_category_application_service',
+        value: 'application_service',
+    },
+    {
+        id: 'other',
+        title: 'feedback_category_other',
+        value: 'other',
+    },
+]
 
 const props = defineProps({
     showAsLink: {
@@ -37,6 +63,7 @@ const reportProblemCloseSuccessful = ref(null)
 const showReportProblemForm = ref(false)
 const feedback = ref({
     message: null,
+    category: null,
     kml: null,
     email: null,
     file: null,
@@ -63,6 +90,7 @@ const isTemporaryKmlValid = computed(
 )
 const isFormValid = computed(
     () =>
+        feedback.value.category &&
         isMessageValid.value &&
         isEmailValid.value &&
         isAttachmentValid.value &&
@@ -94,9 +122,10 @@ async function sendReportProblem() {
     request.value.pending = true
     try {
         const feedbackSentSuccessfully = await sendFeedback(
-            '[web-mapviewer] Problem report', // subject
+            FEEDBACK_EMAIL_SUBJECT,
             feedback.value.message,
             {
+                category: feedback.value.category,
                 email: feedback.value.email,
                 attachment: feedback.value.file,
                 kml: feedback.value.kml,
@@ -122,6 +151,7 @@ async function sendReportProblem() {
 function closeAndCleanForm() {
     activateValidation.value = false
     showReportProblemForm.value = false
+    feedback.value.category = null
     feedback.value.message = null
     feedback.value.email = null
     feedback.value.file = null
@@ -130,6 +160,7 @@ function closeAndCleanForm() {
     request.value.completed = false
     if (temporaryKml.value) {
         store.dispatch('removeSystemLayer', { layerId: temporaryKmlId, ...dispatcher })
+        store.dispatch('clearDrawingFeatures', dispatcher)
     }
 }
 
@@ -168,6 +199,10 @@ function toggleDrawingOverlay() {
         ...dispatcher,
     })
 }
+
+function selectItem(dropdownItem) {
+    feedback.value.category = dropdownItem.value
+}
 </script>
 
 <template>
@@ -189,9 +224,33 @@ function toggleDrawingOverlay() {
         :hide="showDrawingOverlay"
         initial-position="top-right"
         movable
+        data-cy="report-problem-window"
         @close="closeAndCleanForm"
     >
         <div v-if="!request.completed" class="report-problem" data-cy="report-problem-form">
+            <div class="mb-2 fw-bold">
+                {{ i18n.t('feedback_category') }}
+            </div>
+            <DropdownButton
+                label="feedback_description"
+                :title="feedback.category ?? 'select_category'"
+                :current-value="feedback.category"
+                :items="feedbackCategories"
+                data-cy="report-problem-category"
+                class="my-2"
+                :class="{
+                    'is-valid': feedback.category,
+                    'is-invalid': !feedback.category && activateValidation,
+                }"
+                @select-item="selectItem"
+            />
+            <a :href="i18n.t('feedback_more_info_url')" target="_blank" class="more-info-link">{{
+                i18n.t('feedback_more_info_text')
+            }}</a>
+            <div class="invalid-feedback" data-cy="text-area-input-invalid-feedback">
+                {{ i18n.t('category_not_selected_warning') }}
+            </div>
+
             <div class="my-3">
                 <TextAreaInput
                     ref="feedbackMessageTextArea"
@@ -199,13 +258,12 @@ function toggleDrawingOverlay() {
                     label="feedback_description"
                     :disabled="request.pending"
                     required
-                    data-cy="report-problem"
+                    data-cy="report-problem-text-area"
                     :activate-validation="activateValidation"
                     invalid-message="feedback_empty_warning"
                     @validate="onTextValidate"
                 />
             </div>
-
             <div>
                 <div class="mb-2">
                     {{ i18n.t('feedback_drawing') }}
@@ -237,8 +295,9 @@ function toggleDrawingOverlay() {
                     v-model="feedback.email"
                     label="feedback_mail"
                     :disabled="request.pending"
+                    :description="'no_email_feedback'"
                     :activate-validation="activateValidation"
-                    data-cy="report-problem"
+                    data-cy="report-problem-email"
                     @validate="onEmailValidate"
                 />
             </div>
@@ -252,7 +311,7 @@ function toggleDrawingOverlay() {
                     :activate-validation="activateValidation"
                     :disabled="request.pending"
                     :max-file-size="ATTACHMENT_MAX_SIZE"
-                    data-cy="report-problem"
+                    data-cy="report-problem-file"
                     @validate="onAttachmentValidate"
                 />
             </div>

@@ -1,16 +1,9 @@
+import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
 /// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {
     context('checking the time slider behavior, both on startup and during use', () => {
-        function moveSlider(x) {
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { which: 1 })
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
-                screenX: Math.abs(x),
-                screenY: 0,
-            })
-            cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mouseup', { force: true })
-        }
         function extractDecimal(string) {
             return parseInt(string.match(/[\d.]+/g)[0])
         }
@@ -84,7 +77,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get('[data-cy="time-slider-button"]').click()
 
             const newYear = 2020
-            moveSlider(1920)
+            moveTimeSlider(1920)
             cy.get('[data-cy="time-slider-bar-cursor-year"]').should('have.value', `${newYear}`)
             // ----------------------------------------------------------------------------------------------------
             cy.log(

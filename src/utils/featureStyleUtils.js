@@ -4,7 +4,6 @@ import Style from 'ol/style/Style'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import log from '@/utils/logging'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */
@@ -70,7 +69,8 @@ export const WHITE = new FeatureStyleColor('white', '#ffffff', '#000000')
 export const YELLOW = new FeatureStyleColor('yellow', '#ffff00', '#000000')
 
 export const allStylingColors = [BLACK, BLUE, GRAY, GREEN, ORANGE, RED, WHITE, YELLOW]
-
+export const FEATURE_FONT_SIZE = 16
+export const FEATURE_FONT = 'Helvetica'
 /**
  * Representation of a size for feature style
  *
@@ -118,7 +118,7 @@ export class FeatureStyleSize {
     }
 
     get font() {
-        return `normal ${16 * this.textScale}px Helvetica`
+        return `normal ${FEATURE_FONT_SIZE * this.textScale}px ${FEATURE_FONT}`
     }
 }
 
@@ -132,12 +132,35 @@ export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 0.75)
 export const LARGE = new FeatureStyleSize('large_size', 2.0, 1)
 export const EXTRA_LARGE = new FeatureStyleSize('extra_large_size', 2.5, 1.25)
 
+export const LEFT = 'left'
+export const RIGHT = 'right'
+export const TOP = 'top'
+export const BOTTOM = 'bottom'
+export const CENTER = 'center'
+export const UNKNOWN = 'unknown'
+export const TOP_LEFT = 'top-left'
+export const TOP_RIGHT = 'top-right'
+export const BOTTOM_LEFT = 'bottom-left'
+export const BOTTOM_RIGHT = 'bottom-right'
+
 /**
  * List of all available sizes for drawing style
  *
  * @type {FeatureStyleSize[]}
  */
 export const allStylingSizes = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
+export const allStylingTextPlacements = [
+    TOP_LEFT,
+    TOP,
+    TOP_RIGHT,
+    LEFT,
+    CENTER,
+    RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM,
+    BOTTOM_RIGHT,
+]
+export const allStylingTextPlacementsWithUnknown = [...allStylingTextPlacements, UNKNOWN]
 
 /**
  * Get Feature style from feature
@@ -212,23 +235,91 @@ export function getTextColor(style) {
  * @param {Number} iconScale Icon scaling
  * @param {Array} anchor Relative position of Anchor
  * @param {Array} iconSize Absolute size of icon in pixel
- * @returns {Array | null} Returns the feature label offset
+ *
+ * @typedef {'top-left' | 'top' | 'top-right', | 'left' | 'center' | 'right' | 'bottom-left' | 'bottom' | 'bottom-right' | 'unknown'} TextPlacement
+ * @param {TextPlacement} textPlacement Absolute position of text in pixel
+ * @returns {Array} Returns the feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, anchor, iconSize) {
+export function calculateTextOffset(textScale, iconScale, anchor, iconSize, textPlacement, text) {
     if (!iconScale) {
         return DEFAULT_TITLE_OFFSET
     }
+    const [textPlacementX, textPlacementY] = calculateTextXYOffset(
+        textScale,
+        iconScale,
+        anchor,
+        iconSize,
+        text
+    )
 
+    return calculateTextOffsetFromPlacement(textPlacementX, textPlacementY, textPlacement)
+}
+
+/**
+ * Calculate the text X and Y offset that can be applied to the text depending on the text position
+ *
+ * @param {Number} textScale Text scaling
+ * @param {Number} iconScale Icon scaling
+ * @param {Array} anchor Relative position of Anchor
+ * @param {Array} iconSize Absolute size of icon in pixel
+ * @param {String} text Text to display
+ * @returns {Array} Returns the default X and Y label offset in pixel
+ */
+export function calculateTextXYOffset(textScale, iconScale, anchor, iconSize, text) {
     const fontSize = 11
-    let anchorScale = anchor ? anchor[1] * 2 : 1
+    const anchorScale = anchor ? anchor[1] * 2 : 1
 
     const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
     const textOffset = 0.5 * fontSize * textScale
+    const textWidth = calculateFeatureTextWidth(text, textScale)
     const defaultOffset = 5
-    const offset = [0, -(defaultOffset + iconOffset + textOffset)]
-    log.debug('title offset of feature is calculated to be : ', offset)
 
-    return offset
+    return [
+        defaultOffset + iconOffset + textOffset + textWidth / 2, // / 2 because the text is centered so the textWidth has to be halved
+        defaultOffset + iconOffset + textOffset,
+    ]
+}
+
+/**
+ * Calculate the text offset from the text placement and the default offset
+ *
+ * @param {Number} defaultXOffset Default X offset
+ * @param {Number} defaultYOffset Default Y offset
+ * @param {String} placement Text placement
+ * @returns {Array} Returns the default X and Y label offset in pixel
+ */
+export function calculateTextOffsetFromPlacement(defaultXOffset, defaultYOffset, placement) {
+    const offsets = {
+        [TOP_LEFT]: [-defaultXOffset, -defaultYOffset],
+        [TOP]: [0, -defaultYOffset],
+        [TOP_RIGHT]: [defaultXOffset, -defaultYOffset],
+        [LEFT]: [-defaultXOffset, 0],
+        [CENTER]: [0, 0],
+        [RIGHT]: [defaultXOffset, 0],
+        [BOTTOM_LEFT]: [-defaultXOffset, defaultYOffset],
+        [BOTTOM]: [0, defaultYOffset],
+        [BOTTOM_RIGHT]: [defaultXOffset, defaultYOffset],
+    }
+
+    return offsets[placement] || [0, 0]
+}
+
+/**
+ * Calculates the width of a feature text given a text and a text scale
+ *
+ * @param {String} text
+ * @param {Number} textScale
+ * @returns
+ */
+export function calculateFeatureTextWidth(text, textScale) {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    // In unit tests the context is not available
+    if (!context) {
+        return 0
+    }
+    context.font = `normal ${FEATURE_FONT_SIZE * textScale}px ${FEATURE_FONT}`
+    return context.measureText(text).width
 }
 
 /**

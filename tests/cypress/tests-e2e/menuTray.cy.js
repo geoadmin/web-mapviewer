@@ -213,57 +213,117 @@ function checkScrollbarVisibility(topicsScrollable, activeLayersScrollable) {
 }
 
 describe('Test menu tray ui', () => {
-    it('check correct sizing of menu and autoclosing of menu sections', function () {
-        init(30, 30)
-        checkOpenSections(['topics', 'activeLayers'])
-        measureMenu(true)
-        checkScrollbarVisibility(false, false)
+    context('Portrait mobile', () => {
+        it('check correct sizing of menu and autoclosing of menu sections', function () {
+            init(30, 30)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(true)
+            checkScrollbarVisibility(false, false)
 
-        cy.get(menuActiveLayersHeaderSelector).click()
-        waitForAnimationsToFinish()
-        checkOpenSections(['topics'])
-        measureMenu(true)
+            cy.get(menuActiveLayersHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['topics'])
+            measureMenu(true)
 
-        cy.get(menuTopicHeaderSelector).click()
-        waitForAnimationsToFinish()
-        checkOpenSections([])
-        measureMenu(false)
+            cy.get(menuTopicHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections([])
+            measureMenu(false)
 
-        cy.get(menuActiveLayersHeaderSelector).click()
-        waitForAnimationsToFinish()
-        checkOpenSections(['activeLayers'])
-        measureMenu(true)
+            cy.get(menuActiveLayersHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['activeLayers'])
+            measureMenu(true)
 
-        cy.get(menuHelpSectionHeader).click()
-        waitForAnimationsToFinish()
-        checkOpenSections(['help'])
-        measureMenu(false)
+            cy.get(menuHelpSectionHeader).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['help'])
+            measureMenu(false)
 
-        cy.get(menuShareHeaderSelector).click()
-        waitForAnimationsToFinish()
-        checkOpenSections(['share'])
-        measureMenu(false)
+            cy.get(menuShareHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['share'])
+            measureMenu(false)
 
-        cy.get(menuTopicHeaderSelector).click()
-        waitForAnimationsToFinish()
-        checkOpenSections(['topics'])
-        measureMenu(true)
-    })
-    it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
-        init(30, 2)
-        checkOpenSections(['topics', 'activeLayers'])
-        measureMenu(true)
-        checkScrollbarVisibility(false, false)
+            cy.get(menuTopicHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['topics'])
+            measureMenu(true)
+        })
+        it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
+            init(30, 2)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(true)
+            checkScrollbarVisibility(false, false)
 
-        cy.get('[data-cy="menu-tray"]').then(($body) => {
-            cy.wrap($body).invoke('outerHeight').should('eq', 498)
-            cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
+            cy.get('[data-cy="menu-tray"]').then(($body) => {
+                cy.wrap($body).invoke('outerHeight').should('eq', 498)
+                cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
+            })
+        })
+        it('no scrolling if menus are small enough', () => {
+            init(3, 2)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(false)
+            checkScrollbarVisibility(false, false)
         })
     })
-    it('no scrolling if menus are small enough', () => {
-        init(3, 2)
-        checkOpenSections(['topics', 'activeLayers'])
-        measureMenu(false)
-        checkScrollbarVisibility(false, false)
+    context('Landscape mobile', () => {
+        beforeEach(() => {
+            cy.viewport(568, 320) // Landscape mobile for the default viewport (320 x 568)
+        })
+        it('check correct sizing of menu and autoclosing of menu sections', function () {
+            init(30, 30)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(false)
+            checkScrollbarVisibility(false, false)
+
+            cy.get(menuActiveLayersHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['topics'])
+            measureMenu(false)
+
+            cy.get(menuTopicHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections([])
+            measureMenu(false)
+
+            cy.get(menuActiveLayersHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['activeLayers'])
+            measureMenu(false)
+
+            cy.get(menuHelpSectionHeader).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['help'])
+            measureMenu(false)
+
+            cy.get(menuShareHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['share'])
+            measureMenu(false)
+
+            cy.get(menuTopicHeaderSelector).click()
+            waitForAnimationsToFinish()
+            checkOpenSections(['topics'])
+            measureMenu(false)
+        })
+        it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
+            init(30, 2)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(false)
+            checkScrollbarVisibility(false, false)
+
+            cy.get('[data-cy="menu-tray"]').then(($body) => {
+                cy.wrap($body).invoke('outerHeight').should('eq', 250)
+                cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
+            })
+        })
+        it('no scrolling if menus are small enough', () => {
+            init(3, 2)
+            checkOpenSections(['topics', 'activeLayers'])
+            measureMenu(false)
+            checkScrollbarVisibility(false, false)
+        })
     })
 })

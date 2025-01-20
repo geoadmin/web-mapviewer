@@ -17,6 +17,7 @@
                 :copied-text="'copy_success'"
                 class="p-2"
                 :small="compact"
+                :has-warning="hasAnyLocalFile()"
             />
         </div>
         <MenuShareEmbed class="menu-share-embed border-top" />
@@ -24,7 +25,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
@@ -59,13 +60,14 @@ export default {
             isTrackingGeolocation: (state) =>
                 state.geolocation.active && state.geolocation.tracking,
         }),
+        ...mapGetters(['hasAnyLocalFile']),
     },
     methods: {
         ...mapActions([
-            'generateShortLinks',
             'clearShortLinks',
-            'toggleShareMenuSection',
             'closeShareMenuAndRemoveShortLinks',
+            'generateShortLinks',
+            'toggleShareMenuSection',
         ]),
         toggleShareMenu() {
             this.toggleShareMenuSection(dispatcher)

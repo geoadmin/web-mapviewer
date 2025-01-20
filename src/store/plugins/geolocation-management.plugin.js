@@ -6,6 +6,7 @@ import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+const { GeolocationPositionError } = window
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
@@ -91,55 +92,47 @@ const handlePositionError = (error, store, state, options = {}) => {
     const { reactivate = false } = options
     log.error('Geolocation activation failed', error)
     switch (error.code) {
-        case error.PERMISSION_DENIED:
+        case GeolocationPositionError.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', {
                 denied: true,
                 ...dispatcher,
             })
             store.dispatch('addErrors', {
-                errors: [new ErrorMessage('geoloc_permission_denied', null)],
+                errors: [new ErrorMessage('geoloc_permission_denied')],
                 ...dispatcher,
             })
             break
-        case error.TIMEOUT:
+        case GeolocationPositionError.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
             store.dispatch('addErrors', {
-                errors: [new ErrorMessage('geoloc_time_out', null)],
+                errors: [new ErrorMessage('geoloc_time_out')],
                 ...dispatcher,
             })
             break
         default:
-            if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
-                // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
-                // we don't raise an error as it's "normal" in Electron to have this error raised (this API doesn't work
-                // on Electron embedded in Cypress : no Geolocation hardware detected, etc...)
-                // the position will be returned by a mocked up function by Cypress we can ignore this error
-                // we do nothing...
+            // It can happen that the position is not yet available so we retry the api call silently for the first
+            // 3 call
+            errorCount += IS_TESTING_WITH_CYPRESS ? 3 : 1
+            if (errorCount < 3) {
+                if (reactivate) {
+                    activeGeolocation(store, state, { useInitial: false })
+                }
             } else {
-                // It can happen that the position is not yet available so we retry the api call silently for the first
-                // 3 call
-                errorCount += 1
-                if (errorCount < 3) {
-                    if (reactivate) {
-                        activeGeolocation(store, state, { useInitial: false })
-                    }
-                } else {
-                    store.dispatch('addErrors', {
-                        errors: [new ErrorMessage('geoloc_unknown', null)],
-                        ...dispatcher,
-                    })
-                    if (reactivate) {
-                        // If after 3 retries we failed to re-activate, set the geolocation to false
-                        // so that the user can manually retry the geolocation later on. This can
-                        // mean that the device don't support geolocation so it doesn't make sense
-                        // to retry for ever.
-                        // In the case where we are in the watcher, this means that we had at least
-                        // one successful location and that geolocation is supported by the device.
-                        // So we let the watcher continue has he might recover itself later on, if
-                        // not the error will kept showing and the user will have to manually stop
-                        // geolocation.
-                        store.dispatch('setGeolocation', { active: false, ...dispatcher })
-                    }
+                store.dispatch('addErrors', {
+                    errors: [new ErrorMessage('geoloc_unknown')],
+                    ...dispatcher,
+                })
+                if (reactivate) {
+                    // If after 3 retries we failed to re-activate, set the geolocation to false
+                    // so that the user can manually retry the geolocation later on. This can
+                    // mean that the device don't support geolocation so it doesn't make sense
+                    // to retry for ever.
+                    // In the case where we are in the watcher, this means that we had at least
+                    // one successful location and that geolocation is supported by the device.
+                    // So we let the watcher continue has he might recover itself later on, if
+                    // not the error will kept showing and the user will have to manually stop
+                    // geolocation.
+                    store.dispatch('setGeolocation', { active: false, ...dispatcher })
                 }
             }
     }

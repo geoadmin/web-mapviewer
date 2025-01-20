@@ -5,50 +5,51 @@ import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
 import log from '@/utils/logging'
 import { isNumber } from '@/utils/numberUtils'
 
-function getOlStyleForPoint(options, shape) {
-    if (shape === 'circle') {
-        return new Circle(options)
-    } else if (shape === 'icon') {
-        return new Icon(options)
+/**
+ * @param {Object} vectorOptions
+ * @returns {Circle | Icon | RegularShape}
+ */
+export function getOlImageStyleForShape(vectorOptions) {
+    const style = {
+        ...vectorOptions,
+        ...getOlBasicStyles(vectorOptions),
+        // Necessary for Cesium
+        crossOrigin: 'anonymous',
+    }
+    if (vectorOptions.type === 'circle') {
+        return new Circle(style)
+    } else if (vectorOptions.type === 'icon') {
+        return new Icon(style)
     } else {
-        const shapes = {
-            square: {
-                points: 4,
-                angle: Math.PI / 4,
-            },
-            triangle: {
-                points: 3,
-                angle: 0,
-            },
-            pentagon: {
-                points: 5,
-                angle: 0,
-            },
-            star: {
-                points: 5,
-                angle: 0,
-                radius2: options.radius ? options.radius / 2 : undefined,
-            },
-            cross: {
-                points: 4,
-                angle: 0,
-                radius2: 0,
-            },
-            hexagon: {
-                points: 6,
-                angle: 0,
-            },
+        if (vectorOptions.type === 'square') {
+            style.points = 4
+            style.angle = Math.PI / 4
+        } else if (vectorOptions.type === 'triangle') {
+            style.points = 3
+            style.angle = 0
+        } else if (vectorOptions.type === 'pentagon') {
+            style.points = 5
+            style.angle = 0
+        } else if (vectorOptions.type === 'star') {
+            style.points = 5
+            style.angle = 0
+            style.radius2 = style.radius ? style.radius / 2 : undefined
+        } else if (vectorOptions.type === 'cross') {
+            style.points = 4
+            style.angle = 0
+            style.radius2 = 0
+        } else if (vectorOptions.type === 'hexagon') {
+            style.points = 6
+            style.angle = 0
         }
-        // deep copy to preserve the original object
-        const style = { ...shapes[shape], ...options }
         return new RegularShape(style)
     }
 }
 
-function getOlBasicStyles(options) {
+function getOlBasicStyles(vectorOptions) {
     const olStyles = {}
-    Object.keys(options).forEach((type) => {
-        const style = options[type]
+    Object.keys(vectorOptions).forEach((type) => {
+        const style = vectorOptions[type]
         if (type === 'stroke') {
             olStyles[type] = new Stroke(style)
         } else if (type === 'fill') {
@@ -75,30 +76,39 @@ function getOlBasicStyles(options) {
     return olStyles
 }
 
-function getOlStyleFromLiterals(value) {
+/**
+ * Transforms our JSON style description into OpenLayers elements.
+ *
+ * Example of our JSON can be accessed here
+ * https://sys-api3.dev.bgdi.ch/static/vectorStyles/ch.bafu.hydroweb-messstationen_grundwasser.json
+ *
+ * There isn't (at least to my knowledge) a clear definition of what we provide in this style JSON.
+ * From my retro-engineering, I can say it is a way to describe style in a data-driven way. There's
+ * a "key" selector at the beginning of the style, and then an entry per "value" or range of
+ * values.
+ *
+ * The challenge is that there is a lot of things that are assumed while using it, like the fact
+ * that we will be using OpenLayers, and that there are part of the style that is already set by
+ * default in the code (see getOlBasicStyles function)
+ *
+ * @param geoadminStyleJson
+ * @returns {Style}
+ */
+function getOlStyleFromLiterals(geoadminStyleJson) {
     const olStyles = {}
-    const { vectorOptions: style, geomType } = value
+    const { vectorOptions, geomType } = geoadminStyleJson
 
     if (geomType === 'point') {
-        let olText
-        if (style.label) {
-            olText = getOlBasicStyles(style.label).text
+        olStyles.image = getOlImageStyleForShape(vectorOptions)
+        if (vectorOptions.label) {
+            olStyles.text = getOlBasicStyles(vectorOptions.label).text
         }
-        const basicStyles = getOlBasicStyles(style)
-        let olImage = Object.assign({}, style, basicStyles)
-        // Necessary for Cesium
-        olImage.crossOrigin = 'anonymous'
-
-        delete olImage.label
-        olImage = getOlStyleForPoint(olImage, style.type)
-        olStyles.image = olImage
-        olStyles.text = olText
     } else {
-        Object.keys(style).forEach((key) => {
+        Object.keys(vectorOptions).forEach((key) => {
             if (key === 'label') {
-                olStyles.text = getOlBasicStyles(style.label).text
+                olStyles.text = getOlBasicStyles(vectorOptions.label).text
             } else if (['stroke', 'fill', 'image'].indexOf(key) !== -1) {
-                olStyles[key] = getOlBasicStyles(style)[key]
+                olStyles[key] = getOlBasicStyles(vectorOptions)[key]
             }
         })
     }
@@ -149,13 +159,13 @@ function getMaxResolution(value) {
 }
 
 /**
- * Helper class to transform geoadmin's style description (also called literals) into a full fledged
+ * Helper class to transform geoadmin's style description (also called literals) into a full-fledged
  * OpenLayers Style instance
  *
  * @class
- * @param properties The output of geoadmin's API style endpoint as a JSON
+ * @param geoadminStyleJson The output of geoadmin's API style endpoint as a JSON
  */
-const OlStyleForPropertyValue = function (properties) {
+const OlStyleForPropertyValue = function (geoadminStyleJson) {
     this.singleStyle = null
     this.defaultVal = 'defaultVal'
     this.defaultStyle = new Style()
@@ -164,28 +174,28 @@ const OlStyleForPropertyValue = function (properties) {
         line: {},
         polygon: {},
     }
-    this.type = properties.type
+    this.type = geoadminStyleJson.type
 
-    this.initialize_(properties)
+    this.initialize_(geoadminStyleJson)
 }
 
-OlStyleForPropertyValue.prototype.initialize_ = function (properties) {
+OlStyleForPropertyValue.prototype.initialize_ = function (geoadminStyleJson) {
     if (this.type === 'unique' || this.type === 'range') {
-        this.key = properties.property
+        this.key = geoadminStyleJson.property
     }
     if (this.type === 'single') {
         this.singleStyle = {
-            olStyle: getOlStyleFromLiterals(properties),
-            labelProperty: getLabelProperty(properties.vectorOptions.label),
-            labelTemplate: getLabelTemplate(properties.vectorOptions.label),
-            imageRotationProperty: properties.rotation,
+            olStyle: getOlStyleFromLiterals(geoadminStyleJson),
+            labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions.label),
+            labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions.label),
+            imageRotationProperty: geoadminStyleJson.rotation,
         }
     } else if (this.type === 'unique') {
-        for (const value of properties.values) {
+        for (const value of geoadminStyleJson.values) {
             this.pushOrInitialize_(value.geomType, value.value, getStyleSpec(value))
         }
     } else if (this.type === 'range') {
-        for (const range of properties.ranges) {
+        for (const range of geoadminStyleJson.ranges) {
             const key = range.range.toString()
             this.pushOrInitialize_(range.geomType, key, getStyleSpec(range))
         }

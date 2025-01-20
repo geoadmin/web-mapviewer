@@ -203,26 +203,10 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${geojsonlayerId},,0.5`,
         })
+        cy.wait(['@geojson-data', '@geojson-style'])
         cy.waitUntilCesiumTilesLoaded()
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(
-                4,
-                'should have 1 primitive (GeoJSON) on top of labels and buildings primitives'
-            )
-            // test layer added correctly
-            const mainCollection = viewer.scene.primitives.get(0)
-            expect(mainCollection.length).to.eq(
-                1,
-                'There should be 1 layers added to the main collection when a GeoJSON is added'
-            )
-            const layerCollection = mainCollection.get(0)
-            expect(layerCollection.length).to.eq(
-                2,
-                'A GeoJSON is made of 2 internal layers in the collection'
-            )
-            // test opacity
-            const billboard = layerCollection.get(0).get(0)
-            expect(billboard.color.alpha).to.eq(0.5)
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
         })
     })
     it('removes a layer from the visible layers when the "remove" button is pressed', () => {
@@ -233,13 +217,13 @@ describe('Test of layer handling in 3D', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.dataSources.length).to.eq(1)
         })
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${geojsonlayerId}-"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
+            expect(viewer.dataSources.length).to.eq(0)
         })
     })
     it('uses the 3D configuration of a layer if one exists', () => {
@@ -257,39 +241,24 @@ describe('Test of layer handling in 3D', () => {
             expect(provider?.url).to.contain('test.background.layer_3d')
         })
     })
-
-    // TODO: PB-284 This test is flaky and not always pass on the CI (but is working locally).
-    // re-enable the test and modify it to test the feature selection instead of cesium internal
-    it.skip('add KML layer from drawing', () => {
+    it('add KML layer from drawing', () => {
         cy.goToDrawing()
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-        const olSelector = '.ol-viewport'
-        // Create a line
-        cy.get(olSelector).click(100, 200)
-        cy.get(olSelector).click(150, 200)
-        cy.get(olSelector).should('be.visible').dblclick(120, 240, { force: true })
+        cy.get('[data-cy="ol-map"]').click(100, 250)
+        cy.get('[data-cy="ol-map"]').click(150, 250)
+        cy.get('[data-cy="ol-map"]').dblclick(150, 280)
+
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-        cy.readWindowValue('map').then((map) => {
-            // Create a point
-            cy.simulateEvent(map, 'pointermove', 0, 0)
-            cy.simulateEvent(map, 'pointerdown', 0, 0)
-            cy.simulateEvent(map, 'pointerup', 0, 0)
-        })
+        cy.get('[data-cy="ol-map"]').click()
+
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
         cy.wait('@post-kml')
         cy.closeDrawingMode()
         cy.closeMenuIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
-            // main collection
-            cy.wrap(viewer.scene.primitives.get(0)).should('have.length', 1)
-            // layer collection
-            // should be 3 (line, icon, text) but ol-cesium creates additional empty collection
-            cy.wrap(viewer.scene.primitives.get(0).get(0), { timeout: 10000 }).should(
-                'have.length',
-                4
-            )
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.dataSources.length).to.eq(1)
         })
     })
 })

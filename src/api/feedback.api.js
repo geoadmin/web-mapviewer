@@ -12,6 +12,7 @@ export const KML_MAX_SIZE = 2 * 1024 * 1024
 /**
  * @param {String} subject Mandatory
  * @param {String} text Mandatory
+ * @param {String | null} [options.category=null] Default is `null`
  * @param {String | null} [options.kmlFileUrl=null] Default is `null`
  * @param {String | null} [options.kml=null] Default is `null`
  * @param {String | null} [options.email=null] Default is `null`
@@ -19,7 +20,13 @@ export const KML_MAX_SIZE = 2 * 1024 * 1024
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(subject, text, options) {
-    const { kmlFileUrl = null, kml = null, email = null, attachment = null } = options
+    const {
+        category = null,
+        kmlFileUrl = null,
+        kml = null,
+        email = null,
+        attachment = null,
+    } = options
 
     try {
         let kmlData = null
@@ -41,6 +48,7 @@ export default async function sendFeedback(subject, text, options) {
         const data = {
             subject,
             feedback: text,
+            category: category,
             version: APP_VERSION,
             ua: navigator.userAgent,
             permalink: window.location.href,

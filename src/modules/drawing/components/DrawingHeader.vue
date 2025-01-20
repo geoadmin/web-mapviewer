@@ -1,15 +1,24 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
+const props = defineProps({
+    isClosingInToolbox: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { isClosingInToolbox } = toRefs(props)
+
 const emits = defineEmits(['close'])
 const store = useStore()
 
 const isClosing = ref(false)
+const isClosingWithWarning = computed(() => isClosing.value && isClosingInToolbox.value)
 const drawingTitle = computed(() => store.state.drawing.drawingOverlay.title)
 
 const i18n = useI18n()
@@ -24,12 +33,12 @@ function onClose() {
     <div class="drawing-header d-flex justify-content-between align-items-center">
         <button
             class="drawing-header-close-button btn btn-dark"
-            :disabled="isClosing"
+            :disabled="isClosingWithWarning"
             data-cy="drawing-header-close-button"
             @click="onClose"
         >
             <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
-            <span v-if="isClosing">
+            <span v-if="isClosingWithWarning">
                 {{ i18n.t('draw_file_saving') }}
             </span>
             <span v-else>

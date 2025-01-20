@@ -55,10 +55,19 @@ import { useI18n } from 'vue-i18n'
  * @param {[number, number]} options.delay Tippy delay
  * @param {boolean} translate Indicates if tippy content should get translated
  * @param {boolean} allowHTML Indicates if tippy content contains HTML code
+ * @param {boolean} offset Displaces the tippy from its reference element in pixels (skidding and
+ *   distance).
  */
 export function useTippyTooltip(
     selector,
-    { theme = null, placement = null, delay = [300, 0], translate = true, allowHTML = false } = {}
+    {
+        theme = null,
+        placement = null,
+        delay = [300, 0],
+        translate = true,
+        allowHTML = false,
+        offset = [0, 10], // the default value from tippy
+    } = {}
 ) {
     let tooltips = null
     const options = { delay }
@@ -70,6 +79,9 @@ export function useTippyTooltip(
     }
     if (allowHTML) {
         options.allowHTML = allowHTML
+    }
+    if (offset) {
+        options.offset = offset
     }
 
     const i18n = useI18n()

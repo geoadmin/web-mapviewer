@@ -10,11 +10,10 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class.js'
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -71,8 +70,9 @@ const transparencySlider = ref(null)
 const currentKmlStyle = ref(layer.value?.style ?? null)
 const id = computed(() => layer.value.id)
 
+/** @type {ComputedRef<DropdownItem[]>} */
 const kmlStylesAsDropdownItems = computed(() =>
-    allKmlStyles.map((style) => new DropdownItem(style, style.toLowerCase(), style))
+    allKmlStyles.map((style) => ({ id: style, title: style.toLowerCase(), value: style }))
 )
 
 const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
@@ -88,7 +88,18 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
 const isLayerKml = computed(() => layer.value instanceof KMLLayer)
-const isLayerKmlOrGpx = computed(() => isLayerKml.value || layer.value instanceof GPXLayer)
+const isLayerClampedToGround = computed({
+    get: () => layer.value.clampToGround,
+    set: (value) => {
+        store.dispatch('updateLayer', {
+            layerId: id.value,
+            values: {
+                clampToGround: value,
+            },
+            ...dispatcher,
+        })
+    },
+})
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
@@ -245,15 +256,14 @@ function changeStyle(newStyle) {
             </button>
         </div>
         <div v-show="showLayerDetail" :data-cy="`div-layer-settings-${id}-${index}`">
-            <div class="menu-layer-item-details">
-                <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
-                    {{ $t('transparency') }}
+            <div class="d-flex mx-1 align-items-center">
+                <label :for="`transparency-${id}`" class="menu-layer-options">
+                    {{ t('transparency') }}
                 </label>
                 <input
                     :id="`transparency-${id}`"
                     ref="transparencySlider"
-                    :disabled="isLayerKmlOrGpx && is3dActive"
-                    class="menu-layer-transparency-slider ms-2 me-4"
+                    class="menu-layer-transparency-slider ms-2 me-4 flex-grow-1"
                     type="range"
                     min="0.0"
                     max="1.0"
@@ -263,63 +273,82 @@ function changeStyle(newStyle) {
                     @mouseup="onTransparencyCommit"
                     @input="debounceTransparencyChange"
                 />
-                <button
-                    v-if="hasMultipleTimestamps"
-                    class="btn d-flex align-items-center"
-                    :class="{ 'btn-lg': !compact }"
-                    :data-cy="`button-duplicate-layer-${id}-${index}`"
-                    data-tippy-content="duplicate_layer"
-                    @click.prevent="duplicateLayer()"
-                >
-                    <FontAwesomeIcon :icon="['far', 'copy']" />
-                </button>
-                <button
-                    ref="layerUpButton"
-                    class="btn-layer-up-down btn d-flex align-items-center"
-                    :class="{ 'btn-lg': !compact }"
-                    :disabled="isTopLayer"
-                    :data-cy="`button-raise-order-layer-${id}-${index}`"
-                    @click.prevent="emit('moveLayer', index, index + 1)"
-                >
-                    <FontAwesomeIcon icon="arrow-up" />
-                </button>
-                <button
-                    ref="layerDownButton"
-                    class="btn-layer-up-down btn d-flex align-items-center"
-                    :class="{ 'btn-lg': !compact }"
-                    :disabled="isBottomLayer"
-                    :data-cy="`button-lower-order-layer-${id}-${index}`"
-                    @click.prevent="emit('moveLayer', index, index - 1)"
-                >
-                    <FontAwesomeIcon icon="arrow-down" />
-                </button>
-                <button
-                    v-if="showLayerDescriptionIcon"
-                    class="btn d-flex align-items-center"
-                    :class="{ 'btn-lg': !compact }"
-                    :data-cy="`button-show-description-layer-${id}-${index}`"
-                    @click="showLayerDescriptionPopup"
-                >
-                    <FontAwesomeIcon icon="info-circle" />
-                </button>
+                <div class="btn-group">
+                    <button
+                        v-if="hasMultipleTimestamps"
+                        class="layer-options-btn"
+                        :class="{ 'btn-lg': !compact }"
+                        :data-cy="`button-duplicate-layer-${id}-${index}`"
+                        data-tippy-content="duplicate_layer"
+                        @click.prevent="duplicateLayer()"
+                    >
+                        <FontAwesomeIcon :icon="['far', 'copy']" />
+                    </button>
+                    <button
+                        ref="layerUpButton"
+                        class="layer-options-btn"
+                        :class="{ 'btn-lg': !compact }"
+                        :disabled="isTopLayer"
+                        :data-cy="`button-raise-order-layer-${id}-${index}`"
+                        @click.prevent="emit('moveLayer', index, index + 1)"
+                    >
+                        <FontAwesomeIcon icon="arrow-up" />
+                    </button>
+                    <button
+                        ref="layerDownButton"
+                        class="layer-options-btn"
+                        :class="{ 'btn-lg': !compact }"
+                        :disabled="isBottomLayer"
+                        :data-cy="`button-lower-order-layer-${id}-${index}`"
+                        @click.prevent="emit('moveLayer', index, index - 1)"
+                    >
+                        <FontAwesomeIcon icon="arrow-down" />
+                    </button>
+                    <button
+                        v-if="showLayerDescriptionIcon"
+                        class="layer-options-btn"
+                        :class="{ 'btn-lg': !compact }"
+                        :data-cy="`button-show-description-layer-${id}-${index}`"
+                        @click="showLayerDescriptionPopup"
+                    >
+                        <FontAwesomeIcon icon="info-circle" />
+                    </button>
+                </div>
             </div>
-            <div v-if="isLayerKml" v-show="showLayerDetail" class="menu-layer-item-details mt-n1">
-                <label class="menu-layer-transparency-title me-2">
-                    {{ t('vector_feedback_select_style') }}
-                </label>
-                <DropdownButton
-                    :title="currentKmlStyle.toLowerCase()"
-                    :items="kmlStylesAsDropdownItems"
-                    :current-value="currentKmlStyle"
-                    small
-                    @select:item="changeStyle"
-                />
+            <div v-if="isLayerKml" v-show="showLayerDetail" class="p-1 d-block">
+                <div v-if="is3dActive" class="form-check form-switch">
+                    <label
+                        class="menu-layer-options me-2 form-check-label"
+                        :for="`checkbox-clamp-to-ground-${id}`"
+                    >
+                        {{ t('clamp_to_ground') }}
+                    </label>
+                    <input
+                        :id="`checkbox-clamp-to-ground-${id}`"
+                        v-model="isLayerClampedToGround"
+                        type="checkbox"
+                        class="form-check-input"
+                    />
+                </div>
+                <div v-else class="d-flex align-items-center">
+                    <label class="menu-layer-options me-2">
+                        {{ t('vector_feedback_select_style') }}
+                    </label>
+                    <DropdownButton
+                        :title="currentKmlStyle.toLowerCase()"
+                        :items="kmlStylesAsDropdownItems"
+                        :current-value="currentKmlStyle"
+                        small
+                        @select-item="changeStyle"
+                    />
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
+@import 'bootstrap';
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/modules/menu/scss/menu-items';
 
@@ -342,7 +371,7 @@ function changeStyle(newStyle) {
     @extend .menu-title;
     padding-bottom: 0.4rem;
 }
-.menu-layer-transparency-title {
+.menu-layer-options {
     $smallerFont: 0.9em;
     font-size: $smallerFont;
     // also setting the line height, so that vertical alignment isn't broken
@@ -368,7 +397,11 @@ svg {
     cursor: default;
 }
 
-.btn-layer-up-down:disabled {
-    border: none;
+.layer-options-btn {
+    @extend .btn;
+    @extend .d-flex;
+    @extend .align-items-center;
+    @extend .px-2;
+    @extend .border-0;
 }
 </style>

@@ -2,6 +2,7 @@ import { Cartesian3, Color, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
 
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 let highlightedEntities = []
 const highlightFill = Color.fromCssColorString('rgba(255, 255, 0, 0.75)')
@@ -25,7 +26,7 @@ export function highlightSelectedArea(viewer, geometry) {
             highlightPoint(viewer, coordinates)
             break
         default:
-            console.error(`Geometry "${geometry.type}" not handled`)
+            log.error(`Geometry "${geometry.type}" not handled`)
     }
     viewer.scene.requestRender()
 }

@@ -42,6 +42,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    dataCy: {
+        type: String,
+        default: '',
+    },
 })
 const { title, hide } = toRefs(props)
 
@@ -85,6 +89,7 @@ onMounted(() => {
             v-show="!hide"
             ref="windowRef"
             class="simple-window card"
+            :data-cy="dataCy"
             :class="[
                 initialPositionClass,
                 {
@@ -104,7 +109,11 @@ onMounted(() => {
                 }}</span>
                 <span v-else class="me-auto" />
                 <PrintButton v-if="allowPrint && showBody" :content="contentRef"></PrintButton>
-                <button class="btn btn-light btn-sm me-2" @click.stop="showBody = !showBody">
+                <button
+                    class="btn btn-light btn-sm me-2"
+                    data-cy="simple-window-minimize"
+                    @click.stop="showBody = !showBody"
+                >
                     <FontAwesomeIcon :icon="`caret-${showBody ? 'up' : 'down'}`" />
                 </button>
                 <button
@@ -115,7 +124,12 @@ onMounted(() => {
                     <FontAwesomeIcon icon="times" />
                 </button>
             </div>
-            <div ref="contentRef" class="card-body" :class="{ hide: !showBody }">
+            <div
+                ref="contentRef"
+                class="card-body"
+                :class="{ hide: !showBody }"
+                data-cy="simple-window-body"
+            >
                 <slot />
             </div>
         </div>

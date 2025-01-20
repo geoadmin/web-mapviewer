@@ -67,18 +67,43 @@ describe('Drawing module tests', () => {
                 .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
         }
 
-        // Check that the linestring has the expected number of points
-        // Only works for line string drawing
-        function checkLinestringNumberOfPoints(numberOfPoints) {
+        function addDecription(description) {
+            cy.get('[data-cy="drawing-style-feature-description"]').type(description)
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                description
+            )
+            cy.wait('@update-kml').then(() => {
+                cy.readStoreValue('getters.selectedFeatures[0].description').should(
+                    'eq',
+                    description
+                )
+            })
+        }
+
+        // we use the description to identify the feature and check its
+        // geometry type, number of points and type (measure or linepolygon)
+        function checkDrawnFeature(description, numberOfPoints, featureType, type) {
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
-                    expect(features).to.be.an('Array').lengthOf(1)
-                    const [feature] = features
-                    const lineStringCoordinates = feature.getGeometry().getCoordinates()
-                    expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                    const matchingFeature = features.find(
+                        (feature) => feature.get('description') === description
+                    )
+                    expect(matchingFeature).to.not.be.undefined
+                    expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
+                    expect(matchingFeature.get('type')).to.eq(type.toLowerCase())
+                    if (featureType === 'LineString') {
+                        const lineStringCoordinates = matchingFeature.getGeometry().getCoordinates()
+                        expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                    } else if (featureType === 'Polygon') {
+                        const polygonCoordinates = matchingFeature.getGeometry().getCoordinates()
+                        expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
+                        expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
+                    }
                 })
         }
+
         beforeEach(() => {
             cy.goToDrawing()
         })
@@ -212,6 +237,32 @@ describe('Drawing module tests', () => {
 
                 // changing/editing the title of this marker
                 testTitleEdit()
+
+                // changing text placement
+                cy.log('Test text placement and offset')
+                cy.get('[data-cy="drawing-style-text-button"]').click()
+                cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
+                cy.readStoreValue('getters.selectedFeatures[0].textPlacement').should(
+                    'eq',
+                    'top-left'
+                )
+                cy.readStoreValue('getters.selectedFeatures[0].textOffset').then((offset) => {
+                    cy.wrap(offset[0]).should('be.lessThan', 0)
+                    cy.wrap(offset[1]).should('be.lessThan', 0)
+                })
+
+                cy.wait('@update-kml')
+                    .its('request')
+                    .should((request) =>
+                        checkKMLRequest(request, [
+                            new RegExp(
+                                `<Data name="textOffset"><value>` +
+                                    `(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)` + // Test if both values are floats
+                                    `</value></Data>`
+                            ),
+                        ])
+                    )
+                cy.get('[data-cy="drawing-style-text-button"]').click()
 
                 // changing/editing the description of this marker
                 const description = 'A description for this marker'
@@ -495,6 +546,7 @@ describe('Drawing module tests', () => {
 
             // Opening text style edit popup
             cy.get('[data-cy="drawing-style-text-button"]').click()
+            cy.get('[data-cy="drawing-style-placement-selector-top-left"]').should('not.exist')
             cy.get('[data-cy="drawing-style-text-popup"]').should('be.visible')
 
             // all available colors must have a dedicated element/button
@@ -558,7 +610,8 @@ describe('Drawing module tests', () => {
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
-        it('can create line, extend it, and delete the last node by right click', () => {
+
+        it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
@@ -577,30 +630,123 @@ describe('Drawing module tests', () => {
             })
             // should create a line by re-clicking the last point
             cy.get('[data-cy="ol-map"]').click(...lineCoordinates.at(lineCoordinates.length - 1))
-            checkLinestringNumberOfPoints(8)
+            const firstFeatureDescription = 'first feature'
+            addDecription(firstFeatureDescription)
+
+            checkDrawnFeature(
+                firstFeatureDescription,
+                8,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Extend from the last node of line
             cy.get('[data-cy="extend-from-last-node-button"]').click()
             cy.get('[data-cy="ol-map"]').click(1100, 450)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(1100, 450)
-            checkLinestringNumberOfPoints(9)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Extend from the first node of line
             cy.get('[data-cy="extend-from-first-node-button"]').click()
-            cy.get('[data-cy="ol-map"]').click(500, 450)
-            cy.get('[data-cy="ol-map"]').click(600, 450)
+            cy.get('[data-cy="ol-map"]').click(500, 250)
+            cy.get('[data-cy="ol-map"]').click(600, 250)
             // finish extending the line by clicking the last point
-            cy.get('[data-cy="ol-map"]').click(600, 450)
-            checkLinestringNumberOfPoints(11)
+            cy.get('[data-cy="ol-map"]').click(600, 250)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Delete the last node by right click
             cy.get('[data-cy="ol-map"]').rightclick()
-            checkLinestringNumberOfPoints(10)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                10,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
 
             // Delete the last node by clicking the delete button
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            checkLinestringNumberOfPoints(9)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
+
+            // Extend to make a polygon
+            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(750, 350)
+            // Click the first node to finish the polygon
+            cy.get('[data-cy="ol-map"]').click(600, 250)
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'Polygon',
+                EditableFeatureTypes.LINEPOLYGON
+            )
+            // No extend button for polygon
+            cy.get('[data-cy="drawing-delete-first-point-button"]').should('not.exist')
+            cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
+
+            // Create measurement line
+            cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
+
+            const measurementCoordinates = [
+                [1000, 500],
+                [1050, 550],
+                [1100, 600],
+                [1200, 600],
+                [1250, 600],
+                [1250, 400],
+                [1300, 400],
+                [1400, 400],
+            ]
+            measurementCoordinates.forEach((coordinate) => {
+                cy.get('[data-cy="ol-map"]').click(...coordinate)
+            })
+            // should create a line by re-clicking the last point
+            cy.get('[data-cy="ol-map"]').click(
+                ...measurementCoordinates.at(measurementCoordinates.length - 1)
+            )
+            const secondFeatureDescription = 'second feature'
+            addDecription(secondFeatureDescription)
+
+            checkDrawnFeature(
+                secondFeatureDescription,
+                8,
+                'LineString',
+                EditableFeatureTypes.MEASURE
+            )
+
+            // Extend from the last node of line
+            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(1400, 450)
+            // finish extending the line by clicking the last point
+            cy.get('[data-cy="ol-map"]').click(1400, 450)
+            checkDrawnFeature(
+                secondFeatureDescription,
+                9,
+                'LineString',
+                EditableFeatureTypes.MEASURE
+            )
+
+            // check if the first feature still there
+            checkDrawnFeature(
+                firstFeatureDescription,
+                11,
+                'Polygon',
+                EditableFeatureTypes.LINEPOLYGON
+            )
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -744,24 +890,80 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
         })
         it('manages the KML layer in the layer list / URL params correctly', () => {
+            const warningTitle = `Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.`
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait('@post-kml')
+            cy.wait(['@post-kml', '@layers', '@topics', '@topic-ech', '@routeChange'])
 
             // checks that it adds the kml file ID in the URL while in drawing mode
             cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)
             // checks that it doesn't add adminId to the url
             cy.url().should('not.contain', 'adminId')
 
+            cy.closeDrawingMode(false)
+
+            cy.log('check if clicking close that it opens the warning again')
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="modal-close-button"]').click()
+
+            cy.closeDrawingMode(false)
+
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+
+            cy.log(
+                'check if clicking close that the drawing is still not saved but now the drawing mode is closed'
+            )
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
+
+            cy.closeDrawingMode(false)
+
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
+            cy.log(
+                'check that now that the drawing edit link is copied and the warning is not shown anymore'
+            )
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
             cy.closeDrawingMode()
+
+            cy.log(
+                'check that the warning shows after deleting the drawing and drawing something new'
+            )
+            cy.get(
+                '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
+            ).click()
+            cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click()
+            cy.closeDrawingMode(false)
+            cy.get('[data-cy="drawing-not-shared-admin-warning"]')
+                .should('be.visible')
+                .contains(warningTitle)
+            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-close"]').click()
+
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
                 expect(drawingLayer.type).to.eq(LayerTypes.KML)
                 expect(drawingLayer.visible).to.be.true
             })
-            // checks that it clears the drawing when the drawing layer is removed
+
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(0)
@@ -1056,7 +1258,6 @@ describe('Drawing module tests', () => {
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
-            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             // it changes the name of the KML file

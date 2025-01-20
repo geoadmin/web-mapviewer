@@ -14,11 +14,10 @@
                     :items="iconSetDropdownItems"
                     :current-value="currentIconSet"
                     data-cy="drawing-style-icon-set-button"
-                    @select:item="changeDisplayedIconSet"
+                    @select-item="changeDisplayedIconSet"
                 />
             </div>
         </div>
-
         <DrawingStyleColorSelector
             v-if="currentIconSet && currentIconSet.isColorable"
             class="mb-3"
@@ -85,7 +84,7 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import { SUPPORTED_LANG } from '@/modules/i18n/index'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
-import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
@@ -143,16 +142,17 @@ export default {
                   })
                 : ''
         },
+        /** @returns {DropdownItem[]} */
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
-                return new DropdownItem(
-                    iconSet.name,
-                    this.i18n.t(`modify_icon_category_${iconSet.name}_label`, 1, {
+                return {
+                    id: iconSet.name,
+                    title: this.i18n.t(`modify_icon_category_${iconSet.name}_label`, 1, {
                         locale: iconSet.language,
                     }),
-                    iconSet,
-                    `modify_icon_category_${iconSet.name}_label`
-                )
+                    value: iconSet,
+                    description: `modify_icon_category_${iconSet.name}_label`,
+                }
             })
         },
     },
