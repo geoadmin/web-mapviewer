@@ -86,6 +86,7 @@ import {
     faTimes,
     faTimesCircle,
     faTree,
+    faTriangleExclamation,
     faWindowMaximize,
     faWindowMinimize,
     faXmark,
@@ -167,6 +168,7 @@ library.add(
     faSortAlphaDown,
     faCirclePlus,
     faCircleMinus,
+    faTriangleExclamation,
     // Regular
     faCheckSquare,
     faClock,

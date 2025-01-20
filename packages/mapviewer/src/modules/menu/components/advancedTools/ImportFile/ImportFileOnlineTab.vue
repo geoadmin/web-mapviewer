@@ -25,15 +25,11 @@ const loading = ref(false)
 const fileUrlInput = useTemplateRef('fileUrlInput')
 const fileUrl = ref('')
 const importSuccessMessage = ref('')
-const warningSuccessMessage = ref('')
 /** @type {Ref<ErrorMessage | null>} */
 const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const buttonState = computed(() => (loading.value ? 'loading' : 'default'))
-const layerNotFullyWithinBounds = computed(
-    () => store.state.ui.lastImportedLayerIsPartiallyOutOfBounds
-)
 
 watch(
     () => active,
@@ -72,12 +68,10 @@ function onUrlValidate(valid) {
 function onUrlChange() {
     errorFileLoadingMessage.value = null
     importSuccessMessage.value = ''
-    warningSuccessMessage.value = ''
 }
 
 async function loadFile() {
     importSuccessMessage.value = ''
-    warningSuccessMessage.value = ''
     errorFileLoadingMessage.value = null
     if (!validateForm()) {
         return
@@ -92,10 +86,7 @@ async function loadFile() {
                 dispatcher: 'Import File Online Tab',
             })
         }
-        warningSuccessMessage.value = layerNotFullyWithinBounds.value
-            ? 'file_imported_partially_out_of_bounds'
-            : ''
-        importSuccessMessage.value = layerNotFullyWithinBounds.value ? '' : 'file_imported_success'
+        importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
         log.error(`Failed to load file from url ${fileUrl.value}`, error)
@@ -132,7 +123,6 @@ async function loadFile() {
                 :invalid-message-params="errorFileLoadingMessage?.params"
                 :valid-message="importSuccessMessage"
                 :validate="validateUrl"
-                :warning-message="warningSuccessMessage"
                 data-cy="import-file-online-url"
                 @validate="onUrlValidate"
                 @change="onUrlChange"

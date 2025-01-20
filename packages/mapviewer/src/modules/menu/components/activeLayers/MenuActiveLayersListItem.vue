@@ -18,6 +18,7 @@ import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
+import WarningButton from '@/utils/components/WarningButton.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
@@ -231,6 +232,12 @@ function changeStyle(newStyle) {
                 :compact="compact"
                 :error-message="layer.getFirstErrorMessage()"
                 :data-cy="`button-error-${id}-${index}`"
+            />
+            <WarningButton
+                v-else-if="layer.hasWarning"
+                :compact="compact"
+                :warning-message="layer.getFirstWarningMessage()"
+                :data-cy="`button-warning-${id}-${index}`"
             />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
