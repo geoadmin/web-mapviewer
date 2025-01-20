@@ -174,8 +174,9 @@ const getters = {
      *
      * @returns {number}
      */
-    getIndexOfActiveLayerById: (state) => (layerId) =>
-        state.activeLayers.findIndex((layer) => layer.id === layerId),
+    getIndexOfActiveLayerById: (state) => (layerId) => {
+        return state.activeLayers.findIndex((layer) => layer.id === layerId)
+    },
 
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a

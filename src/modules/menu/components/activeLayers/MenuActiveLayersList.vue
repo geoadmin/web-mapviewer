@@ -23,10 +23,9 @@ const { compact } = toRefs(props)
 const activeLayersList = ref(null)
 // used to deactivate the hover change of color on layer whenever one of them is dragged
 const aLayerIsDragged = ref(false)
-const showLayerDescriptionForLayer = ref(null)
 const showLayerDetailIndex = ref(null)
 const layerDetailFocusMoveButton = ref(null)
-
+const showDescriptionForLayerId = ref(null)
 const store = useStore()
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
 // So here we swap the order of this array to match the desired order on the UI
@@ -96,15 +95,16 @@ function onToggleLayerDetail(index) {
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
                 :show-layer-detail="showLayerDetailIndex === reverseIndex(index)"
                 :focus-move-button="layerDetailFocusMoveButton"
-                @show-layer-description-popup="showLayerDescriptionForLayer = layer"
+                @show-layer-description-popup="showDescriptionForLayerId = layer.id"
                 @toggle-layer-detail="onToggleLayerDetail"
                 @move-layer="onMoveLayer"
-            />
-            <LayerDescriptionPopup
-                v-if="showLayerDescriptionForLayer"
-                :layer="showLayerDescriptionForLayer"
-                @close="showLayerDescriptionForLayer = null"
-            />
+            >
+                <LayerDescriptionPopup
+                    v-if="showDescriptionForLayerId === layer.id"
+                    :layer="layer"
+                    @close="showDescriptionForLayerId = null"
+                />
+            </MenuActiveLayersListItem>
         </div>
         <div v-show="activeLayers.length === 0" class="p-1 ps-3" data-cy="menu-section-no-layers">
             -

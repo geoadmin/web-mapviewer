@@ -684,7 +684,7 @@ export default {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
                             screenHeight: rootState.ui.height,
-                            mapExtent: flattenExtent(rootState.getters.mapExtent),
+                            mapExtent: flattenExtent(getters.extent),
                             coordinate: rootState.map.clickInfo?.coordinate,
                         })
                     )
