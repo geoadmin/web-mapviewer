@@ -241,7 +241,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                                 data-cy="drawing-toolbox-delete-button"
                                 @click="showClearConfirmationModal = true"
                             >
-                                {{ $t('delete') }}
+                                {{ i18n.t('delete') }}
                             </button>
                         </div>
                         <div class="col d-grid">
@@ -255,7 +255,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
-                                {{ $t('share') }}
+                                {{ i18n.t('share') }}
                             </button>
                         </div>
                     </div>
@@ -292,7 +292,9 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     @click="drawMenuOpen = !drawMenuOpen"
                 >
                     <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
-                    <span class="ms-2">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
+                    <span class="ms-2">{{
+                        i18n.t(drawMenuOpen ? 'close_menu' : 'open_menu')
+                    }}</span>
                 </button>
             </div>
         </div>
@@ -302,12 +304,12 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             fluid
             @close="onCloseClearConfirmation"
         >
-            {{ $t('confirm_remove_all_features') }}
+            {{ i18n.t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
         <ModalWithBackdrop
             v-if="showShareModal"
             fluid
-            :title="$t('share')"
+            :title="i18n.t('share')"
             @close="showShareModal = false"
         >
             <SharePopup :kml-layer="activeKmlLayer" />
@@ -315,7 +317,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
-            :title="$t('warning')"
+            :title="i18n.t('warning')"
             @close="onCloseWarningModal()"
         >
             <ShareWarningPopup :kml-layer="activeKmlLayer" @accept="onAcceptWarningModal()" />
