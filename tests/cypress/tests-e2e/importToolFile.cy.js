@@ -38,6 +38,56 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-content"]').should('be.visible')
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
+        // Import big KML file with chunks and verify profile that there are no segments
+        cy.log(
+            'Test import big KML file divided into multiple chunks by the API and verify profile'
+        )
+        const bigKmlFileName = 'big-external-kml-file.kml'
+        const bigKmlFileFixture = `import-tool/${bigKmlFileName}`
+
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.openMenuIfMobile()
+
+        cy.fixture(bigKmlFileFixture, null).as('kmlFixture')
+        cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-local-btn"]:visible').click()
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+        const profileIntercept = '**/rest/services/profile.json**'
+        cy.intercept(profileIntercept, {
+            fixture: 'service-alti/profile.fixture.json',
+        }).as('profile')
+
+        cy.closeMenuIfMobile()
+
+        cy.get('[data-cy="window-close"]').click()
+        cy.get('[data-cy="ol-map"]').click(150, 400)
+
+        cy.get('[data-cy="show-profile"]').click()
+        Object.entries({
+            profile_elevation_difference: '0.00m',
+            profile_elevation_down: '0.20m',
+            profile_elevation_up: '0.20m',
+            profile_poi_down: "1'342m",
+            profile_poi_up: "1'342m",
+            profile_distance: '9.00m',
+            profile_slope_distance: '9.01m',
+        }).forEach(([key, value]) => {
+            cy.get(`[data-cy="profile-popup-info-${key}"]`).should('contain.text', value)
+        })
+        cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
+        cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
+        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '3 m')
+        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
+        cy.get('[data-cy="profile-segment-button-0"]').should('be.not.exist')
+        cy.get('[data-cy="infobox-close"]').click()
+        cy.openMenuIfMobile()
+        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
         //---------------------------------------------------------------------
         // Test the import of an online KML file
         cy.log('Test online import')
