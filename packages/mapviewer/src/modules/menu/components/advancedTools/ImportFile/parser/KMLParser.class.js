@@ -60,6 +60,7 @@ export class KMLParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
         }
+        // TO DO HERE : add warning if extents =!=
         return new KMLLayer({
             kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
