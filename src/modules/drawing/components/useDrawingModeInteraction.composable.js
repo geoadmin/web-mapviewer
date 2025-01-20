@@ -63,6 +63,7 @@ export default function useDrawingModeInteraction({
     const reverseLineStringExtension = computed(
         () => store.state.drawing.reverseLineStringExtension
     )
+    const online = computed(() => store.state.drawing.online)
 
     const interaction = new DrawInteraction({
         style: editingStyle,
@@ -252,7 +253,10 @@ export default function useDrawingModeInteraction({
             drawnFeature.setStyle(geoadminStyleFunction)
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             interaction.finishDrawing()
-            store.dispatch('setIsDrawingModified', { value: true, ...dispatcher })
+            // we do not need to share the drawing when the drawing is from the report problem tool
+            if (online.value) {
+                store.dispatch('setIsDrawingModified', { value: true, ...dispatcher })
+            }
             store.dispatch('addDrawingFeature', { featureId: drawnFeature.getId(), ...dispatcher })
             store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
             if (drawEndCallback) {

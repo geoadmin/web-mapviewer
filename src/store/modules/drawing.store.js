@@ -118,7 +118,10 @@ export default {
         },
 
         showNotSharedDrawingWarning: (state) =>
-            !state.isVisitWithAdminId && !state.isDrawingEditShared && state.isDrawingModified,
+            !state.isVisitWithAdminId &&
+            !state.isDrawingEditShared &&
+            state.isDrawingModified &&
+            state.online,
     },
     actions: {
         setDrawingMode({ commit }, { mode, dispatcher }) {
