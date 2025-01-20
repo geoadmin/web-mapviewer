@@ -233,7 +233,9 @@ function selectItem(dropdownItem) {
             </div>
             <DropdownButton
                 label="feedback_description"
-                :title="feedback.category ?? 'select_category'"
+                :title="
+                    feedback.category ? `feedback_category_${feedback.category}` : 'select_category'
+                "
                 :current-value="feedback.category"
                 :items="feedbackCategories"
                 data-cy="report-problem-category"

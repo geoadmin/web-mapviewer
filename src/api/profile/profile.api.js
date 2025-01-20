@@ -220,27 +220,33 @@ export default async (profileCoordinates, projection) => {
         }
         let lastCoordinate = null
         let lastDist = 0
+        // The segment is divided into chunks if the amount of coordinates in the segment is greater than MAX_CHUNK_LENGTH
         const requestsForChunks = coordinateChunks.map((chunk) =>
             getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
         )
-
+        const chunks = []
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {
-                const segment = parseProfileFromBackendResponse(
+                const chunk = parseProfileFromBackendResponse(
                     chunkResponse.value,
                     lastDist,
                     projection
                 )
-                if (segment) {
-                    const newSegmentLastPoint = segment.points.slice(-1)[0]
+                if (chunk) {
+                    const newSegmentLastPoint = chunk.points.slice(-1)[0]
                     lastCoordinate = newSegmentLastPoint.coordinate
                     lastDist = newSegmentLastPoint.dist
-                    segments.push(segment)
+                    chunks.push(chunk)
                 }
             } else {
                 log.error('Error while getting profile for chunk', chunkResponse.reason?.message)
             }
         }
+        // Here the chunks are merged into a single segment
+        const mergedChunks = new ElevationProfileSegment(
+            chunks.reduce((acc, segment) => acc.concat(segment.points), [])
+        )
+        segments.push(mergedChunks)
     }
     return new ElevationProfile(segments)
 }

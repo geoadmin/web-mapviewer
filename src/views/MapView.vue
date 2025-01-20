@@ -1,5 +1,6 @@
 <script setup>
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -27,6 +28,8 @@ import log from '@/utils/logging'
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
 const store = useStore()
+const i18n = useI18n()
+
 const showNotSharedDrawingWarningModal = ref(false)
 const is3DActive = computed(() => store.state.cesium.active)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
@@ -34,6 +37,7 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
+const isOpeningNewTab = computed(() => store.state.ui.isOpeningNewTab)
 const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const loadDrawingModule = computed(() => {
     return (
@@ -49,7 +53,7 @@ onMounted(() => {
 })
 
 const beforeUnloadHandler = (event) => {
-    if (showNotSharedDrawingWarning.value) {
+    if (showNotSharedDrawingWarning.value && !isOpeningNewTab.value) {
         showNotSharedDrawingWarningModal.value = true
         // This provokes the alert message to appear when trying to close the tab.
         // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
@@ -71,7 +75,7 @@ onUnmounted(() => {
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
-            :title="$t('warning')"
+            :title="i18n.t('warning')"
             @close="showNotSharedDrawingWarningModal = false"
         >
             <ShareWarningPopup
