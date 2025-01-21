@@ -4,7 +4,6 @@ import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { sendMapReadyEventToParent } from '@/api/iframeFeatureEvent.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
@@ -57,7 +56,6 @@ map.once('rendercomplete', () => {
     store.dispatch('mapModuleReady', dispatcher)
     log.info('Openlayer map rendered')
 })
-map.once('loadend', sendMapReadyEventToParent)
 
 onMounted(() => {
     map.setTarget(mapElement.value)

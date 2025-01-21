@@ -13,7 +13,6 @@ import { Source } from 'ol/source'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { sendMapReadyEventToParent } from '@/api/iframeFeatureEvent.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import MapLibreLayer from '@/modules/map/components/openlayers/utils/ol-maplibre-layer/MapLibreLayer'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -60,8 +59,6 @@ const layer = new MapLibreLayer({
         return zoom
     },
 })
-// for vector tile print POC, we provide another map ready event here
-layer.once('load', sendMapReadyEventToParent)
 
 const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
