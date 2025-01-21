@@ -32,6 +32,7 @@ export default class MapLibreLayerRenderer extends LayerRenderer<MapLibreLayer> 
     constructor(layer: MapLibreLayer, translateZoom: Function | undefined) {
         super(layer)
         this.translateZoom = translateZoom
+        this.ready = false
     }
 
     getFeaturesAtCoordinate(
