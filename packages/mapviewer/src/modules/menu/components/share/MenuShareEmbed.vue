@@ -15,7 +15,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
+import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -134,7 +134,7 @@ function togglePreviewModal() {
 
 function onPreviewChange(e) {
     if (e?.data?.type === IFRAME_EVENTS.CHANGE) {
-        // see iframeFeatureEvent.api.js -> sendChangeEventToParent
+        // see iframePostMessageEvent.api.js -> sendChangeEventToParent
         embedSource.value = e.data.payload.newUrl
     }
 }
