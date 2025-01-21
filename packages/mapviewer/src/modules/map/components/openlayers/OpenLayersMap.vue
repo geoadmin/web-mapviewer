@@ -66,6 +66,8 @@ function triggerReadyFlagIfAllRendered() {
 }
 map.once('rendercomplete', triggerReadyFlagIfAllRendered)
 
+map.once('rendercomplete', triggerReadyFlagIfAllRendered)
+
 onMounted(() => {
     map.setTarget(mapElement.value)
     useMapInteractions(map)
