@@ -11,7 +11,7 @@ const appVersion = ref(APP_VERSION)
 const isProd = computed(() => store.getters.isProductionSite)
 
 function openGithubLink() {
-    window.open(GITHUB_REPOSITORY, '_blank')
+    window.open(GITHUB_REPOSITORY + APP_VERSION, '_blank')
 }
 </script>
 
@@ -32,6 +32,7 @@ function openGithubLink() {
 
 .app-version {
     color: $gray-800;
+    word-spacing: 3px;
     cursor: pointer;
 }
 
