@@ -905,10 +905,16 @@ describe('Test of layer handling', () => {
                 const layerId = visibleLayerIds[0]
                 // mocking up the backend response for the legend
                 const fakeHtmlResponse = '<div>Test</div>'
+                const germanText = 'Test in German'
+                const fakeHtmlResponseGerman = `<div>${germanText}</div>`
                 cy.intercept(
                     `**/rest/services/all/MapServer/${layerId}/legend**`,
                     fakeHtmlResponse
                 ).as('legend')
+                cy.intercept(
+                    `**/rest/services/all/MapServer/${layerId}/legend**?lang=de**`,
+                    fakeHtmlResponseGerman
+                ).as('legendGerman')
                 // opening layer settings
                 cy.openLayerSettings(layerId)
                 // clicking on the layer info button
@@ -916,9 +922,19 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .click()
                 // checking that the backend has been requested for this layer's legend
+                const legendCalls = 1
                 cy.wait('@legend')
+                cy.get('@legend.all').should('have.length', legendCalls)
                 // checking that the content of the popup is our mocked up content
                 cy.get('[data-cy="layer-description"]').should('be.visible').contains('Test')
+
+                // Changes the language to see if the legend is displayed in the correct language
+                cy.viewport(900, 800)
+                cy.clickOnLanguage('de')
+                cy.wait('@legendGerman')
+                cy.get('@legend.all').should('have.length', legendCalls)
+
+                cy.get('[data-cy="layer-description"]').should('be.visible').contains(germanText)
             })
         })
         context('Timestamp management', () => {

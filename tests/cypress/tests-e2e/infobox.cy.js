@@ -107,6 +107,38 @@ describe('The infobox', () => {
         })
         generateInfoboxTestsForMapSelector('[data-cy="ol-map"]')
     })
+
+    context('Changes the language of the infobox', () => {
+        beforeEach(() => {
+            cy.goToMapView({ layers: layer })
+            cy.intercept('**/MapServer/**/htmlPopup**&lang=de**', {
+                fixture: 'html-popup-german.fixture.html',
+            }).as('htmlPopupGerman')
+        })
+        it('changes the language of the infobox', () => {
+            cy.get('[data-cy="ol-map"]').click()
+            cy.waitUntilState((_, getters) => {
+                return getters.selectedFeatures.length > 0
+            })
+            const htmlPopupCalls = 10
+            cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
+
+            cy.clickOnLanguage('de')
+
+            cy.closeMenuIfMobile()
+
+            cy.wait(['@layers', '@topics', '@topic-ech', '@featureDetail', '@htmlPopupGerman'])
+            cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
+            cy.get('.htmlpopup-content')
+                .should('be.visible')
+                .should('contain', 'Beschreibung')
+                .should('contain', 'Ich bin ein Testfenster')
+                .should('contain', 'Stadt')
+                .should('contain', 'Kanton')
+                .should('contain', 'Mehr Informationen')
+                .should('contain', 'Link zum Object')
+        })
+    })
     // since we've been serving fake tiles to Cesium, the location popup is broken as Cesium can't return proper coordinates
     // we need to fix this Cesium fake tile issue before reactivating this test context
     // TODO : BGDIINF_SB-3181
