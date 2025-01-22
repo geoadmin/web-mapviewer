@@ -263,6 +263,7 @@ describe('Drawing module tests', () => {
                         ])
                     )
                 cy.get('[data-cy="drawing-style-text-button"]').click()
+                cy.get('[data-cy="drawing-style-text-popup"]').should('not.exist')
 
                 // changing/editing the description of this marker
                 const description = 'A description for this marker'

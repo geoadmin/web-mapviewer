@@ -135,8 +135,8 @@ class GeoAdminCustomizer extends BaseCustomizer {
                       this.printResolution
                   )
                 : 0
-            // don't ask why it works, but that's the best I could do.
-            symbolizer.graphicYOffset = Math.round(1000 * symbolizer.graphicYOffset ?? 0) / 1000
+            // if there is no graphicYOffset, we can't print points
+            symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000
         }
         if (size) {
             symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)

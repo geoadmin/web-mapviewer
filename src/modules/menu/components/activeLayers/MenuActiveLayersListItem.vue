@@ -171,6 +171,7 @@ function changeStyle(newStyle) {
     <div
         ref="menuLayerItem"
         class="menu-layer-item"
+        v-bind="$attrs"
         :class="{ compact: compact }"
         :data-cy="`menu-active-layer-${id}-${index}`"
     >
@@ -345,6 +346,7 @@ function changeStyle(newStyle) {
             </div>
         </div>
     </div>
+    <slot />
 </template>
 
 <style lang="scss" scoped>

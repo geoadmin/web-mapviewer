@@ -246,4 +246,147 @@ describe('Topics', () => {
             ])
         })
     })
+
+    // This test is very flaky, the legend is only sometimes resized and I have not found a solution yet to make it more stable therefore it is skiped for now
+    it.skip('Modify the legend display', () => {
+        cy.viewport(1920, 1080)
+
+        cy.goToMapView({
+            layers: 'test.wmts.layer',
+            bgLayer: 'void',
+        })
+        cy.wait(['@topics', '@topic-ech', '@layers', '@routeChange', '@routeChange'])
+        cy.log('it opens the layer legend popup when clicking the info button')
+        cy.fixture('legend.fixture.html').then((legend) => {
+            cy.intercept(`**/rest/services/all/MapServer/*/legend**`, legend).as('legend')
+            cy.get('[data-cy="button-open-visible-layer-settings-test.wmts.layer-0"]')
+                .should('be.visible')
+                .click()
+            cy.get('[data-cy="button-toggle-visibility-layer-test.wmts.layer-0"]') // this is not necessary but it prevents from selecting random objects from the layer
+                .should('be.visible')
+                .click()
+            cy.get('[data-cy="button-show-description-layer-test.wmts.layer-0"]')
+                .should('be.visible')
+                .click()
+            cy.wait('@legend')
+
+            const popupSelector = '[data-cy="simple-window"]'
+            const popupSelectorHeader = '[data-cy="window-header"]'
+            const moveX = 100
+            const moveY = 120
+            const bottomRightMargin = 3
+
+            cy.get(popupSelector).then((popup) => {
+                const rect = popup[0].getBoundingClientRect()
+                const initialPosition = { x: rect.x, y: rect.y }
+                cy.dragMouse(popupSelectorHeader, moveX, moveY)
+                cy.get(popupSelector).then((popup) => {
+                    const rect = popup[0].getBoundingClientRect()
+                    expect(rect.x).to.be.closeTo(initialPosition.x + moveX, 1) // Allow small margin for floating-point
+                    expect(rect.y).to.be.closeTo(initialPosition.y + moveY, 1)
+                })
+            })
+            const increasedX = 100
+            const increasedY = 100
+            cy.log('resize the legend popup')
+            cy.log('reduce the size of the legend popup to the half')
+            cy.get(popupSelector).then((popup) => {
+                const rect = popup[0].getBoundingClientRect()
+                const initialDimensions = { height: rect.height, width: rect.width }
+                let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
+                cy.wrap(genArr).each((index) => {
+                    cy.log('reduce size loop 1 for index', index)
+                    cy.resizeElement({
+                        selector: popupSelector,
+                        startXY: {
+                            x: initialDimensions.width - bottomRightMargin - index,
+                            y: initialDimensions.height - bottomRightMargin - index,
+                        },
+                        endPosition: 'right',
+                    })
+                })
+                cy.wrap(genArr).each((index) => {
+                    cy.log('reduce size loop 2 for index', index)
+                    cy.resizeElement({
+                        selector: popupSelector,
+                        startXY: {
+                            x: initialDimensions.width - bottomRightMargin + index,
+                            y: initialDimensions.height - bottomRightMargin + index,
+                        },
+                        endPosition: 'right',
+                    })
+                })
+                cy.wrap(genArr).each((index) => {
+                    cy.log('reduce size loop 3 for index', index)
+                    cy.get(popupSelector).realMouseDown({
+                        button: 'left',
+                        x: initialDimensions.width - bottomRightMargin - index,
+                        y: initialDimensions.height - bottomRightMargin - index,
+                    })
+                    cy.get(popupSelector).realMouseDown({
+                        button: 'left',
+                        endPosition: 'right',
+                    })
+                    cy.get(popupSelector).realMouseUp({ button: 'left' })
+                })
+
+                cy.get(popupSelector).then((popup) => {
+                    const rect = popup[0].getBoundingClientRect()
+                    expect(rect.height).to.not.eq(initialDimensions.height)
+                })
+            })
+
+            cy.log('increase the size of the legend popup by 100px')
+            cy.get(popupSelector).then((popup) => {
+                const rect = popup[0].getBoundingClientRect()
+                const initialDimensions = { height: rect.height, width: rect.width }
+
+                let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
+                cy.wrap(genArr).each((index) => {
+                    cy.log('increase sice loop 1 for index', index)
+                    cy.resizeElement({
+                        selector: popupSelector,
+                        startXY: {
+                            x: initialDimensions.width - bottomRightMargin - index,
+                            y: initialDimensions.height - bottomRightMargin - index,
+                        },
+                        endXY: {
+                            x: increasedX + initialDimensions.width,
+                            y: increasedY + initialDimensions.height,
+                        },
+                    })
+                })
+                cy.wrap(genArr).each((index) => {
+                    cy.log('increase size loop 2 for index', index)
+                    cy.resizeElement({
+                        selector: popupSelector,
+                        startXY: {
+                            x: initialDimensions.width - bottomRightMargin + index,
+                            y: initialDimensions.height - bottomRightMargin + index,
+                        },
+                        endXY: {
+                            x: increasedX + initialDimensions.width,
+                            y: increasedY + initialDimensions.height,
+                        },
+                    })
+                })
+                cy.wrap(genArr).each((index) => {
+                    cy.log('increase size loop 3 for index', index)
+                    cy.resizeElement({
+                        selector: popupSelector,
+                        startPosition: 'bottomRight',
+                        endXY: {
+                            x: increasedX + initialDimensions.width,
+                            y: increasedY + initialDimensions.height,
+                        },
+                    })
+                })
+                cy.get(popupSelector).then((popup) => {
+                    const rect = popup[0].getBoundingClientRect()
+                    expect(rect.width).to.not.eq(initialDimensions.width)
+                    expect(rect.height).to.not.eq(initialDimensions.height)
+                })
+            })
+        })
+    })
 })

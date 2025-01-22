@@ -44,7 +44,7 @@ const props = defineProps({
     },
     dataCy: {
         type: String,
-        default: '',
+        default: 'simple-window',
     },
 })
 const { title, hide } = toRefs(props)
@@ -104,9 +104,9 @@ onMounted(() => {
                 class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
-                <span v-if="title" data-cy="simple-window-title" class="me-auto text-truncate">{{
-                    i18n.t(title)
-                }}</span>
+                <span v-if="title" data-cy="simple-window-title" class="me-auto text-truncate">
+                    {{ i18n.t(title) }}</span
+                >
                 <span v-else class="me-auto" />
                 <PrintButton v-if="allowPrint && showBody" :content="contentRef"></PrintButton>
                 <button
