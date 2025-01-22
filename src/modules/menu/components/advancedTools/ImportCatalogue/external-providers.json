@@ -345,5 +345,20 @@
     "https://www.geoservice.apps.be.ch/geoservice3/services/a42geo/of_transportation01_de_ms_wms/MapServer/WMSServer",
     "https://www.geoservice.apps.be.ch/geoservice3/services/a42geo/of_transportation02_de_ms_wms/MapServer/WMSServer",
     "https://www.ogd.stadt-zuerich.ch/mapproxy/wmts/1.0.0/WMTSCapabilities.xml",
-    "https://www.opensnowmap.org/OSnM_GetCapabilities.xml"
+    "https://www.opensnowmap.org/OSnM_GetCapabilities.xml",
+    "https://geodienste.ch/db/gewaesserraum/deu",
+    "https://geodienste.ch/db/gewaesserraum/fra",
+    "https://geodienste.ch/db/gewaesserraum/ita",
+    "https://geodienste.ch/db/inventar_wasserentnahmen/deu",
+    "https://geodienste.ch/db/inventar_wasserentnahmen/fra",
+    "https://geodienste.ch/db/inventar_wasserentnahmen/ita",
+    "https://geodienste.ch/db/revitalisierung_fliessgewaesser/deu",
+    "https://geodienste.ch/db/revitalisierung_fliessgewaesser/fra",
+    "https://geodienste.ch/db/revitalisierung_fliessgewaesser/ita",
+    "https://geodienste.ch/db/grundwasservorkommen/deu",
+    "https://geodienste.ch/db/grundwasservorkommen/fra",
+    "https://geodienste.ch/db/grundwasservorkommen/ita",
+    "https://geodienste.ch/db/rodungen_und_rodungsersatz/deu",
+    "https://geodienste.ch/db/rodungen_und_rodungsersatz/ita",
+    "https://geodienste.ch/db/rodungen_und_rodungsersatz/fra"
 ]
