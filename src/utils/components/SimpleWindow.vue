@@ -44,7 +44,7 @@ const props = defineProps({
     },
     dataCy: {
         type: String,
-        default: '',
+        default: 'simple-window',
     },
 })
 const { title, hide } = toRefs(props)
