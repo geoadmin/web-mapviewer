@@ -320,7 +320,13 @@ describe('Test the search bar result handling', () => {
             expect(visibleIds).not.to.contain(expectedLayerId)
         })
 
+        // Location - Leave via unmount
+        cy.get('@locationSearchResults').first().trigger('mouseenter')
+        cy.get('[data-cy="searchbar-clear"]').click()
+        cy.readStoreValue('state.map.previewedPinnedLocation').should('be.null')
+
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
+        cy.get(searchbarSelector).paste('test')
         cy.get(searchbarSelector).should('have.value', 'test')
         cy.get('@locationSearchResults').first().realClick()
         // search bar should take element's title as value if it's a location
