@@ -25,7 +25,7 @@ import {
     RED,
     SMALL,
 } from '@/utils/featureStyleUtils'
-import { LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
+import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 const isNonEmptyArray = (value) => {
@@ -1044,31 +1044,31 @@ describe('Drawing module tests', () => {
                     const newKmlId = interception.response.body.id
                     expect(newKmlId).to.not.eq(kmlId)
 
-                    // there should be only one KML layer left in the layers, and it's the one just saved
-                    cy.window()
-                        .its('store.getters.activeKmlLayer')
-                        .should('have.property', 'fileId', newKmlId)
+                    // The just cleared KML should not be in the active layer list anymore
+                    cy.window().its('store.getters.activeKmlLayer').should('be.null')
 
                     cy.log(`Check that adding a new feature update the new kml ${newKmlId}`)
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
                     cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
                     cy.get('[data-cy="ol-map"]').click('center')
-                    cy.wait('@update-kml').its('response.body.id').should('eq', newKmlId)
+                    cy.wait('@post-kml').then((interception2) => {
+                        const newNewKmlId = interception2.response.body.id
 
-                    cy.log('Check the active layer list making sure that there is only the new')
-                    cy.closeDrawingMode()
+                        cy.log('Check the active layer list making sure that there is only the new')
+                        cy.closeDrawingMode()
 
-                    cy.log(
-                        `Check that the old kml has been removed from the active layer and that the new one has been added`
-                    )
-                    cy.get(
-                        `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
-                    ).should('not.exist')
-                    cy.get(
-                        `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${newKmlId}-"]`
-                    )
-                        .should('be.visible')
-                        .contains('Drawing')
+                        cy.log(
+                            `Check that the old kml has been removed from the active layer and that the new one has been added`
+                        )
+                        cy.get(
+                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                        ).should('not.exist')
+                        cy.get(
+                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${newNewKmlId}-"]`
+                        )
+                            .should('be.visible')
+                            .contains('Drawing')
+                    })
                 })
             })
         })
@@ -1563,5 +1563,74 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
         })
+    })
+
+    it('receives an empty KML and can use drawing mode', () => {
+        function verifyActiveKmlLayerEmptyWithError() {
+            cy.window()
+                .its('store.getters.activeKmlLayer')
+                .then((layer) => {
+                    expect(layer.fileId).to.eq(fileId)
+                    expect(layer.name).to.eq('KML')
+                    expect(layer.hasError).to.be.true
+                    expect(layer.kmlData).to.be.null
+                    expect(layer.errorMessages).not.to.be.undefined
+                    expect(layer.errorMessages).not.to.be.undefined
+                    expect(layer.errorMessages.size).to.eq(1)
+                    expect(layer.errorMessages.values().next().value.msg).to.eq(
+                        'kml_gpx_file_empty'
+                    )
+                })
+        }
+        cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(EMPTY_KML_DATA, headers)
+        }).as('get-empty-kml')
+
+        cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
+
+        const fileId = 'zBnMZymwTLSNg__5f8yv6g'
+        // load map with an injected kml layer containing an empty KML
+        cy.goToMapView({
+            layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
+        })
+
+        cy.wait('@get-empty-kml')
+        // there should be only one KML layer left in the layers, and it's the one just saved
+        verifyActiveKmlLayerEmptyWithError()
+
+        cy.openMenuIfMobile()
+
+        cy.get('[data-cy="button-has-error"]').should('be.visible')
+
+        cy.openDrawingMode()
+
+        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+            'be.visible'
+        )
+        cy.closeDrawingMode()
+
+        // saving the drawing without drawing anything should not change the empty KML layer
+        verifyActiveKmlLayerEmptyWithError()
+
+        cy.openDrawingMode()
+
+        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+            'be.visible'
+        )
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="ol-map"]').click(120, 240)
+        cy.closeDrawingMode()
+        cy.wait('@post-new-kml')
+        // drawing a marker should create a new KML layer and overwrite the empty one
+        cy.window()
+            .its('store.getters.activeKmlLayer')
+            .then((layer) => {
+                expect(layer.fileId).not.to.eq(fileId)
+                expect(layer.name).to.eq('Drawing')
+                expect(layer.hasError).to.be.false
+                expect(layer.kmlData).not.to.be.null
+                expect(layer.errorMessages.size).to.eq(0)
+            })
     })
 })

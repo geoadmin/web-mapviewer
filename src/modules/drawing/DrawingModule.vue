@@ -55,7 +55,7 @@ const showAddVertexButton = computed(() => {
 
 const hasKml = computed(() => {
     if (online.value) {
-        return !!activeKmlLayer.value
+        return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty()
     }
     return !!store.state.layers.systemLayers.find(
         (l) => l.id === store.state.drawing.temporaryKmlId
