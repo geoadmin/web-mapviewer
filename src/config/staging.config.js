@@ -29,7 +29,7 @@ export const APP_VERSION = __APP_VERSION__
  * @type {String}
  */
 
-export const GITHUB_REPOSITORY = 'https://github.com/geoadmin/web-mapviewer/releases/tag/'
+export const GITHUB_REPOSITORY = 'https://github.com/geoadmin/web-mapviewer'
 /**
  * Display a big development banner on all but these hosts.
  *
