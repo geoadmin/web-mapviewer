@@ -1,7 +1,7 @@
 <script setup>
 /** Component showing one search result entry (and dispatching its selection to the store) */
 
-import { computed, ref, toRefs } from 'vue'
+import { computed, onUnmounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
@@ -35,7 +35,7 @@ const resultType = computed(() => entry.value.resultType)
 const showLayerDescription = ref(false)
 
 const item = ref(null)
-
+const isSetPreview = ref(false)
 const store = useStore()
 const compact = computed(() => store.getters.isDesktopMode)
 const searchQuery = computed(() => store.state.search.query)
@@ -76,6 +76,24 @@ function goToLast() {
     item.value.parentElement.lastElementChild?.focus()
 }
 
+function clearPreview() {
+    if (isSetPreview.value) {
+        isSetPreview.value = false
+        emits('clearPreview', entry.value)
+    }
+}
+
+function setPreview() {
+    if (!isSetPreview.value) {
+        isSetPreview.value = true
+        emits('setPreview', entry.value)
+    }
+}
+
+onUnmounted(() => {
+    clearPreview()
+})
+
 defineExpose({
     goToFirst,
     goToLast,
@@ -93,10 +111,10 @@ defineExpose({
         @keydown.home.prevent="goToFirst"
         @keydown.end.prevent="goToLast"
         @keyup.enter="selectItem"
-        @mouseenter="emits('setPreview', entry)"
-        @mouseleave="emits('clearPreview', entry)"
-        @focusin="emits('setPreview', entry)"
-        @focusout="emits('clearPreview', entry)"
+        @mouseenter="setPreview"
+        @mouseleave="clearPreview"
+        @focusin="setPreview"
+        @focusout="clearPreview"
     >
         <TextSearchMarker
             class="search-category-entry-main px-2 flex-grow-1"
