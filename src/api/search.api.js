@@ -1,6 +1,4 @@
-import bbox from '@turf/bbox'
-import center from '@turf/center'
-import { points } from '@turf/helpers'
+import { bbox, center, points } from '@turf/turf'
 import axios from 'axios'
 import proj4 from 'proj4'
 

@@ -5,9 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import explode from '@turf/explode'
-import { point } from '@turf/helpers'
-import nearestPoint from '@turf/nearest-point'
+import { explode, nearestPoint, point } from '@turf/turf'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'

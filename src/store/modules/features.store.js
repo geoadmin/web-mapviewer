@@ -1,4 +1,4 @@
-import simplify from '@turf/simplify'
+import { simplify } from '@turf/turf'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
 

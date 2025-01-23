@@ -1,6 +1,4 @@
-import bbox from '@turf/bbox'
-import buffer from '@turf/buffer'
-import { point } from '@turf/helpers'
+import { bbox, buffer, point } from '@turf/turf'
 import { getIntersection as getExtentIntersection } from 'ol/extent'
 import proj4 from 'proj4'
 

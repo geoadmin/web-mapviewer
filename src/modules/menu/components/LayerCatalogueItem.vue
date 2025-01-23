@@ -7,8 +7,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import booleanContains from '@turf/boolean-contains'
-import { polygon } from '@turf/helpers'
+import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 

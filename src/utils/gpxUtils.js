@@ -1,5 +1,5 @@
 import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
-import bbox from '@turf/bbox'
+import { bbox } from '@turf/turf'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'
 

@@ -1,4 +1,4 @@
-import { clip } from 'liang-barsky'
+import { bboxPolygon, booleanPointInPolygon, lineSplit, lineString, points } from '@turf/turf'
 
 /**
  * Representation of boundaries of a coordinate system (also sometime called extent)
@@ -85,7 +85,15 @@ export default class CoordinateSystemBounds {
         }
         // checking if we require splitting
         if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {
-            return splitIfOutOfBoundsRecurse(coordinates, this)
+            const boundsAsPolygon = bboxPolygon(this.flatten)
+            return lineSplit(lineString(coordinates), boundsAsPolygon).features.map((chunk) => {
+                return {
+                    coordinates: chunk.geometry.coordinates,
+                    isWithinBounds: points(chunk.geometry.coordinates).features.every((point) =>
+                        booleanPointInPolygon(point, boundsAsPolygon)
+                    ),
+                }
+            })
         }
         // no splitting needed, we return the coordinates as they were given
         return [
@@ -95,63 +103,4 @@ export default class CoordinateSystemBounds {
             },
         ]
     }
-}
-
-/**
- * @param {[Number, Number][]} coordinates
- * @param {CoordinateSystemBounds} bounds
- * @param {[CoordinatesChunk]} previousChunks
- * @param {Boolean} isFirstChunk
- * @returns {[CoordinatesChunk]}
- */
-function splitIfOutOfBoundsRecurse(coordinates, bounds, previousChunks = [], isFirstChunk = true) {
-    // for the first chunk, we take the very first coordinate, after that as we add the junction
-    // to the coordinates, we need to take the second to check if it is in bound
-    const firstCoordinate = coordinates[isFirstChunk ? 0 : 1]
-    const isFirstCoordinateInBounds = bounds.isInBounds(firstCoordinate[0], firstCoordinate[1])
-    // searching for the next coordinates where the split will happen (omitting the first coordinate)
-    const nextCoordinateWithoutSameBounds = coordinates
-        .slice(1)
-        .find(
-            (coordinate) =>
-                isFirstCoordinateInBounds !== bounds.isInBounds(coordinate[0], coordinate[1])
-        )
-    if (!nextCoordinateWithoutSameBounds) {
-        // end of the recurse loop, nothing more to split, we add the last segment/chunk
-        return [
-            ...previousChunks,
-            {
-                coordinates,
-                isWithinBounds: isFirstCoordinateInBounds,
-            },
-        ]
-    }
-    const indexOfNextCoord = coordinates.indexOf(nextCoordinateWithoutSameBounds)
-    const lastCoordinateWithSameBounds = coordinates[indexOfNextCoord - 1]
-    // adding the coordinate where the boundaries are crossed
-    let crossing1 = lastCoordinateWithSameBounds.slice(),
-        crossing2 = nextCoordinateWithoutSameBounds.slice()
-    clip(
-        lastCoordinateWithSameBounds,
-        nextCoordinateWithoutSameBounds,
-        bounds.flatten,
-        crossing1,
-        crossing2
-    )
-    // if first coordinate was in bound we have to use crossing2 as our intersection (crossing 1 will be a copy of firstCoordinate)
-    // it's the opposite if firstCoordinate was out of bounds, we have to use crossing1 as the intersection
-    const intersection = isFirstCoordinateInBounds ? crossing2 : crossing1
-    const coordinateLeftToProcess = [intersection, ...coordinates.slice(indexOfNextCoord)]
-    return splitIfOutOfBoundsRecurse(
-        coordinateLeftToProcess,
-        bounds,
-        [
-            ...previousChunks,
-            {
-                coordinates: [...coordinates.slice(0, indexOfNextCoord), intersection],
-                isWithinBounds: isFirstCoordinateInBounds,
-            },
-        ],
-        false
-    )
 }

@@ -1,6 +1,6 @@
-import bbox from '@turf/bbox'
-import centroid from '@turf/centroid'
 import {
+    bbox,
+    centroid,
     featureCollection,
     lineString,
     multiLineString,
@@ -8,7 +8,7 @@ import {
     multiPolygon,
     point,
     polygon,
-} from '@turf/helpers'
+} from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 

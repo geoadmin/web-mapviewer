@@ -1,7 +1,4 @@
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
-import distance from '@turf/distance'
-import { point } from '@turf/helpers'
-import pointToLineDistance from '@turf/point-to-line-distance'
+import { booleanPointInPolygon, distance, point, pointToLineDistance } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 

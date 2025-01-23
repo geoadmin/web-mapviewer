@@ -1,6 +1,6 @@
-import { booleanIntersects } from '@turf/boolean-intersects'
-import { circle } from '@turf/circle'
 import {
+    booleanIntersects,
+    circle,
     geometryCollection,
     lineString,
     multiLineString,
@@ -8,7 +8,7 @@ import {
     multiPolygon,
     point,
     polygon,
-} from '@turf/helpers'
+} from '@turf/turf'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import { DragBox } from 'ol/interaction'
