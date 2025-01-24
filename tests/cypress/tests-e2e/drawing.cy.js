@@ -250,7 +250,6 @@ describe('Drawing module tests', () => {
                     cy.wrap(offset[0]).should('be.lessThan', 0)
                     cy.wrap(offset[1]).should('be.lessThan', 0)
                 })
-
                 cy.wait('@update-kml')
                     .its('request')
                     .should((request) =>
@@ -262,8 +261,11 @@ describe('Drawing module tests', () => {
                             ),
                         ])
                     )
-                cy.get('[data-cy="drawing-style-text-button"]').click()
+
+                cy.viewport(320, 600)
+                cy.get('[data-cy="close-popover-button"]').click()
                 cy.get('[data-cy="drawing-style-text-popup"]').should('not.exist')
+                cy.viewport(320, 568)
 
                 // changing/editing the description of this marker
                 const description = 'A description for this marker'
@@ -1447,6 +1449,7 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(100, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(190, 250)
             cy.get('[data-cy="ol-map"]').dblclick(120, 270)
             cy.wait('@profile')
 
@@ -1471,8 +1474,11 @@ describe('Drawing module tests', () => {
             )
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
-            cy.log('check that profile gets updated when feature is modified')
-            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.log('check that profile gets updated when feature is modified by removing a point')
+            // for mobile double click and on desktop right click
+            cy.get('[data-cy="ol-map"]').dblclick(190, 250)
+            cy.wait('@profile')
+            cy.get('[data-cy="ol-map"]').rightclick(150, 250)
             cy.wait('@profile')
 
             // clicking on the header of the profile container
