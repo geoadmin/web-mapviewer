@@ -67,7 +67,7 @@ export class KmlMetadata {
     }
 }
 
-const kmlBaseUrl = `${getServiceKmlBaseUrl()}api/kml/`
+const kmlBaseUrl = `${getServiceKmlBaseUrl()}`
 
 function validateId(id, reject) {
     if (!id) {
@@ -178,6 +178,27 @@ export const updateKml = (id, adminId, kml) => {
             })
             .catch((error) => {
                 log.error(`Error while updating file with id=${id}`, kml, error)
+                reject(error)
+            })
+    })
+}
+
+export const deleteKMl = (id) => {
+    return new Promise((resolve, reject) => {
+        validateId(id, reject)
+        axios
+            .delete(`${kmlBaseUrl}admin/${id}`)
+            .then((response) => {
+                if (response.status === 200 && response.data.id) {
+                    resolve()
+                } else {
+                    const msg = `Incorrect response while deleting file with id=${id}`
+                    log.error(msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log.error(`Error while deleting file with id=${id}`, error)
                 reject(error)
             })
     })
