@@ -138,10 +138,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     ...dispatcher,
                 })
             }
-            await store.dispatch('addLayer', {
-                layer: kmlLayer,
-                ...dispatcher,
-            })
+            if (!kmlLayer.isEmpty()) {
+                await store.dispatch('addLayer', {
+                    layer: kmlLayer,
+                    ...dispatcher,
+                })
+            }
         } else {
             // if a KMLLayer is already defined, we update it
             const kmlMetadata = await updateKml(

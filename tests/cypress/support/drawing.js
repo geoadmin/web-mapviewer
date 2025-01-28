@@ -1,7 +1,6 @@
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
 import { GREEN, RED } from '@/utils/featureStyleUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
@@ -127,10 +126,7 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
 })
 
 Cypress.Commands.add('openDrawingMode', () => {
-    const viewportWidth = Cypress.config('viewportWidth')
-    if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
-        cy.get('[data-cy="menu-button"]').click()
-    }
+    cy.openMenuIfMobile()
     cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
     // Make sure that the map pointer events are unregistered to avoid intereference with drawing
     // pointer events

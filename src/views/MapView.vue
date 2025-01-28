@@ -40,11 +40,7 @@ const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOver
 const isOpeningNewTab = computed(() => store.state.ui.isOpeningNewTab)
 const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const loadDrawingModule = computed(() => {
-    return (
-        (!activeKmlLayer.value || activeKmlLayer.value?.kmlData) &&
-        isDrawingMode.value &&
-        !is3DActive.value
-    )
+    return isDrawingMode.value && !is3DActive.value
 })
 
 onMounted(() => {

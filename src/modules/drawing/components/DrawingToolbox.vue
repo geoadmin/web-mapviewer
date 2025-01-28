@@ -100,6 +100,12 @@ function onCloseClearConfirmation(confirmed) {
         drawingLayer.getSource().clear()
         debounceSaveDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
+        store.dispatch('removeLayer', {
+            layerId: activeKmlLayer.value.id,
+            isExternal: activeKmlLayer.value.isExternal,
+            baseUrl: activeKmlLayer.value.baseUrl,
+            ...dispatcher,
+        })
     }
 }
 
