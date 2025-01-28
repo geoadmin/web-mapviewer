@@ -5,25 +5,31 @@ import { useStore } from 'vuex'
 import { APP_VERSION } from '@/config/staging.config'
 import { GITHUB_REPOSITORY } from '@/config/staging.config'
 
+const cleanAppVersionRegex = /v\d+\.\d+\.\d+$/
 const store = useStore()
 const appVersion = ref(APP_VERSION)
 
 const isProd = computed(() => store.getters.isProductionSite)
 
-function openGithubLink() {
+function openGithubReleaseLink() {
+    const isAppVersionClean = appVersion.value.match(cleanAppVersionRegex)
+    if (!isAppVersionClean) {
+        openGithubRepoLink()
+    } else {
+        window.open(GITHUB_REPOSITORY + `/releases/tag/` + APP_VERSION, '_blank')
+    }
+}
+function openGithubRepoLink() {
     window.open(GITHUB_REPOSITORY, '_blank')
 }
 </script>
 
 <template>
-    <div
-        class="app-version"
-        :class="{ 'app-version-prod': isProd }"
-        data-cy="app-version"
-        @click="openGithubLink"
-    >
-        <font-awesome-icon :icon="['fab', 'github']" />
-        {{ appVersion }}
+    <div class="app-version" :class="{ 'app-version-prod': isProd }" data-cy="app-version">
+        <span @click="openGithubRepoLink" class="githubIcon"
+            ><font-awesome-icon :icon="['fab', 'github']"
+        /></span>
+        <span class="app-version-link" @click="openGithubReleaseLink"> {{ appVersion }}</span>
     </div>
 </template>
 
@@ -35,7 +41,16 @@ function openGithubLink() {
     cursor: pointer;
 }
 
+.app-version-link {
+    margin-left: 3px;
+}
+
+.githubIcon {
+    margin-right: 3px;
+}
+
 .app-version-prod {
     color: $gray-500;
+    cursor: pointer;
 }
 </style>
