@@ -32,25 +32,34 @@ watch(storeCompareRatio, (newValue) => {
     olMap.render()
 })
 
-watch(visibleLayerOnTop, (newLayerOnTop, oldLayerOnTop) => {
-    unRegisterRenderingEvents(oldLayerOnTop.id)
+watch(
+    visibleLayerOnTop,
+    (newLayerOnTop, oldLayerOnTop) => {
+        if (oldLayerOnTop) {
+            unRegisterRenderingEvents(oldLayerOnTop.id)
+        }
 
-    if (getLayerFromMapById(newLayerOnTop.id)) {
-        registerRenderingEvents(newLayerOnTop.id)
-    } else {
-        // The layer config is always modified before the map, which means the
-        // visible layer on top according to the config could not exist within
-        // the map. This is problematic with COG layers due to the webGL context
-
-        // to mitigate the issue, we use the precompose event (which is fired when
-        // the olMap changes due to a webGL layer being added or removed) to still add the
-        // rendering events to the top layer.
-        olMap?.once('precompose', () => {
+        if (getLayerFromMapById(newLayerOnTop.id)) {
             registerRenderingEvents(newLayerOnTop.id)
-        })
-    }
-    olMap.render()
-})
+        } else {
+            // The layer config is always modified before the map, which means the
+            // visible layer on top according to the config could not exist within
+            // the map. This is problematic with COG layers due to the webGL context
+
+            // to mitigate the issue, we use the precompose event (which is fired when
+            // the olMap changes due to a webGL layer being added or removed) to still add the
+            // rendering events to the top layer.
+            olMap?.once('precompose', () => {
+                registerRenderingEvents(newLayerOnTop.id)
+            })
+        }
+        olMap.render()
+    },
+    // Neccessary for the compare slider to work for external layers, because if the layer takes longer to load on the map,
+    // the registerRenderingEvents function called in the onMounted hook can not find the layer from the map and therefore the compare slider does not work.
+    // This makes it necessary to wait for the precompose event of the map to call the registerRenderingEvents function.
+    { immediate: true }
+)
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
