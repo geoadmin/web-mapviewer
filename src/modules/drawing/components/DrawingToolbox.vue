@@ -21,7 +21,7 @@ import debounce from '@/utils/debounce'
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
-const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
+const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
 const i18n = useI18n()
 const store = useStore()
 
@@ -98,7 +98,7 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
         store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
         drawingLayer.getSource().clear()
-        debounceSaveDrawing()
+        deleteDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
         store.dispatch('removeLayer', {
             layerId: activeKmlLayer.value.id,

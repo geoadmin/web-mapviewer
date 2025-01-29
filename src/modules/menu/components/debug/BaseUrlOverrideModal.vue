@@ -18,6 +18,7 @@ const store = useStore()
 const wmsUrlOverride = ref(getBaseUrlOverride('wms'))
 const wmtsUrlOverride = ref(getBaseUrlOverride('wmts'))
 const api3UrlOverride = ref(getBaseUrlOverride('api3'))
+const kmlUrlOverride = ref(getBaseUrlOverride('serviceKml'))
 const viewerDedicatedServicesUrlOverride = ref(getBaseUrlOverride('viewerDedicatedServices'))
 
 function onModalClose(withConfirmation) {
@@ -25,6 +26,7 @@ function onModalClose(withConfirmation) {
         setBaseUrlOverrides('wms', wmsUrlOverride.value ?? null)
         setBaseUrlOverrides('wmts', wmtsUrlOverride.value ?? null)
         setBaseUrlOverrides('api3', api3UrlOverride.value ?? null)
+        setBaseUrlOverrides('serviceKml', kmlUrlOverride.value ?? null)
         setBaseUrlOverrides(
             'viewerDedicatedServices',
             viewerDedicatedServicesUrlOverride.value ?? null
@@ -95,6 +97,26 @@ function onModalClose(withConfirmation) {
                         type="button"
                         :disabled="api3UrlOverride === null"
                         @click="api3UrlOverride = null"
+                    >
+                        <FontAwesomeIcon icon="times" />
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="kmlUrlOverride" class="form-label">KML base URL</label>
+                <div class="input-group">
+                    <input
+                        id="kmlUrlOverride"
+                        v-model="kmlUrlOverride"
+                        type="url"
+                        class="form-control"
+                        :placeholder="`default: ${getDefaultBaseUrl('serviceKml')}`"
+                    />
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        :disabled="kmlUrlOverride === null"
+                        @click="kmlUrlOverride = null"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>

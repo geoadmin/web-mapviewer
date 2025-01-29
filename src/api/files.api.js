@@ -67,7 +67,7 @@ export class KmlMetadata {
     }
 }
 
-const kmlBaseUrl = `${getServiceKmlBaseUrl()}`
+const kmlBaseUrl = `${getServiceKmlBaseUrl()}api/kml/`
 
 function validateId(id, reject) {
     if (!id) {
@@ -183,11 +183,29 @@ export const updateKml = (id, adminId, kml) => {
     })
 }
 
-export const deleteKMl = (id) => {
+/**
+ * Delete KML on backend
+ *
+ * @param {string} id KML ID
+ * @param {string} adminId KML admin ID
+ * @returns {Promise<void>}
+ */
+export const deleteKml = (id, adminId) => {
+    log.info('base url : ', kmlBaseUrl)
     return new Promise((resolve, reject) => {
         validateId(id, reject)
+        validateAdminId(adminId, reject)
+        const form = new FormData()
+        form.append('admin_id', adminId)
         axios
-            .delete(`${kmlBaseUrl}admin/${id}`)
+            .request({
+                method: 'DELETE',
+                url: `${kmlBaseUrl}admin/${id}`,
+                data: form,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
             .then((response) => {
                 if (response.status === 200 && response.data.id) {
                     resolve()
