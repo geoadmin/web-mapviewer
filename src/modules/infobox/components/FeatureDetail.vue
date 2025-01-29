@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
-import { WHITELISTED_HOSTNAMES } from '@/config/staging.config'
+import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/staging.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
@@ -35,27 +35,51 @@ const sanitizedFeatureDataEntries = computed(() => {
         return []
     }
     return Object.entries(feature.value.data)
-        .filter(([_, value]) => value) // filtering out null values
+        .filter(([_, value]) => value) // Filtering out null values
         .map(([key, value]) => [
             key,
             sanitizeHtml(value, key === 'description'),
-            getIframeHosts(value),
+            key === 'description' ? getIframeHosts(value) : [],
         ])
 })
 function sanitizeHtml(htmlText, withIframe = false) {
+    const blockedExternalContentString = i18n.t('blocked_external_content')
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-        // set all elements owning target to target=_blank
-        if ('target' in node) {
+        // Replacing possibly malicious code instead of removing with node.remove()
+        if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
-            node.setAttribute('rel', 'noopener')
+            node.setAttribute('rel', 'noopener noreferrer')
+            try {
+                const url = new URL(node.getAttribute('href'))
+                const ext = url.pathname.split('.').pop().toLowerCase()
+                if (BLOCKED_EXTENSIONS.includes(ext)) {
+                    node.outerHTML = blockedExternalContentString
+                    return
+                }
+            } catch (error) {
+                node.outerHTML = blockedExternalContentString
+                return
+            }
+        }
+        if (node.tagName === 'IFRAME') {
+            try {
+                const src = new URL(node.getAttribute('src'))
+                const ext = src.pathname.split('.').pop().toLowerCase()
+                if (BLOCKED_EXTENSIONS.includes(ext)) {
+                    node.outerHTML = blockedExternalContentString
+                    return
+                }
+            } catch (error) {
+                node.outerHTML = blockedExternalContentString
+                return
+            }
         }
     })
-    let response = null
-    if (withIframe) {
-        response = DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
-    } else {
-        response = DOMPurify.sanitize(htmlText)
+    const config = {
+        ADD_TAGS: withIframe ? ['iframe'] : [],
+        ALLOWED_URI_REGEXP: /^(https?|mailto|tel):/i, // Blocks file://, javascript:
     }
+    let response = DOMPurify.sanitize(htmlText, config)
     DOMPurify.removeHook('afterSanitizeAttributes')
     return response
 }
@@ -64,15 +88,17 @@ function getIframeHosts(value) {
     let parser = new DOMParser()
     let dom = parser.parseFromString(value, 'text/html')
 
-    const hosts = Array.from(dom.getElementsByTagName('iframe')).map((iframe) => {
-        try {
-            return new URL(iframe.src).hostname
-        } catch (error) {
-            log.error(`Invalid iframe source "${iframe.src}" cannot get hostname`)
-            return iframe.src
-        }
-    })
-    return hosts.filter((host) => !WHITELISTED_HOSTNAMES.includes(host))
+    return Array.from(dom.getElementsByTagName('iframe'))
+        .map((iframe) => {
+            if (!iframe.src) return null
+            try {
+                return new URL(iframe.src).hostname
+            } catch {
+                log.error(`Invalid iframe source "${iframe.src}" - cannot get hostname`)
+                return iframe.src
+            }
+        })
+        .filter((host) => host && !WHITELISTED_HOSTNAMES.includes(host))
 }
 </script>
 

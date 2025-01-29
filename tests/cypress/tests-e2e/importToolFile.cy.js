@@ -88,6 +88,42 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
+        cy.log(
+            'Test if kml is sanitized and external content is blocked and description is truncated'
+        )
+        const iframeTestFile = 'iframe-test.kml'
+        const iframeTestFileFixture = `import-tool/${iframeTestFile}`
+
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.openMenuIfMobile()
+
+        cy.fixture(iframeTestFileFixture, null).as('kmlFixture')
+        cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-local-btn"]:visible').click()
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+        cy.closeMenuIfMobile()
+
+        cy.get('[data-cy="window-close"]').click()
+        cy.get('[data-cy="ol-map"]').click(160, 250)
+
+        cy.get('[data-cy=feature-item]').should('have.length', 1)
+        cy.get('.htmlpopup-container')
+        cy.get('.htmlpopup-container')
+            .should('have.length', 1)
+            .should('contain', 'Title')
+            .should('contain', 'test title')
+            .should('contain', 'Check out this [BLOCKED EXTERNAL CONTENT] for more')
+            .should('contain', 'Description')
+            .should('contain', 'Contains third party content')
+        cy.get('[data-cy="infobox-close"]').click()
+        cy.openMenuIfMobile()
+        cy.get(`[data-cy^="button-remove-layer-${iframeTestFile}-"]:visible`).click()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
         //---------------------------------------------------------------------
         // Test the import of an online KML file
         cy.log('Test online import')
