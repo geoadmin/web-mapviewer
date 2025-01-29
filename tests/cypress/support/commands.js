@@ -689,7 +689,7 @@ Cypress.Commands.add('writeStoreValue', (action, value) => {
 
 // Reads a value from the window
 Cypress.Commands.add('readWindowValue', (key) => {
-    return cy.window().its(key)
+    return cy.window({ timeout: 15000 }).its(key)
 })
 
 // from https://github.com/cypress-io/cypress/issues/1123#issuecomment-672640129

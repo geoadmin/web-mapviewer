@@ -1,4 +1,4 @@
-import { noModifierKeys, singleClick } from 'ol/events/condition'
+import { doubleClick, noModifierKeys, primaryAction } from 'ol/events/condition'
 import ModifyInteraction from 'ol/interaction/Modify'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -27,6 +27,7 @@ export default function useModifyInteraction(features) {
     const reverseLineStringExtension = computed(
         () => store.state.drawing.reverseLineStringExtension
     )
+    const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
     const olMap = inject('olMap')
     const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
@@ -34,7 +35,15 @@ export default function useModifyInteraction(features) {
     const modifyInteraction = new ModifyInteraction({
         features,
         style: editingVertexStyleFunction,
-        deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
+        condition: (event) =>
+            primaryAction(event) ||
+            (event.type === 'pointerdown' &&
+                event.originalEvent.button === 2 &&
+                noModifierKeys(event)), // To delete a point with right click (contextmenu) one has to first select the point and then right click on it, therefore this select vertex condition is needed
+        deleteCondition: (event) =>
+            isPhoneMode.value
+                ? doubleClick(event)
+                : event.type === 'contextmenu' && noModifierKeys(event),
         // This seems to be calculated differently than the hitTolerance properties of
         // SelectInteraction and forEachFeatureAtPixel. That's why we have to manually correct the
         // value here.
