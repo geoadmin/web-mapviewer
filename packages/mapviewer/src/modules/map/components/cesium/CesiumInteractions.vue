@@ -2,10 +2,12 @@
 import { Cartesian2, Cartographic, ScreenSpaceEventType } from 'cesium'
 import log from 'geoadmin/log'
 import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
+import LayerFeature from '@/api/features/LayerFeature.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -14,8 +16,6 @@ import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverl
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
-import LayerFeature from '@/api/features/LayerFeature.class'
-import { Point } from 'ol/geom'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
@@ -33,11 +33,6 @@ const cesiumBuildingLayer = computed(() => {
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
-    )
-)
-const selectedBuildings = computed(() =>
-    store.getters.selectedFeatures.filter(
-        (feature) => feature.layer.id === 'ch.swisstopo.swissbuildings3d.3d'
     )
 )
 
@@ -68,15 +63,12 @@ function getCoordinateAtScreenCoordinate(x, y) {
 }
 function createBuildingFeature(building, coordinates) {
     const id = building.getProperty('EGID') ?? building.getProperty('UUID')
-    if (selectedBuildings.value[0] && selectedBuildings.value[0].id === id) {
-        return selectedBuildings.value[0]
-    }
     const data = {
-        building_height: building.getProperty('GESAMTHOEHE') ?? 'empty_field',
-        building_type: building.getProperty('OBJEKTART') ?? 'empty_field',
-        elevation: building.getProperty('GELAENDEPUNKT') ?? 'empty_field',
-        max_roof_height: building.getProperty('DACH_MAX') ?? 'empty_field',
         EGID: building.getProperty('EGID') ?? 'empty_field',
+        building_type: building.getProperty('OBJEKTART') ?? 'empty_field',
+        building_height: building.getProperty('GESAMTHOEHE') ?? 'empty_field',
+        max_roof_height: building.getProperty('DACH_MAX') ?? 'empty_field',
+        elevation: building.getProperty('GELAENDEPUNKT') ?? 'empty_field',
     }
     const feature = new LayerFeature({
         layer: cesiumBuildingLayer.value,
@@ -135,8 +127,7 @@ function onClick(event) {
             features.push(...Object.values(kmlFeatures))
         })
     objects
-        .filter((o) => !o.id)
-        .filter((o) => o.getProperty('UUID'))
+        .filter((o) => !o.id && o.getProperty('UUID'))
         .forEach((building) => features.push(createBuildingFeature(building, coordinates)))
     // Cesium can't pick position when click on primitive
     if (!coordinates.length && features.length) {
