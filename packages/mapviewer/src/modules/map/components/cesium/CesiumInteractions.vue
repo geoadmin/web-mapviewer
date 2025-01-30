@@ -3,7 +3,7 @@ import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { Cartesian2, Cartographic, ScreenSpaceEventType } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
@@ -15,10 +15,7 @@ import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import SelectableFeature from '@/api/features/SelectableFeature.class'
 import { Point } from 'ol/geom'
-import i18n from '@/modules/i18n'
-import { round } from 'ol/math'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
@@ -36,6 +33,11 @@ const cesiumBuildingLayer = computed(() => {
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
+    )
+)
+const selectedBuildings = computed(() =>
+    store.getters.selectedFeatures.filter(
+        (feature) => feature.layer.id === 'ch.swisstopo.swissbuildings3d.3d'
     )
 )
 
@@ -65,35 +67,26 @@ function getCoordinateAtScreenCoordinate(x, y) {
     return coordinates
 }
 function createBuildingFeature(building, coordinates) {
-    log.error('-----------------------------------------------')
-    log.error('GIMME THAT BUILDING', building.getPropertyIds())
-    log.error('show me everything in that building')
-    building.getPropertyIds().forEach((property) => {
-        log.error(property, ' : ', building.getProperty(property))
-        log.error(typeof building.getProperty(property))
-    })
+    const id = building.getProperty('EGID') ?? building.getProperty('UUID')
+    if (selectedBuildings.value[0] && selectedBuildings.value[0].id === id) {
+        return selectedBuildings.value[0]
+    }
+    const data = {
+        building_height: building.getProperty('GESAMTHOEHE') ?? 'empty_field',
+        building_type: building.getProperty('OBJEKTART') ?? 'empty_field',
+        elevation: building.getProperty('GELAENDEPUNKT') ?? 'empty_field',
+        max_roof_height: building.getProperty('DACH_MAX') ?? 'empty_field',
+        EGID: building.getProperty('EGID') ?? 'empty_field',
+    }
     const feature = new LayerFeature({
         layer: cesiumBuildingLayer.value,
-        id: building.getProperty('EGID') ?? building.getProperty('UUID'),
-        data: {
-            building_height: building.getProperty('GESAMTHOEHE'),
-            building_type: building.getProperty('OBJEKTART'),
-            elevation: building.getProperty('GELAENDEPUNKT'),
-            max_roof_height: building.getProperty('DACH_MAX'),
-            EGID: building.getProperty('EGID'),
-        },
-        name:
-            'building type' +
-            ' at ' +
-            round(building.getProperty('Latitude') * 100, 4) / 100 +
-            ', ' +
-            round(building.getProperty('Longitude') * 100, 4) / 100,
+        id,
+        data,
+        name: id,
         coordinates,
         extent: [coordinates[0] - 5, coordinates[1] - 5, coordinates[0] + 5, coordinates[1] + 5],
         geometry: new Point(coordinates),
     })
-    log.error(cesiumBuildingLayer.value)
-    /** Const { layer, id, name, data, coordinates, extent, geometry = null } = featureData */
     return feature
 }
 
@@ -141,12 +134,10 @@ function onClick(event) {
                 })
             features.push(...Object.values(kmlFeatures))
         })
-    log.error(objects)
     objects
         .filter((o) => !o.id)
         .filter((o) => o.getProperty('UUID'))
         .forEach((building) => features.push(createBuildingFeature(building, coordinates)))
-    log.error(features)
     // Cesium can't pick position when click on primitive
     if (!coordinates.length && features.length) {
         const featureCoords = Array.isArray(features[0].coordinates[0])
