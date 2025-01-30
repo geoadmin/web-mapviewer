@@ -7,6 +7,12 @@ import { formatThousand } from '@/utils/numberUtils.js'
 
 const printID = 'print-123456789'
 
+function checkZoom(customZoom) {
+    cy.readStoreValue('state.position.zoom').should((zoom) => {
+        expect(zoom).to.equal(customZoom)
+    })
+}
+
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
@@ -178,16 +184,22 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
-        function startPrintWithKml(kmlFixture) {
+        function startPrintWithKml(kmlFixture, zoom = 9, center = '2655000,1203250') {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
+
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
             cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
+            const kmlID = `${getServiceKmlBaseUrl()}some-kml-file.kml`
             cy.goToMapView(
                 {
-                    layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
-                    z: 9,
+                    layers: `KML|${kmlID}`,
+                    z: zoom,
+                    center: center,
                 },
                 true
             )
@@ -202,6 +214,7 @@ describe('Testing print', () => {
 
             cy.get('[data-cy="print-map-button"]').should('be.visible').click()
             cy.get('[data-cy="abort-print-button"]').should('be.visible')
+            return kmlID
         }
 
         it('should send a print request to mapfishprint (with layers added)', () => {
@@ -295,7 +308,10 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            startPrintWithKml('import-tool/external-kml-file.kml')
+            const customZoom = 13
+            const kmlID = startPrintWithKml('import-tool/external-kml-file.kml', customZoom)
+            checkZoom(customZoom)
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -312,12 +328,109 @@ describe('Testing print', () => {
                 )
 
                 const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(5000)
+                expect(mapAttributes['scale']).to.equals(2500000)
                 expect(mapAttributes['dpi']).to.equals(254)
                 expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
+
+                expect(layers).to.have.length(2)
+                expect(layers[0]['type']).to.equals('geojson')
+                expect(layers[0]['geoJson']['features']).to.have.length(1)
+                expect(layers[0]['geoJson']['features'][0]['properties']).to.haveOwnProperty(
+                    '_mfp_style'
+                )
+                expect(layers[0]['geoJson']['features'][0]['properties']['_mfp_style']).to.equal(
+                    '1'
+                )
+                expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
+            })
+        })
+        it('should send a print request correctly to mapfishprint (with KML layer) - with import layer', () => {
+            interceptPrintRequest()
+            interceptPrintStatus()
+            interceptDownloadReport()
+
+            cy.goToMapView({}, true)
+            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+            cy.get('[data-cy="import-file-content"]').should('be.visible')
+            cy.get('[data-cy="import-file-online-content"]').should('be.visible')
+
+            const localKmlFileName = 'external-kml-file.kml'
+            const localKmlFile = `/import-tool/${localKmlFileName}`
+
+            // Test local import
+            cy.log('Switch to local import')
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+            cy.get('[data-cy="import-file-local-content"]').should('be.visible')
+
+            // Attach a local KML file
+            cy.log('Test add a local KML file')
+            cy.fixture(localKmlFile).as('kmlFile')
+            cy.get('[data-cy="file-input"]').selectFile(
+                { contents: '@kmlFile', fileName: localKmlFile },
+                { force: true }
+            )
+            cy.get('[data-cy="file-input"]').selectFile('@kmlFile', {
+                force: true,
+            })
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+            // Assertions for successful import
+            cy.get('[data-cy="file-input-text"]')
+                .should('have.class', 'is-valid')
+                .should('not.have.class', 'is-invalid')
+            cy.get('[data-cy="file-input-valid-feedback"]')
+                .should('be.visible')
+                .contains('File successfully imported')
+            cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
+            cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+
+            // Close the import tool
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
+            cy.get('[data-cy="import-file-content"]').should('not.exist')
+
+            // Print
+            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-form"]').should('be.visible')
+
+            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+            cy.get('[data-cy="abort-print-button"]').should('be.visible')
+
+            cy.checkOlLayer(['test.background.layer2', localKmlFileName])
+
+            cy.wait('@printRequest').then((interception) => {
+                expect(interception.request.body).to.haveOwnProperty('layout')
+                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
+                expect(interception.request.body).to.haveOwnProperty('format')
+                expect(interception.request.body['format']).to.equal('pdf')
+
+                const attributes = interception.request.body.attributes
+                expect(attributes).to.haveOwnProperty('printLegend')
+                expect(attributes['printLegend']).to.equals(0)
+                expect(attributes).to.haveOwnProperty('qrimage')
+                expect(attributes['qrimage']).to.contains(
+                    encodeURIComponent('https://s.geo.admin.ch/0000000')
+                )
+
+                const mapAttributes = attributes.map
+                expect(mapAttributes['scale']).to.equals(10000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+
+                const layers = mapAttributes.layers
+                expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
+
                 expect(layers).to.have.length(2)
                 expect(layers[0]['type']).to.equals('geojson')
                 expect(layers[0]['geoJson']['features']).to.have.length(1)
@@ -340,7 +453,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-content"]').should('be.visible')
             cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
-            const localGpxlFile = 'print/line-and-marker.gpx'
+            const localGpxFile = '/print/line-and-marker.gpx'
 
             // Test local import
             cy.log('Switch to local import')
@@ -349,8 +462,12 @@ describe('Testing print', () => {
 
             // Attach a local GPX file
             cy.log('Test add a local GPX file')
-            cy.fixture(localGpxlFile, null).as('gpxFixture')
-            cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
+            cy.fixture(localGpxFile).as('gpxFile')
+            cy.get('[data-cy="file-input"]').selectFile(
+                { contents: '@gpxFile', fileName: localGpxFile },
+                { force: true }
+            )
+            cy.get('[data-cy="file-input"]').selectFile('@gpxFile', {
                 force: true,
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
@@ -398,6 +515,8 @@ describe('Testing print', () => {
 
                 const layers = mapAttributes.layers
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 // In this GPX layer, htere are two features (a line and a point).
@@ -424,7 +543,10 @@ describe('Testing print', () => {
         })
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
-            startPrintWithKml('print/label.kml')
+            const customZoom = 13
+            const kmlID = startPrintWithKml('print/label.kml', customZoom)
+            checkZoom(customZoom)
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -442,10 +564,15 @@ describe('Testing print', () => {
                 expect(mapAttributes).to.haveOwnProperty('projection')
 
                 expect(mapAttributes).to.haveOwnProperty('layers')
+                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
 
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 const geoJsonLayer = layers[0]
@@ -493,7 +620,22 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
-            startPrintWithKml('print/old-geoadmin-label.kml')
+            const customZoom = 13
+            const kmlID = startPrintWithKml('print/old-geoadmin-label.kml', customZoom)
+
+            checkZoom(customZoom)
+
+            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                expect(center[0]).to.eq(8.161492)
+                expect(center[1]).to.eq(46.978042)
+            })
+
+            cy.readStoreValue('state.position.center').should((center) => {
+                expect(center[0]).to.eq(2655000)
+                expect(center[1]).to.eq(1203250)
+            })
+
+            cy.checkOlLayer(['test.background.layer2', kmlID])
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -511,10 +653,15 @@ describe('Testing print', () => {
                 expect(mapAttributes).to.haveOwnProperty('projection')
 
                 expect(mapAttributes).to.haveOwnProperty('layers')
+                expect(mapAttributes['scale']).to.equals(2500000)
+                expect(mapAttributes['dpi']).to.equals(254)
+                expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
                 const layers = mapAttributes.layers
 
                 expect(layers).to.be.an('array')
+                cy.log('Layers:', layers)
+                cy.log('Layer 0:', layers[0]['type'])
                 expect(layers).to.have.length(2)
 
                 const geoJsonLayer = layers[0]
