@@ -191,6 +191,7 @@ export default {
                 const layerFeatures = features.filter((feature) => feature instanceof LayerFeature)
                 drawingFeatures = features.filter((feature) => feature instanceof EditableFeature)
                 layerFeatures.forEach((feature) => {
+                    log.error('HENLO', feature)
                     if (
                         !layerFeaturesByLayerId.some(
                             (featureForLayer) => featureForLayer.layerId === feature.layer.id
