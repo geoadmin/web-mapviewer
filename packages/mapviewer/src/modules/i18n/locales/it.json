@@ -1,7 +1,7 @@
 {
     "3d_constructions": "Edifici e costruzioni",
     "3d_ie11_alert": "State usando InternetExplorer versione 11 o più vecchia. La visualizzazione 3D sarà lenta. Usate se possibile l’ultima versione di Microsoft EDGE, Firefox o Chrome per avere prestazioni ottimali.",
-    "3d_labels": "",
+    "3d_labels": "Nomi geografici",
     "3d_overlay_warning": "Nota importante: dati 3D non aggiornati / dati 2D visualizzati in 3D.<br/> Dall’ottobre 2020, i dati 3D (Terreno, Edifici e altri oggetti 3D) non sono più aggiornati in questo visualizzatore. Dei dati sorgente più attuali sono disponibili per il download.  Alcuni dati 2D non sono adatti alla visualizzazione 3D. In particolare le carte e le fotografie aeree appariranno deformate su terreni in forte pendenza quando il 3D è attivo.",
     "3d_pegman_help": "Premere il tasto F per attivare la modalità \"volo\".<br>Premere H per l'aiuto.<br>Premere ESC per uscire.",
     "3d_pegman_tooltip": "Trascinami sulla carta!",
