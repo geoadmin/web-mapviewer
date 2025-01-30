@@ -1,7 +1,6 @@
+import { PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES } from '@/utils/coordinates/CoordinateSystem.class'
 import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
-import StandardCoordinateSystem, {
-    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
-} from '@/utils/coordinates/StandardCoordinateSystem.class'
+import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import { round } from '@/utils/numberUtils'
 
 export default class WGS84CoordinateSystem extends StandardCoordinateSystem {

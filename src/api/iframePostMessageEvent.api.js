@@ -21,6 +21,12 @@ export const IFRAME_EVENTS = {
      * Payload of this event : a JSON containing the layerId and featureId of the selected feature
      */
     FEATURE_SELECTION: 'gaFeatureSelection',
+    /**
+     * Event raised when the map shown has finished loading and is now visible in the HTML DOM.
+     *
+     * No payload with this event.
+     */
+    MAP_READY: 'gaMapReady',
 }
 
 /**
@@ -33,12 +39,6 @@ export const IFRAME_EVENTS = {
  * @see https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
  */
 export function sendFeatureInformationToIFrameParent(features) {
-    if (!targetWindow) {
-        log.debug(
-            'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'
-        )
-        return
-    }
     // if no features are given, nothing to do
     if (!Array.isArray(features) || features.length === 0) {
         return
@@ -46,20 +46,11 @@ export function sendFeatureInformationToIFrameParent(features) {
     log.debug('sending information about selected features to iframe parent')
     // from what I can understand from the codepen, one event is fired per feature with a structured response
     features.forEach((feature) => {
-        targetWindow.postMessage(
-            {
-                // see codepen above, for backward compatibility reasons we need to use the same type as mf-geoadmin3
-                type: IFRAME_EVENTS.FEATURE_SELECTION,
-                payload: {
-                    layerId: feature.layer.id,
-                    featureId: feature.id,
-                    // if we want to expose more stuff from our features (EGID, EWID, etc...), it should come here...
-                },
-            },
-            // meaning anyone, any host, can receive this event when adding our app as embedded on their website,
-            // so let's be cautious with what we add to the payload
-            '*'
-        )
+        sendEventToParent(IFRAME_EVENTS.FEATURE_SELECTION, {
+            layerId: feature.layer.id,
+            featureId: feature.id,
+            // if we want to expose more stuff from our features (EGID, EWID, etc...), it should come here...
+        })
         // mf-geoadmin3 was also sending the same feature in a different unstructured/string format "layerId#featureId"
         // but this comment here https://github.com/geoadmin/mf-geoadmin3/blob/6a7b99a2cc9980eec27b394ee709305a239549f1/src/components/tooltip/TooltipDirective.js#L661-L668
         // suggest that this was already to accommodate some legacy support, and was supposed to be removed "soon"
@@ -76,6 +67,16 @@ export function sendFeatureInformationToIFrameParent(features) {
  * snippet if the user decide to move / zoom the map while looking at the preview
  */
 export function sendChangeEventToParent() {
+    sendEventToParent(IFRAME_EVENTS.CHANGE, {
+        newUrl: window.location.href,
+    })
+}
+
+export function sendMapReadyEventToParent() {
+    sendEventToParent(IFRAME_EVENTS.MAP_READY)
+}
+
+function sendEventToParent(type, payload = null) {
     if (!targetWindow) {
         log.debug(
             'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'
@@ -84,10 +85,8 @@ export function sendChangeEventToParent() {
     }
     targetWindow.postMessage(
         {
-            type: IFRAME_EVENTS.CHANGE,
-            payload: {
-                newUrl: window.location.href,
-            },
+            type,
+            payload,
         },
         '*'
     )

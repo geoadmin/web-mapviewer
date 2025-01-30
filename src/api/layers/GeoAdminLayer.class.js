@@ -22,6 +22,9 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   layer
      * @param {String | null} layerData.idIn3d The layer ID to be used as substitute for this layer
      *   when we are showing the 3D map. Will be using the same layer if this is set to null.
+     * @param {String | null} layerData.idInVectorTile The layer ID to be used as substitute for
+     *   this layer when we are showing the map with vector tiles. Will be using the same layer if
+     *   this is set to null.
      * @param {String} layerData.technicalName The ID/name to use when requesting the WMS/WMTS
      *   backend, this might be different than id, and many layers (with different id) can in fact
      *   request the same layer, through the same technical name, in the end)
@@ -75,6 +78,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             type = null,
             id = null,
             idIn3d = null,
+            idInVectorTile = null,
             technicalName = null,
             opacity = 1.0,
             visible = true,
@@ -128,6 +132,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.idIn3d = idIn3d
+        this.idInVectorTile = idInVectorTile
         this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
         this.searchable = searchable
     }

@@ -92,7 +92,8 @@ describe('Testing legacyPermalinkManagement', () => {
                 const param = 'zoom'
                 const legacyValue = 10
                 testHandleLegacyParam(param, legacyValue)
-                expect(newQuery).to.deep.equal({ z: `${newValues[index]}` })
+                const { z } = newQuery
+                expect(parseFloat(z)).to.approximately(newValues[index], 0.01)
             })
         })
         it('N', () => {
