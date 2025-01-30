@@ -13,6 +13,12 @@ import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highligh
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import log from '@/utils/logging'
+import LayerFeature from '@/api/features/LayerFeature.class'
+import SelectableFeature from '@/api/features/SelectableFeature.class'
+import { Point } from 'ol/geom'
+import i18n from '@/modules/i18n'
+import { round } from 'ol/math'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
@@ -22,6 +28,11 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
+const cesiumBuildingLayer = computed(() => {
+    return store.getters.backgroundLayersFor3D.filter(
+        (l) => l.id === 'ch.swisstopo.swissbuildings3d.3d'
+    )[0]
+})
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
@@ -52,6 +63,38 @@ function getCoordinateAtScreenCoordinate(x, y) {
         log.error('no coordinate found at this screen coordinates', [x, y])
     }
     return coordinates
+}
+function createBuildingFeature(building, coordinates) {
+    log.error('-----------------------------------------------')
+    log.error('GIMME THAT BUILDING', building.getPropertyIds())
+    log.error('show me everything in that building')
+    building.getPropertyIds().forEach((property) => {
+        log.error(property, ' : ', building.getProperty(property))
+        log.error(typeof building.getProperty(property))
+    })
+    const feature = new LayerFeature({
+        layer: cesiumBuildingLayer.value,
+        id: building.getProperty('EGID') ?? building.getProperty('UUID'),
+        data: {
+            building_height: building.getProperty('GESAMTHOEHE'),
+            building_type: building.getProperty('OBJEKTART'),
+            elevation: building.getProperty('GELAENDEPUNKT'),
+            max_roof_height: building.getProperty('DACH_MAX'),
+            EGID: building.getProperty('EGID'),
+        },
+        name:
+            'building type' +
+            ' at ' +
+            round(building.getProperty('Latitude') * 100, 4) / 100 +
+            ', ' +
+            round(building.getProperty('Longitude') * 100, 4) / 100,
+        coordinates,
+        extent: [coordinates[0] - 5, coordinates[1] - 5, coordinates[0] + 5, coordinates[1] + 5],
+        geometry: new Point(coordinates),
+    })
+    log.error(cesiumBuildingLayer.value)
+    /** Const { layer, id, name, data, coordinates, extent, geometry = null } = featureData */
+    return feature
 }
 
 function onClick(event) {
@@ -86,7 +129,7 @@ function onClick(event) {
         .filter((l) => l instanceof KMLLayer)
         .forEach((kmlLayer) => {
             objects
-                .filter((obj) => obj.id.layerId === kmlLayer.id)
+                .filter((obj) => obj.id?.layerId === kmlLayer.id)
                 .forEach((kmlFeature) => {
                     log.debug(
                         '[Cesium] KML feature click detection',
@@ -98,6 +141,12 @@ function onClick(event) {
                 })
             features.push(...Object.values(kmlFeatures))
         })
+    log.error(objects)
+    objects
+        .filter((o) => !o.id)
+        .filter((o) => o.getProperty('UUID'))
+        .forEach((building) => features.push(createBuildingFeature(building, coordinates)))
+    log.error(features)
     // Cesium can't pick position when click on primitive
     if (!coordinates.length && features.length) {
         const featureCoords = Array.isArray(features[0].coordinates[0])
@@ -105,6 +154,7 @@ function onClick(event) {
             : features[0].coordinates
         coordinates = proj4(projection.value.epsg, WEBMERCATOR.epsg, featureCoords)
     }
+
     store.dispatch('click', {
         clickInfo: new ClickInfo({
             coordinate: coordinates,
