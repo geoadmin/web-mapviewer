@@ -17,15 +17,16 @@ import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 export default class GeoAdmin3DLayer extends GeoAdminLayer {
     /**
      * @param {string} layerId The ID of this layer
+     * @param {string} layerName The Name of this layer. Default to the layer Id
      * @param {String | null} urlTimestampToUse If this layers' JSON is stored in a dedicated timed
      *   folder, it can be described with this property. This will be added at the end of the URL,
      *   before the /tileset.json (or /style.json, depending on the layer type)
      * @param {boolean} use3dTileSubFolder If the JSON file stored in the /3d-tiles/ sub-folder on
      *   the S3 bucket
      */
-    constructor(layerId, urlTimestampToUse = null, use3dTileSubFolder = true) {
+    constructor(layerId, layerName = null, urlTimestampToUse = null, use3dTileSubFolder = true) {
         super({
-            name: layerId,
+            name: layerName ?? layerId,
             type: LayerTypes.VECTOR,
             technicalName: layerId,
             id: layerId,

@@ -1,14 +1,26 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
-const labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
-const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', 'v1', false)
+const labelLayer = new GeoAdmin3DLayer(
+    'ch.swisstopo.swissnames3d.3d',
+    '3d_labels',
+    '20180716',
+    true
+)
+const vegetationLayer = new GeoAdmin3DLayer(
+    'ch.swisstopo.vegetation.3d',
+    '3d_vegetation',
+    'v1',
+    false
+)
 const buildingsLayer = new GeoAdmin3DLayer(
     'ch.swisstopo.swissbuildings3d.3d',
+    '3d_constructions',
     'v1',
     false // buildings JSON has already been migrated to the new URL nomenclature
 )
 const constructionsLayer = new GeoAdmin3DLayer(
     'ch.swisstopo.swisstlm3d.3d',
+    '3d_constructions',
     'v1',
     false // buildings JSON has already been migrated to the new URL nomenclature
 )
