@@ -191,7 +191,6 @@ export const updateKml = (id, adminId, kml) => {
  * @returns {Promise<void>}
  */
 export const deleteKml = (id, adminId) => {
-    log.info('base url : ', kmlBaseUrl)
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
