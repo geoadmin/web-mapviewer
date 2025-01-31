@@ -25,11 +25,19 @@ function openGithubRepoLink() {
 </script>
 
 <template>
-    <div class="app-version" :class="{ 'app-version-prod': isProd }" data-cy="app-version">
-        <span @click="openGithubRepoLink" class="githubIcon"
-            ><font-awesome-icon :icon="['fab', 'github']"
-        /></span>
-        <span class="app-version-link" @click="openGithubReleaseLink"> {{ appVersion }}</span>
+    <div
+        class="app-version"
+        :class="{ 'app-version-prod': isProd }"
+        data-cy="app-version"
+    >
+        <span
+            class="githubIcon"
+            @click="openGithubRepoLink"
+        ><font-awesome-icon :icon="['fab', 'github']" /></span>
+        <span
+            class="app-version-link"
+            @click="openGithubReleaseLink"
+        > {{ appVersion }}</span>
     </div>
 </template>
 
