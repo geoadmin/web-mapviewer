@@ -35,7 +35,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Project structure
 
-This is a [Vue](https://vuejs.org/) app that is served through `src/main.js`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
+This is a [Vue](https://vuejs.org/) app that is served through `src/main.ts`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
 The app is divided into modules (or chunks) that are stored into `src/modules`. The goal is for each of these modules to be able to be externalized if needed. They should explicitly state their dependencies to other modules' component or store element in their `README.md` (dependency to the main store's modules is not required to be stated)
 
 Each module should have a root component, called `{Name of the module}Module.vue` that loads all needed component into the template. It should also have a `README.md` file at the root explaining what this module is about.
@@ -59,11 +59,11 @@ Here's a sample of what project folder structure looks like :
 │       (used by NPM targets)
 │
 ├── src
-│   ├── main.js
+│   ├── main.ts
 │   ├── App.vue
 │   ├── modules
 │   │   ├── <Module name>
-│   │   │   ├── index.js
+│   │   │   ├── index.ts
 │   │   │   └── other moduleName related files such as
 │   │           a components folder or a store folder
 │   ├── store
