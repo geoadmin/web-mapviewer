@@ -1,0 +1,75 @@
+@import 'variables.module';
+@import 'variables-admin.module';
+@import 'diemo';
+
+// Override bootstrap variables here
+$card-cap-padding-y: 0.25rem;
+$card-spacer-y: 0.75rem;
+$caret-spacing: 0.75rem;
+$enable-negative-margins: true;
+
+// https://stackoverflow.com/a/49033912/4840446
+$input-btn-focus-box-shadow: none;
+$input-btn-focus-width: 0;
+
+// Override bootstrap color here
+$primary: $venetian-red;
+$danger: $red;
+$info: $cerulean;
+$component-active-bg: $malibu;
+
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Add custom variables based on bootstrap here
+
+$list-item-hover-bg-color: $gray-300;
+$list-item-hover-text-color: $gray-600;
+$map-button-border-color: $gray-800;
+$map-button-hover-border-color: $gray-700;
+
+// Override bootstrap variable/class here
+$nav-link-color: $black;
+$nav-tabs-link-active-color: $white;
+$nav-tabs-link-active-bg: $primary;
+
+::placeholder {
+    font-style: italic;
+}
+
+// Add our custom class here
+.btn-outline-group {
+    @include button-outline-variant($gray-400);
+    border-color: $gray-400 !important;
+    color: $gray-800;
+}
+
+.form-control:focus {
+    box-shadow: 0 1px 4px lighten($dark, 8%);
+}
+
+.btn-xs {
+    @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
+}
+
+.no-ios-long-press-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+.clear-no-ios-long-press {
+    user-select: text;
+    -webkit-user-select: text;
+    -webkit-touch-callout: default;
+}
+.w-13 {
+    width: 13%;
+}
+
+.justify-content-stretch {
+    & > * {
+        justify-content: stretch;
+        width: 100%;
+    }
+}

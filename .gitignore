@@ -27,10 +27,10 @@ yarn-error.log*
 vite.config.js.timestamp-*.mjs
 
 # Cypress and friends
-tests/cypress/downloads
-tests/cypress/videos
-tests/cypress/screenshots
-tests/results/*
+**/tests/cypress/downloads
+**/tests/cypress/videos
+**/tests/cypress/screenshots
+**/tests/results/*
 
 # Git
 *.orig

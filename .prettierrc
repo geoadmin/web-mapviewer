@@ -1,15 +1,17 @@
 {
-  "printWidth": 100,
-  "singleQuote": true,
-  "semi": false,
-  "trailingComma": "es5",
-  "tabWidth": 4,
-  "jsxSingleQuote": false,
-  "plugins": ["prettier-plugin-jsdoc", "@prettier/plugin-xml"],
-  "overrides": [{
-    "files": "*.md",
-    "options": {
-      "tabWidth": 2
-    }
-  }]
+    "printWidth": 100,
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "jsxSingleQuote": false,
+    "plugins": ["prettier-plugin-jsdoc", "@prettier/plugin-xml"],
+    "overrides": [
+        {
+            "files": "*.md",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
