@@ -46,6 +46,13 @@ import { useI18n } from 'vue-i18n'
  *     cy.get('[data-cy="my-div-1"]').realHover()
  *     cy.get('[data-cy="tippy-my-div-1"]').should('be.visible')
  *
+ * @example
+ *     const element = () => myRefToElement.value.querySelector('[data-tippy-content'])
+ *     useTippyTooltip(element)
+ *
+ *     // this is a good idea if the tooltip initiator is occuring more than once, i.e.
+ *     // in a for loop
+ *
  * @param {string | Component} selector Selector for element(s) to add a tooltip. You can also use
  *   an element reference or list of elements reference to attach the tooltip
  * @param {{ theme: string; placement: string; delay: [number, number] }} options Options for the
@@ -69,7 +76,9 @@ export function useTippyTooltip(
         offset = [0, 10], // the default value from tippy
     } = {}
 ) {
+    // variable holding the tooltip instances
     let tooltips = null
+
     const options = { delay }
     if (theme) {
         options.theme = theme
@@ -94,14 +103,14 @@ export function useTippyTooltip(
         removeTippy()
     })
 
-    function setContent() {
-        tooltips?.forEach((tp) =>
+    function _translateContent() {
+        tooltips?.forEach((tp) => {
             tp.setContent(
                 translate
                     ? i18n.t(tp.reference.attributes['data-tippy-content'].value)
                     : tp.reference.attributes['data-tippy-content'].value
             )
-        )
+        })
     }
 
     function removeTippy() {
@@ -110,7 +119,13 @@ export function useTippyTooltip(
     }
 
     function refreshTippyAttachment() {
+        // if the selector is a function, call it.
+        // this allows for lazy loading/referencing of DOM elements
+        if (typeof selector === 'function') {
+            selector = selector()
+        }
         removeTippy()
+
         tooltips = tippy(selector, {
             ...options,
             arrow: true,
@@ -118,7 +133,7 @@ export function useTippyTooltip(
             touch: ['hold', 500], // 500ms delay,
             // we need to set the content dynamically onTrigger otherwise the tippy would
             // not be reactive when the data-tippy-content changes
-            onTrigger: () => setContent(),
+            onTrigger: () => _translateContent(),
             onCreate: (instance) => {
                 // Set a data-cy attribute that can be used for e2e tests
                 const dataCy = instance.reference.getAttribute('data-cy')
@@ -127,13 +142,10 @@ export function useTippyTooltip(
                 }
             },
         })
-        if (
-            !(
-                selector instanceof String ||
-                typeof selector === 'string' ||
-                selector instanceof Array
-            )
-        ) {
+
+        if (!Array.isArray(tooltips)) {
+            // if we only have one tooltip returned, wrapping it here so that
+            // the following operations behave exactly the same
             tooltips = [tooltips]
         }
     }
