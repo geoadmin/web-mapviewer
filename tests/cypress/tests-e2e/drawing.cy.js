@@ -286,7 +286,7 @@ describe('Drawing module tests', () => {
                     description
                 )
 
-                //  moving the marker by drag&drop on the map
+                //  moving the marker by drag & drop on the map
                 const moveInPixel = {
                     x: 40,
                     y: -50,
