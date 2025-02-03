@@ -738,11 +738,16 @@ Cypress.Commands.add('mockupBackendResponse', mockupBackendResponse)
 
 // Reads a value from clipboard
 Cypress.Commands.add('readClipboardValue', () => {
-    return cy.window().then((win) => {
-        return win.navigator.clipboard.readText().then((t) => {
-            return t
-        })
-    })
+    // checking first that we have browser permissions to read the clipboard
+    cy.window()
+        .its('navigator.permissions')
+        .then((permissions) => permissions.query({ name: 'clipboard-read' }))
+        .its('state')
+        .should('eq', 'granted')
+    return cy
+        .window()
+        .its('navigator.clipboard')
+        .then((clip) => cy.wrap(clip.readText()))
 })
 
 /**
