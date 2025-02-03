@@ -6,7 +6,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from 'geoadmin/log'
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -62,7 +62,7 @@ const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'mov
 const store = useStore()
 const { t } = useI18n()
 
-useTippyTooltip('.menu-layer-item [data-tippy-content]')
+const menuLayerItem = useTemplateRef('menuLayerItem')
 
 const layerUpButton = ref(null)
 const layerDownButton = ref(null)
@@ -106,6 +106,11 @@ const isLayerClampedToGround = computed({
 const showSpinner = computed(
     () => layer.value.isLoading && layer.value.isExternal && !layer.value.hasError
 )
+
+const elements = () => menuLayerItem.value.querySelectorAll('[data-tippy-content]')
+useTippyTooltip(elements, {
+    source: 'MenuActiveLayersListItem',
+})
 
 onMounted(() => {
     if (showLayerDetail.value) {
@@ -201,9 +206,9 @@ function changeStyle(newStyle) {
             >
                 {{ layer.name }}
             </TextTruncate>
-            <ZoomToExtentButton
-                v-if="layer.extent"
-                :extent="layer.extent"
+            <ZoomToExtentButton 
+                v-if="layer.extent" 
+                :extent="layer.extent" 
             />
             <button
                 v-if="showSpinner"
@@ -214,9 +219,9 @@ function changeStyle(newStyle) {
                 data-tippy-content="loading_external_layer"
                 :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
             >
-                <FontAwesomeIcon
-                    icon="spinner"
-                    pulse
+                <FontAwesomeIcon 
+                    icon="spinner" 
+                    pulse 
                 />
             </button>
             <ErrorButton
@@ -263,8 +268,8 @@ function changeStyle(newStyle) {
                 <FontAwesomeIcon icon="cog" />
             </button>
         </div>
-        <div
-            v-show="showLayerDetail"
+        <div 
+            v-show="showLayerDetail" 
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <div class="d-flex mx-1 align-items-center">
