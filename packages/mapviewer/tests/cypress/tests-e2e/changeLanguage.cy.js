@@ -17,7 +17,7 @@ function checkLanguage(lang) {
         cy.get('[data-cy="mobile-lang-selector"]')
             .find('option:selected') // it's a select element
             .invoke('text')
-            .then((text) => {
+            .should((text) => {
                 expect(text).to.be.equal(lang.toUpperCase())
             })
     } else {
