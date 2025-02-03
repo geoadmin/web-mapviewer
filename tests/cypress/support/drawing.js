@@ -52,7 +52,7 @@ const addFileAPIFixtureAndIntercept = () => {
             req.reply(
                 201,
                 kmlMetadataTemplate({
-                    id: `${randomIntBetween(1000, 9999)}_fileId`,
+                    id: `${Date.now()}_${randomIntBetween(1000, 9999)}_fileId`,
                     adminId: `1234_adminId`,
                 })
             )
