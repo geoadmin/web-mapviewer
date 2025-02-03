@@ -160,7 +160,7 @@ describe('Test the search bar result handling', () => {
 
     it('search different type of entries correctly', () => {
         cy.goToMapView()
-        cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+        cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
         cy.get(searchbarSelector).paste('test')
         cy.wait(['@search-locations', '@search-layers'])
@@ -420,7 +420,7 @@ describe('Test the search bar result handling', () => {
         cy.log('Checking that the swisssearch url param is not present after reloading the page')
         cy.reload()
         cy.waitMapIsReady()
-        cy.wait(['@layers', '@topics', '@topic-ech'])
+        cy.wait(['@layerConfig', '@topics', '@topic-ech'])
         cy.wait('@routeChange')
 
         cy.url().should('not.contain', 'swisssearch')

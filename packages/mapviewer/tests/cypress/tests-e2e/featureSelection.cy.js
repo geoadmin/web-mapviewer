@@ -288,7 +288,7 @@ describe('Testing the feature selection', () => {
             cy.goToMapView({
                 layers: 'test.wms.layer',
             })
-            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
             cy.openMenuIfMobile()
@@ -433,7 +433,7 @@ describe('Testing the feature selection', () => {
             cy.get('@highlightedFeatures').should('not.exist')
 
             cy.get('@routeChange.all').should('have.length', 6)
-            cy.get('@layers.all').should('have.length', 1)
+            cy.get('@layerConfig.all').should('have.length', 1)
             cy.get('@topics.all').should('have.length', 1)
             cy.get('@topic-ech.all').should('have.length', 1)
             cy.get('@htmlPopup.all').should('have.length', 101)
@@ -450,7 +450,7 @@ describe('Testing the feature selection', () => {
             cy.goToMapView({
                 layers: 'test.wms.layer',
             })
-            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()

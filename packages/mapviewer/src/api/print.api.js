@@ -371,7 +371,7 @@ async function transformOlMapToPrintParams(olMap, config) {
                 baseURL: getWmsBaseUrl(),
                 opacity: 1,
                 singleTile: true,
-                type: 'WMS',
+                type: 'wms',
                 layers: [`org.epsg.grid_${projection.epsgNumber}`],
                 format: 'image/png',
                 styles: [''],

@@ -289,90 +289,70 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
         it('External WMS layer', () => {
-            const layerName = 'OpenData-AV'
-            const layerId = 'ch.swisstopo-vd.official-survey'
-            const url = 'https://fake.wms.base-1.url/?'
-            cy.intercept(
-                { url: `${url}**`, query: { REQUEST: 'GetMap' } },
-                {
-                    fixture: '256.png',
-                }
-            ).as('externalWMSGetMap')
-            cy.intercept(
-                { url: `${url}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap-1.fixture.xml' }
-            ).as('externalWMSGetCap')
-
-            cy.goToMapView(
-                {
-                    layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
-                    layers_opacity: '1,1',
-                    layers_visibility: 'false,true',
-                    layers_timestamp: ',',
-                },
-                false
-            )
-            cy.wait('@externalWMSGetCap')
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(2)
-                const externalLayer = activeLayers[1]
-                expect(externalLayer.isExternal).to.be.true
-                expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseUrl).to.eq(url)
-                expect(externalLayer.id).to.eq(layerId)
-                expect(externalLayer.name).to.eq(layerName)
-                expect(externalLayer.isLoading).to.false
-            })
-            const expectedHash = `layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}`
-            cy.location().should((location) => {
-                expect(location.hash).to.contain(expectedHash)
-                expect(location.search).to.eq('')
+            cy.getExternalWmsMockConfig().then((mockConfig) => {
+                const [mockExternalWms1] = mockConfig
+                cy.goToMapView(
+                    {
+                        layers: `test.wms.layer,WMS||${mockExternalWms1.name}||${mockExternalWms1.baseUrl}||${mockExternalWms1.id}||1.3.0`,
+                        layers_opacity: '1,1',
+                        layers_visibility: 'false,true',
+                        layers_timestamp: ',',
+                    },
+                    false
+                )
+                cy.wait(`@externalWMS-GetCap-${mockExternalWms1.baseUrl}`)
+                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                    expect(activeLayers).to.be.an('Array').length(2)
+                    const externalLayer = activeLayers[1]
+                    expect(externalLayer.isExternal).to.be.true
+                    expect(externalLayer.visible).to.be.true
+                    expect(externalLayer.baseUrl).to.eq(mockExternalWms1.baseUrl)
+                    expect(externalLayer.id).to.eq(mockExternalWms1.id)
+                    expect(externalLayer.name).to.eq(mockExternalWms1.name)
+                    expect(externalLayer.isLoading).to.false
+                })
+                const expectedHash = `layers=test.wms.layer,f,1;WMS%7C${mockExternalWms1.baseUrl}%7C${mockExternalWms1.id}`
+                cy.location().should((location) => {
+                    expect(location.hash).to.contain(expectedHash)
+                    expect(location.search).to.eq('')
+                })
             })
         })
         it('External WMTS layer', () => {
-            cy.intercept('http://wmts-test.url/**', {
-                fixture: 'external-wmts-getcap-1.fixture.xml',
-            }).as('externalWMTSGetCap')
-            cy.intercept(
-                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
-                {
-                    fixture: '256.png',
-                }
-            )
-            const layerId = 'TestExternalWMTS-1'
-            const layerName = 'Test External WMTS 1'
-            const url = 'http://wmts-test.url/'
-            cy.goToMapView(
-                {
-                    layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
-                    layers_opacity: '1,1',
-                    layers_visibility: 'false,true',
-                    layers_timestamp: '18641231,',
-                },
-                false
-            )
-            cy.wait('@externalWMTSGetCap')
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(2)
-                const externalLayer = activeLayers[1]
-                expect(externalLayer.isExternal).to.be.true
-                expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseUrl).to.eq(url)
-                expect(externalLayer.id).to.eq(layerId)
-                expect(externalLayer.name).to.eq(layerName)
-                expect(externalLayer.isLoading).to.be.false
-            })
+            cy.getExternalWmtsMockConfig().then((mockConfig) => {
+                const [mockExternalWmts1] = mockConfig
+                    cy.goToMapView(
+                        {
+                            layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,
+                            layers_opacity: '1,1',
+                            layers_visibility: 'false,true',
+                            layers_timestamp: '18641231,',
+                        },
+                        false
+                    )
+                cy.wait(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`)
+                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                    expect(activeLayers).to.be.an('Array').length(2)
+                    const externalLayer = activeLayers[1]
+                    expect(externalLayer.isExternal).to.be.true
+                    expect(externalLayer.visible).to.be.true
+                    expect(externalLayer.baseUrl).to.eq(mockExternalWmts1.baseUrl)
+                    expect(externalLayer.id).to.eq(mockExternalWmts1.id)
+                    expect(externalLayer.name).to.eq(mockExternalWmts1.name)
+                    expect(externalLayer.isLoading).to.be.false
+                })
+                const expectedQuery = new URLSearchParams(
+                    `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${mockExternalWmts1.baseUrl}%7C${mockExternalWmts1.id}`
+                )
 
-            const expectedQuery = new URLSearchParams(
-                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId}`
-            )
-            expectedQuery.sort()
-            cy.location('search').should('be.empty')
-            cy.location('hash').should('contain', '/map?')
-            cy.location('hash').then((hash) => {
-                const query = new URLSearchParams(hash.replace('#/map?', ''))
-                query.sort()
-                expect(query.toString()).to.equal(expectedQuery.toString())
+                expectedQuery.sort()
+                cy.location('search').should('be.empty')
+                cy.location('hash').should('contain', '/map?')
+                cy.location('hash').then((hash) => {
+                    const query = new URLSearchParams(hash.replace('#/map?', ''))
+                    query.sort()
+                    expect(query.toString()).to.equal(expectedQuery.toString())
+                })
             })
         })
     })

@@ -68,7 +68,7 @@
                 <TileMatrixSet>ktzh</TileMatrixSet>
             </TileMatrixSetLink>
             <ResourceURL format="image/png" resourceType="tile"
-                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-2/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-2;,|@special-chars-äö/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
         </Layer>
         <TileMatrixSet>
             <ows:Identifier>ktzh</ows:Identifier>

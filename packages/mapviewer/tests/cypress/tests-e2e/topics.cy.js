@@ -255,7 +255,7 @@ describe('Topics', () => {
             layers: 'test.wmts.layer',
             bgLayer: 'void',
         })
-        cy.wait(['@topics', '@topic-ech', '@layers', '@routeChange', '@routeChange'])
+        cy.wait(['@topics', '@topic-ech', '@layerConfig', '@routeChange', '@routeChange'])
         cy.log('it opens the layer legend popup when clicking the info button')
         cy.fixture('legend.fixture.html').then((legend) => {
             cy.intercept(`**/rest/services/all/MapServer/*/legend**`, legend).as('legend')

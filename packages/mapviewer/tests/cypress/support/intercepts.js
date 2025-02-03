@@ -2,9 +2,77 @@ import { isNumber, randomIntBetween } from 'geoadmin/numbers'
 import { LV95, registerProj4, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 registerProj4(proj4)
+
+const mockExternalWms1 = new ExternalWMSLayer({
+    id: 'ch.swisstopo-vd.official-survey',
+    name: 'OpenData-AV',
+    baseUrl: 'https://fake.wms.base-1.url/?',
+    customAttributes: {
+        item: 'MyItem',
+    },
+})
+const mockExternalWms2 = new ExternalWMSLayer({
+    id: 'Periodic Tracking, with | comma & @ ; äö',
+    name: 'Periodic Tracking, with | comma & @ ; äö',
+    baseUrl: 'https://fake.wms.base-1.url/?',
+    opacity: 0.8,
+})
+const mockExternalWms3 = new ExternalWMSLayer({
+    id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
+    name: 'Spannungsarme Gebiete 2',
+    baseUrl: 'https://fake.wms.base-2.url/?',
+    visible: false,
+})
+const mockExternalWms4 = new ExternalWMSLayer({
+    id: 'ch.swisstopo-vd.stand-oerebkataster-2',
+    name: 'Verfügbarkeit des ÖREB-Katasters 2',
+    baseUrl: 'https://fake.wms.base-2.url/?',
+    visible: false,
+    opacity: 0.4,
+})
+
+Cypress.Commands.add('getExternalWmsMockConfig', () => [
+    mockExternalWms1.clone(),
+    mockExternalWms2.clone(),
+    mockExternalWms3.clone(),
+    mockExternalWms4.clone(),
+])
+
+const mockExternalWmts1 = new ExternalWMTSLayer({
+    id: 'TestExternalWMTS-1',
+    name: 'Test External WMTS 1',
+    baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
+})
+
+const mockExternalWmts2 = new ExternalWMTSLayer({
+    id: 'TestExternalWMTS-2;,|@special-chars-äö',
+    name: 'Test External WMTS 2;,|@special-chars-äö',
+    baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
+})
+
+const mockExternalWmts3 = new ExternalWMTSLayer({
+    id: 'TestExternalWMTS-3',
+    name: 'Test External WMTS 3',
+    baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
+})
+
+const mockExternalWmts4 = new ExternalWMTSLayer({
+    id: 'TestExternalWMTS-4',
+    name: 'Test External WMTS 4',
+    baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
+})
+
+Cypress.Commands.add('getExternalWmtsMockConfig', () => [
+    mockExternalWmts1.clone(),
+    mockExternalWmts2.clone(),
+    mockExternalWmts3.clone(),
+    mockExternalWmts4.clone(),
+])
 
 /**
  * Adds an intercept to the fake URL called each time the Vue-router changes route.
@@ -132,13 +200,13 @@ const addIconsSetIntercept = () => {
     }).as('icon-sets')
 }
 
-const addDefaultIconsFixtureAndIntercept = () => {
+const addDefaultIconsIntercept = () => {
     cy.intercept(`**/api/icons/sets/default/icons`, {
         fixture: 'service-icons/set-default.fixture.json',
     }).as('icon-set-default')
 }
 
-const addSecondIconsFixtureAndIntercept = () => {
+const addSecondIconsIntercept = () => {
     cy.intercept(`**/api/icons/sets/babs/icons`, {
         fixture: 'service-icons/set-babs.fixture.json',
     }).as('icon-set-babs')
@@ -358,19 +426,85 @@ function addPrintDownloadIntercept() {
     }).as('printDownloadReport')
 }
 
+function addExternalWmsLayerIntercepts(
+    wmsLayers = [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4],
+    wmsGetCapabilitiesFixtureByBaseUrl = {
+        'https://fake.wms.base-1.url/?': 'external-wms-getcap-1.fixture.xml',
+        'https://fake.wms.base-2.url/?': 'external-wms-getcap-2.fixture.xml',
+    }
+) {
+    wmsLayers.forEach((layer) => {
+        cy.intercept(
+            {
+                url: `${layer.baseUrl}**`,
+                query: { REQUEST: 'GetMap', LAYERS: layer.id },
+            },
+            {
+                fixture: '256.png',
+            }
+        ).as(`externalWMS-GetMap-${layer.id}`)
+    })
+    wmsLayers
+        .map((layer) => layer.baseUrl)
+        .filter(
+            (baseUrl, index) => wmsLayers.map((layer) => layer.baseUrl).indexOf(baseUrl) === index
+        )
+        .forEach((baseUrl) => {
+            const getCapabilitiesFixture =
+                wmsGetCapabilitiesFixtureByBaseUrl[baseUrl] ?? 'external-wms-getcap-1.fixture.xml'
+            cy.intercept(
+                { url: `${baseUrl}**`, query: { REQUEST: 'GetCapabilities' } },
+                { fixture: getCapabilitiesFixture }
+            ).as(`externalWMS-GetCap-${baseUrl}`)
+        })
+}
+
+function addExternalWmtsIntercepts(
+    wmtsLayers = [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3, mockExternalWmts4],
+    wmtsGetCapabilitiesFixtureByBaseUrl = {
+        'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml':
+            'external-wmts-getcap-1.fixture.xml',
+        'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml':
+            'external-wmts-getcap-2.fixture.xml',
+    }
+) {
+    wmtsLayers
+        .map((layer) => layer.baseUrl)
+        .filter(
+            (baseUrl, index) => wmtsLayers.map((layer) => layer.baseUrl).indexOf(baseUrl) === index
+        )
+        .forEach((baseUrl) => {
+            const fixture =
+                wmtsGetCapabilitiesFixtureByBaseUrl[baseUrl] ?? 'external-wmts-getcap-1.fixture.xml'
+            cy.intercept(`${baseUrl}**`, {
+                fixture,
+            }).as(`externalWMTS-GetCap-${baseUrl}`)
+        })
+
+    cy.intercept('http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png', {
+        fixture: '256.png',
+    }).as('externalWMTS')
+}
+
+function addShortLinkIntercept({ shortUrl = 'https://s.geo.admin.ch/0000000' } = {}) {
+    cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+        body: { shorturl: shortUrl, success: true },
+    }).as('shortlink')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
-        addLayerTileFixture: addWmtsIntercept,
-        addWmsLayerFixture: addWmsIntercept,
-        addLayerFixtureAndIntercept: addLayerConfigIntercept,
-        addTopicFixtureAndIntercept: addTopicIntercept,
-        addCatalogFixtureAndIntercept: addCatalogIntercept,
-        addHeightFixtureAndIntercept: addHeightIntercept,
-        addWhat3WordFixtureAndIntercept: addWhat3WordIntercept,
+        addWmtsIntercept,
+        addWmsIntercept,
+        addLayerConfigIntercept,
+        addTopicIntercept,
+        addCatalogIntercept,
+        addHeightIntercept,
+        addWhat3WordIntercept,
         addIconsSetIntercept,
-        addDefaultIconsFixtureAndIntercept,
-        addSecondIconsFixtureAndIntercept,
+        addDefaultIconsIntercept,
+        addSecondIconsIntercept,
         addGeoJsonIntercept,
         addCesiumTilesetIntercepts,
         addHtmlPopupIntercepts,
@@ -379,5 +513,8 @@ export function getDefaultFixturesAndIntercepts() {
         addPrintRequestIntercept,
         addPrintStatusIntercept,
         addPrintDownloadIntercept,
+        addExternalWmsLayerIntercepts,
+        addExternalWmtsIntercepts,
+        addShortLinkIntercept,
     }
 }

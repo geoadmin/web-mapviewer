@@ -1,13 +1,12 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import { isNumber, randomIntBetween } from 'geoadmin/numbers'
-import { LV95, registerProj4, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { randomIntBetween } from 'geoadmin/numbers'
+import { registerProj4, WEBMERCATOR } from 'geoadmin/proj'
 import { MapBrowserEvent } from 'ol'
 import proj4 from 'proj4'
 
-import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
-
+import { getDefaultFixturesAndIntercepts } from './intercepts'
 import { isMobile } from './utils'
 
 registerProj4(proj4)
@@ -17,286 +16,6 @@ registerProj4(proj4)
 // commands please read more here:
 // https://on.cypress.io/custom-commands
 // ***********************************************
-
-const addVueRouterIntercept = () => {
-    cy.intercept(FAKE_URL_CALLED_AFTER_ROUTE_CHANGE, {
-        statusCode: 200,
-    }).as('routeChange')
-}
-
-const addLayerTileFixture = () => {
-    // catching WMTS type URLs in web mercator and lv95
-    cy.intercept(/1.0.0\/.*\/.*\/.*\/(21781|2056|3857|4326)\/\d+\/\d+\/\d+.jpe?g/, {
-        fixture: '256.jpeg',
-    }).as('jpeg-tiles')
-    cy.intercept(/1.0.0\/.*\/.*\/.*\/(21781|2056|3857|4326)\/\d+\/\d+\/\d+.png/, {
-        fixture: '256.png',
-    }).as('png-tiles')
-}
-
-const addWmsLayerFixture = () => {
-    // catching WMS type URLs
-    cy.intercept(
-        {
-            method: 'GET',
-            hostname: /(wms\d*\.geo\.admin\.ch|sys-wms\d*\.\w+\.bgdi\.ch)/,
-            query: {
-                SERVICE: 'WMS',
-                REQUEST: 'GetMap',
-                FORMAT: 'image/png',
-            },
-        },
-        { fixture: 'wms-geo-admin.png' }
-    ).as('wms-png')
-}
-
-const addLayerFixtureAndIntercept = () => {
-    cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
-        fixture: 'layers.fixture',
-    }).as('layers')
-}
-
-const addTopicFixtureAndIntercept = () => {
-    cy.intercept('**/rest/services', {
-        fixture: 'topics.fixture',
-    }).as('topics')
-}
-
-const addCatalogFixtureAndIntercept = () => {
-    // intercepting further topic metadata retrieval
-    cy.fixture('topics.fixture').then((mockedTopics) => {
-        mockedTopics.topics.forEach((topic) => {
-            cy.intercept(`**/rest/services/${topic.id}/CatalogServer?lang=**`, {
-                fixture: 'catalogs.fixture',
-            }).as(`topic-${topic.id}`)
-        })
-    })
-}
-const addHeightFixtureAndIntercept = () => {
-    cy.intercept('**/rest/services/height**', {
-        fixture: 'service-alti/height.fixture',
-    }).as('coordinates-for-height')
-}
-
-const addWhat3WordFixtureAndIntercept = () => {
-    cy.intercept('**/convert-to-3wa**', {
-        fixture: 'what3word.fixture',
-    }).as('convert-to-w3w')
-    cy.intercept('**/convert-to-coordinates**', {
-        fixture: 'what3word.fixture',
-    }).as('coordinates-for-w3w')
-}
-
-const addIconsSetIntercept = () => {
-    cy.intercept(`**/api/icons/sets`, {
-        fixture: 'service-icons/sets.fixture.json',
-    }).as('icon-sets')
-}
-
-const addDefaultIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/default/icons`, {
-        fixture: 'service-icons/set-default.fixture.json',
-    }).as('icon-set-default')
-}
-
-const addSecondIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/babs/icons`, {
-        fixture: 'service-icons/set-babs.fixture.json',
-    }).as('icon-set-babs')
-}
-
-const addGeoJsonIntercept = () => {
-    cy.intercept('**/test.geojson.layer.json', {
-        fixture: 'geojson.fixture.json',
-    }).as('geojson-data')
-    cy.intercept('**/vectorStyles/**', {
-        fixture: 'geojson-style.fixture.json',
-    }).as('geojson-style')
-}
-
-const addCesiumTilesetIntercepts = () => {
-    cy.intercept('**/*.3d/**/tileset.json', {
-        fixture: '3d/tileset.json',
-    }).as('cesiumTileset')
-    cy.intercept('**/tile.vctr*', {
-        fixture: '3d/tile.vctr',
-    }).as('cesiumTile')
-    cy.intercept('**/*.terrain.3d/**/*.terrain*', {
-        fixture: '3d/tile.terrain',
-    }).as('cesiumTerrainTile')
-    cy.intercept('**/*.terrain.3d/**/layer.json', {
-        fixture: '3d/terrain-3d-layer.json',
-    }).as('cesiumTerrainConfig')
-}
-
-const addHtmlPopupIntercepts = () => {
-    cy.intercept('**/MapServer/**/htmlPopup**', {
-        fixture: 'html-popup.fixture.html',
-    }).as('htmlPopup')
-}
-
-let lastIdentifiedFeatures = []
-
-/**
- * Generates dynamically a list of features, with the length corresponding to what was requested in
- * the request's query.
- *
- * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
- * selected within the LV95 extent (or within the selection box, if one is given).
- */
-const addFeatureIdentificationIntercepts = () => {
-    let featureTemplate = {}
-    let featureDetailTemplate = {}
-    cy.fixture('features/features.fixture').then((featuresFixture) => {
-        // using the first entry of the fixture as template
-        featureTemplate = featuresFixture.results.pop()
-    })
-    cy.fixture('features/featureDetail.fixture').then((featureDetail) => {
-        featureDetailTemplate = featureDetail.feature
-    })
-
-    cy.intercept('**/MapServer/identify**', (identifyRequest) => {
-        lastIdentifiedFeatures = []
-
-        const {
-            limit = 10,
-            offset = null,
-            geometry: identifyGeometry = null,
-        } = identifyRequest.query
-        const startingFeatureId = 1 + (isNumber(offset) ? parseInt(offset) : 0)
-        const identifyBounds = {
-            lowerX: LV95.bounds.lowerX,
-            upperX: LV95.bounds.upperX,
-            lowerY: LV95.bounds.lowerY,
-            upperY: LV95.bounds.upperY,
-        }
-        // if a selection box is sent, we use it as bounds to generate our random coordinates
-        if (identifyGeometry) {
-            const coordinateSplit = identifyGeometry.split(',').map(parseFloat).map(Math.floor)
-            if (coordinateSplit.length === 4) {
-                identifyBounds.lowerX = coordinateSplit[0]
-                identifyBounds.upperX = coordinateSplit[2]
-                identifyBounds.lowerY = coordinateSplit[1]
-                identifyBounds.upperY = coordinateSplit[3]
-            } else if (coordinateSplit.length === 2) {
-                identifyBounds.lowerX = coordinateSplit[0] - 1000
-                identifyBounds.upperX = coordinateSplit[0] + 1000
-                identifyBounds.lowerY = coordinateSplit[1] - 1000
-                identifyBounds.upperY = coordinateSplit[1] + 1000
-            }
-        }
-
-        for (let i = 0; i < limit; i++) {
-            const coordinate = [
-                randomIntBetween(identifyBounds.lowerX, identifyBounds.upperX),
-                randomIntBetween(identifyBounds.lowerY, identifyBounds.upperY),
-            ]
-            const coordinateWGS84 = proj4(LV95.epsg, WGS84.epsg, coordinate)
-            const featureId = startingFeatureId + i
-            const feature = Cypress._.cloneDeep(featureTemplate)
-            feature.geometry.coordinates = [coordinate]
-            feature.bbox = [...coordinate, ...coordinate]
-            feature.featureId = featureId
-            feature.id = featureId
-            feature.properties.label = `Feature ${featureId}`
-            feature.properties.link_title = `Feature ${featureId} link title`
-            feature.properties.link_uri = `https://fake.link.to.feature_${featureId}.ch`
-            feature.properties.x = coordinate[0]
-            feature.properties.y = coordinate[1]
-            feature.properties.lon = coordinateWGS84[0]
-            feature.properties.lat = coordinateWGS84[1]
-            feature.bounds = identifyBounds
-
-            lastIdentifiedFeatures.push(feature)
-        }
-
-        identifyRequest.reply({
-            results: lastIdentifiedFeatures,
-        })
-    }).as('identify')
-
-    // generating an intercept for each feature(s) detail
-    cy.intercept(
-        /.*\/rest\/services\/\w+\/MapServer\/[^/]+\/[^?]+\?.*\bgeometryFormat=geojson.*/,
-        (req) => {
-            const url = req.url.match(
-                /.*\/rest\/services\/(?<topic>\w+)\/MapServer\/(?<layerId>.+)\/(?<features>[^?]+)/
-            )
-
-            if (!url) {
-                req.reply(404)
-                return
-            }
-
-            const generateFeature = (featureId) => {
-                const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
-                featureDetail.featureId = featureId
-                featureDetail.id = featureId
-                featureDetail.properties.name = `Feature ${featureId} name`
-                featureDetail.properties.label = `Feature ${featureId} label`
-
-                if (featureDetail.layerBodId !== url.groups.layerId) {
-                    featureDetail.layerBodId = url.groups.layerId
-                    featureDetail.layerName = `Name of ${url.groups.layerId}`
-                }
-
-                const matchingFeature = lastIdentifiedFeatures.find(
-                    (feature) => feature.id === featureId
-                )
-
-                if (matchingFeature) {
-                    const coordinate = matchingFeature.geometry.coordinates[0]
-                    featureDetail.bbox = [...coordinate, ...coordinate]
-                    featureDetail.geometry.coordinates = [coordinate]
-                } else {
-                    const randomCoordinate = [
-                        Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
-                        Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
-                    ]
-                    featureDetail.bbox = [...randomCoordinate, ...randomCoordinate]
-                    featureDetail.geometry.coordinates = [randomCoordinate]
-                }
-                return featureDetail
-            }
-
-            const features = url.groups.features.split(',')
-            if (features.length > 1) {
-                req.reply({
-                    type: 'FeatureCollection',
-                    features: features.map((featureId) => generateFeature(featureId)),
-                })
-            } else {
-                const featureId = features[0]
-                const featureDetail = generateFeature(featureId)
-
-                req.alias = `featureDetail_${featureId}`
-                req.reply({
-                    feature: featureDetail,
-                })
-            }
-        }
-    ).as('featureDetail')
-}
-
-export function getDefaultFixturesAndIntercepts() {
-    return {
-        addVueRouterIntercept,
-        addLayerTileFixture,
-        addWmsLayerFixture,
-        addLayerFixtureAndIntercept,
-        addTopicFixtureAndIntercept,
-        addCatalogFixtureAndIntercept,
-        addHeightFixtureAndIntercept,
-        addWhat3WordFixtureAndIntercept,
-        addIconsSetIntercept,
-        addDefaultIconsFixtureAndIntercept,
-        addSecondIconsFixtureAndIntercept,
-        addGeoJsonIntercept,
-        addCesiumTilesetIntercepts,
-        addHtmlPopupIntercepts,
-        addFeatureIdentificationIntercepts,
-    }
-}
 
 /**
  * Geolocation mockup
@@ -386,6 +105,19 @@ Cypress.Commands.add(
         // removing trailing &
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
         flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
+
+
+        // Granting permission to use the clipboard (Chrome doesn't allow by default on the CI)
+        // see https://github.com/cypress-io/cypress/issues/8957#issuecomment-1598395348
+        cy.wrap(
+            Cypress.automation('remote:debugger:protocol', {
+                command: 'Browser.grantPermissions',
+                params: {
+                    permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+                    origin: window.location.origin,
+                },
+            })
+        )
 
         cy.visit(`/${withHash ? '#/map' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
@@ -738,11 +470,16 @@ Cypress.Commands.add('mockupBackendResponse', mockupBackendResponse)
 
 // Reads a value from clipboard
 Cypress.Commands.add('readClipboardValue', () => {
-    return cy.window().then((win) => {
-        return win.navigator.clipboard.readText().then((t) => {
-            return t
-        })
-    })
+    // checking first that we have browser permissions to read the clipboard
+    cy.window()
+        .its('navigator.permissions')
+        .then((permissions) => permissions.query({ name: 'clipboard-read' }))
+        .its('state')
+        .should('eq', 'granted')
+    return cy
+        .window()
+        .its('navigator.clipboard')
+        .then((clip) => cy.wrap(clip.readText()))
 })
 
 /**
