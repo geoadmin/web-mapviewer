@@ -116,9 +116,19 @@ function getIframeHosts(value) {
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 ></FeatureDetailDisclaimer>
-                <div v-else class="fw-bold">{{ i18n.t(key) }}</div>
-                <!-- eslint-disable-next-line vue/no-v-html-->
-                <div data-cy="feature-detail-description-content" v-html="i18n.t(value)"></div>
+                <div v-else class="flex-row">
+                    <table class="w-100">
+                        <tr>
+                            <td class="fw-bold cell-left">{{ i18n.t(key) }}</td>
+                            <!-- eslint-disable-next-line vue/no-v-html, prettier-vue/prettier-->
+                            <td
+                                data-cy="feature-detail-description-content"
+                                class="float-right text-end pr-3"
+                                v-html="i18n.t(value)"
+                            ></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ t('no_more_information') }}
