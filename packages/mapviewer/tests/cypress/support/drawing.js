@@ -55,8 +55,8 @@ const addFileAPIFixtureAndIntercept = () => {
                             req: req,
                             error: error,
                         }
-                    }
-            })
+                    },
+                })
             }
             req.reply(
                 201,
@@ -182,7 +182,7 @@ export async function getKmlAdminIdFromRequest(req) {
             consoleProps() {
                 return {
                     req,
-                    error
+                    error,
                 }
             },
         })
@@ -201,8 +201,9 @@ export async function getKmlFromRequest(req) {
             message: `Failed to parse the multipart/form-data of the KML request payload`,
             consoleProps() {
                 return {
-                    req,
-                    error
+                    body: `${req.body}`,
+                    headers: `${req.headers}`,
+                    error: `${error}`,
                 }
             },
         })
@@ -210,20 +211,20 @@ export async function getKmlFromRequest(req) {
             `Failed to parse the multipart/form-data of the KML request payload for ${req.method} ${req.url}`
         ).to.be.false
     }
-    Cypress.log({
-        name: 'getKMLRequest',
-        message: 'state of intercepted data',
-        consoleProps() {
-            return {
-                method: req.method,
-                url: req.url,
-                body: req.body,
-                blob: paramBlob,
-            }
-        },
-    })
     try {
-        return new TextDecoder().decode(pako.ungzip(paramBlob))
+        const unzippedKml = new TextDecoder().decode(pako.ungzip(paramBlob))
+        Cypress.log({
+            name: 'getKMLRequest',
+            message: 'state of intercepted data',
+            consoleProps() {
+                return {
+                    url: `${req.url}`,
+                    kml: unzippedKml,
+                    headers: `${JSON.stringify(req.headers, null, 2)}`,
+                }
+            },
+        })
+        return unzippedKml
     } catch (error) {
         Cypress.log({
             name: 'getKMLRequest',
@@ -231,7 +232,7 @@ export async function getKmlFromRequest(req) {
             consoleProps() {
                 return {
                     req,
-                    error
+                    error,
                 }
             },
         })
@@ -250,10 +251,17 @@ export async function checkKMLRequest(request, data, updated_kml_id = null) {
     expect(request.headers['content-type']).to.contain('multipart/form-data; boundary=')
 
     const kml = await getKmlFromRequest(request)
-    expect(kml).to.contain('</kml>')
+    // minimizing the use of KML directly in "expect", so that Cypress log doesn't get cluttered
+    // with the entire KML data on each test.
+    // getKmlFromRequest will output an opt-in dump in the JS console if needed.
+    expect(typeof kml).to.equals('string')
+    expect(kml.indexOf('</kml>')).to.not.be.equal(-1)
     data.forEach((test) => {
-        const condition = test instanceof RegExp ? 'match' : 'contain'
-        expect(kml).to[condition](test)
+        if (test instanceof RegExp) {
+            expect(test.test(kml), `KML content did not match ${test}`).to.be.true
+        } else {
+            expect(kml.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
+        }
     })
 }
 

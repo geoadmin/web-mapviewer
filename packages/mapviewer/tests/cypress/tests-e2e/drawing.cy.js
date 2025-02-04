@@ -2,7 +2,7 @@
 
 import { recurse } from 'cypress-recurse'
 import { randomIntBetween } from 'geoadmin/numbers'
-import { LV95, registerProj4, WGS84 } from 'geoadmin/proj'
+import { registerProj4, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import {
     addIconFixtureAndIntercept,
@@ -17,7 +17,6 @@ import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 import {
     allStylingColors,
     allStylingSizes,
@@ -64,10 +63,15 @@ describe('Drawing module tests', () => {
                 expect(clipboardText).to.be.equal(coordinate)
             })
         }
-        function waitForKmlUpdate(regexExpression) {
-            cy.get('@update-kml')
+        function waitForKmlUpdate(...regexExpressions) {
+            cy.wait('@update-kml')
                 .its('request')
-                .should((request) => checkKMLRequest(request, [new RegExp(`${regexExpression}`)]))
+                .then((request) =>
+                    checkKMLRequest(
+                        request,
+                        regexExpressions.map((expression) => new RegExp(expression))
+                    )
+                )
         }
 
         function addDecription(description) {
@@ -168,15 +172,9 @@ describe('Drawing module tests', () => {
                 cy.wait('@icon-default-green')
 
                 // the color of the marker already placed on the map must switch to green
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) => {
-                        checkKMLRequest(request, [
-                            new RegExp(
-                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                            ),
-                        ])
-                    })
+                waitForKmlUpdate(
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                )
 
                 // opening up the icon size selector
                 cy.get(
@@ -193,20 +191,12 @@ describe('Drawing module tests', () => {
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
                 ).click()
                 // the existing icon on the map must be updated to large and green
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) => {
-                        checkKMLRequest(request, [
-                            new RegExp(
-                                `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
-                            ),
-                            new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
-                            new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
-                            new RegExp(
-                                `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                            ),
-                        ])
-                    })
+                waitForKmlUpdate(
+                    `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`,
+                    `<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`,
+                    `<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`,
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                )
 
                 // opening up all icons of the current sets so that we may choose a new one
                 cy.get(
@@ -218,16 +208,9 @@ describe('Drawing module tests', () => {
                     cy.get(
                         `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
                     ).click()
-                    // the KML must be updated with the newly selected icon
-                    cy.wait('@update-kml')
-                        .its('request')
-                        .should((request) =>
-                            checkKMLRequest(request, [
-                                new RegExp(
-                                    `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
-                                ),
-                            ])
-                        )
+                    waitForKmlUpdate(
+                        `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                    )
                 })
                 // closing the icons
                 cy.get(
@@ -253,17 +236,10 @@ describe('Drawing module tests', () => {
                     cy.wrap(offset[0]).should('be.lessThan', 0)
                     cy.wrap(offset[1]).should('be.lessThan', 0)
                 })
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [
-                            new RegExp(
-                                `<Data name="textOffset"><value>` +
-                                    `(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)` + // Test if both values are floats
-                                    `</value></Data>`
-                            ),
-                        ])
-                    )
+                // Test if both values are floats
+                waitForKmlUpdate(
+                    `<Data name="textOffset"><value>(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)</value></Data>`
+                )
 
                 cy.viewport(320, 600)
                 cy.get(
@@ -279,13 +255,7 @@ describe('Drawing module tests', () => {
                     'have.value',
                     description
                 )
-                cy.wait('@update-kml')
-                    .its('request')
-                    .should((request) =>
-                        checkKMLRequest(request, [
-                            new RegExp(`<description>${description}</description>`),
-                        ])
-                    )
+                waitForKmlUpdate(`<description>${description}</description>`)
                 cy.readStoreValue('getters.selectedFeatures[0].description').should(
                     'eq',
                     description
@@ -330,10 +300,10 @@ describe('Drawing module tests', () => {
                         cy.simulateEvent(map, 'pointerup', moveInPixel.x, moveInPixel.y)
 
                         cy.wait('@update-kml')
+                        // re-maximizing the feature detail to be able to read the coordinates
+                        cy.get('[data-cy="infobox-minimize-maximize"]').click()
 
                         // FIXME: to many issues on the CI with clipboard coordinate copy, looks like a height delta, disabling tests with clipboard
-                        // // re-maximizing the feature detail to be able to read the coordinates
-                        // cy.get('[data-cy="infobox-minimize-maximize"]').click()
                         // // checking that coordinates in feature detail have also been updated after the move
                         // readCoordinateClipboard(
                         //     'feature-style-edit-coordinate-copy',
@@ -375,7 +345,6 @@ describe('Drawing module tests', () => {
                 })
 
                 cy.log('Can generate and display media links')
-                cy.openDrawingMode()
                 const valid_url = 'http:dummy'
                 const valid_whitelisted_url = 'https://map.geo.admin.ch'
                 const invalid_url = 'invalidurl'
@@ -383,6 +352,7 @@ describe('Drawing module tests', () => {
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(20, 260)
+                cy.wait('@update-kml')
 
                 cy.log('Open hyperlink popup')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -419,6 +389,7 @@ describe('Drawing module tests', () => {
                 cy.log('Entering no description should use link as description')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(60, 260)
+                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
@@ -432,6 +403,7 @@ describe('Drawing module tests', () => {
                 cy.log('Open image embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(100, 260)
+                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-image-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -448,6 +420,7 @@ describe('Drawing module tests', () => {
                 cy.log('Open video embed popup')
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(140, 260)
+                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
@@ -463,6 +436,7 @@ describe('Drawing module tests', () => {
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(160, 220)
+                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
@@ -471,6 +445,7 @@ describe('Drawing module tests', () => {
 
                 cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                 cy.get('[data-cy="ol-map"]').click(220, 260)
+                cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(
                     valid_whitelisted_url
@@ -481,7 +456,7 @@ describe('Drawing module tests', () => {
 
                 cy.closeDrawingMode()
                 cy.closeMenuIfMobile()
-                waitForKmlUpdate(`(ExtendedData.*){16}`)
+                waitForKmlUpdate(`(ExtendedData.*){14}`)
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.log('Hyperlink exists after sanitize')
