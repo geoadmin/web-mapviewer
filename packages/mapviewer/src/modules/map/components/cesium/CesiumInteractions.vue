@@ -14,6 +14,8 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { createPixelExtentAround } from '@/utils/extentUtils'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
@@ -24,11 +26,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
-const cesiumBuildingLayer = computed(() => {
-    return store.getters.backgroundLayersFor3D.filter(
-        (l) => l.id === 'ch.swisstopo.swissbuildings3d.3d'
-    )[0]
-})
+const cesiumBuildingLayer = computed(() => store.getters.cesiumBuildingLayer)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
@@ -69,13 +67,18 @@ function createBuildingFeature(building, coordinates) {
         max_roof_height: building.getProperty('DACH_MAX') ?? 'empty_field',
         elevation: building.getProperty('GELAENDEPUNKT') ?? 'empty_field',
     }
+    // round values)
     const feature = new LayerFeature({
         layer: cesiumBuildingLayer.value,
         id,
         data,
         name: id,
         coordinates,
-        extent: [coordinates[0] - 5, coordinates[1] - 5, coordinates[0] + 5, coordinates[1] + 5],
+        extent: createPixelExtentAround({
+            size: 5,
+            coordinates,
+            projection: projection.value,
+        }),
         geometry: new Point(coordinates),
     })
     return feature
@@ -125,6 +128,11 @@ function onClick(event) {
                 })
             features.push(...Object.values(kmlFeatures))
         })
+    // Do you want to know something about this hack ? It's orrible :)
+    // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
+    // in the future but it is not yet the case for all buildings). We filter on this property
+    // to ensure the object we got is a building, and not another object which, for some reason,
+    // has no id either (like a tree)
     objects
         .filter((o) => !o.id && o.getProperty('UUID'))
         .forEach((building) => features.push(createBuildingFeature(building, coordinates)))
