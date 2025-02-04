@@ -101,6 +101,9 @@ export default {
             }
             return bgLayers
         },
+        cesiumBuildingLayer(state, getters) {
+            return getters.backgroundLayersFor3D.find((layer) => layer.id === buildingsLayer.id)
+        },
     },
     actions: {
         set3dActive({ commit }, { active, dispatcher }) {
