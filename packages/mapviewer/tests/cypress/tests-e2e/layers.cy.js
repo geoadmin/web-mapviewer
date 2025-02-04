@@ -921,6 +921,12 @@ describe('Test of layer handling', () => {
                     expect(activeLayers[3].opacity).to.eq(0)
                 })
 
+                // we need to wait for a moment in order for the tippies to be removed from the
+                // dom. This is a problem only on cypress.io. Probably this wait will trigger a
+                // rendering cycle that removes the tooltips as it's supposed to when they're hidden
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(500)
+
                 //---------------------------------------------------------------------------------
                 cy.log(`Change duplicate layer should not change original layer`)
                 cy.get(`[data-cy="button-open-visible-layer-settings-${timedLayerId}-3"]`)
