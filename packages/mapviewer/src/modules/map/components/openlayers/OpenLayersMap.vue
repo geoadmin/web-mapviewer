@@ -62,6 +62,12 @@ onMounted(() => {
     useMapInteractions(map)
     usePrintAreaRenderer(map)
     log.info('OpenLayersMap component mounted and ready')
+
+    if (IS_TESTING_WITH_CYPRESS) {
+        // no waiting on layer rendering with Cypress testing, it can lead
+        // to issues with external layers in headless mode
+        store.dispatch('mapModuleReady', dispatcher)
+    }
 })
 
 const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
