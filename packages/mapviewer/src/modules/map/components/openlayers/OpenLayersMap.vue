@@ -39,6 +39,7 @@ const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 const geolocationActive = computed(() => store.state.geolocation.active)
 const geoPosition = computed(() => store.state.geolocation.position)
+const visibleLayers = computed(() => store.getters.visibleLayers)
 
 const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
@@ -50,24 +51,24 @@ if (IS_TESTING_WITH_CYPRESS) {
     window.map = map
 }
 
-map.once('rendercomplete', () => {
-    // This is needed for cypress in order to start the tests only
-    // when openlayer is rendered otherwise some tests will fail.
-    store.dispatch('mapModuleReady', dispatcher)
-    log.info('Openlayer map rendered')
-})
+function triggerReadyFlagIfAllRendered() {
+    if (map.getAllLayers().length < visibleLayers.value.length) {
+        // OL hasn't loaded all our layers yet, postponing the ready event
+        map.once('loadend', triggerReadyFlagIfAllRendered)
+    } else {
+        // This is needed for cypress to start the tests only
+        // when OpenLayers is rendered, otherwise some tests will fail.
+        store.dispatch('mapModuleReady', dispatcher)
+        log.info('OpenLayers map rendered')
+    }
+}
+map.once('rendercomplete', triggerReadyFlagIfAllRendered)
 
 onMounted(() => {
     map.setTarget(mapElement.value)
     useMapInteractions(map)
     usePrintAreaRenderer(map)
     log.info('OpenLayersMap component mounted and ready')
-
-    if (IS_TESTING_WITH_CYPRESS) {
-        // no waiting on layer rendering with Cypress testing, it can lead
-        // to issues with external layers in headless mode
-        store.dispatch('mapModuleReady', dispatcher)
-    }
 })
 
 const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
