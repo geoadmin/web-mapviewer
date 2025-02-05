@@ -52,7 +52,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 function triggerReadyFlagIfAllRendered() {
-    if (map.getAllLayers().length < visibleLayers.value.length) {
+    if (map.getAllLayers().length < visibleLayers.value.filter((layer) => !layer.hasError).length) {
         // OL hasn't loaded all our layers yet, postponing the ready event
         map.once('loadend', triggerReadyFlagIfAllRendered)
     } else {
