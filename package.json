@@ -17,7 +17,7 @@
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspace=web-mapviewer",
-    "test:e2e:ci": "npm run test:e2e:ci --workspace=web-mapviewer",
+    "test:e2e:ci": "npm run build:prod --workspace=geoadmin && npm run test:e2e:ci --workspace=web-mapviewer",
     "test:e2e:headless": "npm run test:e2e:headless --workspace=web-mapviewer",
     "test:component": "npm run test:component --workspace=web-mapviewer",
     "test:component:ci": "npm run test:component:ci --workspace=web-mapviewer",

@@ -36,8 +36,8 @@ export default defineConfig({
                         launchOptions.args.push('--no-sandbox')
                         // When running Cypress tests in headless mode,
                         // we can disable the WebGL graphics on the rendered pages
-                        // to avoid additional memory usage by passing the --disable-gl-drawing-for-tests flag.
-                        launchOptions.args.push('--disable-gl-drawing-for-tests')
+                        // to avoid additional memory usage by passing the --disable-webgl flag.
+                        launchOptions.args.push('--disable-webgl')
                         // When running tests on low-resource machines,
                         // using hardware acceleration can impact performance.
                         // To avoid this, we can pass the --disable-gpu flag.
