@@ -6,8 +6,6 @@ import proj4 from 'proj4'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
-import { mockExternalWms1, mockExternalWmts1 } from '../support/intercepts'
-
 registerProj4(proj4)
 
 describe('Test on legacy param import', () => {
@@ -291,6 +289,7 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
         it('External WMS layer', () => {
+            const [mockExternalWms1] = cy.getExternalWmsMockConfig()
             cy.goToMapView(
                 {
                     layers: `test.wms.layer,WMS||${mockExternalWms1.name}||${mockExternalWms1.baseUrl}||${mockExternalWms1.id}||1.3.0`,
@@ -318,6 +317,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('External WMTS layer', () => {
+            const [mockExternalWmts1] = cy.getExternalWmtsMockConfig()
             cy.goToMapView(
                 {
                     layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,

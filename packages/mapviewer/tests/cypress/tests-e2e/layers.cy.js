@@ -4,17 +4,6 @@ import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
-import {
-    mockExternalWms1,
-    mockExternalWms2,
-    mockExternalWms3,
-    mockExternalWms4,
-    mockExternalWmts1,
-    mockExternalWmts2,
-    mockExternalWmts3,
-    mockExternalWmts4,
-} from '../support/intercepts'
-
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
  * `lang`.
@@ -147,12 +136,8 @@ describe('Test of layer handling', () => {
         })
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
-                const layerObjects = [
-                    mockExternalWms1.clone(),
-                    mockExternalWms2.clone(),
-                    mockExternalWms3.clone(),
-                    mockExternalWms4.clone(),
-                ]
+                const layerObjects = cy.getExternalWmsMockConfig()
+                const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] = layerObjects
                 const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
                 cy.goToMapView({ layers })
 
@@ -299,12 +284,8 @@ describe('Test of layer handling', () => {
                 ])
             })
             it('reads and adds an external WMTS correctly', () => {
-                const layerObjects = [
-                    mockExternalWmts1.clone(),
-                    mockExternalWmts2.clone(),
-                    mockExternalWmts3.clone(),
-                    mockExternalWmts4.clone(),
-                ]
+                const layerObjects = cy.getExternalWmtsMockConfig()
+                const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
                 cy.goToMapView({ layers: layerObjects.map(transformLayerIntoUrlString).join(';') })
 
                 cy.wait([

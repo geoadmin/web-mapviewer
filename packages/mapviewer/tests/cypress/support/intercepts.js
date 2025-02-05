@@ -8,7 +8,7 @@ import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync
 
 registerProj4(proj4)
 
-export const mockExternalWms1 = new ExternalWMSLayer({
+const mockExternalWms1 = new ExternalWMSLayer({
     id: 'ch.swisstopo-vd.official-survey',
     name: 'OpenData-AV',
     baseUrl: 'https://fake.wms.base-1.url/?',
@@ -16,19 +16,19 @@ export const mockExternalWms1 = new ExternalWMSLayer({
         item: 'MyItem',
     },
 })
-export const mockExternalWms2 = new ExternalWMSLayer({
+const mockExternalWms2 = new ExternalWMSLayer({
     id: 'Periodic Tracking, with | comma & @ ; äö',
     name: 'Periodic Tracking, with | comma & @ ; äö',
     baseUrl: 'https://fake.wms.base-1.url/?',
     opacity: 0.8,
 })
-export const mockExternalWms3 = new ExternalWMSLayer({
+const mockExternalWms3 = new ExternalWMSLayer({
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
     name: 'Spannungsarme Gebiete 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
     visible: false,
 })
-export const mockExternalWms4 = new ExternalWMSLayer({
+const mockExternalWms4 = new ExternalWMSLayer({
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
     name: 'Verfügbarkeit des ÖREB-Katasters 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
@@ -36,29 +36,43 @@ export const mockExternalWms4 = new ExternalWMSLayer({
     opacity: 0.4,
 })
 
-export const mockExternalWmts1 = new ExternalWMTSLayer({
+Cypress.Commands.add('getExternalWmsMockConfig', () => ([
+    mockExternalWms1.clone(),
+    mockExternalWms2.clone(),
+    mockExternalWms3.clone(),
+    mockExternalWms4.clone()
+]))
+
+const mockExternalWmts1 = new ExternalWMTSLayer({
     id: 'TestExternalWMTS-1',
     name: 'Test External WMTS 1',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
 })
 
-export const mockExternalWmts2 = new ExternalWMTSLayer({
+const mockExternalWmts2 = new ExternalWMTSLayer({
     id: 'TestExternalWMTS-2;,|@special-chars-äö',
     name: 'Test External WMTS 2;,|@special-chars-äö',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
 })
 
-export const mockExternalWmts3 = new ExternalWMTSLayer({
+const mockExternalWmts3 = new ExternalWMTSLayer({
     id: 'TestExternalWMTS-3',
     name: 'Test External WMTS 3',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
-export const mockExternalWmts4 = new ExternalWMTSLayer({
+const mockExternalWmts4 = new ExternalWMTSLayer({
     id: 'TestExternalWMTS-4',
     name: 'Test External WMTS 4',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
+
+Cypress.Commands.add('getExternalWmtsMockConfig', () => ([
+    mockExternalWmts1.clone(),
+    mockExternalWmts2.clone(),
+    mockExternalWmts3.clone(),
+    mockExternalWmts4.clone()
+]))
 
 /**
  * Adds an intercept to the fake URL called each time the Vue-router changes route.

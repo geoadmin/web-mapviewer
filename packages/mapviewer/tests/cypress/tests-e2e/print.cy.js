@@ -5,17 +5,6 @@ import { formatThousand } from 'geoadmin/numbers'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
-import {
-    mockExternalWms1,
-    mockExternalWms2,
-    mockExternalWms3,
-    mockExternalWms4,
-    mockExternalWmts1,
-    mockExternalWmts2,
-    mockExternalWmts3,
-    mockExternalWmts4,
-} from '../support/intercepts'
-
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
@@ -517,13 +506,9 @@ describe('Testing print', () => {
         const bgLayer = 'test.background.layer2'
 
         it('prints external WMS correctly', () => {
-            const layer1 = mockExternalWms1.clone()
-            const layer2 = mockExternalWms2.clone()
-            layer2.opacity = 0.8
-            const layer3 = mockExternalWms3.clone()
-            layer3.opacity = 0.4
-            const layer4 = mockExternalWms4.clone()
-            const layerObjects = [layer1, layer2, layer3, layer4]
+            const layerObjects = cy.getExternalWmsMockConfig()
+            layerObjects[1].opacity = 0.8
+            layerObjects[2].opacity = 0.4
             // some layers are not visible by default, let's set them all as visible
             layerObjects.forEach((layer) => {
                 layer.visible = true
@@ -603,12 +588,7 @@ describe('Testing print', () => {
             })
         })
         it('prints external WMTS correctly', () => {
-            const layer1 = mockExternalWmts1.clone()
-            const layer2 = mockExternalWmts2.clone()
-            const layer3 = mockExternalWmts3.clone()
-            const layer4 = mockExternalWmts4.clone()
-
-            const layerObjects = [layer1, layer2, layer3, layer4]
+            const layerObjects = cy.getExternalWmtsMockConfig()
             // some layers are not visible by default, let's set them all as visible
             layerObjects.forEach((layer) => {
                 layer.visible = true
