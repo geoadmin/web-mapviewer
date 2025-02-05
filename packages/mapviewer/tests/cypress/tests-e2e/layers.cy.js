@@ -136,262 +136,273 @@ describe('Test of layer handling', () => {
         })
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
-                const layerObjects = cy.getExternalWmsMockConfig()
-                const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] = layerObjects
-                const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
-                cy.goToMapView({ layers })
+                cy.getExternalWmsMockConfig().then((layerObjects) => {
+                    const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
+                        layerObjects
+                    const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
+                    cy.goToMapView({ layers })
 
-                cy.log(`Verify that the Get capabilities of both server are called`)
-                cy.wait([
-                    `@externalWMS-GetCap-${mockExternalWms1.baseUrl}`,
-                    `@externalWMS-GetCap-${mockExternalWms3.baseUrl}`,
-                ])
+                    cy.log(`Verify that the Get capabilities of both server are called`)
+                    cy.wait([
+                        `@externalWMS-GetCap-${mockExternalWms1.baseUrl}`,
+                        `@externalWMS-GetCap-${mockExternalWms3.baseUrl}`,
+                    ])
 
-                cy.log(`Verify that extra custom attributes are passed along to the WMS server`)
-                cy.wait(`@externalWMS-GetMap-${mockExternalWms1.id}`)
-                    .its('request.query')
-                    .should('have.property', 'item', 'MyItem')
+                    cy.log(`Verify that extra custom attributes are passed along to the WMS server`)
+                    cy.wait(`@externalWMS-GetMap-${mockExternalWms1.id}`)
+                        .its('request.query')
+                        .should('have.property', 'item', 'MyItem')
 
-                cy.log(`Verify that the active layers store match the url input`)
-                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                    expect(layers).to.be.lengthOf(layerObjects.length)
+                    cy.log(`Verify that the active layers store match the url input`)
+                    cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                        expect(layers).to.be.lengthOf(layerObjects.length)
 
-                    layers.forEach((layer) => {
-                        expect(layer.isLoading).to.be.false
-                        expect(layer.isExternal).to.be.true
+                        layers.forEach((layer) => {
+                            expect(layer.isLoading).to.be.false
+                            expect(layer.isExternal).to.be.true
+                        })
+                        layerObjects.forEach((layer, index) => {
+                            expect(layers[index].id).to.be.eq(layer.id)
+                            expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
+                            expect(layers[index].name).to.be.eq(layer.name)
+                            expect(layers[index].wmsVersion).to.be.eq(layer.wmsVersion)
+                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].opacity).to.eq(layer.opacity)
+                        })
                     })
-                    layerObjects.forEach((layer, index) => {
-                        expect(layers[index].id).to.be.eq(layer.id)
-                        expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
-                        expect(layers[index].name).to.be.eq(layer.name)
-                        expect(layers[index].wmsVersion).to.be.eq(layer.wmsVersion)
-                        expect(layers[index].visible).to.eq(layer.visible)
-                        expect(layers[index].opacity).to.eq(layer.opacity)
-                    })
-                })
 
-                // shows a red icon to signify a layer is from an external source
-                cy.openMenuIfMobile()
-                cy.get(`[data-cy^="menu-active-layer-"]`).each(($el) => {
-                    cy.wrap($el)
-                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                    // shows a red icon to signify a layer is from an external source
+                    cy.openMenuIfMobile()
+                    cy.get(`[data-cy^="menu-active-layer-"]`).each(($el) => {
+                        cy.wrap($el)
+                            .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                            .should('be.visible')
+                    })
+                    layerObjects.toReversed().forEach((layer, index) => {
+                        cy.get('[data-cy^="menu-active-layer-"]')
+                            .eq(index)
+                            .should('contain', layer.name)
+                    })
+
+                    cy.checkOlLayer([
+                        bgLayer,
+                        ...layerObjects.map((layer) => {
+                            return {
+                                id: layer.id,
+                                visible: layer.visible,
+                                opacity: layer.opacity,
+                            }
+                        }),
+                    ])
+
+                    cy.log('getFeatureInfo testing')
+                    // layer 1 and 2 have the same "backend", so we deactivate layer 2 and activate layer 3
+                    cy.get(
+                        `[data-cy^="button-toggle-visibility-layer-${mockExternalWms2.id}-"]`
+                    ).click()
+                    cy.get(
+                        `[data-cy^="button-toggle-visibility-layer-${mockExternalWms3.id}-"]`
+                    ).click()
+                    cy.checkOlLayer([
+                        bgLayer,
+                        { id: mockExternalWms1.id, visible: true, opacity: 1.0 },
+                        { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, visible: true, opacity: 1.0 },
+                        { id: mockExternalWms4.id, visible: false, opacity: 0.4 },
+                    ])
+
+                    // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
+                    // So we start by defining intercepts for these two requests
+                    cy.intercept(
+                        {
+                            url: `${mockExternalWms1.baseUrl}**`,
+                            query: { REQUEST: 'GetFeatureInfo' },
+                        },
+
+                        { features: [] }
+                    ).as('getFeatureInfoServer1')
+                    cy.intercept(
+                        {
+                            url: `${mockExternalWms3.baseUrl}**`,
+                            query: { REQUEST: 'GetFeatureInfo' },
+                        },
+                        { features: [] }
+                    ).as('getFeatureInfoServer2')
+                    cy.closeMenuIfMobile()
+                    cy.get('[data-cy="ol-map"]').click()
+                    cy.wait('@getFeatureInfoServer1').then((intercept) => {
+                        // server 1 only support POST method, so this should have been sent with this HTTP method
+                        cy.wrap(intercept.request.method).should('eq', 'POST')
+                        // as this server support application/json, this must be the data type requested
+                        cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                        cy.wrap(intercept.request.query.INFO_FORMAT).should(
+                            'eq',
+                            'application/json'
+                        )
+                    })
+                    cy.wait('@getFeatureInfoServer2').then((intercept) => {
+                        // server 2 support both POST and GET, so the app should default to GET
+                        cy.wrap(intercept.request.method).should('eq', 'GET')
+                        //this server doesn't support application/json but GML, GML must be the data type requested
+                        cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
+                        cy.wrap(intercept.request.query.INFO_FORMAT).should(
+                            'eq',
+                            'application/vnd.ogc.gml'
+                        )
+                        // this server doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
+                        cy.wrap(intercept.request.query).should('have.a.property', 'CRS')
+                        cy.wrap(intercept.request.query.CRS).should('be.oneOf', [
+                            WGS84.epsg,
+                            WEBMERCATOR.epsg,
+                        ])
+                    })
+                    cy.openMenuIfMobile()
+                    // we play with the transparency to ensure nothing goes wrong
+                    cy.log('We ensure transparency works as expected for external layers too')
+                    cy.openLayerSettings(mockExternalWms1.id)
+
+                    cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms1.id}-"]`)
                         .should('be.visible')
-                })
-                layerObjects.toReversed().forEach((layer, index) => {
-                    cy.get('[data-cy^="menu-active-layer-"]')
-                        .eq(index)
-                        .should('contain', layer.name)
-                })
+                        .realClick({ position: 'right' })
+                    cy.openLayerSettings(mockExternalWms4.id)
 
-                cy.checkOlLayer([
-                    bgLayer,
-                    ...layerObjects.map((layer) => {
-                        return {
-                            id: layer.id,
-                            visible: layer.visible,
-                            opacity: layer.opacity,
-                        }
-                    }),
-                ])
+                    cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms4.id}-"]`)
+                        .should('be.visible')
+                        .realClick({ position: 'left' })
 
-                cy.log('getFeatureInfo testing')
-                // layer 1 and 2 have the same "backend", so we deactivate layer 2 and activate layer 3
-                cy.get(
-                    `[data-cy^="button-toggle-visibility-layer-${mockExternalWms2.id}-"]`
-                ).click()
-                cy.get(
-                    `[data-cy^="button-toggle-visibility-layer-${mockExternalWms3.id}-"]`
-                ).click()
-                cy.checkOlLayer([
-                    bgLayer,
-                    { id: mockExternalWms1.id, visible: true, opacity: 1.0 },
-                    { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
-                    { id: mockExternalWms3.id, visible: true, opacity: 1.0 },
-                    { id: mockExternalWms4.id, visible: false, opacity: 0.4 },
-                ])
+                    // we had some issues with wms transparency reverting back to default when reaching 0
+                    // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
+                    // this way
+                    cy.openLayerSettings(mockExternalWms3.id)
 
-                // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
-                // So we start by defining intercepts for these two requests
-                cy.intercept(
-                    {
-                        url: `${mockExternalWms1.baseUrl}**`,
-                        query: { REQUEST: 'GetFeatureInfo' },
-                    },
+                    cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms3.id}-"]`)
+                        .should('be.visible')
+                        .realClick({ position: 'right' })
 
-                    { features: [] }
-                ).as('getFeatureInfoServer1')
-                cy.intercept(
-                    {
-                        url: `${mockExternalWms3.baseUrl}**`,
-                        query: { REQUEST: 'GetFeatureInfo' },
-                    },
-                    { features: [] }
-                ).as('getFeatureInfoServer2')
-                cy.closeMenuIfMobile()
-                cy.get('[data-cy="ol-map"]').click()
-                cy.wait('@getFeatureInfoServer1').then((intercept) => {
-                    // server 1 only support POST method, so this should have been sent with this HTTP method
-                    cy.wrap(intercept.request.method).should('eq', 'POST')
-                    // as this server support application/json, this must be the data type requested
-                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
-                    cy.wrap(intercept.request.query.INFO_FORMAT).should('eq', 'application/json')
-                })
-                cy.wait('@getFeatureInfoServer2').then((intercept) => {
-                    // server 2 support both POST and GET, so the app should default to GET
-                    cy.wrap(intercept.request.method).should('eq', 'GET')
-                    //this server doesn't support application/json but GML, GML must be the data type requested
-                    cy.wrap(intercept.request.query).should('have.a.property', 'INFO_FORMAT')
-                    cy.wrap(intercept.request.query.INFO_FORMAT).should(
-                        'eq',
-                        'application/vnd.ogc.gml'
-                    )
-                    // this server doesn't support LV95 or LV03, so WGS84 or Mercator should be selected to request it instead
-                    cy.wrap(intercept.request.query).should('have.a.property', 'CRS')
-                    cy.wrap(intercept.request.query.CRS).should('be.oneOf', [
-                        WGS84.epsg,
-                        WEBMERCATOR.epsg,
+                    cy.checkOlLayer([
+                        bgLayer,
+                        { id: mockExternalWms1.id, visible: true, opacity: 0.0 },
+                        { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, visible: true, opacity: 0.0 },
+                        { id: mockExternalWms4.id, visible: false, opacity: 1.0 },
                     ])
                 })
-                cy.openMenuIfMobile()
-                // we play with the transparency to ensure nothing goes wrong
-                cy.log('We ensure transparency works as expected for external layers too')
-                cy.openLayerSettings(mockExternalWms1.id)
-
-                cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms1.id}-"]`)
-                    .should('be.visible')
-                    .realClick({ position: 'right' })
-                cy.openLayerSettings(mockExternalWms4.id)
-
-                cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms4.id}-"]`)
-                    .should('be.visible')
-                    .realClick({ position: 'left' })
-
-                // we had some issues with wms transparency reverting back to default when reaching 0
-                // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
-                // this way
-                cy.openLayerSettings(mockExternalWms3.id)
-
-                cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms3.id}-"]`)
-                    .should('be.visible')
-                    .realClick({ position: 'right' })
-
-                cy.checkOlLayer([
-                    bgLayer,
-                    { id: mockExternalWms1.id, visible: true, opacity: 0.0 },
-                    { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
-                    { id: mockExternalWms3.id, visible: true, opacity: 0.0 },
-                    { id: mockExternalWms4.id, visible: false, opacity: 1.0 },
-                ])
             })
             it('reads and adds an external WMTS correctly', () => {
-                const layerObjects = cy.getExternalWmtsMockConfig()
-                const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
-                cy.goToMapView({ layers: layerObjects.map(transformLayerIntoUrlString).join(';') })
-
-                cy.wait([
-                    `@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`,
-                    `@externalWMTS-GetCap-${mockExternalWmts3.baseUrl}`,
-                ])
-
-                cy.readStoreValue('getters.visibleLayers').should((layers) => {
-                    expect(layers).to.have.lengthOf(layerObjects.length)
-                    layers.forEach((layer) => {
-                        expect(layer.isLoading).to.be.false
-                        expect(layer.isExternal).to.be.true
+                cy.getExternalWmtsMockConfig().then((layerObjects) => {
+                    const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
+                    cy.goToMapView({
+                        layers: layerObjects.map(transformLayerIntoUrlString).join(';'),
                     })
-                    layerObjects.forEach((layer, index) => {
-                        expect(layers[index].id).to.be.eq(layer.id)
-                        expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
-                        expect(layers[index].name).to.be.eq(layer.name)
-                        expect(layers[index].visible).to.eq(layer.visible)
-                        expect(layers[index].opacity).to.eq(layer.opacity)
+
+                    cy.wait([
+                        `@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`,
+                        `@externalWMTS-GetCap-${mockExternalWmts3.baseUrl}`,
+                    ])
+
+                    cy.readStoreValue('getters.visibleLayers').should((layers) => {
+                        expect(layers).to.have.lengthOf(layerObjects.length)
+                        layers.forEach((layer) => {
+                            expect(layer.isLoading).to.be.false
+                            expect(layer.isExternal).to.be.true
+                        })
+                        layerObjects.forEach((layer, index) => {
+                            expect(layers[index].id).to.be.eq(layer.id)
+                            expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
+                            expect(layers[index].name).to.be.eq(layer.name)
+                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].opacity).to.eq(layer.opacity)
+                        })
                     })
-                })
-                cy.checkOlLayer([
-                    bgLayer,
-                    ...layerObjects.map((layer) => {
-                        return {
-                            id: layer.id,
-                            visible: layer.visible,
-                            opacity: layer.opacity,
-                        }
-                    }),
-                ])
-                cy.openMenuIfMobile()
-                cy.get('[data-cy^="menu-active-layer-"]').should('have.length', layerObjects.length)
-                layerObjects.toReversed().forEach((layer, index) => {
-                    cy.get('[data-cy^="menu-active-layer-"]')
-                        .eq(index)
-                        .should('contain', layer.name)
-                })
-                cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
-                    cy.wrap($layer)
-                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
-                        .should('be.visible')
-                })
-
-                mockExternalWmts1.visible = false
-                mockExternalWmts1.opacity = 0.5
-                mockExternalWmts2.visible = false
-                mockExternalWmts3.visible = true
-                mockExternalWmts3.opacity = 0.8
-
-                const layerObjects2 = [
-                    mockExternalWmts1.clone(),
-                    mockExternalWmts2.clone(),
-                    mockExternalWmts3.clone(),
-                ]
-
-                // reads and sets non default layer config; visible and opacity
-                cy.goToMapView({
-                    layers: layerObjects2.map(transformLayerIntoUrlString).join(';'),
-                })
-                cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
-                cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                    expect(layers).to.have.lengthOf(layerObjects2.length)
-                    layerObjects2.forEach((layer, index) => {
-                        expect(layers[index].id).to.eq(layer.id)
-                        expect(layers[index].visible).to.eq(layer.visible)
-                        expect(layers[index].opacity).to.eq(layer.opacity)
+                    cy.checkOlLayer([
+                        bgLayer,
+                        ...layerObjects.map((layer) => {
+                            return {
+                                id: layer.id,
+                                visible: layer.visible,
+                                opacity: layer.opacity,
+                            }
+                        }),
+                    ])
+                    cy.openMenuIfMobile()
+                    cy.get('[data-cy^="menu-active-layer-"]').should(
+                        'have.length',
+                        layerObjects.length
+                    )
+                    layerObjects.toReversed().forEach((layer, index) => {
+                        cy.get('[data-cy^="menu-active-layer-"]')
+                            .eq(index)
+                            .should('contain', layer.name)
                     })
-                })
+                    cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
+                        cy.wrap($layer)
+                            .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                            .should('be.visible')
+                    })
 
-                // shows a red icon to signify a layer is from an external source
-                cy.openMenuIfMobile()
-                cy.get('[data-cy^="menu-active-layer-"]').should(
-                    'have.length',
-                    layerObjects2.length
-                )
-                layerObjects2.toReversed().forEach((layer, index) => {
-                    cy.get('[data-cy^="menu-active-layer-"]')
-                        .eq(index)
-                        .should('contain', layer.name)
-                })
-                cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
-                    cy.wrap($layer)
-                        .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
-                        .should('be.visible')
-                })
-                cy.checkOlLayer([
-                    bgLayer,
-                    ...layerObjects2.map((layer) => {
-                        return {
-                            id: layer.id,
-                            visible: layer.visible,
-                            opacity: layer.opacity,
-                        }
-                    }),
-                ])
+                    mockExternalWmts1.visible = false
+                    mockExternalWmts1.opacity = 0.5
+                    mockExternalWmts2.visible = false
+                    mockExternalWmts3.visible = true
+                    mockExternalWmts3.opacity = 0.8
 
-                cy.log(`Make sure that the external backend have not been called twice`)
-                cy.get(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}.all`).should(
-                    'have.length',
-                    1
-                )
-                cy.get(`@externalWMTS-GetCap-${mockExternalWmts3.baseUrl}.all`).should(
-                    'have.length',
-                    1
-                )
+                    const layerObjects2 = [
+                        mockExternalWmts1.clone(),
+                        mockExternalWmts2.clone(),
+                        mockExternalWmts3.clone(),
+                    ]
+
+                    // reads and sets non default layer config; visible and opacity
+                    cy.goToMapView({
+                        layers: layerObjects2.map(transformLayerIntoUrlString).join(';'),
+                    })
+                    cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
+                    cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+                        expect(layers).to.have.lengthOf(layerObjects2.length)
+                        layerObjects2.forEach((layer, index) => {
+                            expect(layers[index].id).to.eq(layer.id)
+                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].opacity).to.eq(layer.opacity)
+                        })
+                    })
+
+                    // shows a red icon to signify a layer is from an external source
+                    cy.openMenuIfMobile()
+                    cy.get('[data-cy^="menu-active-layer-"]').should(
+                        'have.length',
+                        layerObjects2.length
+                    )
+                    layerObjects2.toReversed().forEach((layer, index) => {
+                        cy.get('[data-cy^="menu-active-layer-"]')
+                            .eq(index)
+                            .should('contain', layer.name)
+                    })
+                    cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
+                        cy.wrap($layer)
+                            .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                            .should('be.visible')
+                    })
+                    cy.checkOlLayer([
+                        bgLayer,
+                        ...layerObjects2.map((layer) => {
+                            return {
+                                id: layer.id,
+                                visible: layer.visible,
+                                opacity: layer.opacity,
+                            }
+                        }),
+                    ])
+
+                    cy.log(`Make sure that the external backend have not been called twice`)
+                    cy.get(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}.all`).should(
+                        'have.length',
+                        1
+                    )
+                    cy.get(`@externalWMTS-GetCap-${mockExternalWmts3.baseUrl}.all`).should(
+                        'have.length',
+                        1
+                    )
+                })
             })
             it('handles errors correctly', () => {
                 const wmtsUnreachableUrl =

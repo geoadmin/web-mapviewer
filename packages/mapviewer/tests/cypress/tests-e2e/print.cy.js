@@ -506,159 +506,163 @@ describe('Testing print', () => {
         const bgLayer = 'test.background.layer2'
 
         it('prints external WMS correctly', () => {
-            const layerObjects = cy.getExternalWmsMockConfig()
-            layerObjects[1].opacity = 0.8
-            layerObjects[2].opacity = 0.4
-            // some layers are not visible by default, let's set them all as visible
-            layerObjects.forEach((layer) => {
-                layer.visible = true
-            })
-            cy.goToMapView(
-                { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
-                true
-            )
-
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="checkboxLegend"]').check()
-            cy.get('[data-cy="checkboxLegend"]').should('be.checked')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                expect(interception.request.body).to.haveOwnProperty('attributes')
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.not.haveOwnProperty('printLegend')
-
-                expect(attributes).to.haveOwnProperty('copyright')
-                expect(attributes['copyright']).to.equal(
-                    `© ${['The federal geoportal', 'BGDI', 'attribution.test.wmts.layer'].join(
-                        ', '
-                    )}`
+            cy.getExternalWmsMockConfig().then((layerObjects) => {
+                layerObjects[1].opacity = 0.8
+                layerObjects[2].opacity = 0.4
+                // some layers are not visible by default, let's set them all as visible
+                layerObjects.forEach((layer) => {
+                    layer.visible = true
+                })
+                cy.goToMapView(
+                    { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                    true
                 )
 
-                // Check map attributes
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+                cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+                cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
-                // Check layers
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(5)
+                cy.get('[data-cy="checkboxLegend"]').check()
+                cy.get('[data-cy="checkboxLegend"]').should('be.checked')
 
-                const expectedLayers = [
-                    ...layerObjects.toReversed().map((layer) => {
-                        return {
-                            layers: layer.id.split(','),
-                            type: 'wms',
-                            baseURL: layer.baseUrl,
-                            opacity: layer.opacity,
+                cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+                cy.get('[data-cy="abort-print-button"]').should('be.visible')
+
+                cy.wait('@printRequest').then((interception) => {
+                    expect(interception.request.body).to.haveOwnProperty('layout')
+                    expect(interception.request.body['layout']).to.equal('1. A4 landscape')
+                    expect(interception.request.body).to.haveOwnProperty('format')
+                    expect(interception.request.body['format']).to.equal('pdf')
+
+                    expect(interception.request.body).to.haveOwnProperty('attributes')
+                    const attributes = interception.request.body.attributes
+                    expect(attributes).to.not.haveOwnProperty('printLegend')
+
+                    expect(attributes).to.haveOwnProperty('copyright')
+                    expect(attributes['copyright']).to.equal(
+                        `© ${['The federal geoportal', 'BGDI', 'attribution.test.wmts.layer'].join(
+                            ', '
+                        )}`
+                    )
+
+                    // Check map attributes
+                    const mapAttributes = attributes.map
+                    expect(mapAttributes['scale']).to.equals(1500000)
+                    expect(mapAttributes['dpi']).to.equals(254)
+                    expect(mapAttributes['projection']).to.equals('EPSG:2056')
+
+                    // Check layers
+                    const layers = mapAttributes.layers
+                    expect(layers).to.be.an('array')
+                    expect(layers).to.have.length(5)
+
+                    const expectedLayers = [
+                        ...layerObjects.toReversed().map((layer) => {
+                            return {
+                                layers: layer.id.split(','),
+                                type: 'wms',
+                                baseURL: layer.baseUrl,
+                                opacity: layer.opacity,
+                            }
+                        }),
+                        {
+                            layer: bgLayer,
+                            type: 'wmts',
+                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                            opacity: 1,
+                            matrixSet: 'EPSG:2056',
+                        },
+                    ]
+
+                    for (let i = 0; i < layers.length; i++) {
+                        expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
+                        expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
+                        expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
+                        expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
+                        if (expectedLayers[i]?.['matrixSet']) {
+                            expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
                         }
-                    }),
-                    {
-                        layer: bgLayer,
-                        type: 'wmts',
-                        baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
-                        opacity: 1,
-                        matrixSet: 'EPSG:2056',
-                    },
-                ]
-
-                for (let i = 0; i < layers.length; i++) {
-                    expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
-                    expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
-                    expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
-                    expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
-                    if (expectedLayers[i]?.['matrixSet']) {
-                        expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
                     }
-                }
 
-                // Check for matrix size, should start with 1x1
-                expect(layers[layers.length - 1]['matrices'][0]['matrixSize']).to.deep.eq([1, 1])
+                    // Check for matrix size, should start with 1x1
+                    expect(layers[layers.length - 1]['matrices'][0]['matrixSize']).to.deep.eq([
+                        1, 1,
+                    ])
+                })
             })
         })
         it('prints external WMTS correctly', () => {
-            const layerObjects = cy.getExternalWmtsMockConfig()
-            // some layers are not visible by default, let's set them all as visible
-            layerObjects.forEach((layer) => {
-                layer.visible = true
-            })
-            cy.goToMapView(
-                { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
-                true
-            )
-
-            cy.get('[data-cy="menu-print-section"]:visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="checkboxLegend"]').check()
-            cy.get('[data-cy="checkboxLegend"]').should('be.checked')
-
-            cy.get('[data-cy="print-map-button"]:visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                cy.log('Print request', interception.request.body)
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                expect(interception.request.body).to.haveOwnProperty('attributes')
-                const attributes = interception.request.body.attributes
-
-                expect(attributes).to.haveOwnProperty('copyright')
-                expect(attributes['copyright']).to.equal(
-                    `© ${['GIS-Zentrum Stadt Zuerich', 'attribution.test.wmts.layer'].join(', ')}`
+            cy.getExternalWmtsMockConfig().then((layerObjects) => {
+                // some layers are not visible by default, let's set them all as visible
+                layerObjects.forEach((layer) => {
+                    layer.visible = true
+                })
+                cy.goToMapView(
+                    { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                    true
                 )
 
-                // Check map attributes
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
+                cy.get('[data-cy="menu-print-section"]:visible').click()
+                cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
-                // Check layers
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(5)
+                cy.get('[data-cy="checkboxLegend"]').check()
+                cy.get('[data-cy="checkboxLegend"]').should('be.checked')
 
-                const expectedLayers = [
-                    ...layerObjects.toReversed().map((layer) => {
-                        return {
-                            layer: layer.id,
+                cy.get('[data-cy="print-map-button"]:visible').click()
+                cy.get('[data-cy="abort-print-button"]').should('be.visible')
+
+                cy.wait('@printRequest').then((interception) => {
+                    cy.log('Print request', interception.request.body)
+                    expect(interception.request.body).to.haveOwnProperty('layout')
+                    expect(interception.request.body['layout']).to.equal('1. A4 landscape')
+                    expect(interception.request.body).to.haveOwnProperty('format')
+                    expect(interception.request.body['format']).to.equal('pdf')
+
+                    expect(interception.request.body).to.haveOwnProperty('attributes')
+                    const attributes = interception.request.body.attributes
+
+                    expect(attributes).to.haveOwnProperty('copyright')
+                    expect(attributes['copyright']).to.equal(
+                        `© ${['GIS-Zentrum Stadt Zuerich', 'attribution.test.wmts.layer'].join(', ')}`
+                    )
+
+                    // Check map attributes
+                    const mapAttributes = attributes.map
+                    expect(mapAttributes['scale']).to.equals(1500000)
+                    expect(mapAttributes['dpi']).to.equals(254)
+                    expect(mapAttributes['projection']).to.equals('EPSG:2056')
+
+                    // Check layers
+                    const layers = mapAttributes.layers
+                    expect(layers).to.be.an('array')
+                    expect(layers).to.have.length(5)
+
+                    const expectedLayers = [
+                        ...layerObjects.toReversed().map((layer) => {
+                            return {
+                                layer: layer.id,
+                                type: 'wmts',
+                                baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
+                                opacity: layer.opacity,
+                                matrixSet: 'ktzh',
+                            }
+                        }),
+                        {
+                            layer: bgLayer,
                             type: 'wmts',
-                            baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                            opacity: layer.opacity,
-                            matrixSet: 'ktzh',
-                        }
-                    }),
-                    {
-                        layer: bgLayer,
-                        type: 'wmts',
-                        baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
-                        opacity: 1,
-                        matrixSet: 'EPSG:2056',
-                    },
-                ]
+                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                            opacity: 1,
+                            matrixSet: 'EPSG:2056',
+                        },
+                    ]
 
-                for (let i = 0; i < layers.length; i++) {
-                    expect(layers[i]['layer']).to.deep.equal(expectedLayers[i]['layer'])
-                    expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
-                    expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
-                    expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
-                    expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
-                }
+                    for (let i = 0; i < layers.length; i++) {
+                        expect(layers[i]['layer']).to.deep.equal(expectedLayers[i]['layer'])
+                        expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
+                        expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
+                        expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
+                        expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
+                    }
+                })
             })
         })
     })
