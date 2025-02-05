@@ -21,7 +21,7 @@ import debounce from '@/utils/debounce'
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
-const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
+const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
 const i18n = useI18n()
 const store = useStore()
 
@@ -98,7 +98,7 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
         store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
         drawingLayer.getSource().clear()
-        debounceSaveDrawing()
+        deleteDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
         store.dispatch('removeLayer', {
             layerId: activeKmlLayer.value.id,
@@ -184,10 +184,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         !activeKmlLayer ? i18n.t('drawing_empty_cannot_edit_name') : ''
                     "
                 >
-                    <label
-                        for="drawing-name"
-                        class="text-nowrap"
-                    >
+                    <label for="drawing-name" class="text-nowrap">
                         {{ i18n.t('file_name') }}
                     </label>
                     <input
@@ -198,7 +195,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         data-cy="drawing-toolbox-file-name-input"
                         :placeholder="`${i18n.t('draw_layer_label')}`"
                         :disabled="!activeKmlLayer"
-                    >
+                    />
                 </div>
 
                 <div class="card-body position-relative container">
@@ -256,10 +253,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         <div class="col d-grid">
                             <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         </div>
-                        <div
-                            v-if="online"
-                            class="col d-grid"
-                        >
+                        <div v-if="online" class="col d-grid">
                             <button
                                 type="button"
                                 class="btn btn-light"
@@ -285,10 +279,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                     </div>
-                    <div
-                        v-if="isDesktopMode && online"
-                        class="row mt-2"
-                    >
+                    <div v-if="isDesktopMode && online" class="row mt-2">
                         <div
                             class="col text-center text-muted"
                             data-cy="drawing-toolbox-disclaimer"
@@ -300,10 +291,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     </div>
                 </div>
             </div>
-            <div
-                v-if="isDesktopMode"
-                class="text-center"
-            >
+            <div v-if="isDesktopMode" class="text-center">
                 <button
                     class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
                     data-cy="menu-button"
@@ -338,10 +326,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             :title="i18n.t('warning')"
             @close="onCloseWarningModal()"
         >
-            <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
-                @accept="onAcceptWarningModal()"
-            />
+            <ShareWarningPopup :kml-layer="activeKmlLayer" @accept="onAcceptWarningModal()" />
         </ModalWithBackdrop>
     </teleport>
 </template>

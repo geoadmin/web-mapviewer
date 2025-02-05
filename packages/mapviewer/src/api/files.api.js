@@ -183,6 +183,44 @@ export const updateKml = (id, adminId, kml) => {
     })
 }
 
+/**
+ * Delete KML on backend
+ *
+ * @param {string} id KML ID
+ * @param {string} adminId KML admin ID
+ * @returns {Promise<void>}
+ */
+export const deleteKml = (id, adminId) => {
+    return new Promise((resolve, reject) => {
+        validateId(id, reject)
+        validateAdminId(adminId, reject)
+        const form = new FormData()
+        form.append('admin_id', adminId)
+        axios
+            .request({
+                method: 'DELETE',
+                url: `${kmlBaseUrl}admin/${id}`,
+                data: form,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                if (response.status === 200 && response.data.id) {
+                    resolve()
+                } else {
+                    const msg = `Incorrect response while deleting file with id=${id}`
+                    log.error(msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log.error(`Error while deleting file with id=${id}`, error)
+                reject(error)
+            })
+    })
+}
+
 const _getKml = async (url, resolve, reject) => {
     try {
         const response = await axios.get(url)

@@ -879,6 +879,11 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
+            let deletedKmlId = null
+            cy.wait('@post-kml').then((interception) => {
+                cy.wrap(interception).its('request')
+                deletedKmlId = interception.response.body.id
+            })
 
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
@@ -895,6 +900,20 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
             ).should('have.attr', 'disabled')
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
+
+            //draws something new to verify that the kml id being sent is different
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+            cy.get('[data-cy="ol-map"]').click(100, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 280)
+
+            let newKmlId = null
+            cy.wait('@post-kml').then((interception) => {
+                cy.wrap(interception).its('request')
+                newKmlId = interception.response.body.id
+
+                expect(deletedKmlId).to.not.equal(newKmlId)
+            })
         })
         it('manages the KML layer in the layer list / URL params correctly', () => {
             const warningTitle = `Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.`

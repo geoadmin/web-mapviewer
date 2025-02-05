@@ -3,7 +3,7 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { createKml, getKmlUrl, updateKml } from '@/api/files.api'
+import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
@@ -179,6 +179,17 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         }
     }
 
+    /**
+     * Deletes local drawing, and online drawing corresponding to the activeKmlLayer (if present)
+     *
+     * @returns {Promise<void>}
+     */
+    async function deleteDrawing() {
+        if (activeKmlLayer.value?.adminId) {
+            await deleteKml(activeKmlLayer.value.fileId, activeKmlLayer.value.adminId)
+        }
+    }
+
     async function debounceSaveDrawing({ debounceTime = 2000, retryOnError = true } = {}) {
         log.debug(
             `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${differSaveDrawingTimeout}`
@@ -221,6 +232,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     return {
         addKmlToDrawing,
+        deleteDrawing,
         debounceSaveDrawing,
         clearPendingSaveDrawing,
         willModify,
