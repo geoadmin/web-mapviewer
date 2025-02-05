@@ -46,7 +46,7 @@ function addFakeWMTSLayer(layers, id) {
 function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
     const topicId = 'ech'
     return {
-        addCatalogFixtureAndIntercept: () => {
+        addCatalogIntercept: () => {
             let layersCatalogEntries = []
             for (let i = 2; i < nbLayers + 2; i++) {
                 layersCatalogEntries = layersCatalogEntries.concat(getFakeWMTSLayerCatalogEntry(i))
@@ -66,7 +66,7 @@ function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
                 body: catalog,
             }).as(`topic-${topicId}`)
         },
-        addLayerFixtureAndIntercept: () => {
+        addLayerConfigIntercept: () => {
             let layers = {}
             for (let i = 2; i < nbLayers + 2; i++) {
                 addFakeWMTSLayer(layers, i)
@@ -75,7 +75,7 @@ function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
                 body: layers,
             }).as('layers')
         },
-        addTopicFixtureAndIntercept: () => {
+        addTopicIntercept: () => {
             let activatedLayers = []
             for (let i = 2; i < nbSelectedLayers + 2; i++) {
                 activatedLayers.push('test.wmts.layer.' + i)
