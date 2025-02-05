@@ -4,7 +4,7 @@
  * A log level reference that can be passed as first parameter to the log function. The levels
  * correspond to the native console methods and their log level.
  */
-export enum LogLevel {
+enum LogLevel {
     Error,
     Warn,
     Info,
@@ -44,6 +44,7 @@ const log = (level: LogLevel, ...message: any[]) => {
     /* eslint-enable  no-console */
 }
 
+log.LogLevels = LogLevel
 log.wantedLevels = [LogLevel.Error, LogLevel.Warn]
 
 /** Shorthand for log('error', ...message) */

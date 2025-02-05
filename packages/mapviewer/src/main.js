@@ -6,7 +6,7 @@ import 'animate.css'
 import './setup-fontawesome'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { log, LogLevel } from 'geoadmin'
+import { log } from 'geoadmin'
 import { registerProj4 } from 'geoadmin/proj'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
@@ -69,7 +69,7 @@ if (ENVIRONMENT !== 'production') {
     // by default, log levels are ERROR and WARNING; that goes well for PROD staging (no changes)
 } else {
     // when not on PROD, we want all log levels available
-    log.wantedLevels = Object.values(LogLevel)
+    log.wantedLevels = Object.values(log.LogLevel)
 }
 
 app.use(router)
