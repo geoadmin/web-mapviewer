@@ -127,7 +127,7 @@ describe('The infobox', () => {
 
             cy.closeMenuIfMobile()
 
-            cy.wait(['@layers', '@topics', '@topic-ech', '@featureDetail', '@htmlPopupGerman'])
+            cy.wait(['@layerConfig', '@topics', '@topic-ech', '@featureDetail', '@htmlPopupGerman'])
             cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
             cy.get('.htmlpopup-content')
                 .should('be.visible')
@@ -185,7 +185,7 @@ describe('The infobox', () => {
                 .should('contain', 'More info')
                 .click({ force: true })
 
-            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech', '@infobox'])
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech', '@infobox'])
 
             cy.origin('https://api3.geo.admin.ch', () => {
                 cy.url().should((url) => {

@@ -2,10 +2,9 @@ import { isNumber, randomIntBetween } from 'geoadmin/numbers'
 import { LV95, registerProj4, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
-
-import ExternalWMSLayer from '../../../src/api/layers/ExternalWMSLayer.class.js'
-import ExternalWMTSLayer from '../../../src/api/layers/ExternalWMTSLayer.class.js'
 
 registerProj4(proj4)
 

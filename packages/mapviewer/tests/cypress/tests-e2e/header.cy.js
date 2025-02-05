@@ -68,15 +68,13 @@ describe('Test functions for the header / search bar', () => {
         const clickOnLogo = () => {
             cy.get('[data-cy="menu-swiss-flag"]').click()
             // waiting for page reload
-            cy.wait('@layers')
-            cy.wait('@topics')
+            cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
         const clickOnConfederationText = () => {
             cy.get('[data-cy="menu-swiss-confederation-text"]').click()
             // waiting for page reload
-            cy.wait('@layers')
-            cy.wait('@topics')
+            cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
         const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {

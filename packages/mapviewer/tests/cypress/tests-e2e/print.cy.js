@@ -2,75 +2,25 @@
 
 import { formatThousand } from 'geoadmin/numbers'
 
-import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { encodeLayerParam } from '@/router/storeSync/layersParamParser'
+import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
-const printID = 'print-123456789'
+import {
+    mockExternalWms1,
+    mockExternalWms2,
+    mockExternalWms3,
+    mockExternalWms4,
+    mockExternalWmts1,
+    mockExternalWmts2,
+    mockExternalWmts3,
+    mockExternalWmts4,
+} from '../support/intercepts'
 
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
-
-        interceptCapabilities()
-        interceptShortLink()
-
-        interceptPrintRequest()
-        interceptPrintStatus()
-        interceptDownloadReport()
-
-        interceptPrintRequest()
-        interceptPrintStatus()
-        interceptDownloadReport()
     })
 
-    function interceptCapabilities() {
-        cy.intercept('GET', '**/capabilities.json', { fixture: 'print/capabilities.json' }).as(
-            'capabilities'
-        )
-    }
-
-    function interceptPrintRequest() {
-        cy.intercept('POST', '**/report.pdf', (req) => {
-            req.reply({
-                body: {
-                    ref: printID,
-                    statusURL: '/print/status/' + printID,
-                    downloadURL: '/print/report/' + printID,
-                },
-                delay: 200,
-            })
-        }).as('printRequest')
-    }
-
-    function interceptPrintStatus() {
-        cy.intercept('GET', '**/status/**', (req) => {
-            req.reply({
-                body: {
-                    done: true,
-                    status: 'running',
-                    elapsedTime: 2594,
-                    waitingTime: 0,
-                    downloadURL: '/print/report/' + printID,
-                },
-                delay: 1000,
-            })
-        }).as('printStatus')
-    }
-
-    function interceptDownloadReport() {
-        cy.intercept('GET', '**/report/print**', {
-            headers: { 'content-disposition': 'attachment; filename=mapfish-print-report.pdf' },
-            fixture: 'print/mapfish-print-report.pdf',
-        }).as('downloadReport')
-    }
-
-    function interceptShortLink() {
-        let shortUrl = 'https://s.geo.admin.ch/0000000'
-        cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-            body: { shorturl: shortUrl, success: true },
-        }).as('shortlink')
-    }
     context('Print UI', () => {
         it('should populate the UI with the capabilities from mapfishprint', () => {
             cy.goToMapView()
@@ -565,106 +515,23 @@ describe('Testing print', () => {
     })
     context('Send print request with external layers', () => {
         const bgLayer = 'test.background.layer2'
-        // Fake WMS
-        const fakeWmsBaseUrl1 = 'https://fake.wms.base-1.url/?'
-        const fakeWmsBaseUrl2 = 'https://fake.wms.base-2.url/?'
-
-        const fakeWmsLayerId1 = 'ch.swisstopo-vd.official-survey'
-        const fakeWmsLayerId2 = 'Periodic Tracking, with | comma & @ ; äö'
-        const fakeWmsLayerId3 = 'ch.swisstopo-vd.spannungsarme-gebiete-2'
-        const fakeWmsLayerId4 = 'ch.swisstopo-vd.stand-oerebkataster-2'
-
-        // format is WMS|BASE_URL|LAYER_IDS
-        const fakeWmsLayerUrlId1 = `WMS|${fakeWmsBaseUrl1}|${fakeWmsLayerId1}@item=MyItem`
-        const fakeWmsLayerUrlId2 = `WMS|${fakeWmsBaseUrl1}|${encodeExternalLayerParam(fakeWmsLayerId2)}`
-        const fakeWmsLayerUrlId3 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId3}`
-        const fakeWmsLayerUrlId4 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId4}`
-
-        // Fake WMTS
-        const fakeWmtsGetCapUrl1 = 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml'
-        const fakeWmtsGetCapUrl2 = 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml'
-        const fakeWmtsLayerId1 = 'TestExternalWMTS-1'
-        const fakeWmtsLayerId2 = 'TestExternalWMTS-2;,|@special-chars-äö'
-        const fakeWmtsLayerId3 = 'TestExternalWMTS-3'
-        const fakeWmtsLayerId4 = 'TestExternalWMTS-4'
-
-        // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-        const fakeWmtsLayerUrlId1 = `WMTS|${fakeWmtsGetCapUrl1}|${fakeWmtsLayerId1}`
-        const fakeWmtsLayerUrlId2 = `WMTS|${fakeWmtsGetCapUrl1}|${encodeExternalLayerParam(fakeWmtsLayerId2)}`
-        const fakeWmtsLayerUrlId3 = `WMTS|${fakeWmtsGetCapUrl2}|${fakeWmtsLayerId3}`
-        const fakeWmtsLayerUrlId4 = `WMTS|${fakeWmtsGetCapUrl2}|${fakeWmtsLayerId4}`
-
-        beforeEach(() => {
-            // WMS intercept URL 1
-            cy.intercept(
-                {
-                    url: `${fakeWmsBaseUrl1}**`,
-                    query: { REQUEST: 'GetMap', LAYERS: fakeWmsLayerId1 },
-                },
-                {
-                    fixture: '256.png',
-                }
-            ).as('externalWMSGetMap-1-layer-1')
-            cy.intercept(
-                {
-                    url: `${fakeWmsBaseUrl1}**`,
-                    query: { REQUEST: 'GetMap', LAYERS: fakeWmsLayerId2 },
-                },
-                {
-                    fixture: '256.png',
-                }
-            ).as('externalWMSGetMap-1-layer-2')
-            cy.intercept(
-                { url: `${fakeWmsBaseUrl1}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap-1.fixture.xml' }
-            ).as('externalWMSGetCap-1')
-
-            // WMS intercept URL 2
-            cy.intercept(
-                { url: `${fakeWmsBaseUrl2}**`, query: { REQUEST: 'GetMap' } },
-                {
-                    fixture: '256.png',
-                }
-            ).as('externalWMSGetMap-2')
-            cy.intercept(
-                { url: `${fakeWmsBaseUrl2}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap-2.fixture.xml' }
-            ).as('externalWMSGetCap-2')
-
-            // WMTS intercept URL 1
-            cy.intercept(`${fakeWmtsGetCapUrl1}`, {
-                fixture: 'external-wmts-getcap-1.fixture.xml',
-            }).as('externalWMTSGetCapOl-1')
-            cy.intercept(`${fakeWmtsGetCapUrl1}?**`, {
-                fixture: 'external-wmts-getcap-1.fixture.xml',
-            }).as('externalWMTSGetCap-1')
-
-            // WMTS intercept URL 2
-            cy.intercept(`${fakeWmtsGetCapUrl2}`, {
-                fixture: 'external-wmts-getcap-2.fixture.xml',
-            }).as('externalWMTSGetCapOl-2')
-            cy.intercept(`${fakeWmtsGetCapUrl2}?**`, {
-                fixture: 'external-wmts-getcap-2.fixture.xml',
-            }).as('externalWMTSGetCap-2')
-
-            cy.intercept(
-                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
-                {
-                    fixture: '256.png',
-                }
-            ).as('externalWMTS')
-        })
 
         it('prints external WMS correctly', () => {
-            const fakeWmsLayerOpacity2 = 0.8
-            const fakeWmsLayerOpacity4 = 0.4
-            const layers = [
-                fakeWmsLayerUrlId1,
-                `${encodeLayerParam(fakeWmsLayerUrlId2)},,${fakeWmsLayerOpacity2}`,
-                fakeWmsLayerUrlId3,
-                `${fakeWmsLayerUrlId4},,${fakeWmsLayerOpacity4}`,
-            ].join(';')
-            cy.goToMapView({ layers })
+            const layer1 = mockExternalWms1.clone()
+            const layer2 = mockExternalWms2.clone()
+            layer2.opacity = 0.8
+            const layer3 = mockExternalWms3.clone()
+            layer3.opacity = 0.4
+            const layer4 = mockExternalWms4.clone()
+            const layerObjects = [layer1, layer2, layer3, layer4]
+            // some layers are not visible by default, let's set them all as visible
+            layerObjects.forEach((layer) => {
+                layer.visible = true
+            })
+            cy.goToMapView(
+                { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                true
+            )
 
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
@@ -704,30 +571,14 @@ describe('Testing print', () => {
                 expect(layers).to.have.length(5)
 
                 const expectedLayers = [
-                    {
-                        layers: fakeWmsLayerId4.split(','),
-                        type: 'wms',
-                        baseURL: fakeWmsBaseUrl2,
-                        opacity: fakeWmsLayerOpacity4,
-                    },
-                    {
-                        layers: fakeWmsLayerId3.split(','),
-                        type: 'wms',
-                        baseURL: fakeWmsBaseUrl2,
-                        opacity: 1,
-                    },
-                    {
-                        layers: fakeWmsLayerId2.split(','),
-                        type: 'wms',
-                        baseURL: fakeWmsBaseUrl1,
-                        opacity: fakeWmsLayerOpacity2,
-                    },
-                    {
-                        layers: fakeWmsLayerId1.split(','),
-                        type: 'wms',
-                        baseURL: fakeWmsBaseUrl1,
-                        opacity: 1,
-                    },
+                    ...layerObjects.toReversed().map((layer) => {
+                        return {
+                            layers: layer.id.split(','),
+                            type: 'wms',
+                            baseURL: layer.baseUrl,
+                            opacity: layer.opacity,
+                        }
+                    }),
                     {
                         layer: bgLayer,
                         type: 'wmts',
@@ -752,24 +603,28 @@ describe('Testing print', () => {
             })
         })
         it('prints external WMTS correctly', () => {
-            const layers = [
-                fakeWmtsLayerUrlId1,
-                encodeLayerParam(fakeWmtsLayerUrlId2),
-                fakeWmtsLayerUrlId3,
-                fakeWmtsLayerUrlId4,
-            ]
+            const layer1 = mockExternalWmts1.clone()
+            const layer2 = mockExternalWmts2.clone()
+            const layer3 = mockExternalWmts3.clone()
+            const layer4 = mockExternalWmts4.clone()
 
-            cy.goToMapView({
-                layers: layers.join(';'),
+            const layerObjects = [layer1, layer2, layer3, layer4]
+            // some layers are not visible by default, let's set them all as visible
+            layerObjects.forEach((layer) => {
+                layer.visible = true
             })
+            cy.goToMapView(
+                { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                true
+            )
 
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
             cy.get('[data-cy="checkboxLegend"]').check()
             cy.get('[data-cy="checkboxLegend"]').should('be.checked')
 
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
+            cy.get('[data-cy="print-map-button"]:visible').click()
             cy.get('[data-cy="abort-print-button"]').should('be.visible')
 
             cy.wait('@printRequest').then((interception) => {
@@ -799,34 +654,15 @@ describe('Testing print', () => {
                 expect(layers).to.have.length(5)
 
                 const expectedLayers = [
-                    {
-                        layer: fakeWmtsLayerId4,
-                        type: 'wmts',
-                        baseURL: `http://test.wmts.png/wmts/1.0.0/${fakeWmtsLayerId4}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                        opacity: 1,
-                        matrixSet: 'ktzh',
-                    },
-                    {
-                        layer: fakeWmtsLayerId3,
-                        type: 'wmts',
-                        baseURL: `http://test.wmts.png/wmts/1.0.0/${fakeWmtsLayerId3}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                        opacity: 1,
-                        matrixSet: 'ktzh',
-                    },
-                    {
-                        layer: fakeWmtsLayerId2,
-                        type: 'wmts',
-                        baseURL: `http://test.wmts.png/wmts/1.0.0/${fakeWmtsLayerId2.split(';')[0]}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                        opacity: 1,
-                        matrixSet: 'ktzh',
-                    },
-                    {
-                        layer: fakeWmtsLayerId1,
-                        type: 'wmts',
-                        baseURL: `http://test.wmts.png/wmts/1.0.0/${fakeWmtsLayerId1}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                        opacity: 1,
-                        matrixSet: 'ktzh',
-                    },
+                    ...layerObjects.toReversed().map((layer) => {
+                        return {
+                            layer: layer.id,
+                            type: 'wmts',
+                            baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
+                            opacity: layer.opacity,
+                            matrixSet: 'ktzh',
+                        }
+                    }),
                     {
                         layer: bgLayer,
                         type: 'wmts',

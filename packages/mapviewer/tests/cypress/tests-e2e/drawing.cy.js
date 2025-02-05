@@ -901,7 +901,7 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait(['@post-kml', '@layers', '@topics', '@topic-ech', '@routeChange'])
+            cy.wait(['@post-kml', '@layerConfig', '@topics', '@topic-ech', '@routeChange'])
 
             // checks that it adds the kml file ID in the URL while in drawing mode
             cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)

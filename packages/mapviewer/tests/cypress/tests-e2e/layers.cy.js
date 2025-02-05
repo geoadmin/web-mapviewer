@@ -2,8 +2,7 @@
 
 import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 
-import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
-import { encodeLayerParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 import {
     mockExternalWms1,
@@ -1304,14 +1303,14 @@ describe('Test of layer handling', () => {
             cy.goToMapView({
                 lang: 'fr',
             })
-            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
             cy.goToMapView({
                 lang: 'en',
                 bgLayer: 'ch.swisstopo.pixelkarte-farbe',
                 topic: 'ech',
                 layers: 'WMS|https://wms.geo.admin.ch/?item=2024-10-30t103151|test.background.layer@item=2024-10-30t103151',
             })
-            cy.wait(['@routeChange', '@layers', '@topics', '@topic-ech'])
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
             cy.url().should('contain', 'item=2024-10-30t103151')
         })
     })

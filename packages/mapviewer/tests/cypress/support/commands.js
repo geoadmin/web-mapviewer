@@ -1,12 +1,10 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import { isNumber, randomIntBetween } from 'geoadmin/numbers'
-import { LV95, registerProj4, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { randomIntBetween } from 'geoadmin/numbers'
+import { registerProj4, WEBMERCATOR } from 'geoadmin/proj'
 import { MapBrowserEvent } from 'ol'
 import proj4 from 'proj4'
-
-import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 import { getDefaultFixturesAndIntercepts } from './intercepts'
 import { isMobile } from './utils'
