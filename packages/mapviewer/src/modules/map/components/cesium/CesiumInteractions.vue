@@ -1,10 +1,16 @@
 <script setup>
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { Cartesian2, Cartographic, ScreenSpaceEventType } from 'cesium'
+import {
+    Cartesian2,
+    Cartographic,
+    Color,
+    PostProcessStageLibrary,
+    ScreenSpaceEventType,
+} from 'cesium'
 import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -22,6 +28,9 @@ const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
 const getViewer = inject('getViewer')
 
+const hoveredHighlightPostProcessor = ref(null)
+const clickedHighlightPostProcessor = ref(null)
+
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
@@ -36,14 +45,32 @@ const visiblePrimitiveLayers = computed(() =>
 onMounted(() => {
     const viewer = getViewer()
     if (viewer) {
+        initialize3dHighlights()
+        viewer.scene.postProcessStages.add(
+            PostProcessStageLibrary.createSilhouetteStage([
+                hoveredHighlightPostProcessor.value,
+                clickedHighlightPostProcessor.value,
+            ])
+        )
         viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
         viewer.screenSpaceEventHandler.setInputAction(
             onContextMenu,
             ScreenSpaceEventType.RIGHT_CLICK
         )
+        viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
     }
 })
+function initialize3dHighlights() {
+    hoveredHighlightPostProcessor.value = PostProcessStageLibrary.createEdgeDetectionStage()
+    hoveredHighlightPostProcessor.value.uniforms.color = Color.BLUE
+    hoveredHighlightPostProcessor.value.uniforms.length = 0.01
+    hoveredHighlightPostProcessor.value.selected = []
 
+    clickedHighlightPostProcessor.value = PostProcessStageLibrary.createEdgeDetectionStage()
+    clickedHighlightPostProcessor.value.uniforms.color = Color.LIME
+    clickedHighlightPostProcessor.value.uniforms.length = 0.01
+    clickedHighlightPostProcessor.value.selected = []
+}
 function getCoordinateAtScreenCoordinate(x, y) {
     const cartesian = getViewer()?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates = []
@@ -61,11 +88,11 @@ function getCoordinateAtScreenCoordinate(x, y) {
 function createBuildingFeature(building, coordinates) {
     const id = building.getProperty('EGID') ?? building.getProperty('UUID')
     const data = {
-        EGID: building.getProperty('EGID') ?? 'empty_field',
-        building_type: building.getProperty('OBJEKTART') ?? 'empty_field',
-        building_height: building.getProperty('GESAMTHOEHE') ?? 'empty_field',
-        max_roof_height: building.getProperty('DACH_MAX') ?? 'empty_field',
-        elevation: building.getProperty('GELAENDEPUNKT') ?? 'empty_field',
+        EGID: building.getProperty('EGID') ?? '-',
+        building_type: building.getProperty('OBJEKTART') ?? '-',
+        building_height: building.getProperty('GESAMTHOEHE') ?? '-',
+        max_roof_height: building.getProperty('DACH_MAX') ?? '-',
+        ground_level: building.getProperty('GELAENDEPUNKT') ?? '-',
     }
     // round values)
     const feature = new LayerFeature({
@@ -84,6 +111,19 @@ function createBuildingFeature(building, coordinates) {
     return feature
 }
 
+function handleClickHighlight(features, coordinates) {
+    clickedHighlightPostProcessor.value.selected = []
+
+    if (hoveredHighlightPostProcessor.value.selected.length > 0) {
+        features.push(
+            createBuildingFeature(hoveredHighlightPostProcessor.value.selected[0], coordinates)
+        )
+        clickedHighlightPostProcessor.value.selected = [
+            hoveredHighlightPostProcessor.value.selected[0],
+        ]
+        hoveredHighlightPostProcessor.value.selected = []
+    }
+}
 function onClick(event) {
     const viewer = getViewer()
     unhighlightGroup(viewer)
@@ -128,15 +168,8 @@ function onClick(event) {
                 })
             features.push(...Object.values(kmlFeatures))
         })
-    // Do you want to know something about this hack ? It's orrible :)
-    // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
-    // in the future but it is not yet the case for all buildings). We filter on this property
-    // to ensure the object we got is a building, and not another object which, for some reason,
-    // has no id either (like a tree)
-    objects
-        .filter((o) => !o.id && o.getProperty('UUID'))
-        .forEach((building) => features.push(createBuildingFeature(building, coordinates)))
-    // Cesium can't pick position when click on primitive
+    handleClickHighlight(features, coordinates)
+
     if (!coordinates.length && features.length) {
         const featureCoords = Array.isArray(features[0].coordinates[0])
             ? features[0].coordinates[0]
@@ -165,6 +198,34 @@ function onContextMenu(event) {
         }),
         ...dispatcher,
     })
+}
+// when moving over a building, we should highlight
+function onMouseMove(event) {
+    const viewer = getViewer()
+    // Do you want to know something about this thing? It's horrible :)
+    // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
+    // in the future but it is not yet the case for all buildings). We filter on this property
+    // to ensure the object we got is a building, and not another object which, for some reason,
+    // has no id either. We need to make an additional filter, as bridges and cable cars would get
+    // highlighted too, but we don't want that. So we filter on the fact that those 'OBJEKTART'
+    // property is a number instead of a string.
+    let feature = viewer.scene
+        .drillPick(event.endPosition)
+        .find(
+            (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
+        )
+    if (!feature) {
+        hoveredHighlightPostProcessor.value.selected = []
+    } else if (
+        hoveredHighlightPostProcessor.value.selected.length === 0 ||
+        (hoveredHighlightPostProcessor.value.selected[0].getProperty('UUID') !==
+            feature.getProperty('UUID') &&
+            (clickedHighlightPostProcessor.value.selected.length === 0 ||
+                clickedHighlightPostProcessor.value.selected[0].getProperty('UUID') !==
+                    feature.getProperty('UUID')))
+    ) {
+        hoveredHighlightPostProcessor.value.selected = [feature]
+    }
 }
 
 useDragFileOverlay(getViewer().container)
