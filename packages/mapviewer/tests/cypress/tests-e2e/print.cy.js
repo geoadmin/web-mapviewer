@@ -573,7 +573,11 @@ describe('Testing print', () => {
                     layer.visible = true
                 })
                 cy.goToMapView(
-                    { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                    {
+                        layers: layerObjects
+                            .map((object) => transformLayerIntoUrlString(object))
+                            .join(';'),
+                    },
                     true
                 )
 
@@ -656,7 +660,11 @@ describe('Testing print', () => {
                     layer.visible = true
                 })
                 cy.goToMapView(
-                    { layers: layerObjects.map(transformLayerIntoUrlString).join(';') },
+                    {
+                        layers: layerObjects
+                            .map((object) => transformLayerIntoUrlString(object))
+                            .join(';'),
+                    },
                     true
                 )
 

@@ -292,7 +292,9 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
                     const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
                     cy.goToMapView({
-                        layers: layerObjects.map(transformLayerIntoUrlString).join(';'),
+                        layers: layerObjects
+                            .map((object) => transformLayerIntoUrlString(object))
+                            .join(';'),
                     })
 
                     cy.wait([
@@ -354,7 +356,9 @@ describe('Test of layer handling', () => {
 
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({
-                        layers: layerObjects2.map(transformLayerIntoUrlString).join(';'),
+                        layers: layerObjects2
+                            .map((object) => transformLayerIntoUrlString(object))
+                            .join(';'),
                     })
                     cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
                     cy.readStoreValue('state.layers.activeLayers').should((layers) => {
