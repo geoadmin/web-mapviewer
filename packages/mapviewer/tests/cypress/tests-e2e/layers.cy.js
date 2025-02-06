@@ -290,7 +290,8 @@ describe('Test of layer handling', () => {
             })
             it('reads and adds an external WMTS correctly', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
-                    const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
+                    const [mockExternalWmts1, _, mockExternalWmts3] = layerObjects
+
                     cy.goToMapView({
                         layers: layerObjects
                             .map((object) => transformLayerIntoUrlString(object))
@@ -341,6 +342,11 @@ describe('Test of layer handling', () => {
                             .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                             .should('be.visible')
                     })
+                })
+            })
+            it("reads and adds an external WMTS correctly but doesn't show the invisible layer", () => {
+                cy.getExternalWmtsMockConfig().then((layerObjects) => {
+                    const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
 
                     mockExternalWmts1.visible = false
                     mockExternalWmts1.opacity = 0.5
@@ -353,7 +359,6 @@ describe('Test of layer handling', () => {
                         mockExternalWmts2.clone(),
                         mockExternalWmts3.clone(),
                     ]
-
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({
                         layers: layerObjects2
@@ -369,7 +374,6 @@ describe('Test of layer handling', () => {
                             expect(layers[index].opacity).to.eq(layer.opacity)
                         })
                     })
-
                     // shows a red icon to signify a layer is from an external source
                     cy.openMenuIfMobile()
                     cy.get('[data-cy^="menu-active-layer-"]').should(
@@ -396,7 +400,6 @@ describe('Test of layer handling', () => {
                             }
                         }),
                     ])
-
                     cy.log(`Make sure that the external backend have not been called twice`)
                     cy.get(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}.all`).should(
                         'have.length',
