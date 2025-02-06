@@ -36,12 +36,12 @@ const mockExternalWms4 = new ExternalWMSLayer({
     opacity: 0.4,
 })
 
-Cypress.Commands.add('getExternalWmsMockConfig', () => ([
+Cypress.Commands.add('getExternalWmsMockConfig', () => [
     mockExternalWms1.clone(),
     mockExternalWms2.clone(),
     mockExternalWms3.clone(),
-    mockExternalWms4.clone()
-]))
+    mockExternalWms4.clone(),
+])
 
 const mockExternalWmts1 = new ExternalWMTSLayer({
     id: 'TestExternalWMTS-1',
@@ -67,12 +67,12 @@ const mockExternalWmts4 = new ExternalWMTSLayer({
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
-Cypress.Commands.add('getExternalWmtsMockConfig', () => ([
+Cypress.Commands.add('getExternalWmtsMockConfig', () => [
     mockExternalWmts1.clone(),
     mockExternalWmts2.clone(),
     mockExternalWmts3.clone(),
-    mockExternalWmts4.clone()
-]))
+    mockExternalWmts4.clone(),
+])
 
 /**
  * Adds an intercept to the fake URL called each time the Vue-router changes route.
@@ -486,6 +486,12 @@ function addExternalWmtsIntercepts(
     }).as('externalWMTS')
 }
 
+function addShortLinkIntercept({ shortUrl = 'https://s.geo.admin.ch/0000000' } = {}) {
+    cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+        body: { shorturl: shortUrl, success: true },
+    }).as('shortlink')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
@@ -509,5 +515,6 @@ export function getDefaultFixturesAndIntercepts() {
         addPrintDownloadIntercept,
         addExternalWmsLayerIntercepts,
         addExternalWmtsIntercepts,
+        addShortLinkIntercept,
     }
 }

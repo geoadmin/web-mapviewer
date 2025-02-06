@@ -5,6 +5,157 @@ import { formatThousand } from 'geoadmin/numbers'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
+function launchPrint(config = {}) {
+    const {
+        layout = '1. A4 landscape',
+        scale = 1500000,
+        withLegend = false,
+        withGrid = false,
+    } = config
+
+    cy.get('[data-cy="menu-print-section"]:visible').click()
+    cy.get('[data-cy="menu-print-form"]').should('be.visible')
+
+    if (layout !== '1. A4 landscape') {
+        cy.get('[data-cy="print-layout-selector"]').select(layout)
+    }
+    if (scale !== 1500000) {
+        cy.get('[data-cy="print-scale-selector"]').select(`1:${formatThousand(scale)}`)
+    }
+    if (withLegend) {
+        cy.get('[data-cy="checkboxLegend"]').check()
+        cy.get('[data-cy="checkboxLegend"]').should('be.checked')
+    }
+    if (withGrid) {
+        cy.get('[data-cy="checkboxGrid"]').check()
+        cy.get('[data-cy="checkboxGrid"]').should('be.checked')
+    }
+
+    cy.get('[data-cy="print-map-button"]:visible').click()
+    cy.get('[data-cy="abort-print-button"]').should('be.visible')
+}
+
+function checkPrintRequest(body, expectedValues = {}) {
+    expect(body).to.be.an('object')
+
+    const {
+        layout = '1. A4 landscape',
+        format = 'pdf',
+        lang = 'en',
+        copyright = '© attribution.test.wmts.layer',
+        mapScale = 1500000,
+        mapDpi = 254,
+        projection = 'EPSG:2056',
+        legends = [],
+        layers = [],
+    } = expectedValues
+
+    expect(body.layout).to.equal(layout, 'wrong print layer')
+    expect(body.format).to.equal(format, 'wrong print format')
+    expect(body.lang).to.equal(lang, 'wrong print lang')
+
+    cy.location('hostname').then((hostname) => {
+        expect(body.outputFilename).to.equal(`${hostname}_\${yyyy-MM-dd'T'HH-mm-ss'Z'}`)
+    })
+
+    const { attributes } = body
+    expect(attributes).to.be.an('object')
+    if (legends.length > 0) {
+        expect(
+            attributes.printLegend,
+            'should use attribute legend to pass down legend information'
+        ).to.be.undefined
+        expect(attributes.legend).to.be.an('object', 'missing legend definition in print spec')
+        const legendAttributes = attributes.legend
+        expect(legendAttributes.name).to.equals(
+            'Legend',
+            'wrong name for the legend definition in print spec'
+        )
+        expect(legendAttributes.classes)
+            .to.be.an('array')
+            .lengthOf(legends.length, 'missing one or more layer legend')
+        const legendClasses = legendAttributes.classes
+
+        legends.forEach((legend, index) => {
+            const legendClass = legendClasses[index]
+            expect(legendClass).to.be.an('object', `missing legend class at index ${index}`)
+            expect(legendClass.name).to.equals(
+                legend.name,
+                'Name mismatch between legend and layer'
+            )
+            expect(legendClass.icons)
+                .to.be.an('array')
+                .lengthOf(legend.icons.length, `No icon in legend for layer ${legend.name}`)
+            legend.icons.forEach((icon, iconIndex) => {
+                expect(legendClass.icons[iconIndex]).to.contains(icon)
+            })
+        })
+    } else {
+        expect(attributes.printLegend).to.equals(
+            0,
+            'should tell print service to not have legend with a zero value'
+        )
+    }
+
+    expect(attributes.copyright).to.equal(copyright)
+    expect(attributes.qrimage).to.contains(encodeURIComponent('https://s.geo.admin.ch/0000000'))
+
+    const mapAttributes = attributes.map
+    expect(mapAttributes).to.be.an('object')
+    expect(mapAttributes.scale).to.equals(mapScale, 'wrong map scale')
+    expect(mapAttributes.dpi).to.equals(mapDpi, 'wrong map dpi')
+    expect(mapAttributes.projection).to.equals(projection, 'wrong map projection')
+
+    const layersInSpec = body.attributes.map?.layers
+    expect(layersInSpec).to.be.an('array').lengthOf(layers.length, 'Missing layer in print spec')
+    layers.forEach((layer, index) => {
+        const layerInSpec = layersInSpec[index]
+        expect(layerInSpec).to.be.an('object', `Missing layer spec at index ${index}`)
+        expect(layerInSpec.type).to.equals(layer.type, `Wrong layer type for layer`)
+
+        if (layer.type === 'wmts') {
+            expect(layerInSpec.layers).to.deep.equals(layer.layers)
+            // Check for matrix size, should start with 1x1
+            expect(layerInSpec.matrices).to.be.an('array').not.empty
+            expect(layerInSpec.matrices[0]?.matrixSize).to.deep.eq(layer.matrixSize ?? [1, 1])
+            expect(layerInSpec.matrixSet).to.eq(
+                layer.matrixSet ?? projection,
+                `wrong matrix set in WMTS layer ${layer.layer}`
+            )
+            if (layer.opacity) {
+                expect(layerInSpec.opacity).to.equals(layer.opacity, 'Wrong opacity for layer')
+            }
+            if (layer.baseURL) {
+                expect(layerInSpec.baseURL).to.equals(layer.baseURL, 'Wrong base URL for layer')
+            }
+        } else if (layer.type === 'wms') {
+            expect(layerInSpec.layer).to.equals(layer.layer)
+        } else if (layer.type === 'geojson') {
+            expect(layerInSpec.geoJson?.features).to.be.an('array').lengthOf(layer.featureCount)
+            if (layer.featureCount > 0) {
+                // There was a bug where multiple features were printed using the same style
+                // This test makes sure that each feature is printed with different styles
+                layerInSpec.geoJson.features.forEach((feature, index) => {
+                    const styleId = `${layer.featureCount - index}`
+                    expect(feature.properties).to.be.an(
+                        'object',
+                        `Missing feature properties at index ${index}`
+                    )
+                    expect(feature.properties._mfp_style).to.equal(
+                        styleId,
+                        `Wrong style ID for feature at index ${index}`
+                    )
+                    expect(layerInSpec.style).to.be.an('object', 'Missing layer styles')
+                    expect(Object.keys(layerInSpec.style)).to.contain(
+                        `[_mfp_style = '${styleId}']`,
+                        `Missing MapFishPrint style ID ${styleId} in layer styles`
+                    )
+                })
+            }
+        }
+    })
+}
+
 describe('Testing print', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080)
@@ -13,7 +164,8 @@ describe('Testing print', () => {
     context('Print UI', () => {
         it('should populate the UI with the capabilities from mapfishprint', () => {
             cy.goToMapView()
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
+            launchPrint()
+            cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
             cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 5)
             cy.get('[data-cy="print-layout-selector"]')
@@ -29,92 +181,49 @@ describe('Testing print', () => {
     context('Send print request', () => {
         beforeEach(() => {
             cy.goToMapView()
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
         })
-
         it('should send a print request to mapfishprint (basic parameters)', () => {
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-                expect(interception.request.body).to.haveOwnProperty('lang')
-                expect(interception.request.body['lang']).to.equal('en')
-                expect(interception.request.body).to.haveOwnProperty('outputFilename')
-                cy.location('hostname').then((hostname) => {
-                    expect(interception.request.body['outputFilename']).to.equal(
-                        `${hostname}_\${yyyy-MM-dd'T'HH-mm-ss'Z'}`
-                    )
+            launchPrint()
+            cy.wait('@printRequest')
+                .its('request.body')
+                .then((body) => {
+                    checkPrintRequest(body, {
+                        layers: [
+                            {
+                                layer: 'test.background.layer2',
+                                type: 'wmts',
+                            },
+                        ],
+                    })
                 })
-
-                expect(interception.request.body).to.haveOwnProperty('attributes')
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.haveOwnProperty('copyright')
-                expect(attributes['copyright']).to.equal('© attribution.test.wmts.layer')
-                expect(attributes).to.haveOwnProperty('printLegend')
-                expect(attributes['printLegend']).to.equals(0)
-                expect(attributes).to.haveOwnProperty('qrimage')
-                expect(attributes['qrimage']).to.contains(
-                    encodeURIComponent('https://s.geo.admin.ch/0000000')
-                )
-
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
-
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(1)
-                expect(layers[0]['matrixSet']).to.equals('EPSG:2056')
-            })
         })
-
         it('should send a print request to mapfishprint (all parameters updated)', () => {
-            // Set parameters
-            cy.get('[data-cy="print-layout-selector"]').select('2. A4 portrait')
-            cy.get('[data-cy="print-scale-selector"]').select(`1:${formatThousand(500000)}`)
-            cy.get('[data-cy="checkboxLegend"]').check()
-            cy.get('[data-cy="checkboxLegend"]').should('be.checked')
-            cy.get('[data-cy="checkboxGrid"]').check()
-            cy.get('[data-cy="checkboxGrid"]').should('be.checked')
-
-            cy.get('[data-cy="debug-tools-header"]').should('be.visible').click()
-            cy.get('[data-cy="current-projection"]').should('be.visible').contains('2056')
-            cy.get('[data-cy="toggle-projection-button"]').should('be.visible').click()
-            cy.get('[data-cy="current-projection"]').should('be.visible').contains('3857')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('2. A4 portrait')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.haveOwnProperty('printLegend')
-                expect(attributes['printLegend']).to.equals(0)
-                expect(attributes).to.haveOwnProperty('qrimage')
-                expect(attributes['qrimage']).to.contains(
-                    encodeURIComponent('https://s.geo.admin.ch/0000000')
-                )
-
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(500000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:3857')
-
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(2) // with grid line
-                expect(layers[1]['matrixSet']).to.equals('EPSG:3857')
+            launchPrint({
+                layout: '2. A4 portrait',
+                scale: 500000,
+                withLegend: true,
+                withGrid: true,
             })
+            cy.wait('@printRequest')
+                .its('request.body')
+                .then((body) => {
+                    checkPrintRequest(body, {
+                        layout: '2. A4 portrait',
+                        mapScale: 500000,
+                        dpi: 254,
+                        legends: [], // we've activated legend printing with no layer having a legend
+                        layers: [
+                            {
+                                layers: ['org.epsg.grid_2056'],
+                                type: 'wms',
+                            },
+                            {
+                                layer: 'test.background.layer2',
+                                type: 'wmts',
+                            },
+                        ],
+                    })
+                })
         })
     })
     context('Send print request with layers', () => {
@@ -156,122 +265,86 @@ describe('Testing print', () => {
                     'test.wmts.layer,,0.8',
                 ].join(';'),
             })
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-            cy.get('[data-cy="checkboxLegend"]').check()
-            cy.get('[data-cy="checkboxLegend"]').should('be.checked')
-
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                expect(interception.request.body).to.haveOwnProperty('attributes')
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.not.haveOwnProperty('printLegend')
-
-                expect(attributes).to.haveOwnProperty('copyright')
-                expect(attributes['copyright']).to.equal(
-                    `© ${[
-                        'attribution.test-1.wms.layer',
-                        'attribution.test-2.wms.layer',
-                        'attribution.test.wmts.layer',
-                    ].join(', ')}`
-                )
-
-                // Check legends
-                expect(attributes).to.haveOwnProperty('legend')
-
-                const legendAttributes = attributes.legend
-                expect(legendAttributes).to.haveOwnProperty('name')
-                expect(legendAttributes['name']).to.equals('Legend')
-                expect(legendAttributes).to.haveOwnProperty('classes')
-                const legends = legendAttributes.classes
-                expect(legends).to.be.an('array')
-                expect(legends).to.have.length(3)
-
-                const legend1 = legends[0]
-                expect(legend1).to.haveOwnProperty('name')
-                expect(legend1['name']).to.equals('WMS test layer 1')
-                expect(legend1).to.haveOwnProperty('icons')
-                expect(legend1['icons']).to.be.an('array')
-                expect(legend1['icons']).to.have.length(1)
-                expect(legend1['icons'][0]).to.contains(
-                    'static/images/legends/test-1.wms.layer_en.png'
-                )
-
-                expect(attributes).to.haveOwnProperty('qrimage')
-                expect(attributes['qrimage']).to.contains(
-                    encodeURIComponent('https://s.geo.admin.ch/0000000')
-                )
-
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(1500000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
-
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(5)
-                expect(layers[0]['layer']).to.equals('test.wmts.layer')
-                expect(layers[1]['layer']).to.equals('test.wmts.layer')
-                expect(layers[2]['layers'][0]).to.equals('test-2.wms.layer')
-                expect(layers[3]['layers'][0]).to.equals('test-1.wms.layer')
-                expect(layers[4]['layer']).to.equals('test.background.layer2')
-
-                expect(layers[0]['type']).to.equals('wmts')
-                expect(layers[1]['type']).to.equals('wmts')
-                expect(layers[2]['type']).to.equals('wms')
-                expect(layers[3]['type']).to.equals('wms')
-                expect(layers[4]['type']).to.equals('wmts')
-
-                // Check for matrix size, should start with 1x1
-                expect(layers[0]['matrices'][0]['matrixSize']).to.deep.eq([1, 1])
+            launchPrint({
+                withLegend: true,
             })
+            cy.wait('@printRequest')
+                .its('request.body')
+                .then((body) => {
+                    checkPrintRequest(body, {
+                        copyright: `© ${[
+                            'attribution.test-1.wms.layer',
+                            'attribution.test-2.wms.layer',
+                            'attribution.test.wmts.layer',
+                        ].join(', ')}`,
+                        // hidden layers still go in spec, so we need to count them here
+                        layers: [
+                            {
+                                layer: 'test.wmts.layer',
+                                type: 'wmts',
+                            },
+                            {
+                                layer: 'test.wmts.layer',
+                                type: 'wmts',
+                            },
+                            {
+                                layers: ['test-2.wms.layer'],
+                                type: 'wms',
+                            },
+                            {
+                                layers: ['test-1.wms.layer'],
+                                type: 'wms',
+                            },
+                            {
+                                layer: 'test.background.layer2',
+                                type: 'wmts',
+                            },
+                        ],
+                        legends: [
+                            {
+                                name: 'WMS test layer 1',
+                                icons: ['static/images/legends/test-1.wms.layer_en.png'],
+                            },
+                            {
+                                name: 'WMS test layer 2',
+                                icons: ['static/images/legends/test-2.wms.layer_en.png'],
+                            },
+                            // layer WMS 3 and 4 are not visible and should not output any legends
+                            // the WMTS layer is doubled, but should only output one legend (same for both)
+                            {
+                                name: 'WMTS test layer, with very long title that should be truncated on the menu',
+                                icons: ['static/images/legends/test.wmts.layer_en.png'],
+                            },
+                        ],
+                    })
+                })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
             startPrintWithKml('import-tool/external-kml-file.kml')
 
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.haveOwnProperty('printLegend')
-                expect(attributes['printLegend']).to.equals(0)
-                expect(attributes).to.haveOwnProperty('qrimage')
-                expect(attributes['qrimage']).to.contains(
-                    encodeURIComponent('https://s.geo.admin.ch/0000000')
-                )
-
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(5000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
-
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(2)
-                expect(layers[0]['type']).to.equals('geojson')
-                expect(layers[0]['geoJson']['features']).to.have.length(1)
-                expect(layers[0]['geoJson']['features'][0]['properties']).to.haveOwnProperty(
-                    '_mfp_style'
-                )
-                expect(layers[0]['geoJson']['features'][0]['properties']['_mfp_style']).to.equal(
-                    '1'
-                )
-                expect(layers[0]['style']).to.haveOwnProperty("[_mfp_style = '1']")
-            })
+            cy.wait('@printRequest')
+                .its('request.body')
+                .then((body) => {
+                    checkPrintRequest(body, {
+                        mapScale: 5000,
+                        // KML adds an attribution too
+                        copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
+                        layers: [
+                            {
+                                type: 'geojson',
+                                featureCount: 1,
+                            },
+                            {
+                                layer: 'test.background.layer2',
+                                type: 'wmts',
+                            },
+                        ],
+                        legends: [], // no legends with KML files
+                    })
+                })
         })
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
-            cy.goToMapView({}, true)
+            cy.goToMapView()
             cy.readStoreValue('state.layers.activeLayers').should('be.empty')
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -311,56 +384,42 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-content"]').should('not.exist')
 
             // Print
-            cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
-            cy.get('[data-cy="menu-print-form"]').should('be.visible')
+            launchPrint()
+            cy.wait('@printRequest')
+                .its('request.body')
+                .then((body) => {
+                    checkPrintRequest(body, {
+                        mapScale: 10000,
+                        copyright: '© line-and-marker.gpx, attribution.test.wmts.layer',
+                        layers: [
+                            {
+                                type: 'geojson',
+                                // In this GPX layer, there are two features (a line and a point).
+                                featureCount: 2,
+                            },
+                            {
+                                layer: 'test.background.layer2',
+                                type: 'wmts',
+                            },
+                        ],
+                        legends: [],
+                    })
 
-            cy.get('[data-cy="print-map-button"]').should('be.visible').click()
-            cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-            cy.wait('@printRequest').then((interception) => {
-                expect(interception.request.body).to.haveOwnProperty('layout')
-                expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                expect(interception.request.body).to.haveOwnProperty('format')
-                expect(interception.request.body['format']).to.equal('pdf')
-
-                const attributes = interception.request.body.attributes
-                expect(attributes).to.haveOwnProperty('printLegend')
-                expect(attributes['printLegend']).to.equals(0)
-                expect(attributes).to.haveOwnProperty('qrimage')
-                expect(attributes['qrimage']).to.contains(
-                    encodeURIComponent('https://s.geo.admin.ch/0000000')
-                )
-
-                const mapAttributes = attributes.map
-                expect(mapAttributes['scale']).to.equals(10000)
-                expect(mapAttributes['dpi']).to.equals(254)
-                expect(mapAttributes['projection']).to.equals('EPSG:2056')
-
-                const layers = mapAttributes.layers
-                expect(layers).to.be.an('array')
-                expect(layers).to.have.length(2)
-
-                // In this GPX layer, htere are two features (a line and a point).
-                // There was a bug where both features are printed using the same style
-                // This test case make sure that the two features are printed with different styles
-                const gpxLayer = layers[0]
-                expect(gpxLayer['type']).to.equals('geojson')
-                expect(gpxLayer['geoJson']['features']).to.have.length(2)
-                expect(gpxLayer['geoJson']['features'][0]['properties']).to.haveOwnProperty(
-                    '_mfp_style'
-                )
-
-                expect(gpxLayer['geoJson']['features'][0]['properties']['_mfp_style']).to.equal('2')
-                expect(gpxLayer['geoJson']['features'][1]['properties']['_mfp_style']).to.equal('1')
-                expect(gpxLayer['style']).to.haveOwnProperty("[_mfp_style = '1']")
-                expect(gpxLayer['style']).to.haveOwnProperty("[_mfp_style = '2']")
-                expect(gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['type']).to.equals(
-                    'line'
-                )
-                expect(
-                    gpxLayer['style']["[_mfp_style = '2']"]['symbolizers'][0]['strokeWidth']
-                ).to.lessThan(2) // thinner than the drawn in the OL map.
-            })
+                    const [gpxLayer] = body.attributes.map.layers
+                    expect(gpxLayer).to.be.an('object')
+                    expect(gpxLayer.style).to.be.an('object')
+                    expect(gpxLayer.style).to.have.property("[_mfp_style = '2']")
+                    const mapFishStyle = gpxLayer.style["[_mfp_style = '2']"]
+                    expect(mapFishStyle).to.be.an('object')
+                    expect(mapFishStyle).to.have.property('symbolizers')
+                    expect(mapFishStyle.symbolizers).to.be.an('array')
+                    const [firstSymbolizer] = mapFishStyle.symbolizers
+                    expect(firstSymbolizer).to.be.an('object')
+                    expect(firstSymbolizer).to.have.property('type')
+                    expect(firstSymbolizer.type).to.equals('line')
+                    expect(firstSymbolizer).to.have.property('strokeWidth')
+                    expect(firstSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
+                })
         })
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
@@ -601,68 +660,37 @@ describe('Testing print', () => {
                     true
                 )
 
-                cy.get('[data-cy="menu-print-section"]:visible').click()
-                cy.get('[data-cy="menu-print-form"]').should('be.visible')
-
-                cy.get('[data-cy="checkboxLegend"]').check()
-                cy.get('[data-cy="checkboxLegend"]').should('be.checked')
-
-                cy.get('[data-cy="print-map-button"]:visible').click()
-                cy.get('[data-cy="abort-print-button"]').should('be.visible')
-
-                cy.wait('@printRequest').then((interception) => {
-                    cy.log('Print request', interception.request.body)
-                    expect(interception.request.body).to.haveOwnProperty('layout')
-                    expect(interception.request.body['layout']).to.equal('1. A4 landscape')
-                    expect(interception.request.body).to.haveOwnProperty('format')
-                    expect(interception.request.body['format']).to.equal('pdf')
-
-                    expect(interception.request.body).to.haveOwnProperty('attributes')
-                    const attributes = interception.request.body.attributes
-
-                    expect(attributes).to.haveOwnProperty('copyright')
-                    expect(attributes['copyright']).to.equal(
-                        `© ${['GIS-Zentrum Stadt Zuerich', 'attribution.test.wmts.layer'].join(', ')}`
-                    )
-
-                    // Check map attributes
-                    const mapAttributes = attributes.map
-                    expect(mapAttributes['scale']).to.equals(1500000)
-                    expect(mapAttributes['dpi']).to.equals(254)
-                    expect(mapAttributes['projection']).to.equals('EPSG:2056')
-
-                    // Check layers
-                    const layers = mapAttributes.layers
-                    expect(layers).to.be.an('array')
-                    expect(layers).to.have.length(5)
-
-                    const expectedLayers = [
-                        ...layerObjects.toReversed().map((layer) => {
-                            return {
-                                layer: layer.id,
-                                type: 'wmts',
-                                baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
-                                opacity: layer.opacity,
-                                matrixSet: 'ktzh',
-                            }
-                        }),
-                        {
-                            layer: bgLayer,
-                            type: 'wmts',
-                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
-                            opacity: 1,
-                            matrixSet: 'EPSG:2056',
-                        },
-                    ]
-
-                    for (let i = 0; i < layers.length; i++) {
-                        expect(layers[i]['layer']).to.deep.equal(expectedLayers[i]['layer'])
-                        expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
-                        expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
-                        expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
-                        expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
-                    }
+                launchPrint({
+                    withLegend: true,
                 })
+                cy.wait('@printRequest')
+                    .its('request.body')
+                    .then((body) => {
+                        checkPrintRequest(body, {
+                            copyright: '© GIS-Zentrum Stadt Zuerich, attribution.test.wmts.layer',
+                            layers: [
+                                ...layerObjects.toReversed().map((layer) => {
+                                    return {
+                                        layer: layer.id,
+                                        type: 'wmts',
+                                        baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
+                                        opacity: layer.opacity,
+                                        matrixSet: 'ktzh',
+                                        matrixSize: [11, 8],
+                                    }
+                                }),
+                                {
+                                    layer: bgLayer,
+                                    type: 'wmts',
+                                    baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                                    opacity: 1,
+                                    matrixSet: 'EPSG:2056',
+                                },
+                            ],
+                            // we don't support (yet) external layer legend printing
+                            legends: [],
+                        })
+                    })
             })
         })
     })
