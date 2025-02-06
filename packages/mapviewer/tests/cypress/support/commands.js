@@ -137,6 +137,8 @@ Cypress.Commands.add(
         } else {
             cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
         }
+
+        cy.log('cmd: goToMapView successful')
     }
 )
 
@@ -202,6 +204,8 @@ Cypress.Commands.add(
         cy.waitAllLayersLoaded({ queryParams, legacy })
 
         cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
+
+        cy.log('cmd: goToEmbedView successful')
     }
 )
 
@@ -216,6 +220,7 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) 
     if (olMap) {
         cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
     }
+    cy.log('cmd: waitMapIsReady successful')
 })
 
 /**
@@ -232,6 +237,8 @@ Cypress.Commands.add('dragMouse', (selector, x, y, button = 0) => {
     cy.get(selector).trigger('mousemove', { button, clientX: 0, clientY: 0 }) // this is needed to make the drag work
     cy.get(selector).trigger('mousemove', { button, clientX: x, clientY: y })
     cy.get(selector).trigger('mouseup', { button })
+
+    cy.log('cmd: dragMouse successful')
 })
 
 /**
@@ -268,6 +275,8 @@ Cypress.Commands.add(
             ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
         })
         cy.get(selector).realMouseUp({ button })
+
+        cy.log('cmd: resizeElement successful')
     }
 )
 
@@ -305,6 +314,7 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             errorMsg: 'Timeout waiting for all layers to be loaded',
         }
     )
+    // no explicit log as the waitUntilState will print a log message
 })
 
 /**
@@ -364,6 +374,7 @@ Cypress.Commands.add(
                         }
                     })
             })
+        cy.log('cmd: changeUrlParam successful')
     }
 )
 
@@ -387,6 +398,7 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
         // desktop
         cy.get(`[data-cy="menu-lang-${lang}"]`).click()
     }
+    cy.log('cmd: clickOnLanguage successful')
 })
 
 // cypress-wait-until wrapper to wait for a specific store state.
@@ -405,6 +417,8 @@ Cypress.Commands.add('waitUntilState', (predicate, options = {}) => {
             options
         )
     )
+
+    // no cy.log command as the waitUntil will already print a message
 })
 
 // Reads a value from the Vuex store
@@ -451,6 +465,8 @@ Cypress.Commands.add(
             $element.val(subString)
             cy.get($element).type(lastChar)
         })
+
+        cy.log('cmd: paste successful')
     }
 )
 
@@ -529,6 +545,7 @@ Cypress.Commands.add(
 
         const simulatedEvent = new MapBrowserEvent(type, map, event)
         map.handleMapBrowserEvent(simulatedEvent)
+        cy.log('cmd: simulateEvent successful')
     }
 )
 
@@ -557,6 +574,8 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
         // which cesium is much slower
         { timeout: 20000 }
     )
+
+    cy.log('cmd: waitUntilCesiumTilesLoaded successful')
 })
 
 Cypress.Commands.add('openMenuIfMobile', () => {
@@ -569,6 +588,7 @@ Cypress.Commands.add('openMenuIfMobile', () => {
             cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
         })
     }
+    cy.log('cmd: openMenuIfMobile successful')
 })
 
 Cypress.Commands.add('closeMenuIfMobile', () => {
@@ -581,6 +601,8 @@ Cypress.Commands.add('closeMenuIfMobile', () => {
             cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
+
+    cy.log('cmd: closeMenuIfMobile successful')
 })
 
 /**
@@ -611,6 +633,8 @@ Cypress.Commands.add('openLayerSettings', (layerId) => {
         .should('be.visible')
         .click()
     cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('be.visible')
+
+    cy.log('cmd: openLayerSettings successful')
 })
 
 Cypress.Commands.add(
@@ -736,4 +760,5 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             })
         })
     })
+    cy.log('cmd: checkOlLayer successful')
 })
