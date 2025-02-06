@@ -424,7 +424,7 @@
     "mapsheet": "Foglio",
     "max_10_mb": "max. 10 MB",
     "max_20_mb": "max. 20 MB",
-    "max_roof_height": "Altezza massima deltetto [s.l.m]",
+    "max_roof_height": "Altezza massima del tetto [m s.l.m]",
     "measure": "Misurazione",
     "measure_instruction": "Digitalizzare una polilinea...",
     "measure_tooltip": "Misurazione sulla mappa",
