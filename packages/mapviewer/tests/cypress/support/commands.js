@@ -106,6 +106,19 @@ Cypress.Commands.add(
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
         flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
 
+
+        // Granting permission to use the clipboard (Chrome doesn't allow by default on the CI)
+        // see https://github.com/cypress-io/cypress/issues/8957#issuecomment-1598395348
+        cy.wrap(
+            Cypress.automation('remote:debugger:protocol', {
+                command: 'Browser.grantPermissions',
+                params: {
+                    permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+                    origin: window.location.origin,
+                },
+            })
+        )
+
         cy.visit(`/${withHash ? '#/map' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
