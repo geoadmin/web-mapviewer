@@ -878,11 +878,11 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait('@post-kml')
+            cy.wait('@delete-kml')
 
             let deletedKmlId = null
 
-            cy.wait('@post-kml').then((interception) => {
+            cy.wait('@delete-kml').then((interception) => {
                 deletedKmlId = interception.response.body.id
             })
 
