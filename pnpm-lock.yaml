@@ -150,6 +150,9 @@ catalogs:
     eslint:
       specifier: ^9.19.0
       version: 9.20.1
+    eslint-config-prettier:
+      specifier: ^10.0.1
+      version: 10.0.1
     eslint-plugin-cypress:
       specifier: ^4.1.0
       version: 4.1.0
@@ -159,9 +162,9 @@ catalogs:
     eslint-plugin-perfectionist:
       specifier: ^4.8.0
       version: 4.8.0
-    eslint-plugin-prettier-vue:
-      specifier: ^5.0.0
-      version: 5.0.0
+    eslint-plugin-prettier:
+      specifier: ^5.2.3
+      version: 5.2.3
     eslint-plugin-vue:
       specifier: ^9.32.0
       version: 9.32.0
@@ -339,6 +342,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.20.1
+      eslint-config-prettier:
+        specifier: 'catalog:'
+        version: 10.0.1(eslint@9.20.1)
       eslint-plugin-cypress:
         specifier: 'catalog:'
         version: 4.1.0(eslint@9.20.1)
@@ -348,9 +354,9 @@ importers:
       eslint-plugin-perfectionist:
         specifier: 'catalog:'
         version: 4.8.0(eslint@9.20.1)(typescript@5.7.3)
-      eslint-plugin-prettier-vue:
+      eslint-plugin-prettier:
         specifier: 'catalog:'
-        version: 5.0.0
+        version: 5.2.3(eslint-config-prettier@10.0.1(eslint@9.20.1))(eslint@9.20.1)(prettier@3.5.0)
       eslint-plugin-vue:
         specifier: 'catalog:'
         version: 9.32.0(eslint@9.20.1)
@@ -2696,10 +2702,6 @@ packages:
     peerDependencies:
       eslint: '>=8.0.0'
 
-  eslint-plugin-prettier-vue@5.0.0:
-    resolution: {integrity: sha512-VsWmk/fftpjHBM7QFci0jZDLsc6Fh7jhenDHJ7Mbd/V0EMolcbezJRhtidE//3Liy5vEaVeX+U3skCQduWlmGA==}
-    engines: {node: '>=16'}
-
   eslint-plugin-prettier@5.2.3:
     resolution: {integrity: sha512-qJ+y0FfCp/mQYQ/vWQ3s7eUlFEL4PyKfAJxsnYTJ4YT73nsJBWqmEpFryxV9OeUiqmsTsYJ5Y+KDNaeP31wrRw==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -4242,10 +4244,6 @@ packages:
 
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
-
-  synckit@0.8.8:
-    resolution: {integrity: sha512-HwOKAP7Wc5aRGYdKH+dw0PRRpbO841v2DENBtjnR5HFWoiNByAl7vrx3p0G/rCyYXQsrxqtX48TImFtPcIHSpQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
 
   synckit@0.9.2:
     resolution: {integrity: sha512-vrozgXDQwYO72vHjUb/HnFbQx1exDjoKzqx23aXEg2a9VIg2TSFZ8FmeZpTjUCFMYw7mpX4BE2SFu8wI7asYsw==}
@@ -7504,14 +7502,6 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-prettier-vue@5.0.0:
-    dependencies:
-      '@vue/compiler-sfc': 3.5.13
-      picocolors: 1.1.1
-      prettier: 3.5.0
-      prettier-linter-helpers: 1.0.0
-      synckit: 0.8.8
-
   eslint-plugin-prettier@5.2.3(eslint-config-prettier@10.0.1(eslint@9.20.1))(eslint@9.20.1)(prettier@3.5.0):
     dependencies:
       eslint: 9.20.1
@@ -9417,11 +9407,6 @@ snapshots:
       tinyqueue: 2.0.3
 
   symbol-tree@3.2.4: {}
-
-  synckit@0.8.8:
-    dependencies:
-      '@pkgr/core': 0.1.1
-      tslib: 2.8.1
 
   synckit@0.9.2:
     dependencies:
