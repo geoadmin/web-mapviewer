@@ -879,19 +879,27 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
+
             let deletedKmlId = null
+
             cy.wait('@post-kml').then((interception) => {
-                cy.wrap(interception).its('request')
                 deletedKmlId = interception.response.body.id
+            })
+
+            cy.waitUntil(() => deletedKmlId !== null, {
+                timeout: 5000,
+                interval: 200,
             })
 
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
+
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.have.length(0)
                 })
+
             cy.get('[data-cy="drawing-toolbox-delete-button"]').should('have.attr', 'disabled')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
@@ -901,7 +909,7 @@ describe('Drawing module tests', () => {
             ).should('have.attr', 'disabled')
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
 
-            //draws something new to verify that the kml id being sent is different
+            // Draw something new to verify that the KML ID being sent is different
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
@@ -909,10 +917,13 @@ describe('Drawing module tests', () => {
 
             let newKmlId = null
             cy.wait('@post-kml').then((interception) => {
-                cy.wrap(interception).its('request')
                 newKmlId = interception.response.body.id
+            })
 
-                // assess that deletedKmlId != newKmlId
+            cy.waitUntil(() => newKmlId !== null, {
+                timeout: 5000,
+                interval: 200,
+            }).then(() => {
                 expect(deletedKmlId).to.not.equal(newKmlId)
             })
         })
