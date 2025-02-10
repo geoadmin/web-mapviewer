@@ -4,8 +4,6 @@ catalog:
   "@4tw/cypress-drag-drop": ^2.3.0
   "@cypress/vite-dev-server": ^6.0.2
   "@cypress/vue": ^6.0.2
-  "@eslint/eslintrc": ^3.2.0
-  "@eslint/js": ^9.19.0
   "@eslint/markdown": ^6.2.2
   "@fontsource/noto-sans": ^5.1.1
   "@fortawesome/fontawesome-svg-core": ^6.7.2
