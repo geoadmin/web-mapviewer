@@ -100,19 +100,10 @@ function getIframeHosts(value) {
 
 <template>
     <!-- eslint-disable vue/no-v-html-->
-    <div
-        v-if="hasFeatureStringData && popupDataCanBeTrusted"
-        v-html="feature.data"
-    />
-    <div
-        v-else-if="hasFeatureStringData"
-        v-html="sanitizeHtml(feature.data)"
-    />
+    <div v-if="hasFeatureStringData && popupDataCanBeTrusted" v-html="feature.data" />
+    <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <!-- eslint-enable vue/no-v-html-->
-    <div
-        v-else
-        class="htmlpopup-container"
-    >
+    <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div
                 v-for="[key, value, externalIframeHosts] in sanitizedFeatureDataEntries"
@@ -125,22 +116,17 @@ function getIframeHosts(value) {
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 />
-                <div
-                    v-else
-                    class="flex-row"
-                >
+                <div class="flex-row">
                     <table class="w-100">
-                        <tr>
-                            <td class="fw-bold cell-left">
-                                {{ i18n.t(key) }}
-                            </td>
-                            <!-- eslint-disable-next-line vue/no-v-html, prettier-vue/prettier-->
-                            <td
-                                data-cy="feature-detail-description-content"
-                                class="float-right text-end pr-3"
-                                v-html="i18n.t(value)"
-                            />
-                        </tr>
+                        <td v-if="!externalIframeHosts.length" class="fw-bold cell-left">
+                            {{ t(key) }}
+                        </td>
+                        <!-- eslint-disable-next-line vue/no-v-html, prettier-vue/prettier-->
+                        <td
+                            data-cy="feature-detail-description-content"
+                            class="float-right text-end pr-3"
+                            v-html="t(value)"
+                        />
                     </table>
                 </div>
             </div>
@@ -159,10 +145,7 @@ function getIframeHosts(value) {
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon
-                    class="small align-text-top"
-                    icon="fas fa-map-marker-alt"
-                />
+                <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
         </div>
     </div>
