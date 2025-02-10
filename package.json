@@ -26,8 +26,6 @@
         "pnpm": "10.*.*"
     },
     "devDependencies": {
-        "@eslint/eslintrc": "catalog:",
-        "@eslint/js": "catalog:",
         "@eslint/markdown": "catalog:",
         "@types/geojson": "catalog:",
         "@types/jsdom": "catalog:",
