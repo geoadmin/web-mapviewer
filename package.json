@@ -44,10 +44,11 @@
         "prettier-plugin-jsdoc": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
-        "vite": "^6.0.11",
+        "vue-tsc": "catalog:",
+        "@prettier/plugin-xml": "catalog:",
+        "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
-        "vitest": "^3.0.5",
-        "vue-tsc": "catalog:"
+        "vitest": "catalog:"
     },
     "dependencies": {
         "cesium": "catalog:"

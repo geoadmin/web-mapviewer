@@ -355,13 +355,13 @@ importers:
         specifier: 'catalog:'
         version: 8.24.0(eslint@9.20.1)(typescript@5.7.3)
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.2)(sass@1.77.6)
       vite-plugin-dts:
         specifier: 'catalog:'
         version: 4.5.0(@types/node@22.13.2)(rollup@4.34.6)(typescript@5.7.3)(vite@6.1.0(@types/node@22.13.2)(sass@1.77.6))
       vitest:
-        specifier: ^3.0.5
+        specifier: 'catalog:'
         version: 3.0.5(@types/debug@4.1.12)(@types/node@22.13.2)(jsdom@26.0.0)(sass@1.77.6)
       vue-tsc:
         specifier: 'catalog:'
