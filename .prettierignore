@@ -1,2 +1,4 @@
 package.json
 package-lock.json
+**/*tests/samples/**
+**/*tests/cypress/fixtures/**
