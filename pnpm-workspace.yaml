@@ -28,6 +28,7 @@ catalog:
   "@vitejs/plugin-basic-ssl": ^1.2.0
   "@vitejs/plugin-vue": ^5.2.1
   "@vue/tsconfig": ^0.7.0
+  "@vue/eslint-config-prettier": "^10.2.0"
   animate.css: ^4.1.1
   axios: ^1.7.9
   axios-retry: ^4.5.0
@@ -48,7 +49,6 @@ catalog:
   eslint-plugin-cypress: ^4.1.0
   eslint-plugin-mocha: ^10.5.0
   eslint-plugin-perfectionist: ^4.8.0
-  eslint-plugin-vue: ^9.32.0
   eslint-config-prettier: "^10.0.1"
   eslint-plugin-prettier: "^5.2.3"
   file-saver: ^2.0.5
