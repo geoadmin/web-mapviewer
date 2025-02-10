@@ -33,7 +33,6 @@
         "@types/jsdom": "catalog:",
         "@types/node": "catalog:",
         "@types/proj4": "catalog:",
-        "@vue/eslint-config-typescript": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-cypress": "catalog:",

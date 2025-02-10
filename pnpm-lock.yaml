@@ -90,12 +90,6 @@ catalogs:
     '@vitejs/plugin-vue':
       specifier: ^5.2.1
       version: 5.2.1
-    '@vue/eslint-config-prettier':
-      specifier: ^10.2.0
-      version: 10.2.0
-    '@vue/eslint-config-typescript':
-      specifier: ^14.3.0
-      version: 14.4.0
     '@vue/tsconfig':
       specifier: ^0.7.0
       version: 0.7.0
@@ -333,9 +327,6 @@ importers:
       '@types/proj4':
         specifier: 'catalog:'
         version: 2.5.6
-      '@vue/eslint-config-typescript':
-        specifier: 'catalog:'
-        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.20.1))(eslint@9.20.1)(typescript@5.7.3)
       '@vue/tsconfig':
         specifier: 'catalog:'
         version: 0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
@@ -597,12 +588,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 5.2.1(vite@6.1.0(@types/node@22.13.2)(sass@1.77.6))(vue@3.5.13(typescript@5.7.3))
-      '@vue/eslint-config-prettier':
-        specifier: 'catalog:'
-        version: 10.2.0(eslint@9.20.1)(prettier@3.5.0)
-      '@vue/eslint-config-typescript':
-        specifier: 'catalog:'
-        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.20.1))(eslint@9.20.1)(typescript@5.7.3)
       '@vue/tsconfig':
         specifier: 'catalog:'
         version: 0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
@@ -1966,23 +1951,6 @@ packages:
 
   '@vue/devtools-api@6.6.4':
     resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
-
-  '@vue/eslint-config-prettier@10.2.0':
-    resolution: {integrity: sha512-GL3YBLwv/+b86yHcNNfPJxOTtVFJ4Mbc9UU3zR+KVoG7SwGTjPT+32fXamscNumElhcpXW3mT0DgzS9w32S7Bw==}
-    peerDependencies:
-      eslint: '>= 8.21.0'
-      prettier: '>= 3.0.0'
-
-  '@vue/eslint-config-typescript@14.4.0':
-    resolution: {integrity: sha512-daU+eAekEeVz3CReE4PRW25fe+OJDKwE28jHN6LimDEnuFMbJ6H4WGogEpNof276wVP6UvzOeJQfLFjB5mW29A==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^9.10.0
-      eslint-plugin-vue: ^9.28.0
-      typescript: '>=4.8.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   '@vue/language-core@2.2.0':
     resolution: {integrity: sha512-O1ZZFaaBGkKbsRfnVH1ifOK1/1BUkyK+3SQsfnh6PmMmD4qJcTU8godCeA96jjDRTL6zgnK7YzCHfaUlH2r0Mw==}
@@ -6733,28 +6701,6 @@ snapshots:
       he: 1.2.0
 
   '@vue/devtools-api@6.6.4': {}
-
-  '@vue/eslint-config-prettier@10.2.0(eslint@9.20.1)(prettier@3.5.0)':
-    dependencies:
-      eslint: 9.20.1
-      eslint-config-prettier: 10.0.1(eslint@9.20.1)
-      eslint-plugin-prettier: 5.2.3(eslint-config-prettier@10.0.1(eslint@9.20.1))(eslint@9.20.1)(prettier@3.5.0)
-      prettier: 3.5.0
-    transitivePeerDependencies:
-      - '@types/eslint'
-
-  '@vue/eslint-config-typescript@14.4.0(eslint-plugin-vue@9.32.0(eslint@9.20.1))(eslint@9.20.1)(typescript@5.7.3)':
-    dependencies:
-      '@typescript-eslint/utils': 8.24.0(eslint@9.20.1)(typescript@5.7.3)
-      eslint: 9.20.1
-      eslint-plugin-vue: 9.32.0(eslint@9.20.1)
-      fast-glob: 3.3.3
-      typescript-eslint: 8.24.0(eslint@9.20.1)(typescript@5.7.3)
-      vue-eslint-parser: 9.4.3(eslint@9.20.1)
-    optionalDependencies:
-      typescript: 5.7.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@vue/language-core@2.2.0(typescript@5.7.3)':
     dependencies:
