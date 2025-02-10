@@ -38,7 +38,10 @@ const { t } = useI18n()
             class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer"
             @click="showContent = !showContent"
         >
-            <FontAwesomeIcon :icon="`caret-${showContent ? 'down' : 'right'}`" class="me-2" />
+            <FontAwesomeIcon
+                :icon="`caret-${showContent ? 'down' : 'right'}`"
+                class="me-2"
+            />
             <span class="flex-grow-1">
                 <strong v-if="name">{{ t(name) }}</strong>
             </span>
@@ -47,7 +50,10 @@ const { t } = useI18n()
                 <span v-if="canLoadMore">+</span>
             </small>
         </div>
-        <div v-if="showContent" class="feature-list-category-children">
+        <div
+            v-if="showContent"
+            class="feature-list-category-children"
+        >
             <FeatureListCategoryItem
                 v-for="(child, index) in children"
                 :key="child.id"

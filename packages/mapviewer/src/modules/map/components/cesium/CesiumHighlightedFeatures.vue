@@ -4,6 +4,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -12,7 +13,6 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
 const dispatcher = {
     dispatcher: 'CesiumHighlightedFeatures.vue',
@@ -121,11 +121,7 @@ function setBottomPanelFeatureInfoPosition() {
                 <FontAwesomeIcon icon="angles-down" />
             </button>
         </template>
-        <FeatureStyleEdit
-            v-if="editFeature"
-            :feature="editFeature"
-            read-only
-        />
+        <FeatureStyleEdit v-if="editFeature" :feature="editFeature" read-only />
         <FeatureList />
     </CesiumPopover>
 </template>

@@ -20,7 +20,6 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { createPixelExtentAround } from '@/utils/extentUtils'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
