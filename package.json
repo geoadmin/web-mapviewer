@@ -19,7 +19,9 @@
         "test:component": "pnpm run -r --filter=web-mapviewer test:component",
         "test:component:ci": "pnpm run -r --filter=web-mapviewer test:component:ci",
         "lint": "eslint --fix",
-        "lint:no-fix": "eslint"
+        "lint:no-fix": "eslint",
+        "format": "prettier --write packages",
+        "format:check": "prettier --check packages"
     },
     "engines": {
         "node": ">=22",
