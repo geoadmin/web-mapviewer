@@ -25,7 +25,9 @@
         "test:component": "npm run test:component --workspace=web-mapviewer",
         "test:component:ci": "npm run test:component:ci --workspace=web-mapviewer",
         "lint": "eslint --fix",
-        "lint:no-fix": "eslint"
+        "lint:no-fix": "eslint",
+        "format": "prettier --write packages",
+        "format:check": "prettier --check packages"
     },
     "engines": {
         "node": ">=22",
