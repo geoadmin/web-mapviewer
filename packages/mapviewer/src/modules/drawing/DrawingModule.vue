@@ -2,7 +2,16 @@
 import log from 'geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
+import {
+    computed,
+    inject,
+    onBeforeUnmount,
+    onMounted,
+    provide,
+    ref,
+    useTemplateRef,
+    watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -23,10 +32,10 @@ const dispatcher = { dispatcher: 'DrawingModule.vue' }
 
 const olMap = inject('olMap')
 
-const drawingInteractions = ref(null)
+const drawingInteractions = useTemplateRef('drawingInteractions')
 const isNewDrawing = ref(true)
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 const projection = computed(() => store.state.position.projection)
@@ -74,7 +83,7 @@ const {
     clearPendingSaveDrawing,
     saveState,
     savesInProgress,
-} = useKmlDataManagement(drawingLayer)
+} = useKmlDataManagement(() => drawingLayer)
 const isDrawingModified = computed(() => {
     return ![DrawingState.INITIAL, DrawingState.LOADED, DrawingState.LOAD_ERROR].includes(
         saveState.value
@@ -163,7 +172,7 @@ onMounted(() => {
         addKmlToDrawing()
     } else {
         store.dispatch('setDrawingName', {
-            name: i18n.t('draw_layer_label'),
+            name: t('draw_layer_label'),
             ...dispatcher,
         })
     }

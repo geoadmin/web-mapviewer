@@ -1,21 +1,17 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuItemCheckBox from '@/modules/menu/components/common/MenuItemCheckBox.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'MenuThreeD.vue' }
 
-useTippyTooltip('.menu-three-d [data-tippy-content]')
-
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
-const { compact } = toRefs(props)
 const store = useStore()
 
 const labels = computed({

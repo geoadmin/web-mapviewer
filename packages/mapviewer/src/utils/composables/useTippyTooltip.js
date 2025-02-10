@@ -1,99 +1,82 @@
-import tippy from 'tippy.js'
-import { onBeforeUnmount, onMounted } from 'vue'
+import tippy, { roundArrow } from 'tippy.js'
+import { onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 /**
- * Configure Tippy
+ * Configure TippyJS on the element(s) given as poram
  *
- * This composable is to be use for simple tooltip use case, more complex use case should be
- * directly use the tippy library.
- *
- * When a component and/or subcomponent needs to have simple tooltip you can use this composable by
- * simply passing a ref or a CSS selector as input parameter, then set the tippy content to the
- * element data-tippy-content attribute. The content can be either a text or a i18n key that will be
- * translated. The translation happens during renderer so we don't have to listen to language
- * changes.
- *
- * The tippy element will automatically also have a data-cy=tippy-${dataCyFromElement} attribute
- * with dataCyFromElement being the data-cy attribute value of the tippy target. This data-cy
- * attribute can be used then to test the tippy in cypress see example below.
+ * This composable will watch over the two main arguments (selector and content) and refresh the
+ * TippyJS instance accordingly. Any content will be automicaly translated.
  *
  * WARNING: the selector should not be too general as it might match other component outside of this
  * one and it can set multiple tooltip to component resulting to subtle bugs.
  *
  * @example
- *     useTippyTooltip('#myId[data-tippy-content]')
+ *     const myElement = useTemplateRef('myElement')
+ *     useTippyTooltip(myElement, 'My Tooltip')
  *
- *     <div id="myId" data-tippy-content="My Tooltip">My element</div>
+ *     <div ref="myElement">My element</div>
  *
  * @example
- *     useTippyTooltip('#myId [data-tippy-content]')
+ *     const items = [
+ *     {
+ *     title: 'item 1',
+ *     description: 'Tooltip content for item 1',
+ *     },
+ *     {
+ *     title: 'item 2',
+ *     description: 'Tooltip content for item 2',
+ *     },
+ *     ]
  *
- *     <div id="myId">
- *     <div data-tippy-content="My Tooltip 1">sub element 1</div>
- *     <div data-tippy-content="My Tooltip 2">sub element 2</div>
+ *     const tooltipAnchors = useTemplateRef('tooltipAnchors')
+ *     const tooltipContents = computed(() => items.map((item) => item.description))
+ *     useTippyTooltip(tooltipAnchors, tooltipContents)
+ *
+ *     <div v-for="item in items" :key="item.name" data-cy="item-lits">
+ *     <div ref="tooltipAnchors" :data-cy="`item-${item.name}`">{{ item.name }}</div>
  *     </div>
  *
- * @example
- *     useTippyTooltip('#myId [data-tippy-content]')
+ *     // Then in cypress you can use the following code snippet to test the tooltip content
+ *     cy.get('[data-cy="item-lits"]').realHover()
+ *     cy.get('[data-cy="tippy-item 1"]').should('be.visible')
  *
- *     <div id="myId">
- *     <div data-tippy-content="My Tooltip 1" data-cy="my-div-1">sub element 1</div>
- *     <div data-tippy-content="My Tooltip 2" data-cy="my-div-2">sub element 2</div>
- *     </div>
- *
- *     // Then in cypress you can use the following code snippet to test the tippy content
- *     cy.get('[data-cy="my-div-1"]').realHover()
- *     cy.get('[data-cy="tippy-my-div-1"]').should('be.visible')
- *
- * @example
- *     const element = () => myRefToElement.value.querySelector('[data-tippy-content'])
- *     useTippyTooltip(element)
- *
- *     // this is a good idea if the tooltip initiator is occuring more than once, i.e.
- *     // in a for loop
- *
- * @param {string | Component} selector Selector for element(s) to add a tooltip. You can also use
- *   an element reference or list of elements reference to attach the tooltip
- * @param {{ theme: string; placement: string; delay: [number, number] }} options Options for the
- *   tippy
- * @param {string} options.theme Theme to use for the tippy
- * @param {string} options.placement Tippy placement
- * @param {[number, number]} options.delay Tippy delay
- * @param {boolean} translate Indicates if tippy content should get translated
- * @param {boolean} allowHTML Indicates if tippy content contains HTML code
- * @param {boolean} offset Displaces the tippy from its reference element in pixels (skidding and
- *   distance).
+ * @param {ShallowRef<HTMLElement> | ShallowRef<HTMLElement[]>} refs References to element(s) to add
+ *   a tooltip
+ * @param {string | string[]} content Content for the tooltip. In case your are providing multiple
+ *   refs and want a different content for each, you can provide an array of content the same length
+ *   as refs (same order as refs)
+ * @param {Object} options Options for the TippyJS instance
+ * @param {string} options.theme Theme to use for the tooltip. If no theme is given, the theme
+ *   'light' will be used.
+ * @param {string} options.placement Tooltip placement. Will default to 'top' if nothing is
+ *   provided.
+ * @param {[number, number]} options.delay Tooltip [show,hide] delay, in ms. Will default to [300,0]
+ *   if nothing is provided.
+ * @param {boolean} options.allowHTML Indicates if the tooltip content contains HTML code. Default
+ *   to false
+ * @param {boolean} options.offset Displaces the tooltip from its reference element in pixels,
+ *   default is [0, 10] (skidding and distance).
  */
-export function useTippyTooltip(
-    selector,
-    {
-        theme = null,
-        placement = null,
-        delay = [300, 0],
-        translate = true,
-        allowHTML = false,
-        offset = [0, 10], // the default value from tippy
-    } = {}
-) {
+export function useTippyTooltip(refs, content, options = {}) {
     // variable holding the tooltip instances
     let tooltips = null
 
-    const options = { delay }
-    if (theme) {
-        options.theme = theme
-    }
-    if (placement) {
-        options.placement = placement
-    }
-    if (allowHTML) {
-        options.allowHTML = allowHTML
-    }
-    if (offset) {
-        options.offset = offset
+    const finalOptions = {
+        arrow: roundArrow + roundArrow,
+        // Show tippy on long touch for mobile devices
+        touch: ['hold', 500], // 500ms delay,
+        // passing any other options given by the user
+        ...options,
+        // setting some defaults if user didn't provide important values
+        theme: options.theme ?? 'light',
+        placement: options.placement ?? 'top',
+        delay: options.delay ?? [300, 0],
+        allowHTML: !!options.allowHTML,
+        offset: options.offset ?? [0, 10], // the default value from tippy
     }
 
-    const i18n = useI18n()
+    const { t } = useI18n()
 
     onMounted(() => {
         refreshTippyAttachment()
@@ -103,14 +86,22 @@ export function useTippyTooltip(
         removeTippy()
     })
 
-    function _translateContent() {
-        tooltips?.forEach((tp) => {
-            tp.setContent(
-                translate
-                    ? i18n.t(tp.reference.attributes['data-tippy-content'].value)
-                    : tp.reference.attributes['data-tippy-content'].value
-            )
-        })
+    function onContentUpdate() {
+        if (toValue(content)) {
+            if (tooltips?.length > 0) {
+                tooltips.forEach((tp, index) => {
+                    if (Array.isArray(toValue(content))) {
+                        tp.setContent(t(toValue(content)[index]))
+                    } else {
+                        tp.setContent(t(toValue(content)))
+                    }
+                })
+            } else {
+                refreshTippyAttachment()
+            }
+        } else {
+            removeTippy()
+        }
     }
 
     function removeTippy() {
@@ -119,21 +110,26 @@ export function useTippyTooltip(
     }
 
     function refreshTippyAttachment() {
-        // if the selector is a function, call it.
+        // if thpe selector is a function, call it.
         // this allows for lazy loading/referencing of DOM elements
-        if (typeof selector === 'function') {
-            selector = selector()
+        let attachment = toValue(refs)
+        if (typeof attachment === 'function') {
+            attachment = attachment()
         }
         removeTippy()
 
-        tooltips = tippy(selector, {
-            ...options,
-            arrow: true,
-            // Show tippy on long touch for mobile device
-            touch: ['hold', 500], // 500ms delay,
+        if (
+            !attachment ||
+            !toValue(content) ||
+            (Array.isArray(toValue(content)) && !toValue(content).length)
+        ) {
+            return
+        }
+
+        tooltips = tippy(attachment, {
             // we need to set the content dynamically onTrigger otherwise the tippy would
             // not be reactive when the data-tippy-content changes
-            onTrigger: () => _translateContent(),
+            onTrigger: () => onContentUpdate(),
             onCreate: (instance) => {
                 // Set a data-cy attribute that can be used for e2e tests
                 const dataCy = instance.reference.getAttribute('data-cy')
@@ -141,6 +137,7 @@ export function useTippyTooltip(
                     instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
                 }
             },
+            ...finalOptions,
         })
 
         if (!Array.isArray(tooltips)) {
@@ -148,6 +145,9 @@ export function useTippyTooltip(
             // the following operations behave exactly the same
             tooltips = [tooltips]
         }
+
+        watch(toRef(content), onContentUpdate)
+        watch(toRef(refs), refreshTippyAttachment)
     }
     return { refreshTippyAttachment, removeTippy }
 }

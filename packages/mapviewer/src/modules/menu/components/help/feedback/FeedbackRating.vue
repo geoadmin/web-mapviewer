@@ -1,7 +1,7 @@
 <script setup>
-import { ref, toRefs, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-const props = defineProps({
+const { maxRating, disabled } = defineProps({
     maxRating: {
         type: Number,
         default: 5,
@@ -11,7 +11,6 @@ const props = defineProps({
         default: false,
     },
 })
-const { maxRating, disabled } = toRefs(props)
 
 const emit = defineEmits(['ratingChange'])
 
@@ -19,20 +18,23 @@ const rating = ref(0)
 const previewRating = ref(0)
 const pristine = ref(true)
 
-watch(disabled, (isNowDisabled) => {
-    if (isNowDisabled) {
-        // removing any previewed rating if the rating switches to its disabled mode
-        previewRating.value = 0
+watch(
+    () => disabled,
+    (isNowDisabled) => {
+        if (isNowDisabled) {
+            // removing any previewed rating if the rating switches to its disabled mode
+            previewRating.value = 0
+        }
     }
-})
+)
 
 function setPreviewRating(newRating) {
-    if (!disabled.value) {
+    if (!disabled) {
         previewRating.value = newRating
     }
 }
 function setRating(newRating) {
-    if (!disabled.value) {
+    if (!disabled) {
         pristine.value = false
         rating.value = newRating
         emit('ratingChange', rating.value)

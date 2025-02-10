@@ -1,27 +1,27 @@
 @import './webmapviewer-bootstrap-theme';
 // Importing Tippy globally, so that we do not need to import it in each component using it
 @import 'tippy.js/dist/tippy.css';
-@import 'tippy.js/themes/light-border.css';
+@import 'tippy.js/dist/svg-arrow.css';
+@import 'tippy.js/dist/border.css';
 
 @mixin createTippyTheme($themeName, $themeBackgroundColor, $themeTextColor) {
     .tippy-box[data-theme~='#{$themeName}'] {
         background-color: $themeBackgroundColor;
         color: $themeTextColor;
-        &[data-placement^='top'] > .tippy-arrow::before {
-            border-top-color: $themeBackgroundColor;
+        $borderColor: darken($themeBackgroundColor, 10%);
+        border: 1px solid $borderColor;
+        // border of the SVG arrow
+        & > .tippy-svg-arrow > svg:first-child {
+            fill: $borderColor;
         }
-        &[data-placement^='bottom'] > .tippy-arrow::before {
-            border-bottom-color: $themeBackgroundColor;
-        }
-        &[data-placement^='left'] > .tippy-arrow::before {
-            border-left-color: $themeBackgroundColor;
-        }
-        &[data-placement^='right'] > .tippy-arrow::before {
-            border-right-color: $themeBackgroundColor;
+        // fill of the SVG arrow
+        & > .tippy-svg-arrow > svg:last-child {
+            fill: $themeBackgroundColor;
         }
     }
 }
 
+@include createTippyTheme('light', $white, $black);
 @include createTippyTheme('danger', $danger, $white);
 @include createTippyTheme('primary', $primary, $white);
 @include createTippyTheme('dark', $gray-800, $white);

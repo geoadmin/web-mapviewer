@@ -3,14 +3,14 @@ import log from 'geoadmin/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 
-const props = defineProps({
+const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmtsLayerConfig: {
         type: GeoAdminWMTSLayer,
         required: true,
@@ -24,29 +24,28 @@ const props = defineProps({
         default: -1,
     },
 })
-const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 // extracting useful info from what we've linked so far
-const layerId = computed(() => wmtsLayerConfig.value.technicalName)
-const maxResolution = computed(() => wmtsLayerConfig.value.maxResolution)
-const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity)
+const layerId = computed(() => wmtsLayerConfig.technicalName)
+const maxResolution = computed(() => wmtsLayerConfig.maxResolution)
+const opacity = computed(() => parentLayerOpacity ?? wmtsLayerConfig.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
-const timestamp = computed(() => getTimestampFromConfig(wmtsLayerConfig.value))
+const timestamp = computed(() => getTimestampFromConfig(wmtsLayerConfig))
 const wmtsSourceConfig = computed(() => {
     return {
         // No local cache, so that our CloudFront cache is always used. Was creating an issue on mf-geoadmin3, see :
         // https://github.com/geoadmin/mf-geoadmin3/issues/3491
         cacheSize: 0,
         layer: layerId.value,
-        format: wmtsLayerConfig.value.format,
+        format: wmtsLayerConfig.format,
         projection: projection.value.epsg,
         tileGrid: createTileGridForProjection(),
         url: getTransformedXYZUrl(),
         matrixSet: projection.value.epsg,
-        attributions: wmtsLayerConfig.value.attribution,
+        attributions: wmtsLayerConfig.attribution,
         // so that XYZ values will be filled as TileCol, TileRow and TileMatrix in the URL (see getWMTSUrl below)
         requestEncoding: 'REST',
     }
@@ -63,7 +62,7 @@ const layer = new TileLayer({
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 // reacting to changes accordingly
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
@@ -75,7 +74,7 @@ watch(wmtsTimeConfig, () => {
 })
 
 function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig.value, projection.value)
+    return getWmtsXyzUrl(wmtsLayerConfig, projection.value)
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -11,16 +11,16 @@ import { isValidUrl } from '@/utils/utils'
 
 const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 // Reactive data
 const url = ref('')
 const capabilitiesParsed = ref(false)
 const errorMessage = ref(null)
-const providerList = ref(null)
+const providerList = useTemplateRef('providerList')
 const isLoading = ref(false)
-const providerIntput = ref(null)
+const providerInput = useTemplateRef('providerInput')
 
 const { providers, showProviders, toggleProviders } = useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
@@ -59,7 +59,7 @@ function clearUrl(event) {
     if (event.screenX !== 0 || event.screenY !== 0) {
         // only focus on the provider input when the clear button has been clicked
         // and when it is a real click event (not a key stroke)
-        providerIntput.value.focus()
+        providerInput.value.focus()
     }
     emit('capabilities:cleared')
 }
@@ -100,7 +100,7 @@ function onToggleProviders(event) {
     if (showProviders.value && (event.screenX !== 0 || event.screenY !== 0)) {
         // only focus on the provider input when the provider list has been opened
         // and when it is a real click event (not a key stroke)
-        providerIntput.value.focus()
+        providerInput.value.focus()
     }
 }
 
@@ -116,7 +116,7 @@ function hideProviders() {
     >
         <form class="input-group input-group-sm has-validation">
             <input
-                ref="providerIntput"
+                ref="providerInput"
                 v-model="url"
                 type="text"
                 class="form-control text-truncate rounded-end-0"
@@ -126,8 +126,8 @@ function hideProviders() {
                     'url-input-dropdown-open': showProviders,
                 }"
                 :disabled="isLoading"
-                :aria-label="i18n.t('import_maps_url_placeholder')"
-                :placeholder="i18n.t('import_maps_url_placeholder')"
+                :aria-label="t('import_maps_url_placeholder')"
+                :placeholder="t('import_maps_url_placeholder')"
                 aria-describedby="urlInputControlBtnGrp urlToggleProviderButton urlClearButton urlConnectButton urlInvalidMessageFeedback"
                 data-cy="import-catalogue-input"
                 @input="onUrlChange"
@@ -184,7 +184,7 @@ function hideProviders() {
                     data-cy="import-connect-button"
                     @click.stop="connect"
                 >
-                    {{ i18n.t(connectButtonKey) }}
+                    {{ t(connectButtonKey) }}
                     <font-awesome-icon
                         v-if="isLoading"
                         class="ms-1"
@@ -199,7 +199,7 @@ function hideProviders() {
                 class="invalid-feedback"
                 data-cy="import-catalog-invalid-feedback"
             >
-                {{ i18n.t(errorMessage) }}
+                {{ t(errorMessage) }}
             </div>
         </form>
         <ProviderList
@@ -208,6 +208,7 @@ function hideProviders() {
             :providers="providers"
             :show-providers="showProviders"
             @choose-provider="chooseProvider"
+            @hide="showProviders = false"
         />
     </div>
 </template>

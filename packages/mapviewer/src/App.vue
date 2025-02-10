@@ -15,7 +15,7 @@ import debounce from '@/utils/debounce'
 const withOutline = ref(false)
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'App.vue' }
 
@@ -43,7 +43,7 @@ function setScreenSizeFromWindowSize() {
     })
 }
 function refreshPageTitle() {
-    document.title = i18n.t('page_title')
+    document.title = t('page_title')
 }
 </script>
 

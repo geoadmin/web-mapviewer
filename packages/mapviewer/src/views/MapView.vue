@@ -28,7 +28,7 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const showNotSharedDrawingWarningModal = ref(false)
 const is3DActive = computed(() => store.state.cesium.active)
@@ -74,7 +74,7 @@ onUnmounted(() => {
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
-            :title="i18n.t('warning')"
+            :title="t('warning')"
             @close="showNotSharedDrawingWarningModal = false"
         >
             <ShareWarningPopup

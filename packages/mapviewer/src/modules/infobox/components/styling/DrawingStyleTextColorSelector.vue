@@ -1,10 +1,35 @@
+<script setup>
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
+
+const { currentColor } = defineProps({
+    currentColor: {
+        type: FeatureStyleColor,
+        required: true,
+    },
+})
+
+const emits = defineEmits(['change'])
+
+const colors = ref(allStylingColors)
+const font = ref(MEDIUM.font)
+
+const { t } = useI18n()
+
+function onColorChange(color) {
+    emits('change', color)
+}
+</script>
+
 <template>
     <div>
         <label
             for="drawing-style-text-color-selector"
             class="form-label"
         >
-            {{ $t('modify_text_color_label') }}
+            {{ t('modify_text_color_label') }}
         </label>
         <div
             id="drawing-style-text-color-selector"
@@ -31,31 +56,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
-
-export default {
-    props: {
-        currentColor: {
-            type: FeatureStyleColor,
-            required: true,
-        },
-    },
-    emits: ['change'],
-    data() {
-        return {
-            colors: allStylingColors,
-            font: MEDIUM.font,
-        }
-    },
-    methods: {
-        onColorChange(color) {
-            this.$emit('change', color)
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

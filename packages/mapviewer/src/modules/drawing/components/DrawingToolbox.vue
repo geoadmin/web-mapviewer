@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import DOMPurify from 'dompurify'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -22,10 +22,12 @@ const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
 const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 const emits = defineEmits(['removeLastPoint', 'closeDrawing'])
+
+const drawingNameContainer = useTemplateRef('drawingNameContainer')
 
 const drawMenuOpen = ref(true)
 const showClearConfirmationModal = ref(false)
@@ -77,13 +79,13 @@ const isDrawingStateError = computed(() => saveState.value < 0)
 const drawingStateMessage = computed(() => {
     switch (saveState.value) {
         case DrawingState.SAVING:
-            return i18n.t('draw_file_saving')
+            return t('draw_file_saving')
         case DrawingState.SAVED:
-            return i18n.t('draw_file_saved')
+            return t('draw_file_saved')
         case DrawingState.SAVE_ERROR:
-            return i18n.t('draw_file_load_error')
+            return t('draw_file_load_error')
         case DrawingState.LOAD_ERROR:
-            return i18n.t('draw_file_save_error')
+            return t('draw_file_save_error')
         default:
             return null
     }
@@ -109,7 +111,9 @@ function onCloseClearConfirmation(confirmed) {
     }
 }
 
-const { removeTippy: removeNoActiveKmlWarning } = useTippyTooltip('#drawing-name-container')
+const tooltipText = computed(() => (!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
+
+const { removeTippy: removeNoActiveKmlWarning } = useTippyTooltip(drawingNameContainer, tooltipText)
 
 onMounted(() => {
     // if there's already an active KML layer, we can remove the tippy (as it will be empty, see template below)
@@ -178,17 +182,14 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             >
                 <div
                     v-if="online"
-                    id="drawing-name-container"
+                    ref="drawingNameContainer"
                     class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
-                    :data-tippy-content="
-                        !activeKmlLayer ? i18n.t('drawing_empty_cannot_edit_name') : ''
-                    "
                 >
                     <label
                         for="drawing-name"
                         class="text-nowrap"
                     >
-                        {{ i18n.t('file_name') }}
+                        {{ t('file_name') }}
                     </label>
                     <input
                         id="drawing-name"
@@ -196,7 +197,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         type="text"
                         class="form-control"
                         data-cy="drawing-toolbox-file-name-input"
-                        :placeholder="`${i18n.t('draw_layer_label')}`"
+                        :placeholder="`${t('draw_layer_label')}`"
                         :disabled="!activeKmlLayer"
                     >
                 </div>
@@ -250,7 +251,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                                 data-cy="drawing-toolbox-delete-button"
                                 @click="showClearConfirmationModal = true"
                             >
-                                {{ i18n.t('delete') }}
+                                {{ t('delete') }}
                             </button>
                         </div>
                         <div class="col d-grid">
@@ -267,7 +268,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
-                                {{ i18n.t('share') }}
+                                {{ t('share') }}
                             </button>
                         </div>
                     </div>
@@ -281,7 +282,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                                 class="btn btn-outline-danger"
                                 @click="onDeleteLastPoint"
                             >
-                                {{ i18n.t('draw_button_delete_last_point') }}
+                                {{ t('draw_button_delete_last_point') }}
                             </button>
                         </div>
                     </div>
@@ -294,7 +295,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             data-cy="drawing-toolbox-disclaimer"
                         >
                             <!-- eslint-disable vue/no-v-html-->
-                            <small v-html="i18n.t('share_file_disclaimer')" />
+                            <small v-html="t('share_file_disclaimer')" />
                             <!-- eslint-enable vue/no-v-html-->
                         </div>
                     </div>
@@ -310,9 +311,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     @click="drawMenuOpen = !drawMenuOpen"
                 >
                     <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
-                    <span class="ms-2">{{
-                        i18n.t(drawMenuOpen ? 'close_menu' : 'open_menu')
-                    }}</span>
+                    <span class="ms-2">{{ t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
                 </button>
             </div>
         </div>
@@ -322,12 +321,12 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             fluid
             @close="onCloseClearConfirmation"
         >
-            {{ i18n.t('confirm_remove_all_features') }}
+            {{ t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
         <ModalWithBackdrop
             v-if="showShareModal"
             fluid
-            :title="i18n.t('share')"
+            :title="t('share')"
             @close="showShareModal = false"
         >
             <SharePopup :kml-layer="activeKmlLayer" />
@@ -335,7 +334,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
-            :title="i18n.t('warning')"
+            :title="t('warning')"
             @close="onCloseWarningModal()"
         >
             <ShareWarningPopup

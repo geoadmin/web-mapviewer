@@ -2,7 +2,8 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
@@ -22,7 +23,7 @@ import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
-const props = defineProps({
+const { feature, readOnly } = defineProps({
     feature: {
         type: EditableFeature,
         required: true,
@@ -32,11 +33,12 @@ const props = defineProps({
         default: false,
     },
 })
-const { feature, readOnly } = toRefs(props)
 
-const title = ref(feature.value.title)
-const description = ref(feature.value.description)
-const mediaPopovers = ref(null)
+const { t } = useI18n()
+
+const title = ref(feature.title)
+const description = ref(feature.description)
+const mediaPopovers = useTemplateRef('mediaPopovers')
 const isEditingText = computed(() => {
     const titleElement = document.getElementById('drawing-style-feature-title')
     const descriptionElement = document.getElementById('drawing-style-feature-description')
@@ -45,14 +47,14 @@ const isEditingText = computed(() => {
 
 // Update the UI when the feature changes
 watch(
-    () => feature.value.title,
+    () => feature.title,
     (newTitle) => {
         title.value = newTitle
     }
 )
 
 watch(
-    () => feature.value.description,
+    () => feature.description,
     (newDescription) => {
         description.value = newDescription
     }
@@ -91,19 +93,19 @@ function handleKeydown(event) {
 
 function updateFeatureTitle() {
     store.dispatch('changeFeatureTitle', {
-        feature: feature.value,
+        feature: feature,
         title: title.value.trim(),
         ...dispatcher,
     })
     // Update the text offset if the feature is a marker
-    if (feature.value.featureType === EditableFeatureTypes.MARKER) {
+    if (feature.featureType === EditableFeatureTypes.MARKER) {
         updateTextOffset()
     }
 }
 
 function updateFeatureDescription() {
     store.dispatch('changeFeatureDescription', {
-        feature: feature.value,
+        feature: feature,
         description: description.value,
         ...dispatcher,
     })
@@ -121,42 +123,42 @@ const coordinateFormat = computed(() => {
  *
  * @type {ComputedRef<Boolean>}
  */
-const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
-const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
-const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
+const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
+const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
 const showInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
 function onTextSizeChange(textSize) {
-    store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
+    store.dispatch('changeFeatureTextSize', { feature: feature, textSize, ...dispatcher })
     updateTextOffset()
 }
 function onPlacementChange(textPlacement) {
     store.dispatch('changeFeatureTextPlacement', {
-        feature: feature.value,
+        feature: feature,
         textPlacement,
         ...dispatcher,
     })
     updateTextOffset()
 }
 function onTextColorChange(textColor) {
-    store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
+    store.dispatch('changeFeatureTextColor', { feature: feature, textColor, ...dispatcher })
 }
 function onColorChange(color) {
-    store.dispatch('changeFeatureColor', { feature: feature.value, color, ...dispatcher })
+    store.dispatch('changeFeatureColor', { feature: feature, color, ...dispatcher })
 }
 function onIconChange(icon) {
-    store.dispatch('changeFeatureIcon', { feature: feature.value, icon, ...dispatcher })
+    store.dispatch('changeFeatureIcon', { feature: feature, icon, ...dispatcher })
     updateTextOffset()
 }
 function onIconSizeChange(iconSize) {
-    store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize, ...dispatcher })
+    store.dispatch('changeFeatureIconSize', { feature: feature, iconSize, ...dispatcher })
     updateTextOffset()
 }
 function onDelete() {
-    store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
+    store.dispatch('deleteDrawingFeature', { featureId: feature.id, ...dispatcher })
 }
 function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     mediaPopovers.value[mediaPopoverIndex].hidePopover()
@@ -166,16 +168,16 @@ function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
 function updateTextOffset() {
     if (isFeatureMarker.value) {
         const offset = calculateTextOffset(
-            feature.value.textSize.textScale,
-            feature.value.iconSize.iconScale,
-            feature.value.icon.anchor,
-            feature.value.icon.size,
-            feature.value.textPlacement,
+            feature.textSize.textScale,
+            feature.iconSize.iconScale,
+            feature.icon.anchor,
+            feature.icon.size,
+            feature.textPlacement,
             title.value
         )
 
         store.dispatch('changeFeatureTextOffset', {
-            feature: feature.value,
+            feature: feature,
             textOffset: offset,
             ...dispatcher,
         })
@@ -214,7 +216,7 @@ function mediaTypes() {
                 class="form-label"
                 for="drawing-style-feature-title"
             >
-                {{ $t('draw_popup_title_annotation') }}
+                {{ t('draw_popup_title_annotation') }}
             </label>
             <textarea
                 id="drawing-style-feature-title"
@@ -238,7 +240,7 @@ function mediaTypes() {
                     class="form-label"
                     for="drawing-style-feature-description"
                 >
-                    {{ $t('modify_description') }}
+                    {{ t('modify_description') }}
                 </label>
                 <div class="d-flex justify-content-end align-items-center">
                     <div
@@ -342,7 +344,7 @@ function mediaTypes() {
                 <DrawingStylePopoverButton
                     v-if="isFeatureLine"
                     data-cy="drawing-style-line-button"
-                    :popover-title="$t('modify_color_label')"
+                    :popover-title="t('modify_color_label')"
                     icon="paint-brush"
                 >
                     <DrawingStyleColorSelector

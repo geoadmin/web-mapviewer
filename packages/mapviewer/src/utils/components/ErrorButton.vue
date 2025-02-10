@@ -1,12 +1,11 @@
 <script setup>
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
-const props = defineProps({
+const { compact, errorMessage } = defineProps({
     compact: {
         type: Boolean,
         required: true,
@@ -16,39 +15,16 @@ const props = defineProps({
         required: true,
     },
 })
-const { compact, errorMessage } = toRefs(props)
-const errorButton = ref(null)
 
-const i18n = useI18n()
-const store = useStore()
+const { t } = useI18n()
 
-const lang = computed(() => store.state.i18n.lang)
-const translatedMessage = computed(() => i18n.t(errorMessage.value.msg, errorMessage.value.params))
+const errorButton = useTemplateRef('errorButton')
+const translatedMessage = computed(() => t(errorMessage.msg, errorMessage.params))
 
-let tippyInstance = null
-
-watch(lang, () => tippyInstance?.setContent(translatedMessage.value))
-
-onMounted(() => {
-    tippyInstance = tippy(errorButton.value, {
-        theme: 'danger',
-        content: translatedMessage.value,
-        arrow: true,
-        placement: 'top',
-        touch: false,
-        hideOnClick: false,
-        onCreate: (instance) => {
-            const dataCy = instance.reference.getAttribute('data-cy')
-            if (dataCy) {
-                instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
-            }
-        },
-    })
-})
-
-onBeforeUnmount(() => {
-    tippyInstance?.destroy()
-    tippyInstance = null
+useTippyTooltip(errorButton, translatedMessage, {
+    theme: 'danger',
+    placement: 'top',
+    hideOnClick: false,
 })
 </script>
 

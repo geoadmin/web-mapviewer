@@ -5,7 +5,7 @@
  *
  * By default the toolbox only contains the zoom in/out buttons
  */
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
@@ -13,7 +13,7 @@ import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/map/components/toolbox/ZoomButtons.vue'
 
-const props = defineProps({
+const { fullScreenButton, geolocButton, toggle3dButton, compassButton, hasHeader } = defineProps({
     /**
      * Tell the component if the map has a header, if set to true the buttons will be put right
      * below the header
@@ -28,7 +28,6 @@ const props = defineProps({
     /** Add the compass button (only available in 2D mode) */
     compassButton: { type: Boolean, default: false },
 })
-const { fullScreenButton, geolocButton, toggle3dButton, compassButton, hasHeader } = toRefs(props)
 
 const store = useStore()
 

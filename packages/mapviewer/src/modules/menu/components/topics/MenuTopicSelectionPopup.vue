@@ -1,6 +1,42 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+
+const { topics, currentId } = defineProps({
+    topics: {
+        type: Array,
+        default: () => [],
+    },
+    currentId: {
+        type: [String, null],
+        default: null,
+    },
+})
+
+const emits = defineEmits(['selectTopic', 'close'])
+
+const { t } = useI18n()
+
+function selectTopic(topic) {
+    emits('selectTopic', topic)
+}
+
+function onClose() {
+    emits('close')
+}
+
+function getTooltipMessage(id) {
+    const translationKey = `topic_${id}_tooltip`
+    const message = t(translationKey)
+    return message === translationKey || message === t(id) ? '' : message
+}
+</script>
+
 <template>
     <ModalWithBackdrop
-        :title="$t('choose_theme')"
+        :title="t('choose_theme')"
         @close="onClose"
     >
         <div class="menu-topic-popup">
@@ -20,46 +56,13 @@
                     :data-cy="`change-to-topic-${topic.id}`"
                     @click="selectTopic(topic)"
                 >
-                    <p>{{ $t(topic.id) }}</p>
+                    <span>{{ t(topic.id) }}</span>
                     <TopicIcon :topic-id="topic.id" />
                 </button>
             </div>
         </div>
     </ModalWithBackdrop>
 </template>
-
-<script>
-import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-
-export default {
-    components: { TopicIcon, ModalWithBackdrop },
-    props: {
-        topics: {
-            type: Array,
-            default: () => [],
-        },
-        currentId: {
-            type: [String, null],
-            default: null,
-        },
-    },
-    emits: ['selectTopic', 'close'],
-    methods: {
-        selectTopic(topic) {
-            this.$emit('selectTopic', topic)
-        },
-        onClose() {
-            this.$emit('close')
-        },
-        getTooltipMessage(id) {
-            const translationKey = 'topic_' + id + '_tooltip'
-            const message = this.$t(translationKey)
-            return message === translationKey || message === this.$t(id) ? '' : message
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';

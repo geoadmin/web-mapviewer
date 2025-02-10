@@ -1,7 +1,7 @@
 <script setup>
 import { resetZoom } from 'chartjs-plugin-zoom'
 import { round } from 'geoadmin/numbers'
-import { computed, onMounted, onUnmounted, ref, toRefs } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -28,11 +28,11 @@ const dispatcher = { dispatcher: 'FeatureElevationProfilePlot.vue' }
 const track = ref(false)
 const pointBeingHovered = ref(null)
 // refs
-const profileChartContainer = ref(null)
-const profileTooltip = ref(null)
-const chart = ref(null)
-// props
-const props = defineProps({
+const profileChartContainer = useTemplateRef('profileChartContainer')
+const profileTooltip = useTemplateRef('profileTooltip')
+const chart = useTemplateRef('chart')
+
+const { elevationProfile, trackingPointColor, animation } = defineProps({
     elevationProfile: {
         type: ElevationProfile,
         required: true,
@@ -44,9 +44,8 @@ const props = defineProps({
     animation: { type: Boolean, default: true },
 })
 
-const { elevationProfile, trackingPointColor, animation } = toRefs(props)
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 // computed
 const is3dActive = computed(() => store.state.cesium.active)
 const tooltipStyle = computed(() => {
@@ -90,14 +89,12 @@ const tooltipArrowStyle = computed(() => {
  * If the max distance of the profile is greater than 10'000m, we use kilometer as unit, otherwise
  * meters
  */
-const unitUsedOnDistanceAxis = computed(() =>
-    elevationProfile.value.maxDist >= 10000 ? 'km' : 'm'
-)
+const unitUsedOnDistanceAxis = computed(() => (elevationProfile.maxDist >= 10000 ? 'km' : 'm'))
 const factorToUseForDisplayedDistances = computed(() =>
     unitUsedOnDistanceAxis.value === 'km' ? 0.001 : 1.0
 )
 const tenPercentOfElevationDelta = computed(() =>
-    round((elevationProfile.value.maxElevation - elevationProfile.value.minElevation) / 10.0)
+    round((elevationProfile.maxElevation - elevationProfile.minElevation) / 10.0)
 )
 /**
  * Defines a buffer of 10% of the elevation delta (with a minimum of 5m), so that there is always
@@ -106,7 +103,7 @@ const tenPercentOfElevationDelta = computed(() =>
  */
 const yAxisMinimumValue = computed(() =>
     Math.max(
-        Math.floor(elevationProfile.value.minElevation) -
+        Math.floor(elevationProfile.minElevation) -
             Math.max(Math.floor(tenPercentOfElevationDelta.value), 5),
         0
     )
@@ -117,7 +114,7 @@ const yAxisMinimumValue = computed(() =>
  */
 const yAxisMaxValue = computed(
     () =>
-        Math.ceil(elevationProfile.value.maxElevation) +
+        Math.ceil(elevationProfile.maxElevation) +
         Math.max(Math.ceil(tenPercentOfElevationDelta.value), 5)
 )
 
@@ -132,8 +129,8 @@ const chartJsData = computed(() => {
     return {
         datasets: [
             {
-                label: `${i18n.t('elevation')}`,
-                data: elevationProfile.value.segmentPoints,
+                label: `${t('elevation')}`,
+                data: elevationProfile.segmentPoints,
                 parsing: {
                     xAxisKey: 'dist',
                     yAxisKey: 'elevation',
@@ -157,10 +154,10 @@ const chartJsScalesConfiguration = computed(() => {
     return {
         x: {
             type: 'linear',
-            max: elevationProfile.value.maxDist,
+            max: elevationProfile.maxDist,
             title: {
                 display: true,
-                text: `${i18n.t('distance_label')} [${unitUsedOnDistanceAxis.value}]`,
+                text: `${t('distance_label')} [${unitUsedOnDistanceAxis.value}]`,
                 font: {
                     weight: 'bold',
                 },
@@ -175,7 +172,7 @@ const chartJsScalesConfiguration = computed(() => {
         y: {
             title: {
                 display: true,
-                text: `${i18n.t('elevation')} [m]`,
+                text: `${t('elevation')} [m]`,
                 font: {
                     weight: 'bold',
                 },
@@ -227,7 +224,7 @@ const chartJsZoomOptions = computed(() => {
         limits: {
             x: {
                 min: 0,
-                max: elevationProfile.value.maxDist.value,
+                max: elevationProfile.maxDist.value,
                 // if we have a profile above 10km, we limit the zoom to a 3km portion (otherwise labels are
                 // all messed up as they are rounded to the nearest km value)
                 // with profile below 10km, we limit the zoom to 100m
@@ -235,7 +232,7 @@ const chartJsZoomOptions = computed(() => {
             },
             y: {
                 min: 0,
-                max: elevationProfile.value.maxElevation,
+                max: elevationProfile.maxElevation,
                 minRange: 10,
             },
         },
@@ -266,7 +263,7 @@ const chartJsZoomOptions = computed(() => {
 })
 const chartJsOptions = computed(() => {
     return {
-        animation: animation.value,
+        animation,
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -276,8 +273,8 @@ const chartJsOptions = computed(() => {
             },
             tooltip: chartJsTooltipConfiguration.value,
             noData: {
-                elevationProfile: elevationProfile.value,
-                noDataText: i18n.t('profile_no_data'),
+                elevationProfile: elevationProfile,
+                noDataText: t('profile_no_data'),
             },
         },
         scales: chartJsScalesConfiguration.value,
@@ -291,7 +288,7 @@ const chartJsOptions = computed(() => {
 })
 
 onMounted(() => {
-    if (animation.value) {
+    if (animation) {
         // TODO: Here we make sure to do the resize only for the render of the print (currently when animation is disable)
         // we should in future use a dedicated variable for this.
         window.addEventListener('beforeprint', resizeChartForPrint.value)
@@ -300,7 +297,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    if (animation.value) {
+    if (animation) {
         window.removeEventListener('beforeprint', resizeChartForPrint.value)
         window.removeEventListener('afterprint', resizeChart.value)
     }
@@ -361,7 +358,7 @@ function activateSegmentIndex(index) {
                 :data-cy="`profile-segment-button-${index}`"
                 @click="() => activateSegmentIndex(index)"
             >
-                {{ $t('profile_segment', { segmentNumber: index + 1 }) }}
+                {{ t('profile_segment', { segmentNumber: index + 1 }) }}
             </button>
         </div>
         <!-- Here below we need to set the w-100 in order to have proper PDF print of the Chart -->
@@ -387,7 +384,7 @@ function activateSegmentIndex(index) {
             >
                 <div>
                     <small>
-                        <strong>{{ $t('profile_x_label') }}: </strong>
+                        <strong>{{ t('profile_x_label') }}: </strong>
                         <span class="distance">
                             {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
                         </span>
@@ -395,19 +392,18 @@ function activateSegmentIndex(index) {
                 </div>
                 <div>
                     <small>
-                        <strong>{{ $t('profile_y_label') }}: </strong>
+                        <strong>{{ t('profile_y_label') }}: </strong>
                         <span
                             v-if="pointBeingHovered.elevation > 0"
                             class="elevation"
                         >
                             {{ pointBeingHovered.elevation }} m
                         </span>
-                        <span v-else>{{ $t('not_available') }}</span>
+                        <span v-else>{{ t('not_available') }}</span>
                     </small>
                 </div>
             </div>
             <div
-                ref="profileTooltipArrow"
                 class="profile-tooltip-arrow"
                 :style="tooltipArrowStyle"
             />

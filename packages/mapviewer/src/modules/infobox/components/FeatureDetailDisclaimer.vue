@@ -1,5 +1,5 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -8,7 +8,7 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 const dispatcher = { dispatcher: 'FeatureDetail.vue' }
 
 /** ExternalIframeHosts contains a list all external iframe hosts */
-const props = defineProps({
+const { externalIframeHosts, title } = defineProps({
     externalIframeHosts: {
         type: Object,
         required: true,
@@ -25,8 +25,7 @@ const props = defineProps({
     },
 })
 
-const { externalIframeHosts, title } = toRefs(props)
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 const disclaimerIsShown = computed(() => {
@@ -47,7 +46,7 @@ function setDisclaimerAgree() {
             data-cy="feature-detail-media-disclaimer-opened"
         >
             <div class="py-1">
-                {{ i18n.t(title) }}
+                {{ t(title) }}
             </div>
             <div class="disclaimer d-flex justify-content-between rounded-2">
                 <ThirdPartyDisclaimer
@@ -67,7 +66,7 @@ function setDisclaimerAgree() {
                             icon="info-circle"
                         />
                         <div class="px-1 d-flex">
-                            {{ i18n.t('media_disclaimer') }}
+                            {{ t('media_disclaimer') }}
                         </div>
                     </div>
                 </ThirdPartyDisclaimer>
@@ -91,7 +90,7 @@ function setDisclaimerAgree() {
             data-cy="feature-detail-media-disclaimer-closed"
         >
             <div class="d-flex py-1 align-items-center">
-                {{ i18n.t(title) }}
+                {{ t(title) }}
             </div>
             <ThirdPartyDisclaimer
                 :complete-disclaimer-on-click="true"

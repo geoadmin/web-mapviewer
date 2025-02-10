@@ -12,13 +12,13 @@
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
 import log from 'geoadmin/log'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-const props = defineProps({
+const { vectorLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     vectorLayerConfig: {
         type: GeoAdminVectorLayer,
         required: true,
@@ -32,14 +32,11 @@ const props = defineProps({
         default: -1,
     },
 })
-const { vectorLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => vectorLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value ?? vectorLayerConfig.value.opacity)
-const styleUrl = computed(
-    () => `${vectorLayerConfig.value.baseUrl}styles/${layerId.value}/style.json`
-)
+const layerId = computed(() => vectorLayerConfig.id)
+const opacity = computed(() => parentLayerOpacity ?? vectorLayerConfig.opacity)
+const styleUrl = computed(() => `${vectorLayerConfig.baseUrl}styles/${layerId.value}/style.json`)
 
 const layer = new MapLibreLayer({
     id: layerId.value,
@@ -48,7 +45,7 @@ const layer = new MapLibreLayer({
 setMapLibreStyle(styleUrl.value)
 
 const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(styleUrl, (newStyleUrl) => setMapLibreStyle(newStyleUrl))

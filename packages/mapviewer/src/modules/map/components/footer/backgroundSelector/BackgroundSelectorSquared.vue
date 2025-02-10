@@ -1,5 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useI18n } from 'vue-i18n'
 
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
@@ -11,6 +12,8 @@ const emit = defineEmits({
         return backgroundLayerId === null || typeof backgroundLayerId === 'string'
     },
 })
+
+const { t } = useI18n()
 
 const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectBackground } =
     useBackgroundSelector(backgroundLayers, currentBackgroundLayer, emit)
@@ -44,7 +47,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 <span
                     class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75 show"
                 >
-                    {{ $t(backgroundLayer?.id || 'void_layer') }}
+                    {{ t(backgroundLayer?.id || 'void_layer') }}
                 </span>
             </button>
         </div>
@@ -74,7 +77,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                     class="text-nowrap bg-selector-squared-wheel-button-label-inner"
                     :class="{ show: !show, animate }"
                 >
-                    {{ $t('bg_chooser_label') }}
+                    {{ t('bg_chooser_label') }}
                 </span>
             </span>
         </button>

@@ -5,7 +5,7 @@ import { useStore } from 'vuex'
 
 const dispatcher = { dispatcher: 'ImportFileButtons.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const emit = defineEmits(['loadFile'])
 
@@ -51,7 +51,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
             data-cy="import-file-load-button"
             @click="emit('loadFile')"
         >
-            {{ i18n.t(buttonI18nKey) }}
+            {{ t(buttonI18nKey) }}
             <font-awesome-icon
                 v-if="isLoading"
                 class="ms-3"
@@ -65,7 +65,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
             data-cy="import-file-close-button"
             @click="toggleImportFile()"
         >
-            {{ i18n.t('close') }}
+            {{ t('close') }}
         </button>
     </div>
 </template>

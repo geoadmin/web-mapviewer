@@ -1,7 +1,9 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
+
 const emits = defineEmits(['send', 'cancel'])
 
-const props = defineProps({
+const { isDisabled, isPending } = defineProps({
     isDisabled: {
         type: Boolean,
         default: false,
@@ -11,6 +13,8 @@ const props = defineProps({
         default: false,
     },
 })
+
+const { t } = useI18n()
 
 // Methods
 function cancel() {
@@ -27,16 +31,16 @@ function send() {
             class="btn btn-light mx-2"
             @click="cancel"
         >
-            {{ $t('cancel') }}
+            {{ t('cancel') }}
         </button>
         <button
-            :disabled="props.isDisabled"
+            :disabled="isDisabled"
             class="btn btn-primary"
             data-cy="submit-button"
             @click="send"
         >
             <FontAwesomeIcon
-                v-if="props.isPending"
+                v-if="isPending"
                 icon="spinner"
                 pulse
                 data-cy="submit-pending-icon"
@@ -44,7 +48,7 @@ function send() {
             <span
                 v-else
                 data-cy="submit-send-text"
-            >{{ $t('send') }}</span>
+            >{{ t('send') }}</span>
         </button>
     </div>
 </template>

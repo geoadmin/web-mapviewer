@@ -1,16 +1,15 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
-const props = defineProps({
+const { showAsButton } = defineProps({
     showAsButton: {
         type: Boolean,
         default: false,
     },
 })
-const { showAsButton } = toRefs(props)
 
 const { t } = useI18n()
 

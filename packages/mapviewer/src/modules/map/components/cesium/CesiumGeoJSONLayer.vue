@@ -4,32 +4,30 @@ import log from 'geoadmin/log'
 import { LV03, LV95, WGS84 } from 'geoadmin/proj'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, toRef, toRefs } from 'vue'
+import { computed, inject, toRef } from 'vue'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
-const props = defineProps({
+const { geoJsonConfig } = defineProps({
     geoJsonConfig: {
         type: GeoAdminGeoJsonLayer,
         required: true,
     },
 })
 
-const { geoJsonConfig } = toRefs(props)
-
 const getViewer = inject('getViewer')
 const viewer = getViewer()
 
-const layerId = computed(() => geoJsonConfig.value.id)
-const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
-const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
-const opacity = computed(() => geoJsonConfig.value.opacity)
+const layerId = computed(() => geoJsonConfig.id)
+const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
+const opacity = computed(() => geoJsonConfig.opacity)
 
 /** @returns {Promise<GeoJsonDataSource>} */
 async function createSource() {
-    let geoJsonDataInMercator = geoJsonConfig.value.geoJsonData
+    let geoJsonDataInMercator = geoJsonConfig.geoJsonData
     if ([LV95.epsg, LV03.epsg].includes(geoJsonData.value?.crs?.properties?.name)) {
         log.debug(`[Cesium] GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`)
         const reprojectedData = reproject(

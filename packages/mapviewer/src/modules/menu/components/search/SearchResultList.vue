@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -12,9 +12,9 @@ const dispatcher = { dispatcher: 'SearchResultList.vue' }
 
 const emit = defineEmits(['close', 'firstResultEntryReached'])
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
-const resultCategories = ref([])
+const resultCategories = useTemplateRef('resultCategories')
 
 const preview = ref(null)
 
@@ -148,7 +148,7 @@ defineExpose({ focusFirstEntry })
                     v-show="category.results.length > 0"
                     :key="category.id"
                     ref="resultCategories"
-                    :title="i18n.t(`${category.id}_results_header`)"
+                    :title="t(`${category.id}_results_header`)"
                     :results="category.results"
                     :data-cy="`search-results-${category.id}`"
                     @entry-selected="emit('close')"

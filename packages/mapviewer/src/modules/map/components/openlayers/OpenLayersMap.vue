@@ -3,7 +3,7 @@ import log from 'geoadmin/log'
 import { allCoordinateSystems, WGS84 } from 'geoadmin/proj'
 import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
-import { computed, onMounted, provide, ref } from 'vue'
+import { computed, onMounted, provide, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -32,7 +32,7 @@ allCoordinateSystems
         olProjection?.setExtent(projection.bounds.flatten)
     })
 
-const mapElement = ref(null)
+const mapElement = useTemplateRef('mapElement')
 
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
@@ -45,14 +45,16 @@ const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
 
 provide('olMap', map)
-provide('getMap', () => map)
 
 if (IS_TESTING_WITH_CYPRESS) {
     window.map = map
 }
 
 function triggerReadyFlagIfAllRendered() {
-    if (map.getAllLayers().length < visibleLayers.value.filter((layer) => !layer.hasError).length) {
+    if (
+        map.getAllLayers().length < visibleLayers.value.filter((layer) => !layer.hasError).length ||
+        visibleLayers.value.some((layer) => layer.isLoading)
+    ) {
         // OL hasn't loaded all our layers yet, postponing the ready event
         map.once('loadend', triggerReadyFlagIfAllRendered)
     } else {

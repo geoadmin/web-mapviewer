@@ -1,12 +1,12 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
-const props = defineProps({
+const { mediaType, urlLabel, descriptionLabel } = defineProps({
     mediaType: {
         type: String,
         required: true,
@@ -21,10 +21,9 @@ const props = defineProps({
     },
 })
 
-const { mediaType, urlLabel, descriptionLabel } = toRefs(props)
 const emit = defineEmits(['generatedMediaLink'])
 
-const i18n = useI18n()
+const { t } = useI18n()
 const generatedMediaLink = ref(null)
 const linkDescription = ref(null)
 const isFormValid = ref(false)
@@ -60,7 +59,7 @@ function addLink(generatedMediaLink) {
     if (!validateForm()) {
         return
     }
-    switch (mediaType.value) {
+    switch (mediaType) {
         case MediaTypes.link:
             emit('generatedMediaLink', createLink(generatedMediaLink))
             break
@@ -134,7 +133,7 @@ function onUrlValidate(valid) {
                     data-cy="drawing-style-media-generate-button"
                     @click="addLink(generatedMediaLink)"
                 >
-                    {{ i18n.t('add') }}
+                    {{ t('add') }}
                 </button>
             </TextInput>
         </div>

@@ -1,23 +1,24 @@
 <script setup>
-import { computed, inject, onMounted, onUnmounted, ref, toRefs } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
 
-const props = defineProps({
+const { hideIfNorth } = defineProps({
     hideIfNorth: {
         type: Boolean,
         default: false,
     },
 })
-const { hideIfNorth } = toRefs(props)
 
 const olMap = inject('olMap')
 const store = useStore()
+const { t } = useI18n()
 
 const rotation = ref(0)
 
-const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth.value)
+const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
     olMap.on('postrender', onRotate)
@@ -49,7 +50,7 @@ const onRotate = (mapEvent) => {
         class="toolbox-button d-print-none"
         data-cy="compass-button"
         type="button"
-        :title="$t('rotate_reset')"
+        :title="t('rotate_reset')"
         @click="resetRotation"
     >
         <!-- SVG icon adapted from "https://www.svgrepo.com/svg/883/compass" (and greatly

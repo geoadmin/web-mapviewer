@@ -1,3 +1,5 @@
+import { toValue } from 'vue'
+
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
@@ -31,7 +33,7 @@ export default function useExtendLineInteraction({
         useGeodesicDrawing: true,
         snapping: true,
         drawEndCallback,
-        startingFeature,
+        startingFeature: toValue(startingFeature),
     })
     return {
         removeLastPoint,

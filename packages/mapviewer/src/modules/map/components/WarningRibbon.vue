@@ -1,3 +1,12 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+const hasWarningRibbon = computed(() => store.getters.hasWarningRibbon)
+</script>
+
 <template>
     <div
         v-if="hasWarningRibbon"
@@ -7,16 +16,6 @@
         TEST
     </div>
 </template>
-
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-    computed: {
-        ...mapGetters(['hasWarningRibbon']),
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';

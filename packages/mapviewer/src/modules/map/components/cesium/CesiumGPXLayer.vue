@@ -9,24 +9,22 @@ import {
     HeightReference,
 } from 'cesium'
 import log from 'geoadmin/log'
-import { computed, inject, toRef, toRefs, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
-const props = defineProps({
+const { gpxLayerConfig } = defineProps({
     gpxLayerConfig: {
         type: GPXLayer,
         required: true,
     },
 })
 
-const { gpxLayerConfig } = toRefs(props)
-
-const layerId = computed(() => gpxLayerConfig.value.id)
-const gpxData = computed(() => gpxLayerConfig.value.gpxData)
-const layerOpacity = computed(() => gpxLayerConfig.value.opacity)
+const layerId = computed(() => gpxLayerConfig.id)
+const gpxData = computed(() => gpxLayerConfig.gpxData)
+const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
 const getViewer = inject('getViewer')
 const viewer = getViewer()

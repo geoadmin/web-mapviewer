@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, nextTick, ref, toRefs } from 'vue'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
@@ -13,7 +13,7 @@ import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
 
-const props = defineProps({
+const { name, item, showContentByDefault } = defineProps({
     name: {
         type: [String, Number],
         required: true,
@@ -28,17 +28,13 @@ const props = defineProps({
     },
 })
 
-const { name, item, showContentByDefault } = toRefs(props)
-
-const content = ref(null)
-const featureTitle = ref(null)
-const showContent = ref(!!showContentByDefault.value)
-const canDisplayProfile = computed(() => canFeatureShowProfile(item.value))
+const content = useTemplateRef('content')
+const featureTitle = useTemplateRef('featureTitle')
+const showContent = ref(!!showContentByDefault)
+const canDisplayProfile = computed(() => canFeatureShowProfile(item))
 
 const store = useStore()
-const isHighlightedFeature = computed(
-    () => store.state.features.highlightedFeatureId === item.value.id
-)
+const isHighlightedFeature = computed(() => store.state.features.highlightedFeatureId === item.id)
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: feature?.id,

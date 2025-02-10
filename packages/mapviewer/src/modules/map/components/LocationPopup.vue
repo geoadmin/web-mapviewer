@@ -3,7 +3,7 @@
 
 import log from 'geoadmin/log'
 import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -18,7 +18,7 @@ import { stringifyQuery } from '@/utils/url-router'
 
 const dispatcher = { dispatcher: 'LocationPopup.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const route = useRoute()
 
@@ -30,7 +30,7 @@ const showEmbedSharing = computed(() => selectedTab.value === 'share')
 const coordinate = computed(() => store.state.map.locationPopupCoordinates)
 
 const selectedTab = ref('position')
-const shareTabButton = ref(null)
+const shareTabButton = useTemplateRef('shareTabButton')
 const newClickInfo = ref(true)
 const requestClipboard = ref(false)
 const shareLinkCopied = ref(false)
@@ -85,7 +85,7 @@ watch(
 
 onMounted(() => {
     copyTooltipInstance = tippy(shareTabButton.value, {
-        content: i18n.t('copy_success'),
+        content: t('copy_success'),
         arrow: true,
         placement: 'top',
         trigger: 'manual',
@@ -159,7 +159,7 @@ function clearClick() {
     <component
         :is="mappingFrameworkSpecificPopup"
         v-if="coordinate"
-        :title="selectedTab === 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
+        :title="selectedTab === 'position' ? t('position') : t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="projection"
         :mode="MapPopoverMode.FEATURE_TOOLTIP"
@@ -188,7 +188,7 @@ function clearClick() {
                     :aria-selected="selectedTab === 'position'"
                     @click="onPositionTabClick()"
                 >
-                    {{ i18n.t('position') }}
+                    {{ t('position') }}
                 </button>
             </li>
             <li
@@ -214,7 +214,7 @@ function clearClick() {
                             small: currentLang === 'it',
                         }"
                     >
-                        {{ i18n.t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                        {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
                             data-cy="location-popup-share-tab-check"
                             class="px-0 icon"
                             :icon="copyButtonIcon"

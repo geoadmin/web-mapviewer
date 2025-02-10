@@ -1,10 +1,8 @@
+<script setup></script>
+
 <template>
     <div class="i18n-module" />
 </template>
-
-<script>
-export default {}
-</script>
 
 <style scoped>
 .i18n-module {

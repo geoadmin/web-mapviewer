@@ -1,7 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onUnmounted } from 'vue'
-import { onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -9,10 +8,18 @@ import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'FullScreenButton.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
-useTippyTooltip('#fullscreenButton[data-tippy-content]', { placement: 'left' })
+const fullscreenButton = useTemplateRef('fullscreenButton')
+const tooltipContent = computed(() => {
+    if (isInFullScreenMode.value) {
+        return 'full_screen_exit'
+    }
+    return 'full_screen'
+})
+
+useTippyTooltip(fullscreenButton, tooltipContent, { placement: 'left' })
 
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 
@@ -36,13 +43,6 @@ function handleKeydown(event) {
         toggleFullScreen()
     }
 }
-
-const tippyContent = computed(() => {
-    if (isInFullScreenMode.value) {
-        return 'full_screen_exit'
-    }
-    return 'full_screen'
-})
 </script>
 
 <template>
@@ -50,14 +50,13 @@ const tippyContent = computed(() => {
         v-if="isInWindowFullScreenModeNotChromium"
         class="fullscreen-warning"
     >
-        {{ i18n.t('full_screen_window_exit') }}
+        {{ t('full_screen_window_exit') }}
     </div>
     <button
-        id="fullscreenButton"
+        ref="fullscreenButton"
         class="toolbox-button d-print-none"
         :class="{ active: isInFullScreenMode }"
         data-cy="toolbox-fullscreen-button"
-        :data-tippy-content="tippyContent"
         @click="toggleFullScreen()"
     >
         <FontAwesomeIcon icon="expand" />

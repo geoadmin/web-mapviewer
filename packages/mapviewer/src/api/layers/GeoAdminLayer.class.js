@@ -101,12 +101,6 @@ export default class GeoAdminLayer extends AbstractLayer {
         if (baseUrl === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer base URL', layerData)
         }
-        if (attributions === null || attributions.length === 0) {
-            throw new InvalidLayerDataError(
-                'A layer attribution is mandatory for GeoAdmin layers',
-                layerData
-            )
-        }
         super({
             name,
             id,

@@ -1,6 +1,7 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, onUnmounted, ref, toRefs, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -11,14 +12,14 @@ import { encodeLayerId } from '@/router/storeSync/layersParamParser'
 const dispatcher = { dispatcher: 'SharePopup.vue' }
 
 const store = useStore()
+const { t } = useI18n()
 
-const props = defineProps({
+const { kmlLayer } = defineProps({
     kmlLayer: {
         type: KMLLayer,
         default: null,
     },
 })
-const { kmlLayer } = toRefs(props)
 
 const adminUrlCopied = ref(false)
 const fileUrlCopied = ref(false)
@@ -32,11 +33,11 @@ const fileUrl = computed(() => {
     return `${baseUrl.value}${router.currentRoute.value.fullPath}`
 })
 const adminUrl = computed(() => {
-    if (fileUrl.value && kmlLayer.value?.adminId) {
-        const encodedLayerID = encodeURI(encodeLayerId(kmlLayer.value))
+    if (fileUrl.value && kmlLayer?.adminId) {
+        const encodedLayerID = encodeURI(encodeLayerId(kmlLayer))
         return fileUrl.value.replace(
             encodedLayerID,
-            `${encodedLayerID}@adminId=${kmlLayer.value.adminId}`
+            `${encodedLayerID}@adminId=${kmlLayer.adminId}`
         )
     }
     // if no adminID is available don't show the edit share link.
@@ -112,15 +113,15 @@ async function updateAdminShareUrl() {
 <template>
     <div class="ga-share">
         <div class="form-group">
-            <label>{{ $t('draw_share_user_link') }}:</label>
+            <label>{{ t('draw_share_user_link') }}:</label>
             <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
                     class="form-control"
                     :value="shareUrl"
                     readonly
-                    @focus="$event.target.select()"
                     @click="copyShareUrl(false)"
+                    @focus="$event.target.select()"
                 >
                 <button
                     class="btn btn-outline-group"
@@ -128,7 +129,7 @@ async function updateAdminShareUrl() {
                     data-cy="drawing-share-normal-link"
                     @click="copyShareUrl(false)"
                 >
-                    {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                    {{ fileUrlCopied ? t('copy_success') : t('copy_url') }}
                 </button>
             </div>
         </div>
@@ -136,7 +137,7 @@ async function updateAdminShareUrl() {
             v-if="adminUrl"
             class="form-group"
         >
-            <label>{{ $t('draw_share_admin_link') }}:</label>
+            <label>{{ t('draw_share_admin_link') }}:</label>
             <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
@@ -152,7 +153,7 @@ async function updateAdminShareUrl() {
                     data-cy="drawing-share-admin-link"
                     @click="copyAdminShareUrl()"
                 >
-                    {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                    {{ adminUrlCopied ? t('copy_success') : t('copy_url') }}
                 </button>
             </div>
         </div>

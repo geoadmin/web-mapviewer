@@ -1,3 +1,28 @@
+<script setup>
+const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = defineProps({
+    sourceId: {
+        type: String,
+        required: true,
+    },
+    sourceName: {
+        type: String,
+        required: true,
+    },
+    sourceUrl: {
+        type: String,
+        default: null,
+    },
+    hasDataDisclaimer: {
+        type: Boolean,
+        default: false,
+    },
+    isLast: {
+        type: Boolean,
+        default: false,
+    },
+})
+</script>
+
 <template>
     <component
         :is="sourceUrl ? 'a' : 'span'"
@@ -11,33 +36,6 @@
         {{ `${sourceName}${isLast ? '' : ','}` }}
     </component>
 </template>
-
-<script>
-export default {
-    props: {
-        sourceId: {
-            type: String,
-            required: true,
-        },
-        sourceName: {
-            type: String,
-            required: true,
-        },
-        sourceUrl: {
-            type: String,
-            default: null,
-        },
-        hasDataDisclaimer: {
-            type: Boolean,
-            default: false,
-        },
-        isLast: {
-            type: Boolean,
-            default: false,
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

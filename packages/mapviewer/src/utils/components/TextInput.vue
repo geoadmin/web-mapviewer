@@ -1,6 +1,6 @@
 <script setup>
 /** Input with clear button component */
-import { nextTick, ref, toRefs, useSlots } from 'vue'
+import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -154,15 +154,15 @@ const props = defineProps({
         default: '',
     },
 })
-const { placeholder, disabled, label, description, invalidMessageParams } = toRefs(props)
+const { placeholder, disabled, label, description, invalidMessageParams, dataCy } = props
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
 
-const i18n = useI18n()
+const { t } = useI18n()
 const slots = useSlots()
 
-const inputElement = ref(null)
+const inputElement = useTemplateRef('inputElement')
 const error = ref('')
 
 function onClearInput() {
@@ -182,7 +182,7 @@ defineExpose({ focus })
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${props.dataCy}`"
+        :data-cy="`${dataCy}`"
     >
         <label
             v-if="label"
@@ -190,7 +190,7 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="textInputId"
             data-cy="text-input-label"
-        >{{ i18n.t(label) }}</label>
+        >{{ t(label) }}</label>
         <div class="input-group d-flex">
             <input
                 :id="textInputId"
@@ -206,7 +206,7 @@ defineExpose({ focus })
                     'is-valid': validMarker,
                 }"
                 :aria-describedby="clearButtonId"
-                :placeholder="placeholder ? i18n.t(placeholder) : ''"
+                :placeholder="placeholder ? t(placeholder) : ''"
                 :value="value"
                 data-cy="text-input"
                 @focusin="onFocus($event, true)"
@@ -230,14 +230,14 @@ defineExpose({ focus })
                 class="invalid-feedback"
                 data-cy="text-input-invalid-feedback"
             >
-                {{ i18n.t(invalidMessage, invalidMessageParams) }}
+                {{ t(invalidMessage, invalidMessageParams) }}
             </div>
             <div
                 v-if="validMessage"
                 class="valid-feedback"
                 data-cy="text-input-valid-feedback"
             >
-                {{ i18n.t(validMessage) }}
+                {{ t(validMessage) }}
             </div>
         </div>
         <div
@@ -245,7 +245,7 @@ defineExpose({ focus })
             class="form-text"
             data-cy="text-input-description"
         >
-            {{ i18n.t(description) }}
+            {{ t(description) }}
         </div>
     </div>
 </template>

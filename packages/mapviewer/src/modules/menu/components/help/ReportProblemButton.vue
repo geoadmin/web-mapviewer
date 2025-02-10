@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -21,7 +21,7 @@ const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 /** @type {DropdownItem[]} */
 const feedbackCategories = [
@@ -47,18 +47,17 @@ const feedbackCategories = [
     },
 ]
 
-const props = defineProps({
+const { showAsLink } = defineProps({
     showAsLink: {
         type: Boolean,
         default: false,
     },
 })
 
-// Reactive data
-const feedbackMessageTextArea = ref(null)
-const validationResult = ref(null)
-const requestResults = ref(null)
-const reportProblemCloseSuccessful = ref(null)
+const feedbackMessageTextArea = useTemplateRef('feedbackMessageTextArea')
+const validationResult = useTemplateRef('validationResult')
+const requestResults = useTemplateRef('requestResults')
+const reportProblemCloseSuccessful = useTemplateRef('reportProblemCloseSuccessful')
 
 const showReportProblemForm = ref(false)
 const feedback = ref({
@@ -181,7 +180,7 @@ async function generateShortLink() {
 }
 
 function openForm() {
-    if (!props.showAsLink) {
+    if (!showAsLink) {
         store.dispatch('closeMenu', dispatcher)
     }
     showReportProblemForm.value = true
@@ -207,13 +206,13 @@ function selectItem(dropdownItem) {
 
 <template>
     <HeaderLink
-        v-if="props.showAsLink"
+        v-if="showAsLink"
         primary
         small
         data-cy="report-problem-link-button"
         @click="openForm"
     >
-        <strong>{{ i18n.t('problem_announcement') }}</strong>
+        <strong>{{ t('problem_announcement') }}</strong>
     </HeaderLink>
     <button
         v-else
@@ -221,7 +220,7 @@ function selectItem(dropdownItem) {
         data-cy="report-problem-button"
         @click="openForm"
     >
-        {{ i18n.t('problem_announcement') }}
+        {{ t('problem_announcement') }}
     </button>
     <SimpleWindow
         v-if="showReportProblemForm"
@@ -238,7 +237,7 @@ function selectItem(dropdownItem) {
             data-cy="report-problem-form"
         >
             <div class="mb-2 fw-bold">
-                {{ i18n.t('feedback_category') }}
+                {{ t('feedback_category') }}
             </div>
             <DropdownButton
                 label="feedback_description"
@@ -256,17 +255,17 @@ function selectItem(dropdownItem) {
                 @select-item="selectItem"
             />
             <a
-                :href="i18n.t('feedback_more_info_url')"
+                :href="t('feedback_more_info_url')"
                 target="_blank"
                 class="more-info-link"
             >{{
-                i18n.t('feedback_more_info_text')
+                t('feedback_more_info_text')
             }}</a>
             <div
                 class="invalid-feedback"
                 data-cy="text-area-input-invalid-feedback"
             >
-                {{ i18n.t('category_not_selected_warning') }}
+                {{ t('category_not_selected_warning') }}
             </div>
 
             <div class="my-3">
@@ -284,7 +283,7 @@ function selectItem(dropdownItem) {
             </div>
             <div>
                 <div class="mb-2">
-                    {{ i18n.t('feedback_drawing') }}
+                    {{ t('feedback_drawing') }}
                 </div>
                 <button
                     class="btn"
@@ -298,16 +297,16 @@ function selectItem(dropdownItem) {
                     data-cy="report-problem-drawing-button"
                     @click="toggleDrawingOverlay"
                 >
-                    {{ i18n.t('draw_tooltip') }}
+                    {{ t('draw_tooltip') }}
                 </button>
                 <div class="invalid-feedback ps-2">
-                    {{ i18n.t('drawing_too_large') }}
+                    {{ t('drawing_too_large') }}
                 </div>
                 <div
                     class="valid-feedback ps-2"
                     data-cy="report-problem-drawing-added-feedback"
                 >
-                    {{ i18n.t('drawing_attached') }}
+                    {{ t('drawing_attached') }}
                 </div>
             </div>
 
@@ -338,15 +337,15 @@ function selectItem(dropdownItem) {
             </div>
             <div class="my-4">
                 <div>
-                    <small>{{ i18n.t('feedback_permalink') }}</small>
+                    <small>{{ t('feedback_permalink') }}</small>
                     <a
                         target="_blank"
                         :href="shortLink"
-                    >{{ i18n.t('permalink') }}</a>
+                    >{{ t('permalink') }}</a>
                 </div>
                 <div>
                     <!-- eslint-disable vue/no-v-html-->
-                    <small v-html="i18n.t('feedback_disclaimer')" />
+                    <small v-html="t('feedback_disclaimer')" />
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
@@ -362,7 +361,7 @@ function selectItem(dropdownItem) {
                 ref="validationResult"
                 class="invalid-feedback text-end mt-2"
             >
-                {{ i18n.t('form_invalid') }}
+                {{ t('form_invalid') }}
             </div>
             <div
                 v-if="request.failed"
@@ -370,7 +369,7 @@ function selectItem(dropdownItem) {
                 class="text-end text-danger mt-2"
                 data-cy="report-problem-failed-text"
             >
-                <small>{{ i18n.t('send_failed') }}</small>
+                <small>{{ t('send_failed') }}</small>
             </div>
         </div>
         <div
@@ -381,7 +380,7 @@ function selectItem(dropdownItem) {
                 class="text-success"
                 data-cy="report-problem-success-text"
             >
-                {{ i18n.t('feedback_success_message') }}
+                {{ t('feedback_success_message') }}
             </h6>
             <button
                 ref="reportProblemCloseSuccessful"
@@ -389,7 +388,7 @@ function selectItem(dropdownItem) {
                 data-cy="report-problem-close-successful"
                 @click="closeAndCleanForm"
             >
-                {{ i18n.t('close') }}
+                {{ t('close') }}
             </button>
         </div>
     </SimpleWindow>

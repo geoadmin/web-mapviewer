@@ -1,19 +1,18 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
 
-const { compact } = toRefs(props)
 const capabilities = ref([])
 
 const store = useStore()

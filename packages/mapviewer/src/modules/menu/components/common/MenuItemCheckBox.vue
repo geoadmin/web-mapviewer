@@ -1,15 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const model = defineModel({ type: Boolean })
 const emits = defineEmits(['click'])
-const i18n = useI18n()
+const { t } = useI18n()
 
-const props = defineProps({
+const { compact } = defineProps({
     label: {
         type: String,
         default: '',
@@ -23,7 +22,6 @@ const props = defineProps({
         default: '',
     },
 })
-const { compact } = toRefs(props)
 
 function onClick(ev) {
     model.value = !model.value
@@ -48,7 +46,7 @@ function onClick(ev) {
             <label
                 v-if="label"
                 class="ms-2 menu-check-box-item-name"
-            ><TextTruncate>{{ i18n.t(label) }}</TextTruncate></label>
+            ><TextTruncate>{{ t(label) }}</TextTruncate></label>
         </div>
     </div>
 </template>

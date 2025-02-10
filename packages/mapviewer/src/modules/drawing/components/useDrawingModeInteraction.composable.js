@@ -1,4 +1,4 @@
-import { wrapXCoordinates } from 'geoadmin/coordinates'
+import { removeZValues, wrapXCoordinates } from 'geoadmin/coordinates'
 import log from 'geoadmin/log'
 import { primaryAction } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
@@ -7,11 +7,10 @@ import DrawInteraction from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
 import { Style } from 'ol/style'
 import { getUid } from 'ol/util'
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 import { useStore } from 'vuex'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
@@ -67,7 +66,7 @@ export default function useDrawingModeInteraction({
 
     const interaction = new DrawInteraction({
         style: editingStyle,
-        type: geometryType,
+        type: toValue(geometryType),
         source: drawingLayer.getSource(),
         minPoints: 2, // As by default polygon geometries require at least 3 points
         stopClick: true,
@@ -79,7 +78,7 @@ export default function useDrawingModeInteraction({
         source: drawingLayer.getSource(),
     })
 
-    let isExtending = startingFeature ? true : false
+    let isExtending = !!toValue(startingFeature)
     let previousStyle = null // to store the previous style of the starting feature
 
     onMounted(() => {
@@ -97,11 +96,13 @@ export default function useDrawingModeInteraction({
             interaction.getOverlay().getSource().on('addfeature', checkIfSnapping)
         }
         if (isExtending) {
-            // There is no 'extend' function for Polygon. We need to start a new drawing
-            // with the starting feature's geometry
+            // There is no 'extend' function for Polygon.
+            // We need to start a new drawing with the starting feature's geometry.
             // This new drawing is not saved in the store and will not be added to the layer source
-            // we only need the coordinates to extend/update the starting feature
-            interaction.appendCoordinates(startingFeature.getGeometry().getCoordinates())
+            // we only need the coordinates to extend/update the starting feature.
+            interaction.appendCoordinates(
+                removeZValues(toValue(startingFeature).getGeometry().getCoordinates())
+            )
         }
     })
     onBeforeUnmount(() => {

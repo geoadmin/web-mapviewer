@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import log from 'geoadmin/log'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -48,9 +48,10 @@ const EmbedSizes = {
     },
 }
 
-useTippyTooltip('.menu-share-embed [data-tippy-content]')
+const copyButton = useTemplateRef('copyButton')
+useTippyTooltip(copyButton, 'copy_cta')
 
-const embedInput = ref(null)
+const embedInput = useTemplateRef('embedInput')
 const showEmbedSharing = ref(false)
 const showPreviewModal = ref(false)
 const currentPreviewSize = ref(EmbedSizes.SMALL)
@@ -191,10 +192,10 @@ watch(
                         @click="$event.target.select()"
                     >
                     <button
+                        ref="copyButton"
                         data-cy="menu-share-embed-copy-button"
                         class="btn btn-outline-group"
                         type="button"
-                        data-tippy-content="copy_cta"
                         @click="copyValue"
                     >
                         <FontAwesomeIcon

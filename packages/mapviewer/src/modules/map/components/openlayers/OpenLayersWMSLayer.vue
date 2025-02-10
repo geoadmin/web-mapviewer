@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -18,7 +18,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 import { flattenExtent } from '@/utils/extentUtils'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
-const props = defineProps({
+const { wmsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmsLayerConfig: {
         type: [GeoAdminWMSLayer, ExternalWMSLayer],
         required: true,
@@ -32,7 +32,6 @@ const props = defineProps({
         default: -1,
     },
 })
-const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -40,14 +39,14 @@ const projection = computed(() => store.state.position.projection)
 const currentLang = computed(() => store.state.i18n.lang)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => wmsLayerConfig.value.technicalName || wmsLayerConfig.value.id)
-const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
-const format = computed(() => wmsLayerConfig.value.format || 'png')
-const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
-const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity)
-const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.value.baseUrl)
-const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
-const urlParams = computed(() => cloneDeep(wmsLayerConfig.value.customAttributes) ?? null)
+const layerId = computed(() => wmsLayerConfig.technicalName || wmsLayerConfig.id)
+const wmsVersion = computed(() => wmsLayerConfig.wmsVersion || '1.3.0')
+const format = computed(() => wmsLayerConfig.format || 'png')
+const gutter = computed(() => wmsLayerConfig.gutter || -1)
+const opacity = computed(() => parentLayerOpacity ?? wmsLayerConfig.opacity)
+const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.baseUrl)
+const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig))
+const urlParams = computed(() => cloneDeep(wmsLayerConfig.customAttributes) ?? null)
 
 /**
  * Definition of all relevant URL param for our WMS backends. This is because both
@@ -97,16 +96,16 @@ if (gutter.value !== -1) {
 }
 // If the layer config comes with an extent, we set it up to both types of WMS layer.
 // That means that data will not be requested if the map viewport is outside the extent.
-if (wmsLayerConfig.value.extent) {
-    layer.setExtent(flattenExtent(wmsLayerConfig.value.extent))
-} else if (wmsLayerConfig.value instanceof GeoAdminWMSLayer) {
+if (wmsLayerConfig.extent) {
+    layer.setExtent(flattenExtent(wmsLayerConfig.extent))
+} else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
     // do not request stuff outside our technical extent with our own layers.
     layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
 }
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 // reacting to changes accordingly
 watch(url, (newUrl) => layer.getSource().setUrl(newUrl))

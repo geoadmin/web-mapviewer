@@ -1,9 +1,9 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { useTemplateRef } from 'vue'
 
 import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
 
-const props = defineProps({
+const { title, results } = defineProps({
     title: {
         type: String,
         required: true,
@@ -14,8 +14,7 @@ const props = defineProps({
     },
 })
 
-const { title, results } = toRefs(props)
-const entries = ref(null)
+const entries = useTemplateRef('entries')
 const emit = defineEmits([
     'entrySelected',
     'firstEntryReached',

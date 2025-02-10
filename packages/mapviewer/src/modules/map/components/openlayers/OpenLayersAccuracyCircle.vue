@@ -8,19 +8,18 @@ import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 
-const props = defineProps({
+const { zIndex } = defineProps({
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -41,7 +40,7 @@ const layer = new VectorLayer({
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 // reacting to changes accordingly
 watch(position, (newPosition) => accuracyCircle.setCenter(newPosition))

@@ -9,7 +9,16 @@ import {
 } from 'cesium'
 import log from 'geoadmin/log'
 import { WEBMERCATOR } from 'geoadmin/proj'
-import { computed, onBeforeMount, onMounted, onUnmounted, provide, ref, watch } from 'vue'
+import {
+    computed,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    provide,
+    ref,
+    useTemplateRef,
+    watch,
+} from 'vue'
 import { useStore } from 'vuex'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
@@ -26,8 +35,8 @@ const dispatcher = { dispatcher: 'CesiumMap.vue' }
 
 let viewer = null
 
-const viewerElement = ref(null)
-const compassElement = ref(null)
+const viewerElement = useTemplateRef('viewerElement')
+const compassElement = useTemplateRef('compassElement')
 const viewerCreated = ref(false)
 
 const store = useStore()

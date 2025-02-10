@@ -1,3 +1,80 @@
+<script setup>
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
+import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+import { computed, ref, watch } from 'vue'
+
+const { sectionId, title, showContent, secondary, light, disabled } = defineProps({
+    // String that uniquely identifies this section
+    sectionId: {
+        type: String,
+        required: true,
+    },
+    // Translated name of this section
+    title: {
+        type: String,
+        required: true,
+    },
+    showContent: {
+        type: Boolean,
+        default: false,
+    },
+    secondary: {
+        type: Boolean,
+        default: false,
+    },
+    light: {
+        type: Boolean,
+        default: false,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const emits = defineEmits(['openMenuSection', 'closeMenuSection', 'click:header'])
+
+const showBody = ref(showContent)
+
+const titleCaretIcon = computed(() => `caret-${showBody.value ? 'down' : 'right'}`)
+
+watch(
+    () => showContent,
+    () => {
+        setShowBody(showContent)
+    }
+)
+
+function toggleShowBody() {
+    if (disabled) {
+        return
+    }
+    setShowBody(!showBody.value)
+    emits('click:header')
+}
+
+function setShowBody(value) {
+    if (showBody.value !== value) {
+        showBody.value = value
+        if (showBody.value) {
+            emits('openMenuSection', sectionId)
+        } else {
+            emits('closeMenuSection', sectionId)
+        }
+    }
+}
+
+function open() {
+    setShowBody(true)
+}
+
+function close() {
+    setShowBody(false)
+}
+
+defineExpose({ open, close, sectionId })
+</script>
+
 <template>
     <div
         class="menu-section"
@@ -32,7 +109,6 @@
         <CollapseTransition :duration="200">
             <div
                 v-show="showBody"
-                ref="sectionBody"
                 class="menu-section-body"
                 data-cy="menu-section-body"
             >
@@ -41,91 +117,6 @@
         </CollapseTransition>
     </div>
 </template>
-
-<script>
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-
-export default {
-    components: {
-        CollapseTransition,
-    },
-    props: {
-        // String that uniquely identifies this section
-        sectionId: {
-            type: String,
-            required: true,
-        },
-        // Translated name of this section
-        title: {
-            type: String,
-            required: true,
-        },
-        showContent: {
-            type: Boolean,
-            default: false,
-        },
-        secondary: {
-            type: Boolean,
-            default: false,
-        },
-        light: {
-            type: Boolean,
-            default: false,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    expose: ['close', 'open', 'sectionId'],
-    emits: ['openMenuSection', 'closeMenuSection', 'click:header'],
-    data() {
-        return {
-            showBody: this.showContent,
-        }
-    },
-    computed: {
-        titleCaretIcon() {
-            if (this.showBody) {
-                return 'caret-down'
-            }
-            return 'caret-right'
-        },
-    },
-    watch: {
-        showContent(showContent) {
-            this.setShowBody(showContent)
-        },
-    },
-    methods: {
-        toggleShowBody() {
-            if (this.disabled) {
-                return
-            }
-
-            this.setShowBody(!this.showBody)
-            this.$emit('click:header')
-        },
-        setShowBody(value) {
-            if (this.showBody !== value) {
-                this.showBody = value
-                if (this.showBody) {
-                    this.$emit('openMenuSection', this.sectionId)
-                } else {
-                    this.$emit('closeMenuSection', this.sectionId)
-                }
-            }
-        },
-        open() {
-            this.setShowBody(true)
-        },
-        close() {
-            this.setShowBody(false)
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

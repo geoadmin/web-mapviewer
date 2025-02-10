@@ -2,21 +2,20 @@
 import { Toast } from 'bootstrap'
 import log from 'geoadmin/log'
 import tippy from 'tippy.js'
-import { onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const props = defineProps({
+const { parameters } = defineProps({
     parameters: {
         type: Array,
         required: true,
     },
 })
-const { parameters } = toRefs(props)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 const deviceOrientationToast = ref(null)
-const deviceOrientationToastElement = ref(null)
+const deviceOrientationToastElement = useTemplateRef('deviceOrientationToastElement')
 const isToastActive = ref(false)
 
 let copyTooltips = null
@@ -30,7 +29,7 @@ onMounted(() => {
         hideOnClick: false,
         // The French translation of "copy_done" contains a &nbsp;
         allowHTML: true,
-        content: i18n.t('copy_cta'),
+        content: t('copy_cta'),
     })
 })
 onBeforeUnmount(() => {
@@ -51,10 +50,10 @@ async function copyValue(event, value) {
     try {
         await navigator.clipboard.writeText(value)
         const btnElement = event.target
-        btnElement?._tippy?.setContent(i18n.t('copy_done'))
+        btnElement?._tippy?.setContent(t('copy_done'))
         btnElement?._tippy?.show()
         setTimeout(() => {
-            btnElement?._tippy?.setContent(i18n.t('copy_cta'))
+            btnElement?._tippy?.setContent(t('copy_cta'))
             btnElement?._tippy?.hide()
         }, 3000)
     } catch (error) {

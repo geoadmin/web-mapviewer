@@ -1,12 +1,12 @@
 <script setup>
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-const props = defineProps({
+const { geotiffConfig, parentLayerOpacity, zIndex } = defineProps({
     geotiffConfig: {
         type: CloudOptimizedGeoTIFFLayer,
         required: true,
@@ -20,22 +20,21 @@ const props = defineProps({
         default: -1,
     },
 })
-const { geotiffConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const olMap = inject('olMap')
-const noDataValue = computed(() => geotiffConfig.value.noDataValue ?? 0)
+const noDataValue = computed(() => geotiffConfig.noDataValue ?? 0)
 const source = computed(() => {
     const base = {
         nodata: noDataValue.value,
     }
-    if (geotiffConfig.value.isLocalFile) {
-        base.blob = geotiffConfig.value.data
+    if (geotiffConfig.isLocalFile) {
+        base.blob = geotiffConfig.data
     } else {
-        base.url = geotiffConfig.value.fileSource
+        base.url = geotiffConfig.fileSource
     }
     return base
 })
-const opacity = computed(() => parentLayerOpacity.value ?? geotiffConfig.value.opacity)
+const opacity = computed(() => parentLayerOpacity ?? geotiffConfig.opacity)
 
 const layer = new WebGLTileLayer({
     source: createLayerSource(),
@@ -43,7 +42,7 @@ const layer = new WebGLTileLayer({
     id: source.value.url,
 })
 
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(source, () => layer.setSource(createLayerSource()))

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from 'geoadmin/log'
 import { isNumber, round } from 'geoadmin/numbers'
 import tippy, { followCursor } from 'tippy.js'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -14,7 +14,7 @@ import debounce from '@/utils/debounce'
 import { useRangeTippy } from './useRangeTippy'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
-const i18n = useI18n()
+const { t } = useI18n()
 
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
@@ -30,14 +30,14 @@ let yearCursorIsGrabbed = false
 let playYearInterval = null
 
 // refs to dom elements
-const timeSliderTooltipRef = ref(null)
-const yearCursor = ref(undefined)
-const sliderContainer = ref(undefined)
-const timeSliderBar = ref(null)
+const timeSliderTooltipRef = useTemplateRef('timeSliderTooltipRef')
+const yearCursor = useTemplateRef('yearCursor')
+const sliderContainer = useTemplateRef('sliderContainer')
+const timeSliderBar = useTemplateRef('timeSliderBar')
 let tippyTimeSliderInfo = null
 
 // ref to year cursor input
-const yearCursorInput = ref(null)
+const yearCursorInput = useTemplateRef('yearCursorInput')
 
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
@@ -60,7 +60,7 @@ const isInputYearValid = ref(true)
 
 const tippyYearOutsideRangeContent = computed(
     () =>
-        `${i18n.t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
+        `${t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
 )
 
 const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
@@ -448,7 +448,6 @@ function handleKeyDownEvent(event) {
                     </div>
                 </div>
                 <div
-                    ref="yearCursorArrow"
                     data-cy="time-slider-bar-cursor-arrow"
                     class="time-slider-bar-cursor-arrow"
                     :style="cursorArrowPosition"
@@ -502,7 +501,6 @@ function handleKeyDownEvent(event) {
             <div class="time-slider-play-button">
                 <button
                     id="timeSliderPlayButton"
-                    ref="playButton"
                     data-cy="time-slider-play-button"
                     class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
                     @click="togglePlayYearsWithData"
@@ -514,20 +512,20 @@ function handleKeyDownEvent(event) {
         <!-- Time slider color tooltip content -->
         <div ref="timeSliderTooltipRef">
             <div class="mb-2">
-                {{ i18n.t('time_slider_legend_tippy_intro') }}
+                {{ t('time_slider_legend_tippy_intro') }}
             </div>
             <div class="ps-3">
                 <div class="mb-1">
                     <div class="color-tippy-data-none me-2" />
-                    <div>{{ i18n.t('time_slider_legend_tippy_no_data') }}</div>
+                    <div>{{ t('time_slider_legend_tippy_no_data') }}</div>
                 </div>
                 <div class="mb-1">
                     <div class="color-tippy-data-partial me-2" />
-                    <div>{{ i18n.t('time_slider_legend_tippy_partial_data') }}</div>
+                    <div>{{ t('time_slider_legend_tippy_partial_data') }}</div>
                 </div>
                 <div>
                     <div class="color-tippy-data-full me-2" />
-                    <div>{{ i18n.t('time_slider_legend_tippy_full_data') }}</div>
+                    <div>{{ t('time_slider_legend_tippy_full_data') }}</div>
                 </div>
             </div>
         </div>

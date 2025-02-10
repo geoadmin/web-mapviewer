@@ -4,11 +4,11 @@
  * of the popover
  */
 
-import { inject, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover, { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 
-const props = defineProps({
+const { coordinates, authorizePrint, title, useContentPadding } = defineProps({
     coordinates: {
         type: Array,
         default: null,
@@ -31,14 +31,13 @@ const props = defineProps({
         validator: (value) => Object.values(MapPopoverMode).includes(value),
     },
 })
-const { coordinates, authorizePrint, title, useContentPadding } = toRefs(props)
 
 const anchorPosition = ref({ top: 0, left: 0 })
-const popoverAnchor = ref(null)
+const popoverAnchor = useTemplateRef('popoverAnchor')
 
 const olMap = inject('olMap')
 
-watch(coordinates, calculateAnchorPosition)
+watch(() => coordinates, calculateAnchorPosition)
 
 onMounted(() => {
     calculateAnchorPosition()
@@ -49,10 +48,10 @@ onUnmounted(() => {
 })
 
 function calculateAnchorPosition() {
-    if (!coordinates.value) {
+    if (!coordinates) {
         return
     }
-    const computedPixel = olMap.getPixelFromCoordinate(coordinates.value)
+    const computedPixel = olMap.getPixelFromCoordinate(coordinates)
     // when switching back from Cesium (or any other map framework), there can be a very small
     // period where the map isn't yet able to process a pixel, this if is there to defend against that
     if (computedPixel) {

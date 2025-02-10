@@ -1,9 +1,9 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
-const props = defineProps({
+const { showProviders, providers } = defineProps({
     showProviders: {
         type: Boolean,
         default: false,
@@ -16,10 +16,9 @@ const props = defineProps({
     },
 })
 
-const emit = defineEmits(['chooseProvider'])
+const emit = defineEmits(['chooseProvider', 'hide'])
 
-const { showProviders, providers } = toRefs(props)
-const providerList = ref(null)
+const providerList = useTemplateRef('providerList')
 
 function goToPrevious(currentKey) {
     if (currentKey === 0) {
@@ -30,7 +29,7 @@ function goToPrevious(currentKey) {
 }
 
 function goToNext(currentKey) {
-    if (currentKey >= providers.value.length - 1) {
+    if (currentKey >= providers.length - 1) {
         return
     }
     const key = currentKey + 1
@@ -42,7 +41,7 @@ function goToFirst() {
 }
 
 function goToLast() {
-    providerList.value.querySelector(`[tabindex="${providers.value.length - 1}"]`).focus()
+    providerList.value.querySelector(`[tabindex="${providers.length - 1}"]`).focus()
 }
 
 defineExpose({ goToFirst })
@@ -67,7 +66,7 @@ defineExpose({ goToFirst })
                 @keydown.down.prevent="() => goToNext(key)"
                 @keydown.home.prevent="goToFirst"
                 @keydown.end.prevent="goToLast"
-                @keydown.esc.prevent="showProviders = false"
+                @keydown.esc.prevent="emit('hide')"
                 @keydown.enter.prevent="emit('chooseProvider', provider.url)"
                 @click="emit('chooseProvider', provider.url)"
             >

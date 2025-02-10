@@ -6,13 +6,13 @@ import { useRouter } from 'vue-router'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import { MAP_VIEW } from '@/router/viewNames'
 
-const i18n = useI18n()
+const { t } = useI18n()
 const router = useRouter()
 
 const currentHost = ref(window.location.host)
 
 const linkMessage = computed(() =>
-    i18n.t('view_on_mapgeoadminch_webmapviewer', { url: currentHost.value })
+    t('view_on_mapgeoadminch_webmapviewer', { url: currentHost.value })
 )
 const mapView = computed(() => router.resolve({ ...router.currentRoute.value, name: MAP_VIEW }))
 </script>

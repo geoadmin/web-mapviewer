@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -8,22 +8,21 @@ import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 
 const dispatcher = { dispatcher: 'DrawingToolboxButton.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
-const props = defineProps({
+const { drawingMode } = defineProps({
     drawingMode: {
         type: String,
         default: EditableFeatureTypes.LINEPOLYGON,
     },
 })
-const { drawingMode } = toRefs(props)
 
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const currentDrawingMode = computed(() => store.state.drawing.mode)
-const isActive = computed(() => drawingMode.value === currentDrawingMode.value)
+const isActive = computed(() => drawingMode === currentDrawingMode.value)
 const buttonIcon = computed(() => {
-    switch (drawingMode.value) {
+    switch (drawingMode) {
         case EditableFeatureTypes.LINEPOLYGON:
             return ['fa', 'draw-polygon']
         case EditableFeatureTypes.MARKER:
@@ -41,7 +40,7 @@ function setDrawingMode() {
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     } else {
         store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('setDrawingMode', { mode: drawingMode.value, ...dispatcher })
+        store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
     }
 }
 </script>
@@ -61,7 +60,7 @@ function setDrawingMode() {
             v-if="!isPhoneMode"
             class="d-sm-block"
         >{{
-            i18n.t(`draw_${drawingMode.toLowerCase()}`)
+            t(`draw_${drawingMode.toLowerCase()}`)
         }}</small>
     </button>
 </template>

@@ -1,20 +1,20 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
-const props = defineProps({
+const { content } = defineProps({
     content: {
         type: [HTMLDivElement, null],
         default: null,
     },
 })
-const { content } = toRefs(props)
 
 const emits = defineEmits(['hideParentModal'])
 
-useTippyTooltip('.print-button[data-tippy-content]')
+const printButton = useTemplateRef('printButton')
+useTippyTooltip(printButton, 'print')
 
 const showModal = ref(false)
 
@@ -28,8 +28,8 @@ function onHideParentModal(hide) {
 
 <template>
     <button
+        ref="printButton"
         class="print-button btn btn-light btn-sm d-flex align-items-center"
-        data-tippy-content="print"
         data-cy="print-button"
         @click="printContent"
     >

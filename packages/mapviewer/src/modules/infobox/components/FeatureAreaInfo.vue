@@ -1,31 +1,32 @@
 <script setup>
 import { WGS84 } from 'geoadmin/proj'
-import { computed, toRefs } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
-const props = defineProps({
+const { geometry } = defineProps({
     geometry: {
         type: Object,
         required: true,
         validator: (value) => value?.type === 'Polygon',
     },
 })
-const { geometry } = toRefs(props)
 
-useTippyTooltip('.area-information-container[data-tippy-content]', { placement: 'right' })
+const tooltipAnchor = useTemplateRef('tooltipAnchor')
+
+useTippyTooltip(tooltipAnchor, 'area', { placement: 'right' })
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 const geometryWgs84 = computed(() => {
     if (projection.value === WGS84) {
-        return geometry.value
+        return geometry
     }
-    return reprojectGeoJsonData(geometry.value, WGS84, projection.value)
+    return reprojectGeoJsonData(geometry, WGS84, projection.value)
 })
 
 /** @type {ComputedRef<string>} */
@@ -53,8 +54,8 @@ const humanReadableArea = computed(() => {
 
 <template>
     <div
+        ref="tooltipAnchor"
         class="area-information-container d-flex align-items-center"
-        data-tippy-content="area"
     >
         <div class="rectangle" />
         <div class="area-information ps-2">

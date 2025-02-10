@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 const dispatcher = { dispatcher: 'HeaderMenuButton.vue' }
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const menuButtonText = computed(() => (store.state.ui.showMenu ? 'close' : 'menu'))
 const isOpen = computed(() => store.state.ui.showMenu)
@@ -24,7 +24,7 @@ function toggleMenu() {
         :class="{ 'menu-button-active': isOpen }"
         @click="toggleMenu(dispatcher)"
     >
-        {{ i18n.t(menuButtonText) }}
+        {{ t(menuButtonText) }}
     </button>
 </template>
 

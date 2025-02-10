@@ -1,13 +1,13 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref, toRefs } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 
-const props = defineProps({
+const { name, children, canLoadMore } = defineProps({
     name: {
         type: String,
         required: true,
@@ -24,8 +24,6 @@ const props = defineProps({
         default: false,
     },
 })
-
-const { name, children, canLoadMore } = toRefs(props)
 
 const emits = defineEmits(['loadMoreResults'])
 

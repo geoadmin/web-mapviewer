@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -7,7 +7,7 @@ import FeatureListCategory from '@/modules/infobox/components/FeatureListCategor
 
 const dispatcher = { dispatcher: 'FeatureList.vue' }
 
-const props = defineProps({
+const { fluid } = defineProps({
     /**
      * Tells if the height should be fixed (non-fluid) or if it should take 100% of available space
      * (if fluid). Default is false, which is the way it will be displayed in the InfoboxModule.
@@ -20,13 +20,11 @@ const props = defineProps({
     },
 })
 
-const { fluid } = toRefs(props)
+const featureListContainer = useTemplateRef('featureListContainer')
+const editableFeatureCategory = useTemplateRef('editableFeatureCategory')
+const layerFeatureCategories = useTemplateRef('layerFeatureCategories')
 
-const featureListContainer = ref(null)
-const editableFeatureCategory = ref(null)
-const layerFeatureCategories = ref([])
-
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const lang = computed(() => store.state.i18n.lang)
@@ -88,7 +86,7 @@ function loadMoreResultForLayer(layerId) {
             v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
             ref="editableFeatureCategory"
             class="feature-list-item"
-            :name="i18n.t('draw_layer_label')"
+            :name="t('draw_layer_label')"
             :children="selectedEditableFeatures"
         />
         <FeatureListCategory

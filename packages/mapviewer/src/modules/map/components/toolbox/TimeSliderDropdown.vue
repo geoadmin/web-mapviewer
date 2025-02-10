@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -12,7 +12,7 @@ const store = useStore()
 
 const emit = defineEmits(['update:modelValue', 'play'])
 
-const props = defineProps({
+const { modelValue, entries, isPlaying } = defineProps({
     modelValue: {
         type: [Number, String],
         required: true,
@@ -27,19 +27,15 @@ const props = defineProps({
     },
 })
 
-const { modelValue, entries, isPlaying } = toRefs(props)
-
 const isDropdownOpen = ref(false)
 const inputValue = ref('')
-// reference to the component
-const searchList = ref(null)
 
-// reference to the input
-const input = ref(null)
+const searchList = useTemplateRef('searchList')
+const input = useTemplateRef('input')
 
 function tooltipContent() {
-    const firstEntry = entries.value[0]
-    const lastEntry = entries.value[entries.value.length - 1]
+    const firstEntry = entries[0]
+    const lastEntry = entries[entries.length - 1]
     return `${t('outside_valid_year_range')} ${firstEntry}-${lastEntry}`
 }
 
@@ -53,7 +49,7 @@ const displayEntry = computed({
         if (isDropdownOpen.value) {
             return inputValue.value
         }
-        return modelValue.value
+        return modelValue
     },
     set(value) {
         inputValue.value = value
@@ -61,7 +57,7 @@ const displayEntry = computed({
 })
 
 const dropdownEntries = computed(() => {
-    return entries.value
+    return entries
         .filter((entry) => !inputValue.value || entry.toString().includes(inputValue.value))
         .map((entry) => ({
             htmlDisplay: entry.toString(),
@@ -97,12 +93,12 @@ function focusSearchlist() {
     if (inputValue.value) {
         searchList.value.goToFirst()
     } else {
-        searchList.value.goToSpecific(modelValue.value)
+        searchList.value.goToSpecific(modelValue)
     }
 }
 
 function onEnter() {
-    if (entries.value.includes(parseInt(inputValue.value))) {
+    if (entries.includes(parseInt(inputValue.value))) {
         chooseEntry(inputValue.value)
         input.value.blur()
     } else {
@@ -166,7 +162,6 @@ watch(
                         />
                     </button>
                     <button
-                        ref="playButton"
                         data-cy="time-slider-play-button"
                         class="btn btn-outline-group d-flex align-items-center px-3 border rounded-start-0"
                         :class="{ 'rounded-bottom-0': isDropdownOpen }"
@@ -185,6 +180,7 @@ watch(
             :entries="dropdownEntries"
             :show-list="isDropdownOpen"
             @choose-entry="chooseEntry"
+            @hide="isDropdownOpen = false"
         />
     </div>
 </template>

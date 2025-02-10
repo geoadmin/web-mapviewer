@@ -1,25 +1,23 @@
 <script setup>
 import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
 import log from 'geoadmin/log'
-import { computed, inject, toRef, toRefs, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
-const props = defineProps({
+const { kmlLayerConfig } = defineProps({
     kmlLayerConfig: {
         type: KMLLayer,
         required: true,
     },
 })
 
-const { kmlLayerConfig } = toRefs(props)
-
-const layerId = computed(() => kmlLayerConfig.value.id)
-const kmlData = computed(() => kmlLayerConfig.value.kmlData)
-const kmlStyle = computed(() => kmlLayerConfig.value.style)
-const isClampedToGround = computed(() => kmlLayerConfig.value.clampToGround)
-const layerOpacity = computed(() => kmlLayerConfig.value.opacity)
+const layerId = computed(() => kmlLayerConfig.id)
+const kmlData = computed(() => kmlLayerConfig.kmlData)
+const kmlStyle = computed(() => kmlLayerConfig.style)
+const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
+const layerOpacity = computed(() => kmlLayerConfig.opacity)
 
 const getViewer = inject('getViewer')
 const viewer = getViewer()

@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 /**
  * Vue composable that will handle the addition or removal of an OpenLayers layer. This is a
@@ -18,7 +18,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
  * @param {Readonly<Ref<Number>>} zIndex
  */
 export default function useAddLayerToMap(layer, map, zIndex) {
-    const internalZIndex = ref(zIndex.value)
+    const internalZIndex = ref(toValue(zIndex))
 
     watch(zIndex, (newValue) => {
         internalZIndex.value = newValue

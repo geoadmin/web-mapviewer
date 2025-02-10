@@ -4,7 +4,7 @@
 import { reprojectAndRound } from 'geoadmin/coordinates'
 import log from 'geoadmin/log'
 import { LV03, LV95, WGS84 } from 'geoadmin/proj'
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { requestHeight } from '@/api/height.api'
@@ -19,7 +19,7 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
 
-const props = defineProps({
+const { coordinate, clickInfo, projection, currentLang } = defineProps({
     coordinate: {
         type: Array,
         required: true,
@@ -37,16 +37,15 @@ const props = defineProps({
         required: true,
     },
 })
-const { coordinate, clickInfo, projection, currentLang } = toRefs(props)
 
 const lv03Coordinate = ref(null)
 const what3Words = ref(null)
 const height = ref(null)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 const coordinateWGS84Metric = computed(() => {
-    return reprojectAndRound(projection.value, WGS84, coordinate.value)
+    return reprojectAndRound(projection, WGS84, coordinate)
 })
 const coordinateWGS84Plain = computed(() => {
     // we want to output lat / lon, meaning we have to give the coordinate as y / x
@@ -70,27 +69,28 @@ const heightInMeter = computed(() => {
 })
 
 onMounted(() => {
-    if (clickInfo.value) {
+    if (clickInfo) {
         updateLV03Coordinate()
         updateWhat3Word()
         updateHeight()
     }
 })
 
-watch(clickInfo, (newClickInfo) => {
-    if (newClickInfo) {
-        updateLV03Coordinate()
-        updateWhat3Word()
-        updateHeight()
+watch(
+    () => clickInfo,
+    (newClickInfo) => {
+        if (newClickInfo) {
+            updateLV03Coordinate()
+            updateWhat3Word()
+            updateHeight()
+        }
     }
-})
-watch(currentLang, () => {
-    updateWhat3Word()
-})
+)
+watch(() => currentLang, updateWhat3Word)
 
 async function updateLV03Coordinate() {
     try {
-        const lv95coordinate = reprojectAndRound(projection.value, LV95, coordinate.value)
+        const lv95coordinate = reprojectAndRound(projection, LV95, coordinate)
         lv03Coordinate.value = await reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,
@@ -104,11 +104,7 @@ async function updateLV03Coordinate() {
 
 async function updateWhat3Word() {
     try {
-        what3Words.value = await registerWhat3WordsLocation(
-            coordinate.value,
-            projection.value,
-            currentLang.value
-        )
+        what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
     } catch (error) {
         log.error(`Failed to retrieve What3Words Location`, error)
         what3Words.value = null
@@ -116,7 +112,7 @@ async function updateWhat3Word() {
 }
 async function updateHeight() {
     try {
-        height.value = await requestHeight(coordinate.value, projection.value)
+        height.value = await requestHeight(coordinate, projection)
     } catch (error) {
         log.error(`Failed to get position height`, error)
         height.value = null
@@ -138,7 +134,7 @@ async function updateHeight() {
                 :coordinate-format="LV95Format"
             >
                 <a
-                    :href="i18n.t('contextpopup_lv95_url')"
+                    :href="t('contextpopup_lv95_url')"
                     target="_blank"
                 >
                     {{ LV95Format.label }}
@@ -152,7 +148,7 @@ async function updateHeight() {
                 :coordinate-projection="LV03"
             >
                 <a
-                    :href="i18n.t('contextpopup_lv03_url')"
+                    :href="t('contextpopup_lv03_url')"
                     target="_blank"
                 >
                     {{ LV03Format.label }}
@@ -210,9 +206,9 @@ async function updateHeight() {
                 :extra-value="heightInFeet"
             >
                 <a
-                    :href="i18n.t('elevation_href')"
+                    :href="t('elevation_href')"
                     target="_blank"
-                >{{ i18n.t('elevation') }}</a>
+                >{{ t('elevation') }}</a>
             </CoordinateCopySlot>
         </div>
     </div>

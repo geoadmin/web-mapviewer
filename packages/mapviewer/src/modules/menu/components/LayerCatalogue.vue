@@ -1,13 +1,13 @@
 <script setup>
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'LayerCatalogue.vue' }
-
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
 
-const props = defineProps({
+const dispatcher = { dispatcher: 'LayerCatalogue.vue' }
+
+const { layerCatalogue, compact, withSearchBar, isTopic } = defineProps({
     layerCatalogue: {
         type: Array,
         required: true,
@@ -25,17 +25,16 @@ const props = defineProps({
         default: false,
     },
 })
-const { layerCatalogue, compact, withSearchBar, isTopic } = toRefs(props)
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const searchText = ref('')
-const searchInput = ref(null)
+const searchInput = useTemplateRef('searchInput')
 
-const showSearchBar = computed(() => withSearchBar.value && layerCatalogue.value.length > 0)
+const showSearchBar = computed(() => withSearchBar && layerCatalogue.length > 0)
 
-watch(layerCatalogue, () => {
+watch(() => layerCatalogue, () => {
     searchText.value = ''
 })
 
@@ -80,7 +79,7 @@ function clearSearchText() {
                 type="text"
                 class="form-control"
                 :class="{ 'rounded-end': !searchText.length }"
-                :placeholder="i18n.t('search_in_catalogue_placeholder')"
+                :placeholder="t('search_in_catalogue_placeholder')"
                 aria-label="Search"
                 aria-describedby="searchCatalogueIcon searchCatalogueInputButton"
                 :value="searchText"

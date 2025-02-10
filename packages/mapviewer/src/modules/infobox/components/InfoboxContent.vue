@@ -1,17 +1,16 @@
 <script setup>
-import { computed, nextTick, ref, toRefs, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 
-const props = defineProps({
+const { animation } = defineProps({
     animation: { type: Boolean, default: true },
 })
-const { animation } = toRefs(props)
 
-const content = ref(null)
+const content = useTemplateRef('content')
 
 const store = useStore()
 

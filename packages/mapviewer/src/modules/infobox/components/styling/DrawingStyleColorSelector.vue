@@ -1,3 +1,44 @@
+<script setup>
+/**
+ * Component showing all available color for a feature and making it possible to switch from one
+ * color to the other (will be responsible to change the color of the feature)
+ */
+
+import { ref } from 'vue'
+
+import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
+
+const { inline, currentColor } = defineProps({
+    inline: {
+        type: Boolean,
+        default: false,
+    },
+    currentColor: {
+        type: FeatureStyleColor,
+        required: true,
+    },
+})
+
+const emits = defineEmits({
+    change(color) {
+        return color instanceof FeatureStyleColor
+    },
+})
+
+const colors = ref(allStylingColors)
+
+function onColorChange(color) {
+    emits('change', color)
+}
+
+function colorCircleStyle(color) {
+    return {
+        'background-color': color.name,
+        'border-color': color.border,
+    }
+}
+</script>
+
 <template>
     <div
         class="color-select-box rounded bg-light"
@@ -15,51 +56,13 @@
             class="btn"
             @click="() => onColorChange(color)"
         >
-            <div
+            <span
                 class="color-circle rounded-circle"
                 :style="colorCircleStyle(color)"
             />
         </button>
     </div>
 </template>
-
-<script>
-import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
-
-/**
- * Component showing all available color for a feature and making it possible to switch from one
- * color to the other (will be responsible to change the color of the feature)
- */
-export default {
-    props: {
-        inline: {
-            type: Boolean,
-            default: false,
-        },
-        currentColor: {
-            type: FeatureStyleColor,
-            required: true,
-        },
-    },
-    emits: ['change'],
-    data() {
-        return {
-            colors: allStylingColors,
-        }
-    },
-    methods: {
-        onColorChange(color) {
-            this.$emit('change', color)
-        },
-        colorCircleStyle(color) {
-            return {
-                'background-color': color.name,
-                'border-color': color.border,
-            }
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

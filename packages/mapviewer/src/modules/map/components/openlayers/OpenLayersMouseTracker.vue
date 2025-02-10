@@ -1,7 +1,7 @@
 <script setup>
 import log from 'geoadmin/log'
 import MousePosition from 'ol/control/MousePosition'
-import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -9,13 +9,13 @@ import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordina
 
 const dispatcher = { dispatcher: 'OpenLayersMouseTracker.vue' }
 
-const mousePosition = ref(null)
+const mousePosition = useTemplateRef('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 const olMap = inject('olMap')
 
@@ -50,7 +50,7 @@ function setDisplayedFormatWithId() {
     if (displayedFormat) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
             if (showCoordinateLabel(displayedFormat)) {
-                return `${i18n.t('coordinates_label')} ${displayedFormat.format(
+                return `${t('coordinates_label')} ${displayedFormat.format(
                     coordinates,
                     projection.value
                 )}`

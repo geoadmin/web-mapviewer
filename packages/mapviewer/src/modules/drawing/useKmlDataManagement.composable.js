@@ -1,5 +1,5 @@
 import log from 'geoadmin/log'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -16,9 +16,9 @@ let differSaveDrawingTimeout = null
 const saveState = ref(DrawingState.INITIAL)
 
 export default function useSaveKmlOnChange(drawingLayerDirectReference) {
-    const drawingLayer = inject('drawingLayer', drawingLayerDirectReference)
+    const drawingLayer = inject('drawingLayer', toValue(drawingLayerDirectReference))
 
-    const i18n = useI18n()
+    const { t } = useI18n()
     const store = useStore()
     const online = computed(() => store.state.drawing.online)
     const projection = computed(() => store.state.position.projection)
@@ -29,7 +29,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId.value)
     )
     const drawingName = computed(
-        () => store.state.drawing.name ?? activeKmlLayer.value?.name ?? i18n.t('draw_layer_label')
+        () => store.state.drawing.name ?? activeKmlLayer.value?.name ?? t('draw_layer_label')
     )
 
     let addKmlLayerTimeout = null

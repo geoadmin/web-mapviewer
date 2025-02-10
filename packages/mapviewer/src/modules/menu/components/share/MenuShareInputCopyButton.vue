@@ -1,10 +1,10 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, onUpdated, ref, toRefs, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, toRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
-const props = defineProps({
+const { inputText, small, copyText, copiedText, labelText, hasWarning } = defineProps({
     inputText: {
         type: String,
         default: null,
@@ -33,23 +33,24 @@ const props = defineProps({
 
 const copiedInClipboard = ref(false)
 const timeoutCopied = ref(null)
-const { inputText } = toRefs(props)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
-const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-    '#input-copy-button[data-tippy-content]',
-    {
-        placement: 'top',
-        offset: [0, -20],
-        theme: 'warning',
+const copyButton = useTemplateRef('copyButton')
+const tooltipContent = computed(() => {
+    if (hasWarning) {
+        return 'warn_share_local_file'
     }
-)
+    return null
+})
+const { refreshTippyAttachment } = useTippyTooltip(copyButton, toRef(tooltipContent), {
+    placement: 'top',
+    offset: [0, -20],
+    theme: 'warning',
+})
 
 const buttonText = computed(() => {
-    return i18n
-        .t(copiedInClipboard.value ? props.copiedText : props.copyText)
-        .replace('&nbsp;', '\xa0')
+    return t(copiedInClipboard.value ? copiedText : copyText).replace('&nbsp;', '\xa0')
 })
 
 const clearIsCopiedInClipboard = () => {
@@ -58,41 +59,26 @@ const clearIsCopiedInClipboard = () => {
 }
 
 const copyInputToClipboard = () => {
-    navigator.clipboard.writeText(props.inputText)
+    navigator.clipboard.writeText(inputText)
     copiedInClipboard.value = true
     timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
 }
 
-watch(inputText, () => {
-    clearIsCopiedInClipboard()
-})
-
-onMounted(() => {
-    refreshTippyAttachment()
-})
+watch(() => inputText, clearIsCopiedInClipboard)
+watch([tooltipContent, copyButton, () => inputText], refreshTippyAttachment)
 
 onBeforeUnmount(() => {
     clearTimeout(timeoutCopied.value)
-})
-
-onUpdated(() => {
-    refreshTippyAttachment()
-    if (!props.hasWarning) {
-        removeTippy()
-    } else {
-        refreshTippyAttachment()
-    }
 })
 </script>
 
 <template>
     <div
         v-if="inputText"
-        id="input-copy-button"
-        data-tippy-content="warn_share_local_file"
+        ref="copyButton"
         data-cy="input-copy-button"
     >
-        <label v-if="labelText">{{ $t(labelText) }}: </label>
+        <label v-if="labelText">{{ t(labelText) }}: </label>
         <div
             class="input-group"
             :class="{ 'input-group-sm': small }"
@@ -104,7 +90,7 @@ onUpdated(() => {
                 readonly="readonly"
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
-                @focus="$event.target.select()"
+                @focus="(event) => event.target.select()"
             >
             <button
                 class="btn"

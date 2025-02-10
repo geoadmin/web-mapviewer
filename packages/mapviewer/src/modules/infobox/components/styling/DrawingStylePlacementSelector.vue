@@ -1,10 +1,31 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+import { allStylingTextPlacements } from '@/utils/featureStyleUtils'
+
+const { currentPlacement } = defineProps({
+    currentPlacement: {
+        type: String,
+        required: true,
+    },
+})
+
+const emit = defineEmits(['change'])
+
+const { t } = useI18n()
+
+const onPlacementSelect = (placement) => {
+    emit('change', placement)
+}
+</script>
+
 <template>
     <div>
         <label
             class="form-label"
             for="drawing-style-text-placement-selector"
         >
-            {{ i18n.t('modify_text_placement_label') }}
+            {{ t('modify_text_placement_label') }}
         </label>
         <div class="grid-container">
             <div class="grid">
@@ -21,30 +42,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { allStylingTextPlacements } from '@/utils/featureStyleUtils'
-
-const props = defineProps({
-    currentPlacement: {
-        type: String,
-        required: true,
-    },
-})
-
-const { currentPlacement } = toRefs(props)
-
-const emit = defineEmits(['change'])
-
-const i18n = useI18n()
-
-const onPlacementSelect = (placement) => {
-    emit('change', placement)
-}
-</script>
 
 <style>
 .grid-container {
