@@ -12,6 +12,7 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
 const dispatcher = {
     dispatcher: 'CesiumHighlightedFeatures.vue',
@@ -25,6 +26,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const isFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
+
 const showFeaturesPopover = computed(
     () => isFeatureInfoInTooltip.value && selectedFeatures.value.length > 0
 )
@@ -54,7 +56,13 @@ function highlightSelectedFeatures() {
         return
     }
     const [firstFeature] = selectedFeatures.value
+
     const geometries = selectedFeatures.value.map((f) => {
+        // Cesium Layers are highlighted through cesium itself, so we don't
+        // give anything to the highlighter.
+        if (f.layer instanceof GeoAdmin3DLayer) {
+            return null
+        }
         // GeoJSON and KML layers have different geometry structure
         if (!f.geometry.type) {
             let type

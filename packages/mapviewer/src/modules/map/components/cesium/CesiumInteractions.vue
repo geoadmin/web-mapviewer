@@ -95,6 +95,7 @@ function createBuildingFeature(building, coordinates) {
         ground_level: building.getProperty('GELAENDEPUNKT') ?? '-',
     }
     // round values)
+
     const feature = new LayerFeature({
         layer: cesiumBuildingLayer.value,
         id,
@@ -209,23 +210,11 @@ function onMouseMove(event) {
     // has no id either. We need to make an additional filter, as bridges and cable cars would get
     // highlighted too, but we don't want that. So we filter on the fact that those 'OBJEKTART'
     // property is a number instead of a string.
-    let feature = viewer.scene
+    hoveredHighlightPostProcessor.value.selected = viewer.scene
         .drillPick(event.endPosition)
-        .find(
+        .filter(
             (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
         )
-    if (!feature) {
-        hoveredHighlightPostProcessor.value.selected = []
-    } else if (
-        hoveredHighlightPostProcessor.value.selected.length === 0 ||
-        (hoveredHighlightPostProcessor.value.selected[0].getProperty('UUID') !==
-            feature.getProperty('UUID') &&
-            (clickedHighlightPostProcessor.value.selected.length === 0 ||
-                clickedHighlightPostProcessor.value.selected[0].getProperty('UUID') !==
-                    feature.getProperty('UUID')))
-    ) {
-        hoveredHighlightPostProcessor.value.selected = [feature]
-    }
 }
 
 useDragFileOverlay(getViewer().container)
