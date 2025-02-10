@@ -1,5 +1,4 @@
 <script setup>
-import log from 'geoadmin/log'
 import {
     Cartesian2,
     Cartographic,
@@ -7,6 +6,8 @@ import {
     PostProcessStageLibrary,
     ScreenSpaceEventType,
 } from 'cesium'
+import log from 'geoadmin/log'
+import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import { Point } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, ref } from 'vue'
@@ -19,10 +20,8 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { createPixelExtentAround } from '@/utils/extentUtils'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
-import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
