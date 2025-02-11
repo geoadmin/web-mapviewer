@@ -3,17 +3,26 @@ import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } fro
 import log from 'geoadmin/log'
 import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+    computed,
+    inject,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    useTemplateRef,
+    watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 
-const mousePosition = ref(null)
+const mousePosition = useTemplateRef('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
 const projection = computed(() => store.state.position.projection)
@@ -82,7 +91,7 @@ function formatCoordinate(coordinate) {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
         if (showCoordinateLabel(displayedFormat)) {
-            return `${i18n.t('coordinates_label')} ${displayedFormat.format(
+            return `${t('coordinates_label')} ${displayedFormat.format(
                 coordinate,
                 projection.value
             )}`

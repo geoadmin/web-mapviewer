@@ -6,7 +6,6 @@ import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
-import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -28,7 +27,7 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
 const showNotSharedDrawingWarningModal = ref(false)
 const is3DActive = computed(() => store.state.cesium.active)
@@ -74,7 +73,7 @@ onUnmounted(() => {
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
-            :title="i18n.t('warning')"
+            :title="t('warning')"
             @close="showNotSharedDrawingWarningModal = false"
         >
             <ShareWarningPopup
@@ -143,7 +142,6 @@ onUnmounted(() => {
                 </MapFooter>
             </template>
         </MapModule>
-        <I18nModule />
         <DragDropOverlay v-if="showDragAndDropOverlay" />
     </div>
 </template>

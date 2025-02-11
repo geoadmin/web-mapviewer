@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -14,10 +14,9 @@ import { generateFilename } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'FeatureElevationProfile.vue' }
 
-const props = defineProps({ animation: { type: Boolean, default: true } })
-const { animation } = toRefs(props)
+const { animation } = defineProps({ animation: { type: Boolean, default: true } })
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const profileFeature = computed(() => store.state.features.profileFeature)
@@ -87,7 +86,7 @@ function onCSVDownload() {
                 class="text-danger"
                 data-cy="profile-error-message"
             >
-                {{ i18n.t(profileRequestError.messageKey) }}
+                {{ t(profileRequestError.messageKey) }}
             </span>
         </div>
         <FeatureElevationProfilePlot

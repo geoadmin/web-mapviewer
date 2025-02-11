@@ -1,8 +1,8 @@
 <script setup>
 import log from 'geoadmin/log'
-import { onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const props = defineProps({
+const { duration, barClass } = defineProps({
     duration: {
         type: Number,
         required: true,
@@ -12,7 +12,6 @@ const props = defineProps({
         default: '',
     },
 })
-const { duration, barClass } = toRefs(props)
 
 const value = ref(0)
 const waitTime = ref(0)
@@ -25,11 +24,11 @@ let started = null
 let timer = null
 onMounted(() => {
     started = Date.now()
-    totalTime.value = duration.value * 1000
+    totalTime.value = duration * 1000
     slot.value = Math.floor((maxValue * 2) / 3)
     waitTime.value = (totalTime.value * 2) / 3 / slot.value
     log.debug(
-        `progress value=${value.value} slot=${slot.value} duration=${duration.value} waitTime=${waitTime.value}`
+        `progress value=${value.value} slot=${slot.value} duration=${duration} waitTime=${waitTime.value}`
     )
     timer = setTimeout(progress, waitTime.value)
 })

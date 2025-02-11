@@ -4,7 +4,7 @@
 import { randomIntBetween } from 'geoadmin/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import {
     getMarkerStyle,
@@ -13,7 +13,7 @@ import {
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
-const props = defineProps({
+const { position, markerStyle, zIndex, selectFeatureCallback, deselectAfterSelect } = defineProps({
     position: {
         type: Array,
         required: true,
@@ -35,35 +35,33 @@ const props = defineProps({
         default: false,
     },
 })
-const { position, markerStyle, zIndex } = toRefs(props)
 
 const features = computed(() => {
-    if (!Array.isArray(position.value)) {
+    if (!Array.isArray(position)) {
         return []
     }
-    if (
-        Array.isArray(position.value) &&
-        position.value.length === 2 &&
-        typeof position.value[0] === 'number'
-    ) {
-        return [featuresForPosition(position.value, markerStyle.value)]
+    if (Array.isArray(position) && position.length === 2 && typeof position[0] === 'number') {
+        return [featuresForPosition(position, markerStyle)]
     }
     // we have received multiple point at once, we need to parse them each one at a time
-    return position.value.map((point) => featuresForPosition(point, markerStyle.value))
+    return position.map((point) => featuresForPosition(point, markerStyle))
 })
 
 const olMap = inject('olMap')
 useVectorLayer(olMap, features, {
     zIndex: zIndex,
     styleFunction: highlightFeatureStyle,
-    onFeatureSelectCallback: props.selectFeatureCallback,
-    deselectAfterSelect: props.deselectAfterSelect,
+    onFeatureSelectCallback: selectFeatureCallback,
+    deselectAfterSelect: deselectAfterSelect,
 })
 
-watch(markerStyle, (newStyle) => {
-    const olStyle = getMarkerStyle(newStyle)
-    features.value.forEach((feature) => feature.setStyle(olStyle))
-})
+watch(
+    () => markerStyle,
+    (newStyle) => {
+        const olStyle = getMarkerStyle(newStyle)
+        features.value.forEach((feature) => feature.setStyle(olStyle))
+    }
+)
 
 /**
  * @param position

@@ -12,7 +12,7 @@
 
 import { Dropdown } from 'bootstrap'
 import { randomIntBetween } from 'geoadmin/numbers'
-import { onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -28,7 +28,7 @@ import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
  * @property {String} [description]
  */
 
-const props = defineProps({
+const { title, currentValue, items, withToggleButton, disabled, small } = defineProps({
     title: {
         type: String,
         required: true,
@@ -62,34 +62,35 @@ const props = defineProps({
         default: false,
     },
 })
-const { title, currentValue, items, withToggleButton, disabled, small } = toRefs(props)
 
 const emits = defineEmits({ click: () => true, selectItem: (item) => item?.id && item?.title })
 
 const { t } = useI18n()
 
-const dropdownMenu = ref(null)
-const dropdownToggleButton = ref(null)
-const dropdownMainButton = ref(null)
+const dropdownMenu = useTemplateRef('dropdownMenu')
+const dropdownToggleButton = useTemplateRef('dropdownToggleButton')
+const dropdownMainButton = useTemplateRef('dropdownMainButton')
+
+const dropdownItems = useTemplateRef('dropdownItems')
+const tooltipContents = computed(() => items.map((item) => item.description))
+useTippyTooltip(dropdownItems, tooltipContents,{ placement: 'left' })
 
 // generating a unique HTML ID for this dropdown
 const uniqueHtmlId = ref(`dropdown-${randomIntBetween(0, 10000)}`)
 
-useTippyTooltip('.dropdown-item[data-tippy-content]', { placement: 'left' })
-
 let dropdown = null
 onMounted(() => {
-    if (withToggleButton.value) {
+    if (withToggleButton) {
         dropdown = new Dropdown(dropdownToggleButton.value)
     } else {
         dropdown = new Dropdown(dropdownMainButton.value)
     }
 })
 onBeforeUnmount(() => {
-    dropdown.dispose()
+    dropdown?.dispose()
 })
 
-watch(disabled, (isDisabled) => {
+watch(() => disabled, (isDisabled) => {
     if (isDisabled) {
         // hiding the dropdown body if component becomes disabled
         dropdownMenu.value.classList.remove('show')
@@ -97,7 +98,7 @@ watch(disabled, (isDisabled) => {
 })
 
 function onMainButtonClick() {
-    if (withToggleButton.value) {
+    if (withToggleButton) {
         // letting the parent component handle what to do by sending an event
         emits('click')
     }
@@ -146,11 +147,11 @@ function selectItem(item) {
             <li
                 v-for="item in items"
                 :key="item.id"
+                ref="dropdownItems"
             >
                 <a
                     class="dropdown-item"
                     :class="{ active: currentValue === (item.value ?? item.title) }"
-                    :data-tippy-content="item.description"
                     :data-cy="`dropdown-item-${item.id}`"
                     @click="selectItem(item)"
                 >

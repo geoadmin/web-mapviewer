@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, nextTick, ref, toRefs } from 'vue'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -14,24 +14,22 @@ import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 
 const dispatcher = { dispatcher: 'FeedbackButton.vue' }
 
-const props = defineProps({
+const { showAsLink } = defineProps({
     showAsLink: {
         type: Boolean,
         default: false,
     },
 })
 
-const { showAsLink } = toRefs(props)
-
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
-const requestResults = ref(null)
+const requestResults = useTemplateRef('requestResults')
 const showFeedbackForm = ref(false)
 const maxRating = ref(5)
 const feedback = ref({ rating: 0, message: null, email: null })
 const request = ref({ pending: false, failed: false, completed: false })
-const validationResult = ref(null)
+const validationResult = useTemplateRef('validationResult')
 const activateValidation = ref(false)
 const isMessageValid = ref(false)
 // by default attachment and email are valid as they are optional
@@ -81,7 +79,7 @@ async function sendFeedback() {
 }
 
 function openForm() {
-    if (!props.showAsLink) {
+    if (!showAsLink) {
         store.dispatch('closeMenu', dispatcher)
     }
     showFeedbackForm.value = true
@@ -115,7 +113,7 @@ function onEmailValidate(valid) {
         small
         @click="openForm"
     >
-        <strong>{{ i18n.t('test_map_give_feedback') }}</strong>
+        <strong>{{ t('test_map_give_feedback') }}</strong>
     </HeaderLink>
     <button
         v-else
@@ -123,7 +121,7 @@ function onEmailValidate(valid) {
         data-cy="feedback-button"
         @click="openForm"
     >
-        {{ i18n.t('test_map_give_feedback') }}
+        {{ t('test_map_give_feedback') }}
     </button>
     <SimpleWindow
         v-if="showFeedbackForm"
@@ -138,7 +136,7 @@ function onEmailValidate(valid) {
             data-cy="feedback-form"
         >
             <div class="">
-                <label class="fw-bold my-2">{{ i18n.t('feedback_rating_title') }}</label>
+                <label class="fw-bold my-2">{{ t('feedback_rating_title') }}</label>
                 <FeedbackRating
                     class="text-center"
                     :class="{ 'is-invalid': !isFormValid && activateValidation }"
@@ -150,12 +148,11 @@ function onEmailValidate(valid) {
                     class="invalid-feedback"
                     data-cy="rating-required-invalid-feedback"
                 >
-                    {{ i18n.t('field_required') }}
+                    {{ t('field_required') }}
                 </div>
             </div>
             <div class="my-3">
                 <TextAreaInput
-                    ref="feedbackMessageTextArea"
                     v-model="feedback.message"
                     placeholder="feedback_rating_text"
                     :disabled="request.pending"
@@ -178,7 +175,7 @@ function onEmailValidate(valid) {
 
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
-                <small v-html="i18n.t('feedback_disclaimer')" />
+                <small v-html="t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <SendActionButtons
@@ -193,7 +190,7 @@ function onEmailValidate(valid) {
                 ref="validationResult"
                 class="invalid-feedback text-end mt-2"
             >
-                {{ i18n.t('form_invalid') }}
+                {{ t('form_invalid') }}
             </div>
             <div
                 v-if="request.failed"
@@ -201,7 +198,7 @@ function onEmailValidate(valid) {
                 class="text-end text-danger mt-3"
                 data-cy="feedback-failed-text"
             >
-                {{ i18n.t('send_failed') }}
+                {{ t('send_failed') }}
             </div>
         </div>
         <div
@@ -212,14 +209,14 @@ function onEmailValidate(valid) {
                 class="text-success"
                 data-cy="feedback-success-text"
             >
-                {{ i18n.t('feedback_success_message') }}
+                {{ t('feedback_success_message') }}
             </h6>
             <button
                 class="my-2 btn btn-light float-end"
                 data-cy="feedback-close-successful"
                 @click="closeAndCleanForm"
             >
-                {{ i18n.t('close') }}
+                {{ t('close') }}
             </button>
         </div>
     </SimpleWindow>

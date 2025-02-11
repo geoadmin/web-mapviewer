@@ -1,10 +1,10 @@
 <script setup>
-import tippy from 'tippy.js'
-import { computed, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const props = defineProps({
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+
+const { isSelected, title, tooltip } = defineProps({
     isSelected: {
         type: Boolean,
         default: false,
@@ -22,34 +22,15 @@ const props = defineProps({
         default: false,
     },
 })
-const { isSelected, title, tooltip } = toRefs(props)
 
 const emit = defineEmits(['toggleMenu'])
 
-const tippyTooltip = ref(null)
-let tippyInstance = null
+const { t } = useI18n()
 
-const i18n = useI18n()
-const store = useStore()
-
-const currentLocal = computed(() => store.state.i18n.lang)
-
-watch(currentLocal, () => {
-    tippyInstance.setContent(i18n.t(tooltip.value))
-})
-
-onMounted(() => {
-    tippyInstance = tippy(tippyTooltip.value, {
-        content: i18n.t(tooltip.value),
-        arrow: true,
-        placement: 'auto',
-        touch: false,
-        delay: 500,
-    })
-})
-
-onUnmounted(() => {
-    tippyInstance?.destroy()
+const tooltipAnchor = useTemplateRef('tooltipAnchor')
+useTippyTooltip(tooltipAnchor, tooltip, {
+    placement: 'auto',
+    touch: false,
 })
 </script>
 
@@ -67,9 +48,9 @@ onUnmounted(() => {
                 :icon="`caret-${isSelected ? 'down' : 'right'}`"
             />
             <span
-                ref="tippyTooltip"
+                ref="tooltipAnchor"
                 class="px-1"
-            >{{ i18n.t(title) }} </span>
+            >{{ t(title) }} </span>
         </a>
         <slot />
     </div>

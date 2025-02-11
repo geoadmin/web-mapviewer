@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -9,19 +9,18 @@ import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicS
 
 const dispatcher = { dispatcher: 'MenuTopicSection.vue' }
 
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
-const { compact } = toRefs(props)
 
 const emit = defineEmits(['openMenuSection', 'closeMenuSection'])
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
-const menuTopicSection = ref(null)
+const menuTopicSection = useTemplateRef('menuTopicSection')
 const showTopicSelectionPopup = ref(false)
 
 // The id needs to be exposed and is used by the MenuTray to close sections.
@@ -68,7 +67,7 @@ defineExpose({ close, id: sectionId })
     <MenuSection
         ref="menuTopicSection"
         :section-id="sectionId"
-        :title="i18n.t(currentTopic)"
+        :title="t(currentTopic)"
         :show-content="showTopicTree"
         light
         data-cy="menu-topic-section"
@@ -81,7 +80,7 @@ defineExpose({ close, id: sectionId })
                 data-cy="change-topic-button"
                 @click.stop="setShowTopicSelectionPopup"
             >
-                {{ i18n.t('choose_theme') }}
+                {{ t('choose_theme') }}
             </button>
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"

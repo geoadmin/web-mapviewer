@@ -4,7 +4,7 @@
  * interactions to the state)
  */
 import Sortable from 'sortablejs'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
@@ -12,15 +12,14 @@ import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPop
 
 const dispatcher = { dispatcher: 'MenuActiveLayersList.vue' }
 
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
-const { compact } = toRefs(props)
 
-const activeLayersList = ref(null)
+const activeLayersList = useTemplateRef('activeLayersList')
 // used to deactivate the hover change of color on layer whenever one of them is dragged
 const aLayerIsDragged = ref(false)
 const showLayerDetailIndex = ref(null)

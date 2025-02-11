@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
@@ -11,13 +11,12 @@ const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
 const { handleFileSource } = useImportFile()
 
-const props = defineProps({
+const { active } = defineProps({
     active: {
         type: Boolean,
         default: false,
     },
 })
-const { active } = toRefs(props)
 
 // Reactive data
 const loadingFile = ref(false)

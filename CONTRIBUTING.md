@@ -3,24 +3,24 @@
 ## Table of content
 
 - [Contributing](#contributing)
-    - [Development process](#development-process)
-        - [Automated git tagging of `develop` and `master`](#automated-git-tagging-of-develop-and-master)
-    - [NPM](#npm)
-        - [list of npm targets](#list-of-npm-targets)
-        - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
-    - [Linting](#linting)
-        - [Integration in IDE](#integration-in-ide)
-    - [Continuous integration / deployment](#continuous-integration--deployment)
-    - [Project structure](#project-structure)
-        - [Best practices](#best-practices)
-        - [Vue Composition API](#vue-composition-api)
-        - [Store module](#store-module)
-    - [Testing](#testing)
-    - [Environment variables](#environment-variables)
-    - [Tooling to update translation](#tooling-to-update-translation)
-    - [Project deployment](#project-deployment)
-        - [Automatic deploy](#automatic-deploy)
-        - [Manual deploy](#manual-deploy)
+  - [Development process](#development-process)
+    - [Automated git tagging of `develop` and `master`](#automated-git-tagging-of-develop-and-master)
+  - [NPM](#npm)
+    - [list of npm targets](#list-of-npm-targets)
+    - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
+  - [Linting](#linting)
+    - [Integration in IDE](#integration-in-ide)
+  - [Continuous integration / deployment](#continuous-integration--deployment)
+  - [Project structure](#project-structure)
+    - [Best practices](#best-practices)
+    - [Vue Composition API](#vue-composition-api)
+    - [Store module](#store-module)
+  - [Testing](#testing)
+  - [Environment variables](#environment-variables)
+  - [Tooling to update translation](#tooling-to-update-translation)
+  - [Project deployment](#project-deployment)
+    - [Automatic deploy](#automatic-deploy)
+    - [Manual deploy](#manual-deploy)
 
 ## Development process
 
@@ -137,17 +137,16 @@ The structure of the file should be :
 ```vue
 <script setup>
 // 1. First put the imports
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 // 2. Put all the props (input)
-const props = defineProps({
+const { myProp } = defineProps({
   myProp: {
     type: Boolean,
     default: false,
   },
 })
-const { myProp } = toRefs(props)
 
 // 3. reactive data
 const myData = ref('My reactive value')

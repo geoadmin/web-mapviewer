@@ -1,17 +1,16 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 
-const props = defineProps({
+const { shareLinkUrlShorten } = defineProps({
     shareLinkUrlShorten: {
         type: String,
         default: null,
     },
 })
-const { shareLinkUrlShorten } = toRefs(props)
 
 const store = useStore()
 

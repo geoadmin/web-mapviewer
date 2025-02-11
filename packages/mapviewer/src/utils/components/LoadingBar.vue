@@ -1,13 +1,12 @@
+<script setup>
+</script>
+
 <template>
     <div class="header-loading-bar">
         <div class="loading-bar-inner loading-bar-inner-1" />
         <div class="loading-bar-inner loading-bar-inner-2" />
     </div>
 </template>
-
-<script>
-export default {}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';

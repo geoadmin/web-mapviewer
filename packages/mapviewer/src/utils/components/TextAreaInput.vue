@@ -1,5 +1,5 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -12,7 +12,7 @@ const textAreaInputId = useComponentUniqueId('text-area-input')
 
 const model = defineModel({ type: String })
 const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
-const i18n = useI18n()
+const { t } = useI18n()
 
 const props = defineProps({
     /**
@@ -143,8 +143,8 @@ const props = defineProps({
         default: '',
     },
 })
-const { placeholder, disabled, label, description } = toRefs(props)
-const textAreaElement = ref(null)
+const { placeholder, disabled, label, description, dataCy } = props
+const textAreaElement = useTemplateRef('textAreaElement')
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
@@ -159,7 +159,7 @@ defineExpose({ focus })
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${props.dataCy}`"
+        :data-cy="`${dataCy}`"
     >
         <label
             v-if="label"
@@ -167,7 +167,7 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="textAreaInputId"
             data-cy="text-area-input-label"
-        >{{ i18n.t(label) }}</label>
+        >{{ t(label) }}</label>
         <textarea
             :id="textAreaInputId"
             ref="textAreaElement"
@@ -179,7 +179,7 @@ defineExpose({ focus })
                 'is-valid': validMarker,
             }"
             class="form-control"
-            :placeholder="placeholder ? i18n.t(placeholder) : ''"
+            :placeholder="placeholder ? t(placeholder) : ''"
             data-cy="text-area-input"
             @focusin="onFocus($event, true)"
             @focusout="onFocus($event, false)"
@@ -190,21 +190,21 @@ defineExpose({ focus })
             class="invalid-feedback"
             data-cy="text-area-input-invalid-feedback"
         >
-            {{ i18n.t(invalidMessage) }}
+            {{ t(invalidMessage) }}
         </div>
         <div
             v-if="validMessage"
             class="valid-feedback"
             data-cy="text-area-input-valid-feedback"
         >
-            {{ i18n.t(validMessage) }}
+            {{ t(validMessage) }}
         </div>
         <div
             v-if="description"
             class="form-text"
             data-cy="text-area-input-description"
         >
-            {{ i18n.t(description) }}
+            {{ t(description) }}
         </div>
     </div>
 </template>

@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import ErrorWindow from '@/utils/components/ErrorWindow.vue'
 import WarningWindow from '@/utils/components/WarningWindow.vue'
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 const error = computed(() => {
     if (store.state.ui.errors.size > 0) {
         return store.state.ui.errors.values().next().value
@@ -29,7 +29,7 @@ const warning = computed(() => {
             @close="store.dispatch('removeError', { error, ...dispatcher })"
         >
             <div>
-                {{ i18n.t(error.msg, error.params) }}
+                {{ t(error.msg, error.params) }}
             </div>
         </ErrorWindow>
         <WarningWindow
@@ -37,10 +37,11 @@ const warning = computed(() => {
             title="warning"
             @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
         >
-            <div>{{ i18n.t(warning.msg, warning.params) }}</div>
+            <div>{{ t(warning.msg, warning.params) }}</div>
         </WarningWindow>
     </div>
 </template>
+
 <style lang="scss">
 @import '@/scss/variables.module';
 @import '@/scss/media-query.mixin';

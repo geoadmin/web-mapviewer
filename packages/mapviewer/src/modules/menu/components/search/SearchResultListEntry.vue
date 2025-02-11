@@ -1,7 +1,7 @@
 <script setup>
 /** Component showing one search result entry (and dispatching its selection to the store) */
 
-import { computed, onUnmounted, ref, toRefs } from 'vue'
+import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { SearchResultTypes } from '@/api/search.api'
@@ -10,7 +10,7 @@ import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
 
-const props = defineProps({
+const { index, entry } = defineProps({
     index: {
         type: Number,
         required: true,
@@ -29,19 +29,17 @@ const emits = defineEmits([
     'clearPreview',
 ])
 
-const { index, entry } = toRefs(props)
-
-const resultType = computed(() => entry.value.resultType)
+const resultType = computed(() => entry.resultType)
 const showLayerDescription = ref(false)
 
-const item = ref(null)
+const item = useTemplateRef('item')
 const isSetPreview = ref(false)
 const store = useStore()
 const compact = computed(() => store.getters.isDesktopMode)
 const searchQuery = computed(() => store.state.search.query)
 const layerName = computed(() => {
     if (resultType.value === SearchResultTypes.LAYER) {
-        return store.state.layers.config.find((layer) => layer.id === entry.value.layerId)?.name
+        return store.state.layers.config.find((layer) => layer.id === entry.layerId)?.name
     }
     return null
 })
@@ -49,7 +47,7 @@ const layerName = computed(() => {
 function selectItem() {
     emits('entrySelected')
     emits('clearPreview', entry)
-    store.dispatch('selectResultEntry', { entry: entry.value, ...dispatcher })
+    store.dispatch('selectResultEntry', { entry: entry, ...dispatcher })
 }
 
 function goToFirst() {
@@ -79,14 +77,14 @@ function goToLast() {
 function clearPreview() {
     if (isSetPreview.value) {
         isSetPreview.value = false
-        emits('clearPreview', entry.value)
+        emits('clearPreview', entry)
     }
 }
 
 function setPreview() {
     if (!isSetPreview.value) {
         isSetPreview.value = true
-        emits('setPreview', entry.value)
+        emits('setPreview', entry)
     }
 }
 

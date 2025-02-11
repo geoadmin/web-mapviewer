@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -15,7 +15,7 @@ import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
-const header = ref(null)
+const header = useTemplateRef('header')
 
 const store = useStore()
 const { t } = useI18n()

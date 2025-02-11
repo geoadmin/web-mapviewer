@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -8,70 +8,71 @@ import { useMovableElement } from '@/utils/composables/useMovableElement.composa
 
 const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
 
-const props = defineProps({
-    title: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
-     * content
-     */
-    hide: {
-        type: Boolean,
-        default: false,
-    },
-    movable: {
-        type: Boolean,
-        default: false,
-    },
-    resizeable: {
-        type: Boolean,
-        default: false,
-    },
-    allowPrint: {
-        type: Boolean,
-        default: false,
-    },
-    initialPosition: {
-        type: String,
-        default: 'top-center',
-    },
-    // If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px)
-    wide: {
-        type: Boolean,
-        default: false,
-    },
-    dataCy: {
-        type: String,
-        default: 'simple-window',
-    },
-})
-const { title, hide } = toRefs(props)
+const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dataCy } = defineProps(
+    {
+        title: {
+            type: String,
+            default: '',
+        },
+        /**
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
+         * its content
+         */
+        hide: {
+            type: Boolean,
+            default: false,
+        },
+        movable: {
+            type: Boolean,
+            default: false,
+        },
+        resizeable: {
+            type: Boolean,
+            default: false,
+        },
+        allowPrint: {
+            type: Boolean,
+            default: false,
+        },
+        initialPosition: {
+            type: String,
+            default: 'top-center',
+        },
+        // If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px)
+        wide: {
+            type: Boolean,
+            default: false,
+        },
+        dataCy: {
+            type: String,
+            default: 'simple-window',
+        },
+    }
+)
 
 const store = useStore()
 
 const showBody = ref(true)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 const emit = defineEmits(['close'])
 
-const windowRef = ref(null)
-const headerRef = ref(null)
-const contentRef = ref(null)
+const windowRef = useTemplateRef('windowRef')
+const headerRef = useTemplateRef('headerRef')
+const contentRef = useTemplateRef('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (accepetedInitialPositions.includes(props.initialPosition)) {
-        return props.initialPosition
+    if (accepetedInitialPositions.includes(initialPosition)) {
+        return initialPosition
     } else {
         return 'top-center'
     }
 })
 
 onMounted(() => {
-    if (props.movable) {
+    if (movable) {
         const windowElement = windowRef.value
         const headerElement = headerRef.value
         useMovableElement(windowElement, {
@@ -109,7 +110,7 @@ onMounted(() => {
                     data-cy="simple-window-title"
                     class="me-auto text-truncate"
                 >
-                    {{ i18n.t(title) }}</span>
+                    {{ t(title) }}</span>
                 <span
                     v-else
                     class="me-auto"

@@ -6,7 +6,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from 'geoadmin/log'
-import { computed, onMounted, ref, toRefs, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -24,38 +24,37 @@ import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
-const props = defineProps({
-    index: {
-        type: Number,
-        required: true,
-    },
-    layer: {
-        type: AbstractLayer,
-        required: true,
-    },
-    showLayerDetail: {
-        type: Boolean,
-        default: false,
-    },
-    focusMoveButton: {
-        type: [String, null],
-        default: null,
-    },
-    isTopLayer: {
-        type: Boolean,
-        default: false,
-    },
-    isBottomLayer: {
-        type: Boolean,
-        default: false,
-    },
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-})
 const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
-    toRefs(props)
+    defineProps({
+        index: {
+            type: Number,
+            required: true,
+        },
+        layer: {
+            type: AbstractLayer,
+            required: true,
+        },
+        showLayerDetail: {
+            type: Boolean,
+            default: false,
+        },
+        focusMoveButton: {
+            type: [String, null],
+            default: null,
+        },
+        isTopLayer: {
+            type: Boolean,
+            default: false,
+        },
+        isBottomLayer: {
+            type: Boolean,
+            default: false,
+        },
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+    })
 
 const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
 
@@ -64,32 +63,32 @@ const { t } = useI18n()
 
 const menuLayerItem = useTemplateRef('menuLayerItem')
 
-const layerUpButton = ref(null)
-const layerDownButton = ref(null)
-const transparencySlider = ref(null)
-const currentKmlStyle = ref(layer.value?.style ?? null)
-const id = computed(() => layer.value.id)
+const layerUpButton = useTemplateRef('layerUpButton')
+const layerDownButton = useTemplateRef('layerDownButton')
+const transparencySlider = useTemplateRef('transparencySlider')
+const currentKmlStyle = ref(layer?.style ?? null)
+const id = computed(() => layer.id)
 
 /** @type {ComputedRef<DropdownItem[]>} */
 const kmlStylesAsDropdownItems = computed(() =>
     allKmlStyles.map((style) => ({ id: style, title: style.toLowerCase(), value: style }))
 )
 
-const isLocalFile = computed(() => store.getters.isLocalFile(layer.value))
+const isLocalFile = computed(() => store.getters.isLocalFile(layer))
 const hasDataDisclaimer = computed(() =>
-    store.getters.hasDataDisclaimer(id.value, layer.value.isExternal, layer.value.baseUrl)
+    store.getters.hasDataDisclaimer(id.value, layer.isExternal, layer.baseUrl)
 )
 const attributionName = computed(() =>
-    layer.value.attributions.map((attribution) => attribution.name).join(', ')
+    layer.attributions.map((attribution) => attribution.name).join(', ')
 )
-const showLayerDescriptionIcon = computed(() => layer.value.hasDescription)
-const hasMultipleTimestamps = computed(() => layer.value.hasMultipleTimestamps)
+const showLayerDescriptionIcon = computed(() => layer.hasDescription)
+const hasMultipleTimestamps = computed(() => layer.hasMultipleTimestamps)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
-const isLayerKml = computed(() => layer.value instanceof KMLLayer)
+const isLayerKml = computed(() => layer instanceof KMLLayer)
 const isLayerClampedToGround = computed({
-    get: () => layer.value.clampToGround,
+    get: () => layer.clampToGround,
     set: (value) => {
         store.dispatch('updateLayer', {
             layerId: id.value,
@@ -103,37 +102,36 @@ const isLayerClampedToGround = computed({
 
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
-const showSpinner = computed(
-    () => layer.value.isLoading && layer.value.isExternal && !layer.value.hasError
-)
+const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer.hasError)
 
-const elements = () => menuLayerItem.value.querySelectorAll('[data-tippy-content]')
-useTippyTooltip(elements, {
-    source: 'MenuActiveLayersListItem',
-})
+const loadingSpinner = useTemplateRef('loadingSpinner')
+useTippyTooltip(loadingSpinner, 'loading_external_layer')
+
+const duplicateLayerButton = useTemplateRef('duplicateLayerButton')
+useTippyTooltip(duplicateLayerButton, 'duplicate_layer')
 
 onMounted(() => {
-    if (showLayerDetail.value) {
-        if (focusMoveButton.value === 'up') {
+    if (showLayerDetail) {
+        if (focusMoveButton === 'up') {
             layerUpButton.value.focus()
-        } else if (focusMoveButton.value === 'down') {
+        } else if (focusMoveButton === 'down') {
             layerDownButton.value.focus()
         }
     }
 })
 
 function onRemoveLayer() {
-    store.dispatch('removeLayer', { index: index.value, ...dispatcher })
+    store.dispatch('removeLayer', { index, ...dispatcher })
 }
 
 function onToggleLayerVisibility() {
-    store.dispatch('toggleLayerVisibility', { index: index.value, ...dispatcher })
+    store.dispatch('toggleLayerVisibility', { index, ...dispatcher })
 }
 
 function dispatchOpacity(opacity) {
-    if (layer.value.opacity.toFixed(2) !== opacity.toFixed(2)) {
+    if (layer.opacity.toFixed(2) !== opacity.toFixed(2)) {
         store.dispatch('setLayerOpacity', {
-            index: index.value,
+            index,
             opacity: opacity.toFixed(2),
             ...dispatcher,
         })
@@ -157,7 +155,7 @@ function showLayerDescriptionPopup() {
 }
 
 function duplicateLayer() {
-    store.dispatch('addLayer', { layer: layer.value.clone(), ...dispatcher })
+    store.dispatch('addLayer', { layer: layer.clone(), ...dispatcher })
 }
 
 function changeStyle(newStyle) {
@@ -206,22 +204,22 @@ function changeStyle(newStyle) {
             >
                 {{ layer.name }}
             </TextTruncate>
-            <ZoomToExtentButton 
-                v-if="layer.extent" 
-                :extent="layer.extent" 
+            <ZoomToExtentButton
+                v-if="layer.extent"
+                :extent="layer.extent"
             />
             <button
                 v-if="showSpinner"
+                ref="loadingSpinner"
                 class="loading-button btn border-0 d-flex align-items-center"
                 :class="{
                     'btn-lg': !compact,
                 }"
-                data-tippy-content="loading_external_layer"
                 :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
             >
-                <FontAwesomeIcon 
-                    icon="spinner" 
-                    pulse 
+                <FontAwesomeIcon
+                    icon="spinner"
+                    pulse
                 />
             </button>
             <ErrorButton
@@ -268,8 +266,8 @@ function changeStyle(newStyle) {
                 <FontAwesomeIcon icon="cog" />
             </button>
         </div>
-        <div 
-            v-show="showLayerDetail" 
+        <div
+            v-show="showLayerDetail"
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <div class="d-flex mx-1 align-items-center">
@@ -295,10 +293,10 @@ function changeStyle(newStyle) {
                 <div class="btn-group">
                     <button
                         v-if="hasMultipleTimestamps"
+                        ref="duplicateLayerButton"
                         class="layer-options-btn"
                         :class="{ 'btn-lg': !compact }"
                         :data-cy="`button-duplicate-layer-${id}-${index}`"
-                        data-tippy-content="duplicate_layer"
                         @click.prevent="duplicateLayer()"
                     >
                         <FontAwesomeIcon :icon="['far', 'copy']" />

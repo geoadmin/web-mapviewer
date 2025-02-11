@@ -4,7 +4,7 @@
 import log from 'geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -15,7 +15,7 @@ import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
-const props = defineProps({
+const { kmlLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     kmlLayerConfig: {
         type: KMLLayer,
         required: true,
@@ -29,7 +29,6 @@ const props = defineProps({
         default: -1,
     },
 })
-const { kmlLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -39,12 +38,12 @@ const availableIconSets = computed(() => store.state.drawing.iconSets)
 const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => kmlLayerConfig.value.id)
-const layerName = computed(() => kmlLayerConfig.value.name)
-const opacity = computed(() => parentLayerOpacity.value ?? kmlLayerConfig.value.opacity)
-const url = computed(() => kmlLayerConfig.value.baseUrl)
-const kmlData = computed(() => kmlLayerConfig.value.kmlData)
-const kmlStyle = computed(() => kmlLayerConfig.value.style)
+const layerId = computed(() => kmlLayerConfig.id)
+const layerName = computed(() => kmlLayerConfig.name)
+const opacity = computed(() => parentLayerOpacity ?? kmlLayerConfig.opacity)
+const url = computed(() => kmlLayerConfig.baseUrl)
+const kmlData = computed(() => kmlLayerConfig.kmlData)
+const kmlStyle = computed(() => kmlLayerConfig.style)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -63,7 +62,7 @@ const layer = new VectorLayer({
 })
 
 const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {
@@ -127,7 +126,7 @@ function createSourceForProjection() {
             wrapX: true,
             projection: projection.value.epsg,
             features: parseKml(
-                kmlLayerConfig.value,
+                kmlLayerConfig,
                 projection.value,
                 availableIconSets.value,
                 iconUrlProxy

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -14,16 +14,15 @@ import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.
 
 const dispatcher = { dispatcher: 'MenuTray.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
-const { compact } = toRefs(props)
 
 const refs = ref({})
 // multiMenuSections means that they can be open together
@@ -118,7 +117,7 @@ function addRefBySectionId(el) {
             <MenuSection
                 v-if="!is3dMode"
                 section-id="drawSection"
-                :title="i18n.t('draw_panel_title')"
+                :title="t('draw_panel_title')"
                 secondary
                 :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
@@ -137,7 +136,7 @@ function addRefBySectionId(el) {
             :ref="addRefBySectionId"
             section-id="toolsSection"
             data-cy="menu-tray-tool-section"
-            :title="i18n.t('map_tools')"
+            :title="t('map_tools')"
             secondary
             @open-menu-section="onOpenMenuSection"
             @close-menu-section="onCloseMenuSection"
@@ -166,7 +165,7 @@ function addRefBySectionId(el) {
         <MenuSection
             :ref="addRefBySectionId"
             section-id="activeLayersSection"
-            :title="i18n.t('layers_displayed')"
+            :title="t('layers_displayed')"
             light
             :show-content="mapModuleReady"
             data-cy="menu-active-layers"

@@ -7,12 +7,12 @@ import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-const props = defineProps({
+const { zIndex, effectiveHeading } = defineProps({
     zIndex: {
         type: Number,
         default: -1,
@@ -22,13 +22,12 @@ const props = defineProps({
         default: null,
     },
 })
-const { zIndex, effectiveHeading } = toRefs(props)
 const store = useStore()
 
 const geolocationPosition = computed(() => store.state.geolocation.position)
 // CSS angle context differ from the effective heading therefore we have to turn of PI/2 (90°)
 // Also we need to inverse the cone and its rotation (-1 factor)
-const coneAngle = computed(() => -1 * (effectiveHeading.value + Math.PI / 2))
+const coneAngle = computed(() => -1 * (effectiveHeading + Math.PI / 2))
 
 const visionConeGeometry = new Point(geolocationPosition.value)
 const visionConeFeature = new Feature({
@@ -69,13 +68,13 @@ const layer = new VectorLayer({
 })
 
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(geolocationPosition, () => visionConeGeometry.setCoordinates(geolocationPosition.value))
-watch(effectiveHeading, rotateConeOnCompassHeading)
+watch(() => effectiveHeading, rotateConeOnCompassHeading)
 
 function rotateConeOnCompassHeading() {
-    visionConeGeometry.rotate(effectiveHeading.value, geolocationPosition.value)
+    visionConeGeometry.rotate(effectiveHeading, geolocationPosition.value)
 }
 </script>
 

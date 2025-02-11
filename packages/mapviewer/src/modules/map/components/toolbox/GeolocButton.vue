@@ -1,5 +1,5 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
@@ -7,27 +7,15 @@ import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const dispatcher = { dispatcher: 'GeolocButton.vue' }
 
-const props = defineProps({
+const { compassButton } = defineProps({
     /** Add the compass button (only available in 2D mode) */
     compassButton: { type: Boolean, default: false },
 })
-const { compassButton } = toRefs(props)
 
 const store = useStore()
 
-useTippyTooltip('.geoloc-button-div[data-tippy-content]', { placement: 'left' })
-
-const isActive = computed(() => store.state.geolocation.active)
-const isDenied = computed(() => store.state.geolocation.denied)
-const isTracking = computed(() => store.state.geolocation.tracking)
-const autoRotation = computed(() => store.state.position.autoRotation)
-const hasOrientation = computed(() => store.state.position.hasOrientation)
-const is3dActive = computed(() => store.state.cesium.active)
-const hasTrackingFeedback = computed(() => isActive.value && !is3dActive.value && !isTracking.value)
-const hastAutoRotationFeedback = computed(
-    () => isActive.value && !is3dActive.value && hasOrientation.value && !autoRotation.value
-)
-const tippyContent = computed(() => {
+const geolocationButton = useTemplateRef('geolocationButton')
+const tooltipContent = computed(() => {
     if (isDenied.value) {
         return 'geoloc_permission_denied'
     }
@@ -42,7 +30,18 @@ const tippyContent = computed(() => {
     }
     return 'geoloc_start_tracking'
 })
+useTippyTooltip(geolocationButton, tooltipContent, { placement: 'left' })
 
+const isActive = computed(() => store.state.geolocation.active)
+const isDenied = computed(() => store.state.geolocation.denied)
+const isTracking = computed(() => store.state.geolocation.tracking)
+const autoRotation = computed(() => store.state.position.autoRotation)
+const hasOrientation = computed(() => store.state.position.hasOrientation)
+const is3dActive = computed(() => store.state.cesium.active)
+const hasTrackingFeedback = computed(() => isActive.value && !is3dActive.value && !isTracking.value)
+const hastAutoRotationFeedback = computed(
+    () => isActive.value && !is3dActive.value && hasOrientation.value && !autoRotation.value
+)
 function toggleGeolocation() {
     if (!isActive.value) {
         store.dispatch('toggleGeolocation', dispatcher)
@@ -67,8 +66,8 @@ function toggleGeolocation() {
     <!-- Here below we need to set the tippy to an external div instead of directly to the button,
      otherwise the tippy won't work when the button is disabled -->
     <div
+        ref="geolocationButton"
         class="geoloc-button-div"
-        :data-tippy-content="tippyContent"
     >
         <button
             class="toolbox-button d-print-none"
@@ -78,7 +77,7 @@ function toggleGeolocation() {
             data-cy="geolocation-button"
             @click="toggleGeolocation"
         >
-            <div class="fa-layers fa-fw h-100 w-100">
+            <span class="fa-layers fa-fw h-100 w-100">
                 <FontAwesomeIcon
                     v-if="hasTrackingFeedback"
                     :icon="['far', 'circle']"
@@ -99,7 +98,7 @@ function toggleGeolocation() {
                     icon="location-arrow"
                     transform="shrink-2 down-1 left-1"
                 />
-            </div>
+            </span>
         </button>
         <OpenLayersCompassButton
             v-if="!is3dActive && compassButton"

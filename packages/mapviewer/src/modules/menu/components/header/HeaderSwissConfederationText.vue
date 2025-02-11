@@ -1,8 +1,25 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+const { currentLang } = defineProps({
+    currentLang: {
+        type: String,
+        default: 'en',
+    },
+})
+
+const emits = defineEmits(['click'])
+
+const store = useStore()
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+</script>
+
 <template>
     <div
         class="swiss-confederation-text"
         :class="{ 'dev-site': hasDevSiteWarning }"
-        @click="$emit('click', $event)"
+        @click="(e) => emits('click', e)"
     >
         <div class="multi-lang-title" />
         <div
@@ -11,23 +28,6 @@
         />
     </div>
 </template>
-
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-    props: {
-        currentLang: {
-            type: String,
-            default: 'en',
-        },
-    },
-    emits: ['click'],
-    computed: {
-        ...mapGetters(['hasDevSiteWarning']),
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 .multi-lang-title,

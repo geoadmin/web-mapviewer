@@ -5,11 +5,11 @@
  * <span>{{ non_matching }}</span> <span :class="classes">{{ matching_pattern }}</span> <span>{{
  * non_matching }}</span>
  */
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 
 import { segmentizeMatch } from '@/utils/utils'
 
-const props = defineProps({
+const { text, search, markers } = defineProps({
     /**
      * Text to mark matching pattern
      *
@@ -47,15 +47,14 @@ const props = defineProps({
         default: new Array(['fw-bold', 'bg-info', 'bg-opacity-25']),
     },
 })
-const { text, search, markers } = toRefs(props)
 
-const segments = computed(() => segmentizeMatch(text.value, search.value))
+const segments = computed(() => segmentizeMatch(text, search))
 
 const emit = defineEmits(['click'])
 
 function getClasses(match) {
     if (match) {
-        return markers.value
+        return markers
     }
     return []
 }

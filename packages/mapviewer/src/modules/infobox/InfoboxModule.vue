@@ -14,7 +14,7 @@ import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 const dispatcher = { dispatcher: 'InfoboxModule.vue' }
 const showContent = ref(true)
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
@@ -39,13 +39,13 @@ const showTooltipToggle = computed(
 const title = computed(() => {
     if (showDrawingOverlay.value) {
         if (showElevationProfile.value && !showFeatureInfoInBottomPanel.value) {
-            return i18n.t('profile_title')
+            return t('profile_title')
         }
-        return i18n.t('draw_modify_description')
+        return t('draw_modify_description')
     } else if (showElevationProfile.value) {
-        return `${i18n.t('profile_title')}: ${profileFeature.value.title}`
+        return `${t('profile_title')}: ${profileFeature.value.title}`
     }
-    return i18n.t('object_information')
+    return t('object_information')
 })
 
 watch(selectedFeatures, (features) => {
@@ -99,7 +99,7 @@ function onHideProfile() {
                     icon="chevron-left"
                     class="me-1"
                 />
-                {{ i18n.t('hide_profile') }}
+                {{ t('hide_profile') }}
             </button>
             <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
                 <TextTruncate>{{ title }}</TextTruncate>

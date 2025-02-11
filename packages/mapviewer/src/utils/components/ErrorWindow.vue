@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-const props = defineProps({
+const { title, hide } = defineProps({
     title: {
         type: String,
         default: '',
@@ -17,7 +17,6 @@ const props = defineProps({
         default: false,
     },
 })
-const { title, hide } = toRefs(props)
 
 const store = useStore()
 
@@ -26,7 +25,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
 const errorCount = computed(() => store.state.ui.errors.size)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 const emit = defineEmits(['close'])
 </script>
@@ -45,7 +44,7 @@ const emit = defineEmits(['close'])
             <span
                 v-if="title"
                 class="me-auto text-truncate"
-            >{{ i18n.t(title) }}<span v-if="errorCount > 1"> ({{ errorCount }})</span></span>
+            >{{ t(title) }}<span v-if="errorCount > 1"> ({{ errorCount }})</span></span>
             <span
                 v-else
                 class="me-auto"

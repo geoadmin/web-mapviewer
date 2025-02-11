@@ -1,27 +1,26 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
-const props = defineProps({
+const { isClosingInToolbox } = defineProps({
     isClosingInToolbox: {
         type: Boolean,
         default: false,
     },
 })
-const { isClosingInToolbox } = toRefs(props)
 
 const emits = defineEmits(['close'])
 const store = useStore()
 
 const isClosing = ref(false)
-const isClosingWithWarning = computed(() => isClosing.value && isClosingInToolbox.value)
+const isClosingWithWarning = computed(() => isClosing.value && isClosingInToolbox)
 const drawingTitle = computed(() => store.state.drawing.drawingOverlay.title)
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 function onClose() {
     isClosing.value = true
@@ -42,17 +41,17 @@ function onClose() {
                 :icon="['fas', 'arrow-left']"
             />
             <span v-if="isClosingWithWarning">
-                {{ i18n.t('draw_file_saving') }}
+                {{ t('draw_file_saving') }}
             </span>
             <span v-else>
-                {{ i18n.t('draw_back') }}
+                {{ t('draw_back') }}
             </span>
         </button>
         <TextTruncate
             class="drawing-header-title px-2"
             data-cy="drawing-header-title"
         >
-            {{ i18n.t(drawingTitle) }}
+            {{ t(drawingTitle) }}
         </TextTruncate>
         <div>
             <!-- This empty div is needed to keep the title in the middle of the header it uses

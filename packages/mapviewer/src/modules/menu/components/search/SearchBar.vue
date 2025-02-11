@@ -1,6 +1,7 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
@@ -8,12 +9,13 @@ import SearchResultList from '@/modules/menu/components/search/SearchResultList.
 const dispatcher = { dispatcher: 'SearchBar' }
 
 const store = useStore()
+const { t } = useI18n()
 
 const isPristine = ref(true) // if search bar is not yet modified by the user
 const showResults = ref(false)
-const searchInput = ref(null)
+const searchInput = useTemplateRef('searchInput')
 const searchValue = ref('')
-const results = ref(null)
+const results = useTemplateRef('results')
 const selectedEntry = ref(null)
 
 const searchQuery = computed(() => store.state.search.query)
@@ -152,7 +154,7 @@ const onInputClicked = () => {
                 'rounded-start': isPhoneMode,
                 'rounded-end': !searchValue,
             }"
-            :placeholder="$t('search_placeholder')"
+            :placeholder="t('search_placeholder')"
             autocapitalize="off"
             autocorrect="off"
             spellcheck="false"

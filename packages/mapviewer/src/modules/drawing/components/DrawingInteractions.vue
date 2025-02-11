@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
@@ -12,9 +12,10 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import { EditMode } from '@/store/modules/drawing.store'
+
 // DOM References
-const selectInteraction = ref(null)
-const currentInteraction = ref(null)
+const selectInteraction = useTemplateRef('selectInteraction')
+const currentInteraction = useTemplateRef('currentInteraction')
 const store = useStore()
 const currentDrawingMode = computed(() => store.state.drawing.mode)
 const editMode = computed(() => store.state.drawing.editingMode)

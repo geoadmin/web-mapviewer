@@ -5,7 +5,7 @@
  */
 
 import { WEBMERCATOR } from 'geoadmin/proj'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -19,7 +19,7 @@ import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayer
 import OpenLayersWMSLayer from '@/modules/map/components/openlayers/OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersWMTSLayer.vue'
 
-const props = defineProps({
+const { layerConfig, parentLayerOpacity, zIndex } = defineProps({
     layerConfig: {
         type: AbstractLayer,
         default: null,
@@ -33,7 +33,6 @@ const props = defineProps({
         default: -1,
     },
 })
-const { layerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)

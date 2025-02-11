@@ -1,5 +1,5 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -13,7 +13,7 @@ const inputEmailId = useComponentUniqueId('email-input')
 
 const model = defineModel({ type: String })
 const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
-const i18n = useI18n()
+const { t } = useI18n()
 
 const props = defineProps({
     /**
@@ -143,7 +143,7 @@ const props = defineProps({
         default: '',
     },
 })
-const { placeholder, disabled, label, description } = toRefs(props)
+const { placeholder, disabled, label, description, dataCy } = props
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
     useFieldValidation(props, model, emits, {
@@ -151,7 +151,7 @@ const { value, validMarker, invalidMarker, validMessage, invalidMessage, require
         requiredInvalidMessage: 'no_email',
     })
 
-const emailInputElement = ref(null)
+const emailInputElement = useTemplateRef('emailInputElement')
 
 function validateEmail() {
     if (value.value && !isValidEmail(value.value)) {
@@ -170,7 +170,7 @@ defineExpose({ focus })
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${props.dataCy}`"
+        :data-cy="`${dataCy}`"
     >
         <label
             v-if="label"
@@ -178,7 +178,7 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="inputEmailId"
             data-cy="email-input-label"
-        >{{ i18n.t(label) }}</label>
+        >{{ t(label) }}</label>
         <input
             :id="inputEmailId"
             ref="emailInputElement"
@@ -191,7 +191,7 @@ defineExpose({ focus })
             type="email"
             class="form-control"
             :required="required"
-            :placeholder="placeholder ? i18n.t(placeholder) : ''"
+            :placeholder="placeholder ? t(placeholder) : ''"
             data-cy="email-input"
             @focusin="onFocus($event, true)"
             @focusout="onFocus($event, false)"
@@ -202,21 +202,21 @@ defineExpose({ focus })
             class="invalid-feedback"
             data-cy="email-input-invalid-feedback"
         >
-            {{ i18n.t(invalidMessage) }}
+            {{ t(invalidMessage) }}
         </div>
         <div
             v-if="validMessage"
             class="valid-feedback"
             data-cy="email-input-valid-feedback"
         >
-            {{ i18n.t(validMessage) }}
+            {{ t(validMessage) }}
         </div>
         <div
             v-if="description"
             class="form-text"
             data-cy="email-input-description"
         >
-            {{ i18n.t(description) }}
+            {{ t(description) }}
         </div>
     </div>
 </template>

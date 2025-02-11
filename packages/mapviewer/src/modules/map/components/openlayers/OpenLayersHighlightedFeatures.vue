@@ -15,8 +15,8 @@ import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -126,7 +126,7 @@ function setBottomPanelFeatureInfoPosition() {
                 <FontAwesomeIcon icon="angles-down" />
             </button>
         </template>
-        <FeatureEdit
+        <FeatureStyleEdit
             v-for="feature in selectedEditableFeatures"
             :key="feature.id"
             :read-only="!isCurrentlyDrawing"

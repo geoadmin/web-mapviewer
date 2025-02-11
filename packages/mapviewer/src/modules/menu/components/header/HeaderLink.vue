@@ -3,9 +3,8 @@
  * As we've many link like buttons in the header, this component aims at having the CSS required for
  * such link-button once
  */
-import { toRefs } from 'vue'
 
-const props = defineProps({
+const { primary, secondary, showAsButton } = defineProps({
     primary: {
         type: Boolean,
         default: false,
@@ -19,7 +18,6 @@ const props = defineProps({
         default: false,
     },
 })
-const { primary, secondary, showAsButton } = toRefs(props)
 
 const emits = defineEmits(['click'])
 

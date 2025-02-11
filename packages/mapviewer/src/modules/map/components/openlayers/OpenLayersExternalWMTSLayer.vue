@@ -5,14 +5,14 @@ import log from 'geoadmin/log'
 import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS from 'ol/source/WMTS'
-import { computed, inject, onMounted, toRefs, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
-const props = defineProps({
+const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     externalWmtsLayerConfig: {
         type: ExternalWMTSLayer,
         required: true,
@@ -26,27 +26,26 @@ const props = defineProps({
         default: -1,
     },
 })
-const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => externalWmtsLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value ?? externalWmtsLayerConfig.value.opacity)
+const layerId = computed(() => externalWmtsLayerConfig.id)
+const opacity = computed(() => parentLayerOpacity ?? externalWmtsLayerConfig.opacity)
 const options = computed(() => {
-    if (!externalWmtsLayerConfig.value.options) {
+    if (!externalWmtsLayerConfig.options) {
         return null
     }
-    const _options = cloneDeep(externalWmtsLayerConfig.value.options)
+    const _options = cloneDeep(externalWmtsLayerConfig.options)
     if (Object.hasOwn(_options, 'dimensions')) {
         delete _options.dimensions
     }
     return _options
 })
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
-const timestamp = computed(() => getTimestampFromConfig(externalWmtsLayerConfig.value))
+const timestamp = computed(() => getTimestampFromConfig(externalWmtsLayerConfig))
 const dimensions = computed(() => {
     if (!options.value) {
         return null
@@ -69,7 +68,7 @@ const layer = new TileLayer({
 })
 
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, setSourceForProjection)

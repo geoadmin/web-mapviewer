@@ -1,13 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { onMounted, ref } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditMode } from '@/store/modules/drawing.store'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 
-const props = defineProps({
+const { tooltipText, reverse } = defineProps({
     tooltipText: {
         type: String,
         default: 'modify_add_vertex',
@@ -21,11 +22,10 @@ const props = defineProps({
 
 const emit = defineEmits(['button-mounted'])
 
-const buttonRef = ref(null)
-
 const store = useStore()
 
-useTippyTooltip('#addVertexButton [data-tippy-content]', { placement: 'left' })
+const buttonRef = useTemplateRef('buttonRef')
+useTippyTooltip(buttonRef, tooltipText, { placement: 'left' })
 
 onMounted(() => {
     // Emit an event to notify the parent component that the button is mounted
@@ -35,25 +35,20 @@ onMounted(() => {
 function addVertex() {
     store.dispatch('setEditingMode', {
         mode: EditMode.EXTEND,
-        reverseLineStringExtension: props.reverse,
+        reverseLineStringExtension: reverse,
         ...dispatcher,
     })
 }
 </script>
 
 <template>
-    <div
-        id="addVertexButton"
+    <button
         ref="buttonRef"
+        class="overlay-button d-print-none"
+        @click="addVertex"
     >
-        <button
-            class="overlay-button d-print-none"
-            :data-tippy-content="props.tooltipText"
-            @click="addVertex"
-        >
-            <font-awesome-icon :icon="['fas', 'plus']" />
-        </button>
-    </div>
+        <font-awesome-icon :icon="['fas', 'plus']" />
+    </button>
 </template>
 
 <style lang="scss" scoped>

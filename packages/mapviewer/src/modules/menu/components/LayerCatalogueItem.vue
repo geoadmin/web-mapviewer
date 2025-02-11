@@ -10,7 +10,7 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 import { booleanContains, polygon } from '@turf/turf'
 import log from 'geoadmin/log'
 import { LV95 } from 'geoadmin/proj'
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -21,7 +21,7 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
 
-const props = defineProps({
+const { item, compact, depth, search, isTopic } = defineProps({
     item: {
         type: AbstractLayer,
         required: true,
@@ -43,7 +43,6 @@ const props = defineProps({
         default: false,
     },
 })
-const { item, compact, depth, search, isTopic } = toRefs(props)
 
 // Declaring own properties (ex-data)
 
@@ -54,8 +53,8 @@ const showLayerDescription = ref(false)
 const store = useStore()
 
 const showItem = computed(() => {
-    if (search.value) {
-        if (item.value.name.toLowerCase().includes(search.value)) {
+    if (search) {
+        if (item.name.toLowerCase().includes(search)) {
             return true
         }
         if (hasChildren.value) {
@@ -66,8 +65,8 @@ const showItem = computed(() => {
     return true
 })
 
-const hasChildren = computed(() => item.value?.layers?.length > 0)
-const hasDescription = computed(() => canBeAddedToTheMap.value && item.value?.hasDescription)
+const hasChildren = computed(() => item?.layers?.length > 0)
+const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
@@ -75,9 +74,9 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
  * given it return true if the item has children
  */
 const hasChildrenMatchSearch = computed(() => {
-    if (search.value) {
+    if (search) {
         if (hasChildren.value) {
-            return containsLayer(item.value.layers, search.value)
+            return containsLayer(item.layers, search)
         }
         return false
     }
@@ -90,14 +89,10 @@ const hasChildrenMatchSearch = computed(() => {
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item.value && !(item.value instanceof GeoAdminGroupOfLayers)
+    return item && !(item instanceof GeoAdminGroupOfLayers)
 })
 const isPresentInActiveLayers = computed(() => {
-    const layers = store.getters.getActiveLayersById(
-        item.value.id,
-        item.value.isExternal,
-        item.value.baseUrl
-    )
+    const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
     return layers.length > 0
 })
 
@@ -105,19 +100,19 @@ const isPresentInActiveLayers = computed(() => {
 watch(hasChildrenMatchSearch, (newValue) => {
     showChildren.value = newValue
 })
-if (isTopic.value) {
+if (isTopic) {
     const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
     // reacting to topic changes (some categories might need some auto-opening)
     watch(openThemesIds, (newValue) => {
-        showChildren.value = showChildren.value || newValue.indexOf(item.value.id) !== -1
+        showChildren.value = showChildren.value || newValue.indexOf(item.id) !== -1
     })
     watch(showChildren, (newValue) => {
         if (newValue) {
-            store.dispatch('addTopicTreeOpenedThemeId', { themeId: item.value.id, ...dispatcher })
+            store.dispatch('addTopicTreeOpenedThemeId', { themeId: item.id, ...dispatcher })
         } else {
             store.dispatch('removeTopicTreeOpenedThemeId', {
-                themeId: item.value.id,
+                themeId: item.id,
                 ...dispatcher,
             })
         }
@@ -125,14 +120,14 @@ if (isTopic.value) {
 
     // reading the current topic at startup and opening any required category
     onMounted(() => {
-        showChildren.value = openThemesIds.value.indexOf(item.value.id) !== -1
+        showChildren.value = openThemesIds.value.indexOf(item.id) !== -1
     })
 }
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
         store.dispatch('setPreviewLayer', {
-            layer: item.value,
+            layer: item,
             ...dispatcher,
         })
     }
@@ -147,26 +142,22 @@ function stopLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const layers = store.getters.getActiveLayersById(
-        item.value.id,
-        item.value.isExternal,
-        item.value.baseUrl
-    )
+    const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
     if (layers.length > 0) {
         store.dispatch('removeLayer', {
-            layerId: item.value.id,
-            isExternal: item.value.isExternal,
-            baseUrl: item.value.baseUrl,
+            layerId: item.id,
+            isExternal: item.isExternal,
+            baseUrl: item.baseUrl,
             ...dispatcher,
         })
-    } else if (item.value.isExternal) {
+    } else if (item.isExternal) {
         store.dispatch('addLayer', {
-            layer: item.value,
+            layer: item,
             ...dispatcher,
         })
     } else {
         store.dispatch('addLayer', {
-            layerConfig: { id: item.value.id, visible: true },
+            layerConfig: { id: item.id, visible: true },
             ...dispatcher,
         })
     }
@@ -209,16 +200,16 @@ function zoomToLayer() {
     //   => take intersection as extent, maybe add a warning icon about partial layer display
     // - no extent
     //   => add a warning that the layer might be out of bound
-    log.debug(`Zoom to layer ${item.value.name}`, item.value.extent)
+    log.debug(`Zoom to layer ${item.name}`, item.extent)
     // Only zooming to layer's extent if its extent is entirely within LV95 extent.
     // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.
     if (
         booleanContains(
             transformExtentIntoPolygon(lv95Extent.flat()),
-            transformExtentIntoPolygon(item.value.extent.flat())
+            transformExtentIntoPolygon(item.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', { extent: item.value.extent, ...dispatcher })
+        store.dispatch('zoomToExtent', { extent: item.extent, ...dispatcher })
     } else {
         store.dispatch('zoomToExtent', { extent: lv95Extent, ...dispatcher })
     }

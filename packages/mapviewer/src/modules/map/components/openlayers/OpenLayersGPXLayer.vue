@@ -4,7 +4,7 @@
 import log from 'geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
@@ -12,7 +12,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { parseGpx } from '@/utils/gpxUtils'
 
-const props = defineProps({
+const { gpxLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     gpxLayerConfig: {
         type: GPXLayer,
         required: true,
@@ -26,17 +26,16 @@ const props = defineProps({
         default: -1,
     },
 })
-const { gpxLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => gpxLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value ?? gpxLayerConfig.value.opacity)
-const url = computed(() => gpxLayerConfig.value.baseUrl)
-const gpxData = computed(() => gpxLayerConfig.value.gpxData)
+const layerId = computed(() => gpxLayerConfig.id)
+const opacity = computed(() => parentLayerOpacity ?? gpxLayerConfig.opacity)
+const url = computed(() => gpxLayerConfig.baseUrl)
+const gpxData = computed(() => gpxLayerConfig.gpxData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -52,7 +51,7 @@ const layer = new VectorLayer({
 })
 
 const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
     // exposing things for Cypress testing

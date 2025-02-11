@@ -1,50 +1,46 @@
 <script setup>
 import log from 'geoadmin/log'
 import { CoordinateSystem } from 'geoadmin/proj'
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-const props = defineProps({
-    identifier: {
-        type: String,
-        required: true,
-    },
-    value: {
-        type: [Array, String],
-        required: true,
-    },
-    extraValue: {
-        type: String,
-        default: null,
-    },
-    resetDelay: {
-        type: Number,
-        default: 1000,
-    },
-    coordinateFormat: {
-        type: CoordinateFormat,
-        default: null,
-    },
-    coordinateProjection: {
-        type: CoordinateSystem,
-        default: null,
-    },
-})
 const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
-    toRefs(props)
+    defineProps({
+        identifier: {
+            type: String,
+            required: true,
+        },
+        value: {
+            type: [Array, String],
+            required: true,
+        },
+        extraValue: {
+            type: String,
+            default: null,
+        },
+        resetDelay: {
+            type: Number,
+            default: 1000,
+        },
+        coordinateFormat: {
+            type: CoordinateFormat,
+            default: null,
+        },
+        coordinateProjection: {
+            type: CoordinateSystem,
+            default: null,
+        },
+    })
 
-const copyButton = ref(null)
+const copyButton = useTemplateRef('copyButton')
 const copied = ref(false)
 
-const i18n = useI18n()
-
 const store = useStore()
-const projection = computed(() => coordinateProjection.value ?? store.state.position.projection)
-const lang = computed(() => store.state.i18n.lang)
+const projection = computed(() => coordinateProjection ?? store.state.position.projection)
+const copyButtonText = computed(() => (copied.value ? 'copy_done' : 'copy_cta'))
 
 const buttonIcon = computed(() => {
     if (copied.value) {
@@ -54,49 +50,27 @@ const buttonIcon = computed(() => {
     return ['far', 'copy']
 })
 
-let copyTooltip = null
-
-onMounted(() => {
-    copyTooltip = tippy(copyButton.value, {
-        arrow: true,
-        placement: 'right',
-        hideOnClick: false,
-        // no tooltip on mobile/touch
-        touch: false,
-        // The French translation of "copy_done" contains a &nbsp;
-        allowHTML: true,
-    })
-    setTooltipContent()
+useTippyTooltip(copyButton, copyButtonText, {
+    placement: 'right',
+    hideOnClick: false,
+    // no tooltip on mobile/touch
+    touch: false,
+    // The French translation of "copy_done" contains a &nbsp;
+    allowHTML: true,
 })
-onBeforeUnmount(() => {
-    copyTooltip.destroy()
-})
-
-watch(lang, setTooltipContent)
-watch(copied, setTooltipContent)
-
-function setTooltipContent() {
-    if (copied.value) {
-        copyTooltip.setContent(i18n.t('copy_done'))
-    } else {
-        copyTooltip.setContent(i18n.t('copy_cta'))
-    }
-}
 
 function display(coordinates) {
-    if (coordinateFormat.value) {
-        return coordinateFormat.value.format(coordinates, projection.value)
-    }
-    return coordinates
+    return coordinateFormat?.format(coordinates, projection.value) ?? coordinates
 }
+
 async function copyValue() {
     try {
-        await navigator.clipboard.writeText(display(value.value))
+        await navigator.clipboard.writeText(display(value))
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
             copied.value = false
-        }, resetDelay.value)
+        }, resetDelay)
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
     }

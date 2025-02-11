@@ -1,7 +1,7 @@
 <script setup>
 import DOMPurify from 'dompurify'
 import log from 'geoadmin/log'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -12,29 +12,27 @@ import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailD
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
-const props = defineProps({
+const { feature } = defineProps({
     feature: {
         type: SelectableFeature,
         required: true,
     },
 })
 
-const { feature } = toRefs(props)
-
-const i18n = useI18n()
+const { t } = useI18n()
 
 const store = useStore()
-const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
+const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
+const popupDataCanBeTrusted = computed(() => feature.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !feature.value?.data) {
+    if (hasFeatureStringData.value || !feature?.data) {
         return []
     }
-    return Object.entries(feature.value.data)
+    return Object.entries(feature.data)
         .filter(([_, value]) => value) // filtering out null values
         .map(([key, value]) => [
             key,
@@ -107,7 +105,7 @@ function getIframeHosts(value) {
                     v-else
                     class="fw-bold"
                 >
-                    {{ i18n.t(key) }}
+                    {{ t(key) }}
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
                 <div
@@ -117,7 +115,7 @@ function getIframeHosts(value) {
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
-                {{ i18n.t('no_more_information') }}
+                {{ t('no_more_information') }}
             </div>
         </div>
         <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">

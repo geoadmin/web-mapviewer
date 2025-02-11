@@ -1,12 +1,12 @@
 <script setup>
 /** Utility component that will wrap modal content and hide everything else to make a clean print */
-import { onMounted, ref } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const emits = defineEmits(['close', 'hideParentModal'])
 
-const modalContent = ref(null)
+const modalContent = useTemplateRef('modalContent')
 
 onMounted(() => {
     emits('hideParentModal', true)
@@ -47,9 +47,9 @@ onMounted(() => {
         <div>
             <BlackBackdrop
                 place-for-modal
-                @click.stop="onClose()"
+                @click.stop="emits('close')"
             />
-            <div class="modal-popup position-absolute start-0 top-0 w-100 h-100 p-3">
+            <div class="modal-popup positipon-absolute start-0 top-0 w-100 h-100 p-3">
                 <div class="card">
                     <div
                         ref="modalContent"

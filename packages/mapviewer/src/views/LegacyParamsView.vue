@@ -1,5 +1,5 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
@@ -7,13 +7,12 @@ import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 const store = useStore()
 
-const props = defineProps({
+const { embed } = defineProps({
     embed: {
         type: Boolean,
         default: false,
     },
 })
-const { embed } = toRefs(props)
 
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 </script>

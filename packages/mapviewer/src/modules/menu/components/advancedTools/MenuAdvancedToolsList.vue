@@ -1,5 +1,5 @@
 <script setup>
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
@@ -9,13 +9,12 @@ import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 
-const props = defineProps({
+const { compact } = defineProps({
     compact: {
         type: Boolean,
         default: false,
     },
 })
-const { compact } = toRefs(props)
 const store = useStore()
 const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
 const showImportFile = computed(() => store.state.ui.importFile)

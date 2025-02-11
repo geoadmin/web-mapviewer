@@ -3,18 +3,17 @@ import { CustomCoordinateSystem } from 'geoadmin/proj'
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-const props = defineProps({
+const { zIndex } = defineProps({
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { zIndex } = toRefs(props)
 
 const store = useStore()
 const currentProjection = computed(() => store.state.position.projection)
@@ -24,7 +23,7 @@ const layer = new TileLayer({
 })
 
 const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(currentProjection, () => layer.setSource(createDebugSourceForProjection()))
 

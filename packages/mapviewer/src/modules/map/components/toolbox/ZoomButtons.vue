@@ -1,6 +1,6 @@
 <script setup>
 import { Ray } from 'cesium'
-import { computed, inject } from 'vue'
+import { computed, inject, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -11,7 +11,10 @@ const store = useStore()
 const is3dActive = computed(() => store.state.cesium.active)
 const resolution = computed(() => store.getters.resolution)
 
-useTippyTooltip('#zoomButtons [data-tippy-content]', { placement: 'left' })
+const zoomInButton = useTemplateRef('zoomInButton')
+const zoomOutButton = useTemplateRef('zoomOutButton')
+useTippyTooltip(zoomInButton, 'zoom_in', { placement: 'left' })
+useTippyTooltip(zoomOutButton, 'zoom_out', { placement: 'left' })
 
 // telling vue that getViewer is a factory method (avoid unnecessary computation or side effects)
 const getViewer = inject('getViewer', () => {}, true)
@@ -55,9 +58,9 @@ function decreaseZoom() {
 <template>
     <div id="zoomButtons">
         <button
+            ref="zoomInButton"
             class="toolbox-button d-print-none"
             data-cy="zoom-in"
-            data-tippy-content="zoom_in"
             @click="increaseZoom"
         >
             <font-awesome-icon
@@ -66,9 +69,9 @@ function decreaseZoom() {
             />
         </button>
         <button
+            ref="zoomOutButton"
             class="toolbox-button d-print-none"
             data-cy="zoom-out"
-            data-tippy-content="zoom_out"
             @click="decreaseZoom"
         >
             <font-awesome-icon

@@ -1,3 +1,71 @@
+<script setup>
+/**
+ * Utility component that will wrap your modal content and make sure it is above the overlay of the
+ * map
+ */
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
+import PrintButton from '@/utils/components/PrintButton.vue'
+
+const { title, allowPrint, showConfirmationButtons, fluid, headerPrimary, top, hide } = defineProps(
+    {
+        title: {
+            type: String,
+            default: null,
+        },
+        allowPrint: {
+            type: Boolean,
+            default: false,
+        },
+        showConfirmationButtons: {
+            type: Boolean,
+            default: false,
+        },
+        fluid: {
+            type: Boolean,
+            default: false,
+        },
+        headerPrimary: {
+            type: Boolean,
+            default: false,
+        },
+        top: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
+         * its content
+         */
+        hide: {
+            type: Boolean,
+            default: false,
+        },
+    }
+)
+
+const emits = defineEmits(['close'])
+
+const modalContent = useTemplateRef('modalContent')
+
+const { t } = useI18n()
+
+const hideForPrint = ref(false)
+
+function onClose(withConfirmation) {
+    // it will go through preventOverlayToClose first and only remove our callback from the stack
+    emits('close', withConfirmation)
+}
+
+function onHideParentModal(hide) {
+    hideForPrint.value = hide
+}
+</script>
+
 <template>
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
@@ -35,7 +103,7 @@
                         >{{ title }}</span>
                         <PrintButton
                             v-if="allowPrint"
-                            :content="$refs.modalContent"
+                            :content="modalContent"
                             @hide-parent-modal="onHideParentModal"
                         />
                         <button
@@ -65,14 +133,14 @@
                                 data-cy="modal-cancel-button"
                                 @click.stop="onClose(false)"
                             >
-                                {{ $t('cancel') }}
+                                {{ t('cancel') }}
                             </button>
                             <button
                                 class="btn btn-primary"
                                 data-cy="modal-confirm-button"
                                 @click.stop="onClose(true)"
                             >
-                                {{ $t('success') }}
+                                {{ t('success') }}
                             </button>
                         </div>
                     </div>
@@ -81,70 +149,6 @@
         </div>
     </teleport>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
-import PrintButton from '@/utils/components/PrintButton.vue'
-
-/**
- * Utility component that will wrap your modal content and make sure it is above the overlay of the
- * map
- */
-export default {
-    components: { FontAwesomeIcon, BlackBackdrop, PrintButton },
-    props: {
-        title: {
-            type: String,
-            default: null,
-        },
-        allowPrint: {
-            type: Boolean,
-            default: false,
-        },
-        showConfirmationButtons: {
-            type: Boolean,
-            default: false,
-        },
-        fluid: {
-            type: Boolean,
-            default: false,
-        },
-        headerPrimary: {
-            type: Boolean,
-            default: false,
-        },
-        top: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
-         */
-        hide: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['close'],
-    data() {
-        return {
-            hideForPrint: false,
-        }
-    },
-    methods: {
-        onClose(withConfirmation) {
-            // it will go through preventOverlayToClose first and only remove our callback from the stack
-            this.$emit('close', withConfirmation)
-        },
-        onHideParentModal(hide) {
-            this.hideForPrint = hide
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/variables.module';

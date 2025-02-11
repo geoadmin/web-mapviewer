@@ -1,50 +1,50 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { format } from 'geoadmin/numbers'
-import { computed, toRefs } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { formatMinutesTime } from '@/utils/utils'
 
-const props = defineProps({
+const { profile } = defineProps({
     profile: {
         type: ElevationProfile,
         default: null,
     },
 })
 
-const { profile } = toRefs(props)
+const profileInformationElements = useTemplateRef('profileInformationElements')
 
 const profileInformationFormat = computed(() => {
-    if (!profile.value) {
+    if (!profile) {
         return []
     }
     return [
         {
             title: 'profile_elevation_difference',
             icons: [['fa', 'arrows-alt-v']],
-            value: formatElevation(profile.value.elevationDifference),
+            value: formatElevation(profile.elevationDifference),
         },
         {
             title: 'profile_elevation_up',
             icons: [['fa', 'sort-amount-up-alt']],
-            value: formatElevation(profile.value.totalAscent),
+            value: formatElevation(profile.totalAscent),
         },
         {
             title: 'profile_elevation_down',
             icons: [['fa', 'sort-amount-down-alt']],
-            value: formatElevation(profile.value.totalDescent),
+            value: formatElevation(profile.totalDescent),
         },
         {
             title: 'profile_poi_up',
             icons: [['fa', 'chevron-up']],
-            value: formatElevation(profile.value.maxElevation),
+            value: formatElevation(profile.maxElevation),
         },
         {
             title: 'profile_poi_down',
             icons: [['fa', 'chevron-down']],
-            value: formatElevation(profile.value.minElevation),
+            value: formatElevation(profile.minElevation),
         },
         {
             title: 'profile_distance',
@@ -52,7 +52,7 @@ const profileInformationFormat = computed(() => {
                 ['fa', 'globe'],
                 ['fa', 'arrows-alt-h'],
             ],
-            value: formatDistance(profile.value.maxDist),
+            value: formatDistance(profile.maxDist),
         },
         {
             title: 'profile_slope_distance',
@@ -60,17 +60,18 @@ const profileInformationFormat = computed(() => {
                 ['fa', 'mountain-sun'],
                 ['fa', 'arrows-alt-h'],
             ],
-            value: formatDistance(profile.value.slopeDistance),
+            value: formatDistance(profile.slopeDistance),
         },
         {
             title: 'profile_hike_time',
             icons: [['far', 'clock']],
-            value: formatMinutesTime(profile.value.hikingTime),
+            value: formatMinutesTime(profile.hikingTime),
         },
     ]
 })
 
-useTippyTooltip('.profile-info-element[data-tippy-content]')
+const tooltipContents = computed(() => profileInformationFormat.value.map((info) => info.title))
+useTippyTooltip(profileInformationElements, tooltipContents)
 
 function formatDistance(value) {
     if (isNaN(value) || value === null) {
@@ -103,7 +104,7 @@ function formatElevation(value) {
             <small
                 v-for="(info, index) in profileInformationFormat"
                 :key="info.title"
-                :data-tippy-content="info.title"
+                ref="profileInformationElements"
                 class="px-2 text-nowrap profile-info-element"
                 :class="{
                     'border-end': index !== profileInformationFormat.length - 1,

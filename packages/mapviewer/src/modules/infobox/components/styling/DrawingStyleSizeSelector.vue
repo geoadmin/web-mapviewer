@@ -1,7 +1,33 @@
 <script setup>
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import DropdownButton from '@/utils/components/DropdownButton.vue'
+import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
+
+const { currentSize } = defineProps({
+    currentSize: {
+        type: FeatureStyleSize,
+        required: true,
+    },
+})
+
+const emits = defineEmits(['change'])
+
 const { t } = useI18n()
+
+const sizes = ref(allStylingSizes)
+
+const sizeLabel = computed(() => currentSize?.label)
+const dropdownItems = computed(() =>
+    sizes.value.map((size) => {
+        return { id: size.label, title: size.label, value: size }
+    })
+)
+
+function onSizeSelect(dropdownItem) {
+    emits('change', dropdownItem.value)
+}
 </script>
 
 <template>
@@ -22,43 +48,3 @@ const { t } = useI18n()
         />
     </div>
 </template>
-
-<script>
-import DropdownButton from '@/utils/components/DropdownButton.vue'
-import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
-
-export default {
-    components: { DropdownButton },
-    props: {
-        currentSize: {
-            type: FeatureStyleSize,
-            required: true,
-        },
-    },
-    emits: ['change'],
-    data() {
-        return {
-            sizes: allStylingSizes,
-        }
-    },
-    computed: {
-        sizeLabel() {
-            if (!this.currentSize) {
-                return null
-            }
-            return this.currentSize.label
-        },
-        /** @returns {DropdownItem[]} */
-        dropdownItems() {
-            return this.sizes.map((size) => {
-                return { id: size.label, title: size.label, value: size }
-            })
-        },
-    },
-    methods: {
-        onSizeSelect(dropdownItem) {
-            this.$emit('change', dropdownItem.value)
-        },
-    },
-}
-</script>

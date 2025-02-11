@@ -5,7 +5,7 @@ import log from 'geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
@@ -13,7 +13,7 @@ import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/s
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
-const props = defineProps({
+const { geoJsonConfig, parentLayerOpacity, zIndex } = defineProps({
     geoJsonConfig: {
         type: GeoAdminGeoJsonLayer,
         required: true,
@@ -27,18 +27,17 @@ const props = defineProps({
         default: -1,
     },
 })
-const { geoJsonConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => geoJsonConfig.value.technicalName)
-const opacity = computed(() => parentLayerOpacity.value ?? geoJsonConfig.value.opacity)
-const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
-const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
-const isLoading = computed(() => geoJsonConfig.value.isLoading)
+const layerId = computed(() => geoJsonConfig.technicalName)
+const opacity = computed(() => parentLayerOpacity ?? geoJsonConfig.opacity)
+const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
+const isLoading = computed(() => geoJsonConfig.isLoading)
 
 const layer = new VectorLayer({ id: layerId.value, opacity: opacity.value })
 
@@ -70,7 +69,7 @@ function createSourceForProjection() {
 }
 
 const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 createSourceForProjection()
 

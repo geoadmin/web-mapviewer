@@ -7,7 +7,7 @@
  * NOTE: the validation only happens when the prop activate-validation is set to true, this allow to
  * validate all fields of a form at once.
  */
-import { computed, ref, toRefs } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -20,7 +20,7 @@ import { humanFileSize } from '@/utils/utils'
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
-const i18n = useI18n()
+const { t } = useI18n()
 const model = defineModel({ type: [File, null] })
 const emits = defineEmits(['change', 'validate'])
 
@@ -185,7 +185,7 @@ const props = defineProps({
         default: '',
     },
 })
-const { acceptedFileTypes, placeholder, maxFileSize, disabled, label, description } = toRefs(props)
+const { acceptedFileTypes, placeholder, maxFileSize, disabled, label, description, dataCy } = props
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required } =
     useFieldValidation(props, model, emits, {
@@ -194,27 +194,27 @@ const { value, validMarker, invalidMarker, validMessage, invalidMessage, require
     })
 
 // Reactive data
-const InputLocalFile = ref(null)
+const inputLocalFile = useTemplateRef('inputLocalFile')
 
 // Computed properties
 
 const filePathInfo = computed(() =>
     value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
 )
-const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize.value))
+const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Methods
 function validateFile() {
     if (
         value.value &&
-        acceptedFileTypes.value?.length > 0 &&
-        !acceptedFileTypes.value.some((type) =>
+        acceptedFileTypes?.length > 0 &&
+        !acceptedFileTypes.some((type) =>
             value.value.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (value.value && value.value.size > maxFileSize.value) {
+    if (value.value && value.value.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
     return {
@@ -231,7 +231,7 @@ function onFileSelected(evt) {
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${props.dataCy}`"
+        :data-cy="`${dataCy}`"
     >
         <label
             v-if="label"
@@ -239,7 +239,7 @@ function onFileSelected(evt) {
             :class="{ 'fw-bolder': required }"
             :for="inputFileId"
             data-cy="file-input-label"
-        >{{ i18n.t(label) }}</label>
+        >{{ t(label) }}</label>
         <div
             :id="inputFileId"
             class="input-group rounded has-validation mb-2"
@@ -249,12 +249,12 @@ function onFileSelected(evt) {
                 type="button"
                 :disabled="disabled"
                 data-cy="file-input-browse-button"
-                @click="InputLocalFile.click()"
+                @click="inputLocalFile.click()"
             >
-                {{ i18n.t('browse') }}
+                {{ t('browse') }}
             </button>
             <input
-                ref="InputLocalFile"
+                ref="inputLocalFile"
                 type="file"
                 :disabled="disabled"
                 :accept="acceptedFileTypes.join(',')"
@@ -266,14 +266,14 @@ function onFileSelected(evt) {
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
                 :class="{ 'is-valid': validMarker, 'is-invalid': invalidMarker }"
-                :placeholder="placeholder ? i18n.t(placeholder) : ''"
+                :placeholder="placeholder ? t(placeholder) : ''"
                 :value="filePathInfo"
                 readonly
                 required
                 tabindex="-1"
                 data-cy="file-input-text"
                 :disabled="disabled"
-                @click="InputLocalFile.click()"
+                @click="inputLocalFile.click()"
             >
             <div
                 v-if="invalidMessage"
@@ -281,7 +281,7 @@ function onFileSelected(evt) {
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    i18n.t(invalidMessage, {
+                    t(invalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
                         ...invalidMessageExtraParams,
@@ -293,7 +293,7 @@ function onFileSelected(evt) {
                 class="valid-feedback"
                 data-cy="file-input-valid-feedback"
             >
-                {{ i18n.t(validMessage) }}
+                {{ t(validMessage) }}
             </div>
         </div>
         <div
@@ -301,7 +301,7 @@ function onFileSelected(evt) {
             class="form-text"
             data-cy="file-input-description"
         >
-            {{ i18n.t(description) }}
+            {{ t(description) }}
         </div>
     </div>
 </template>

@@ -18,11 +18,11 @@ Here's an example of how to use this translation :
 ```javascript
 import { useI18n } from 'vue-i18n'
 
-const i18n = useI18n()
+const { t } = useI18n()
 ```
 
 ```html
-<label for="...">{{ i18n.t('a_translation_key') }}</label>
+<label for="...">{{ t('a_translation_key') }}</label>
 ```
 
 Current locale can be accessed through the store
@@ -49,7 +49,7 @@ Or if you have multiple call to `t(...)`, you can store the reference given by `
 
 ## Formatting messages
 
-Some message might require some formatting from the application to do so you can use the `{placeholder}` notation in the translation key and then use `i18n.t('my_formatted_key', {placeholder: 'my placeholder'})`
+Some message might require some formatting from the application to do so you can use the `{placeholder}` notation in the translation key and then use `t('my_formatted_key', {placeholder: 'my placeholder'})`
 
 See [i18n guide](https://kazupon.github.io/vue-i18n/guide/formatting.html)
 

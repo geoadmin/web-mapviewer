@@ -12,13 +12,11 @@
  *
  * <TextTruncate text="Text to truncate"><span>Text to truncate</span></TextTruncate>
  */
-import tippy from 'tippy.js'
-import { computed, onMounted, onUnmounted, ref, toRefs, useSlots, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, useTemplateRef } from 'vue'
 
-let tippyInstance = null
-let resizeObserver = null
+import { useTippyTooltip } from '@/utils/composables/useTippyTooltip.js'
 
-const props = defineProps({
+const { text, tippyOptions } = defineProps({
     /**
      * Text to use in tooltip.
      *
@@ -43,16 +41,23 @@ const props = defineProps({
         },
     },
 })
-const { text, tippyOptions } = toRefs(props)
 
 const slots = useSlots()
 
-const outterElement = ref(null)
-const innerElement = ref(null)
+const outerElement = useTemplateRef('outerElement')
+const innerElement = useTemplateRef('innerElement')
+
+const outerElementWidth = ref(outerElement.value?.getBoundingClientRect().width ?? 0)
+const innerElementWidth = ref(innerElement.value?.getBoundingClientRect().width ?? 0)
+// We add a tooltip only if the text is truncated
+const showTooltip = computed(() => innerElementWidth.value > outerElementWidth.value)
 
 const tippyContent = computed(() => {
-    if (text.value) {
-        return text.value
+    if (!showTooltip.value) {
+        return null
+    }
+    if (text) {
+        return text
     }
     if (
         slots?.default()?.length === 1 &&
@@ -62,57 +67,34 @@ const tippyContent = computed(() => {
     }
     return ''
 })
+const { refreshTippyAttachment } = useTippyTooltip(outerElement, tippyContent, {
+    placement: 'right',
+    touch: ['hold', 500], // 500ms delay
+    ...tippyOptions,
+})
 
-watch(tippyContent, (newValue) => tippyInstance?.setContent(newValue))
-
+let resizeObserver
 onMounted(() => {
-    initializeTippy()
-
     // Observe the catalogue entry resize to add/remove tooltip
-    resizeObserver = new ResizeObserver(() => initializeTippy())
-    resizeObserver.observe(outterElement.value)
+    resizeObserver = new ResizeObserver(handleResize)
+    resizeObserver.observe(outerElement.value)
 })
-
-onUnmounted(() => {
+onBeforeUnmount(() => {
     resizeObserver?.disconnect()
-    tippyInstance?.destroy()
-    tippyInstance = null
 })
 
-function initializeTippy() {
-    if (tippyInstance) {
-        tippyInstance.unmount()
-        tippyInstance.destroy()
-        tippyInstance = null
-    }
-    // We add a tooltip only if the text is truncated
-    if (
-        innerElement.value?.getBoundingClientRect().width >
-        outterElement.value?.getBoundingClientRect().width
-    ) {
-        tippyInstance = tippy(outterElement.value, {
-            content: tippyContent.value,
-            arrow: true,
-            delay: 500,
-            touch: ['hold', 500], // 500ms delay
-            onCreate: (instance) => {
-                // Set a data-cy attribute that can be used for e2e tests
-                const dataCy = instance.reference.getAttribute('data-cy')
-                if (dataCy) {
-                    instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
-                }
-            },
-            ...tippyOptions.value,
-        })
-    }
+function handleResize() {
+    outerElementWidth.value = outerElement.value?.getBoundingClientRect().width ?? 0
+    innerElementWidth.value = innerElement.value?.getBoundingClientRect().width ?? 0
+    refreshTippyAttachment()
 }
 </script>
 
 <template>
     <div
-        ref="outterElement"
+        ref="outerElement"
         class="text-truncate"
-        data-cy="outter-element"
+        data-cy="outer-element"
     >
         <span
             ref="innerElement"

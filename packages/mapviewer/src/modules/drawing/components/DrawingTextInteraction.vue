@@ -11,12 +11,12 @@ const emits = defineEmits({
     },
 })
 
-const i18n = useI18n()
+const { t } = useI18n()
 
 useDrawingModeInteraction({
     geometryType: 'Point',
     editableFeatureArgs: {
-        title: i18n.t('draw_new_text'),
+        title: t('draw_new_text'),
         featureType: EditableFeatureTypes.ANNOTATION,
     },
     drawEndCallback: (feature) => {

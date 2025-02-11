@@ -1095,15 +1095,19 @@ describe('Drawing module tests', () => {
 
             // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
+            cy.wait(['@get-kml-metadata', '@get-kml'])
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL
             cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
 
             // checking that the KML was correctly loaded
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
-            cy.readWindowValue('drawingLayer')
-                .then((layer) => layer.getSource().getFeatures())
-                .should('have.length', 1)
+            cy.waitUntil(() =>
+                cy
+                    .window()
+                    .its('drawingLayer')
+                    .then((drawingLayer) => drawingLayer.getSource().getFeatures().length === 1)
+            )
             // clicking on the single feature of the fixture
             cy.get('[data-cy="ol-map"]').click('center')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)

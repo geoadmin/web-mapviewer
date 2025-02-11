@@ -1,6 +1,6 @@
 <script setup>
 import log from 'geoadmin/log'
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
@@ -10,20 +10,19 @@ import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
-const props = defineProps({
+const { active } = defineProps({
     active: {
         type: Boolean,
         default: false,
     },
 })
 const store = useStore()
-const { active } = toRefs(props)
 
 const { handleFileSource } = useImportFile()
 
 // Reactive data
 const loading = ref(false)
-const fileUrlInput = ref(null)
+const fileUrlInput = useTemplateRef('fileUrlInput')
 const fileUrl = ref('')
 const importSuccessMessage = ref('')
 /** @type {Ref<ErrorMessage | null>} */
@@ -33,11 +32,14 @@ const activateValidation = ref(false)
 
 const buttonState = computed(() => (loading.value ? 'loading' : 'default'))
 
-watch(active, (value) => {
-    if (value) {
-        fileUrlInput.value.focus()
+watch(
+    () => active,
+    (value) => {
+        if (value) {
+            fileUrlInput.value.focus()
+        }
     }
-})
+)
 
 onMounted(() => {
     // Focus on the URL field when opening the import tool

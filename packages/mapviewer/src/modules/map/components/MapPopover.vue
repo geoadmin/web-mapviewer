@@ -9,7 +9,7 @@ export const MapPopoverMode = {
 /** Map popover content and styles. Position handling is done in corresponding library components */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onMounted, ref, toRefs } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import {
@@ -23,7 +23,7 @@ import {
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const props = defineProps({
+const { authorizePrint, title, useContentPadding, anchorPosition, mode } = defineProps({
     authorizePrint: {
         type: Boolean,
         default: false,
@@ -50,14 +50,14 @@ const props = defineProps({
     },
 })
 
-const { authorizePrint, title, useContentPadding, anchorPosition, mode } = toRefs(props)
-
 const emits = defineEmits(['close'])
 
-const popoverHeader = ref(null)
-const popover = ref(null)
+const popoverHeader = useTemplateRef('popoverHeader')
+const popover = useTemplateRef('popover')
+const mapPopoverContent = useTemplateRef('mapPopoverContent')
 
-const mapPopoverContent = ref(null)
+const width = computed(() => popover.value?.clientWidth)
+
 const showContent = ref(true)
 
 const store = useStore()
@@ -71,10 +71,10 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDesktopMode = computed(() => store.getters.isTraditionalDesktopSize)
 
 const cssPositionOnScreen = computed(() => {
-    if (mode.value === MapPopoverMode.FEATURE_TOOLTIP) {
+    if (mode === MapPopoverMode.FEATURE_TOOLTIP) {
         return {
-            top: `${anchorPosition.value.top}px`,
-            left: `${anchorPosition.value.left}px`,
+            top: `${anchorPosition.top}px`,
+            left: `${anchorPosition.left}px`,
         }
     }
     return {}
@@ -104,7 +104,7 @@ const popoverLimits = computed(() => {
 })
 
 onMounted(() => {
-    if (mode.value === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
+    if (mode === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
         useMovableElement(popover.value, {
             grabElement: popoverHeader,
             offset: popoverLimits,
@@ -115,6 +115,10 @@ onMounted(() => {
 function onClose() {
     emits('close')
 }
+
+defineExpose({
+    width,
+})
 </script>
 
 <template>

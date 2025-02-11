@@ -2,7 +2,7 @@
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import log from 'geoadmin/log'
 import { WGS84 } from 'geoadmin/proj'
-import { computed, inject, onBeforeUnmount, toRef, toRefs, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSLayer.class'
@@ -17,7 +17,7 @@ const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
-const props = defineProps({
+const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {
         type: [GeoAdminWMTSLayer, ExternalWMTSLayer],
         required: true,
@@ -32,55 +32,49 @@ const props = defineProps({
     },
 })
 
-const { wmtsLayerConfig, zIndex, parentLayerOpacity } = toRefs(props)
-
 const getViewer = inject('getViewer')
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const opacity = computed(() => parentLayerOpacity.value ?? wmtsLayerConfig.value.opacity ?? 1.0)
-const currentYear = computed(() => wmtsLayerConfig.value.timeConfig?.currentYear)
+const opacity = computed(() => parentLayerOpacity ?? wmtsLayerConfig.opacity ?? 1.0)
+const currentYear = computed(() => wmtsLayerConfig.timeConfig?.currentYear)
 
 const url = computed(() =>
-    getWmtsXyzUrl(wmtsLayerConfig.value, projection.value, {
+    getWmtsXyzUrl(wmtsLayerConfig, projection.value, {
         addTimestamp: true,
     })
 )
 const tileMatrixSet = computed(() => {
-    if (!wmtsLayerConfig.value.tileMatrixSets) {
+    if (!wmtsLayerConfig.tileMatrixSets) {
         return null
     }
     if (
-        !wmtsLayerConfig.value.tileMatrixSets.some(
-            (set) => set.projection.epsg === projection.value.epsg
-        )
+        !wmtsLayerConfig.tileMatrixSets.some((set) => set.projection.epsg === projection.value.epsg)
     ) {
-        log.error(
-            `External layer ${wmtsLayerConfig.value.id} does not support ${projection.value.epsg}`
-        )
+        log.error(`External layer ${wmtsLayerConfig.id} does not support ${projection.value.epsg}`)
         store.dispatch('addLayerError', {
-            layerId: wmtsLayerConfig.value.id,
-            isExternal: wmtsLayerConfig.value.isExternal,
-            baseUrl: wmtsLayerConfig.value.baseUrl,
+            layerId: wmtsLayerConfig.id,
+            isExternal: wmtsLayerConfig.isExternal,
+            baseUrl: wmtsLayerConfig.baseUrl,
             error: unsupportedProjectionError,
             ...dispatcher,
         })
     }
-    return wmtsLayerConfig.value.tileMatrixSets
+    return wmtsLayerConfig.tileMatrixSets
 })
 const tileMatrixSetId = computed(() => tileMatrixSet.value?.id ?? projection.value.epsg)
-const tileMatrixLabels = computed(() => wmtsLayerConfig.value?.options?.tileGrid?.getMatrixIds())
+const tileMatrixLabels = computed(() => wmtsLayerConfig?.options?.tileGrid?.getMatrixIds())
 
 watch(currentYear, () => {
     refreshLayer()
 })
 
 onBeforeUnmount(() => {
-    if (wmtsLayerConfig.value.containErrorMessage(unsupportedProjectionError)) {
+    if (wmtsLayerConfig.containErrorMessage(unsupportedProjectionError)) {
         store.dispatch('removeLayerError', {
-            layerId: wmtsLayerConfig.value.id,
-            isExternal: wmtsLayerConfig.value.isExternal,
-            baseUrl: wmtsLayerConfig.value.baseUrl,
+            layerId: wmtsLayerConfig.id,
+            isExternal: wmtsLayerConfig.isExternal,
+            baseUrl: wmtsLayerConfig.baseUrl,
             error: unsupportedProjectionError,
             ...dispatcher,
         })
@@ -89,25 +83,25 @@ onBeforeUnmount(() => {
 
 function createProvider() {
     let provider
-    if (wmtsLayerConfig.value instanceof ExternalWMTSLayer && tileMatrixSetId.value) {
+    if (wmtsLayerConfig instanceof ExternalWMTSLayer && tileMatrixSetId.value) {
         provider = new WebMapTileServiceImageryProvider({
             url:
-                wmtsLayerConfig.value.getTileEncoding === WMTSEncodingTypes.KVP
-                    ? wmtsLayerConfig.value.baseUrl
-                    : wmtsLayerConfig.value.urlTemplate,
-            layer: wmtsLayerConfig.value.id,
-            style: wmtsLayerConfig.value.style,
+                wmtsLayerConfig.getTileEncoding === WMTSEncodingTypes.KVP
+                    ? wmtsLayerConfig.baseUrl
+                    : wmtsLayerConfig.urlTemplate,
+            layer: wmtsLayerConfig.id,
+            style: wmtsLayerConfig.style,
             tileMatrixSetID: tileMatrixSetId.value,
             tileMatrixLabels: tileMatrixLabels.value,
         })
-    } else if (wmtsLayerConfig.value instanceof GeoAdminWMTSLayer) {
+    } else if (wmtsLayerConfig instanceof GeoAdminWMTSLayer) {
         provider = new UrlTemplateImageryProvider({
             rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
             maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
             url: url.value,
         })
     } else {
-        log.error('Unknown WMTS layer type', wmtsLayerConfig.value, 'could not create 3D layer')
+        log.error('Unknown WMTS layer type', wmtsLayerConfig, 'could not create 3D layer')
     }
     return provider
 }
@@ -115,7 +109,7 @@ function createProvider() {
 const { refreshLayer } = useAddImageryLayer(
     getViewer(),
     createProvider,
-    toRef(zIndex),
+    () => zIndex,
     toRef(opacity)
 )
 </script>

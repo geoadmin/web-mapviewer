@@ -25,7 +25,7 @@ const printLegend = ref(false)
 const olMap = inject('olMap')
 const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 const availablePrintLayouts = computed(() => store.state.print.layouts)
 const selectedLayout = computed(() => store.state.print.selectedLayout)
@@ -56,12 +56,12 @@ const selectedScale = computed({
 
 const printErrorMessage = computed(() => {
     if (printStatus.FINISHED_ABORTED) {
-        return i18n.t('operation_aborted')
+        return t('operation_aborted')
     } else {
         if (printError.value instanceof PrintError && printError.value.key) {
-            return i18n.t(printError.value.key)
+            return t(printError.value.key)
         } else {
-            return i18n.t('operation_failed')
+            return t('operation_failed')
         }
     }
 })
@@ -138,7 +138,7 @@ defineExpose({
 <template>
     <MenuSection
         :section-id="sectionId"
-        :title="i18n.t('print')"
+        :title="t('print')"
         :show-content="isSectionShown"
         data-cy="menu-print-section"
         secondary
@@ -153,7 +153,7 @@ defineExpose({
                 for="print-layout-selector"
                 class="col-form-label fw-bold me-2"
             >{{
-                i18n.t('print_layout')
+                t('print_layout')
             }}</label>
             <select
                 id="print-layout-selector"
@@ -176,7 +176,7 @@ defineExpose({
                 for="print-scale-selector"
                 class="col-form-label fw-bold me-2"
             >{{
-                i18n.t('print_scale')
+                t('print_scale')
             }}</label>
             <select
                 id="print-scale-selector"
@@ -203,7 +203,7 @@ defineExpose({
                 <label
                     class="form-check-label"
                     for="checkboxLegend"
-                >{{ i18n.t('legend') }}</label>
+                >{{ t('legend') }}</label>
             </div>
             <div class="form-check">
                 <input
@@ -216,7 +216,7 @@ defineExpose({
                 <label
                     class="form-check-label"
                     for="checkboxGrid"
-                >{{ i18n.t('graticule') }}</label>
+                >{{ t('graticule') }}</label>
             </div>
             <div class="full-width">
                 <input
@@ -233,7 +233,7 @@ defineExpose({
                     {{ printErrorMessage }}
                 </div>
                 <div class="valid-feedback">
-                    {{ i18n.t('operation_successful') }}
+                    {{ t('operation_successful') }}
                 </div>
             </div>
             <div class="full-width justify-content-center">
@@ -250,7 +250,7 @@ defineExpose({
                     data-cy="abort-print-button"
                     @click="abortCurrentJob"
                 >
-                    {{ i18n.t('abort') }}
+                    {{ t('abort') }}
                 </button>
                 <button
                     v-else
@@ -259,7 +259,7 @@ defineExpose({
                     data-cy="print-map-button"
                     @click="printMap"
                 >
-                    {{ i18n.t('print_action') }}
+                    {{ t('print_action') }}
                 </button>
             </div>
         </div>

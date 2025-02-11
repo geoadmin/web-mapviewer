@@ -1,3 +1,111 @@
+<script setup>
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import EditableFeature from '@/api/features/EditableFeature.class'
+import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
+import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
+import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
+
+const { feature, iconSets } = defineProps({
+    feature: {
+        type: EditableFeature,
+        required: true,
+    },
+    iconSets: {
+        type: Array,
+        required: true,
+    },
+})
+
+const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor'])
+
+const { t } = useI18n()
+
+const iconButtons = useTemplateRef('iconButtons')
+
+const showAllSymbols = ref(false)
+const currentIconSet = ref(null)
+const loadedImages = ref(0)
+
+const currentIconSetName = computed(() => {
+    if (currentIconSet.value) {
+        return t(`modify_icon_category_${currentIconSet.value.name}_label`, 1, {
+            locale: currentIconSet.value.language,
+        })
+    }
+    return ''
+})
+/** @returns {DropdownItem[]} */
+const iconSetDropdownItems = computed(() => {
+    return iconSets.map((iconSet) => {
+        return {
+            id: iconSet.name,
+            title: t(`modify_icon_category_${iconSet.name}_label`, 1, {
+                locale: iconSet.language,
+            }),
+            value: iconSet,
+            description: `modify_icon_category_${iconSet.name}_label`,
+        }
+    })
+})
+
+onMounted(() => {
+    const iconSetNameToLookup = feature?.icon?.iconSetName ?? 'default'
+    currentIconSet.value =
+        iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ??
+        iconSets.find((iconSet) => iconSet.name === 'default')
+})
+
+function toggleShowAllSymbols() {
+    showAllSymbols.value = !showAllSymbols.value
+    if (showAllSymbols.value) {
+        refreshIconTooltips()
+    } else {
+        removeIconTooltips()
+    }
+}
+
+function onCurrentIconColorChange(color) {
+    emits('change:iconColor', color)
+    emits('change')
+}
+
+function onCurrentIconSizeChange(size) {
+    emits('change:iconSize', size)
+    emits('change')
+}
+
+function changeDisplayedIconSet(dropdownItem) {
+    currentIconSet.value = dropdownItem.value
+}
+
+function onImageLoad() {
+    loadedImages.value = loadedImages.value + 1
+    if (loadedImages.value === currentIconSet.value.icons.length) {
+        loadedImages.value = 0
+        if (currentIconSet.value.hasDescription && showAllSymbols.value) {
+            refreshIconTooltips()
+        }
+    }
+}
+
+function refreshIconTooltips() {
+    iconButtons.value?.forEach((button) => button.refreshTooltip())
+}
+
+function removeIconTooltips() {
+    iconButtons.value?.forEach((button) => button.removeTooltip())
+}
+
+function onCurrentIconChange(icon) {
+    showAllSymbols.value = true
+    emits('change:icon', icon)
+    emits('change')
+}
+</script>
+
 <template>
     <div class="d-block">
         <div class="d-flex mb-3">
@@ -10,7 +118,7 @@
                     class="form-label"
                     for="drawing-style-icon-set-selector"
                 >
-                    {{ $t('modify_icon_label') }}
+                    {{ t('modify_icon_label') }}
                 </label>
                 <DropdownButton
                     :title="currentIconSetName"
@@ -37,9 +145,9 @@
             <div
                 class="rounded d-flex align-items-center p-2"
                 data-cy="drawing-style-toggle-all-icons-button"
-                @click="toggleshowAllSymbols()"
+                @click="toggleShowAllSymbols()"
             >
-                <div>{{ $t('modify_icon_label') }}</div>
+                <div>{{ t('modify_icon_label') }}</div>
                 <font-awesome-icon
                     :icon="['fas', showAllSymbols ? 'caret-down' : 'caret-right']"
                     class="ms-2"
@@ -49,33 +157,16 @@
                 class="marker-icon-select-box"
                 :class="{ 'one-line': !showAllSymbols }"
             >
-                <button
+                <DrawingStyleIcon
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
-                    class="icon-description btn btn-sm"
-                    :class="{
-                        'btn-light': feature.icon.name !== icon.name,
-                        'btn-primary': feature.icon.name === icon.name,
-                    }"
-                    :data-tippy-content="getIconDescription(icon.description)"
-                    :data-cy="`drawing-style-icon-selector-${icon.name}`"
-                    @click="onCurrentIconChange(icon)"
-                >
-                    <img
-                        :alt="icon.name"
-                        :src="generateColorizedURL(icon)"
-                        class="marker-icon-image"
-                        :style="
-                            getImageStrokeStyle(
-                                currentIconSet.isColorable,
-                                feature.icon.name === icon.name,
-                                feature.fillColor
-                            )
-                        "
-                        crossorigin="anonymous"
-                        @load="onImageLoad"
-                    >
-                </button>
+                    ref="iconButtons"
+                    :icon="icon"
+                    :current-icon-set="currentIconSet"
+                    :current-feature="feature"
+                    @change:icon="onCurrentIconChange"
+                    @load="onImageLoad"
+                />
             </div>
             <div
                 class="transparent-overlay"
@@ -84,163 +175,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import log from 'geoadmin/log'
-import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-
-import EditableFeature from '@/api/features/EditableFeature.class'
-import { SUPPORTED_LANG } from '@/modules/i18n/index'
-import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
-import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
-import DropdownButton from '@/utils/components/DropdownButton.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
-import { MEDIUM } from '@/utils/featureStyleUtils'
-
-export default {
-    components: {
-        DropdownButton,
-        DrawingStyleSizeSelector,
-        DrawingStyleColorSelector,
-    },
-    props: {
-        feature: {
-            type: EditableFeature,
-            required: true,
-        },
-        iconSets: {
-            type: Array,
-            required: true,
-        },
-    },
-    emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
-    setup() {
-        const { refreshTippyAttachment, removeTippy } = useTippyTooltip(
-            '.icon-description[data-tippy-content]',
-            {
-                placement: 'top',
-                translate: false,
-                allowHTML: true,
-            }
-        )
-        const i18n = useI18n()
-        const store = useStore()
-        return {
-            i18n,
-            store,
-            refreshTippyAttachment,
-            removeTippy,
-        }
-    },
-    data: function () {
-        return {
-            showAllSymbols: false,
-            currentIconSet: null,
-            // we store it because we don't want the selection window's icon to change size
-            // only the icon on the map should
-            defaultIconSize: MEDIUM,
-            loadedImages: 0,
-        }
-    },
-    computed: {
-        currentIconSetName() {
-            return this.currentIconSet
-                ? this.i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`, 1, {
-                      locale: this.currentIconSet.language,
-                  })
-                : ''
-        },
-        /** @returns {DropdownItem[]} */
-        iconSetDropdownItems() {
-            return this.iconSets.map((iconSet) => {
-                return {
-                    id: iconSet.name,
-                    title: this.i18n.t(`modify_icon_category_${iconSet.name}_label`, 1, {
-                        locale: iconSet.language,
-                    }),
-                    value: iconSet,
-                    description: `modify_icon_category_${iconSet.name}_label`,
-                }
-            })
-        },
-    },
-    mounted() {
-        const iconSetNameToLookup = this.feature?.icon ? this.feature.icon.iconSetName : 'default'
-        this.currentIconSet =
-            this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ||
-            this.iconSets.find((iconSet) => iconSet.name === 'default')
-    },
-    methods: {
-        /**
-         * Generate an icon URL with medium size (so that the size doesn't change in the icon
-         * selector, even when the user selects a different size for the icon the map)
-         *
-         * @param {DrawingIcon} icon
-         * @returns {String} An icon URL
-         */
-        generateColorizedURL(icon) {
-            return icon.generateURL(this.feature.fillColor)
-        },
-        toggleshowAllSymbols() {
-            this.showAllSymbols = !this.showAllSymbols
-            if (this.showAllSymbols) {
-                this.refreshTippyAttachment()
-            } else {
-                this.removeTippy()
-            }
-        },
-        onCurrentIconColorChange(color) {
-            this.$emit('change:iconColor', color)
-            this.$emit('change')
-        },
-        onCurrentIconChange(icon) {
-            this.showAllSymbols = true
-            this.$emit('change:icon', icon)
-            this.$emit('change')
-        },
-        onCurrentIconSizeChange(size) {
-            this.$emit('change:iconSize', size)
-            this.$emit('change')
-        },
-        changeDisplayedIconSet(dropdownItem) {
-            this.currentIconSet = dropdownItem.value
-        },
-        getImageStrokeStyle(isColorable, isSelected, color) {
-            if (isColorable) {
-                return {
-                    filter: `drop-shadow(1px 1px 0 ${color.border}) drop-shadow(-1px -1px 0 ${color.border})`,
-                }
-            } else if (isSelected) {
-                return { filter: 'drop-shadow(0px 0px 0 white)' }
-            }
-        },
-        getIconDescription(description) {
-            const lang = this.store.state.i18n.lang
-            if (description) {
-                let str = ''
-                for (const [key, value] of Object.entries(description)) {
-                    str = str + `<div>${lang === key ? `<strong>${value}</strong>` : value}</div>`
-                    if (!SUPPORTED_LANG.includes(key)) {
-                        log.error('Language key provided is not supported: ', key)
-                    }
-                }
-                return str
-            }
-            return null
-        },
-        onImageLoad() {
-            this.loadedImages = this.loadedImages + 1
-            if (this.loadedImages === this.currentIconSet.icons.length) {
-                this.loadedImages = 0
-                if (this.currentIconSet.hasDescription && this.showAllSymbols) {
-                    this.refreshTippyAttachment()
-                }
-            }
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
@@ -272,13 +206,6 @@ export default {
     &.one-line {
         max-height: 2rem;
         overflow-y: hidden;
-    }
-    .marker-icon-image {
-        width: 2rem;
-        height: 2rem;
-    }
-    button {
-        --bs-btn-padding-x: 0.25rem;
     }
 }
 </style>

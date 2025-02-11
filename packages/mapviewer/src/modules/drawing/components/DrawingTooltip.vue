@@ -1,6 +1,6 @@
 <script setup>
 import Overlay from 'ol/Overlay'
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -14,11 +14,11 @@ const cssGrabbing = 'cursor-grabbing'
 
 const olMap = inject('olMap')
 const drawingLayer = inject('drawingLayer')
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 const tooltipText = ref('')
-const drawingTooltip = ref(null)
+const drawingTooltip = useTemplateRef('drawingTooltip')
 
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const drawingMode = computed(() => store.state.drawing.mode)
@@ -160,7 +160,7 @@ function updateTooltipText(translationKeys) {
 
     tooltipText.value = keys
         .map((key) => key.toLowerCase())
-        .map((key) => i18n.t(key))
+        .map((key) => t(key))
         .join('<br>')
 }
 </script>

@@ -2,7 +2,7 @@
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { WGS84 } from 'geoadmin/proj'
 import { cloneDeep } from 'lodash'
-import { computed, inject, toRef, toRefs, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -15,7 +15,7 @@ import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
-const props = defineProps({
+const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmsLayerConfig: {
         type: [GeoAdminWMSLayer, ExternalWMSLayer],
         required: true,
@@ -29,20 +29,19 @@ const props = defineProps({
         default: null,
     },
 })
-const { wmsLayerConfig, zIndex, parentLayerOpacity } = toRefs(props)
 
 const getViewer = inject('getViewer')
 
 const store = useStore()
 const currentLang = computed(() => store.state.i18n.lang)
 
-const layerId = computed(() => wmsLayerConfig.value.technicalName ?? wmsLayerConfig.value.id)
-const opacity = computed(() => parentLayerOpacity.value ?? wmsLayerConfig.value.opacity ?? 1.0)
-const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion ?? '1.3.0')
-const format = computed(() => wmsLayerConfig.value.format ?? 'png')
-const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.value.baseUrl)
-const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value))
-const customAttributes = computed(() => cloneDeep(wmsLayerConfig.value.customAttributes))
+const layerId = computed(() => wmsLayerConfig.technicalName ?? wmsLayerConfig.id)
+const opacity = computed(() => parentLayerOpacity ?? wmsLayerConfig.opacity ?? 1.0)
+const wmsVersion = computed(() => wmsLayerConfig.wmsVersion ?? '1.3.0')
+const format = computed(() => wmsLayerConfig.format ?? 'png')
+const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.baseUrl)
+const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig))
+const customAttributes = computed(() => cloneDeep(wmsLayerConfig.customAttributes))
 
 /**
  * Definition of all relevant URL param for our WMS backends. Passes as parameters to
@@ -87,7 +86,7 @@ function createProvider() {
 const { refreshLayer } = useAddImageryLayer(
     getViewer(),
     createProvider,
-    toRef(zIndex),
+    () => zIndex,
     toRef(opacity)
 )
 </script>

@@ -11,7 +11,7 @@ import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const dispatcher = { dispatcher: 'MenuModule.vue' }
 
-const i18n = useI18n()
+const { t } = useI18n()
 const store = useStore()
 
 const showMenu = computed(() => store.state.ui.showMenu)
@@ -83,7 +83,7 @@ function toggleMenu() {
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
                         <span class="ms-2">{{
-                            i18n.t(showMenu ? 'close_menu' : 'open_menu')
+                            t(showMenu ? 'close_menu' : 'open_menu')
                         }}</span>
                     </button>
                 </div>

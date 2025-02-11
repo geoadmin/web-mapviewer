@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
@@ -9,18 +9,19 @@ const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
 
 const store = useStore()
 
-useTippyTooltip('#threeDButton[data-tippy-content]', { placement: 'left' })
-
-const webGlIsSupported = ref(false)
-
-const isActive = computed(() => store.state.cesium.active)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
+const toggle3DButton = useTemplateRef('toggle3DButton')
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
         return `tilt3d_${isActive.value ? 'active' : 'inactive'}`
     }
     return '3d_render_error'
 })
+useTippyTooltip(toggle3DButton, tooltipContent, { placement: 'left' })
+
+const webGlIsSupported = ref(false)
+
+const isActive = computed(() => store.state.cesium.active)
+const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 
 onMounted(() => {
     webGlIsSupported.value = checkWebGlSupport()
@@ -55,23 +56,19 @@ function toggle3d() {
 </script>
 
 <template>
-    <div
-        id="threeDButton"
-        :data-tippy-content="tooltipContent"
+    <button
+        ref="toggle3DButton"
+        class="toolbox-button"
+        type="button"
+        :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
+        data-cy="3d-button"
+        @click="toggle3d"
     >
-        <button
-            class="toolbox-button"
-            type="button"
-            :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
-            data-cy="3d-button"
-            @click="toggle3d"
-        >
-            <FontAwesomeIcon
-                :icon="['fas', 'cube']"
-                flip="horizontal"
-            />
-        </button>
-    </div>
+        <FontAwesomeIcon
+            :icon="['fas', 'cube']"
+            flip="horizontal"
+        />
+    </button>
 </template>
 
 <style lang="scss" scoped>

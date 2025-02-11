@@ -1,6 +1,6 @@
 <script setup>
 import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { computed, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -13,7 +13,7 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
 
-const props = defineProps({
+const { layerIndex, layerId, timeConfig, compact } = defineProps({
     layerIndex: {
         type: Number,
         required: true,
@@ -31,24 +31,23 @@ const props = defineProps({
         default: false,
     },
 })
-const { layerIndex, layerId, timeConfig, compact } = toRefs(props)
 
 const store = useStore()
-const i18n = useI18n()
+const { t } = useI18n()
 
-const timeSelectorButton = ref(null)
-const timeSelectorModal = ref(null)
+const timeSelectorButton = useTemplateRef('timeSelectorButton')
+const timeSelectorModal = useTemplateRef('timeSelectorModal')
 
-const hasMultipleTimestamps = computed(() => timeConfig.value.timeEntries.length > 1)
+const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-    timeConfig.value.timeEntries.every((entry) => entry.year !== null)
+    timeConfig.timeEntries.every((entry) => entry.year !== null)
 )
 const hasTimeSelector = computed(() => hasMultipleTimestamps.value && hasValidTimestamps.value)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 const humanReadableCurrentTimestamp = computed(() => {
-    return renderHumanReadableTimestamp(timeConfig.value.currentTimeEntry)
+    return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
 })
 
 let popover = null
@@ -82,10 +81,10 @@ function renderHumanReadableTimestamp(timeEntry) {
         return '-'
     }
     if (timeEntry.year === CURRENT_YEAR_TIMESTAMP) {
-        return i18n.t(`time_current`)
+        return t(`time_current`)
     }
     if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
-        return i18n.t('time_all')
+        return t('time_all')
     }
     return `${timeEntry.year}`
 }
@@ -96,7 +95,7 @@ function handleClickOnTimestamp(year) {
     if (isTimeSliderActive.value) {
         store.dispatch('setTimeSliderActive', { timeSliderActive: false, ...dispatcher })
     }
-    store.dispatch('setTimedLayerCurrentYear', { index: layerIndex.value, year, ...dispatcher })
+    store.dispatch('setTimedLayerCurrentYear', { index: layerIndex, year, ...dispatcher })
 }
 
 function hidePopover() {
@@ -104,7 +103,7 @@ function hidePopover() {
 }
 
 function isSelected(timeEntry) {
-    return timeConfig.value.currentTimestamp === timeEntry?.timestamp
+    return timeConfig.currentTimestamp === timeEntry?.timestamp
 }
 </script>
 
@@ -127,7 +126,7 @@ function isSelected(timeEntry) {
             @click="hidePopover"
         >
             <div class="card-header d-flex align-items-center justify-content-between">
-                {{ $t('time_select_year') }}
+                {{ t('time_select_year') }}
             </div>
             <div
                 class="card-body rounded-bottom p-2 timestamps-popover-content"

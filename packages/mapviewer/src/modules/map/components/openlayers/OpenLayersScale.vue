@@ -1,10 +1,10 @@
 <script setup>
 import { LV95 } from 'geoadmin/proj'
 import ScaleLine from 'ol/control/ScaleLine'
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
-const scaleLineElement = ref(null)
+const scaleLineElement = useTemplateRef('scaleLineElement')
 
 const store = useStore()
 const zoom = computed(() => store.state.position.zoom)

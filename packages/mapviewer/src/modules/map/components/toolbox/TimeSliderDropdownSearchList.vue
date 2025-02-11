@@ -1,9 +1,9 @@
 <script setup>
-import { nextTick, ref, toRefs } from 'vue'
+import { nextTick, useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
-const props = defineProps({
+const { showList, entries } = defineProps({
     showList: {
         type: Boolean,
         default: false,
@@ -16,13 +16,12 @@ const props = defineProps({
     },
 })
 
-const emit = defineEmits(['chooseEntry'])
+const emit = defineEmits(['chooseEntry', 'hide'])
 
-const { showList, entries } = toRefs(props)
-const searchList = ref(null)
+const searchList = useTemplateRef('searchList')
 
 function goToSpecific(value) {
-    const key = entries.value.findIndex((entry) => {
+    const key = entries.findIndex((entry) => {
         return entry.url === value
     })
     if (key >= 0) {
@@ -43,7 +42,7 @@ function goToPrevious(currentKey) {
 }
 
 function goToNext(currentKey) {
-    if (currentKey >= entries.value.length - 1) {
+    if (currentKey >= entries.length - 1) {
         return
     }
     const key = currentKey + 1
@@ -55,7 +54,7 @@ function goToFirst() {
 }
 
 function goToLast() {
-    searchList.value.querySelector(`[tabindex="${entries.value.length - 1}"]`).focus()
+    searchList.value.querySelector(`[tabindex="${entries.length - 1}"]`).focus()
 }
 
 defineExpose({ goToFirst, goToSpecific })
@@ -80,7 +79,7 @@ defineExpose({ goToFirst, goToSpecific })
                 @keydown.down.prevent="() => goToNext(key)"
                 @keydown.home.prevent="goToFirst"
                 @keydown.end.prevent="goToLast"
-                @keydown.esc.prevent="showList = false"
+                @keydown.esc.prevent="emit('hide')"
                 @keydown.enter.prevent="emit('chooseEntry', entry.year)"
                 @click="emit('chooseEntry', entry.year)"
             >
