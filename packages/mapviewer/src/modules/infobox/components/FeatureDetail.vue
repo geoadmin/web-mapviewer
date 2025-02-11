@@ -125,7 +125,7 @@ function getIframeHosts(value) {
                         <td
                             data-cy="feature-detail-description-content"
                             class="float-right text-end pr-3"
-                            v-html="t(value)"
+                            v-html="value"
                         />
                     </table>
                 </div>

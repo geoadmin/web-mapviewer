@@ -16,15 +16,27 @@ import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
  */
 export default class GeoAdmin3DLayer extends GeoAdminLayer {
     /**
-     * @param {string} layerId The ID of this layer
-     * @param {string} layerName The Name of this layer. Default to the layer Id
-     * @param {String | null} urlTimestampToUse If this layers' JSON is stored in a dedicated timed
-     *   folder, it can be described with this property. This will be added at the end of the URL,
-     *   before the /tileset.json (or /style.json, depending on the layer type)
-     * @param {boolean} use3dTileSubFolder If the JSON file stored in the /3d-tiles/ sub-folder on
-     *   the S3 bucket
+     * @param {string} layerData.layerId The ID of this layer
+     * @param {string} layerData.layerName The Name of this layer. Default to the layer Id
+     * @param {String | null} layerData.urlTimestampToUse If this layers' JSON is stored in a
+     *   dedicated timed folder, it can be described with this property. This will be added at the
+     *   end of the URL, before the /tileset.json (or /style.json, depending on the layer type)
+     * @param {boolean} layerData.use3dTileSubFolder If the JSON file stored in the /3d-tiles/
+     *   sub-folder on the S3 bucket
      */
-    constructor(layerId, layerName = null, urlTimestampToUse = null, use3dTileSubFolder = true) {
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing geoadmin layer data', layerData)
+        }
+        const {
+            layerId = null,
+            layerName = null,
+            urlTimestampToUse = null,
+            use3dTileSubFolder = null,
+        } = layerData
+        if (!layerId) {
+            throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
+        }
         super({
             name: layerName ?? layerId,
             type: LayerTypes.VECTOR,
