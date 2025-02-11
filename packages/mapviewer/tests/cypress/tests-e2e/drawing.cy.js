@@ -878,7 +878,10 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]').click()
-            cy.wait('@delete-kml')
+            cy.wait('@post-kml')
+
+            cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
 
             let deletedKmlId = null
 
@@ -890,9 +893,6 @@ describe('Drawing module tests', () => {
                 timeout: 5000,
                 interval: 200,
             })
-
-            cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
-            cy.get('[data-cy="modal-confirm-button"]').click()
 
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
