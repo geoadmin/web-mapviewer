@@ -1,29 +1,29 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 
-const labelLayer = new GeoAdmin3DLayer(
-    'ch.swisstopo.swissnames3d.3d',
-    '3d_labels',
-    '20180716',
-    true
-)
-const vegetationLayer = new GeoAdmin3DLayer(
-    'ch.swisstopo.vegetation.3d',
-    '3d_vegetation',
-    'v1',
-    false
-)
-const buildingsLayer = new GeoAdmin3DLayer(
-    'ch.swisstopo.swissbuildings3d.3d',
-    '3d_constructions',
-    'v1',
-    false // buildings JSON has already been migrated to the new URL nomenclature
-)
-const constructionsLayer = new GeoAdmin3DLayer(
-    'ch.swisstopo.swisstlm3d.3d',
-    '3d_constructions',
-    'v1',
-    false // buildings JSON has already been migrated to the new URL nomenclature
-)
+const labelLayer = new GeoAdmin3DLayer({
+    layerId: 'ch.swisstopo.swissnames3d.3d',
+    layerName: '3d_labels',
+    urlTimestampToUse: '20180716',
+    use3dTileSubFolder: true,
+})
+const vegetationLayer = new GeoAdmin3DLayer({
+    layerId: 'ch.swisstopo.vegetation.3d',
+    layerName: '3d_vegetation',
+    urlTimestampToUse: 'v1',
+    use3dTileSubFolder: false,
+})
+const buildingsLayer = new GeoAdmin3DLayer({
+    layerId: 'ch.swisstopo.swissbuildings3d.3d',
+    layerName: '3d_constructions',
+    urlTimestampToUse: 'v1',
+    use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
+})
+const constructionsLayer = new GeoAdmin3DLayer({
+    layerId: 'ch.swisstopo.swisstlm3d.3d',
+    layerName: '3d_constructions',
+    urlTimestampToUse: 'v1',
+    use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
+})
 
 /** Module that stores all information related to the 3D viewer */
 export default {
