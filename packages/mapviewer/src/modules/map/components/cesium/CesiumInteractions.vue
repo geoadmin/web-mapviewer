@@ -17,7 +17,11 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
+import {
+    clicked3DFeatureFill,
+    hovered3DFeatureFill,
+    unhighlightGroup,
+} from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { createPixelExtentAround } from '@/utils/extentUtils'
@@ -27,8 +31,9 @@ const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
 const getViewer = inject('getViewer')
 
-const hoveredHighlightPostProcessor = ref(null)
-const clickedHighlightPostProcessor = ref(null)
+const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
+
+const clickedHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
@@ -47,8 +52,8 @@ onMounted(() => {
         initialize3dHighlights()
         viewer.scene.postProcessStages.add(
             PostProcessStageLibrary.createSilhouetteStage([
-                hoveredHighlightPostProcessor.value,
-                clickedHighlightPostProcessor.value,
+                hoveredHighlightPostProcessor,
+                clickedHighlightPostProcessor,
             ])
         )
         viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
@@ -60,15 +65,13 @@ onMounted(() => {
     }
 })
 function initialize3dHighlights() {
-    hoveredHighlightPostProcessor.value = PostProcessStageLibrary.createEdgeDetectionStage()
-    hoveredHighlightPostProcessor.value.uniforms.color = Color.BLUE
-    hoveredHighlightPostProcessor.value.uniforms.length = 0.01
-    hoveredHighlightPostProcessor.value.selected = []
+    hoveredHighlightPostProcessor.uniforms.color = hovered3DFeatureFill
+    hoveredHighlightPostProcessor.uniforms.length = 0
+    hoveredHighlightPostProcessor.selected = []
 
-    clickedHighlightPostProcessor.value = PostProcessStageLibrary.createEdgeDetectionStage()
-    clickedHighlightPostProcessor.value.uniforms.color = Color.LIME
-    clickedHighlightPostProcessor.value.uniforms.length = 0.01
-    clickedHighlightPostProcessor.value.selected = []
+    clickedHighlightPostProcessor.uniforms.color = clicked3DFeatureFill
+    clickedHighlightPostProcessor.uniforms.length = 0
+    clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x, y) {
     const cartesian = getViewer()?.scene.pickPosition(new Cartesian2(x, y))
@@ -112,17 +115,13 @@ function createBuildingFeature(building, coordinates) {
 }
 
 function handleClickHighlight(features, coordinates) {
-    clickedHighlightPostProcessor.value.selected = []
+    clickedHighlightPostProcessor.selected = []
+    hoveredHighlightPostProcessor.selected.forEach((feature) => {
+        features.push(createBuildingFeature(feature, coordinates))
+    })
+    clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
 
-    if (hoveredHighlightPostProcessor.value.selected.length > 0) {
-        features.push(
-            createBuildingFeature(hoveredHighlightPostProcessor.value.selected[0], coordinates)
-        )
-        clickedHighlightPostProcessor.value.selected = [
-            hoveredHighlightPostProcessor.value.selected[0],
-        ]
-        hoveredHighlightPostProcessor.value.selected = []
-    }
+    hoveredHighlightPostProcessor.selected = []
 }
 function onClick(event) {
     const viewer = getViewer()
@@ -209,7 +208,7 @@ function onMouseMove(event) {
     // has no id either. We need to make an additional filter, as bridges and cable cars would get
     // highlighted too, but we don't want that. So we filter on the fact that those 'OBJEKTART'
     // property is a number instead of a string.
-    hoveredHighlightPostProcessor.value.selected = viewer.scene
+    hoveredHighlightPostProcessor.selected = viewer.scene
         .drillPick(event.endPosition)
         .filter(
             (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
