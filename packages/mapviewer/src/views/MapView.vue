@@ -6,7 +6,6 @@ import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
-import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -143,7 +142,6 @@ onUnmounted(() => {
                 </MapFooter>
             </template>
         </MapModule>
-        <I18nModule />
         <DragDropOverlay v-if="showDragAndDropOverlay" />
     </div>
 </template>

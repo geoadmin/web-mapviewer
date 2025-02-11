@@ -5,7 +5,6 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 import { sendChangeEventToParent } from '@/api/iframeFeatureEvent.api'
-import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
@@ -60,6 +59,5 @@ watch(() => route.query, sendChangeEventToParent)
                 </MapFooter>
             </template>
         </MapModule>
-        <I18nModule />
     </div>
 </template>

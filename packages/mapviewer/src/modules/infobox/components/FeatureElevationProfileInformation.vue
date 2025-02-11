@@ -14,6 +14,8 @@ const { profile } = defineProps({
     },
 })
 
+const profileInformationElements = useTemplateRef('profileInformationElements')
+
 const profileInformationFormat = computed(() => {
     if (!profile) {
         return []
@@ -68,7 +70,6 @@ const profileInformationFormat = computed(() => {
     ]
 })
 
-const profileInformationElements = useTemplateRef('profileInformationElements')
 const tooltipContents = computed(() => profileInformationFormat.value.map((info) => info.title))
 useTippyTooltip(profileInformationElements, tooltipContents)
 

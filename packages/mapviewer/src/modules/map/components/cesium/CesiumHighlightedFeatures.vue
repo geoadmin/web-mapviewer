@@ -4,8 +4,8 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import {
     highlightGroup,
@@ -113,10 +113,10 @@ function setBottomPanelFeatureInfoPosition() {
                 <FontAwesomeIcon icon="angles-down" />
             </button>
         </template>
-        <FeatureEdit
+        <FeatureStyleEdit
             v-if="editFeature"
-            :read-only="true"
             :feature="editFeature"
+            read-only
         />
         <FeatureList />
     </CesiumPopover>

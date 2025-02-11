@@ -2,9 +2,9 @@
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 
 const { animation } = defineProps({
     animation: { type: Boolean, default: true },
@@ -48,7 +48,7 @@ watch(selectedFeatures, (features) => {
             v-if="isEditingDrawingFeature"
             class="drawing-feature d-flex flex-column flex-md-row"
         >
-            <FeatureEdit
+            <FeatureStyleEdit
                 v-if="showFeatureInfoInBottomPanel"
                 :feature="selectedFeature"
                 class="drawing-feature-edit p-3"

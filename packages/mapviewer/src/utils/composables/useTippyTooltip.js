@@ -87,13 +87,14 @@ export function useTippyTooltip(refs, content, options = {}) {
     })
 
     function onContentUpdate() {
-        if (toValue(content)) {
+        const tooltipContent = toValue(content)
+        if (tooltipContent) {
             if (tooltips?.length > 0) {
                 tooltips.forEach((tp, index) => {
-                    if (Array.isArray(toValue(content))) {
-                        tp.setContent(t(toValue(content)[index]))
+                    if (Array.isArray(tooltipContent)) {
+                        tp.setContent(t(tooltipContent[index]))
                     } else {
-                        tp.setContent(t(toValue(content)))
+                        tp.setContent(t(tooltipContent))
                     }
                 })
             } else {
@@ -110,12 +111,8 @@ export function useTippyTooltip(refs, content, options = {}) {
     }
 
     function refreshTippyAttachment() {
-        // if thpe selector is a function, call it.
-        // this allows for lazy loading/referencing of DOM elements
-        let attachment = toValue(refs)
-        if (typeof attachment === 'function') {
-            attachment = attachment()
-        }
+        const attachment = toValue(refs)
+
         removeTippy()
 
         if (
