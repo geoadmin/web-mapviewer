@@ -6,6 +6,11 @@ import proj4 from 'proj4'
 let highlightedEntities = []
 const highlightFill = Color.fromCssColorString('rgba(255, 255, 0, 0.75)')
 const highlightedStroke = Color.fromCssColorString('rgba(255, 128, 0, 1)')
+
+// based on the highlighted Stroke color with some transparency
+export const hovered3DFeatureFill = Color.fromCssColorString('rgba(255, 128, 0, 0.75)')
+// based on the $primary CSS variable with some transparency
+export const clicked3DFeatureFill = Color.fromCssColorString('rgba(220, 0, 24,0.6)')
 const highlightedStrokeWidth = 3
 
 export function highlightSelectedArea(viewer, geometry) {
