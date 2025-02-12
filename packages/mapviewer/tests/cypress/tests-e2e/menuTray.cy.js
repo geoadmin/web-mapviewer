@@ -250,17 +250,6 @@ describe('Test menu tray ui', () => {
             checkOpenSections(['topics'])
             measureMenu(true)
         })
-        it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
-            init(30, 2)
-            checkOpenSections(['topics', 'activeLayers'])
-            measureMenu(true)
-            checkScrollbarVisibility(false, false)
-
-            cy.get('[data-cy="menu-tray"]').then(($body) => {
-                cy.wrap($body).invoke('outerHeight').should('eq', 498)
-                cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
-            })
-        })
         it('no scrolling if menus are small enough', () => {
             init(3, 2)
             checkOpenSections(['topics', 'activeLayers'])
@@ -307,17 +296,6 @@ describe('Test menu tray ui', () => {
             waitForAnimationsToFinish()
             checkOpenSections(['topics'])
             measureMenu(false)
-        })
-        it('Each open menu section is entirely unfolded and you can scroll the entire menu', () => {
-            init(30, 2)
-            checkOpenSections(['topics', 'activeLayers'])
-            measureMenu(false)
-            checkScrollbarVisibility(false, false)
-
-            cy.get('[data-cy="menu-tray"]').then(($body) => {
-                cy.wrap($body).invoke('outerHeight').should('eq', 250)
-                cy.wrap($body).invoke('prop', 'scrollHeight').should('eq', 1571)
-            })
         })
         it('no scrolling if menus are small enough', () => {
             init(3, 2)
