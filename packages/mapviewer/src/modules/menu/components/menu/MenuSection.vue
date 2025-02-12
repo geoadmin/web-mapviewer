@@ -186,6 +186,7 @@ $section-border: 1px;
     &-body {
         background-color: $white;
         overflow: auto;
+        max-width: 100vw;
         flex: initial;
     }
 }
