@@ -1003,9 +1003,13 @@ describe('Drawing module tests', () => {
             })
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
+
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                expect(layers).to.be.an('Array').lengthOf(0)
+                expect(layers).to.be.an('Array').and.to.have.length(0)
             })
+
+            cy.get(`[data-cy^="button-remove-layer-"]`).should('not.exist')
+
             cy.readWindowValue('drawingLayer').should('not.exist')
         })
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
