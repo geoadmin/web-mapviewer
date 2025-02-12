@@ -119,73 +119,80 @@ defineExpose({ open, close, sectionId })
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/media-query.mixin';
 @import '@/scss/webmapviewer-bootstrap-theme';
 
 $section-border: 1px;
 
-.menu-section-header {
-    display: flex;
-    flex: none;
-    overflow: visible;
-    padding: 0.5rem 0.6rem;
-    line-height: 1.5;
-    border-top: $section-border solid $gray-400;
-    background-color: $light;
-    cursor: pointer;
-    .menu-section-secondary & {
+.menu-section {
+    display: flex; // so that the scrollable section can take the full space except for the header.
+    flex-direction: column;
+    border: 0;
+
+    &-header {
+        display: flex;
+        flex: none;
+        overflow: visible;
+        padding: 0.5rem 0.6rem;
+        line-height: 1.5;
+        border-top: $section-border solid $gray-400;
+        background-color: $light;
+        cursor: pointer;
+
+        &.disabled {
+            cursor: not-allowed;
+            user-select: none;
+        }
+    }
+
+    &-secondary &-header {
         color: $white;
         background-color: $secondary;
         border-color: $gray-400;
     }
-    .menu-section-light & {
+    &-light &-header {
         color: $black;
         background-color: $gray-200;
         border-color: $gray-400;
     }
 
-    .menu-section-open & {
+    &-open {
+        background-color: $white;
+    }
+    &-open &-header {
         border-bottom: $section-border solid $gray-400;
         background-color: $gray-200;
     }
 
-    &.disabled {
-        cursor: not-allowed;
-        user-select: none;
-    }
-}
-.menu-section-title {
-    flex-grow: 1;
-    text-align: left;
-    &-icon {
-        width: 0.8rem;
-        text-align: center;
-        line-height: 1;
-        display: block;
-        float: left;
-        padding: 0;
-        color: inherit;
-    }
-    &-text {
-        .menu-section-open & {
-            font-weight: bold;
+    &-title {
+        flex-grow: 1;
+        text-align: left;
+        &-icon {
+            width: 0.8rem;
+            text-align: center;
+            line-height: 1;
+            display: block;
+            float: left;
+            padding: 0;
+            color: inherit;
+        }
+        &-text {
+            .menu-section-open & {
+                font-weight: bold;
+            }
         }
     }
+
+    &-body {
+        background-color: $white;
+        overflow: auto;
+        flex: initial;
+    }
 }
 
-.menu-section-body {
-    background-color: $white;
-    overflow: auto;
-    flex: initial;
-}
-
-.menu-section {
-    overflow: hidden;
-    display: flex; // so that the scrollable section can take the full space except for the header.
-    flex-direction: column;
-    border: 0;
-}
-
-.menu-section-open {
-    background-color: $white;
+@include respond-above(phone) {
+    .menu-section {
+        overflow: hidden;
+    }
 }
 </style>
