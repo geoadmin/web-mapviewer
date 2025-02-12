@@ -105,7 +105,10 @@ function resetApp() {
             />
             <MoreInfo small />
             <HelpLink small />
-            <HeaderLangSelector id="menu-lang-selector" data-cy="menu-lang-selector" />
+            <HeaderLangSelector
+                id="menu-lang-selector"
+                data-cy="menu-lang-selector"
+            />
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div
