@@ -2,7 +2,10 @@
     "name": "web-mapviewer-monorepo",
     "private": true,
     "workspaces": [
-        "packages/*"
+        "packages/geoadmin-log",
+        "packages/geoadmin-numbers",
+        "packages/geoadmin-coordinates",
+        "packages/mapviewer"
     ],
     "scripts": {
         "dev": "npm run dev --workspace=web-mapviewer",
