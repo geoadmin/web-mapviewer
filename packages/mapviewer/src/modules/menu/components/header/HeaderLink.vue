@@ -17,6 +17,10 @@ const { primary, secondary, showAsButton } = defineProps({
         type: Boolean,
         default: false,
     },
+    dataCy: {
+        type: String,
+        default: '',
+    },
 })
 
 const emits = defineEmits(['click'])
@@ -36,6 +40,7 @@ function forwardClickEvent(e) {
             'text-primary': primary,
             'text-secondary': secondary,
         }"
+        :data-cy="dataCy"
         @click="forwardClickEvent"
     >
         <slot />

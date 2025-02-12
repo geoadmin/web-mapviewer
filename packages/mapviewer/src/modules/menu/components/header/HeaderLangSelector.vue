@@ -25,6 +25,7 @@ function changeLang(lang) {
             v-for="lang in languages"
             :key="lang"
             :primary="currentLang === lang"
+            :data-cy="`menu-lang-${lang}`"
             @click="changeLang(lang)"
         >
             {{ lang.toUpperCase() }}
