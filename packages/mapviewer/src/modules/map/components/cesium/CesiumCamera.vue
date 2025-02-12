@@ -1,8 +1,8 @@
 <script setup>
+import { LV95, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { wrapDegrees } from '@geoadmin/numbers'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
-import log from 'geoadmin/log'
-import { wrapDegrees } from 'geoadmin/numbers'
-import { LV95, WGS84 } from 'geoadmin/proj'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'

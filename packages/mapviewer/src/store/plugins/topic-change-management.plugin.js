@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'

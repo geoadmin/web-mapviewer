@@ -1,6 +1,6 @@
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 import { expect } from 'chai'
 import { readFileSync } from 'fs'
-import { WEBMERCATOR } from 'geoadmin/proj'
 import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
 

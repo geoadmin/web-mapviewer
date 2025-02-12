@@ -1,5 +1,5 @@
 <script setup>
-import { LV95 } from 'geoadmin/proj'
+import { LV95 } from '@geoadmin/coordinates'
 import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'

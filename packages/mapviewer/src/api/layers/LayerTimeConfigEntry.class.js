@@ -1,4 +1,4 @@
-import { isTimestampYYYYMMDD } from 'geoadmin/numbers'
+import { isTimestampYYYYMMDD } from '@geoadmin/numbers'
 
 /**
  * Year we are using to describe the timestamp "all data" for WMS (and also for WMTS as there is no

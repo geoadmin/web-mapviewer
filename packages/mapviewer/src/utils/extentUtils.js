@@ -1,6 +1,6 @@
+import { CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
+import { round } from '@geoadmin/numbers'
 import { bbox, buffer, point } from '@turf/turf'
-import { round } from 'geoadmin/numbers'
-import { CoordinateSystem, WGS84 } from 'geoadmin/proj'
 import { getIntersection as getExtentIntersection } from 'ol/extent'
 import proj4 from 'proj4'
 

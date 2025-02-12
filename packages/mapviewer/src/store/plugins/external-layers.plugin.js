@@ -6,7 +6,7 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'

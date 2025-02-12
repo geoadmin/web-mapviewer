@@ -1,13 +1,6 @@
-import log from 'geoadmin/log'
-import { wrapDegrees } from 'geoadmin/numbers'
-import {
-    allCoordinateSystems,
-    CoordinateSystem,
-    CustomCoordinateSystem,
-    LV95,
-    StandardCoordinateSystem,
-    WGS84,
-} from 'geoadmin/proj'
+import { allCoordinateSystems, CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { wrapDegrees } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -395,18 +388,14 @@ const actions = {
             const [x, y] = proj4(oldProjection.epsg, matchingProjection.epsg, state.center)
             commit('setCenter', { x, y, dispatcher: 'position.store/setProjection' })
             // adapting the zoom level (if needed)
-            if (
-                oldProjection instanceof StandardCoordinateSystem &&
-                matchingProjection instanceof CustomCoordinateSystem
-            ) {
+            if (oldProjection.usesMercatorPyramid && !matchingProjection.usesMercatorPyramid) {
                 commit('setZoom', {
                     zoom: matchingProjection.transformStandardZoomLevelToCustom(state.zoom),
                     dispatcher: 'position.store/setProjection',
                 })
-            }
-            if (
-                oldProjection instanceof CustomCoordinateSystem &&
-                matchingProjection instanceof StandardCoordinateSystem
+            } else if (
+                !oldProjection.usesMercatorPyramid &&
+                matchingProjection.usesMercatorPyramid
             ) {
                 commit('setZoom', {
                     zoom: oldProjection.transformCustomZoomLevelToStandard(state.zoom),
@@ -414,8 +403,8 @@ const actions = {
                 })
             }
             if (
-                oldProjection instanceof CustomCoordinateSystem &&
-                matchingProjection instanceof CustomCoordinateSystem &&
+                !oldProjection.usesMercatorPyramid &&
+                !matchingProjection.usesMercatorPyramid &&
                 oldProjection.epsg !== matchingProjection.epsg
             ) {
                 // we have to revert the old projection zoom level to standard, and then transform it to the new projection custom zoom level

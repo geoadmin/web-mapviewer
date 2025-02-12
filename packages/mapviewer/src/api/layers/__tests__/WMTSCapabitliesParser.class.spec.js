@@ -1,5 +1,5 @@
+import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
-import { LV95, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'

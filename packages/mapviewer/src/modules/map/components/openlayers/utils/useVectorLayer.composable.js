@@ -1,4 +1,4 @@
-import { randomIntBetween } from 'geoadmin/numbers'
+import { randomIntBetween } from '@geoadmin/numbers'
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'

@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'

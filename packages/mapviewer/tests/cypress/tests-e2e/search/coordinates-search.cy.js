@@ -1,14 +1,6 @@
 /// <reference types="cypress" />
 
-import { reprojectAndRound } from 'geoadmin/coordinates'
-import {
-    CustomCoordinateSystem,
-    LV03,
-    LV95,
-    STANDARD_ZOOM_LEVEL_1_25000_MAP,
-    WEBMERCATOR,
-    WGS84,
-} from 'geoadmin/proj'
+import { constants, LV03, LV95, reprojectAndRound, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
@@ -38,10 +30,10 @@ describe('Testing coordinates typing in search bar', () => {
     }
     const checkZoomLevelInStore = () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
-        let expectedZoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
-        if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
+        let expectedZoomLevel = constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
+        if (!DEFAULT_PROJECTION.usesMercatorPyramid) {
             expectedZoomLevel = DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(
-                STANDARD_ZOOM_LEVEL_1_25000_MAP
+                constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
             )
         }
         cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)

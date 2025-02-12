@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { registerProj4, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { registerProj4, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
 import { ClickType } from '@/store/modules/map.store'

@@ -1,11 +1,12 @@
-import log from 'geoadmin/log'
-import { round } from 'geoadmin/numbers'
-import { LV95, WGS84 } from 'geoadmin/proj'
+import { LV95, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import ErrorMessage from '@/utils/ErrorMessage.class'
+
 const { GeolocationPositionError } = window
 
 const dispatcher = { dispatcher: 'geolocation-management.plugin' }

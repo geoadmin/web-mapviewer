@@ -1,13 +1,7 @@
+import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
 import axios from 'axios'
-import log from 'geoadmin/log'
-import {
-    CoordinateSystem,
-    CustomCoordinateSystem,
-    LV95,
-    LV95CoordinateSystem,
-    WGS84,
-} from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
@@ -150,10 +144,10 @@ function parseLocationResult(result, outputProjection) {
             coordinate = proj4(WGS84.epsg, outputProjection.epsg, coordinate)
         }
     }
-    if (!(outputProjection instanceof LV95CoordinateSystem)) {
+    if (outputProjection.epsg !== LV95.epsg) {
         // re-projecting result coordinate and zoom to wanted projection
         zoom = LV95.transformCustomZoomLevelToStandard(zoom)
-        if (outputProjection instanceof CustomCoordinateSystem) {
+        if (!outputProjection.usesMercatorPyramid) {
             zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
         }
     }

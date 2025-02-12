@@ -1,7 +1,7 @@
 <script setup>
 /** Renders a KML file on the map */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'

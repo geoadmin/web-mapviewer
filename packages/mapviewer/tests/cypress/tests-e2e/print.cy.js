@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { formatThousand } from 'geoadmin/numbers'
+import { formatThousand } from '@geoadmin/numbers'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'

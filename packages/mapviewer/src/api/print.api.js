@@ -1,3 +1,4 @@
+import log from '@geoadmin/log'
 import {
     BaseCustomizer,
     cancelPrint,
@@ -6,7 +7,6 @@ import {
     requestReport,
 } from '@geoblocks/mapfishprint'
 import axios from 'axios'
-import log from 'geoadmin/log'
 import { Circle } from 'ol/style'
 
 import { unProxifyUrl } from '@/api/file-proxy.api'

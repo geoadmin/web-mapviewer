@@ -1,5 +1,5 @@
-import { isNumber, randomIntBetween } from 'geoadmin/numbers'
-import { LV95, registerProj4, WGS84 } from 'geoadmin/proj'
+import { LV95, registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { isNumber, randomIntBetween } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'

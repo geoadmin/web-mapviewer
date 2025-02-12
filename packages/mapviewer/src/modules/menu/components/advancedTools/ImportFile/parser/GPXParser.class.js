@@ -1,4 +1,4 @@
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
 import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'

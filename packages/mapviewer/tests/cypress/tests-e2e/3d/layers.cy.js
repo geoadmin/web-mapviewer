@@ -1,4 +1,4 @@
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 

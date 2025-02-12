@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import { getKmlFromUrl } from '@/api/files.api'
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'

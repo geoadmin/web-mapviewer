@@ -6,8 +6,8 @@ import 'animate.css'
 import './setup-fontawesome'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { log } from 'geoadmin'
-import { registerProj4 } from 'geoadmin/proj'
+import { registerProj4 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import tippy from 'tippy.js'
@@ -66,10 +66,10 @@ const app = createApp(App)
 
 if (ENVIRONMENT !== 'production') {
     app.config.performance = true
-    // by default, log levels are ERROR and WARNING; that goes well for PROD staging (no changes)
+    // by default, index levels are ERROR and WARNING; that goes well for PROD staging (no changes)
 } else {
-    // when not on PROD, we want all log levels available
-    log.wantedLevels = Object.values(log.LogLevel)
+    // when not on PROD, we want all index levels available
+    log.wantedLevels = Object.values(log.LogLevels)
 }
 
 app.use(router)

@@ -1,6 +1,6 @@
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 // copied from https://developer.what3words.com/tutorial/detecting-if-text-is-in-the-format-of-a-3-word-address

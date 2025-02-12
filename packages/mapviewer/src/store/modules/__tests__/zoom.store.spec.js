@@ -1,5 +1,5 @@
+import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { beforeEach, describe, it } from 'vitest'
 

@@ -1,4 +1,4 @@
-import { SWISSTOPO_TILEGRID_RESOLUTIONS } from 'geoadmin/proj'
+import { constants } from '@geoadmin/coordinates'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
@@ -79,7 +79,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             searchable = false,
             maxResolution = DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
         } = layerData
-        if (!SWISSTOPO_TILEGRID_RESOLUTIONS.includes(maxResolution)) {
+        if (!constants.SWISSTOPO_TILEGRID_RESOLUTIONS.includes(maxResolution)) {
             throw new InvalidLayerDataError(
                 'max Resolution not part of available resolutions',
                 layerData

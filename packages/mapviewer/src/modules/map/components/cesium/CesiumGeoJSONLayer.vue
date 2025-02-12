@@ -1,7 +1,7 @@
 <script setup>
+import { LV03, LV95, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { GeoJsonDataSource } from 'cesium'
-import log from 'geoadmin/log'
-import { LV03, LV95, WGS84 } from 'geoadmin/proj'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 import { computed, inject, toRef } from 'vue'

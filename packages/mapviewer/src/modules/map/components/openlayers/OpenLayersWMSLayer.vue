@@ -1,7 +1,7 @@
 <script setup>
 /** Renders a WMS layer on the map */
 
-import { CustomCoordinateSystem, LV95 } from 'geoadmin/proj'
+import { LV95 } from '@geoadmin/coordinates'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
@@ -136,7 +136,7 @@ function createSourceForProjection() {
             ratio: 1,
         })
     }
-    if (projection.value instanceof CustomCoordinateSystem) {
+    if (!projection.value.usesMercatorPyramid) {
         source.tileGrid = new TileGrid({
             resolutions: projection.value.getResolutions(),
             extent: projection.value.bounds.flatten,

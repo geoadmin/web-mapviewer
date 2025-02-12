@@ -1,5 +1,5 @@
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { WEBMERCATOR } from 'geoadmin/proj'
 import { Feature } from 'ol'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
 import { Style } from 'ol/style'

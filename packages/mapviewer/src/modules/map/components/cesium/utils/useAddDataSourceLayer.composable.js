@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import { GeoJsonDataSource, KmlDataSource } from 'cesium'
-import log from 'geoadmin/log'
 import { onBeforeUnmount, toValue, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'

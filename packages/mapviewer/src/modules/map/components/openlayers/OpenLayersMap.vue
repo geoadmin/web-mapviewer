@@ -1,6 +1,6 @@
 <script setup>
-import log from 'geoadmin/log'
-import { allCoordinateSystems, WGS84 } from 'geoadmin/proj'
+import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, useTemplateRef } from 'vue'

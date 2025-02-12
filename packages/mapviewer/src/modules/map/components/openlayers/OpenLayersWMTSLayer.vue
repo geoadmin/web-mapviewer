@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'

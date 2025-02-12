@@ -1,6 +1,6 @@
-import { toRoundedString } from 'geoadmin/coordinates'
-import { formatThousand } from 'geoadmin/numbers'
-import { LV03, LV95, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { toRoundedString } from '@geoadmin/coordinates'
+import { formatThousand } from '@geoadmin/numbers'
 import { format as formatCoordinate, toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 

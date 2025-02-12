@@ -5,11 +5,11 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LV95 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { booleanContains, polygon } from '@turf/turf'
-import log from 'geoadmin/log'
-import { LV95 } from 'geoadmin/proj'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 

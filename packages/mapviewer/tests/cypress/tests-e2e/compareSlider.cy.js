@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 
 describe('Testing of the compare slider', () => {
     function expectCompareRatioToBe(value) {

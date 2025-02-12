@@ -10,8 +10,8 @@
  * inline. For that you have to add the with-toggle-button HTML attribute to the component use
  */
 
+import { randomIntBetween } from '@geoadmin/numbers'
 import { Dropdown } from 'bootstrap'
-import { randomIntBetween } from 'geoadmin/numbers'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

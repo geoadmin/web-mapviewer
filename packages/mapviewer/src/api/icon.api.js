@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'

@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LV95, WGS84 } from 'geoadmin/proj'
+import { LV95, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'

@@ -1,5 +1,5 @@
+import { LV03, LV95, registerProj4, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { LV03, LV95, registerProj4, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import { toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 import { describe, it } from 'vitest'
@@ -27,7 +27,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          *
          * @param {String} text The input to be given to coordinateFromString
          * @param {Number[]} expected What is expected of coordinateFromString as output
-         * @param {String} message Message to be shown if the test fails (in the unit test log)
+         * @param {String} message Message to be shown if the test fails (in the unit test index)
          * @param {Number} acceptableDelta If a delta with the expected result is acceptable
          *   (default is zero)
          * @param {CoordinateSystem} projection Which projection is the output of the parsing

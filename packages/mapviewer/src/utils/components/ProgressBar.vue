@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const { duration, barClass } = defineProps({

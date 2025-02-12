@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 import { isString } from 'lodash'
 
 import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'

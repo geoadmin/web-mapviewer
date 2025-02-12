@@ -3,7 +3,7 @@
  * it here
  */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'

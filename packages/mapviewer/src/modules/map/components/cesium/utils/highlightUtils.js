@@ -1,6 +1,6 @@
+import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Cartesian3, Color, Entity, HeightReference } from 'cesium'
-import log from 'geoadmin/log'
-import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 let highlightedEntities = []

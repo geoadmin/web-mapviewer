@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import Feature from 'ol/Feature'
 import { GPX } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'

@@ -1,6 +1,6 @@
 <script setup>
+import { WGS84 } from '@geoadmin/coordinates'
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
-import { WGS84 } from 'geoadmin/proj'
 import { cloneDeep } from 'lodash'
 import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'

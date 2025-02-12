@@ -3,8 +3,8 @@
  * it here
  */
 
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import ErrorMessage from '@/utils/ErrorMessage.class'

@@ -1,4 +1,4 @@
-import { allCoordinateSystems } from 'geoadmin/proj'
+import { allCoordinateSystems } from '@geoadmin/coordinates'
 import { fromBlob, fromUrl } from 'geotiff'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'

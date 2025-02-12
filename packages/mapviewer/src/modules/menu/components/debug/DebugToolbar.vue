@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LV95, WEBMERCATOR } from 'geoadmin/proj'
+import { LV95, WEBMERCATOR } from '@geoadmin/coordinates'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 

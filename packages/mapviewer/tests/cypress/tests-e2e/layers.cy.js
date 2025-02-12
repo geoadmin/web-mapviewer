@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 

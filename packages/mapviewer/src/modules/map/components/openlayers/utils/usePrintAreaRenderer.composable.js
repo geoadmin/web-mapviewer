@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import * as olHas from 'ol/has'
 import { getRenderPixel } from 'ol/render'
 import { computed, watch } from 'vue'

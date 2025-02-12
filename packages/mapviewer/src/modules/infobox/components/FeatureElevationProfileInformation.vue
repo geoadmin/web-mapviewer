@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { format } from 'geoadmin/numbers'
+import { format } from '@geoadmin/numbers'
 import { computed, useTemplateRef } from 'vue'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'

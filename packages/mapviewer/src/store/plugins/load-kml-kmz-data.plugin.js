@@ -3,7 +3,7 @@
  * it here
  */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } from '@/api/files.api'

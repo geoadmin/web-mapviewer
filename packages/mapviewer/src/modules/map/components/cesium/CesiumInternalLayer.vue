@@ -4,7 +4,7 @@
  * correct Cesium counterpart depending on the layer type.
  */
 
-import { CoordinateSystem } from 'geoadmin/proj'
+import { CoordinateSystem } from '@geoadmin/coordinates'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 

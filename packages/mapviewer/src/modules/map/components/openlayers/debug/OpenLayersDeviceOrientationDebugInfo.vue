@@ -1,6 +1,6 @@
 <script setup>
+import log from '@geoadmin/log'
 import { Toast } from 'bootstrap'
-import log from 'geoadmin/log'
 import tippy from 'tippy.js'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'

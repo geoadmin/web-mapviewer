@@ -1,4 +1,4 @@
-import { randomIntBetween } from 'geoadmin/numbers'
+import { randomIntBetween } from '@geoadmin/numbers'
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
@@ -251,7 +251,7 @@ export async function checkKMLRequest(request, data, updated_kml_id = null) {
     expect(request.headers['content-type']).to.contain('multipart/form-data; boundary=')
 
     const kml = await getKmlFromRequest(request)
-    // minimizing the use of KML directly in "expect", so that Cypress log doesn't get cluttered
+    // minimizing the use of KML directly in "expect", so that Cypress index doesn't get cluttered
     // with the entire KML data on each test.
     // getKmlFromRequest will output an opt-in dump in the JS console if needed.
     expect(typeof kml).to.equals('string')

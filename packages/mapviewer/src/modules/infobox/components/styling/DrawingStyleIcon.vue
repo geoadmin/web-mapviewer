@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 

@@ -1,4 +1,4 @@
-import { LV03, LV95, WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 

@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { isNumber } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { isNumber } from '@geoadmin/numbers'
 
 import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import {

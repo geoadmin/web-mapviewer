@@ -1,6 +1,6 @@
 <script setup>
+import { coordinates as geoadminCoordinates } from '@geoadmin/coordinates'
 import { CallbackProperty, Cartesian3, Color, Ellipsoid, Entity, HeightReference } from 'cesium'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -90,7 +90,11 @@ function removeTrackingPoint() {
 }
 
 function updatePosition() {
-    const wgs84Position = proj4(projection.value.epsg, WGS84.epsg, coordinates)
+    const wgs84Position = proj4(
+        projection.value.epsg,
+        geoadminCoordinates.WGS84.epsg,
+        coordinates
+    )
     Cartesian3.fromDegrees(
         wgs84Position[0],
         wgs84Position[1],

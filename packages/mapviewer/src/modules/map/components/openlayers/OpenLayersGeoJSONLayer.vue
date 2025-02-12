@@ -1,7 +1,7 @@
 <script setup>
 /** Adds a GeoJSON layer to the OpenLayers map */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'

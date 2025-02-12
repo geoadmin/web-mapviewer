@@ -1,3 +1,4 @@
+import log from '@geoadmin/log'
 import {
     BillboardGraphics,
     Cartesian2,
@@ -6,7 +7,6 @@ import {
     LabelGraphics,
     NearFarScalar,
 } from 'cesium'
-import log from 'geoadmin/log'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 
 import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config'

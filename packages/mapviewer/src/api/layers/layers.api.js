@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminAggregateLayer, {

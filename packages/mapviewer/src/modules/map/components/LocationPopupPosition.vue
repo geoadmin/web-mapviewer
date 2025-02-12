@@ -1,9 +1,9 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import { reprojectAndRound } from 'geoadmin/coordinates'
-import log from 'geoadmin/log'
-import { LV03, LV95, WGS84 } from 'geoadmin/proj'
+import { LV03, LV95, WGS84 } from '@geoadmin/coordinates'
+import { reprojectAndRound } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

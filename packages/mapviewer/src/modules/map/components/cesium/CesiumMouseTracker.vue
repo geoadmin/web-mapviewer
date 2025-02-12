@@ -1,7 +1,7 @@
 <script setup>
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import {
     computed,

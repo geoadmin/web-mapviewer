@@ -1,5 +1,5 @@
+import { LV95 } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { LV95 } from 'geoadmin/proj'
 import { describe, it } from 'vitest'
 
 import { parseGpx } from '@/utils/gpxUtils.js'

@@ -1,6 +1,6 @@
 // copied and adapted from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/StylesFromLiteralsService.js
-import log from 'geoadmin/log'
-import { isNumber } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { isNumber } from '@geoadmin/numbers'
 import { LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
 

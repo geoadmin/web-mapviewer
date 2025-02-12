@@ -1,7 +1,7 @@
 <script setup>
 /** Renders a marker on the map (different styling are available) */
 
-import { randomIntBetween } from 'geoadmin/numbers'
+import { randomIntBetween } from '@geoadmin/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { computed, inject, watch } from 'vue'

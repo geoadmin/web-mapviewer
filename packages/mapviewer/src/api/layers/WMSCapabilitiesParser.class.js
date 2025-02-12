@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { allCoordinateSystems, WGS84 } from 'geoadmin/proj'
+import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { range } from 'lodash'
 import { WMSCapabilities } from 'ol/format'
 import proj4 from 'proj4'

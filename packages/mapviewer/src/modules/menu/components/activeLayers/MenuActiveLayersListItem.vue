@@ -5,7 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'

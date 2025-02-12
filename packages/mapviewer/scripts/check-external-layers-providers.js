@@ -8,10 +8,10 @@ const dom = new JSDOM()
 global.DOMParser = dom.window.DOMParser
 global.Node = dom.window.Node
 
+import { LV95 } from '@geoadmin/coordinates'
 import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { promises as fs } from 'fs'
-import { LV95 } from 'geoadmin/proj'
 import { exit } from 'process'
 import sharp from 'sharp'
 import writeYamlFile from 'write-yaml-file'

@@ -1,6 +1,6 @@
 <script setup>
-import log from 'geoadmin/log'
-import { isNumber, round } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { isNumber, round } from '@geoadmin/numbers'
 import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 

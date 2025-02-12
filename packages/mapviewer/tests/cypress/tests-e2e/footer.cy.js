@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 
 import { UIModes } from '@/store/modules/ui.store'
 

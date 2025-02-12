@@ -9,9 +9,9 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
+import log from '@geoadmin/log'
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
-import log from 'geoadmin/log'
 import { computed, inject, watch } from 'vue'
 
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'

@@ -7,9 +7,9 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log from '@geoadmin/log'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import log from 'geoadmin/log'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'

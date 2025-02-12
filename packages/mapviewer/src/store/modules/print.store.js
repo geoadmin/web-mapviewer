@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { readPrintCapabilities } from '@/api/print.api.js'
 

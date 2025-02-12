@@ -1,60 +1,62 @@
 {
-  "name": "web-mapviewer-monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "npm run dev --workspace=web-mapviewer",
-    "build": "npm run build --workspaces",
-    "build:dev": "npm run build:dev --workspaces",
-    "build:int": "npm run build:int --workspaces",
-    "build:prod": "npm run build:prod --workspaces",
-    "preview": "npm run build --workspace=geoadmin && npm run preview --workspace=web-mapviewer",
-    "preview:dev": "npm run build:dev --workspace=geoadmin && npm run preview:dev --workspace=web-mapviewer",
-    "preview:int": "npm run build:int --workspace=geoadmin && npm run preview:int --workspace=web-mapviewer",
-    "preview:prod": "npm run build:prod --workspace=geoadmin && npm run preview:prod --workspace=web-mapviewer",
-    "test:unit": "npm run test:unit --workspaces --if-present",
-    "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
-    "test:e2e": "npm run test:e2e --workspace=web-mapviewer",
-    "test:e2e:ci": "npm run test:e2e:ci --workspace=web-mapviewer",
-    "test:e2e:headless": "npm run test:e2e:headless --workspace=web-mapviewer",
-    "test:component": "npm run test:component --workspace=web-mapviewer",
-    "test:component:ci": "npm run test:component:ci --workspace=web-mapviewer",
-    "lint": "eslint --fix",
-    "lint:no-fix": "eslint"
-  },
-  "engines": {
-    "node": ">=22",
-    "npm": "10.*.*"
-  },
-  "dependencies": {
-    "@turf/turf": "^7.2.0",
-    "vue": "^3.5.13",
-    "vue-i18n": "^11.1.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.19.0",
-    "@eslint/markdown": "^6.2.2",
-    "@types/geojson": "^7946.0.16",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^22.13.1",
-    "@types/proj4": "^2.5.6",
-    "@vue/eslint-config-typescript": "^14.3.0",
-    "cypress": "^14.0.1",
-    "eslint": "^9.19.0",
-    "eslint-plugin-cypress": "^4.1.0",
-    "eslint-plugin-mocha": "^10.5.0",
-    "eslint-plugin-perfectionist": "^4.8.0",
-    "eslint-plugin-prettier-vue": "^5.0.0",
-    "eslint-plugin-vue": "^9.32.0",
-    "globals": "^15.14.0",
-    "prettier": "^3.4.2",
-    "prettier-plugin-jsdoc": "^1.3.2",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.23.0",
-    "vitest": "^3.0.5",
-    "vue-tsc": "^2.2.0"
-  }
+    "name": "web-mapviewer-monorepo",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "npm run dev --workspace=web-mapviewer",
+        "build": "npm run build --workspaces",
+        "build:dev": "npm run build:dev --workspaces",
+        "build:int": "npm run build:int --workspaces",
+        "build:prod": "npm run build:prod --workspaces",
+        "preview": "npm run build --workspaces && npm run preview --workspace=web-mapviewer",
+        "preview:dev": "npm run build:dev --workspaces && npm run preview:dev --workspace=web-mapviewer",
+        "preview:int": "npm run build:int --workspaces && npm run preview:int --workspace=web-mapviewer",
+        "preview:prod": "npm run build:prod --workspaces && npm run preview:prod --workspace=web-mapviewer",
+        "test:unit": "npm run test:unit --workspaces --if-present",
+        "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
+        "test:e2e": "npm run test:e2e --workspace=web-mapviewer",
+        "test:e2e:ci": "npm run test:e2e:ci --workspace=web-mapviewer",
+        "test:e2e:headless": "npm run test:e2e:headless --workspace=web-mapviewer",
+        "test:component": "npm run test:component --workspace=web-mapviewer",
+        "test:component:ci": "npm run test:component:ci --workspace=web-mapviewer",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint"
+    },
+    "engines": {
+        "node": ">=22",
+        "npm": "10.*.*"
+    },
+    "dependencies": {
+        "@turf/turf": "^7.2.0",
+        "vue": "^3.5.13",
+        "vue-i18n": "^11.1.0"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/js": "^9.19.0",
+        "@eslint/markdown": "^6.2.2",
+        "@types/geojson": "^7946.0.16",
+        "@types/jsdom": "^21.1.7",
+        "@types/node": "^22.13.1",
+        "@types/proj4": "^2.5.6",
+        "@vue/eslint-config-typescript": "^14.3.0",
+        "cypress": "^14.0.1",
+        "eslint": "^9.19.0",
+        "eslint-plugin-cypress": "^4.1.0",
+        "eslint-plugin-mocha": "^10.5.0",
+        "eslint-plugin-perfectionist": "^4.8.0",
+        "eslint-plugin-prettier-vue": "^5.0.0",
+        "eslint-plugin-vue": "^9.32.0",
+        "globals": "^15.14.0",
+        "prettier": "^3.4.2",
+        "prettier-plugin-jsdoc": "^1.3.2",
+        "typescript": "^5.7.3",
+        "typescript-eslint": "^8.23.0",
+        "vite": "^6.0.11",
+        "vite-plugin-dts": "^4.5.0",
+        "vitest": "^3.0.5",
+        "vue-tsc": "^2.2.0"
+    }
 }

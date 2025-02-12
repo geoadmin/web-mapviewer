@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { registerProj4, WGS84 } from 'geoadmin/proj'
+import { registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'

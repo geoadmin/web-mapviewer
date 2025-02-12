@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
+import { registerProj4 } from '@geoadmin/coordinates'
+import { WGS84 } from '@geoadmin/coordinates'
 import { Math as CesiumMath } from 'cesium'
-import { registerProj4 } from 'geoadmin/proj'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'

@@ -1,6 +1,6 @@
 <script setup>
+import { round } from '@geoadmin/numbers'
 import { resetZoom } from 'chartjs-plugin-zoom'
-import { round } from 'geoadmin/numbers'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'

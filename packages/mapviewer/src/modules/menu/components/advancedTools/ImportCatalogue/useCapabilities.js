@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios, { AxiosError } from 'axios'
-import log from 'geoadmin/log'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 

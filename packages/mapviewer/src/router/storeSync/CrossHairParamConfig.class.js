@@ -1,4 +1,4 @@
-import { round } from 'geoadmin/numbers'
+import { round } from '@geoadmin/numbers'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {

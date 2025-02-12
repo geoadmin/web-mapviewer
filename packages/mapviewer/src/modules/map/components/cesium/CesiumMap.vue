@@ -1,5 +1,7 @@
 <script setup>
 import '@geoblocks/cesium-compass'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import {
     CesiumTerrainProvider,
     Color,
@@ -7,8 +9,6 @@ import {
     ShadowMode,
     Viewer,
 } from 'cesium'
-import log from 'geoadmin/log'
-import { WEBMERCATOR } from 'geoadmin/proj'
 import {
     computed,
     onBeforeMount,
@@ -43,7 +43,9 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isProjectionWebMercator = computed(() => projection.value.epsg === WEBMERCATOR.epsg)
+const isProjectionWebMercator = computed(
+    () => projection.value.epsg === WEBMERCATOR.epsg
+)
 
 watch(
     isProjectionWebMercator,

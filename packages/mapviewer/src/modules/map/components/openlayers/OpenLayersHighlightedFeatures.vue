@@ -5,9 +5,9 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { WGS84 } from '@geoadmin/coordinates'
+import { randomIntBetween } from '@geoadmin/numbers'
 import { explode, nearestPoint, point } from '@turf/turf'
-import { randomIntBetween } from 'geoadmin/numbers'
-import { WGS84 } from 'geoadmin/proj'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
