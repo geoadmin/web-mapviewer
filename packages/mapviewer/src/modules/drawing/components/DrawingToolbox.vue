@@ -186,7 +186,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
                 >
                     <label for="drawing-name" class="text-nowrap">
-                        {{ i18n.t('file_name') }}
+                        {{ t('file_name') }}
                     </label>
                     <input
                         id="drawing-name"
