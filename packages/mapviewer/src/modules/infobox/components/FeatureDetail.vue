@@ -1,7 +1,12 @@
 <script setup>
 import log from '@geoadmin/log'
 import DOMPurify from 'dompurify'
+<<<<<<< HEAD
 import { computed } from 'vue'
+=======
+import log from 'geoadmin/log'
+import { computed, toRefs } from 'vue'
+>>>>>>> 473afcd6 (PB-577: Fix test.)
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -12,24 +17,26 @@ import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailD
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
-const { feature } = defineProps({
+const props = defineProps({
     feature: {
         type: SelectableFeature,
         required: true,
     },
 })
 
+const { feature } = toRefs(props)
+
 const { t } = useI18n()
 
 const store = useStore()
-const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature.popupDataCanBeTrusted)
+const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
+const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !feature?.data) {
+    if (hasFeatureStringData.value || !feature.value?.data) {
         return []
     }
     return Object.entries(feature.value.data)
@@ -41,7 +48,7 @@ const sanitizedFeatureDataEntries = computed(() => {
         ])
 })
 function sanitizeHtml(htmlText, withIframe = false) {
-    const blockedExternalContentString = i18n.t('blocked_external_content')
+    const blockedExternalContentString = t('blocked_external_content')
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
         // Replacing possibly malicious code instead of removing with node.remove()
         if (node.tagName === 'A') {
@@ -77,7 +84,7 @@ function sanitizeHtml(htmlText, withIframe = false) {
         ADD_TAGS: withIframe ? ['iframe'] : [],
         ALLOWED_URI_REGEXP: /^(https?|mailto|tel):/i, // Blocks file://, javascript:
     }
-    let response = DOMPurify.sanitize(htmlText, config)
+    const response = DOMPurify.sanitize(htmlText, config)
     DOMPurify.removeHook('afterSanitizeAttributes')
     return response
 }
