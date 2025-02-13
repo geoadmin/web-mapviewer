@@ -1,12 +1,7 @@
 <script setup>
 import log from '@geoadmin/log'
 import DOMPurify from 'dompurify'
-<<<<<<< HEAD
 import { computed } from 'vue'
-=======
-import log from 'geoadmin/log'
-import { computed, toRefs } from 'vue'
->>>>>>> 473afcd6 (PB-577: Fix test.)
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -24,22 +19,21 @@ const props = defineProps({
     },
 })
 
-const { feature } = toRefs(props)
 
 const { t } = useI18n()
 
 const store = useStore()
-const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
+const hasFeatureStringData = computed(() => typeof props.feature?.data === 'string')
+const popupDataCanBeTrusted = computed(() => props.feature?.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !feature.value?.data) {
+    if (hasFeatureStringData.value || !props.feature?.data) {
         return []
     }
-    return Object.entries(feature.value.data)
+    return Object.entries(props.feature?.data)
         .filter(([_, value]) => value) // Filtering out null values
         .map(([key, value]) => [
             key,
