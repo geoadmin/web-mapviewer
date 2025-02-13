@@ -195,7 +195,7 @@ function addRefBySectionId(el) {
 
 @include respond-below(phone) {
     .menu-tray-inner {
-        overflow: unset;
+        overflow-y: auto;
     }
 }
 
