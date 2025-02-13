@@ -19,7 +19,6 @@ const props = defineProps({
     },
 })
 
-
 const { t } = useI18n()
 
 const store = useStore()
@@ -43,37 +42,34 @@ const sanitizedFeatureDataEntries = computed(() => {
 })
 function sanitizeHtml(htmlText, withIframe = false) {
     const blockedExternalContentString = t('blocked_external_content')
+
+    // Replacing possibly malicious code with `blockedExternalContentString` instead of removing it
+    function handleNode(node, attribute) {
+        try {
+            const url = new URL(node.getAttribute(attribute))
+            const ext = url.pathname.split('.').pop().toLowerCase()
+            if (BLOCKED_EXTENSIONS.includes(ext)) {
+                node.outerHTML = blockedExternalContentString
+                return true
+            }
+        } catch (error) {
+            log.error(error)
+            node.outerHTML = blockedExternalContentString
+            return true
+        }
+        return false
+    }
+
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-        // Replacing possibly malicious code instead of removing with node.remove()
+        // Check the A tag and add target="_blank" and rel="noopener noreferrer" to prevent tabnabbing
         if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
             node.setAttribute('rel', 'noopener noreferrer')
-            try {
-                const url = new URL(node.getAttribute('href'))
-                const ext = url.pathname.split('.').pop().toLowerCase()
-                if (BLOCKED_EXTENSIONS.includes(ext)) {
-                    node.outerHTML = blockedExternalContentString
-                    return
-                }
-            } catch (error) {
-                log.error(error)
-                node.outerHTML = blockedExternalContentString
-                return
-            }
+            if (handleNode(node, 'href')) return
         }
+        // Check the IFRAME tag
         if (node.tagName === 'IFRAME') {
-            try {
-                const src = new URL(node.getAttribute('src'))
-                const ext = src.pathname.split('.').pop().toLowerCase()
-                if (BLOCKED_EXTENSIONS.includes(ext)) {
-                    node.outerHTML = blockedExternalContentString
-                    return
-                }
-            } catch (error) {
-                log.error(error)
-                node.outerHTML = blockedExternalContentString
-                return
-            }
+            if (handleNode(node, 'src')) return
         }
     })
     const config = {
@@ -105,19 +101,10 @@ function getIframeHosts(value) {
 
 <template>
     <!-- eslint-disable vue/no-v-html-->
-    <div
-        v-if="hasFeatureStringData && popupDataCanBeTrusted"
-        v-html="feature.data"
-    />
-    <div
-        v-else-if="hasFeatureStringData"
-        v-html="sanitizeHtml(feature.data)"
-    />
+    <div v-if="hasFeatureStringData && popupDataCanBeTrusted" v-html="feature.data" />
+    <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
     <!-- eslint-enable vue/no-v-html-->
-    <div
-        v-else
-        class="htmlpopup-container"
-    >
+    <div v-else class="htmlpopup-container">
         <div class="htmlpopup-content">
             <div
                 v-for="[key, value, externalIframeHosts] in sanitizedFeatureDataEntries"
@@ -130,17 +117,11 @@ function getIframeHosts(value) {
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 />
-                <div
-                    v-else
-                    class="fw-bold"
-                >
+                <div v-else class="fw-bold">
                     {{ t(key) }}
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div
-                    data-cy="feature-detail-description-content"
-                    v-html="value"
-                />
+                <div data-cy="feature-detail-description-content" v-html="value" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
@@ -158,10 +139,7 @@ function getIframeHosts(value) {
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon
-                    class="small align-text-top"
-                    icon="fas fa-map-marker-alt"
-                />
+                <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
         </div>
     </div>
