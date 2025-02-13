@@ -18,17 +18,19 @@ It supports interactive tools, external layer providers and is backed by robust 
 The following tools are required to use `web-mapviewer` locally
 
 - Nodejs 22
-- npm 10
+- pnpm 10
 
 ### Install
 
 ```bash
-npm install
+pnpm install
 ```
+
 ### Running project locally
 
 ```bash
-npm run dev
+pnpm run build-all
+pnpm run dev
 ```
 
 ## Contributing
@@ -42,7 +44,7 @@ check their validity. The tool can also be used with a single url as input param
 for our application.
 
 ```bash
-npm install
+pnpm install
 ./packages/mapviewer/scripts/check-external-layers-providers.js
 ```
 
