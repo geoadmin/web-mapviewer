@@ -1,27 +1,45 @@
 <script setup>
-import { Cartesian2, Cartographic, ScreenSpaceEventType } from 'cesium'
+import {
+    Cartesian2,
+    Cartographic,
+    Color,
+    PostProcessStageLibrary,
+    ScreenSpaceEventType,
+} from 'cesium'
 import log from 'geoadmin/log'
 import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
+import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
+import LayerFeature from '@/api/features/LayerFeature.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { unhighlightGroup } from '@/modules/map/components/cesium/utils/highlightUtils'
+import {
+    clicked3DFeatureFill,
+    hovered3DFeatureFill,
+    unhighlightGroup,
+} from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { createPixelExtentAround } from '@/utils/extentUtils'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
 
 const getViewer = inject('getViewer')
 
+const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
+
+const clickedHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
+
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
+const cesiumBuildingLayer = computed(() => store.getters.cesiumBuildingLayer)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
@@ -31,14 +49,30 @@ const visiblePrimitiveLayers = computed(() =>
 onMounted(() => {
     const viewer = getViewer()
     if (viewer) {
+        initialize3dHighlights()
+        viewer.scene.postProcessStages.add(
+            PostProcessStageLibrary.createSilhouetteStage([
+                hoveredHighlightPostProcessor,
+                clickedHighlightPostProcessor,
+            ])
+        )
         viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
         viewer.screenSpaceEventHandler.setInputAction(
             onContextMenu,
             ScreenSpaceEventType.RIGHT_CLICK
         )
+        viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
     }
 })
+function initialize3dHighlights() {
+    hoveredHighlightPostProcessor.uniforms.color = hovered3DFeatureFill
+    hoveredHighlightPostProcessor.uniforms.length = 0
+    hoveredHighlightPostProcessor.selected = []
 
+    clickedHighlightPostProcessor.uniforms.color = clicked3DFeatureFill
+    clickedHighlightPostProcessor.uniforms.length = 0
+    clickedHighlightPostProcessor.selected = []
+}
 function getCoordinateAtScreenCoordinate(x, y) {
     const cartesian = getViewer()?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates = []
@@ -53,7 +87,42 @@ function getCoordinateAtScreenCoordinate(x, y) {
     }
     return coordinates
 }
+function createBuildingFeature(building, coordinates) {
+    const id = building.getProperty('EGID') ?? building.getProperty('UUID')
+    const data = {
+        EGID: building.getProperty('EGID') ?? '-',
+        building_type: building.getProperty('OBJEKTART') ?? '-',
+        building_height: building.getProperty('GESAMTHOEHE') ?? '-',
+        max_roof_height: building.getProperty('DACH_MAX') ?? '-',
+        ground_level: building.getProperty('GELAENDEPUNKT') ?? '-',
+    }
+    // round values)
 
+    const feature = new LayerFeature({
+        layer: cesiumBuildingLayer.value,
+        id,
+        data,
+        name: id,
+        coordinates,
+        extent: createPixelExtentAround({
+            size: 5,
+            coordinates,
+            projection: projection.value,
+        }),
+        geometry: new Point(coordinates),
+    })
+    return feature
+}
+
+function handleClickHighlight(features, coordinates) {
+    clickedHighlightPostProcessor.selected = []
+    hoveredHighlightPostProcessor.selected.forEach((feature) => {
+        features.push(createBuildingFeature(feature, coordinates))
+    })
+    clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
+
+    hoveredHighlightPostProcessor.selected = []
+}
 function onClick(event) {
     const viewer = getViewer()
     unhighlightGroup(viewer)
@@ -86,7 +155,7 @@ function onClick(event) {
         .filter((l) => l instanceof KMLLayer)
         .forEach((kmlLayer) => {
             objects
-                .filter((obj) => obj.id.layerId === kmlLayer.id)
+                .filter((obj) => obj.id?.layerId === kmlLayer.id)
                 .forEach((kmlFeature) => {
                     log.debug(
                         '[Cesium] KML feature click detection',
@@ -98,13 +167,15 @@ function onClick(event) {
                 })
             features.push(...Object.values(kmlFeatures))
         })
-    // Cesium can't pick position when click on primitive
+    handleClickHighlight(features, coordinates)
+
     if (!coordinates.length && features.length) {
         const featureCoords = Array.isArray(features[0].coordinates[0])
             ? features[0].coordinates[0]
             : features[0].coordinates
         coordinates = proj4(projection.value.epsg, WEBMERCATOR.epsg, featureCoords)
     }
+
     store.dispatch('click', {
         clickInfo: new ClickInfo({
             coordinate: coordinates,
@@ -126,6 +197,22 @@ function onContextMenu(event) {
         }),
         ...dispatcher,
     })
+}
+// when moving over a building, we should highlight
+function onMouseMove(event) {
+    const viewer = getViewer()
+    // Do you want to know something about this thing? It's horrible :)
+    // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
+    // in the future but it is not yet the case for all buildings). We filter on this property
+    // to ensure the object we got is a building, and not another object which, for some reason,
+    // has no id either. We need to make an additional filter, as bridges and cable cars would get
+    // highlighted too, but we don't want that. So we filter on the fact that those 'OBJEKTART'
+    // property is a number instead of a string.
+    hoveredHighlightPostProcessor.selected = viewer.scene
+        .drillPick(event.endPosition)
+        .filter(
+            (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
+        )
 }
 
 useDragFileOverlay(getViewer().container)
