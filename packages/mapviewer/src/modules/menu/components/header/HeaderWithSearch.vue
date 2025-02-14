@@ -6,6 +6,7 @@ import { useStore } from 'vuex'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
 import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
+import DataSetAndReleaseInfo from '@/modules/menu/components/help/DataSetAndReleaseInfo.vue'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
@@ -93,6 +94,7 @@ function resetApp() {
                 show-as-link
             />
             <MoreInfo small />
+            <DataSetAndReleaseInfo small />
             <HelpLink small />
             <HeaderLangSelector
                 id="menu-lang-selector"

@@ -11,6 +11,7 @@ import ReportProblemButton from '@/modules/menu/components/help/ReportProblemBut
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import DataSetAndReleaseInfo from '@/modules/menu/components/help/DataSetAndReleaseInfo.vue'
 
 const dispatcher = { dispatcher: 'MenuHelpSection.vue' }
 
@@ -67,19 +68,13 @@ defineExpose({
         @click:header="toggleShowContent"
         @open-menu-section="onOpenMenuSection"
     >
-        <div
-            class="help-links p-2 d-flex flex-column gap-1"
-            data-cy="menu-help-content"
-        >
+        <div class="help-links p-2 d-flex flex-column gap-1" data-cy="menu-help-content">
             <div class="d-flex gap-1 w-100 justify-content-stretch">
                 <FeedbackButton v-if="hasGiveFeedbackButton" />
                 <ReportProblemButton v-if="hasReportProblemButton" />
             </div>
             <HelpLink show-as-button />
-            <button
-                class="btn btn-light border-light-subtle"
-                @click="showAboutUs = true"
-            >
+            <button class="btn btn-light border-light-subtle" @click="showAboutUs = true">
                 {{ t('about_us') }}
             </button>
             <ModalWithBackdrop
@@ -89,6 +84,7 @@ defineExpose({
             >
                 <div class="d-flex flex-column gap-1 w-100 justify-content-stretch">
                     <MoreInfo show-as-button />
+                    <DataSetAndReleaseInfo show-as-button />
                     <a
                         :href="`https://www.geo.admin.ch/${currentLang}/home.html`"
                         target="_blank"
@@ -115,11 +111,7 @@ defineExpose({
                 @change="changeLang(currentLang)"
                 @click.stop
             >
-                <option
-                    v-for="lang in Object.keys(languages)"
-                    :key="lang"
-                    :value="lang"
-                >
+                <option v-for="lang in Object.keys(languages)" :key="lang" :value="lang">
                     {{ lang.toUpperCase() }}
                 </option>
             </select>
