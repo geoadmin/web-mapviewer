@@ -29,7 +29,6 @@ const importSuccessMessage = ref('')
 const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
-
 const buttonState = computed(() => (loading.value ? 'loading' : 'default'))
 
 watch(
@@ -87,6 +86,7 @@ async function loadFile() {
                 dispatcher: 'Import File Online Tab',
             })
         }
+
         importSuccessMessage.value = 'file_imported_success'
         setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
