@@ -51,7 +51,7 @@ const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
             v-if="geolocButton"
             :compass-button="compassButton"
         />
-        <ZoomButtons class="hide-on-mobile" />
+        <ZoomButtons />
         <Toggle3dButton v-if="toggle3dButton" />
         <slot />
     </div>
