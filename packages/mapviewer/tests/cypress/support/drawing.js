@@ -61,7 +61,7 @@ const addFileAPIFixtureAndIntercept = () => {
             req.reply(
                 201,
                 kmlMetadataTemplate({
-                    id: `${randomIntBetween(1000, 9999)}_fileId`,
+                    id: `${Date.now()}_${randomIntBetween(1000, 9999)}_fileId`,
                     adminId: `1234_adminId`,
                 })
             )
@@ -115,6 +115,34 @@ const addFileAPIFixtureAndIntercept = () => {
             'Content-Type': 'application/vnd.google-earth.kml+xml',
         },
     }).as('head-kml')
+    cy.intercept(
+        {
+            method: 'DELETE',
+            url: '**/api/kml/admin/**',
+        },
+        async (req) => {
+            try {
+                const formData = await new Response(req.body, { headers: req.headers }).formData()
+                const adminId = formData.get('admin_id')
+                const id = req.url.split('/').pop()
+
+                if (!adminId) {
+                    throw new Error('Missing admin_id in DELETE request FormData')
+                }
+
+                req.reply(kmlMetadataTemplate({ id, adminId }))
+            } catch (error) {
+                Cypress.log({
+                    name: 'delete-kml-intercept',
+                    message: `Failed to extract FormData from DELETE request`,
+                    consoleProps() {
+                        return { req, error }
+                    },
+                })
+                expect('Failed to extract FormData from DELETE request').to.be.false
+            }
+        }
+    ).as('delete-kml')
 }
 
 Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
@@ -194,6 +222,13 @@ export async function getKmlFromRequest(req) {
     let paramBlob
     try {
         const formData = await new Response(req.body, { headers: req.headers }).formData()
+
+        if (req.method === 'DELETE') {
+            if (!formData.has('admin_id')) {
+                throw new Error('DELETE request missing admin_id in FormData')
+            }
+            return formData // Return raw FormData object for DELETE
+        }
         paramBlob = await formData.get('kml').arrayBuffer()
     } catch (error) {
         Cypress.log({

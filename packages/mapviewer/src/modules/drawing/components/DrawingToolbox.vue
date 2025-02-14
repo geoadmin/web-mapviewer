@@ -21,7 +21,7 @@ import debounce from '@/utils/debounce'
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
 
 const drawingLayer = inject('drawingLayer')
-const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
+const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
 const { t } = useI18n()
 const store = useStore()
 
@@ -100,7 +100,7 @@ function onCloseClearConfirmation(confirmed) {
         store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
         store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
         drawingLayer.getSource().clear()
-        debounceSaveDrawing()
+        deleteDrawing()
         store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
         store.dispatch('removeLayer', {
             layerId: activeKmlLayer.value.id,
@@ -351,7 +351,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
-// So that the toolbox can slip behind the header when the closing animation occurs.
+// So that the toolbox can slip behind the header when the closing animation plays out.
 $zindex-drawing-toolbox: -1;
 
 .drawing-toolbox {

@@ -882,11 +882,24 @@ describe('Drawing module tests', () => {
 
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
+
+            let deletedKmlId = null
+
+            cy.wait('@delete-kml').then((interception) => {
+                deletedKmlId = interception.response.body.id
+            })
+
+            cy.waitUntil(() => deletedKmlId !== null, {
+                timeout: 5000,
+                interval: 200,
+            })
+
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.have.length(0)
                 })
+
             cy.get('[data-cy="drawing-toolbox-delete-button"]').should('have.attr', 'disabled')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
@@ -895,6 +908,24 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
             ).should('have.attr', 'disabled')
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
+
+            // Draw something new to verify that the KML ID being sent is different
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+            cy.get('[data-cy="ol-map"]').click(100, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            cy.get('[data-cy="ol-map"]').click(150, 280)
+
+            let newKmlId = null
+            cy.wait('@post-kml').then((interception) => {
+                newKmlId = interception.response.body.id
+            })
+
+            cy.waitUntil(() => newKmlId !== null, {
+                timeout: 5000,
+                interval: 200,
+            }).then(() => {
+                expect(deletedKmlId).to.not.equal(newKmlId)
+            })
         })
         it('manages the KML layer in the layer list / URL params correctly', () => {
             const warningTitle = `Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.`
@@ -972,9 +1003,13 @@ describe('Drawing module tests', () => {
             })
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
+
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                expect(layers).to.be.an('Array').lengthOf(0)
+                expect(layers).to.be.an('Array').and.to.have.length(0)
             })
+
+            cy.get(`[data-cy^="button-remove-layer-"]`).should('not.exist')
+
             cy.readWindowValue('drawingLayer').should('not.exist')
         })
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
