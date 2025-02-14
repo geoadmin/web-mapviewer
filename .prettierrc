@@ -14,5 +14,6 @@
             }
         }
     ],
-    "singleAttributePerLine": true
+    "singleAttributePerLine": true,
+    "htmlWhitespaceSensitivity": "ignore"
 }
