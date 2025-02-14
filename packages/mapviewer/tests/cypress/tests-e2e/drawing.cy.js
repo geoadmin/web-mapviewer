@@ -474,11 +474,11 @@ describe('Drawing module tests', () => {
                     .invoke('attr', 'target')
                     .should('eq', '_blank')
 
-                cy.log('noopener attribute exists due to _blank')
+                cy.log('noopener noreferrer attribute exists due to _blank')
                 cy.get('[data-cy="feature-detail-description-content"]')
                     .find('a')
                     .invoke('attr', 'rel')
-                    .should('eq', 'noopener')
+                    .should('eq', 'noopener noreferrer')
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Image link exists after sanitize')
