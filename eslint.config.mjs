@@ -42,6 +42,11 @@ export default defineConfigWithVueTs(
                 VITE_ENVIRONMENT: true,
             },
 
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
+            },
+
             sourceType: 'module',
         },
 

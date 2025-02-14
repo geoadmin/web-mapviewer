@@ -1,6 +1,6 @@
 <script setup>
-import log from 'geoadmin/log'
-import { CoordinateSystem } from 'geoadmin/proj'
+import { CoordinateSystem } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 

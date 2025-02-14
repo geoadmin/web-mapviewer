@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { LV95, WEBMERCATOR } from 'geoadmin/proj'
+import { LV95, WEBMERCATOR } from '@geoadmin/coordinates'
 
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector) => {

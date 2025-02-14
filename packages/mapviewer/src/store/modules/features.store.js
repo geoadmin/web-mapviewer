@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import { simplify } from '@turf/turf'
-import log from 'geoadmin/log'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
 

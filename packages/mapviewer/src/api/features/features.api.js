@@ -1,6 +1,6 @@
+import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
-import { allCoordinateSystems, LV95 } from 'geoadmin/proj'
 import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'

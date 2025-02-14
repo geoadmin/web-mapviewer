@@ -4,7 +4,7 @@
  * correct OpenLayers counterpart depending on the layer type.
  */
 
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 

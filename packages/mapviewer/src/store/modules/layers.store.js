@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'

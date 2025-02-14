@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { isNumber } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { isNumber } from '@geoadmin/numbers'
 
 const state = {
     /**

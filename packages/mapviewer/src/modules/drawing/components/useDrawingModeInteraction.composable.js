@@ -1,5 +1,5 @@
-import { removeZValues, wrapXCoordinates } from 'geoadmin/coordinates'
-import log from 'geoadmin/log'
+import { removeZValues, wrapXCoordinates } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { primaryAction } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Polygon } from 'ol/geom'

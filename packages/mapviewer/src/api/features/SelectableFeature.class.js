@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
 import EventEmitter from '@/utils/EventEmitter.class.js'

@@ -1,7 +1,7 @@
+import { LV95 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
 import axios from 'axios'
-import log from 'geoadmin/log'
-import { round } from 'geoadmin/numbers'
-import { LV95 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'

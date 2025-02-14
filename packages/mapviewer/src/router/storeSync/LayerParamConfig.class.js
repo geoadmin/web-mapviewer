@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'

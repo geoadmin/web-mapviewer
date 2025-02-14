@@ -1,8 +1,8 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import { randomIntBetween } from 'geoadmin/numbers'
-import { registerProj4, WEBMERCATOR } from 'geoadmin/proj'
+import { registerProj4, WEBMERCATOR } from '@geoadmin/coordinates'
+import { randomIntBetween } from '@geoadmin/numbers'
 import { MapBrowserEvent } from 'ol'
 import proj4 from 'proj4'
 
@@ -314,7 +314,7 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             errorMsg: 'Timeout waiting for all layers to be loaded',
         }
     )
-    // no explicit log as the waitUntilState will print a log message
+    // no explicit index as the waitUntilState will print a index message
 })
 
 /**
@@ -418,7 +418,7 @@ Cypress.Commands.add('waitUntilState', (predicate, options = {}) => {
         )
     )
 
-    // no cy.log command as the waitUntil will already print a message
+    // no cy.index command as the waitUntil will already print a message
 })
 
 // Reads a value from the Vuex store

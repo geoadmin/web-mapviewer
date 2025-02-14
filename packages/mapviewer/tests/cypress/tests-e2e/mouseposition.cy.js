@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { LV03, LV95, registerProj4, WGS84 } from 'geoadmin/proj'
+import { LV03, LV95, registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'

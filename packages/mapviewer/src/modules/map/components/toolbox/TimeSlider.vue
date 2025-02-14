@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from 'geoadmin/log'
-import { isNumber, round } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { isNumber, round } from '@geoadmin/numbers'
 import tippy, { followCursor } from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'

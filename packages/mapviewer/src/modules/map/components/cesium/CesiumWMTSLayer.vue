@@ -1,7 +1,7 @@
 <script setup>
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 

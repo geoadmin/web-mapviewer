@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import { loadTopics, parseTopics } from '@/api/topics.api'

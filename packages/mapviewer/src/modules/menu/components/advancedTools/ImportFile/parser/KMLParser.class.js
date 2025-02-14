@@ -1,4 +1,4 @@
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'

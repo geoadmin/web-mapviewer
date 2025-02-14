@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,

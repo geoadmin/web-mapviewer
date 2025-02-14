@@ -1,6 +1,6 @@
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import JSZip from 'jszip'
 import {
     createEmpty as emptyExtent,

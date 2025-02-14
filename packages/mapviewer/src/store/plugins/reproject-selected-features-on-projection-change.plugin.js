@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import proj4 from 'proj4'
 
 import EditableFeature from '@/api/features/EditableFeature.class'

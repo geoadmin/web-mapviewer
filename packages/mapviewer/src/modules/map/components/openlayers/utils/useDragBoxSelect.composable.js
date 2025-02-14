@@ -1,3 +1,4 @@
+import log from '@geoadmin/log'
 import {
     booleanIntersects,
     circle,
@@ -9,7 +10,6 @@ import {
     point,
     polygon,
 } from '@turf/turf'
-import log from 'geoadmin/log'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import { DragBox } from 'ol/interaction'

@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { DragPan, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'

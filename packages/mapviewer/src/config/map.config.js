@@ -1,4 +1,4 @@
-import { LV95 } from 'geoadmin/proj'
+import { LV95 } from '@geoadmin/coordinates'
 
 /**
  * Default projection to be used throughout the application

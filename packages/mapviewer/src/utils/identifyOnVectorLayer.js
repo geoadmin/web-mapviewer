@@ -1,6 +1,6 @@
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { booleanPointInPolygon, distance, point, pointToLineDistance } from '@turf/turf'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 

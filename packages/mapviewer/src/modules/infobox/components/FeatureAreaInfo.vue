@@ -1,5 +1,5 @@
 <script setup>
-import { WGS84 } from 'geoadmin/proj'
+import { WGS84 } from '@geoadmin/coordinates'
 import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 

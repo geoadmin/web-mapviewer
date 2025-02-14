@@ -1,7 +1,7 @@
+import { LV95 } from '@geoadmin/coordinates'
+import { removeZValues, unwrapGeometryCoordinates } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import axios from 'axios'
-import { removeZValues, unwrapGeometryCoordinates } from 'geoadmin/coordinates'
-import log from 'geoadmin/log'
-import { LV95 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'

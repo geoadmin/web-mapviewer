@@ -1,6 +1,6 @@
-import log from 'geoadmin/log'
-import { round } from 'geoadmin/numbers'
-import { LV95, LV95_RESOLUTIONS, WEBMERCATOR } from 'geoadmin/proj'
+import { constants, LV95, WEBMERCATOR } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
 import { View } from 'ol'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -28,7 +28,7 @@ export default function useViewBasedOnProjection(map) {
         zoom: zoom.value,
         minResolution: VIEW_MIN_RESOLUTION,
         rotation: rotation.value,
-        resolutions: LV95_RESOLUTIONS,
+        resolutions: constants.LV95_RESOLUTIONS,
         projection: LV95.epsg,
         extent: LV95.bounds.flatten,
         constrainOnlyCenter: true,

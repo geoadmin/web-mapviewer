@@ -1,7 +1,7 @@
+import { LV03, LV95 } from '@geoadmin/coordinates'
+import { reprojectAndRound } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import axios from 'axios'
-import { reprojectAndRound } from 'geoadmin/coordinates'
-import log from 'geoadmin/log'
-import { LV03, LV95 } from 'geoadmin/proj'
 
 const REFRAME_BASE_URL = 'https://geodesy.geo.admin.ch/reframe/'
 

@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
+import { registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { randomIntBetween } from '@geoadmin/numbers'
 import { recurse } from 'cypress-recurse'
-import { randomIntBetween } from 'geoadmin/numbers'
-import { registerProj4, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import {
     addIconFixtureAndIntercept,
@@ -310,7 +310,7 @@ describe('Drawing module tests', () => {
                         //     LV95Format.format(coordinateEndingPixel, LV95)
                         // )
                         //
-                        // cy.log('Coordinates for marker can be copied in drawing mode')
+                        // cy.index('Coordinates for marker can be copied in drawing mode')
                         // cy.clickDrawingTool(EditableFeatureTypes.MARKER)
                         // cy.get('[data-cy="ol-map"]').click(endingPixel[0], endingPixel[1])
                         // waitForKmlUpdate(`(ExtendedData.*){4}`)
@@ -319,7 +319,7 @@ describe('Drawing module tests', () => {
                         //     LV95Format.format(coordinateEndingPixel, LV95)
                         // )
                         //
-                        // cy.log('Coordinates for marker can be copied while not in drawing mode')
+                        // cy.index('Coordinates for marker can be copied while not in drawing mode')
                         // cy.closeDrawingMode()
                         // cy.closeMenuIfMobile()
                         // waitForKmlUpdate(`(ExtendedData.*){4}`)
@@ -330,7 +330,7 @@ describe('Drawing module tests', () => {
                         //     'feature-detail-coordinate-copy',
                         //     LV95Format.format(coordinateEndingPixel, LV95)
                         // )
-                        // cy.log('Coordinates for marker are updated when selecting new marker')
+                        // cy.index('Coordinates for marker are updated when selecting new marker')
                         // cy.get('[data-cy="ol-map"]').click(200, 234)
                         // // OL waits 250ms before deciding a click is a single click (and then start the event chain)
                         // // and as we do not have a layer that will fire identify features to wait on, we have to resort
@@ -1078,7 +1078,8 @@ describe('Drawing module tests', () => {
                 })
             })
         })
-        it('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
+        // way too flaky on the CI for some reason, will be worked on by https://jira.swisstopo.ch/browse/PB-1448
+        it.skip('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
             // Position of the marker defined in service-kml/lonelyMarker.kml
             const markerLatitude = 46.883715999352546
             const markerLongitude = 7.656108679791837

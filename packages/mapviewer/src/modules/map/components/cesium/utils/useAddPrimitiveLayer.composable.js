@@ -1,3 +1,4 @@
+import log from '@geoadmin/log'
 import {
     Billboard,
     BillboardCollection,
@@ -14,7 +15,6 @@ import {
     PrimitiveCollection,
     VerticalOrigin,
 } from 'cesium'
-import log from 'geoadmin/log'
 import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'

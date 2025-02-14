@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 /**
  * The code below is a copy from the Vue Router github repository, see

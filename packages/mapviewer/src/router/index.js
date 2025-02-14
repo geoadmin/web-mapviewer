@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'

@@ -1,6 +1,6 @@
 <script setup>
+import { WGS84 } from '@geoadmin/coordinates'
 import { Cartesian3, Color, HeightReference } from 'cesium'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'

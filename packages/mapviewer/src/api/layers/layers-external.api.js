@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'

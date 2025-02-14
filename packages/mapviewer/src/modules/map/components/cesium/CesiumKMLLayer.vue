@@ -1,6 +1,6 @@
 <script setup>
+import log from '@geoadmin/log'
 import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
-import log from 'geoadmin/log'
 import { computed, inject, toRef, watch } from 'vue'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'

@@ -1,6 +1,6 @@
+import { registerProj4, WGS84 } from '@geoadmin/coordinates'
 /// <reference types="cypress" />
 import { Cartesian3 } from 'cesium'
-import { registerProj4, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config'

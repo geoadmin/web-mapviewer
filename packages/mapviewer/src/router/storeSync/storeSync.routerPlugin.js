@@ -1,5 +1,5 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
-import log from 'geoadmin/log'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'

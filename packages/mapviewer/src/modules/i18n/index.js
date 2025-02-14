@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { createI18n } from 'vue-i18n'
 
 import de from './locales/de.json'

@@ -4,9 +4,9 @@
  * the content of the popover
  */
 
+import { CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
-import log from 'geoadmin/log'
-import { CoordinateSystem, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 

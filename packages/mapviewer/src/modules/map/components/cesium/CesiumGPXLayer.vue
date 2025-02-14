@@ -1,4 +1,5 @@
 <script setup>
+import log from '@geoadmin/log'
 import {
     BillboardGraphics,
     Cartesian3,
@@ -8,7 +9,6 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import log from 'geoadmin/log'
 import { computed, inject, toRef, watch } from 'vue'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'

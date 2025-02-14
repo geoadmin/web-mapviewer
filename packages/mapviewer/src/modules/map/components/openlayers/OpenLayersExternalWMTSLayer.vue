@@ -1,7 +1,7 @@
 <script setup>
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS from 'ol/source/WMTS'

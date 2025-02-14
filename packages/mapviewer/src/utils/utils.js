@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { format } from 'geoadmin/numbers'
+import log from '@geoadmin/log'
+import { format } from '@geoadmin/numbers'
 
 import { internalDomainRegex } from '@/config/baseUrl.config'
 

@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, inject, ref, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'

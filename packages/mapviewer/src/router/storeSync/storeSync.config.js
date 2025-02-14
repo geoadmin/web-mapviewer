@@ -1,4 +1,4 @@
-import { allCoordinateSystems } from 'geoadmin/proj'
+import { allCoordinateSystems } from '@geoadmin/coordinates'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { DEFAULT_PROJECTION } from '@/config/map.config'

@@ -1,4 +1,4 @@
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'

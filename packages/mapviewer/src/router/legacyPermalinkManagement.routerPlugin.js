@@ -1,12 +1,5 @@
-import log from 'geoadmin/log'
-import {
-    CustomCoordinateSystem,
-    LV03,
-    LV95,
-    SwissCoordinateSystem,
-    WEBMERCATOR,
-    WGS84,
-} from 'geoadmin/proj'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import proj4 from 'proj4'
 import { START_LOCATION } from 'vue-router'
 
@@ -58,12 +51,8 @@ export const handleLegacyParam = (
     switch (param) {
         case 'zoom':
             // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
-            if (!(projection instanceof SwissCoordinateSystem)) {
+            if (projection.usesMercatorPyramid) {
                 newValue = LV95.transformCustomZoomLevelToStandard(legacyValue)
-                if (projection instanceof CustomCoordinateSystem) {
-                    // Currently, there is no CustomCoordinateSystem which is not a SwissCoordinateSystem, so this case should never be reached.
-                    newValue = projection.transformStandardZoomLevelToCustom(newValue)
-                }
             } else {
                 newValue = legacyValue
             }

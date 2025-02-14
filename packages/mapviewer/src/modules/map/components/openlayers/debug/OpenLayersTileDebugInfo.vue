@@ -1,5 +1,4 @@
 <script setup>
-import { CustomCoordinateSystem } from 'geoadmin/proj'
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
@@ -29,7 +28,7 @@ watch(currentProjection, () => layer.setSource(createDebugSourceForProjection())
 
 function createDebugSourceForProjection() {
     let tileGrid = null
-    if (currentProjection.value instanceof CustomCoordinateSystem) {
+    if (!currentProjection.value.usesMercatorPyramid) {
         tileGrid = new TileGrid({
             resolutions: currentProjection.value.getResolutions(),
             extent: currentProjection.value.bounds.flatten,

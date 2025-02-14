@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, ref } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'

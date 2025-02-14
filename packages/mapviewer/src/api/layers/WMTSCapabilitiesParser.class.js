@@ -1,5 +1,5 @@
-import log from 'geoadmin/log'
-import { allCoordinateSystems, WGS84 } from 'geoadmin/proj'
+import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'

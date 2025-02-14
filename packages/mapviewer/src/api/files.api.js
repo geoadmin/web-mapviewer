@@ -1,6 +1,6 @@
+import log from '@geoadmin/log'
 import axios from 'axios'
 import FormData from 'form-data'
-import log from 'geoadmin/log'
 import pako from 'pako'
 
 import { proxifyUrl } from '@/api/file-proxy.api'

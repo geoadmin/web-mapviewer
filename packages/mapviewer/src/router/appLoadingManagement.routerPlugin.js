@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { START_LOCATION } from 'vue-router'
 
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'

@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 
 const targetWindow = parent ?? window.parent ?? window.opener ?? window.top
 

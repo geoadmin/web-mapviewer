@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { toRadians } from 'ol/math'
 import { computed, inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useStore } from 'vuex'

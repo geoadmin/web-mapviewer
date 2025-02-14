@@ -1,5 +1,5 @@
 <script setup>
-import { LV95 } from 'geoadmin/proj'
+import { LV95 } from '@geoadmin/coordinates'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'

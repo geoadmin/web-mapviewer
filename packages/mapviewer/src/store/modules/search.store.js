@@ -1,6 +1,5 @@
-import { reprojectAndRound } from 'geoadmin/coordinates'
-import log from 'geoadmin/log'
-import { CustomCoordinateSystem, LV03, STANDARD_ZOOM_LEVEL_1_25000_MAP } from 'geoadmin/proj'
+import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import getFeature from '@/api/features/features.api'
@@ -88,7 +87,8 @@ const actions = {
                     what3wordLocation = await retrieveWhat3WordsLocation(query, currentProjection)
                 } catch (error) {
                     log.info(
-                        `Query "${query}" is not a valid What3Words, fallback to service search`, error
+                        `Query "${query}" is not a valid What3Words, fallback to service search`,
+                        error
                     )
                     what3wordLocation = null
                 }
@@ -123,16 +123,16 @@ const actions = {
                     center: coordinates,
                     dispatcher: dispatcherCoordinate,
                 })
-                if (currentProjection instanceof CustomCoordinateSystem) {
+                if (!currentProjection.usesMercatorPyramid) {
                     dispatch('setZoom', {
                         zoom: currentProjection.transformStandardZoomLevelToCustom(
-                            STANDARD_ZOOM_LEVEL_1_25000_MAP
+                            constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
                         ),
                         dispatcher: dispatcherCoordinate,
                     })
                 } else {
                     dispatch('setZoom', {
-                        zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
+                        zoom: constants.STANDARD_ZOOM_LEVEL_1_25000_MAP,
                         dispatcher: dispatcherCoordinate,
                     })
                 }
@@ -143,16 +143,16 @@ const actions = {
                     center: what3wordLocation,
                     dispatcher: dispatcherWhat3words,
                 })
-                if (currentProjection instanceof CustomCoordinateSystem) {
+                if (!currentProjection.usesMercatorPyramid) {
                     dispatch('setZoom', {
                         zoom: currentProjection.transformStandardZoomLevelToCustom(
-                            STANDARD_ZOOM_LEVEL_1_25000_MAP
+                            constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
                         ),
                         dispatcher: dispatcherWhat3words,
                     })
                 } else {
                     dispatch('setZoom', {
-                        zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
+                        zoom: constants.STANDARD_ZOOM_LEVEL_1_25000_MAP,
                         dispatcher: dispatcherWhat3words,
                     })
                 }

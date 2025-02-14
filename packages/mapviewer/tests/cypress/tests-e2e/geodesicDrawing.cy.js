@@ -1,5 +1,5 @@
-import { wrapXCoordinates } from 'geoadmin/coordinates'
-import { WEBMERCATOR } from 'geoadmin/proj'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
+import { wrapXCoordinates } from '@geoadmin/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'

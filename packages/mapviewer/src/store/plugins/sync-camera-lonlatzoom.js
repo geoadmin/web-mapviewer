@@ -1,6 +1,6 @@
+import { WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Math as CesiumMath } from 'cesium'
-import log from 'geoadmin/log'
-import { WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 
 import {

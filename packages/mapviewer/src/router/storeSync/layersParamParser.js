@@ -1,4 +1,4 @@
-import { isNumber } from 'geoadmin/numbers'
+import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import KmlStyles from '@/api/layers/KmlStyles.enum'

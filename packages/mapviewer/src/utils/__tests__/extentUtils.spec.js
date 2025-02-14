@@ -1,6 +1,5 @@
+import { LV95, reprojectAndRound, WGS84 } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { reprojectAndRound } from 'geoadmin/coordinates'
-import { LV95, WGS84 } from 'geoadmin/proj'
 import { describe, it } from 'vitest'
 
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'

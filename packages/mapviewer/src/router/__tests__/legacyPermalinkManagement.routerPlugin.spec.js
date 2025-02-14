@@ -1,5 +1,5 @@
+import { allCoordinateSystems } from '@geoadmin/coordinates'
 import { expect } from 'chai'
-import { allCoordinateSystems } from 'geoadmin/proj'
 import { beforeEach, describe, it, vi } from 'vitest'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'

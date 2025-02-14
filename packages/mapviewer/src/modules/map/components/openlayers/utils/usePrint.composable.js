@@ -1,4 +1,4 @@
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 

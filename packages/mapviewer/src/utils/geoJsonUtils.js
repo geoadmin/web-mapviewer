@@ -1,3 +1,5 @@
+import { allCoordinateSystems, CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import {
     bbox,
     centroid,
@@ -9,8 +11,6 @@ import {
     point,
     polygon,
 } from '@turf/turf'
-import log from 'geoadmin/log'
-import { allCoordinateSystems, CoordinateSystem, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 

@@ -1,7 +1,7 @@
 <script setup>
+import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import { Cartesian2, Cartographic, ScreenSpaceEventType } from 'cesium'
-import log from 'geoadmin/log'
-import { WEBMERCATOR, WGS84 } from 'geoadmin/proj'
 import proj4 from 'proj4'
 import { computed, inject, onMounted } from 'vue'
 import { useStore } from 'vuex'

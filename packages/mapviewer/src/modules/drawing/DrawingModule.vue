@@ -1,5 +1,5 @@
 <script setup>
-import log from 'geoadmin/log'
+import log from '@geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import {
