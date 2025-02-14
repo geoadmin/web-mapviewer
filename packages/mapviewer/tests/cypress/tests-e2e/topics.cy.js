@@ -270,6 +270,8 @@ describe('Topics', () => {
                 .click()
             cy.wait('@legend')
 
+            cy.get('[data-cy="menu-topic-tree"]').should('not.exist')
+
             const popupSelector = '[data-cy="simple-window"]'
             const popupSelectorHeader = '[data-cy="window-header"]'
             const moveX = 100

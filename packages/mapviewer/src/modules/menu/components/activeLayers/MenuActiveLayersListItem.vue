@@ -152,6 +152,10 @@ function onTransparencyCommit() {
 
 function showLayerDescriptionPopup() {
     emit('showLayerDescriptionPopup', id.value)
+    //close menu on mobile only
+    if (isPhoneMode.value) {
+        store.dispatch('toggleMenu', dispatcher)
+    }
 }
 
 function duplicateLayer() {

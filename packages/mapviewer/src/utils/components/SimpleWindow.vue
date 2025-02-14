@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
+const acceptedInitialPositions = ['top-left', 'top-center', 'top-right']
 
 const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dataCy } = defineProps(
     {
@@ -64,7 +64,7 @@ const headerRef = useTemplateRef('headerRef')
 const contentRef = useTemplateRef('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (accepetedInitialPositions.includes(initialPosition)) {
+    if (acceptedInitialPositions.includes(initialPosition)) {
         return initialPosition
     } else {
         return 'top-center'
@@ -196,12 +196,12 @@ onMounted(() => {
         $top-margin: $header-height;
 
         top: $top-margin;
-        left: 0px;
-        right: 0px;
+        left: 10px;
+        right: 10px;
         transform: unset;
         max-height: calc(100vh - $top-margin);
-        max-width: 100vw;
-        width: 100vw;
+        max-width: 75vw;
+        width: 75vw;
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);
