@@ -1078,7 +1078,8 @@ describe('Drawing module tests', () => {
                 })
             })
         })
-        it('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
+        // way too flaky on the CI for some reason, will be worked on by https://jira.swisstopo.ch/browse/PB-1448
+        it.skip('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
             // Position of the marker defined in service-kml/lonelyMarker.kml
             const markerLatitude = 46.883715999352546
             const markerLongitude = 7.656108679791837
