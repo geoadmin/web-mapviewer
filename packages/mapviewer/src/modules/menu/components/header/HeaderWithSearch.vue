@@ -12,6 +12,7 @@ import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import DataSetAndReleaseInfo from '@/modules/menu/components/help/DataSetAndReleaseInfo.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
@@ -59,11 +60,7 @@ function resetApp() {
 </script>
 
 <template>
-    <div
-        ref="header"
-        class="header"
-        data-cy="app-header"
-    >
+    <div ref="header" class="header" data-cy="app-header">
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <div
@@ -86,24 +83,13 @@ function resetApp() {
             >
                 <SearchBar />
             </div>
-            <HeaderMenuButton
-                v-if="isPhoneMode"
-                class="mx-1"
-            />
+            <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
         </div>
-        <div
-            class="header-settings-section"
-            data-cy="header-settings-section"
-        >
-            <FeedbackButton
-                v-if="hasGiveFeedbackButton"
-                show-as-link
-            />
-            <ReportProblemButton
-                v-if="hasReportProblemButton"
-                show-as-link
-            />
+        <div class="header-settings-section" data-cy="header-settings-section">
+            <FeedbackButton v-if="hasGiveFeedbackButton" show-as-link />
+            <ReportProblemButton v-if="hasReportProblemButton" show-as-link />
             <MoreInfo small />
+            <DataSetAndReleaseInfo small />
             <HelpLink small />
             <HeaderLangSelector id="menu-lang-selector" />
         </div>
