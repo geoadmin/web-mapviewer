@@ -59,9 +59,9 @@ function setDrawingMode() {
         <small
             v-if="!isPhoneMode"
             class="d-sm-block"
-        >{{
-            t(`draw_${drawingMode.toLowerCase()}`)
-        }}</small>
+        >
+            {{ t(`draw_${drawingMode.toLowerCase()}`) }}
+        </small>
     </button>
 </template>
 

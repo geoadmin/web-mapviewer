@@ -1,7 +1,10 @@
-<?xml version="1.0"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+<?xml version="1.0" ?>
+<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+>
   <Document>
     <Placemark id="marker_1452588951386">
       <Style>
@@ -10,7 +13,12 @@
           <Icon>
             <href>http://map.geo.admin.ch/1417604350/img/maki/restaurant-24@2x.png</href>
           </Icon>
-          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+          <hotSpot
+                        x="24"
+                        y="24"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
         </IconStyle>
       </Style>
       <Point>
@@ -24,7 +32,12 @@
           <Icon>
             <href>http://map.geo.admin.ch/1417604350/img/maki/bus-24@2x.png</href>
           </Icon>
-          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+          <hotSpot
+                        x="24"
+                        y="24"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
         </IconStyle>
       </Style>
       <Point>
@@ -38,7 +51,12 @@
           <Icon>
             <href>http://map.geo.admin.ch/1417604350/img/maki/car-24@2x.png</href>
           </Icon>
-          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+          <hotSpot
+                        x="24"
+                        y="24"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
         </IconStyle>
       </Style>
       <Point>
@@ -52,7 +70,12 @@
           <Icon>
             <href>http://map.geo.admin.ch/1417604350/img/maki/car-24@2x.png</href>
           </Icon>
-          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+          <hotSpot
+                        x="24"
+                        y="24"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
         </IconStyle>
       </Style>
       <Point>
@@ -66,7 +89,12 @@
           <Icon>
             <href>http://map.geo.admin.ch/1417604350/img/maki/toilets-24@2x.png</href>
           </Icon>
-          <hotSpot x="24" y="24" xunits="pixels" yunits="pixels" />
+          <hotSpot
+                        x="24"
+                        y="24"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
         </IconStyle>
       </Style>
       <Point>

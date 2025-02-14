@@ -149,7 +149,6 @@ export function formatMeters(value, { dim = 1, digits = 2, applyFormat = true } 
     return `${value} ${unit}`
 }
 
-
 export function formatAngle(value, digits = 2) {
     return `${value.toFixed(digits)}°`
 }

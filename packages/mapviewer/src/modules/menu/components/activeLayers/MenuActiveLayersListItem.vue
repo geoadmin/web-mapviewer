@@ -289,7 +289,7 @@ function changeStyle(newStyle) {
                     :data-cy="`slider-transparency-layer-${id}-${index}`"
                     @mouseup="onTransparencyCommit"
                     @input="debounceTransparencyChange"
-                >
+                />
                 <div class="btn-group">
                     <button
                         v-if="hasMultipleTimestamps"
@@ -352,7 +352,7 @@ function changeStyle(newStyle) {
                         v-model="isLayerClampedToGround"
                         type="checkbox"
                         class="form-check-input"
-                    >
+                    />
                 </div>
                 <div
                     v-else

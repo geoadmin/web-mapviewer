@@ -38,18 +38,24 @@ onBeforeUnmount(() => {
     removeHoverPositionOverlay()
 })
 
-watch(() => coordinates, (newCoordinates) => {
-    if (newCoordinates) {
-        currentHoverPosOverlay.value.setPosition(newCoordinates)
-        addHoverPositionOverlay()
-    } else {
-        currentHoverPosOverlay.value.setPosition(null)
-        removeHoverPositionOverlay()
+watch(
+    () => coordinates,
+    (newCoordinates) => {
+        if (newCoordinates) {
+            currentHoverPosOverlay.value.setPosition(newCoordinates)
+            addHoverPositionOverlay()
+        } else {
+            currentHoverPosOverlay.value.setPosition(null)
+            removeHoverPositionOverlay()
+        }
     }
-})
-watch(() => trackingPointColor, (newColor) => {
-    currentHoverPosOverlay.value.getElement().style.backgroundColor = newColor.fill
-})
+)
+watch(
+    () => trackingPointColor,
+    (newColor) => {
+        currentHoverPosOverlay.value.getElement().style.backgroundColor = newColor.fill
+    }
+)
 
 function addHoverPositionOverlay() {
     olMap?.addOverlay(currentHoverPosOverlay.value)

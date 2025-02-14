@@ -199,7 +199,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         data-cy="drawing-toolbox-file-name-input"
                         :placeholder="`${t('draw_layer_label')}`"
                         :disabled="!activeKmlLayer"
-                    >
+                    />
                 </div>
 
                 <div class="card-body position-relative container">

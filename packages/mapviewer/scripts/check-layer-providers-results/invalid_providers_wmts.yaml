@@ -1,0 +1,282 @@
+count: 32
+result:
+    - provider: https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: "TypeError: Cannot read properties of null (reading 'getAxisOrientation')"
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="h
+    - provider: >-
+          https://geoserver.swissdatacube.org/geoserver/gwc/service/wmts?REQUEST=GetCapabilities
+      url: >-
+          https://geoserver.swissdatacube.org/geoserver/gwc/service/wmts?REQUEST=GetCapabilities&SERVICE=WMTS&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="
+    - provider: https://osmlab.github.io/wmts-osm/WMTSCapabilities.xml
+      url: >-
+          https://osmlab.github.io/wmts-osm/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+
+    - provider: https://p20.cosmos-project.ch/sd20alps_map/wmts?request=getcapabilities
+      url: >-
+          https://p20.cosmos-project.ch/sd20alps_map/wmts?request=getcapabilities&SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: https://services.geo.sg.ch/wss/service/SG00002_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00002_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00014_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00014_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00015_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00015_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00031_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00031_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00046_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00046_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00047_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00047_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00055_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00055_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00062_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00062_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00066_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00066_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00072_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00072_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00073_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00073_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00135_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00135_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00155_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00155_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: >-
+          https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: >-
+          https://tiles.arcgis.com/tiles/oPre3pOfRfefL8y0/arcgis/rest/services/Topographic_Map_Switzerland/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://tiles.arcgis.com/tiles/oPre3pOfRfefL8y0/arcgis/rest/services/Topographic_Map_Switzerland/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi=
+    - provider: https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+                        xmlns:ows="http://www.opengis.net/ows/1.1"
+    - provider: https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+                        xmlns:ows="http://www.opengis.net/ows/1.1"
+    - provider: https://wmts.geo.bs.ch/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.bs.ch/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: "TypeError: Cannot read properties of null (reading 'getAxisOrientation')"
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities version="1.0.0"
+            xmlns="http://www.opengis.net/wmts/1.0"
+            xmlns:ows="http://www.opengis.net/ows
+    - provider: https://wmts.geo.ti.ch/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.ti.ch/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: https://www.ogd.stadt-zuerich.ch/mapproxy/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://www.ogd.stadt-zuerich.ch/mapproxy/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: https://www.opensnowmap.org/OSnM_GetCapabilities.xml
+      url: >-
+          https://www.opensnowmap.org/OSnM_GetCapabilities.xml?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: 'Could not parse to valid json: EPSG:2056'
+      content: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Capabilities xmlns=\"http://www.opengis.net/wmts/1.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:xlink=\""

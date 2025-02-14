@@ -1,0 +1,164 @@
+count: 40
+result:
+    - provider: https://services.geo.sg.ch/wss/service/SG00019_WMS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00019_WMS/guest?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 403
+      error: Request failed with status code 403
+    - provider: https://services.geo.sg.ch/wss/service/SG00038_WMS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00038_WMS/guest?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 404
+      error: Request failed with status code 404
+    - provider: https://wms.geo.gr.ch/admineinteilung
+      url: >-
+          https://wms.geo.gr.ch/admineinteilung?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/admineinteilung
+      url: >-
+          https://wms.geo.gr.ch/admineinteilung?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/amtlichevermessung_stand
+      url: >-
+          https://wms.geo.gr.ch/amtlichevermessung_stand?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/amtlichevermessung_stand
+      url: >-
+          https://wms.geo.gr.ch/amtlichevermessung_stand?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/bauzonen_graubuenden
+      url: >-
+          https://wms.geo.gr.ch/bauzonen_graubuenden?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/belastetestandorte
+      url: >-
+          https://wms.geo.gr.ch/belastetestandorte?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/belastetestandorte
+      url: >-
+          https://wms.geo.gr.ch/belastetestandorte?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/gewaesserschutz
+      url: >-
+          https://wms.geo.gr.ch/gewaesserschutz?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/gewaesserschutz
+      url: >-
+          https://wms.geo.gr.ch/gewaesserschutz?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/grundwasser
+      url: >-
+          https://wms.geo.gr.ch/grundwasser?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/grundwasser
+      url: >-
+          https://wms.geo.gr.ch/grundwasser?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/historischekarten
+      url: >-
+          https://wms.geo.gr.ch/historischekarten?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/historischekarten
+      url: >-
+          https://wms.geo.gr.ch/historischekarten?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/naturgefahren_erfassungsbereiche
+      url: >-
+          https://wms.geo.gr.ch/naturgefahren_erfassungsbereiche?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/naturgefahren_erfassungsbereiche
+      url: >-
+          https://wms.geo.gr.ch/naturgefahren_erfassungsbereiche?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/naturschutz
+      url: >-
+          https://wms.geo.gr.ch/naturschutz?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/naturschutz
+      url: >-
+          https://wms.geo.gr.ch/naturschutz?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/regionen
+      url: >-
+          https://wms.geo.gr.ch/regionen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/regionen
+      url: >-
+          https://wms.geo.gr.ch/regionen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/richtplan
+      url: >-
+          https://wms.geo.gr.ch/richtplan?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_bregaglia
+      url: >-
+          https://wms.geo.gr.ch/rrip_bregaglia?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_davos
+      url: >-
+          https://wms.geo.gr.ch/rrip_davos?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_mesolcina
+      url: >-
+          https://wms.geo.gr.ch/rrip_mesolcina?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_mittelbuenden
+      url: >-
+          https://wms.geo.gr.ch/rrip_mittelbuenden?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_nordbuenden
+      url: >-
+          https://wms.geo.gr.ch/rrip_nordbuenden?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_oberengadin
+      url: >-
+          https://wms.geo.gr.ch/rrip_oberengadin?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_praettigau
+      url: >-
+          https://wms.geo.gr.ch/rrip_praettigau?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_regioviamala
+      url: >-
+          https://wms.geo.gr.ch/rrip_regioviamala?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/rrip_unterengadin
+      url: >-
+          https://wms.geo.gr.ch/rrip_unterengadin?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/schutzwald
+      url: >-
+          https://wms.geo.gr.ch/schutzwald?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/seilbahnen
+      url: >-
+          https://wms.geo.gr.ch/seilbahnen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/seilbahnen
+      url: >-
+          https://wms.geo.gr.ch/seilbahnen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/uebersichtsplan
+      url: >-
+          https://wms.geo.gr.ch/uebersichtsplan?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/waldentwicklungsplan
+      url: >-
+          https://wms.geo.gr.ch/waldentwicklungsplan?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/wildruhezonen
+      url: >-
+          https://wms.geo.gr.ch/wildruhezonen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/wildruhezonen
+      url: >-
+          https://wms.geo.gr.ch/wildruhezonen?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/wildschutzgebiete
+      url: >-
+          https://wms.geo.gr.ch/wildschutzgebiete?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
+    - provider: https://wms.geo.gr.ch/wildschutzgebiete
+      url: >-
+          https://wms.geo.gr.ch/wildschutzgebiete?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      error: timeout of 30000ms exceeded
