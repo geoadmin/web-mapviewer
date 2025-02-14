@@ -42,3 +42,6 @@ scripts/check-layer-providers-results/*invalid_providers_wms.yaml
 scripts/check-layer-providers-results/*invalid_providers_wmts.yaml
 scripts/check-layer-providers-results/*invalid_providers_content.yaml
 scripts/check-layer-providers-results/*valid_providers.json
+
+# package-lock.json since we use pnpm
+package-lock.json
