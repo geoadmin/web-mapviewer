@@ -351,7 +351,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
-// So that the toolbox can slip behind the header when the closing animation occurs.
+// So that the toolbox can slip behind the header when the closing animation plays out.
 $zindex-drawing-toolbox: -1;
 
 .drawing-toolbox {
