@@ -105,11 +105,20 @@ onMounted(() => {
                 class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
-                <span v-if="title" data-cy="simple-window-title" class="me-auto text-truncate">
-                    {{ t(title) }}</span
+                <span
+                    v-if="title"
+                    data-cy="simple-window-title"
+                    class="me-auto text-truncate"
                 >
-                <span v-else class="me-auto" />
-                <PrintButton v-if="allowPrint && showBody" :content="contentRef" />
+                    {{ t(title) }}</span>
+                <span
+                    v-else
+                    class="me-auto"
+                />
+                <PrintButton
+                    v-if="allowPrint && showBody"
+                    :content="contentRef"
+                />
                 <button
                     class="btn btn-light btn-sm me-2"
                     data-cy="simple-window-minimize"
