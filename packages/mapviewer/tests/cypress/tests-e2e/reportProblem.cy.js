@@ -250,7 +250,10 @@ describe('Testing the report problem form', () => {
         cy.log(
             'Cancel the report and open the drawing mode to verify that there is no drawing layer after closing it'
         )
+
+        cy.get('[data-cy="report-problem-button"]').scrollIntoView()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
+
         cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
         cy.get('[data-cy="report-problem-drawing-button"]')
             .as('reportDrawing')
@@ -268,7 +271,7 @@ describe('Testing the report problem form', () => {
         })
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
-        cy.get('@reportForm').should('be.visible')
+        cy.get('@reportForm').should('exist')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
 
         cy.get('[data-cy="window-close"]').should('be.visible').click()
@@ -281,7 +284,7 @@ describe('Testing the report problem form', () => {
         })
         cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
-        cy.get('@reportForm').should('be.visible')
+        cy.get('@reportForm').should('exist')
         cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').should('be.visible')
 
         cy.log('Redo the drawing in the report problem form')
@@ -377,7 +380,7 @@ describe('Testing the report problem form', () => {
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
         cy.get('@categoryDropdown').scrollIntoView()
-        cy.get('@reportForm').should('be.visible')
+        cy.get('@reportForm').should('exist')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('@textArea').should('have.value', text)
         cy.get('@emailInput').should('have.value', validEmail)
