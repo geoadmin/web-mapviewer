@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
+const acceptedInitialPositions = ['top-left', 'top-center', 'top-right']
 
 const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dataCy } = defineProps(
     {
@@ -64,7 +64,7 @@ const headerRef = useTemplateRef('headerRef')
 const contentRef = useTemplateRef('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (accepetedInitialPositions.includes(initialPosition)) {
+    if (acceptedInitialPositions.includes(initialPosition)) {
         return initialPosition
     } else {
         return 'top-center'
@@ -105,20 +105,11 @@ onMounted(() => {
                 class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
-                <span
-                    v-if="title"
-                    data-cy="simple-window-title"
-                    class="me-auto text-truncate"
+                <span v-if="title" data-cy="simple-window-title" class="me-auto text-truncate">
+                    {{ t(title) }}</span
                 >
-                    {{ t(title) }}</span>
-                <span
-                    v-else
-                    class="me-auto"
-                />
-                <PrintButton
-                    v-if="allowPrint && showBody"
-                    :content="contentRef"
-                />
+                <span v-else class="me-auto" />
+                <PrintButton v-if="allowPrint && showBody" :content="contentRef" />
                 <button
                     class="btn btn-light btn-sm me-2"
                     data-cy="simple-window-minimize"
@@ -196,12 +187,12 @@ onMounted(() => {
         $top-margin: $header-height;
 
         top: $top-margin;
-        left: 0px;
-        right: 0px;
+        left: 10px;
+        right: 10px;
         transform: unset;
         max-height: calc(100vh - $top-margin);
-        max-width: 100vw;
-        width: 100vw;
+        max-width: 75vw;
+        width: 75vw;
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);
