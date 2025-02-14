@@ -1,0 +1,109 @@
+count: 8
+result:
+    - provider: >-
+          https://map.geo.tg.ch/proxy/geofy_chsdi3/biomasse-oberflaeche?access_key=YoW2syIQ4xe0ccJA
+      url: >-
+          https://map.geo.tg.ch/proxy/geofy_chsdi3/biomasse-oberflaeche?access_key=YoW2syIQ4xe0ccJA&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          cache-control: no-cache
+          connection: close
+          content-type: text/html; charset=utf-8
+          pragma: no-cache
+          content-length: '188'
+    - provider: https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/DTM_20M.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FDTM_20M.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FDTM_20M.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: >-
+          https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_100000.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_100000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_100000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: >-
+          https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_25000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_25000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: >-
+          https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_250000.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_250000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2FIGM_250000.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: >-
+          https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/ortofoto_colore_06.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2Fortofoto_colore_06.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2Fraster%2Fortofoto_colore_06.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: >-
+          https://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/Vettoriali/Rete_ferroviaria.map
+      url: >-
+          https://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2FVettoriali%2FRete_ferroviaria.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      status: 200
+      headers:
+          server: AkamaiGHost
+          content-length: '0'
+          location: >-
+              http://wms.pcn.minambiente.it/ogc?map=%2Fms_ogc%2FWMS_v1.3%2FVettoriali%2FRete_ferroviaria.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+          cache-control: max-age=300
+          expires: Tue, 11 Feb 2025 15:33:50 GMT
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          connection: keep-alive
+    - provider: https://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      status: 200
+      headers:
+          date: Tue, 11 Feb 2025 15:28:50 GMT
+          server: Apache
+          location: >-
+              https://basemap.at/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+          content-length: '390'
+          keep-alive: timeout=15, max=300
+          connection: Keep-Alive
+          content-type: text/html; charset=iso-8859-1

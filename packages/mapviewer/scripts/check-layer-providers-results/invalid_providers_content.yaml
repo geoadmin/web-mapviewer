@@ -1,0 +1,1267 @@
+count: 158
+result:
+    - provider: >-
+          https://bio.discomap.eea.europa.eu/arcgis/services/Ecosystem/Ecosystems/MapServer/WMSServer
+      url: >-
+          https://bio.discomap.eea.europa.eu/arcgis/services/Ecosystem/Ecosystems/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://copernicus.discomap.eea.europa.eu/arcgis/services/Corine/CLC2012_WM/MapServer/WMSServer
+      url: >-
+          https://copernicus.discomap.eea.europa.eu/arcgis/services/Corine/CLC2012_WM/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://geo.so.ch/api/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="h
+    - provider: https://geodienste.ch/db/av/deu
+      url: >-
+          https://geodienste.ch/db/av/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/av/fra
+      url: >-
+          https://geodienste.ch/db/av/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/av/ita
+      url: >-
+          https://geodienste.ch/db/av/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/av_situationsplan/deu
+      url: >-
+          https://geodienste.ch/db/av_situationsplan/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/av_situationsplan/fra
+      url: >-
+          https://geodienste.ch/db/av_situationsplan/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/av_situationsplan/ita
+      url: >-
+          https://geodienste.ch/db/av_situationsplan/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/avc/deu
+      url: >-
+          https://geodienste.ch/db/avc/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/avc/fra
+      url: >-
+          https://geodienste.ch/db/avc/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/avc/ita
+      url: >-
+          https://geodienste.ch/db/avc/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/deu
+      url: >-
+          https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/fra
+      url: >-
+          https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/ita
+      url: >-
+          https://geodienste.ch/db/elektrische_anlagen_ueber_36kv/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fixpunkte/deu
+      url: >-
+          https://geodienste.ch/db/fixpunkte/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fixpunkte/fra
+      url: >-
+          https://geodienste.ch/db/fixpunkte/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fixpunkte/ita
+      url: >-
+          https://geodienste.ch/db/fixpunkte/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fruchtfolgeflaechen/deu
+      url: >-
+          https://geodienste.ch/db/fruchtfolgeflaechen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fruchtfolgeflaechen/fra
+      url: >-
+          https://geodienste.ch/db/fruchtfolgeflaechen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/fruchtfolgeflaechen/ita
+      url: >-
+          https://geodienste.ch/db/fruchtfolgeflaechen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gefahrenkarten/deu
+      url: >-
+          https://geodienste.ch/db/gefahrenkarten/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gefahrenkarten/eng
+      url: >-
+          https://geodienste.ch/db/gefahrenkarten/eng?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gefahrenkarten/fra
+      url: >-
+          https://geodienste.ch/db/gefahrenkarten/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gefahrenkarten/ita
+      url: >-
+          https://geodienste.ch/db/gefahrenkarten/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/deu
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/deu
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/fra
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/fra
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/ita
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/gewaesserraum/ita
+      url: >-
+          https://geodienste.ch/db/gewaesserraum/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/grundwasservorkommen/deu
+      url: >-
+          https://geodienste.ch/db/grundwasservorkommen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/grundwasservorkommen/fra
+      url: >-
+          https://geodienste.ch/db/grundwasservorkommen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/grundwasservorkommen/ita
+      url: >-
+          https://geodienste.ch/db/grundwasservorkommen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/inventar_wasserentnahmen/deu
+      url: >-
+          https://geodienste.ch/db/inventar_wasserentnahmen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/inventar_wasserentnahmen/fra
+      url: >-
+          https://geodienste.ch/db/inventar_wasserentnahmen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/inventar_wasserentnahmen/ita
+      url: >-
+          https://geodienste.ch/db/inventar_wasserentnahmen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kantonale_ausnahmetransportrouten/deu
+      url: >-
+          https://geodienste.ch/db/kantonale_ausnahmetransportrouten/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kantonale_ausnahmetransportrouten/eng
+      url: >-
+          https://geodienste.ch/db/kantonale_ausnahmetransportrouten/eng?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kantonale_ausnahmetransportrouten/fra
+      url: >-
+          https://geodienste.ch/db/kantonale_ausnahmetransportrouten/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kantonale_ausnahmetransportrouten/ita
+      url: >-
+          https://geodienste.ch/db/kantonale_ausnahmetransportrouten/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kataster_belasteter_standorte/deu
+      url: >-
+          https://geodienste.ch/db/kataster_belasteter_standorte/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kataster_belasteter_standorte/fra
+      url: >-
+          https://geodienste.ch/db/kataster_belasteter_standorte/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/kataster_belasteter_standorte/ita
+      url: >-
+          https://geodienste.ch/db/kataster_belasteter_standorte/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/luftbild/deu
+      url: >-
+          https://geodienste.ch/db/luftbild/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/luftbild/fra
+      url: >-
+          https://geodienste.ch/db/luftbild/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/luftbild/ita
+      url: >-
+          https://geodienste.ch/db/luftbild/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_bewirtschaftungseinheit/deu
+      url: >-
+          https://geodienste.ch/db/lwb_bewirtschaftungseinheit/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_bewirtschaftungseinheit/fra
+      url: >-
+          https://geodienste.ch/db/lwb_bewirtschaftungseinheit/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_bewirtschaftungseinheit/ita
+      url: >-
+          https://geodienste.ch/db/lwb_bewirtschaftungseinheit/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/deu
+      url: >-
+          https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/fra
+      url: >-
+          https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/ita
+      url: >-
+          https://geodienste.ch/db/lwb_biodiversitaetsfoerderflaechen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_nutzungsflaechen/deu
+      url: >-
+          https://geodienste.ch/db/lwb_nutzungsflaechen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_nutzungsflaechen/fra
+      url: >-
+          https://geodienste.ch/db/lwb_nutzungsflaechen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_nutzungsflaechen/ita
+      url: >-
+          https://geodienste.ch/db/lwb_nutzungsflaechen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_ln_sf/deu
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_ln_sf/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_ln_sf/fra
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_ln_sf/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_ln_sf/ita
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_ln_sf/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_terrassenreben/deu
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_terrassenreben/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_terrassenreben/fra
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_terrassenreben/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_perimeter_terrassenreben/ita
+      url: >-
+          https://geodienste.ch/db/lwb_perimeter_terrassenreben/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_rebbaukataster/deu
+      url: >-
+          https://geodienste.ch/db/lwb_rebbaukataster/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_rebbaukataster/fra
+      url: >-
+          https://geodienste.ch/db/lwb_rebbaukataster/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/lwb_rebbaukataster/ita
+      url: >-
+          https://geodienste.ch/db/lwb_rebbaukataster/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/naturereigniskataster/deu
+      url: >-
+          https://geodienste.ch/db/naturereigniskataster/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/naturereigniskataster/fra
+      url: >-
+          https://geodienste.ch/db/naturereigniskataster/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/naturereigniskataster/ita
+      url: >-
+          https://geodienste.ch/db/naturereigniskataster/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_nutzungsplanung/deu
+      url: >-
+          https://geodienste.ch/db/npl_nutzungsplanung/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_nutzungsplanung/fra
+      url: >-
+          https://geodienste.ch/db/npl_nutzungsplanung/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_nutzungsplanung/ita
+      url: >-
+          https://geodienste.ch/db/npl_nutzungsplanung/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldabstandslinien/deu
+      url: >-
+          https://geodienste.ch/db/npl_waldabstandslinien/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldabstandslinien/fra
+      url: >-
+          https://geodienste.ch/db/npl_waldabstandslinien/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldabstandslinien/ita
+      url: >-
+          https://geodienste.ch/db/npl_waldabstandslinien/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldgrenzen/deu
+      url: >-
+          https://geodienste.ch/db/npl_waldgrenzen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldgrenzen/fra
+      url: >-
+          https://geodienste.ch/db/npl_waldgrenzen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/npl_waldgrenzen/ita
+      url: >-
+          https://geodienste.ch/db/npl_waldgrenzen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/planerischer_gewaesserschutz/deu
+      url: >-
+          https://geodienste.ch/db/planerischer_gewaesserschutz/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/planerischer_gewaesserschutz/fra
+      url: >-
+          https://geodienste.ch/db/planerischer_gewaesserschutz/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/planerischer_gewaesserschutz/ita
+      url: >-
+          https://geodienste.ch/db/planerischer_gewaesserschutz/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_fliessgewaesser/deu
+      url: >-
+          https://geodienste.ch/db/revitalisierung_fliessgewaesser/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_fliessgewaesser/fra
+      url: >-
+          https://geodienste.ch/db/revitalisierung_fliessgewaesser/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_fliessgewaesser/ita
+      url: >-
+          https://geodienste.ch/db/revitalisierung_fliessgewaesser/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_seen/deu
+      url: >-
+          https://geodienste.ch/db/revitalisierung_seen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_seen/fra
+      url: >-
+          https://geodienste.ch/db/revitalisierung_seen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/revitalisierung_seen/ita
+      url: >-
+          https://geodienste.ch/db/revitalisierung_seen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/richtplanung_erneuerbare_energien/deu
+      url: >-
+          https://geodienste.ch/db/richtplanung_erneuerbare_energien/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/richtplanung_erneuerbare_energien/fra
+      url: >-
+          https://geodienste.ch/db/richtplanung_erneuerbare_energien/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/richtplanung_erneuerbare_energien/ita
+      url: >-
+          https://geodienste.ch/db/richtplanung_erneuerbare_energien/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/rodungen_und_rodungsersatz/deu
+      url: >-
+          https://geodienste.ch/db/rodungen_und_rodungsersatz/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/rodungen_und_rodungsersatz/fra
+      url: >-
+          https://geodienste.ch/db/rodungen_und_rodungsersatz/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/rodungen_und_rodungsersatz/ita
+      url: >-
+          https://geodienste.ch/db/rodungen_und_rodungsersatz/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/sanierung_wasserkraft/deu
+      url: >-
+          https://geodienste.ch/db/sanierung_wasserkraft/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/sanierung_wasserkraft/fra
+      url: >-
+          https://geodienste.ch/db/sanierung_wasserkraft/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/sanierung_wasserkraft/ita
+      url: >-
+          https://geodienste.ch/db/sanierung_wasserkraft/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/deu
+      url: >-
+          https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/fra
+      url: >-
+          https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/ita
+      url: >-
+          https://geodienste.ch/db/stromversorgungssicherheit_netzgebiete/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/waldreservate/deu
+      url: >-
+          https://geodienste.ch/db/waldreservate/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/waldreservate/fra
+      url: >-
+          https://geodienste.ch/db/waldreservate/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/waldreservate/ita
+      url: >-
+          https://geodienste.ch/db/waldreservate/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/wildruhezonen/deu
+      url: >-
+          https://geodienste.ch/db/wildruhezonen/deu?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/wildruhezonen/fra
+      url: >-
+          https://geodienste.ch/db/wildruhezonen/fra?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://geodienste.ch/db/wildruhezonen/ita
+      url: >-
+          https://geodienste.ch/db/wildruhezonen/ita?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: >-
+          https://geoserver.swissdatacube.org/geoserver/gwc/service/wmts?REQUEST=GetCapabilities
+      url: >-
+          https://geoserver.swissdatacube.org/geoserver/gwc/service/wmts?REQUEST=GetCapabilities&SERVICE=WMTS&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="
+    - provider: https://geoshop.sz.ch/WMSSZ
+      url: >-
+          https://geoshop.sz.ch/WMSSZ?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: "<WMT_MS_Capabilities updateSequence=\"0\"\r\nversion=\"1.3.0\"\r\n>\r\n\r\n  <Service>\r\n    <Name>OGC:WMS</Name>\r\n<Title>GeoShop Server</Title>\r\n<OnlineResource x"
+    - provider: https://geowms.bl.ch/?SERVICE=WMS&version=1.1.1&REQUEST=GetCapabilities
+      url: >-
+          https://geowms.bl.ch/?SERVICE=WMS&version=1.1.1&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version="1.0" encoding="utf-8"?>
+
+          <WMS_Capabilities xmlns="http://www.opengis.net/wms"
+          xmlns:ms="http://mapserver.gis.umn.edu/mapserver" xmlns:sl
+    - provider: https://map.geo.sz.ch/mapserv_proxy
+      url: >-
+          https://map.geo.sz.ch/mapserv_proxy?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version="1.0" encoding="utf-8"?>
+
+          <WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms"
+          xmlns:sld="http://www.opengis.net/sld" xml
+    - provider: https://osmlab.github.io/wmts-osm/WMTSCapabilities.xml
+      url: >-
+          https://osmlab.github.io/wmts-osm/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+
+    - provider: https://ows.terrestris.de/osm-gray/service
+      url: >-
+          https://ows.terrestris.de/osm-gray/service?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version="1.0" ?>
+
+          <WMS_Capabilities xmlns="http://www.opengis.net/wms"
+          xmlns:sld="http://www.opengis.net/sld" xmlns:xlink="http://www.w3.org/1999
+    - provider: https://ows.terrestris.de/osm/service
+      url: >-
+          https://ows.terrestris.de/osm/service?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version="1.0" ?>
+
+          <WMS_Capabilities xmlns="http://www.opengis.net/wms"
+          xmlns:sld="http://www.opengis.net/sld" xmlns:xlink="http://www.w3.org/1999
+    - provider: https://p20.cosmos-project.ch/sd20alps_map/wmts?request=getcapabilities
+      url: >-
+          https://p20.cosmos-project.ch/sd20alps_map/wmts?request=getcapabilities&SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="h
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000004200001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000004200001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013100001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013100001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013300001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013300001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013400001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013400001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013500001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013500001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013600001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000013600001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000016900001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000016900001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000017400001/MapServer/WMSServer
+      url: >-
+          https://rips-gdi.lubw.baden-wuerttemberg.de/arcgis/services/wms/UIS_0100000017400001/MapServer/WMSServer?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <WMS_Capabilities version="1.3.0"
+            xmlns="http://www.opengis.net/wms"
+            xmlns:xsi="http://www.w3.org/2001/XMLS
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="h
+    - provider: https://services.geo.sg.ch/wss/service/SG00002_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00002_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00014_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00014_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00015_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00015_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00031_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00031_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00046_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00046_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00047_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00047_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00055_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00055_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00062_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00062_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00066_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00066_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00072_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00072_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00073_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00073_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00135_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00135_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: https://services.geo.sg.ch/wss/service/SG00155_WMTS/guest?
+      url: >-
+          https://services.geo.sg.ch/wss/service/SG00155_WMTS/guest?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><Capabilities
+          xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:gml="http://www.opengis.net/gml" xmlns:ows="http://w
+    - provider: >-
+          https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: >-
+          https://tiles.arcgis.com/tiles/oPre3pOfRfefL8y0/arcgis/rest/services/Topographic_Map_Switzerland/MapServer/WMTS/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://tiles.arcgis.com/tiles/oPre3pOfRfefL8y0/arcgis/rest/services/Topographic_Map_Switzerland/MapServer/WMTS/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1"
+          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi=
+    - provider: https://view.eumetsat.int/geoserver/wms?service=WMS
+      url: >-
+          https://view.eumetsat.int/geoserver/wms?service=WMS&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities version="1.3.0"
+          updateSequence="5471" xmlns="http://www.opengis.net/wms"
+          xmlns:xlink="http://w
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_flaechenwidmung_v_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_flaechenwidmung_v_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http:/
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_historischekarten_r_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_historischekarten_r_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http:/
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_luftbilder_r_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_luftbilder_r_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http:/
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_naturschutz_v_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_naturschutz_v_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <HTML>
+
+          <HEAD><TITLE>MapServer Message</TITLE></HEAD>
+
+          <!-- MapServer version 6.4.1 OUTPUT=PNG OUTPUT=JPEG SUPPORTS=PROJ
+          SUPPORTS=AGG SUPPORTS=FREETYPE
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_relief_r_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_relief_r_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http:/
+    - provider: https://vogis.cnv.at/mapserver/mapserv?map=i_topographie_r_wms.map
+      url: >-
+          https://vogis.cnv.at/mapserver/mapserv?map=i_topographie_r_wms.map&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http:/
+    - provider: https://wms.geo.admin.ch/
+      url: >-
+          https://wms.geo.admin.ch/?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://wms.zh.ch/FNSLRPZHWMS
+      url: >-
+          https://wms.zh.ch/FNSLRPZHWMS?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+
+          <WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"  
+          xmlns:sld="http://www.
+    - provider: https://wms.zh.ch/VeloparkieranlagenZHWMS
+      url: >-
+          https://wms.zh.ch/VeloparkieranlagenZHWMS?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: >-
+          <HTML>
+
+          <HEAD><TITLE>MapServer Message</TITLE></HEAD>
+
+          <!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML
+          SUPPORTS=PROJ SUPPORTS=AGG SUPPORT
+    - provider: https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+                        xmlns:ows="http://www.opengis.net/ows/1.1"
+    - provider: https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+                        xmlns:ows="http://www.opengis.net/ows/1.1"
+    - provider: https://wmts.geo.bs.ch/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.bs.ch/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: |-
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Capabilities version="1.0.0"
+            xmlns="http://www.opengis.net/wmts/1.0"
+            xmlns:ows="http://www.opengis.net/ows
+    - provider: https://wmts.geo.ti.ch/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://wmts.geo.ti.ch/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: https://www.ogd.stadt-zuerich.ch/mapproxy/wmts/1.0.0/WMTSCapabilities.xml
+      url: >-
+          https://www.ogd.stadt-zuerich.ch/mapproxy/wmts/1.0.0/WMTSCapabilities.xml?SERVICE=WMTS&REQUEST=GetCapabilities&lang=en
+      content: >-
+          <?xml version="1.0"?>
+
+          <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+          xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/
+    - provider: https://www.opensnowmap.org/OSnM_GetCapabilities.xml
+      url: >-
+          https://www.opensnowmap.org/OSnM_GetCapabilities.xml?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0&FORMAT=text%2Fxml&lang=en
+      content: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Capabilities xmlns=\"http://www.opengis.net/wmts/1.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:xlink=\""
