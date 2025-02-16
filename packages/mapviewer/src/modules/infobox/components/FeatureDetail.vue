@@ -65,11 +65,13 @@ function sanitizeHtml(htmlText, withIframe = false) {
         if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
             node.setAttribute('rel', 'noopener noreferrer')
-            if (handleNode(node, 'href')) return
+            if (handleNode(node, 'href')){
+                return
+            }
         }
         // Check the IFRAME tag
-        if (node.tagName === 'IFRAME') {
-            if (handleNode(node, 'src')) return
+        if (node.tagName === 'IFRAME' && handleNode(node, 'src')) {
+            return
         }
     })
     const config = {
@@ -87,7 +89,9 @@ function getIframeHosts(value) {
 
     return Array.from(dom.getElementsByTagName('iframe'))
         .map((iframe) => {
-            if (!iframe.src) return null
+            if (!iframe.src) {
+                return null
+            }
             try {
                 return new URL(iframe.src).hostname
             } catch {
