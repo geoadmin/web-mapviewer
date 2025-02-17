@@ -73,18 +73,36 @@ onMounted(async () => {
         initial-position="top-left"
         @close="emit('close', layerId)"
     >
-        <div class="layer-description" data-cy="layer-description-popup">
-            <h4 v-if="!isExternal && !htmlContent" class="mb-0">
-                <font-awesome-icon spin :icon="['fa', 'spinner']" />
+        <div
+            class="layer-description"
+            data-cy="layer-description-popup"
+        >
+            <h4
+                v-if="!isExternal && !htmlContent"
+                class="mb-0"
+            >
+                <font-awesome-icon
+                    spin
+                    :icon="['fa', 'spinner']"
+                />
             </h4>
             <div v-else-if="isExternal">
-                <h6 v-if="body" data-cy="layer-description-popup-description-title">
+                <h6
+                    v-if="body"
+                    data-cy="layer-description-popup-description-title"
+                >
                     {{ t('description') }}
                 </h6>
-                <div v-if="body" data-cy="layer-description-popup-description-body">
+                <div
+                    v-if="body"
+                    data-cy="layer-description-popup-description-body"
+                >
                     {{ body }}
                 </div>
-                <div v-if="legends.length" class="mt-4">
+                <div
+                    v-if="legends.length"
+                    class="mt-4"
+                >
                     <h6 data-cy="layer-description-popup-legends-title">
                         {{ t('legend') }}
                     </h6>
@@ -93,9 +111,19 @@ onMounted(async () => {
                         :key="legend.url"
                         :data-cy="`layer-description-popup-legends-body-${legend.url}`"
                     >
-                        <img v-if="legend.format.startsWith('image/')" :src="legend.url" />
-                        <iframe v-else-if="legend.format === 'text/html'" :src="legend.url" />
-                        <a v-else :href="legend.url" target="_blank">{{ legend.url }}</a>
+                        <img
+                            v-if="legend.format.startsWith('image/')"
+                            :src="legend.url"
+                        >
+                        <iframe
+                            v-else-if="legend.format === 'text/html'"
+                            :src="legend.url"
+                        />
+                        <a
+                            v-else
+                            :href="legend.url"
+                            target="_blank"
+                        >{{ legend.url }}</a>
                     </div>
                 </div>
 
@@ -104,14 +132,22 @@ onMounted(async () => {
                     data-cy="layer-description-popup-attributions"
                 >
                     <span class="me-1">{{ t('copyright_data') }}</span>
-                    <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{
+                    <a
+                        v-if="attributionUrl"
+                        :href="attributionUrl"
+                        target="_blank"
+                    >{{
                         attributionName
                     }}</a>
                     <span v-else>{{ attributionName }}</span>
                 </div>
             </div>
             <!-- eslint-disable vue/no-v-html-->
-            <div v-else data-cy="layer-description" v-html="htmlContent" />
+            <div
+                v-else
+                data-cy="layer-description"
+                v-html="htmlContent"
+            />
             <!-- eslint-enable vue/no-v-html-->
         </div>
     </SimpleWindow>
