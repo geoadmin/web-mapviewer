@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
@@ -60,11 +60,6 @@ onMounted(() => {
 
 function toggleShowAllSymbols() {
     showAllSymbols.value = !showAllSymbols.value
-    if (showAllSymbols.value) {
-        refreshIconTooltips()
-    } else {
-        removeIconTooltips()
-    }
 }
 
 function onCurrentIconColorChange(color) {
@@ -85,18 +80,7 @@ function onImageLoad() {
     loadedImages.value = loadedImages.value + 1
     if (loadedImages.value === currentIconSet.value.icons.length) {
         loadedImages.value = 0
-        if (currentIconSet.value.hasDescription && showAllSymbols.value) {
-            refreshIconTooltips()
-        }
     }
-}
-
-function refreshIconTooltips() {
-    iconButtons.value?.forEach((button) => button.refreshTooltip())
-}
-
-function removeIconTooltips() {
-    iconButtons.value?.forEach((button) => button.removeTooltip())
 }
 
 function onCurrentIconChange(icon) {
@@ -158,6 +142,7 @@ function onCurrentIconChange(icon) {
                 :class="{ 'one-line': !showAllSymbols }"
             >
                 <DrawingStyleIcon
+                    :tooltip-disabled="!showAllSymbols"
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
                     ref="iconButtons"

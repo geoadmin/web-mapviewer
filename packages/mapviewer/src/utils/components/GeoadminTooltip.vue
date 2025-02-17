@@ -144,7 +144,10 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
 </script>
 
 <template>
-    <div data-cy="floating-container" @click="onClickContainer">
+    <div
+        data-cy="floating-container"
+        @click="onClickContainer"
+    >
         <div
             ref="tooltipElement"
             @mouseover="onMouseOver"
@@ -153,7 +156,13 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
         >
             <slot :close="closeTooltip" />
         </div>
-        <div :style="style" class="floating" :class="theme" ref="floatingElement">
+        <div
+            :style="style"
+            class="floating"
+            :class="theme"
+            ref="floatingElement"
+            v-if="!disabled"
+        >
             <!-- the arrow to be displayed on the top or on the left-->
             <div
                 v-if="placement == 'bottom' || placement == 'right'"
@@ -163,7 +172,10 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
                 :class="{ arrowUp: placement == 'bottom', arrowLeft: placement == 'right' }"
             ></div>
 
-            <slot name="content" :close="closeTooltip">
+            <slot
+                name="content"
+                :close="closeTooltip"
+            >
                 {{ tooltipContent }}
             </slot>
 

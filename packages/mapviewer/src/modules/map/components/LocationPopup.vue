@@ -2,8 +2,7 @@
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import log from '@geoadmin/log'
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -14,6 +13,7 @@ import LocationPopupPosition from '@/modules/map/components/LocationPopupPositio
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { stringifyQuery } from '@/utils/url-router'
 
 const dispatcher = { dispatcher: 'LocationPopup.vue' }
@@ -30,13 +30,12 @@ const showEmbedSharing = computed(() => selectedTab.value === 'share')
 const coordinate = computed(() => store.state.map.locationPopupCoordinates)
 
 const selectedTab = ref('position')
-const shareTabButton = useTemplateRef('shareTabButton')
+const shareTooltip = useTemplateRef('shareTooltip')
 const newClickInfo = ref(true)
 const requestClipboard = ref(false)
 const shareLinkCopied = ref(false)
 const shareLinkUrl = ref(null)
 const shareLinkUrlShorten = ref(null)
-let copyTooltipInstance = null
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -60,17 +59,20 @@ watch(clickInfo, () => {
         updateShareLink()
     }
 })
+
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
         copyShareLink()
         requestClipboard.value = false
     }
 })
+
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
     }
 })
+
 watch(
     () => route.query,
     () => {
@@ -83,24 +85,12 @@ watch(
     }
 )
 
-onMounted(() => {
-    copyTooltipInstance = tippy(shareTabButton.value, {
-        content: t('copy_success'),
-        arrow: true,
-        placement: 'top',
-        trigger: 'manual',
-        onShow(instance) {
-            setTimeout(() => {
-                instance.hide()
-            }, 1000)
-        },
-    })
-})
-onBeforeUnmount(() => {
-    copyTooltipInstance.destroy()
-})
 function showCopiedTooltip() {
-    copyTooltipInstance.show()
+    shareTooltip.value.openTooltip()
+}
+
+function closeCopiedTooltip() {
+    shareTooltip.value.closeTooltip()
 }
 
 function updateShareLink() {
@@ -112,6 +102,7 @@ function updateShareLink() {
     shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
     shortenShareLink(shareLinkUrl.value)
 }
+
 async function shortenShareLink(url) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
@@ -125,6 +116,7 @@ function onPositionTabClick() {
     selectedTab.value = 'position'
     newClickInfo.value = false
 }
+
 async function onShareTabClick() {
     if (newClickInfo.value && showEmbedSharing.value === false) {
         //copyShareLink is called by watcher since new shortlink is computed with a delay
@@ -143,6 +135,7 @@ async function copyShareLink() {
         shareLinkCopied.value = true
         setTimeout(() => {
             shareLinkCopied.value = false
+            closeCopiedTooltip()
         }, 1000)
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
@@ -195,33 +188,39 @@ function clearClick() {
                 class="nav-item"
                 role="presentation"
             >
-                <button
-                    ref="shareTabButton"
-                    class="nav-link py-1 px-0"
-                    :class="{
-                        active: selectedTab === 'share',
-                    }"
-                    data-cy="location-popup-share-tab-button"
-                    type="button"
-                    role="tab"
-                    aria-controls="nav-share"
-                    :aria-selected="selectedTab === 'share'"
-                    @click="onShareTabClick()"
+                <GeoadminTooltip
+                    ref="shareTooltip"
+                    placement="top"
+                    :tooltip-content="t('copy_success')"
+                    open-trigger="manual"
                 >
-                    <!-- Italian text does not fit on one line with normal sized text -->
-                    <div
+                    <button
+                        ref="shareTabButton"
+                        class="nav-link py-1 px-0"
                         :class="{
-                            small: currentLang === 'it',
+                            active: selectedTab === 'share',
                         }"
+                        data-cy="location-popup-share-tab-button"
+                        type="button"
+                        role="tab"
+                        aria-controls="nav-share"
+                        :aria-selected="selectedTab === 'share'"
+                        @click="onShareTabClick()"
                     >
-                        {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;
-                        <FontAwesomeIcon
-                            data-cy="location-popup-share-tab-check"
-                            class="px-0 icon"
-                            :icon="copyButtonIcon"
-                        />
-                    </div>
-                </button>
+                        <!-- Italian text does not fit on one line with normal sized text -->
+                        <div
+                            :class="{
+                                small: currentLang === 'it',
+                            }"
+                        >
+                            {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                                data-cy="location-popup-share-tab-check"
+                                class="px-0 icon"
+                                :icon="copyButtonIcon"
+                            />
+                        </div>
+                    </button>
+                </GeoadminTooltip>
             </li>
         </ul>
         <div class="tab-content mt-2">

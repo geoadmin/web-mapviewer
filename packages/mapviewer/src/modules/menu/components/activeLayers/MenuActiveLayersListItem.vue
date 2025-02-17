@@ -16,10 +16,10 @@ import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
@@ -103,12 +103,6 @@ const isLayerClampedToGround = computed({
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
 const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer.hasError)
-
-const loadingSpinner = useTemplateRef('loadingSpinner')
-useTippyTooltip(loadingSpinner, 'loading_external_layer')
-
-const duplicateLayerButton = useTemplateRef('duplicateLayerButton')
-useTippyTooltip(duplicateLayerButton, 'duplicate_layer')
 
 onMounted(() => {
     if (showLayerDetail) {
@@ -203,7 +197,7 @@ function changeStyle(newStyle) {
                 class="menu-layer-item-name p-1"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
-                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
+                :tooltip-placement="isPhoneMode ? 'top' : 'right'"
                 @click="onToggleLayerVisibility"
             >
                 {{ layer.name }}
@@ -212,26 +206,28 @@ function changeStyle(newStyle) {
                 v-if="layer.extent"
                 :extent="layer.extent"
             />
-            <button
-                v-if="showSpinner"
-                ref="loadingSpinner"
-                class="loading-button btn border-0 d-flex align-items-center"
-                :class="{
-                    'btn-lg': !compact,
-                }"
-                :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
-            >
-                <FontAwesomeIcon
-                    icon="spinner"
-                    pulse
+            <GeoadminTooltip :tooltip-content="t('loading_external_layer')">
+                <button
+                    v-if="showSpinner"
+                    ref="loadingSpinner"
+                    class="loading-button btn border-0 d-flex align-items-center"
+                    :class="{
+                        'btn-lg': !compact,
+                    }"
+                    :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
+                >
+                    <FontAwesomeIcon
+                        icon="spinner"
+                        pulse
+                    />
+                </button>
+                <ErrorButton
+                    v-else-if="layer.hasError"
+                    :compact="compact"
+                    :error-message="layer.getFirstErrorMessage()"
+                    :data-cy="`button-error-${id}-${index}`"
                 />
-            </button>
-            <ErrorButton
-                v-else-if="layer.hasError"
-                :compact="compact"
-                :error-message="layer.getFirstErrorMessage()"
-                :data-cy="`button-error-${id}-${index}`"
-            />
+            </GeoadminTooltip>
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
                 :layer-index="index"
@@ -271,7 +267,7 @@ function changeStyle(newStyle) {
             </button>
         </div>
         <div
-            v-show="showLayerDetail"
+            v-if="showLayerDetail"
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <div class="d-flex mx-1 align-items-center">
@@ -295,16 +291,17 @@ function changeStyle(newStyle) {
                     @input="debounceTransparencyChange"
                 />
                 <div class="btn-group">
-                    <button
-                        v-if="hasMultipleTimestamps"
-                        ref="duplicateLayerButton"
-                        class="layer-options-btn"
-                        :class="{ 'btn-lg': !compact }"
-                        :data-cy="`button-duplicate-layer-${id}-${index}`"
-                        @click.prevent="duplicateLayer()"
-                    >
-                        <FontAwesomeIcon :icon="['far', 'copy']" />
-                    </button>
+                    <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
+                        <button
+                            v-if="hasMultipleTimestamps"
+                            class="layer-options-btn"
+                            :class="{ 'btn-lg': !compact }"
+                            :data-cy="`button-duplicate-layer-${id}-${index}`"
+                            @click.prevent="duplicateLayer()"
+                        >
+                            <FontAwesomeIcon :icon="['far', 'copy']" />
+                        </button>
+                    </GeoadminTooltip>
                     <button
                         ref="layerUpButton"
                         class="layer-options-btn"
@@ -435,5 +432,9 @@ svg {
     @extend .align-items-center;
     @extend .px-2;
     @extend .border-0;
+}
+
+.btn-group {
+    position: static !important;
 }
 </style>

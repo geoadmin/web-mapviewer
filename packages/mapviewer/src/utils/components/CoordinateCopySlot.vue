@@ -1,10 +1,11 @@
 <script setup>
 import { CoordinateSystem } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
@@ -35,12 +36,12 @@ const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateP
         },
     })
 
-const copyButton = useTemplateRef('copyButton')
 const copied = ref(false)
 
 const store = useStore()
+const { t } = useI18n()
 const projection = computed(() => coordinateProjection ?? store.state.position.projection)
-const copyButtonText = computed(() => (copied.value ? 'copy_done' : 'copy_cta'))
+const copyButtonText = computed(() => t(copied.value ? 'copy_done' : 'copy_cta'))
 
 const buttonIcon = computed(() => {
     if (copied.value) {
@@ -48,15 +49,6 @@ const buttonIcon = computed(() => {
     }
     // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
     return ['far', 'copy']
-})
-
-useTippyTooltip(copyButton, copyButtonText, {
-    placement: 'right',
-    hideOnClick: false,
-    // no tooltip on mobile/touch
-    touch: false,
-    // The French translation of "copy_done" contains a &nbsp;
-    allowHTML: true,
 })
 
 function display(coordinates) {
@@ -93,19 +85,23 @@ async function copyValue() {
                 {{ extraValue }}
             </div>
         </div>
-        <button
-            ref="copyButton"
-            :data-cy="`${identifier}-button`"
-            class="location-popup-copy-button btn btn-sm btn-light text-black-50"
-            type="button"
-            @click="copyValue"
+        <GeoadminTooltip
+            placement="right"
+            :tooltip-content="copyButtonText"
         >
-            <FontAwesomeIcon
-                class="icon"
-                :icon="buttonIcon"
-                :data-cy="`${identifier}-icon`"
-            />
-        </button>
+            <button
+                :data-cy="`${identifier}-button`"
+                class="location-popup-copy-button btn btn-sm btn-light text-black-50"
+                type="button"
+                @click="copyValue"
+            >
+                <FontAwesomeIcon
+                    class="icon"
+                    :icon="buttonIcon"
+                    :data-cy="`${identifier}-icon`"
+                />
+            </button>
+        </GeoadminTooltip>
     </div>
 </template>
 

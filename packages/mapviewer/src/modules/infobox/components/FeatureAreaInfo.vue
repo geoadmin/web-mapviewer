@@ -1,9 +1,10 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
-import { computed, useTemplateRef } from 'vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
@@ -15,10 +16,7 @@ const { geometry } = defineProps({
     },
 })
 
-const tooltipAnchor = useTemplateRef('tooltipAnchor')
-
-useTippyTooltip(tooltipAnchor, 'area', { placement: 'right' })
-
+const { t } = useI18n()
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
@@ -53,21 +51,23 @@ const humanReadableArea = computed(() => {
 </script>
 
 <template>
-    <div
-        ref="tooltipAnchor"
-        class="area-information-container d-flex align-items-center"
+    <GeoadminTooltip
+        :tooltip-content="t('area')"
+        placement="right"
     >
-        <div class="rectangle" />
-        <div class="area-information ps-2">
-            <span
-                class="align-middle"
-                data-cy="feature-area-information"
-            >
-                <!-- keep the sup on the same line! -->
-                {{ humanReadableArea }}<sup>2</sup>
-            </span>
+        <div class="area-information-container d-flex align-items-center">
+            <div class="rectangle" />
+            <div class="area-information ps-2">
+                <span
+                    class="align-middle"
+                    data-cy="feature-area-information"
+                >
+                    {{ humanReadableArea }}
+                    <sup>2</sup>
+                </span>
+            </div>
         </div>
-    </div>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>
