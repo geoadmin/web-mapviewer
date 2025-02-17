@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
@@ -11,7 +12,7 @@ const { showAsButton } = defineProps({
 })
 
 const { t } = useI18n()
-const cmsUrl = computed(() => t('cms_release_link'))
+const cmsUrl = computed(() => t('cms_release_url'))
 
 // https://www.geo.admin.ch/lang/t(handle)
 
@@ -26,6 +27,6 @@ function openCmsLink() {
         data-cy="header-cms-link"
         @click="openCmsLink"
     >
-        {{ t(cms_releases_button_title) }}
+        {{ t('cms_release_button_title') }}
     </HeaderLink>
 </template>

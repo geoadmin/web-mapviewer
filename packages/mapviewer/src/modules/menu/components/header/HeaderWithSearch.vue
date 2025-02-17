@@ -3,16 +3,15 @@ import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from '
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
 import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
-import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import DataSetAndReleaseInfo from '@/modules/menu/components/help/DataSetAndReleaseInfo.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
@@ -60,7 +59,11 @@ function resetApp() {
 </script>
 
 <template>
-    <div ref="header" class="header" data-cy="app-header">
+    <div
+        ref="header"
+        class="header"
+        data-cy="app-header"
+    >
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <div
@@ -83,13 +86,24 @@ function resetApp() {
             >
                 <SearchBar />
             </div>
-            <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
+            <HeaderMenuButton
+                v-if="isPhoneMode"
+                class="mx-1"
+            />
         </div>
-        <div class="header-settings-section" data-cy="header-settings-section">
-            <FeedbackButton v-if="hasGiveFeedbackButton" show-as-link />
-            <ReportProblemButton v-if="hasReportProblemButton" show-as-link />
-            <MoreInfo small />
-            <DataSetAndReleaseInfo small />
+        <div
+            class="header-settings-section"
+            data-cy="header-settings-section"
+        >
+            <FeedbackButton
+                v-if="hasGiveFeedbackButton"
+                show-as-link
+            />
+            <ReportProblemButton
+                v-if="hasReportProblemButton"
+                show-as-link
+            />
+            <AdditionalInfoCollapsable />
             <HelpLink small />
             <HeaderLangSelector
                 id="menu-lang-selector"
