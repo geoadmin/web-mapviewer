@@ -4,12 +4,12 @@
  * sharing to external social media will be done through a popup.
  */
 
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { shortLink } = defineProps({
     shortLink: {
@@ -49,13 +49,6 @@ const networks = ref([
     },
 ])
 
-const shareButtons = ref([])
-const tooltipContents = computed(() => [
-    ...networks.value.map((network) => network.tooltip),
-    'qrcode_tooltip',
-])
-useTippyTooltip(shareButtons, tooltipContents)
-
 const buttonClass = `btn btn-sm btn-light share-network-button`
 const iconSize = '2x'
 
@@ -83,29 +76,31 @@ function openQrcode() {
             :url="shortLink"
             :title="network.subject ? t(network.subject) : ''"
         >
+            <GeoadminTooltip :tooltip-content="t(network.tooltip)">
+                <button
+                    :class="buttonClass"
+                    :data-cy="`share-shortlink-${network.id}`"
+                    @click="share"
+                >
+                    <FontAwesomeIcon
+                        :icon="network.icons"
+                        :size="iconSize"
+                    />
+                </button>
+            </GeoadminTooltip>
+        </ShareNetwork>
+        <GeoadminTooltip :tooltip-content="t('qrcode_tooltip')">
             <button
-                :ref="(el) => shareButtons.push(el)"
                 :class="buttonClass"
-                :data-cy="`share-shortlink-${network.id}`"
-                @click="share"
+                data-cy="share-shortlink-qrcode"
+                @click="openQrcode"
             >
                 <FontAwesomeIcon
-                    :icon="network.icons"
+                    icon="qrcode"
                     :size="iconSize"
                 />
             </button>
-        </ShareNetwork>
-        <button
-            :ref="(el) => shareButtons.push(el)"
-            :class="buttonClass"
-            data-cy="share-shortlink-qrcode"
-            @click="openQrcode"
-        >
-            <FontAwesomeIcon
-                icon="qrcode"
-                :size="iconSize"
-            />
-        </button>
+        </GeoadminTooltip>
     </div>
 </template>
 

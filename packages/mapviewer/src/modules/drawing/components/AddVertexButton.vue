@@ -1,10 +1,13 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onMounted, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditMode } from '@/store/modules/drawing.store'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
+
+const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 
@@ -25,11 +28,10 @@ const emit = defineEmits(['button-mounted'])
 const store = useStore()
 
 const buttonRef = useTemplateRef('buttonRef')
-useTippyTooltip(buttonRef, tooltipText, { placement: 'left' })
 
 onMounted(() => {
     // Emit an event to notify the parent component that the button is mounted
-    emit('button-mounted', buttonRef.value)
+    emit('button-mounted', buttonRef.value.tooltipElement)
 })
 
 function addVertex() {
@@ -42,13 +44,18 @@ function addVertex() {
 </script>
 
 <template>
-    <button
+    <GeoadminTooltip
+        :tooltip-content="t(tooltipText)"
         ref="buttonRef"
-        class="overlay-button d-print-none"
-        @click="addVertex"
+        placement="left"
     >
-        <font-awesome-icon :icon="['fas', 'plus']" />
-    </button>
+        <button
+            class="overlay-button d-print-none"
+            @click="addVertex"
+        >
+            <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>

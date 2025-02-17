@@ -51,7 +51,7 @@ function setDisclaimerAgree() {
             <div class="disclaimer d-flex justify-content-between rounded-2">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :show-tippy="false"
+                    :show-tooltip="false"
                     :source-name="externalIframeHosts.toString()"
                 >
                     <div

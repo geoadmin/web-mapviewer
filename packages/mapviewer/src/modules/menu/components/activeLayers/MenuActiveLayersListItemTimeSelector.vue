@@ -1,6 +1,5 @@
 <script setup>
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -9,6 +8,7 @@ import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
@@ -35,9 +35,6 @@ const { layerIndex, layerId, timeConfig, compact } = defineProps({
 const store = useStore()
 const { t } = useI18n()
 
-const timeSelectorButton = useTemplateRef('timeSelectorButton')
-const timeSelectorModal = useTemplateRef('timeSelectorModal')
-
 const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
@@ -48,28 +45,6 @@ const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
 const humanReadableCurrentTimestamp = computed(() => {
     return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
-})
-
-let popover = null
-
-onMounted(() => {
-    if (hasTimeSelector.value) {
-        popover = tippy(timeSelectorButton.value, {
-            theme: 'popover-button light-border',
-            content: timeSelectorModal.value,
-            allowHTML: true,
-            placement: 'right',
-            interactive: true,
-            arrow: true,
-            trigger: 'click',
-            // Required by the cypres test to avoid CSS issues on cypress when testing the tippy content
-            appendTo: document.body,
-        })
-    }
-})
-
-onBeforeUnmount(() => {
-    popover?.destroy()
 })
 
 /**
@@ -98,10 +73,6 @@ function handleClickOnTimestamp(year) {
     store.dispatch('setTimedLayerCurrentYear', { index: layerIndex, year, ...dispatcher })
 }
 
-function hidePopover() {
-    popover?.hide()
-}
-
 function isSelected(timeEntry) {
     return timeConfig.currentTimestamp === timeEntry?.timestamp
 }
@@ -109,44 +80,56 @@ function isSelected(timeEntry) {
 
 <template>
     <div v-if="hasTimeSelector">
-        <button
-            ref="timeSelectorButton"
-            class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
-            :class="{
-                'btn-sm': compact,
-                'btn-timestamp-selector-compact': compact,
-            }"
-            :data-cy="`time-selector-${layerId}-${layerIndex}`"
+        <GeoadminTooltip
+            placement="right"
+            open-trigger="click"
         >
-            <TextTruncate>{{ humanReadableCurrentTimestamp }}</TextTruncate>
-        </button>
-        <div
-            ref="timeSelectorModal"
-            class="card border-0"
-            @click="hidePopover"
-        >
-            <div class="card-header d-flex align-items-center justify-content-between">
-                {{ t('time_select_year') }}
-            </div>
-            <div
-                class="card-body rounded-bottom p-2 timestamps-popover-content"
-                data-cy="time-selection-popup"
+            <button
+                ref="timeSelectorButton"
+                class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
+                :class="{
+                    'btn-sm': compact,
+                    'btn-timestamp-selector-compact': compact,
+                }"
+                :data-cy="`time-selector-${layerId}-${layerIndex}`"
             >
-                <button
-                    v-for="timeEntry in timeConfig.timeEntries"
-                    :key="timeEntry.timestamp"
-                    class="btn mb-1 me-1 btn-timestamp-selection-popup"
-                    :class="{
-                        'btn-primary': isSelected(timeEntry),
-                        'btn-light': !isSelected(timeEntry),
-                    }"
-                    :data-cy="`time-select-${timeEntry.timestamp}`"
-                    @click="handleClickOnTimestamp(timeEntry.year)"
+                <TextTruncate>
+                    {{ humanReadableCurrentTimestamp }}
+                </TextTruncate>
+            </button>
+
+            <template #content="{ close }">
+                <div
+                    ref="timeSelectorModal"
+                    class="card border-0"
                 >
-                    <TextTruncate>{{ renderHumanReadableTimestamp(timeEntry) }}</TextTruncate>
-                </button>
-            </div>
-        </div>
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        {{ t('time_select_year') }}
+                    </div>
+                    <div
+                        class="card-body rounded-bottom p-2 timestamps-popover-content"
+                        data-cy="time-selection-popup"
+                        @click="close"
+                    >
+                        <button
+                            v-for="timeEntry in timeConfig.timeEntries"
+                            :key="timeEntry.timestamp"
+                            class="btn mb-1 me-1 btn-timestamp-selection-popup"
+                            :class="{
+                                'btn-primary': isSelected(timeEntry),
+                                'btn-light': !isSelected(timeEntry),
+                            }"
+                            :data-cy="`time-select-${timeEntry.timestamp}`"
+                            @click="handleClickOnTimestamp(timeEntry.year)"
+                        >
+                            <TextTruncate>
+                                {{ renderHumanReadableTimestamp(timeEntry) }}
+                            </TextTruncate>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </GeoadminTooltip>
     </div>
 </template>
 

@@ -2,16 +2,14 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
 import { isNumber, round } from '@geoadmin/numbers'
-import tippy, { followCursor } from 'tippy.js'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import debounce from '@/utils/debounce'
-
-import { useRangeTippy } from './useRangeTippy'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }
 const { t } = useI18n()
@@ -30,18 +28,15 @@ let yearCursorIsGrabbed = false
 let playYearInterval = null
 
 // refs to dom elements
-const timeSliderTooltipRef = useTemplateRef('timeSliderTooltipRef')
 const yearCursor = useTemplateRef('yearCursor')
 const sliderContainer = useTemplateRef('sliderContainer')
-const timeSliderBar = useTemplateRef('timeSliderBar')
-let tippyTimeSliderInfo = null
 
 // ref to year cursor input
 const yearCursorInput = useTemplateRef('yearCursorInput')
+const outsideRangeTooltip = useTemplateRef('outsideRangeTooltip')
 
 const store = useStore()
 const screenWidth = computed(() => store.state.ui.width)
-const lang = computed(() => store.state.i18n.lang)
 const layersWithTimestamps = computed(() => store.getters.visibleLayersWithTimeConfig)
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const youngestYear = computed(() => store.getters.youngestYear)
@@ -58,14 +53,9 @@ const allYears = computed(() => {
 
 const isInputYearValid = ref(true)
 
-const tippyYearOutsideRangeContent = computed(
+const tooltipYearOutsideRangeContent = computed(
     () =>
         `${t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
-)
-
-const { tippyInstance: tippyOutsideRange, updateTippyContent } = useRangeTippy(
-    () => yearCursorInput.value,
-    tippyYearOutsideRangeContent.value
 )
 
 /**
@@ -168,14 +158,10 @@ watch(screenWidth, (newValue) => {
 
 watch(isInputYearValid, (newValue) => {
     if (!newValue) {
-        tippyOutsideRange.value.show()
+        outsideRangeTooltip.value.openTooltip()
     } else {
-        tippyOutsideRange.value.hide()
+        outsideRangeTooltip.value.closeTooltip()
     }
-})
-
-watch(lang, () => {
-    updateTippyContent(tippyYearOutsideRangeContent.value)
 })
 
 onMounted(() => {
@@ -212,18 +198,6 @@ onMounted(() => {
 
     log.debug(`Time slider activated, currentYear=${currentYear.value}`)
 
-    tippyTimeSliderInfo = tippy(timeSliderBar.value, {
-        content: timeSliderTooltipRef.value,
-        hideOnClick: true,
-        placement: 'bottom',
-        delay: [1500, 500],
-        allowHTML: true,
-        followCursor: 'initial',
-        plugins: [followCursor],
-        // Show tippy on long touch for mobile device
-        touch: ['hold', 500], // 500ms delay,
-    })
-
     window.addEventListener('keydown', handleKeyDownEvent)
 
     watch(currentYear, () => {
@@ -242,8 +216,6 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyDownEvent)
-
-    tippyTimeSliderInfo?.destroy()
 })
 
 /** Set the current preview years to the layers if they have the year available in their data */
@@ -428,17 +400,23 @@ function handleKeyDownEvent(event) {
                     >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
-                    <input
-                        ref="yearCursorInput"
-                        v-model="inputYear"
-                        class="form-control time-slider-bar-cursor-year"
-                        :class="{ 'is-invalid': !isInputYearValid }"
-                        data-cy="time-slider-bar-cursor-year"
-                        maxlength="4"
-                        type="text"
-                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                        @keypress.enter="yearCursorInput.blur()"
-                    />
+                    <GeoadminTooltip
+                        ref="outsideRangeTooltip"
+                        theme="danger"
+                        :tooltip-content="tooltipYearOutsideRangeContent"
+                        open-trigger="manual"
+                    >
+                        <input
+                            v-model="inputYear"
+                            class="form-control time-slider-bar-cursor-year"
+                            :class="{ 'is-invalid': !isInputYearValid }"
+                            data-cy="time-slider-bar-cursor-year"
+                            maxlength="4"
+                            type="text"
+                            onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                            @keypress.enter="yearCursorInput.blur()"
+                        />
+                    </GeoadminTooltip>
                     <div
                         class="px-2 border-start d-flex align-items-center"
                         @touchstart.passive="grabCursor"
@@ -452,28 +430,54 @@ function handleKeyDownEvent(event) {
                     class="time-slider-bar-cursor-arrow"
                     :style="cursorArrowPosition"
                 />
-                <div
-                    v-if="yearsShownAsLabel.length > 0"
-                    ref="timeSliderBar"
-                    class="time-slider-bar-inner d-flex mt-5"
-                    :style="innerBarStyle"
+                <GeoadminTooltip
+                    placement="bottom"
+                    theme="secondary"
                 >
-                    <span
-                        v-for="year in allYears"
-                        :key="year"
-                        :style="innerBarStepStyle"
-                        class="time-slider-bar-inner-step"
-                        :data-cy="`time-slider-bar-${year}`"
-                        :class="{
-                            'has-partial-data': yearsWithData.yearsSeparate.includes(year),
-                            'has-joint-data': yearsWithData.yearsJoint.includes(year),
-                            'big-tick': year % 50 === 0,
-                            'medium-tick': year % 25 === 0,
-                            'small-tick': year % 5 === 0,
-                        }"
-                        @click="currentYear = year"
-                    />
-                </div>
+                    <div
+                        v-if="yearsShownAsLabel.length > 0"
+                        ref="timeSliderBar"
+                        class="time-slider-bar-inner d-flex mt-5"
+                        :style="innerBarStyle"
+                    >
+                        <span
+                            v-for="year in allYears"
+                            :key="year"
+                            :style="innerBarStepStyle"
+                            class="time-slider-bar-inner-step"
+                            :data-cy="`time-slider-bar-${year}`"
+                            :class="{
+                                'has-partial-data': yearsWithData.yearsSeparate.includes(year),
+                                'has-joint-data': yearsWithData.yearsJoint.includes(year),
+                                'big-tick': year % 50 === 0,
+                                'medium-tick': year % 25 === 0,
+                                'small-tick': year % 5 === 0,
+                            }"
+                            @click="currentYear = year"
+                        />
+                    </div>
+                    <template #content>
+                        <div class="time-slider-infobox">
+                            <div class="mb-2">
+                                {{ t('time_slider_legend_tippy_intro') }}
+                            </div>
+                            <div class="ps-3">
+                                <div class="mb-1">
+                                    <div class="color-tippy-data-none me-2" />
+                                    <div>{{ t('time_slider_legend_tippy_no_data') }}</div>
+                                </div>
+                                <div class="mb-1">
+                                    <div class="color-tippy-data-partial me-2" />
+                                    <div>{{ t('time_slider_legend_tippy_partial_data') }}</div>
+                                </div>
+                                <div>
+                                    <div class="color-tippy-data-full me-2" />
+                                    <div>{{ t('time_slider_legend_tippy_full_data') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </GeoadminTooltip>
                 <div
                     v-for="yearAsLabel in yearsShownAsLabel"
                     :key="yearAsLabel"
@@ -510,25 +514,6 @@ function handleKeyDownEvent(event) {
             </div>
         </div>
         <!-- Time slider color tooltip content -->
-        <div ref="timeSliderTooltipRef">
-            <div class="mb-2">
-                {{ t('time_slider_legend_tippy_intro') }}
-            </div>
-            <div class="ps-3">
-                <div class="mb-1">
-                    <div class="color-tippy-data-none me-2" />
-                    <div>{{ t('time_slider_legend_tippy_no_data') }}</div>
-                </div>
-                <div class="mb-1">
-                    <div class="color-tippy-data-partial me-2" />
-                    <div>{{ t('time_slider_legend_tippy_partial_data') }}</div>
-                </div>
-                <div>
-                    <div class="color-tippy-data-full me-2" />
-                    <div>{{ t('time_slider_legend_tippy_full_data') }}</div>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -624,10 +609,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
             top: 0.75 * $spacer;
             height: $cursor-height;
             width: 100px;
-            &-year {
-                position: relative;
-                top: 1px;
-            }
             &-arrow {
                 $arrow-width: 9px;
                 position: absolute;
@@ -704,11 +685,11 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     }
 }
 .time-slider-bar-cursor-year {
+    border: none;
     &.form-control {
-        padding: 3px;
+        padding: 0 3px;
         border-color: $white;
         &.is-invalid {
-            padding: 3px;
             background-size: 0;
         }
         &:focus {
@@ -716,5 +697,9 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
             box-shadow: none;
         }
     }
+}
+
+.time-slider-infobox {
+    padding: 6px 10px;
 }
 </style>
