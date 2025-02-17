@@ -51,7 +51,7 @@ function setDisclaimerAgree() {
             <div class="disclaimer d-flex justify-content-between rounded-2">
                 <ThirdPartyDisclaimer
                     :complete-disclaimer-on-click="true"
-                    :show-tippy="false"
+                    :show-tooltip="false"
                     :source-name="externalIframeHosts.toString()"
                 >
                     <div
@@ -76,11 +76,7 @@ function setDisclaimerAgree() {
                     data-cy="feature-detail-media-disclaimer-close"
                     @click="setDisclaimerAgree"
                 >
-                    <FontAwesomeIcon
-                        style="color: white"
-                        size="lg"
-                        icon="times"
-                    />
+                    <FontAwesomeIcon style="color: white" size="lg" icon="times" />
                 </button>
             </div>
         </div>
@@ -100,11 +96,7 @@ function setDisclaimerAgree() {
                     class="d-flex px-2 btn btn-default btn-xs border-0"
                     data-cy="feature-detail-media-disclaimer-closed-info"
                 >
-                    <FontAwesomeIcon
-                        size="lg"
-                        color="red"
-                        icon="fa-user"
-                    />
+                    <FontAwesomeIcon size="lg" color="red" icon="fa-user" />
                 </button>
             </ThirdPartyDisclaimer>
         </div>

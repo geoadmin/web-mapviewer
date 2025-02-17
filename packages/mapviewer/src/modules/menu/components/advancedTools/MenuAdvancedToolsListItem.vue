@@ -1,8 +1,8 @@
 <script setup>
-import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
+import { placements } from '@popperjs/core'
 
 const { isSelected, title, tooltip } = defineProps({
     isSelected: {
@@ -26,12 +26,6 @@ const { isSelected, title, tooltip } = defineProps({
 const emit = defineEmits(['toggleMenu'])
 
 const { t } = useI18n()
-
-const tooltipAnchor = useTemplateRef('tooltipAnchor')
-useTippyTooltip(tooltipAnchor, tooltip, {
-    placement: 'auto',
-    touch: false,
-})
 </script>
 
 <template>
@@ -47,10 +41,13 @@ useTippyTooltip(tooltipAnchor, tooltip, {
                 :class="{ invisible: !dropdownMenu, 'text-primary': isSelected }"
                 :icon="`caret-${isSelected ? 'down' : 'right'}`"
             />
-            <span
-                ref="tooltipAnchor"
-                class="px-1"
-            >{{ t(title) }} </span>
+            <GeoadminTooltip class="px-1" placement="right">
+                {{ t(title) }}
+                <!-- we're inside the <a> tag, thus we need to override the font color -->
+                <template #content>
+                    <div class="text-black tool-tooltip">{{ t(tooltip) }}</div>
+                </template>
+            </GeoadminTooltip>
         </a>
         <slot />
     </div>
@@ -69,5 +66,9 @@ useTippyTooltip(tooltipAnchor, tooltip, {
         height: 2.75em;
         line-height: 2.75em;
     }
+}
+
+.tool-tooltip {
+    padding: 6px 10px;
 }
 </style>
