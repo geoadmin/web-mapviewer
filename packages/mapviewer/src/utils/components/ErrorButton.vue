@@ -1,8 +1,8 @@
 <script setup>
-import { computed, useTemplateRef } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const { compact, errorMessage } = defineProps({
@@ -18,18 +18,14 @@ const { compact, errorMessage } = defineProps({
 
 const { t } = useI18n()
 
-const errorButton = useTemplateRef('errorButton')
 const translatedMessage = computed(() => t(errorMessage.msg, errorMessage.params))
-
-useTippyTooltip(errorButton, translatedMessage, {
-    theme: 'danger',
-    placement: 'top',
-    hideOnClick: false,
-})
 </script>
 
 <template>
-    <div ref="errorButton">
+    <GeoadminTooltip
+        :tooltip-content="translatedMessage"
+        theme="danger"
+    >
         <button
             class="btn text-danger border-0 p-0 d-flex align-items-center"
             :class="{
@@ -42,7 +38,7 @@ useTippyTooltip(errorButton, translatedMessage, {
         >
             <FontAwesomeIcon icon="circle-exclamation" />
         </button>
-    </div>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped></style>

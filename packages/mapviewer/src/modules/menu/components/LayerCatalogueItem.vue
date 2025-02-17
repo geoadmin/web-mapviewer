@@ -287,7 +287,7 @@ function containsLayer(layers, searchText) {
                 class="menu-catalogue-item-name px-1"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
                 :data-cy="`catalogue-tree-item-name-${item.id}`"
-                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
+                :tooltip-placement="isPhoneMode ? 'top' : 'right'"
             >
                 <TextSearchMarker
                     :text="item.name"

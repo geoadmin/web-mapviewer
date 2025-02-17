@@ -1,25 +1,22 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'FullScreenButton.vue' }
 
 const { t } = useI18n()
 const store = useStore()
 
-const fullscreenButton = useTemplateRef('fullscreenButton')
 const tooltipContent = computed(() => {
     if (isInFullScreenMode.value) {
-        return 'full_screen_exit'
+        return t('full_screen_exit')
     }
-    return 'full_screen'
+    return t('full_screen')
 })
-
-useTippyTooltip(fullscreenButton, tooltipContent, { placement: 'left' })
 
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 
@@ -52,15 +49,20 @@ function handleKeydown(event) {
     >
         {{ t('full_screen_window_exit') }}
     </div>
-    <button
-        ref="fullscreenButton"
-        class="toolbox-button d-print-none"
-        :class="{ active: isInFullScreenMode }"
-        data-cy="toolbox-fullscreen-button"
-        @click="toggleFullScreen()"
+    <GeoadminTooltip
+        :tooltip-content="tooltipContent"
+        placement="left"
     >
-        <FontAwesomeIcon icon="expand" />
-    </button>
+        <button
+            ref="fullscreenButton"
+            class="toolbox-button d-print-none"
+            :class="{ active: isInFullScreenMode }"
+            data-cy="toolbox-fullscreen-button"
+            @click="toggleFullScreen()"
+        >
+            <FontAwesomeIcon icon="expand" />
+        </button>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>

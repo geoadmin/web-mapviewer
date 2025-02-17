@@ -1,22 +1,22 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
 
 const store = useStore()
+const { t } = useI18n()
 
-const toggle3DButton = useTemplateRef('toggle3DButton')
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
-        return `tilt3d_${isActive.value ? 'active' : 'inactive'}`
+        return t(`tilt3d_${isActive.value ? 'active' : 'inactive'}`)
     }
-    return '3d_render_error'
+    return t('3d_render_error')
 })
-useTippyTooltip(toggle3DButton, tooltipContent, { placement: 'left' })
 
 const webGlIsSupported = ref(false)
 
@@ -56,21 +56,32 @@ function toggle3d() {
 </script>
 
 <template>
-    <button
-        ref="toggle3DButton"
-        class="toolbox-button"
-        type="button"
-        :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
-        data-cy="3d-button"
-        @click="toggle3d"
-    >
-        <FontAwesomeIcon
-            :icon="['fas', 'cube']"
-            flip="horizontal"
-        />
-    </button>
+    <GeoadminTooltip placement="left">
+        <button
+            ref="toggle3DButton"
+            class="toolbox-button"
+            type="button"
+            :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
+            data-cy="3d-button"
+            @click="toggle3d"
+        >
+            <FontAwesomeIcon
+                :icon="['fas', 'cube']"
+                flip="horizontal"
+            />
+        </button>
+        <template #content>
+            <div class="whitespace-nowrap threed-tooltip">
+                {{ tooltipContent }}
+            </div>
+        </template>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
+
+.threed-tooltip {
+    padding: 6px 10px;
+}
 </style>
