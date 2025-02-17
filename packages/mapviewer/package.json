@@ -80,7 +80,8 @@
         "vue-i18n": "catalog:",
         "vue-router": "catalog:",
         "vue3-social-sharing": "catalog:",
-        "vuex": "catalog:"
+        "vuex": "catalog:",
+        "@floating-ui/vue": "catalog:"
     },
     "devDependencies": {
         "@4tw/cypress-drag-drop": "catalog:",
