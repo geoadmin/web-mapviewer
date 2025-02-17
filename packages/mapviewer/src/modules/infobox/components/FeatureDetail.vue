@@ -12,7 +12,7 @@ import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailD
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
-const props = defineProps({
+const { feature } = defineProps({
     feature: {
         type: SelectableFeature,
         required: true,
@@ -22,17 +22,17 @@ const props = defineProps({
 const { t } = useI18n()
 
 const store = useStore()
-const hasFeatureStringData = computed(() => typeof props.feature?.data === 'string')
-const popupDataCanBeTrusted = computed(() => props.feature?.popupDataCanBeTrusted)
+const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
+const popupDataCanBeTrusted = computed(() => feature?.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !props.feature?.data) {
+    if (hasFeatureStringData.value || !feature?.data) {
         return []
     }
-    return Object.entries(props.feature?.data)
+    return Object.entries(feature?.data)
         .filter(([_, value]) => value) // Filtering out null values
         .map(([key, value]) => [
             key,
@@ -65,13 +65,11 @@ function sanitizeHtml(htmlText, withIframe = false) {
         if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
             node.setAttribute('rel', 'noopener noreferrer')
-            if (handleNode(node, 'href')){
-                return
-            }
+            handleNode(node, 'href')
         }
         // Check the IFRAME tag
-        if (node.tagName === 'IFRAME' && handleNode(node, 'src')) {
-            return
+        if (node.tagName === 'IFRAME') {
+            handleNode(node, 'src')
         }
     })
     const config = {
