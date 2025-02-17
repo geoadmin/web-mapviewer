@@ -80,6 +80,10 @@ const showTooltip = (): void => {
 const hideTooltip = (): void => {
     if (!disabled) isShown.value = false
 }
+
+// some components need access to the root element because they for instance
+// position it on the map
+defineExpose({ tooltipElement })
 </script>
 
 <template>

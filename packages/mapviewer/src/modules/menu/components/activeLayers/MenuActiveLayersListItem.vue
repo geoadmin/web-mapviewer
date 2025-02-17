@@ -16,10 +16,10 @@ import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
@@ -103,12 +103,6 @@ const isLayerClampedToGround = computed({
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
 const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer.hasError)
-
-const loadingSpinner = useTemplateRef('loadingSpinner')
-useTippyTooltip(loadingSpinner, 'loading_external_layer')
-
-const duplicateLayerButton = useTemplateRef('duplicateLayerButton')
-useTippyTooltip(duplicateLayerButton, 'duplicate_layer')
 
 onMounted(() => {
     if (showLayerDetail) {
@@ -208,30 +202,26 @@ function changeStyle(newStyle) {
             >
                 {{ layer.name }}
             </TextTruncate>
-            <ZoomToExtentButton
-                v-if="layer.extent"
-                :extent="layer.extent"
-            />
-            <button
-                v-if="showSpinner"
-                ref="loadingSpinner"
-                class="loading-button btn border-0 d-flex align-items-center"
-                :class="{
-                    'btn-lg': !compact,
-                }"
-                :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
-            >
-                <FontAwesomeIcon
-                    icon="spinner"
-                    pulse
+            <ZoomToExtentButton v-if="layer.extent" :extent="layer.extent" />
+            <GeoadminTooltip :tooltip-content="t('loading_external_layer')">
+                <button
+                    v-if="showSpinner"
+                    ref="loadingSpinner"
+                    class="loading-button btn border-0 d-flex align-items-center"
+                    :class="{
+                        'btn-lg': !compact,
+                    }"
+                    :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
+                >
+                    <FontAwesomeIcon icon="spinner" pulse />
+                </button>
+                <ErrorButton
+                    v-else-if="layer.hasError"
+                    :compact="compact"
+                    :error-message="layer.getFirstErrorMessage()"
+                    :data-cy="`button-error-${id}-${index}`"
                 />
-            </button>
-            <ErrorButton
-                v-else-if="layer.hasError"
-                :compact="compact"
-                :error-message="layer.getFirstErrorMessage()"
-                :data-cy="`button-error-${id}-${index}`"
-            />
+            </GeoadminTooltip>
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
                 :layer-index="index"
@@ -270,15 +260,9 @@ function changeStyle(newStyle) {
                 <FontAwesomeIcon icon="cog" />
             </button>
         </div>
-        <div
-            v-show="showLayerDetail"
-            :data-cy="`div-layer-settings-${id}-${index}`"
-        >
+        <div v-if="showLayerDetail" :data-cy="`div-layer-settings-${id}-${index}`">
             <div class="d-flex mx-1 align-items-center">
-                <label
-                    :for="`transparency-${id}`"
-                    class="menu-layer-options"
-                >
+                <label :for="`transparency-${id}`" class="menu-layer-options">
                     {{ t('transparency') }}
                 </label>
                 <input
@@ -293,18 +277,19 @@ function changeStyle(newStyle) {
                     :data-cy="`slider-transparency-layer-${id}-${index}`"
                     @mouseup="onTransparencyCommit"
                     @input="debounceTransparencyChange"
-                >
+                />
                 <div class="btn-group">
-                    <button
-                        v-if="hasMultipleTimestamps"
-                        ref="duplicateLayerButton"
-                        class="layer-options-btn"
-                        :class="{ 'btn-lg': !compact }"
-                        :data-cy="`button-duplicate-layer-${id}-${index}`"
-                        @click.prevent="duplicateLayer()"
-                    >
-                        <FontAwesomeIcon :icon="['far', 'copy']" />
-                    </button>
+                    <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
+                        <button
+                            v-if="hasMultipleTimestamps"
+                            class="layer-options-btn"
+                            :class="{ 'btn-lg': !compact }"
+                            :data-cy="`button-duplicate-layer-${id}-${index}`"
+                            @click.prevent="duplicateLayer()"
+                        >
+                            <FontAwesomeIcon :icon="['far', 'copy']" />
+                        </button>
+                    </GeoadminTooltip>
                     <button
                         ref="layerUpButton"
                         class="layer-options-btn"
@@ -336,15 +321,8 @@ function changeStyle(newStyle) {
                     </button>
                 </div>
             </div>
-            <div
-                v-if="isLayerKml"
-                v-show="showLayerDetail"
-                class="p-1 d-block"
-            >
-                <div
-                    v-if="is3dActive"
-                    class="form-check form-switch"
-                >
+            <div v-if="isLayerKml" v-show="showLayerDetail" class="p-1 d-block">
+                <div v-if="is3dActive" class="form-check form-switch">
                     <label
                         class="menu-layer-options me-2 form-check-label"
                         :for="`checkbox-clamp-to-ground-${id}`"
@@ -356,12 +334,9 @@ function changeStyle(newStyle) {
                         v-model="isLayerClampedToGround"
                         type="checkbox"
                         class="form-check-input"
-                    >
+                    />
                 </div>
-                <div
-                    v-else
-                    class="d-flex align-items-center"
-                >
+                <div v-else class="d-flex align-items-center">
                     <label class="menu-layer-options me-2">
                         {{ t('vector_feedback_select_style') }}
                     </label>
@@ -435,5 +410,9 @@ svg {
     @extend .align-items-center;
     @extend .px-2;
     @extend .border-0;
+}
+
+.btn-group {
+    position: static !important;
 }
 </style>
