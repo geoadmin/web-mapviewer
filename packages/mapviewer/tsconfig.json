@@ -1,0 +1,8 @@
+{
+    "extends": "../../tsconfig.shared.json",
+    "compilerOptions": {
+        // see https://www.typescriptlang.org/tsconfig#allowJs
+        // see https://github.com/vuejs/eslint-config-typescript?tab=readme-ov-file#advanced-setup
+        "allowJs": true
+    }
+}
