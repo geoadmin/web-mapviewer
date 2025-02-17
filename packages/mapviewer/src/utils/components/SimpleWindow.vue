@@ -8,8 +8,8 @@ import { useMovableElement } from '@/utils/composables/useMovableElement.composa
 
 const acceptedInitialPositions = ['top-left', 'top-center', 'top-right']
 
-const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dataCy } = defineProps(
-    {
+const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, small, dataCy } =
+    defineProps({
         title: {
             type: String,
             default: '',
@@ -43,12 +43,15 @@ const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dat
             type: Boolean,
             default: false,
         },
+        small: {
+            type: Boolean,
+            default: false,
+        },
         dataCy: {
             type: String,
             default: 'simple-window',
         },
-    }
-)
+    })
 
 const store = useStore()
 
@@ -96,6 +99,7 @@ onMounted(() => {
                 {
                     'dev-disclaimer-present': hasDevSiteWarning,
                     wide: wide,
+                    small: small,
                     resizable: resizeable && showBody,
                 },
             ]"
@@ -105,20 +109,11 @@ onMounted(() => {
                 class="card-header d-flex align-items-center justify-content-sm-end"
                 data-cy="window-header"
             >
-                <span
-                    v-if="title"
-                    data-cy="simple-window-title"
-                    class="me-auto text-truncate"
+                <span v-if="title" data-cy="simple-window-title" class="me-auto text-truncate">
+                    {{ t(title) }}</span
                 >
-                    {{ t(title) }}</span>
-                <span
-                    v-else
-                    class="me-auto"
-                />
-                <PrintButton
-                    v-if="allowPrint && showBody"
-                    :content="contentRef"
-                />
+                <span v-else class="me-auto" />
+                <PrintButton v-if="allowPrint && showBody" :content="contentRef" />
                 <button
                     class="btn btn-light btn-sm me-2"
                     data-cy="simple-window-minimize"
@@ -196,12 +191,19 @@ onMounted(() => {
         $top-margin: $header-height;
 
         top: $top-margin;
-        left: 10px;
-        right: 10px;
+        left: 0px;
+        right: 0px;
         transform: unset;
         max-height: calc(100vh - $top-margin);
-        max-width: 75vw;
-        width: 75vw;
+        max-width: 100vw;
+        width: 100vw;
+
+        &.small {
+            left: 10px;
+            right: 10px;
+            max-width: 75vw;
+            width: 75vw;
+        }
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);
