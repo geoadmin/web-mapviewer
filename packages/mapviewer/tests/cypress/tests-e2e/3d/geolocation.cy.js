@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { registerProj4, SWISS_ZOOM_LEVEL_1_25000_MAP, WGS84 } from 'geoadmin/proj'
+import { constants, registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -135,7 +135,7 @@ describe('Geolocation cypress', () => {
                     expect(center[1]).to.approximately(geoY, 0.1)
                 })
                 cy.readStoreValue('state.position.zoom').then((zoom) => {
-                    expect(zoom).to.eq(SWISS_ZOOM_LEVEL_1_25000_MAP)
+                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })
             })
             it('access from outside Switzerland shows an error message', () => {
