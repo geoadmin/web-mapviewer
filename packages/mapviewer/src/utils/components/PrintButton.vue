@@ -1,8 +1,9 @@
 <script setup>
-import { ref, useTemplateRef } from 'vue'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
 const { content } = defineProps({
     content: {
@@ -12,9 +13,7 @@ const { content } = defineProps({
 })
 
 const emits = defineEmits(['hideParentModal'])
-
-const printButton = useTemplateRef('printButton')
-useTippyTooltip(printButton, 'print')
+const { t } = useI18n()
 
 const showModal = ref(false)
 
@@ -27,14 +26,16 @@ function onHideParentModal(hide) {
 </script>
 
 <template>
-    <button
-        ref="printButton"
-        class="print-button btn btn-light btn-sm d-flex align-items-center"
-        data-cy="print-button"
-        @click="printContent"
-    >
-        <FontAwesomeIcon icon="print" />
-    </button>
+    <GeoadminTooltip :tooltip-content="t('print')">
+        <button
+            ref="printButton"
+            class="print-button btn btn-light btn-sm d-flex align-items-center"
+            data-cy="print-button"
+            @click="printContent"
+        >
+            <FontAwesomeIcon icon="print" />
+        </button>
+    </GeoadminTooltip>
     <ModalPrintWithBackdrop
         v-if="showModal"
         @close="showModal = false"
