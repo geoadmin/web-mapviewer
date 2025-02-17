@@ -4,12 +4,12 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
+import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
 import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import DataSetAndReleaseInfo from '@/modules/menu/components/help/DataSetAndReleaseInfo.vue'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
-import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
@@ -93,8 +93,7 @@ function resetApp() {
                 v-if="hasReportProblemButton"
                 show-as-link
             />
-            <MoreInfo small />
-            <DataSetAndReleaseInfo small />
+            <AdditionalInfoCollapsable />
             <HelpLink small />
             <HeaderLangSelector
                 id="menu-lang-selector"
