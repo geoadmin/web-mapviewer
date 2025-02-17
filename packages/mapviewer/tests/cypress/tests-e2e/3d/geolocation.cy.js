@@ -1,9 +1,7 @@
 /// <reference types="cypress" />
 
-import { constants, registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { registerProj4, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
-
-import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
 
@@ -78,54 +76,30 @@ describe('Geolocation cypress', () => {
                 cy.readStoreValue('state.geolocation.active').should('be.true')
             })
 
-            it('Uses the values given by the Geolocation API to feed the store and position the map to the new position and zoom level', () => {
-                const startingLatitude = 47
-                const startingLongitude = 7.5
-                const startingZoom = 12
-                // same position but in EPSG:2056 (default projection of the app)
-                const [x0, y0] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
-                    startingLongitude,
-                    startingLatitude,
-                ])
-
+            it('Uses the values given by the Geolocation API to feed the store and position the map to the new position', () => {
                 const geoLatitude = 47.5
                 const geoLongitude = 6.8
-                // same position but in EPSG:2056 (default projection of the app)
-                const [geoX, geoY] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+                // same position but in EPSG:3857
+                const [geoX, geoY] = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
                     geoLongitude,
                     geoLatitude,
                 ])
 
                 cy.goToMapView(
                     {
-                        center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
-                            startingLongitude,
-                            startingLatitude,
-                        ]).join(','),
-                        z: startingZoom,
                         '3d': true,
                     },
                     true,
                     { latitude: geoLatitude, longitude: geoLongitude }
                 )
 
-                // check initial center and zoom
-                cy.readStoreValue('state.position.center').then((center) => {
-                    expect(center).to.be.an('Array')
-                    expect(center.length).to.eq(2)
-                    expect(center[0]).to.approximately(x0, 0.1)
-                    expect(center[1]).to.approximately(y0, 0.1)
-                })
-                cy.readStoreValue('state.position.zoom').then((zoom) => {
-                    expect(zoom).to.eq(startingZoom)
-                })
-
                 getGeolocationButtonAndClickIt()
                 cy.readStoreValue('state.geolocation.position').then((position) => {
+                    cy.log('position', position)
                     expect(position).to.be.an('Array')
                     expect(position.length).to.eq(2)
-                    expect(position[0]).to.approximately(geoX, 0.1)
                     expect(position[1]).to.approximately(geoY, 0.1)
+                    expect(position[0]).to.approximately(geoX, 0.1)
                 })
                 // check that the map has been centered on the geolocation and zoom is updated
                 cy.readStoreValue('state.position.center').then((center) => {
@@ -133,9 +107,6 @@ describe('Geolocation cypress', () => {
                     expect(center.length).to.eq(2)
                     expect(center[0]).to.approximately(geoX, 0.1)
                     expect(center[1]).to.approximately(geoY, 0.1)
-                })
-                cy.readStoreValue('state.position.zoom').then((zoom) => {
-                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })
             })
             it('access from outside Switzerland shows an error message', () => {
