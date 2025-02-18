@@ -1,0 +1,62 @@
+{
+    "name": "@geoadmin/elevation-profile",
+    "version": "1.0.0",
+    "description": "Components to request and display an elevation profile over Switzerland",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "scripts": {
+        "dev": "vite",
+        "type-check": "vue-tsc --build",
+        "generate-types": "vue-tsc --declaration",
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "preview": "vite preview",
+        "test:unit": "vitest --run --mode development --environment jsdom",
+        "test:unit:watch": "vitest --mode development --environment jsdom"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "catalog:",
+        "@fortawesome/free-regular-svg-icons": "catalog:",
+        "@fortawesome/free-solid-svg-icons": "catalog:",
+        "@fortawesome/vue-fontawesome": "catalog:",
+        "@geoadmin/coordinates": "workspace:*",
+        "@geoadmin/log": "workspace:*",
+        "@geoadmin/numbers": "workspace:*",
+        "@turf/turf": "catalog:",
+        "axios": "catalog:",
+        "chart.js": "catalog:",
+        "chartjs-plugin-zoom": "catalog:",
+        "proj4": "catalog:",
+        "vue": "catalog:",
+        "vue-chartjs": "catalog:",
+        "vue-i18n": "catalog:"
+    },
+    "devDependencies": {
+        "@intlify/core-base": "catalog:",
+        "@tailwindcss/vite": "catalog:",
+        "@tsconfig/node22": "catalog:",
+        "@types/jsdom": "catalog:",
+        "@vitejs/plugin-vue": "catalog:",
+        "@vue/tsconfig": "catalog:",
+        "tailwindcss": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-vue-devtools": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    },
+    "peerDependencies": {
+        "proj4": "catalog:"
+    },
+    "optionalDependencies": {
+        "ol": "catalog:",
+        "cesium": "catalog:"
+    }
+}
