@@ -1,0 +1,19 @@
+{
+  "distance_label": "Distanz",
+  "elevation": "Höhe",
+  "network_error": "Netzwerkfehler",
+  "profile_distance": "Luftlinie",
+  "profile_elevation_difference": "Höhendifferenz Start-Ende",
+  "profile_elevation_down": "Abstieg",
+  "profile_elevation_up": "Aufstieg",
+  "profile_hike_time": "Marschzeit",
+  "profile_no_data": "kein Datum",
+  "profile_poi_down": "Tiefster Punkt",
+  "profile_poi_up": "Höchster Punkt",
+  "profile_segment": "Segment {segmentNumber}",
+  "profile_slope_distance": "Wegstrecke",
+  "profile_title": "Profil",
+  "profile_too_many_points_error": "Die Profilanfrage war zu gross und konnte nicht verarbeitet werden.",
+  "profile_x_label": "Entfernung",
+  "profile_y_label": "Höhe"
+}

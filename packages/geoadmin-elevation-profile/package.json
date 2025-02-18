@@ -1,0 +1,64 @@
+{
+    "name": "@geoadmin/elevation-profile",
+    "version": "1.0.0",
+    "description": "Components to request and display an elevation profile over Switzerland",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "scripts": {
+        "dev": "vite",
+        "type-check": "vue-tsc --build",
+        "generate-types": "vue-tsc --declaration",
+        "build": "npm run type-check && npm run generate-types && vite build",
+        "preview": "vite preview",
+        "test:unit": "vitest --run --mode development --environment jsdom",
+        "test:unit:watch": "vitest --mode development --environment jsdom"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.7.2",
+        "@fortawesome/free-regular-svg-icons": "^6.7.2",
+        "@fortawesome/free-solid-svg-icons": "^6.7.2",
+        "@fortawesome/vue-fontawesome": "^3.0.8",
+        "@geoadmin/log": "file:../geoadmin-log",
+        "@geoadmin/coordinates": "file:../geoadmin-coordinates",
+        "@turf/turf": "^7.2.0",
+        "chart.js": "^4.4.7",
+        "chartjs-plugin-zoom": "^2.2.0",
+        "axios": "^1.7.9",
+        "proj4": "^2.15.0",
+        "vue": "^3.5.13",
+        "vue-chartjs": "^5.3.2",
+        "vue-i18n": "file:~/Documents/GitHub/vue-18n"
+    },
+    "devDependencies": {
+        "@intlify/unplugin-vue-i18n": "^6.0.3",
+        "@tailwindcss/vite": "^4.0.6",
+        "@tsconfig/node22": "^22.0.0",
+        "@types/jsdom": "^21.1.7",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "@vue/tsconfig": "^0.7.0",
+        "tailwindcss": "^4.0.6",
+        "jiti": "^2.4.2",
+        "vite": "^6.0.11",
+        "vite-plugin-vue-devtools": "^7.7.1",
+        "vitest": "^3.0.5",
+        "vue-tsc": "^2.2.0"
+    },
+    "peerDependencies": {
+        "proj4": "^2.15.0"
+    },
+    "optionalDependencies": {
+        "ol": "^10.3.1",
+        "cesium": "1.119.0"
+    }
+}

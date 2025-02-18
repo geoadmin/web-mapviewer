@@ -1,0 +1,19 @@
+{
+  "distance_label": "Distance",
+  "elevation": "Altitude",
+  "network_error": "Erreur réseau",
+  "profile_distance": "Distance à vol d'oiseau",
+  "profile_elevation_difference": "Dénivellation départ-fin",
+  "profile_elevation_down": "Descente",
+  "profile_elevation_up": "Montée",
+  "profile_hike_time": "Temps de marche à pied",
+  "profile_no_data": "Aucune donnée",
+  "profile_poi_down": "Point le plus bas",
+  "profile_poi_up": "Point culminant",
+  "profile_segment": "Segment {segmentNumber}",
+  "profile_slope_distance": "Longeur chemin ",
+  "profile_title": "Profil",
+  "profile_too_many_points_error": "La demande de profil était trop volumineuse et n'a pas pu être traitée.",
+  "profile_x_label": "Distance",
+  "profile_y_label": "Altitude"
+}

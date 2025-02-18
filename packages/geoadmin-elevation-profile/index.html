@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test page for geoadmin's profile component</title>
+        <style>
+            body,
+            #app {
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body id="mainBody">
+        <geoadmin-elevation-profile locale="it" projection="EPSG:2056"></geoadmin-elevation-profile>
+        <script type="module" src="/src/index.ts"></script>
+        <script>
+            const elevationProfile = document.querySelector('geoadmin-elevation-profile')
+            elevationProfile.points = [
+                [2651000.0, 1392000.0],
+                [2932500.0, 894500.0],
+            ]
+        </script>
+    </body>
+</html>

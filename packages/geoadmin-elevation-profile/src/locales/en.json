@@ -1,0 +1,19 @@
+{
+  "distance_label": "Distance",
+  "elevation": "Elevation",
+  "network_error": "Network error",
+  "profile_distance": "Linear distance",
+  "profile_elevation_difference": "Difference of altitude start-end",
+  "profile_elevation_down": "Descent",
+  "profile_elevation_up": "Ascent",
+  "profile_hike_time": "Walking time",
+  "profile_no_data": "No data",
+  "profile_poi_down": "Lowest point",
+  "profile_poi_up": "Highest point",
+  "profile_segment": "Segment {segmentNumber}",
+  "profile_slope_distance": "Path distance",
+  "profile_title": "Profile",
+  "profile_too_many_points_error": "The profile request was too big and could not be processed.",
+  "profile_x_label": "Distance",
+  "profile_y_label": "Elevation"
+}

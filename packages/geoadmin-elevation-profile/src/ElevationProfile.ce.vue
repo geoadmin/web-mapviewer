@@ -1,0 +1,134 @@
+<script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {
+    allCoordinateSystems,
+    type CoordinateSystem,
+    LV95,
+    type SingleCoordinate,
+    WGS84,
+} from '@geoadmin/coordinates'
+import proj4 from 'proj4'
+import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import type { ElevationProfileMetadata } from '@/utils'
+
+import ElevationProfileInformation from '@/ElevationProfileInformation.ce.vue'
+import ElevationProfilePlot from '@/ElevationProfilePlot.ce.vue'
+import getProfile, { type ElevationProfile, ElevationProfileError } from '@/profile.api'
+
+interface ElevationProfileProps {
+    points: SingleCoordinate[]
+    projection: string
+}
+
+const { points = [], projection = LV95.epsg } = defineProps<ElevationProfileProps>()
+
+const { t } = useI18n()
+
+const coordinateSystem: ComputedRef<CoordinateSystem> = computed(
+    () => allCoordinateSystems.find((cs) => cs.epsg === projection) ?? LV95
+)
+const profileData: Ref<ElevationProfile | undefined> = ref(undefined)
+const profileRequestError: Ref<ElevationProfileError | null> = ref(null)
+const hasData: ComputedRef<boolean> = computed(() => !!profileData.value?.metadata?.hasElevationData)
+
+const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = computed(() => {
+    if (!profileData.value) {
+        return undefined
+    }
+    return profileData.value.metadata
+})
+
+onMounted(() => {
+    getProfile(points, coordinateSystem.value)
+        .then((profile) => {
+            profileData.value = profile
+        })
+        .catch((err) => {
+            profileRequestError.value = err
+        })
+})
+
+function triggerDownload(blob: Blob, fileName: string) {
+    /**
+     * A link is needed to be able to set the fileName of the downloaded file, as window.open() does
+     * not support that
+     */
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = fileName
+
+    link.click()
+    URL.revokeObjectURL(link.href)
+}
+
+function onCSVDownload() {
+    if (profileData.value && hasData.value) {
+        const csvData =
+            [
+                ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
+                ...profileData.value.segments
+                    .flatMap((segment) => segment.points)
+                    .map((point) => {
+                        const [lon, lat] = proj4(
+                            coordinateSystem.value.epsg,
+                            WGS84.epsg,
+                            point.coordinate
+                        )
+                        const [x, y] = proj4(
+                            coordinateSystem.value.epsg,
+                            LV95.epsg,
+                            point.coordinate
+                        )
+                        return [
+                            point.dist,
+                            point.elevation,
+                            LV95.roundCoordinateValue(x),
+                            LV95.roundCoordinateValue(y),
+                            WGS84.roundCoordinateValue(lon),
+                            WGS84.roundCoordinateValue(lat),
+                        ]
+                    }),
+            ]
+                .map((row) => row.join(';'))
+                .join('\n') + '\n' // with an added empty line
+        triggerDownload(new Blob([csvData], { type: 'text/csv' }), 'test.csv')
+    }
+}
+</script>
+
+<template>
+    <div
+        data-cy="profile-popup-content"
+        class="flex h-full flex-col p-2"
+    >
+        <div v-if="!hasData && profileRequestError">
+            <span
+                class="text-danger"
+                data-cy="profile-error-message"
+            >
+                {{ t(profileRequestError.message) }}
+            </span>
+        </div>
+        <ElevationProfilePlot
+            v-if="profileData && hasData"
+            :profile="profileData"
+        >
+            <slot />
+        </ElevationProfilePlot>
+        <ElevationProfileInformation
+            v-if="profileMetadata"
+            :metadata="profileMetadata"
+        >
+            <button
+                class="bg-neutral-100 hover:bg-neutral-200 border rounded border-neutral-400 mx-1 print:hidden min-w-[2.5rem] cursor-pointer"
+                data-cy="profile-popup-csv-download-button"
+                @click="onCSVDownload"
+            >
+                <FontAwesomeIcon icon="download" />
+            </button>
+            <slot name="extra-buttons" />
+        </ElevationProfileInformation>
+    </div>
+</template>

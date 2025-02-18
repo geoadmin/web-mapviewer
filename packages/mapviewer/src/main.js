@@ -5,6 +5,7 @@ import 'animate.css'
 // setting up font awesome vue component
 import './setup-fontawesome'
 
+import '@geoadmin/elevation-profile'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { registerProj4 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'

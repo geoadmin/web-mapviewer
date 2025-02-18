@@ -45,6 +45,7 @@
         "@geoadmin/coordinates": "file:../geoadmin-coordinates",
         "@geoadmin/log": "file:../geoadmin-log",
         "@geoadmin/numbers": "file:../geoadmin-numbers",
+        "@geoadmin/elevation-profile": "file:../geoadmin-elevation-profile",
         "@geoblocks/cesium-compass": "^0.5.4",
         "@geoblocks/mapfishprint": "^0.2.19",
         "@geoblocks/ol-maplibre-layer": "^1.0.3",
