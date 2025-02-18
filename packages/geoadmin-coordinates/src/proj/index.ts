@@ -13,6 +13,8 @@ export const LV03: LV03CoordinateSystem = new LV03CoordinateSystem()
 export const WGS84: WGS84CoordinateSystem = new WGS84CoordinateSystem()
 export const WEBMERCATOR: WebMercatorCoordinateSystem = new WebMercatorCoordinateSystem()
 
+export * from '@/proj/CoordinatesChunk'
+
 /** Representation of many (available in this app) projection systems */
 export const allCoordinateSystems: CoordinateSystem[] = [LV95, LV03, WGS84, WEBMERCATOR]
 
