@@ -7,6 +7,7 @@ import './setup-fontawesome'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { registerProj4 } from '@geoadmin/coordinates'
+import GeoadminElevationProfile from '@geoadmin/elevation-profile'
 import log from '@geoadmin/log'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
@@ -76,6 +77,7 @@ app.use(store)
 
 app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
+app.component('GeoadminElevationProfile', GeoadminElevationProfile)
 
 // if we are testing with Cypress, we expose the store
 if (IS_TESTING_WITH_CYPRESS) {
