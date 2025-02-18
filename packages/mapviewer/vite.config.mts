@@ -5,6 +5,7 @@ import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
@@ -103,6 +104,7 @@ export default defineConfig(({ mode }) => {
                     },
                 ],
             }),
+            vueDevTools(),
         ],
         optimizeDeps: {
             exclude: [
