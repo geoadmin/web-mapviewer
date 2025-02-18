@@ -197,7 +197,7 @@ function changeStyle(newStyle) {
                 class="menu-layer-item-name p-1"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
-                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
+                :tooltip-placement="isPhoneMode ? 'top' : 'right'"
                 @click="onToggleLayerVisibility"
             >
                 {{ layer.name }}

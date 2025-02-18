@@ -91,7 +91,7 @@ defineExpose({ tooltipElement })
         <div @mouseover="showTooltip" @mouseleave="hideTooltip" ref="tooltipElement">
             <slot />
         </div>
-        <div :style="style" class="floating" :class="theme" ref="floatingElement">
+        <div :style="style" class="floating" :class="theme" ref="floatingElement" v-if="!disabled">
             <!-- the arrow to be displayed on the top or on the left-->
             <div
                 v-if="placement == 'bottom' || placement == 'right'"
