@@ -1,14 +1,10 @@
 <script setup>
+import GeoadminElevationProfile from '@geoadmin/elevation-profile'
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import FeatureElevationProfile from '@/modules/infobox/components/FeatureElevationProfile.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
-
-const { animation } = defineProps({
-    animation: { type: Boolean, default: true },
-})
 
 const content = useTemplateRef('content')
 
@@ -17,6 +13,8 @@ const store = useStore()
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
+const projection = computed(() => store.state.position.projection)
+const currentLang = computed(() => store.state.i18n.lang)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
@@ -41,7 +39,7 @@ watch(selectedFeatures, (features) => {
 <template>
     <div
         ref="content"
-        class="infobox-content flex-column"
+        class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
         <div
@@ -54,24 +52,28 @@ watch(selectedFeatures, (features) => {
                 class="drawing-feature-edit p-3"
                 :class="{ 'flex-grow-1': !showElevationProfile }"
             />
-            <FeatureElevationProfile
+            <GeoadminElevationProfile
                 v-if="showElevationProfile"
-                class="flex-grow-1"
-                :animation="animation"
+                :points="selectedFeature.geometry.coordinates"
+                :projection="projection.epsg"
+                :locale="currentLang"
+                class="flex-grow-1 position-relative"
             />
         </div>
         <div
             v-else
-            class="d-flex flex-column h-100 overflow-y-auto"
+            class="d-flex flex-column h-100 overflow-y-auto infobox-content"
         >
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
-                class="h-100 d-flex flex-column flex-md-row align-content-stretch"
+                class="h-100 d-flex flex-column flex-md-row align-content-stretch infobox-content"
             >
-                <FeatureElevationProfile
+                <GeoadminElevationProfile
+                    :points="selectedFeature.geometry.coordinates"
+                    :projection="projection.epsg"
+                    :locale="currentLang"
                     class="flex-grow-1 profile-with-feature"
-                    :animation="animation"
                 />
             </div>
             <FeatureList
@@ -81,3 +83,10 @@ watch(selectedFeatures, (features) => {
         </div>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.infobox-content {
+    min-height: 200px;
+    max-height: 25vh;
+}
+</style>

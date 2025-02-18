@@ -19,7 +19,7 @@ const withOutline = ref(false)
 const store = useStore()
 const { t } = useI18n()
 
-const dispatcher = { dispatcher: 'App.vue' }
+const dispatcher = { dispatcher: 'DevApp.vue' }
 
 let debouncedOnResize
 const showFeedbackPopup = computed(() => {
@@ -62,6 +62,8 @@ function refreshPageTitle() {
         <DebugToolbar v-if="showDebugToolbar" />
     </div>
 </template>
+
+<style lang="css" src="./css/tailwind.css" />
 
 <!-- this style is not scoped in order to enable the distribution of bootstrap's
 CSS rules to the whole app (otherwise it would be limited to this component) -->

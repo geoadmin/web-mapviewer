@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
@@ -72,6 +73,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
                     : {}),
                 apply: 'serve',
             },
+            tailwindcss(),
             vue({
                 isProduction: mode === 'production',
                 template: {
