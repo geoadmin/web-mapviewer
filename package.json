@@ -52,7 +52,9 @@
         "@prettier/plugin-xml": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
+        "vite-plugin-vue-devtools": "catalog:",
         "vitest": "catalog:"
+        "vue-tsc": "catalog:"
     },
     "dependencies": {
         "cesium": "catalog:"
