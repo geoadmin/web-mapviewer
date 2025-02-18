@@ -19,7 +19,7 @@ const withOutline = ref(false)
 const store = useStore()
 const { t } = useI18n()
 
-const dispatcher = { dispatcher: 'App.vue' }
+const dispatcher = { dispatcher: 'DevApp.vue' }
 
 let debouncedOnResize
 const showFeedbackPopup = computed(() => {

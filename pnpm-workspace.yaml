@@ -16,6 +16,8 @@ catalog:
     '@geoblocks/cesium-compass': ^0.6.0
     '@geoblocks/mapfishprint': ^0.2.20
     '@geoblocks/ol-maplibre-layer': ^1.0.3
+    '@intlify/core-base': ^11.1.2
+    '@intlify/unplugin-vue-i18n': ^6.0.3
     '@ivanv/vue-collapse-transition': ^1.0.2
     '@mapbox/togeojson': ^0.16.2
     '@nuintun/qrcode': ^5.0.2

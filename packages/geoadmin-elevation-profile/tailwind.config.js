@@ -7,6 +7,4 @@ export default {
         extend: {},
     },
     plugins: [],
-    // to ease cohabitation with Bootstrap, can be removed once we've migrated away from Bootstrap
-    important: true,
 }
