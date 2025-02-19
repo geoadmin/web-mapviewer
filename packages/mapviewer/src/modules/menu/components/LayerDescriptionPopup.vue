@@ -66,6 +66,7 @@ onMounted(async () => {
 <template>
     <SimpleWindow
         :title="title"
+        small
         movable
         allow-print
         resizeable
