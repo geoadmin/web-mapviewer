@@ -1519,11 +1519,19 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
             cy.log('check that profile gets updated when feature is modified by removing a point')
-            // for mobile double click and on desktop right click
+            // for mobile double click
             cy.get('[data-cy="ol-map"]').dblclick(190, 250)
             cy.wait('@profile')
-            cy.get('[data-cy="ol-map"]').rightclick(150, 250)
+
+            //  on desktop alt+click
+            // cy.viewport(1920, 1080)
+            cy.get('body')
+                .type('{alt}', { release: false })
+                .get('[data-cy="ol-map"]')
+                .click(150, 250)
+            cy.get('body').type('{alt}')
             cy.wait('@profile')
+            // cy.viewport(320, 800)
 
             // clicking on the header of the profile container
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
