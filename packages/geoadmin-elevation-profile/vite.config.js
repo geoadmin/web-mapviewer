@@ -8,13 +8,19 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default {
     build: {
+        cssCodeSplit: false,
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
-            name: '@geoadmin/elevation-profile',
+            name: 'GeoadminElevationProfile',
+            fileName: 'geoadmin-elevation-profile'
         },
         rollupOptions: {
+            external: ['vue', 'tailwindcss'],
             output: {
                 exports: 'named',
+                globals: {
+                    vue: 'Vue',
+                }
             },
         },
     },
@@ -33,7 +39,6 @@ export default {
         }),
         vueDevTools(),
         vueI18n(),
-        tailwindcss(),
         dts({
             outDir: 'dist',
         }),

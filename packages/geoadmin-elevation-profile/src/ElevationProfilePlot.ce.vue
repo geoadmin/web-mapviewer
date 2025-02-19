@@ -7,7 +7,6 @@ import {
     type Chart,
     type ChartData,
     type ChartOptions,
-    type ChartType,
     type Point as ChartPoint,
     type ScaleOptions,
     type TooltipItem,
@@ -68,33 +67,6 @@ const chart = useTemplateRef<ComponentPublicInstance<typeof LineChart>>('chart')
 
 const { t } = useI18n()
 
-const tooltipStyle = computed(() => {
-    if (!pointBeingHovered.value) {
-        return {}
-    }
-    const tooltipWidth = profileTooltip.value?.clientWidth ?? 0
-    const chartPosition = profileChartContainer.value?.getBoundingClientRect()
-    if (!chartPosition) {
-        return {}
-    }
-    let leftPosition = pointBeingHovered.value.screenPosition[0] - tooltipWidth / 2.0
-    if (tooltipWidth !== 0 && leftPosition + tooltipWidth > chartPosition.right) {
-        leftPosition = chartPosition.right - tooltipWidth
-    }
-    // for the left most check, we leave a 55px gap between the container's border and the tooltip
-    // this way the plot Y axis labels will still be visible (not covered by the tooltip)
-    if (tooltipWidth !== 0 && leftPosition < chartPosition.left + 55) {
-        leftPosition = chartPosition.left + 55
-    }
-    return {
-        // tooltip height is 58px (see SCSS style at end of file)
-        // and we leave a gap to place our arrow
-        top: `${
-            pointBeingHovered.value.screenPosition[1] - 58 - GAP_BETWEEN_TOOLTIP_AND_PROFILE
-        }px`,
-        left: `${leftPosition}px`,
-    }
-})
 const tooltipArrowStyle = computed(() => {
     if (!pointBeingHovered.value) {
         return {}
@@ -217,7 +189,8 @@ const chartJsScalesConfiguration: ComputedRef<
 const chartJsTooltipConfiguration = computed(() => {
     return {
         enabled: false,
-        external: (tooltipModel: { chart: Chart; tooltip: TooltipModel<ChartType> }) => {
+        position: 'bottom',
+        external: (tooltipModel: { chart: Chart; tooltip: TooltipModel<'line'> }) => {
             const { chart, tooltip } = tooltipModel
             if (!tooltip.dataPoints) {
                 return
@@ -231,7 +204,7 @@ const chartJsTooltipConfiguration = computed(() => {
                 return
             }
             if (tooltip.dataPoints.length > 0 && track.value) {
-                const point: TooltipItem<ChartType> = tooltip.dataPoints[0]
+                const point: TooltipItem<'line'> = tooltip.dataPoints[0]
                 const elevationDataInPoint: ElevationProfilePoint =
                     point.raw as ElevationProfilePoint
                 const chartPosition = chart.canvas.getBoundingClientRect()
@@ -397,52 +370,41 @@ function resizeChart() {
             @mouseleave="clearHoverPosition"
             @contextmenu.prevent="resetZoomToBaseValue"
         />
+    </div>
+    <div
+        ref="profileTooltip"
+        data-cy="profile-popup-tooltip"
+    >
         <div
-            v-show="pointBeingHovered && track"
-            ref="profileTooltip"
-            class="profile-tooltip position-fixed card user-select-none"
-            :style="tooltipStyle"
-            data-cy="profile-popup-tooltip"
+            v-if="pointBeingHovered && pointBeingHovered.hasElevationData"
+            class="profile-tooltip-inner p-1 m-auto"
         >
-            <div
-                v-if="pointBeingHovered && pointBeingHovered.hasElevationData"
-                class="profile-tooltip-inner p-1 m-auto"
-            >
-                <div>
-                    <small>
-                        <strong>{{ t('profile_x_label') }}: </strong>
-                        <span class="distance">
-                            {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
-                        </span>
-                    </small>
-                </div>
-                <div>
-                    <small>
-                        <strong>{{ t('profile_y_label') }}: </strong>
-                        <span
-                            v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0"
-                            class="elevation"
-                        >
-                            {{ pointBeingHovered.elevation }} m
-                        </span>
-                        <span v-else>{{ t('not_available') }}</span>
-                    </small>
-                </div>
+            <div>
+                <small>
+                    <strong>{{ t('profile_x_label') }}: </strong>
+                    <span class="distance">
+                        {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
+                    </span>
+                </small>
             </div>
-            <div
-                ref="profileTooltipArrow"
-                class="profile-tooltip-arrow"
-                :style="tooltipArrowStyle"
-            />
-            <slot />
+            <div>
+                <small>
+                    <strong>{{ t('profile_y_label') }}: </strong>
+                    <span
+                        v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0"
+                        class="elevation"
+                    >
+                        {{ pointBeingHovered.elevation }} m
+                    </span>
+                    <span v-else>{{ t('not_available') }}</span>
+                </small>
+            </div>
         </div>
+        <div
+            ref="profileTooltipArrow"
+            class="absolute p-2"
+            :style="tooltipArrowStyle"
+        />
+        <slot />
     </div>
 </template>
-
-<style lang="scss">
-.profile-circle-current-hover-pos {
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-}
-</style>

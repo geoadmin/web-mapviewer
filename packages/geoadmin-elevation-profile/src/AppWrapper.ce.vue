@@ -21,8 +21,3 @@ const { locale = 'en', points, projection = 'EPSG:2056' } = defineProps<AppProps
         />
     </I18nHost>
 </template>
-
-<style>
-@import 'tailwindcss';
-@import '@fortawesome/fontawesome-svg-core/styles.css';
-</style>

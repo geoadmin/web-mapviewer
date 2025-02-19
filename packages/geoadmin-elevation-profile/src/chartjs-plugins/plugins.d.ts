@@ -1,4 +1,4 @@
-import { ChartType } from 'chart.js'
+import { ChartType, type TooltipPositionerFunction } from 'chart.js'
 
 import type { DataModelPluginOptions } from '@/chartjs-plugins/datamodel.plugin'
 import type { NoDataPluginOptions } from '@/chartjs-plugins/nodata.plugin'
@@ -7,5 +7,8 @@ declare module 'chart.js' {
     interface PluginOptionsByType<TType extends ChartType> {
         noData?: NoDataPluginOptions
         dataModel?: DataModelPluginOptions
+    }
+    interface TooltipPositionerMap<TType extends ChartType> {
+        bottom: TooltipPositionerFunction<ChartType>
     }
 }

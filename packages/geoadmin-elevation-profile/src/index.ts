@@ -29,9 +29,12 @@ import proj4 from 'proj4'
 import { defineCustomElement, type VueElementConstructor } from 'vue'
 
 import AppWrapper from '@/AppWrapper.ce.vue'
-import '@/style.css'
+
+import './style.css'
+
 import dataModelPlugin from '@/chartjs-plugins/datamodel.plugin'
 import noDataPlugin from '@/chartjs-plugins/nodata.plugin'
+import '@/chartjs-plugins/bottom.positioner.ts'
 import i18n from '@/i18n'
 
 registerProj4(proj4)
@@ -64,4 +67,4 @@ const ElevationProfileElement: VueElementConstructor = defineCustomElement(AppWr
 
 customElements.define('geoadmin-elevation-profile', ElevationProfileElement)
 
-export default ElevationProfileElement
+export default AppWrapper
