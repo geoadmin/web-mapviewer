@@ -8,6 +8,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
 import { parseGpx } from '@/utils/gpxUtils'
@@ -250,6 +251,10 @@ const actions = {
                                 features: [feature],
                                 dispatcher,
                             })
+                            dispatch('setFeatureInfoPosition', {
+                                position: FeatureInfoPositions.TOOLTIP,
+                                ...dispatcher,
+                            })
                         })
                     } else {
                         // For imported KML and GPX files
@@ -270,6 +275,10 @@ const actions = {
                         dispatch('setSelectedFeatures', {
                             features: layerFeatures,
                             dispatcher,
+                        })
+                        dispatch('setFeatureInfoPosition', {
+                            position: FeatureInfoPositions.TOOLTIP,
+                            ...dispatcher,
                         })
                     }
                 } catch (error) {
