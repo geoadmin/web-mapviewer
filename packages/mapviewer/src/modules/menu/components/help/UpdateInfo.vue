@@ -12,7 +12,9 @@ const { showAsButton } = defineProps({
 })
 
 const { t } = useI18n()
-const cmsUrl = computed(() => t('cms_news_url'))
+const cmsUrl = computed(() => t('cms_release_url'))
+
+// https://www.geo.admin.ch/lang/t(handle)
 
 function openCmsLink() {
     window.open(cmsUrl.value, '_blank', 'noreferrer')
@@ -25,6 +27,6 @@ function openCmsLink() {
         data-cy="header-cms-link"
         @click="openCmsLink"
     >
-        News
+        {{ t('cms_release_button_title') }}
     </HeaderLink>
 </template>
