@@ -25,7 +25,6 @@ const errorFileLoadingMessage = ref(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const importSuccessMessage = ref('')
-
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 
 // Methods
