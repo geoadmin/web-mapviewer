@@ -76,7 +76,11 @@ function validateForm(valid) {
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />
-        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
+        <ImportFileButtons
+            class="mt-2"
+            :button-state="buttonState"
+            @load-file="loadFile"
+        />
     </div>
 </template>
 
