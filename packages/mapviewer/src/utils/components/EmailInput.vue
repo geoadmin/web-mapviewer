@@ -178,7 +178,9 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="inputEmailId"
             data-cy="email-input-label"
-        >{{ t(label) }}</label>
+        >
+            {{ t(label) }}
+        </label>
         <input
             :id="inputEmailId"
             ref="emailInputElement"
@@ -196,7 +198,7 @@ defineExpose({ focus })
             @focusin="onFocus($event, true)"
             @focusout="onFocus($event, false)"
             @keydown.enter="emits('keydown.enter')"
-        >
+        />
         <div
             v-if="invalidMessage"
             class="invalid-feedback"
