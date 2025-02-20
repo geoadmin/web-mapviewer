@@ -90,11 +90,7 @@ function removeTrackingPoint() {
 }
 
 function updatePosition() {
-    const wgs84Position = proj4(
-        projection.value.epsg,
-        geoadminCoordinates.WGS84.epsg,
-        coordinates
-    )
+    const wgs84Position = proj4(projection.value.epsg, geoadminCoordinates.WGS84.epsg, coordinates)
     Cartesian3.fromDegrees(
         wgs84Position[0],
         wgs84Position[1],

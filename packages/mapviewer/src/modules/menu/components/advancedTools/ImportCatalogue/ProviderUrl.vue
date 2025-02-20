@@ -136,7 +136,7 @@ function hideProviders() {
                 @keydown.down.prevent="goToProviderList"
                 @keydown.esc.prevent="showProviders = false"
                 @keydown.enter.prevent="connect"
-            >
+            />
             <div
                 id="urlInputControlBtnGrp"
                 class="input-group-append btn-group btn-group-sm"
