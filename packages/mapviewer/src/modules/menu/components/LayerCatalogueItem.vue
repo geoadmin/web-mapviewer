@@ -243,7 +243,7 @@ function containsLayer(layers, searchText) {
 
 <template>
     <div
-        v-show="showItem"
+        v-if="showItem"
         class="menu-catalogue-item"
         :class="{ compact: compact }"
         :data-cy="`catalogue-tree-item-${item.id}`"
@@ -315,7 +315,7 @@ function containsLayer(layers, searchText) {
         </div>
         <CollapseTransition :duration="200">
             <ul
-                v-show="showChildren"
+                v-if="showChildren"
                 class="menu-catalogue-item-children"
                 :class="`ps-${2 + depth}`"
             >
