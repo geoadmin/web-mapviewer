@@ -49,7 +49,8 @@ function sanitizeHtml(htmlText, withIframe = false) {
             const url = new URL(node.getAttribute(attribute))
             const ext = url.pathname.split('.').pop().toLowerCase()
             if (BLOCKED_EXTENSIONS.includes(ext)) {
-                node.outerHTML = blockedExternalContentString            }
+                node.outerHTML = blockedExternalContentString
+            }
         } catch (error) {
             log.error(`Error while handling node for sanitizing HTML`, error)
             node.outerHTML = blockedExternalContentString
