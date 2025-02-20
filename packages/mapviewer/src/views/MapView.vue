@@ -36,7 +36,6 @@ const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
-const isOpeningNewTab = computed(() => store.state.ui.isOpeningNewTab)
 const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const loadDrawingModule = computed(() => {
     return isDrawingMode.value && !is3DActive.value
@@ -48,7 +47,7 @@ onMounted(() => {
 })
 
 const beforeUnloadHandler = (event) => {
-    if (showNotSharedDrawingWarning.value && !isOpeningNewTab.value) {
+    if (showNotSharedDrawingWarning.value) {
         showNotSharedDrawingWarningModal.value = true
         // This provokes the alert message to appear when trying to close the tab.
         // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
