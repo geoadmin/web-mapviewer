@@ -17,8 +17,8 @@ import { useStore } from 'vuex'
 
 import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { transformUrlMapToEmbed } from '@/utils/utils'
 
 /**
@@ -47,9 +47,6 @@ const EmbedSizes = {
         // no width height here, as it will be user specified
     },
 }
-
-const copyButton = useTemplateRef('copyButton')
-useTippyTooltip(copyButton, 'copy_cta')
 
 const embedInput = useTemplateRef('embedInput')
 const showEmbedSharing = ref(false)
@@ -176,10 +173,7 @@ watch(
             <span class="px-1">{{ t('share_more') }}</span>
         </a>
         <CollapseTransition :duration="200">
-            <div
-                v-show="showEmbedSharing"
-                class="p-2 ps-4 card border-light"
-            >
+            <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
@@ -190,20 +184,21 @@ watch(
                         readonly="readonly"
                         @focus="$event.target.select()"
                         @click="$event.target.select()"
-                    >
-                    <button
-                        ref="copyButton"
-                        data-cy="menu-share-embed-copy-button"
-                        class="btn btn-outline-group"
-                        type="button"
-                        @click="copyValue"
-                    >
-                        <FontAwesomeIcon
-                            class="icon"
-                            :icon="buttonIcon"
-                            data-cy="menu-share-embed-copy-button-icon"
-                        />
-                    </button>
+                    />
+                    <GeoadminTooltip :tooltip-content="t('copy_cta')">
+                        <button
+                            data-cy="menu-share-embed-copy-button"
+                            class="btn btn-outline-group"
+                            type="button"
+                            @click="copyValue"
+                        >
+                            <FontAwesomeIcon
+                                class="icon"
+                                :icon="buttonIcon"
+                                data-cy="menu-share-embed-copy-button-icon"
+                            />
+                        </button>
+                    </GeoadminTooltip>
                     <button
                         class="btn btn-outline-group"
                         data-cy="menu-share-embed-preview-button"
@@ -213,10 +208,7 @@ watch(
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div
-                    class="py-2"
-                    v-html="t('share_disclaimer')"
-                />
+                <div class="py-2" v-html="t('share_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
@@ -226,10 +218,7 @@ watch(
             fluid
             @close="togglePreviewModal"
         >
-            <div
-                class="embed-preview-modal"
-                :style="embedPreviewModalWidth"
-            >
+            <div class="embed-preview-modal" :style="embedPreviewModalWidth">
                 <div class="d-flex flex-row mb-2">
                     <select
                         v-model="currentPreviewSize"
@@ -246,17 +235,14 @@ watch(
                             {{ t(size.i18nKey) }}
                         </option>
                     </select>
-                    <div
-                        v-if="isPreviewSizeCustom"
-                        class="d-flex flex-row ms-2"
-                    >
+                    <div v-if="isPreviewSizeCustom" class="d-flex flex-row ms-2">
                         <input
                             v-if="!customSize.fullWidth"
                             v-model="customSize.width"
                             type="number"
                             class="form-control text-center custom-preview-input"
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <input
                             v-else
                             class="form-control form-control-plaintext custom-preview-input text-center"
@@ -264,7 +250,7 @@ watch(
                             value="100 %"
                             readonly
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <span class="p-2">
                             <font-awesome-icon :icon="['fas', 'xmark']" />
                         </span>
@@ -273,7 +259,7 @@ watch(
                             type="number"
                             class="form-control custom-preview-input text-center"
                             data-cy="menu-share-embed-iframe-custom-height"
-                        >
+                        />
                         <div class="align-self-center ps-2">
                             <div class="form-check">
                                 <input
@@ -283,11 +269,8 @@ watch(
                                     type="checkbox"
                                     value=""
                                     data-cy="menu-share-embed-iframe-full-width"
-                                >
-                                <label
-                                    class="form-check-label"
-                                    for="fullWidthCheckbox"
-                                >
+                                />
+                                <label class="form-check-label" for="fullWidthCheckbox">
                                     {{ t('full_width') }}
                                 </label>
                             </div>
@@ -314,10 +297,7 @@ watch(
                     />
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div
-                    class="small text-wrap text-center"
-                    v-html="t('share_disclaimer')"
-                />
+                <div class="small text-wrap text-center" v-html="t('share_disclaimer')" />
                 <div
                     v-if="hasAnyLocalFile"
                     class="d-flex flex-row gap-2 justify-content-center mt-2"

@@ -1,11 +1,14 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { format } from '@geoadmin/numbers'
-import { computed, useTemplateRef } from 'vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { formatMinutesTime } from '@/utils/utils'
+
+const { t } = useI18n()
 
 const { profile } = defineProps({
     profile: {
@@ -13,8 +16,6 @@ const { profile } = defineProps({
         default: null,
     },
 })
-
-const profileInformationElements = useTemplateRef('profileInformationElements')
 
 const profileInformationFormat = computed(() => {
     if (!profile) {
@@ -70,9 +71,6 @@ const profileInformationFormat = computed(() => {
     ]
 })
 
-const tooltipContents = computed(() => profileInformationFormat.value.map((info) => info.title))
-useTippyTooltip(profileInformationElements, tooltipContents)
-
 function formatDistance(value) {
     if (isNaN(value) || value === null) {
         return '0.00m'
@@ -101,26 +99,30 @@ function formatElevation(value) {
             class="profile-info-container d-flex border border-light p-2"
             data-cy="profile-popup-info-container"
         >
-            <small
+            <GeoadminTooltip
                 v-for="(info, index) in profileInformationFormat"
-                :key="info.title"
-                ref="profileInformationElements"
-                class="px-2 text-nowrap profile-info-element"
-                :class="{
-                    'border-end': index !== profileInformationFormat.length - 1,
-                }"
-                :data-cy="`profile-popup-info-${info.title}`"
+                :key="index"
+                :tooltip-content="t(info.title)"
             >
-                <FontAwesomeIcon
-                    v-for="(icon, indexIcon) in info.icons"
-                    :key="`${info.title}-${indexIcon}`"
-                    :icon="icon"
-                    class="me-1"
-                />
-                <span data-cy="profile-popup-info">
-                    {{ info.value }}
-                </span>
-            </small>
+                <small
+                    :key="info.title"
+                    class="px-2 text-nowrap profile-info-element"
+                    :class="{
+                        'border-end': index !== profileInformationFormat.length - 1,
+                    }"
+                    :data-cy="`profile-popup-info-${info.title}`"
+                >
+                    <FontAwesomeIcon
+                        v-for="(icon, indexIcon) in info.icons"
+                        :key="`${info.title}-${indexIcon}`"
+                        :icon="icon"
+                        class="me-1"
+                    />
+                    <span data-cy="profile-popup-info">
+                        {{ info.value }}
+                    </span>
+                </small>
+            </GeoadminTooltip>
         </div>
         <slot />
     </div>
