@@ -121,7 +121,11 @@ function setBottomPanelFeatureInfoPosition() {
                 <FontAwesomeIcon icon="angles-down" />
             </button>
         </template>
-        <FeatureStyleEdit v-if="editFeature" :feature="editFeature" read-only />
+        <FeatureStyleEdit
+            v-if="editFeature"
+            :feature="editFeature"
+            read-only
+        />
         <FeatureList />
     </CesiumPopover>
 </template>

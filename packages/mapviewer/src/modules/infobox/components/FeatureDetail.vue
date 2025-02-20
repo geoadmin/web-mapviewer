@@ -100,10 +100,22 @@ function getIframeHosts(value) {
 
 <template>
     <!-- eslint-disable vue/no-v-html-->
-    <div v-if="hasFeatureStringData && popupDataCanBeTrusted" v-html="feature.data" />
-    <div v-else-if="hasFeatureStringData" v-html="sanitizeHtml(feature.data)" />
+
+    <div
+        v-if="hasFeatureStringData && popupDataCanBeTrusted"
+        v-html="feature.data"
+    />
+
+    <div
+        v-else-if="hasFeatureStringData"
+        v-html="sanitizeHtml(feature.data)"
+    />
     <!-- eslint-enable vue/no-v-html-->
-    <div v-else class="htmlpopup-container">
+
+    <div
+        v-else
+        class="htmlpopup-container"
+    >
         <div class="htmlpopup-content">
             <div
                 v-for="[key, value, externalIframeHosts] in sanitizedFeatureDataEntries"
@@ -118,15 +130,20 @@ function getIframeHosts(value) {
                 />
                 <div class="flex-row">
                     <table class="w-100">
-                        <td v-if="!externalIframeHosts.length" class="fw-bold cell-left">
+                        <td
+                            v-if="!externalIframeHosts.length"
+                            class="fw-bold cell-left"
+                        >
                             {{ t(key) }}
                         </td>
-                        <!-- eslint-disable-next-line vue/no-v-html, prettier-vue/prettier-->
+                        <!-- eslint-disable vue/no-v-html-->
+
                         <td
                             data-cy="feature-detail-description-content"
                             class="float-right text-end pr-3"
                             v-html="value"
                         />
+                        <!-- eslint-enable vue/no-v-html-->
                     </table>
                 </div>
             </div>
@@ -145,7 +162,10 @@ function getIframeHosts(value) {
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
+                <FontAwesomeIcon
+                    class="small align-text-top"
+                    icon="fas fa-map-marker-alt"
+                />
             </CoordinateCopySlot>
         </div>
     </div>

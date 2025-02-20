@@ -1,5 +1,6 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 

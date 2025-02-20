@@ -1,16 +1,10 @@
 <script setup>
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import {
-    Cartesian2,
-    Cartographic,
-    Color,
-    PostProcessStageLibrary,
-    ScreenSpaceEventType,
-} from 'cesium'
+import { Cartesian2, Cartographic, PostProcessStageLibrary, ScreenSpaceEventType } from 'cesium'
 import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -87,16 +81,26 @@ function getCoordinateAtScreenCoordinate(x, y) {
     }
     return coordinates
 }
+/**
+ * This is temporary until we have a way to grab the features from the backend. Until then, this
+ * will stay in and if anybody wants more attributes out of it, they must be non localized
+ * attribute.
+ *
+ * @param building {Object} a building in the 3d layer, which contains the data needed in the
+ *   feature
+ * @param coordinates {[Number, Number]} x,y coordinates of the 'click', because features need it
+ *
+ *   Return LayerFeature a layer feature from the 3d building layer
+ */
 function createBuildingFeature(building, coordinates) {
     const id = building.getProperty('EGID') ?? building.getProperty('UUID')
     const data = {
         EGID: building.getProperty('EGID') ?? '-',
-        building_type: building.getProperty('OBJEKTART') ?? '-',
+        //building_type: building.getProperty('OBJEKTART') ?? '-',
         building_height: building.getProperty('GESAMTHOEHE') ?? '-',
         max_roof_height: building.getProperty('DACH_MAX') ?? '-',
         ground_level: building.getProperty('GELAENDEPUNKT') ?? '-',
     }
-    // round values)
 
     const feature = new LayerFeature({
         layer: cesiumBuildingLayer.value,
@@ -185,6 +189,7 @@ function onClick(event) {
         }),
         ...dispatcher,
     })
+    viewer.scene.requestRender()
 }
 
 function onContextMenu(event) {
@@ -201,6 +206,7 @@ function onContextMenu(event) {
 // when moving over a building, we should highlight
 function onMouseMove(event) {
     const viewer = getViewer()
+    const length = hoveredHighlightPostProcessor.selected.length
     // Do you want to know something about this thing? It's horrible :)
     // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
     // in the future but it is not yet the case for all buildings). We filter on this property
@@ -213,6 +219,10 @@ function onMouseMove(event) {
         .filter(
             (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
         )
+    if (hoveredHighlightPostProcessor.selected.length !== length) {
+        // if there was a change in the number of features hovered, we force a render
+        viewer.scene.requestRender()
+    }
 }
 
 useDragFileOverlay(getViewer().container)
