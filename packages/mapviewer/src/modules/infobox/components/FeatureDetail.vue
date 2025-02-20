@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
-import { WHITELISTED_HOSTNAMES } from '@/config/staging.config'
+import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
@@ -23,7 +23,7 @@ const { t } = useI18n()
 
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature.popupDataCanBeTrusted)
+const popupDataCanBeTrusted = computed(() => feature?.popupDataCanBeTrusted)
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
@@ -32,28 +32,48 @@ const sanitizedFeatureDataEntries = computed(() => {
     if (hasFeatureStringData.value || !feature?.data) {
         return []
     }
-    return Object.entries(feature.data)
-        .filter(([_, value]) => value) // filtering out null values
+    return Object.entries(feature?.data)
+        .filter(([_, value]) => value) // Filtering out null values
         .map(([key, value]) => [
             key,
             sanitizeHtml(value, key === 'description'),
-            getIframeHosts(value),
+            key === 'description' ? getIframeHosts(value) : [],
         ])
 })
 function sanitizeHtml(htmlText, withIframe = false) {
+    const blockedExternalContentString = t('blocked_external_content')
+
+    // Replacing possibly malicious code with `blockedExternalContentString` instead of removing it
+    function handleNode(node, attribute) {
+        try {
+            const url = new URL(node.getAttribute(attribute))
+            const ext = url.pathname.split('.').pop().toLowerCase()
+            if (BLOCKED_EXTENSIONS.includes(ext)) {
+                node.outerHTML = blockedExternalContentString
+            }
+        } catch (error) {
+            log.error(`Error while handling node for sanitizing HTML`, error)
+            node.outerHTML = blockedExternalContentString
+        }
+    }
+
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-        // set all elements owning target to target=_blank
-        if ('target' in node) {
+        // Check the A tag and add target="_blank" and rel="noopener noreferrer" to prevent tabnabbing
+        if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
-            node.setAttribute('rel', 'noopener')
+            node.setAttribute('rel', 'noopener noreferrer')
+            handleNode(node, 'href')
+        }
+        // Check the IFRAME tag
+        if (node.tagName === 'IFRAME') {
+            handleNode(node, 'src')
         }
     })
-    let response = null
-    if (withIframe) {
-        response = DOMPurify.sanitize(htmlText, { ADD_TAGS: ['iframe'] })
-    } else {
-        response = DOMPurify.sanitize(htmlText)
+    const config = {
+        ADD_TAGS: withIframe ? ['iframe'] : [],
+        ALLOWED_URI_REGEXP: /^(https?|mailto|tel):/i, // Blocks file://, javascript:
     }
+    const response = DOMPurify.sanitize(htmlText, config)
     DOMPurify.removeHook('afterSanitizeAttributes')
     return response
 }
@@ -62,15 +82,19 @@ function getIframeHosts(value) {
     const parser = new DOMParser()
     const dom = parser.parseFromString(value, 'text/html')
 
-    const hosts = Array.from(dom.getElementsByTagName('iframe')).map((iframe) => {
-        try {
-            return new URL(iframe.src).hostname
-        } catch (error) {
-            log.error(`Invalid iframe source "${iframe.src}" cannot get hostname`, error)
-            return iframe.src
-        }
-    })
-    return hosts.filter((host) => !WHITELISTED_HOSTNAMES.includes(host))
+    return Array.from(dom.getElementsByTagName('iframe'))
+        .map((iframe) => {
+            if (!iframe.src) {
+                return null
+            }
+            try {
+                return new URL(iframe.src).hostname
+            } catch {
+                log.error(`Invalid iframe source "${iframe.src}" - cannot get hostname`)
+                return iframe.src
+            }
+        })
+        .filter((host) => host && !WHITELISTED_HOSTNAMES.includes(host))
 }
 </script>
 
