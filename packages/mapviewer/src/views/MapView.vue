@@ -66,10 +66,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div
-        id="map-view"
-        class="no-print"
-    >
+    <div class="view no-print">
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
             fluid
