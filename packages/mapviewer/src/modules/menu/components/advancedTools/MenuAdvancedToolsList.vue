@@ -81,6 +81,7 @@ function onToggleImportFile() {
                 movable
                 initial-position="top-left"
                 wide
+                data-cy="import-window"
                 @close="onToggleImportFile"
             >
                 <ImportFile />
