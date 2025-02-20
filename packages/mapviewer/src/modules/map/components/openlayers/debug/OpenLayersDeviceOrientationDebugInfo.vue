@@ -103,9 +103,7 @@ async function copyValue(event, value) {
                     v-for="parameter in parameters"
                     :key="parameter.title"
                 >
-                    <div class="text-decoration-underline fw-bold">
-                        {{ parameter.title }}:
-                    </div>
+                    <div class="text-decoration-underline fw-bold">{{ parameter.title }}:</div>
                     <div>
                         <div
                             v-for="subParam in parameter.parameters"

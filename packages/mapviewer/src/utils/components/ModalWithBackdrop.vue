@@ -100,7 +100,9 @@ function onHideParentModal(hide) {
                             v-if="title"
                             class="flex-grow-1 text-start text-truncate"
                             data-cy="modal-with-backdrop-title"
-                        >{{ title }}</span>
+                        >
+                            {{ title }}
+                        </span>
                         <PrintButton
                             v-if="allowPrint"
                             :content="modalContent"

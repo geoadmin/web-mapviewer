@@ -50,7 +50,9 @@ useTippyTooltip(tooltipAnchor, tooltip, {
             <span
                 ref="tooltipAnchor"
                 class="px-1"
-            >{{ t(title) }} </span>
+            >
+                {{ t(title) }}
+            </span>
         </a>
         <slot />
     </div>
