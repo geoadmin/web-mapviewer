@@ -8,10 +8,13 @@ export const MIN_PRINT_SCALE_SIZE = 0.0001
 
 /** Dimensions in pixel of the viewport for each print format */
 export const PRINT_DIMENSIONS = {
-    A0: [1189, 841],
-    A1: [841, 594],
-    A2: [594, 420],
-    A3: [420, 297],
-    A4: [297, 210],
-    A5: [210, 148],
+    A0: [3179, 4494],
+    A1: [2245, 3179],
+    A2: [1587, 2245],
+    A3: [1123, 1587],
+    A4: [794, 1123],
+    A5: [559, 794],
+    A6: [397, 559],
 }
+
+export const PRINT_DEFAULT_DPI = 96

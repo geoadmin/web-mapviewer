@@ -34,6 +34,8 @@ export type ResolutionStep = {
     resolution: number
     /** Corresponding zoom level for this resolution step */
     zoom: number | undefined
+    /** Name of the map product shown at this resolution/zoom */
+    label?: string
 }
 
 export interface CoordinateSystemProps {

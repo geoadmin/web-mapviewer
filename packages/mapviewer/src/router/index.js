@@ -52,12 +52,11 @@ const router = createRouter({
             },
         },
         {
-            path: '/print',
+            path: '/print/:layout?',
             name: PRINT_VIEW,
             component: PrintView,
             props: (route) => ({
-                layout: route.params.layout ?? 'A4',
-                orientation: route.params.orientation ?? 'landscape',
+                layout: route.params.layout ?? 'A4_L',
             }),
             meta: {
                 requiresAppReady: true,
