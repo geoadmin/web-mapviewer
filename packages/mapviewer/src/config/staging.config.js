@@ -35,7 +35,11 @@ export const GITHUB_REPOSITORY = 'https://github.com/geoadmin/web-mapviewer'
  *
  * @type {String[]}
  */
-export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
+export const NO_WARNING_BANNER_HOSTNAMES = [
+    'test.map.geo.admin.ch',
+    'map.geo.admin.ch',
+    'sys-map.dev.bgdi.ch',
+]
 
 /**
  * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop) corner on all
