@@ -114,7 +114,8 @@ onMounted(() => {
                     data-cy="simple-window-title"
                     class="me-auto text-truncate"
                 >
-                    {{ t(title) }}</span>
+                    {{ t(title) }}
+                </span>
                 <span
                     v-else
                     class="me-auto"

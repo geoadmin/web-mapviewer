@@ -145,7 +145,7 @@ watch(
                     @keydown.esc.prevent="closeList"
                     @keydown.down.prevent="focusSearchlist"
                     @keydown.enter.prevent="onEnter"
-                >
+                />
 
                 <div class="input-group-append btn-group">
                     <button

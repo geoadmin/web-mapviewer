@@ -84,6 +84,8 @@ function getClasses(match) {
             :key="`${segment.text}-${index}`"
             :class="getClasses(segment.match)"
             :data-cy="`segment${segment.match ? '-match' : ''}`"
-        >{{ segment.text }}</span>
+        >
+            {{ segment.text }}
+        </span>
     </span>
 </template>

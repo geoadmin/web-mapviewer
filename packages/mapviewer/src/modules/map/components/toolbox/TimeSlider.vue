@@ -438,7 +438,7 @@ function handleKeyDownEvent(event) {
                         type="text"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                         @keypress.enter="yearCursorInput.blur()"
-                    >
+                    />
                     <div
                         class="px-2 border-start d-flex align-items-center"
                         @touchstart.passive="grabCursor"

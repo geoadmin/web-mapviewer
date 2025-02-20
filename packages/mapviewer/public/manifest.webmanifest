@@ -11,7 +11,10 @@
         { "src": "./icon-512.png", "type": "image/png", "sizes": "512x512" }
     ],
     "related_applications": [
-        { "platform": "play", "url": "https://play.google.com/store/apps/details?id=ch.admin.swisstopo" },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=ch.admin.swisstopo"
+        },
         { "platform": "itunes", "url": "https://apps.apple.com/us/app/swisstopo/id1505986543" }
     ]
 }

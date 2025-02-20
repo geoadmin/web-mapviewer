@@ -384,7 +384,7 @@ function activateSegmentIndex(index) {
             >
                 <div>
                     <small>
-                        <strong>{{ t('profile_x_label') }}: </strong>
+                        <strong>{{ t('profile_x_label') }}:</strong>
                         <span class="distance">
                             {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
                         </span>
@@ -392,7 +392,7 @@ function activateSegmentIndex(index) {
                 </div>
                 <div>
                     <small>
-                        <strong>{{ t('profile_y_label') }}: </strong>
+                        <strong>{{ t('profile_y_label') }}:</strong>
                         <span
                             v-if="pointBeingHovered.elevation > 0"
                             class="elevation"

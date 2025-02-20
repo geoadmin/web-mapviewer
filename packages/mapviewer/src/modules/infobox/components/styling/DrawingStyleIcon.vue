@@ -115,12 +115,11 @@ defineExpose({ refreshTooltip, removeTooltip })
             "
             crossorigin="anonymous"
             @load="onImageLoad"
-        >
+        />
     </button>
 </template>
 
 <style lang="scss" scoped>
-
 .marker-icon-image {
     width: 2rem;
     height: 2rem;

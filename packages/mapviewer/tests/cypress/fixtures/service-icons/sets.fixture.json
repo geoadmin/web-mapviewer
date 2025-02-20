@@ -3,7 +3,7 @@
         {
             "colorable": false,
             "icons_url": "http://localhost:8080/api/icons/sets/babs/icons",
-            "description_url":  "http://localhost:8080/api/icons/sets/babs/description",
+            "description_url": "http://localhost:8080/api/icons/sets/babs/description",
             "name": "babs"
         },
         {

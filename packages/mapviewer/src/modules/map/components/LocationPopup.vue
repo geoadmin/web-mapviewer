@@ -214,7 +214,8 @@ function clearClick() {
                             small: currentLang === 'it',
                         }"
                     >
-                        {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                        {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;
+                        <FontAwesomeIcon
                             data-cy="location-popup-share-tab-check"
                             class="px-0 icon"
                             :icon="copyButtonIcon"

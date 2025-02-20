@@ -421,7 +421,10 @@ describe('Test the search bar result handling', () => {
         // Check that the infobox for the selected feature is visible
         cy.get('[data-cy="infobox"]').as('infobox').should('be.visible')
         cy.get('@infobox').find('[data-cy="feature-item"]').should('have.length', 1)
-        cy.get('@infobox').find('[data-cy="feature-item"]').first().should('contain.text', expectedFeatureId)
+        cy.get('@infobox')
+            .find('[data-cy="feature-item"]')
+            .first()
+            .should('contain.text', expectedFeatureId)
 
         cy.log('Checking that the swisssearch url param is not present after reloading the page')
         cy.reload()

@@ -49,13 +49,12 @@ $map-button-border-width: calc(($map-button-diameter - $map-button-inner-icon-di
 // Space between adjacent buttons
 $button-spacer: 0.5rem;
 
-
 :export {
-  headerHeight: $header-height;
-  devDisclaimerHeight: $dev-disclaimer-height;
-  timeSliderBarHeight: $time-slider-bar-height;
-  timeSliderDropdownHeight: $time-slider-dropdown-height;
-  footerHeight: $footer-height;
-  overlayWidth: $overlay-width;
-  drawingMobileToolbarHeight: $drawing-tools-height-mobile;
+    headerHeight: $header-height;
+    devDisclaimerHeight: $dev-disclaimer-height;
+    timeSliderBarHeight: $time-slider-bar-height;
+    timeSliderDropdownHeight: $time-slider-dropdown-height;
+    footerHeight: $footer-height;
+    overlayWidth: $overlay-width;
+    drawingMobileToolbarHeight: $drawing-tools-height-mobile;
 }
