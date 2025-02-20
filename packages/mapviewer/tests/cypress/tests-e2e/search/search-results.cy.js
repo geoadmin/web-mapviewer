@@ -57,6 +57,7 @@ describe('Test the search bar result handling', () => {
         expectedCenterEpsg4326
     )
     const expectedLayerId = 'test.wmts.layer'
+    const expectedFeatureId = 5678
     const locationResponse = {
         results: [
             {
@@ -99,11 +100,11 @@ describe('Test the search bar result handling', () => {
     const layerFeatureResponse = {
         results: [
             {
-                id: 5678,
+                id: expectedFeatureId,
                 weight: 4,
                 attrs: {
-                    featureId: 5678,
-                    feature_id: 5678,
+                    featureId: expectedFeatureId,
+                    feature_id: expectedFeatureId,
                     x: expectedCenterDefaultProjection[0],
                     y: expectedCenterDefaultProjection[1],
                     lon: expectedCenterEpsg4326[0],
@@ -416,6 +417,11 @@ describe('Test the search bar result handling', () => {
             expect(x).to.be.closeTo(expectedCenterDefaultProjection[0], 1)
             expect(y).to.be.closeTo(expectedCenterDefaultProjection[1], 1)
         })
+
+        // Check that the infobox for the selected feature is visible
+        cy.get('[data-cy="infobox"]').as('infobox').should('be.visible')
+        cy.get('@infobox').find('[data-cy="feature-item"]').should('have.length', 1)
+        cy.get('@infobox').find('[data-cy="feature-item"]').first().should('contain.text', expectedFeatureId)
 
         cy.log('Checking that the swisssearch url param is not present after reloading the page')
         cy.reload()
