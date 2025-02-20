@@ -84,15 +84,13 @@ function getTransformedXYZUrl() {
 function createTileGridForProjection() {
     const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
     let resolutions = projection.value.getResolutions()
-    let matrixIds = projection.value.getMatrixIds()
     if (resolutions.length > maxResolutionIndex) {
         resolutions = resolutions.slice(0, maxResolutionIndex + 1)
-        matrixIds = matrixIds.slice(0, maxResolutionIndex + 1)
     }
     return new WMTSTileGrid({
-        resolutions,
+        resolutions: resolutions.map((resolution) => resolution.resolution),
         origin: projection.value.getTileOrigin(),
-        matrixIds,
+        matrixIds: resolutions.map((_, index) => index),
         extent: projection.value.bounds.flatten,
     })
 }
@@ -111,7 +109,10 @@ function createTileGridForProjection() {
  */
 function createWMTSSourceForProjection() {
     log.debug('Create new WMTS source for projection', wmtsSourceConfig.value, wmtsTimeConfig.value)
-    return new WMTSSource({ ...wmtsSourceConfig.value, ...wmtsTimeConfig.value })
+    return new WMTSSource({
+        ...wmtsSourceConfig.value,
+        ...wmtsTimeConfig.value,
+    })
 }
 </script>
 

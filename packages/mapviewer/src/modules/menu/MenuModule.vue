@@ -45,10 +45,6 @@ function toggleMenu() {
             v-show="isHeaderShown"
             class="header"
         />
-        <DebugToolbar
-            v-if="hasDevSiteWarning"
-            class="position-absolute end-0 debug-toolbar"
-        />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{

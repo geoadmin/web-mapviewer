@@ -5,3 +5,16 @@ export const PRINT_DPI_COMPENSATION = 144
 // when the scale is too low, the print backend can't read the exponent.
 //So when there is a non 0 scale, we set its minimum to 0.0001
 export const MIN_PRINT_SCALE_SIZE = 0.0001
+
+/** Dimensions in pixel of the viewport for each print format */
+export const PRINT_DIMENSIONS = {
+    A0: [3179, 4494],
+    A1: [2245, 3179],
+    A2: [1587, 2245],
+    A3: [1123, 1587],
+    A4: [794, 1123],
+    A5: [559, 794],
+    A6: [397, 559],
+}
+
+export const PRINT_DEFAULT_DPI = 96

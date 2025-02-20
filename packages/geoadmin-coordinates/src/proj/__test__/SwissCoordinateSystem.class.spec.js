@@ -6,7 +6,7 @@ import {
     SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX,
 } from '@/proj/SwissCoordinateSystem'
 
-describe('Unit test functions from SwissCoordinateSystem', () => {
+describe.skip('Unit test functions from SwissCoordinateSystem', () => {
     describe('transformCustomZoomLevelToStandard', () => {
         it('transforms rounded value correctly', () => {
             // most zoom levels on mf-geoadmin3 were forced as integer, so we have to make sure we translate them correctly

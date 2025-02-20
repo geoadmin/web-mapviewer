@@ -4,10 +4,9 @@ import proj4 from 'proj4'
 import type { SingleCoordinate } from '@/utils'
 
 import { WGS84 } from '@/proj'
+import { PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES } from '@/proj/CoordinateSystem'
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
-import StandardCoordinateSystem, {
-    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
-} from '@/proj/StandardCoordinateSystem'
+import StandardCoordinateSystem from '@/proj/StandardCoordinateSystem'
 
 export default class WebMercatorCoordinateSystem extends StandardCoordinateSystem {
     constructor() {
@@ -41,7 +40,7 @@ export default class WebMercatorCoordinateSystem extends StandardCoordinateSyste
      *          resolution = 156543.03 meters / pixel * cos(latitude) / (2 ^ zoom level)
      */
     getResolutionForZoomAndCenter(zoom: number, center: SingleCoordinate): number {
-        const centerInRad = proj4(this.epsg, WGS84.epsg, center).map(
+        const centerInRad: number[] = proj4(this.epsg, WGS84.epsg, center).map(
             (coordinate) => (coordinate * Math.PI) / 180.0
         )
         return round(

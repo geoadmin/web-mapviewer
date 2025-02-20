@@ -4,6 +4,17 @@ import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
+const { scaleType, minWidth } = defineProps({
+    scaleType: {
+        type: String,
+        default: 'line',
+    },
+    minWidth: {
+        type: Number,
+        default: 100,
+    }
+})
+
 const scaleLineElement = useTemplateRef('scaleLineElement')
 
 const store = useStore()
@@ -13,7 +24,9 @@ const projection = computed(() => store.state.position.projection)
 const showScaleLine = computed(() => projection.value.epsg === LV95.epsg || zoom.value >= 9)
 
 const scaleLine = new ScaleLine({
-    className: 'scale-line',
+    className: `scale-${scaleType}`,
+    bar: scaleType === 'bar',
+    minWidth: minWidth,
 })
 
 const olMap = inject('olMap')
@@ -48,6 +61,58 @@ onBeforeUnmount(() => olMap.removeControl(scaleLine))
         font-weight: bold;
         color: $black;
         background-color: rgba($white, 0.7);
+    }
+}
+
+.scale-bar {
+    $scaleBarBorderColor: $black;
+    $scaleBarPrimary: $gray-800;
+    $scaleBarSecondary: $gray-300;
+
+    position: relative;
+
+    .scale-bar-inner {
+        display: flex;
+    }
+
+    .ol-scale-step-marker {
+        width: 1px;
+        height: 15px;
+        background-color: $scaleBarBorderColor;
+        float: right;
+        z-index: 10;
+    }
+
+    .ol-scale-step-text {
+        position: absolute;
+        bottom: -7px;
+        font-size: 11px;
+        z-index: 11;
+        color: $scaleBarBorderColor;
+    }
+
+    .ol-scale-text {
+        position: absolute;
+        font-size: 12px;
+        text-align: center;
+        bottom: 25px;
+        color: $scaleBarBorderColor;
+    }
+
+    .ol-scale-singlebar {
+        position: relative;
+        height: 10px;
+        z-index: 9;
+        box-sizing: border-box;
+        border: 1px solid $scaleBarBorderColor;
+    }
+
+    .ol-scale-singlebar-even {
+        background-color: $scaleBarSecondary;
+    }
+
+    .ol-scale-singlebar-odd {
+        background-color: $scaleBarPrimary;
     }
 }
 </style>

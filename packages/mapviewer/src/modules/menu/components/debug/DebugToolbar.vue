@@ -6,6 +6,7 @@ import { useStore } from 'vuex'
 
 import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
 import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
+import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
 
 const dispatcher = { dispatcher: 'DebugToolbar.vue' }
 
@@ -50,7 +51,7 @@ function toggleShowLayerFinder() {
 
 <template>
     <div
-        class="debug-tools card border-danger rounded-end-0 me-n1"
+        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1"
         :class="{ collapsed: !showDebugTool }"
     >
         <div class="position-relative d-flex">
@@ -73,6 +74,9 @@ function toggleShowLayerFinder() {
                         id="debug-tools-menu"
                         class="d-flex gap-2 justify-content-center flex-wrap"
                     >
+                        <div class="d-flex flex-column align-items-center">
+                            <DebugViewSelector />
+                        </div>
                         <div class="d-flex flex-column align-items-center">
                             <button
                                 class="toolbox-button"
