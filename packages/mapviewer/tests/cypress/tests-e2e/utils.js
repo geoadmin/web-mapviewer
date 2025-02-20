@@ -8,3 +8,23 @@ export function moveTimeSlider(x) {
     })
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mouseup', { force: true })
 }
+
+export function getGeolocationButtonAndClickIt() {
+    const geolocationButtonSelector = '[data-cy="geolocation-button"]'
+    cy.get(geolocationButtonSelector).should('be.visible').click()
+}
+
+export function testErrorMessage(message) {
+    // Check error in store
+    cy.readStoreValue('state.ui.errors').then((errors) => {
+        expect(errors).to.be.an('Set')
+        // Make sure this is the only error (we don't want to test other errors)
+        expect(errors.size).to.eq(1)
+
+        const error = errors.values().next().value
+        expect(error.msg).to.eq(message)
+    })
+    // Check error in UI
+    cy.get('[data-cy="error-window"]').should('be.visible')
+    cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+}
