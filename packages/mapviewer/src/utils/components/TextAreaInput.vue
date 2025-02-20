@@ -167,7 +167,9 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="textAreaInputId"
             data-cy="text-area-input-label"
-        >{{ t(label) }}</label>
+        >
+            {{ t(label) }}
+        </label>
         <textarea
             :id="textAreaInputId"
             ref="textAreaElement"

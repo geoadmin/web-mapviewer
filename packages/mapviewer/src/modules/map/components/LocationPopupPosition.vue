@@ -164,7 +164,9 @@ async function updateHeight() {
                 <a
                     href="https://epsg.io/4326"
                     target="_blank"
-                >{{ WGS84Format.label }}</a>
+                >
+                    {{ WGS84Format.label }}
+                </a>
             </CoordinateCopySlot>
 
             <CoordinateCopySlot
@@ -175,7 +177,9 @@ async function updateHeight() {
                 <a
                     href="https://epsg.io/32632"
                     target="_blank"
-                >{{ UTMFormat.label }}</a>
+                >
+                    {{ UTMFormat.label }}
+                </a>
             </CoordinateCopySlot>
 
             <CoordinateCopySlot
@@ -195,7 +199,9 @@ async function updateHeight() {
                 <a
                     href="http://what3words.com/"
                     target="_blank"
-                >what3words</a>
+                >
+                    what3words
+                </a>
             </CoordinateCopySlot>
 
             <CoordinateCopySlot
@@ -208,7 +214,9 @@ async function updateHeight() {
                 <a
                     :href="t('elevation_href')"
                     target="_blank"
-                >{{ t('elevation') }}</a>
+                >
+                    {{ t('elevation') }}
+                </a>
             </CoordinateCopySlot>
         </div>
     </div>

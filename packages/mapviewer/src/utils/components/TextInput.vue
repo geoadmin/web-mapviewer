@@ -190,7 +190,9 @@ defineExpose({ focus })
             :class="{ 'fw-bolder': required }"
             :for="textInputId"
             data-cy="text-input-label"
-        >{{ t(label) }}</label>
+        >
+            {{ t(label) }}
+        </label>
         <div class="input-group d-flex">
             <input
                 :id="textInputId"
@@ -212,7 +214,7 @@ defineExpose({ focus })
                 @focusin="onFocus($event, true)"
                 @focusout="onFocus($event, false)"
                 @keydown.enter="emits('keydown.enter')"
-            >
+            />
             <button
                 v-if="value?.length > 0"
                 :id="clearButtonId"

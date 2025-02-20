@@ -114,7 +114,7 @@ onMounted(async () => {
                         <img
                             v-if="legend.format.startsWith('image/')"
                             :src="legend.url"
-                        >
+                        />
                         <iframe
                             v-else-if="legend.format === 'text/html'"
                             :src="legend.url"
@@ -123,7 +123,9 @@ onMounted(async () => {
                             v-else
                             :href="legend.url"
                             target="_blank"
-                        >{{ legend.url }}</a>
+                        >
+                            {{ legend.url }}
+                        </a>
                     </div>
                 </div>
 
@@ -136,9 +138,9 @@ onMounted(async () => {
                         v-if="attributionUrl"
                         :href="attributionUrl"
                         target="_blank"
-                    >{{
-                        attributionName
-                    }}</a>
+                    >
+                        {{ attributionName }}
+                    </a>
                     <span v-else>{{ attributionName }}</span>
                 </div>
             </div>

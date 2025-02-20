@@ -190,7 +190,7 @@ watch(
                         readonly="readonly"
                         @focus="$event.target.select()"
                         @click="$event.target.select()"
-                    >
+                    />
                     <button
                         ref="copyButton"
                         data-cy="menu-share-embed-copy-button"
@@ -256,7 +256,7 @@ watch(
                             type="number"
                             class="form-control text-center custom-preview-input"
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <input
                             v-else
                             class="form-control form-control-plaintext custom-preview-input text-center"
@@ -264,7 +264,7 @@ watch(
                             value="100 %"
                             readonly
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <span class="p-2">
                             <font-awesome-icon :icon="['fas', 'xmark']" />
                         </span>
@@ -273,7 +273,7 @@ watch(
                             type="number"
                             class="form-control custom-preview-input text-center"
                             data-cy="menu-share-embed-iframe-custom-height"
-                        >
+                        />
                         <div class="align-self-center ps-2">
                             <div class="form-check">
                                 <input
@@ -283,7 +283,7 @@ watch(
                                     type="checkbox"
                                     value=""
                                     data-cy="menu-share-embed-iframe-full-width"
-                                >
+                                />
                                 <label
                                     class="form-check-label"
                                     for="fullWidthCheckbox"
