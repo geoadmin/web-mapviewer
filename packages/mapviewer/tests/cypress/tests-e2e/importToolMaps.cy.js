@@ -313,10 +313,10 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="search-catalogue-clear"]`).click()
 
         //---------------------------------------------------------------------
-        cy.log(`Check that long title are truncated and have a tippy`)
+        cy.log(`Check that long title are truncated and have a tooltip`)
         cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).should('be.visible')
-        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).trigger('mouseenter')
-        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerId}"]`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).trigger('mouseover')
+        cy.get(`[data-cy="floating-catalogue-tree-item-name-${singleLayerId}"]`)
             .should('be.visible')
             .contains(singleLayerName)
 
@@ -343,7 +343,7 @@ describe('The Import Maps Tool', () => {
             .should('have.css', 'cursor', 'pointer')
             .should('have.class', 'text-primary')
             .should('have.attr', 'href', 'http://www.geo.admin.ch/')
-        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+        cy.get('[data-cy="floating-third-party-disclaimer"]')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
 
@@ -397,10 +397,9 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layer1Id}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-tree-item-info-${layer1Id}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer1Id}"]`).should('be.visible').click()
-        cy.get(`[data-cy="catalogue-tree-item-name-${layer1Id}"]`).should(
-            'have.class',
-            'text-primary'
-        )
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer1Id}"]`)
+            .parents('.menu-catalogue-item-name')
+            .should('have.class', 'text-primary')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer1Id}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
@@ -428,10 +427,9 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layer2Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-tree-item-info-${layer2Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer2Id}"]`).should('be.visible').click()
-        cy.get(`[data-cy="catalogue-tree-item-name-${layer2Id}"]`).should(
-            'have.class',
-            'text-primary'
-        )
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer2Id}"]`)
+            .parents('.menu-catalogue-item-name')
+            .should('have.class', 'text-primary')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer2Id}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
@@ -506,10 +504,9 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-collapse-layer-button-${layer4Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layer4Id}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer4Id}"]`).should('be.visible').click()
-        cy.get(`[data-cy="catalogue-tree-item-name-${layer4Id}"]`).should(
-            'have.class',
-            'text-primary'
-        )
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer4Id}"]`)
+            .parents('.menu-catalogue-item-name')
+            .should('have.class', 'text-primary')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer4Id}"]`)
             .should('have.class', 'text-primary')
             .find('svg')

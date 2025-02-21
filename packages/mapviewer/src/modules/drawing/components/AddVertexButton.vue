@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 
-const { tooltipText, reverse } = defineProps({
+const { tooltipText, reverse, dataCyName } = defineProps({
     tooltipText: {
         type: String,
         default: 'modify_add_vertex',
@@ -20,6 +20,10 @@ const { tooltipText, reverse } = defineProps({
     reverse: {
         type: Boolean,
         default: false,
+    },
+    dataCyName: {
+        type: String,
+        required: true,
     },
 })
 
@@ -45,7 +49,7 @@ function addVertex() {
 
 <template>
     <GeoadminTooltip :tooltip-content="t(tooltipText)" ref="buttonRef" placement="left">
-        <button class="overlay-button d-print-none" @click="addVertex">
+        <button class="overlay-button d-print-none" @click="addVertex" :data-cy="dataCyName">
             <font-awesome-icon :icon="['fas', 'plus']" />
         </button>
     </GeoadminTooltip>

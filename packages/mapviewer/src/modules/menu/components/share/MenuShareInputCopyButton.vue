@@ -66,18 +66,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div v-if="inputText" ref="copyButton" data-cy="input-copy-button">
-        <GeoadminTooltip :disabled="!tooltipContent" theme="warning">
-            <template #content>
-                <div class="share-tooltip">
-                    {{ tooltipContent }}
-                </div>
-            </template>
+    <GeoadminTooltip :disabled="!tooltipContent" theme="warning">
+        <template #content>
+            <div class="share-tooltip">
+                {{ tooltipContent }}
+            </div>
+        </template>
+        <div v-if="inputText" ref="copyButton" data-cy="input-copy-button">
             <label v-if="labelText">{{ t(labelText) }}: </label>
             <div class="input-group" :class="{ 'input-group-sm': small }">
                 <input
-                    type="text"
-                    class="form-control input-text-to-copy"
+                    type="text" class="form-control input-text-to-copy"
                     :class="{ 'bg-warning': hasWarning }"
                     readonly="readonly"
                     :value="inputText"
@@ -96,8 +95,8 @@ onBeforeUnmount(() => {
                     {{ buttonText }}
                 </button>
             </div>
-        </GeoadminTooltip>
-    </div>
+        </div>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>
