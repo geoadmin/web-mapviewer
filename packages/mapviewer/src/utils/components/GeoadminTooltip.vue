@@ -54,7 +54,9 @@ const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement
     whileElementsMounted: autoUpdate,
     middleware: [
         shift(), // shift the element to keep it in view
-        flip(), // allow the opposite side if there's not enough space
+        flip({
+            fallbackAxisSideDirection: 'start'
+        }), // allow the opposite side if there's not enough space
         offset(10), // offset it to make room for the arrow
         arrow({ element: arrowDownLeftRef }),
         arrow({ element: arrowUpRightRef }),
