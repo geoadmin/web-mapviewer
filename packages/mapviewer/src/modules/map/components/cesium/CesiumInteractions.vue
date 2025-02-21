@@ -4,7 +4,7 @@ import log from '@geoadmin/log'
 import { Cartesian2, Cartographic, PostProcessStageLibrary, ScreenSpaceEventType } from 'cesium'
 import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -36,6 +36,7 @@ const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
 const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
 const featuresParamsByCesiumLayerId = computed(() => store.getters.featuresParamsByCesiumLayerId)
+const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
@@ -61,7 +62,20 @@ onMounted(() => {
     }
 })
 
-// TO DO : add a watcher (map-popover-close-button) which removes highlight from clicked if no 3d features is selected
+// this is to remove the highlight when we close the tooltip
+watch(selectedFeatures, () => {
+    if (
+        !selectedFeatures.value.find((feature) =>
+            Object.keys(featuresParamsByCesiumLayerId.value).includes(feature.layer.id)
+        ) &&
+        clickedHighlightPostProcessor.selected.length > 0
+    ) {
+        clickedHighlightPostProcessor.selected = []
+        const viewer = getViewer()
+        viewer.scene.requestRender()
+    }
+})
+
 function initialize3dHighlights() {
     hoveredHighlightPostProcessor.uniforms.color = hovered3DFeatureFill
     hoveredHighlightPostProcessor.uniforms.length = 0
