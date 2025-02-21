@@ -64,7 +64,6 @@ const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement
 const style = computed(() => {
     const style: CSSProperties = {
         ...floatingStyles.value,
-        display: isShown.value ? 'block' : 'none',
         // if the content slot is used, we delegate the styling to the user
         // if it's the fallback, then it's a simple tooltip, thus add the padding
         padding: slots.content ? '' : '6px 10px',
@@ -162,7 +161,7 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
                 class="floating"
                 :class="theme"
                 ref="floatingElement"
-                v-if="!disabled"
+                v-if="!disabled && isShown"
             >
                 <!-- the arrow to be displayed on the top or on the left-->
                 <div
