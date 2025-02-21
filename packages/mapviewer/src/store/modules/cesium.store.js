@@ -1,29 +1,41 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import {
+    CESIUM_BUILDING_LAYER_ID,
+    CESIUM_CONSTRUCTIONS_LAYER_ID,
+    CESIUM_LABELS_LAYER_ID,
+    CESIUM_LAYER_TOOLTIPS_CONFIGURATION,
+    CESIUM_VEGETATION_LAYER_ID,
+} from '@/config/cesium.config'
 
 const labelLayer = new GeoAdmin3DLayer({
-    layerId: 'ch.swisstopo.swissnames3d.3d',
+    layerId: CESIUM_LABELS_LAYER_ID,
     layerName: '3d_labels',
     urlTimestampToUse: '20180716',
     use3dTileSubFolder: true,
 })
 const vegetationLayer = new GeoAdmin3DLayer({
-    layerId: 'ch.swisstopo.vegetation.3d',
+    layerId: CESIUM_VEGETATION_LAYER_ID,
     layerName: '3d_vegetation',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false,
 })
 const buildingsLayer = new GeoAdmin3DLayer({
-    layerId: 'ch.swisstopo.swissbuildings3d.3d',
+    layerId: CESIUM_BUILDING_LAYER_ID,
     layerName: '3d_constructions',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
 })
 const constructionsLayer = new GeoAdmin3DLayer({
-    layerId: 'ch.swisstopo.swisstlm3d.3d',
+    layerId: CESIUM_CONSTRUCTIONS_LAYER_ID,
     layerName: '3d_constructions',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
 })
+
+// TODO :
+// move this to cesium config
+// create "local" locales translations json with layer prefixes for the keys
+// generalize generation
 
 /** Module that stores all information related to the 3D viewer */
 export default {
@@ -72,6 +84,17 @@ export default {
          * @type Boolean
          */
         isViewerReady: false,
+        /**
+         * An object containing the fetchable parameters for each cesium layer
+         *
+         * It will be used in the following manner : id is what property of the feature is used for
+         * the id of a feature in the layer. data represents the keys for each data (which will be
+         * translated), and which data property will be associated to it (this will never be
+         * translated)
+         *
+         * @type Object
+         */
+        featuresParamsByCesiumLayerId: CESIUM_LAYER_TOOLTIPS_CONFIGURATION,
     },
     getters: {
         backgroundLayersFor3D(state, getters, rootState) {
@@ -101,8 +124,13 @@ export default {
             }
             return bgLayers
         },
-        cesiumBuildingLayer(state, getters) {
-            return getters.backgroundLayersFor3D.find((layer) => layer.id === buildingsLayer.id)
+        layersWithTooltips(state, getters) {
+            return getters.backgroundLayersFor3D.filter((layer) =>
+                Object.keys(getters.featuresParamsByCesiumLayerId).includes(layer.id)
+            )
+        },
+        featuresParamsByCesiumLayerId(state) {
+            return state.featuresParamsByCesiumLayerId
         },
     },
     actions: {

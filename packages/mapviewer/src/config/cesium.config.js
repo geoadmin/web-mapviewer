@@ -52,3 +52,41 @@ export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 1.2742018 * 10 ** 7 // Diam
 export const MINIMUM_DISTANCE_TO_SHOW_TOOLTIP = 110000
 
 export const GPX_BILLBOARD_RADIUS = 8
+
+export const CESIUM_BUILDING_LAYER_ID = 'ch.swisstopo.swissbuildings3d.3d'
+export const CESIUM_VEGETATION_LAYER_ID = 'ch.swisstopo.vegetation.3d'
+export const CESIUM_CONSTRUCTIONS_LAYER_ID = 'ch.swisstopo.swisstlm3d.3d'
+export const CESIUM_LABELS_LAYER_ID = 'ch.swisstopo.swissnames3d.3d'
+
+/**
+ * @returns {Object} A configuration for each layer id that should contain a property to be the id
+ *   of each feature, an array of translated properties and an array of non translated properties
+ */
+function createTooltipConfig() {
+    const nonTranslatedAttributesForTooltip = {}
+    const translatedAttributesForTooltip = {}
+    nonTranslatedAttributesForTooltip[CESIUM_BUILDING_LAYER_ID] = [
+        'EGID',
+        'GESAMTHOEHE',
+        'DACH_MAX',
+        'GELAENDEPUNKT',
+    ]
+    translatedAttributesForTooltip[CESIUM_BUILDING_LAYER_ID] = ['OBJEKTART']
+    const paramsByCesiumLayerId = {}
+    paramsByCesiumLayerId[CESIUM_BUILDING_LAYER_ID] = {
+        id: 'EGID',
+        data: {},
+    }
+
+    for (const layerId of Object.keys(paramsByCesiumLayerId)) {
+        paramsByCesiumLayerId[layerId].data.nonTranslated = nonTranslatedAttributesForTooltip[
+            layerId
+        ].reduce((array, value) => ({ ...array, [layerId + '_' + value]: value }), {})
+        paramsByCesiumLayerId[layerId].data.translated = translatedAttributesForTooltip[
+            layerId
+        ].reduce((array, value) => ({ ...array, [layerId + '_' + value]: value }), {})
+    }
+    return paramsByCesiumLayerId
+}
+
+export const CESIUM_LAYER_TOOLTIPS_CONFIGURATION = createTooltipConfig()
