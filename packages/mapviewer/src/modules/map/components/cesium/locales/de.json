@@ -1,0 +1,32 @@
+{
+    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
+    "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Gebäudehöhe [m]",
+    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX":	"Maximale Dachhöhe [m ü. M.]",
+    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT":	"Geländehöhe [m ü. M.]",
+    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART": "Typ",
+    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt" : "Brücke gedeckt",
+    "ch.swisstopo.swissbuildings3d.3d_Flugdach": "Flugdach",
+    "ch.swisstopo.swissbuildings3d.3d_Gebaeude Einzelhaus": "Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Gebaeude unsichtbar": "Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Historische Baute": "Historische Baute",
+    "ch.swisstopo.swissbuildings3d.3d_Hochhaus": "Hochhaus",
+    "ch.swisstopo.swissbuildings3d.3d_Hochkamin": "Hochkamin",
+    "ch.swisstopo.swissbuildings3d.3d_Im Bau": "Im Bau",
+    "ch.swisstopo.swissbuildings3d.3d_Kapelle": "Kapelle",
+    "ch.swisstopo.swissbuildings3d.3d_Kuehlturm": "Kühlturm",
+    "ch.swisstopo.swissbuildings3d.3d_Lagertank": "Lagertank",
+    "ch.swisstopo.swissbuildings3d.3d_Lueftungsschacht": "Lüftungsschacht",
+    "ch.swisstopo.swissbuildings3d.3d_Mauer gross": "Mauer gross",
+    "ch.swisstopo.swissbuildings3d.3d_Mauer gross gedeckt": "Mauer gross gedeckt",
+    "ch.swisstopo.swissbuildings3d.3d_Offenes Gebaeude": "Offenes Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Sakraler Turm": "Sakrales Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Sakrales Gebaeude": "Sakrales Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Treibhaus": "Treibhaus",
+    "ch.swisstopo.swissbuildings3d.3d_Turm": "Turm",
+    "ch.swisstopo.swissbuildings3d.3d_Unterirdisches Gebaeude": "Unterirdisches Gebäude",
+    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Verbindungsbrücke",
+    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Verbindungsbrücke"
+
+
+}
+

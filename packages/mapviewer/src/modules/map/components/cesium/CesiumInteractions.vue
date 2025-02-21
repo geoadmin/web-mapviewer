@@ -11,6 +11,7 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     clicked3DFeatureFill,
     hovered3DFeatureFill,
@@ -33,7 +34,8 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
-const cesiumBuildingLayer = computed(() => store.getters.cesiumBuildingLayer)
+const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
+const featuresParamsByCesiumLayerId = computed(() => store.getters.featuresParamsByCesiumLayerId)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
         (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
@@ -58,6 +60,8 @@ onMounted(() => {
         viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
     }
 })
+
+// TO DO : add a watcher (map-popover-close-button) which removes highlight from clicked if no 3d features is selected
 function initialize3dHighlights() {
     hoveredHighlightPostProcessor.uniforms.color = hovered3DFeatureFill
     hoveredHighlightPostProcessor.uniforms.length = 0
@@ -81,29 +85,38 @@ function getCoordinateAtScreenCoordinate(x, y) {
     }
     return coordinates
 }
+
+function getlayerIdFrom3dFeature(feature) {
+    return feature.tileset?.resource?.url?.replace(get3dTilesBaseUrl(), '').split('/')[0]
+}
+
 /**
  * This is temporary until we have a way to grab the features from the backend. Until then, this
- * will stay in and if anybody wants more attributes out of it, they must be non localized
- * attribute.
+ * will stay in. It uses the configuration found in the store to check if the feature can give a
+ * tooltip.
  *
- * @param building {Object} a building in the 3d layer, which contains the data needed in the
- *   feature
+ * @param feature {Object} a feature in the 3d layer, which contains the data needed in the feature
  * @param coordinates {[Number, Number]} x,y coordinates of the 'click', because features need it
  *
- *   Return LayerFeature a layer feature from the 3d building layer
+ *   Return LayerFeature a layer feature from the 3d layer
  */
-function createBuildingFeature(building, coordinates) {
-    const id = building.getProperty('EGID') ?? building.getProperty('UUID')
-    const data = {
-        EGID: building.getProperty('EGID') ?? '-',
-        //building_type: building.getProperty('OBJEKTART') ?? '-',
-        building_height: building.getProperty('GESAMTHOEHE') ?? '-',
-        max_roof_height: building.getProperty('DACH_MAX') ?? '-',
-        ground_level: building.getProperty('GELAENDEPUNKT') ?? '-',
+function create3dFeature(feature, coordinates) {
+    const layerId = getlayerIdFrom3dFeature(feature)
+    const layer = layersWithTooltips.value.find((layer) => layer.id === layerId)
+    const id = feature.getProperty(featuresParamsByCesiumLayerId.value[layerId].id) ?? '-'
+    const data = {}
+    for (const [key, value] of Object.entries(
+        featuresParamsByCesiumLayerId.value[layerId].data.nonTranslated
+    )) {
+        data[key] = feature.getProperty(value)
     }
-
-    const feature = new LayerFeature({
-        layer: cesiumBuildingLayer.value,
+    for (const [key, value] of Object.entries(
+        featuresParamsByCesiumLayerId.value[layerId].data.translated
+    )) {
+        data[key] = layerId + '_' + feature.getProperty(value)
+    }
+    return new LayerFeature({
+        layer,
         id,
         data,
         name: id,
@@ -115,13 +128,12 @@ function createBuildingFeature(building, coordinates) {
         }),
         geometry: new Point(coordinates),
     })
-    return feature
 }
 
 function handleClickHighlight(features, coordinates) {
     clickedHighlightPostProcessor.selected = []
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
-        features.push(createBuildingFeature(feature, coordinates))
+        features.push(create3dFeature(feature, coordinates))
     })
     clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
 
@@ -206,22 +218,21 @@ function onContextMenu(event) {
 // when moving over a building, we should highlight
 function onMouseMove(event) {
     const viewer = getViewer()
-    const length = hoveredHighlightPostProcessor.selected.length
-    // Do you want to know something about this thing? It's horrible :)
-    // 3d Buildings objects have no id, and we know they all have an UUID (they will have an EGID
-    // in the future but it is not yet the case for all buildings). We filter on this property
-    // to ensure the object we got is a building, and not another object which, for some reason,
-    // has no id either. We need to make an additional filter, as bridges and cable cars would get
-    // highlighted too, but we don't want that. So we filter on the fact that those 'OBJEKTART'
-    // property is a number instead of a string.
-    hoveredHighlightPostProcessor.selected = viewer.scene
-        .drillPick(event.endPosition)
-        .filter(
-            (o) => !o.id && o.getProperty('UUID') && typeof o.getProperty('OBJEKTART') !== 'number'
-        )
-    if (hoveredHighlightPostProcessor.selected.length !== length) {
-        // if there was a change in the number of features hovered, we force a render
+    const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
+
+    // we pick the first 3d feature if it's in the config
+    const o = viewer.scene.pick(event.endPosition)
+    if (
+        o &&
+        Object.keys(featuresParamsByCesiumLayerId.value).includes(getlayerIdFrom3dFeature(o))
+    ) {
+        hoveredHighlightPostProcessor.selected = [o]
         viewer.scene.requestRender()
+    } else {
+        hoveredHighlightPostProcessor.selected = []
+        if (aFeatureIsHighlighted) {
+            viewer.scene.requestRender()
+        }
     }
 }
 

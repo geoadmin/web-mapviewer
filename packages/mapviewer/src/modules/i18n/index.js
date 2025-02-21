@@ -1,13 +1,25 @@
 import log from '@geoadmin/log'
 import { createI18n } from 'vue-i18n'
 
+import cesiumDe from '@/modules/map/components/cesium/locales/de.json'
+import cesiumEn from '@/modules/map/components/cesium/locales/en.json'
+import cesiumFr from '@/modules/map/components/cesium/locales/fr.json'
+import cesiumIt from '@/modules/map/components/cesium/locales/it.json'
+import cesiumRm from '@/modules/map/components/cesium/locales/rm.json'
+
 import de from './locales/de.json'
 import en from './locales/en.json'
 import fr from './locales/fr.json'
 import it from './locales/it.json'
 import rm from './locales/rm.json'
 
-export const languages = { de, fr, it, en, rm }
+export const languages = {
+    de: { ...de, ...cesiumDe },
+    fr: { ...fr, ...cesiumFr },
+    it: { ...it, ...cesiumIt },
+    en: { ...en, ...cesiumEn },
+    rm: { ...rm, ...cesiumRm },
+}
 
 const OFFICIAL_SWISS_LANG = ['de', 'fr', 'it', 'rm']
 export const SUPPORTED_LANG = ['en', ...OFFICIAL_SWISS_LANG]
