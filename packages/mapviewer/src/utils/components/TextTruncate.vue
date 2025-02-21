@@ -33,6 +33,10 @@ const { text, tooltipPlacement } = defineProps({
         type: String,
         default: 'top',
     },
+    dataCy: {
+        type: String,
+        default: '',
+    },
 })
 
 const slots = useSlots()
@@ -87,12 +91,11 @@ function handleResize() {
         :tooltip-content="tooltipContent"
         :disabled="!showTooltip"
         class="text-truncate"
-        data-cy="outer-element"
         :placement="tooltipPlacement"
     >
         <span
             ref="innerElement"
-            data-cy="inner-element"
+            :data-cy="dataCy"
         >
             <slot data-cy="slot-element" />
         </span>

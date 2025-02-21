@@ -62,8 +62,7 @@ const humanReadableArea = computed(() => {
                     class="align-middle"
                     data-cy="feature-area-information"
                 >
-                    {{ humanReadableArea }}
-                    <sup>2</sup>
+                    {{ humanReadableArea }}<sup>2</sup>
                 </span>
             </div>
         </div>
