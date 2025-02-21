@@ -4,7 +4,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
@@ -45,10 +44,6 @@ function toggleMenu() {
             v-show="isHeaderShown"
             class="header"
         />
-        <DebugToolbar
-            v-if="hasDevSiteWarning"
-            class="position-absolute end-0 debug-toolbar"
-        />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
@@ -82,9 +77,7 @@ function toggleMenu() {
                         @click="toggleMenu"
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-2">{{
-                            t(showMenu ? 'close_menu' : 'open_menu')
-                        }}</span>
+                        <span class="ms-2">{{ t(showMenu ? 'close_menu' : 'open_menu') }}</span>
                     </button>
                 </div>
             </transition>
