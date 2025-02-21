@@ -32,10 +32,7 @@ watch(() => route.query, sendChangeEventToParent)
 </script>
 
 <template>
-    <div
-        id="map-view"
-        class="no-print"
-    >
+    <div class="view no-print">
         <OpenFullAppLink />
         <MapModule>
             <MapToolbox
