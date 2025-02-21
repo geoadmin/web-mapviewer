@@ -459,20 +459,20 @@ function handleKeyDownEvent(event) {
                     <template #content>
                         <div class="time-slider-infobox">
                             <div class="mb-2">
-                                {{ t('time_slider_legend_tippy_intro') }}
+                                {{ t('time_slider_legend_tooltip_intro') }}
                             </div>
                             <div class="ps-3">
                                 <div class="mb-1">
-                                    <div class="color-tippy-data-none me-2" />
-                                    <div>{{ t('time_slider_legend_tippy_no_data') }}</div>
+                                    <div class="color-tooltip-data-none me-2" />
+                                    <div>{{ t('time_slider_legend_tooltip_no_data') }}</div>
                                 </div>
                                 <div class="mb-1">
-                                    <div class="color-tippy-data-partial me-2" />
-                                    <div>{{ t('time_slider_legend_tippy_partial_data') }}</div>
+                                    <div class="color-tooltip-data-partial me-2" />
+                                    <div>{{ t('time_slider_legend_tooltip_partial_data') }}</div>
                                 </div>
                                 <div>
-                                    <div class="color-tippy-data-full me-2" />
-                                    <div>{{ t('time_slider_legend_tippy_full_data') }}</div>
+                                    <div class="color-tooltip-data-full me-2" />
+                                    <div>{{ t('time_slider_legend_tooltip_full_data') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -527,7 +527,7 @@ $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);
 $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
-.color-tippy-data-none {
+.color-tooltip-data-none {
     height: 1rem;
     width: 1rem;
     border-radius: 0.1rem;
@@ -537,7 +537,7 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     border-color: $silver;
     background: $silver;
 }
-.color-tippy-data-partial {
+.color-tooltip-data-partial {
     height: 1rem;
     width: 1rem;
     border-radius: 0.1rem;
@@ -548,7 +548,7 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     background: $time-slider-color-partial-data;
 }
 
-.color-tippy-data-full {
+.color-tooltip-data-full {
     height: 1rem;
     width: 1rem;
     margin-right: 0.2rem;

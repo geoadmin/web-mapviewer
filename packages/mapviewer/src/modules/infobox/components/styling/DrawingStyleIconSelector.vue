@@ -23,8 +23,6 @@ const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:i
 
 const { t } = useI18n()
 
-const iconButtons = useTemplateRef('iconButtons')
-
 const showAllSymbols = ref(false)
 const currentIconSet = ref(null)
 const loadedImages = ref(0)
@@ -142,10 +140,10 @@ function onCurrentIconChange(icon) {
                 :class="{ 'one-line': !showAllSymbols }"
             >
                 <DrawingStyleIcon
-                    :tooltip-disabled="!showAllSymbols"
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
                     ref="iconButtons"
+                    :tooltip-disabled="!showAllSymbols"
                     :icon="icon"
                     :current-icon-set="currentIconSet"
                     :current-feature="feature"

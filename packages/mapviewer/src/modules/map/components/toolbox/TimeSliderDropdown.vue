@@ -101,7 +101,7 @@ function onEnter() {
 
 /**
  * When the user leaves the input, the year gets reset to the the currentYear. In some cases, the
- * tippy isn't being hidden though, which is why we do it explicitly here
+ * tooltip isn't being hidden though, which is why we do it explicitly here
  */
 function onFocusOut() {
     errorTooltip.value.closeTooltip()
