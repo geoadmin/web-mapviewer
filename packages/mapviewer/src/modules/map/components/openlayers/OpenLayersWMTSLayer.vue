@@ -28,7 +28,6 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const printMode = computed(() => store.state.map.printMode)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.technicalName)
 const maxResolution = computed(() => wmtsLayerConfig.maxResolution)
@@ -73,7 +72,6 @@ watch(wmtsTimeConfig, () => {
     log.debug('Update wmts dimension', wmtsTimeConfig.value)
     layer.getSource().updateDimensions(wmtsTimeConfig.value.dimensions)
 })
-watch(printMode, () => layer.setSource(createWMTSSourceForProjection()))
 
 function getTransformedXYZUrl() {
     return getWmtsXyzUrl(wmtsLayerConfig, projection.value)
@@ -114,7 +112,6 @@ function createWMTSSourceForProjection() {
     return new WMTSSource({
         ...wmtsSourceConfig.value,
         ...wmtsTimeConfig.value,
-        zDirection: printMode.value ? -1 : 0,
     })
 }
 </script>

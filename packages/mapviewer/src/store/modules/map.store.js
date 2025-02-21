@@ -66,12 +66,6 @@ export default {
          * @type Array<Number>
          */
         locationPopupCoordinates: null,
-        /**
-         * Tells if the map is in print mode, meaning it will jump to a higher zoom level early.
-         *
-         * @type Boolean
-         */
-        printMode: false,
     },
     actions: {
         /**
@@ -129,8 +123,6 @@ export default {
                 commit('setLocationPopupCoordinates', { coordinates: null, dispatcher })
             }
         },
-        setPrintMode: ({ commit }, { mode, dispatcher }) =>
-            commit('setPrintMode', { mode: !!mode, dispatcher }),
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -139,6 +131,5 @@ export default {
             (state.previewedPinnedLocation = coordinates),
         setLocationPopupCoordinates: (state, { coordinates }) =>
             (state.locationPopupCoordinates = coordinates),
-        setPrintMode: (state, { mode }) => (state.printMode = mode),
     },
 }

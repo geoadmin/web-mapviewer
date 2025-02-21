@@ -51,7 +51,7 @@ function toggleShowLayerFinder() {
 
 <template>
     <div
-        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1"
+        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1 no-print"
         :class="{ collapsed: !showDebugTool }"
     >
         <div class="position-relative d-flex">
