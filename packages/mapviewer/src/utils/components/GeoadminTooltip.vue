@@ -79,6 +79,17 @@ const arrowStyle = computed((): CSSProperties => {
     }
 })
 
+/** Extract the data-cy value from the tooltip anchor and */
+const dataCyValue = computed((): string => {
+    if (tooltipElement.value?.children.length) {
+        const dataCy = tooltipElement.value?.children[0].getAttribute('data-cy')
+        if (dataCy) {
+            return `floating-${dataCy}`
+        }
+    }
+    return ''
+})
+
 const openTooltip = (): void => {
     isShown.value = true
 }
@@ -162,6 +173,7 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
                 :class="theme"
                 ref="floatingElement"
                 v-if="!disabled && isShown"
+                :data-cy="dataCyValue"
             >
                 <!-- the arrow to be displayed on the top or on the left-->
                 <div
