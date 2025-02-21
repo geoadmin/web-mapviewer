@@ -24,7 +24,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
         :src="swissFlagIcon"
         alt="swiss-flag"
         @click="(e) => emits('click', e)"
-    >
+    />
 </template>
 
 <style lang="scss" scoped>

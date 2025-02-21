@@ -8,7 +8,7 @@
 
 .menu-item {
     &:not(.drag-in-progress):hover,
-    &[draggable="true"]{
+    &[draggable='true'] {
         background-color: $list-item-hover-bg-color !important;
     }
 }

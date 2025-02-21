@@ -235,11 +235,7 @@
         "highlightable": true,
         "chargeable": false,
         "timeEnabled": true,
-        "timestamps": [
-            "99990101",
-            "20100101",
-            "20090101"
-        ],
+        "timestamps": ["99990101", "20100101", "20090101"],
         "timeBehaviour": "99990101",
         "hasLegend": true,
         "label": "Time enabled WMTS test layer",

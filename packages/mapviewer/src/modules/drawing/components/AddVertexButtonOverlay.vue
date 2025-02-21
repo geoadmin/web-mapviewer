@@ -16,7 +16,9 @@ const { coordinates } = defineProps({
             return (
                 Array.isArray(value) &&
                 value.length >= 2 &&
-                value.every((coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3))
+                value.every(
+                    (coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3)
+                )
             )
         },
     },

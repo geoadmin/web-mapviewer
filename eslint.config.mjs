@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import markdown from '@eslint/markdown'
+import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 import {
     configureVueProject,
     defineConfigWithVueTs,
@@ -68,7 +69,6 @@ export default defineConfigWithVueTs(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             'vue/html-indent': ['error', 4],
-            'vue/max-attributes-per-line': ['error', { singleline: 1, multiline: 1 }],
         },
     },
     {
@@ -97,5 +97,7 @@ export default defineConfigWithVueTs(
         rules: {
             'no-irregular-whitespace': 'off',
         },
-    }
+    },
+    // skip the formatting in the linting process
+    skipFormatting
 )

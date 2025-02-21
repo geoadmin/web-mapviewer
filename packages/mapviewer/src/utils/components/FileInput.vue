@@ -239,7 +239,9 @@ function onFileSelected(evt) {
             :class="{ 'fw-bolder': required }"
             :for="inputFileId"
             data-cy="file-input-label"
-        >{{ t(label) }}</label>
+        >
+            {{ t(label) }}
+        </label>
         <div
             :id="inputFileId"
             class="input-group rounded has-validation mb-2"
@@ -261,7 +263,7 @@ function onFileSelected(evt) {
                 hidden
                 data-cy="file-input"
                 @change="onFileSelected"
-            >
+            />
             <input
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
@@ -274,7 +276,7 @@ function onFileSelected(evt) {
                 data-cy="file-input-text"
                 :disabled="disabled"
                 @click="inputLocalFile.click()"
-            >
+            />
             <div
                 v-if="invalidMessage"
                 class="invalid-feedback"
