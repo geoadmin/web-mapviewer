@@ -33,6 +33,7 @@
         "proj4": "catalog:"
     },
     "devDependencies": {
-        "@turf/turf": "catalog:"
+        "@turf/turf": "catalog:",
+        "chai": "catalog:"
     }
 }

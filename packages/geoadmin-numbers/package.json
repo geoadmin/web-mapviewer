@@ -31,6 +31,7 @@
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
-        "vue-tsc": "catalog:"
+        "vue-tsc": "catalog:",
+        "chai": "catalog:"
     }
 }
