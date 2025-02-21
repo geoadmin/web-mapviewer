@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 
-const { tooltipText, reverse } = defineProps({
+const { tooltipText, reverse, dataCyName } = defineProps({
     tooltipText: {
         type: String,
         default: 'modify_add_vertex',
@@ -21,17 +21,21 @@ const { tooltipText, reverse } = defineProps({
         type: Boolean,
         default: false,
     },
+    dataCyName: {
+        type: String,
+        required: true,
+    },
 })
 
 const emit = defineEmits(['button-mounted'])
 
 const store = useStore()
 
-const buttonRef = useTemplateRef('buttonRef')
+const elementRef = useTemplateRef('elementRef')
 
 onMounted(() => {
     // Emit an event to notify the parent component that the button is mounted
-    emit('button-mounted', buttonRef.value.tooltipElement)
+    emit('button-mounted', elementRef.value.tooltipElement)
 })
 
 function addVertex() {
@@ -45,12 +49,13 @@ function addVertex() {
 
 <template>
     <GeoadminTooltip
+        ref="elementRef"
         :tooltip-content="t(tooltipText)"
-        ref="buttonRef"
         placement="left"
     >
         <button
             class="overlay-button d-print-none"
+            :data-cy="dataCyName"
             @click="addVertex"
         >
             <font-awesome-icon :icon="['fas', 'plus']" />

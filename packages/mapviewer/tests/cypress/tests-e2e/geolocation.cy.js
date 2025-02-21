@@ -3,7 +3,11 @@
 import { constants, registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
-import { getGeolocationButtonAndClickIt, testErrorMessage, checkStorePosition } from  '@/../tests/cypress/tests-e2e/utils'
+import {
+    getGeolocationButtonAndClickIt,
+    testErrorMessage,
+    checkStorePosition,
+} from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
@@ -12,8 +16,8 @@ const { GeolocationPositionError } = window
 
 const testCases = [
     { description: 'on 2D Map', is3D: false },
-    { description: 'on 3D Map', is3D: true }
-];
+    { description: 'on 3D Map', is3D: true },
+]
 
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
 // working and the geolocation is always allowed, this needs to be reworked and probably need to
@@ -32,7 +36,7 @@ describe('Geolocation cypress', () => {
         () => {
             testCases.forEach(({ description, is3D }) => {
                 it(`Prompt the user to authorize geolocation when the geolocation button is clicked for the first time ${description}`, () => {
-                    cy.goToMapView({'3d': is3D})
+                    cy.goToMapView({ '3d': is3D })
                     getGeolocationButtonAndClickIt()
                     cy.on('window:alert', () => {
                         throw new Error(
@@ -41,9 +45,8 @@ describe('Geolocation cypress', () => {
                     })
                     // TODO: find a way to check that the user has been prompted for permission (don't know if this is even remotely possible as it's in the browser GUI...)
                 })
-            }
-        )
-    }
+            })
+        }
     )
 
     context(
@@ -58,7 +61,7 @@ describe('Geolocation cypress', () => {
         () => {
             testCases.forEach(({ description, is3D }) => {
                 it(`Doesn't prompt the user if geolocation has previously been authorized ${description}`, () => {
-                    cy.goToMapView({'3d': is3D}, true)
+                    cy.goToMapView({ '3d': is3D }, true)
                     getGeolocationButtonAndClickIt()
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
@@ -112,7 +115,6 @@ describe('Geolocation cypress', () => {
                     expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })
 
-
                 // Check if the zoom is changed
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.readStoreValue('state.position.zoom').then((zoom) => {
@@ -148,27 +150,30 @@ describe('Geolocation cypress', () => {
         }
     )
 
-
-
     context('Test geolocation when geolocation is failed to be retrieved', () => {
         testCases.forEach(({ description, is3D }) => {
             it(`shows an error telling the user geolocation is denied ${description}`, () => {
-                cy.goToMapView({'3d': is3D}, true, { errorCode: GeolocationPositionError.PERMISSION_DENIED })
+                cy.goToMapView({ '3d': is3D }, true, {
+                    errorCode: GeolocationPositionError.PERMISSION_DENIED,
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_permission_denied')
             })
 
             it(`shows an alert telling the user geolocation is not able to be retrieved due to time out ${description}`, () => {
-                cy.goToMapView({'3d': is3D}, true, { errorCode: GeolocationPositionError.TIMEOUT })
+                cy.goToMapView({ '3d': is3D }, true, {
+                    errorCode: GeolocationPositionError.TIMEOUT,
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_time_out')
             })
             it(`shows an alert telling the user geolocation is not available for other reason ${description}`, () => {
-                cy.goToMapView({'3d': is3D}, true, { errorCode: GeolocationPositionError.POSITION_UNAVAILABLE })
+                cy.goToMapView({ '3d': is3D }, true, {
+                    errorCode: GeolocationPositionError.POSITION_UNAVAILABLE,
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_unknown')
             })
         })
     })
-
 })

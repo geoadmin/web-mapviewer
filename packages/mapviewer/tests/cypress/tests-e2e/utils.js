@@ -15,6 +15,11 @@ export function getGeolocationButtonAndClickIt() {
 }
 
 export function testErrorMessage(message) {
+    const geolocationButtonSelector = '[data-cy="geolocation-button"]'
+    // move the mouse away from the button because the tooltip covers the
+    // error message
+    cy.get(geolocationButtonSelector).trigger('mousemove', { clientX: 0, clientY: 0, force: true }) // Check error in store
+
     // Check error in store
     cy.readStoreValue('state.ui.errors').then((errors) => {
         expect(errors).to.be.an('Set')
