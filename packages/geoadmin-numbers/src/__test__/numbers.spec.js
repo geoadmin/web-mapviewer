@@ -43,16 +43,16 @@ describe('Unit test functions from numbers utils', () => {
         })
 
         it('returns NaN for a string containg text', () => {
-            expect(round('not a number')).toBeNaN
+            expect(round('not a number')).to.be.NaN
         })
 
         it('returns NaN for an empty string', () => {
-            expect(round('')).toBeNaN
+            expect(round('')).to.be.NaN
         })
 
         it('returns NaN if input value is null or undefined', () => {
-            expect(round(null)).toBeNaN
-            expect(round(undefined)).toBeNaN
+            expect(round(null)).to.be.NaN
+            expect(round(undefined)).to.be.NaN
         })
 
         it('rounds a stringified number correctly', () => {
