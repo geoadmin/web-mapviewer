@@ -72,8 +72,12 @@ const dropdownToggleButton = useTemplateRef('dropdownToggleButton')
 const dropdownMainButton = useTemplateRef('dropdownMainButton')
 
 const dropdownItems = useTemplateRef('dropdownItems')
-const tooltipContents = computed(() => items.map((item) => item.description))
-useTippyTooltip(dropdownItems, tooltipContents,{ placement: 'left' })
+const tooltipContents = computed(() =>
+    items.filter((item) => item.description).map((item) => item.description)
+)
+if (tooltipContents.value.length > 0) {
+    useTippyTooltip(dropdownItems, tooltipContents, { placement: 'left' })
+}
 
 // generating a unique HTML ID for this dropdown
 const uniqueHtmlId = ref(`dropdown-${randomIntBetween(0, 10000)}`)
@@ -90,12 +94,15 @@ onBeforeUnmount(() => {
     dropdown?.dispose()
 })
 
-watch(() => disabled, (isDisabled) => {
-    if (isDisabled) {
-        // hiding the dropdown body if component becomes disabled
-        dropdownMenu.value.classList.remove('show')
+watch(
+    () => disabled,
+    (isDisabled) => {
+        if (isDisabled) {
+            // hiding the dropdown body if component becomes disabled
+            dropdownMenu.value.classList.remove('show')
+        }
     }
-})
+)
 
 function onMainButtonClick() {
     if (withToggleButton) {

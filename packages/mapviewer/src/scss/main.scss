@@ -25,7 +25,8 @@ li {
 
 // Add #cesium here to give this selector more specificity. Otherwise, the
 // cesium style will override the font as soon as the map is switched to 3d
-#main-component, #cesium {
+#main-component,
+#cesium {
     font-family: $frutiger;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -57,9 +58,17 @@ li {
     cursor: pointer;
 }
 
-
 @media print {
     .no-print {
         display: none;
     }
+}
+
+@font-face {
+    font-family: 'Frutiger Light';
+    src: url("./Frutiger Light.ttf") format('truetype');
+}
+@font-face {
+    font-family: 'Frutiger Bold';
+    src: url("./Frutiger Bold.ttf") format('truetype');
 }

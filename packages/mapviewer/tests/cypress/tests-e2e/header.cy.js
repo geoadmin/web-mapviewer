@@ -66,13 +66,13 @@ describe('Test functions for the header / search bar', () => {
 
     context('Click on Swiss flag / Confederation text (app reset)', () => {
         const clickOnLogo = () => {
-            cy.get('[data-cy="menu-swiss-flag"]').click()
+            cy.get('[data-cy="swiss-flag"]').click()
             // waiting for page reload
             cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
         const clickOnConfederationText = () => {
-            cy.get('[data-cy="menu-swiss-confederation-text"]').click()
+            cy.get('[data-cy="swiss-confederation-text"]').click()
             // waiting for page reload
             cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
