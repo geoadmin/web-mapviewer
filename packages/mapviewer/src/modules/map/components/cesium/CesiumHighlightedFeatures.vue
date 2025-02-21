@@ -4,6 +4,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -25,6 +26,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const isFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
+
 const showFeaturesPopover = computed(
     () => isFeatureInfoInTooltip.value && selectedFeatures.value.length > 0
 )
@@ -54,7 +56,13 @@ function highlightSelectedFeatures() {
         return
     }
     const [firstFeature] = selectedFeatures.value
+
     const geometries = selectedFeatures.value.map((f) => {
+        // Cesium Layers are highlighted through cesium itself, so we don't
+        // give anything to the highlighter.
+        if (f.layer instanceof GeoAdmin3DLayer) {
+            return null
+        }
         // GeoJSON and KML layers have different geometry structure
         if (!f.geometry.type) {
             let type
