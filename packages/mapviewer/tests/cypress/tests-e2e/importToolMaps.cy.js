@@ -313,10 +313,10 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="search-catalogue-clear"]`).click()
 
         //---------------------------------------------------------------------
-        cy.log(`Check that long title are truncated and have a tippy`)
+        cy.log(`Check that long title are truncated and have a tooltip`)
         cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).trigger('mouseenter')
-        cy.get(`[data-cy="tippy-catalogue-tree-item-name-${singleLayerId}"]`)
+        cy.get(`[data-cy="floating-catalogue-tree-item-name-${singleLayerId}"]`)
             .should('be.visible')
             .contains(singleLayerName)
 
@@ -343,7 +343,7 @@ describe('The Import Maps Tool', () => {
             .should('have.css', 'cursor', 'pointer')
             .should('have.class', 'text-primary')
             .should('have.attr', 'href', 'http://www.geo.admin.ch/')
-        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+        cy.get('[data-cy="floating-third-part-disclaimer"]')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
 

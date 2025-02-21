@@ -399,7 +399,7 @@ describe('The Import File Tool', () => {
             .should('be.visible')
             .should('have.class', 'text-primary')
         cy.get('[data-cy="layer-copyright-example.com"]').realHover()
-        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+        cy.get('.floating')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
         cy.get('[data-cy="layer-copyright-example.com"]')
@@ -500,15 +500,15 @@ describe('The Import File Tool', () => {
                     .should('be.visible')
                 cy.wrap($layer).find('[data-cy^="button-error-"]').should('be.visible').click()
                 if (index === 0) {
-                    cy.get(`[data-cy^="tippy-button-error-${onlineUrlNotReachable}-"]`)
+                    cy.get(`[data-cy^="floating-button-error-${onlineUrlNotReachable}-"]`)
                         .should('be.visible')
                         .contains('file not accessible')
                 } else if (index === 1) {
-                    cy.get(`[data-cy^="tippy-button-error-${invalidFileOnlineUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-error-${invalidFileOnlineUrl}-"]`)
                         .should('be.visible')
                         .contains('Invalid file')
                 } else {
-                    cy.get(`[data-cy^="tippy-button-error-${outOfBoundKMLUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-error-${outOfBoundKMLUrl}-"]`)
                         .should('be.visible')
                         .contains('out of projection bounds')
                 }
