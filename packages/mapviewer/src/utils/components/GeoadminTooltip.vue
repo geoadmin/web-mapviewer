@@ -153,29 +153,37 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
         >
             <slot :close="closeTooltip" />
         </div>
-        <div :style="style" class="floating" :class="theme" ref="floatingElement" v-if="!disabled">
-            <!-- the arrow to be displayed on the top or on the left-->
+        <Teleport to="body">
             <div
-                v-if="placement == 'bottom' || placement == 'right'"
-                ref="arrowUpRightElement"
-                :style="arrowStyle"
-                class="arrow"
-                :class="{ arrowUp: placement == 'bottom', arrowLeft: placement == 'right' }"
-            ></div>
+                :style="style"
+                class="floating"
+                :class="theme"
+                ref="floatingElement"
+                v-if="!disabled"
+            >
+                <!-- the arrow to be displayed on the top or on the left-->
+                <div
+                    v-if="placement == 'bottom' || placement == 'right'"
+                    ref="arrowUpRightElement"
+                    :style="arrowStyle"
+                    class="arrow"
+                    :class="{ arrowUp: placement == 'bottom', arrowLeft: placement == 'right' }"
+                ></div>
 
-            <slot name="content" :close="closeTooltip">
-                {{ tooltipContent }}
-            </slot>
+                <slot name="content" :close="closeTooltip">
+                    {{ tooltipContent }}
+                </slot>
 
-            <!-- the arrow to be displayed on the bottom or on the right-->
-            <div
-                v-if="placement == 'top' || placement == 'left'"
-                ref="arrowDownLeftElement"
-                :style="arrowStyle"
-                class="arrow"
-                :class="{ arrowDown: placement == 'top', arrowRight: placement == 'left' }"
-            ></div>
-        </div>
+                <!-- the arrow to be displayed on the bottom or on the right-->
+                <div
+                    v-if="placement == 'top' || placement == 'left'"
+                    ref="arrowDownLeftElement"
+                    :style="arrowStyle"
+                    class="arrow"
+                    :class="{ arrowDown: placement == 'top', arrowRight: placement == 'left' }"
+                ></div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
