@@ -60,11 +60,6 @@ onMounted(() => {
 
 function toggleShowAllSymbols() {
     showAllSymbols.value = !showAllSymbols.value
-    if (showAllSymbols.value) {
-        refreshIconTooltips()
-    } else {
-        removeIconTooltips()
-    }
 }
 
 function onCurrentIconColorChange(color) {
@@ -85,18 +80,7 @@ function onImageLoad() {
     loadedImages.value = loadedImages.value + 1
     if (loadedImages.value === currentIconSet.value.icons.length) {
         loadedImages.value = 0
-        if (currentIconSet.value.hasDescription && showAllSymbols.value) {
-            refreshIconTooltips()
-        }
     }
-}
-
-function refreshIconTooltips() {
-    iconButtons.value?.forEach((button) => button.refreshTooltip())
-}
-
-function removeIconTooltips() {
-    iconButtons.value?.forEach((button) => button.removeTooltip())
 }
 
 function onCurrentIconChange(icon) {
@@ -114,10 +98,7 @@ function onCurrentIconChange(icon) {
                 @change="onCurrentIconSizeChange"
             />
             <div class="ms-2">
-                <label
-                    class="form-label"
-                    for="drawing-style-icon-set-selector"
-                >
+                <label class="form-label" for="drawing-style-icon-set-selector">
                     {{ t('modify_icon_label') }}
                 </label>
                 <DropdownButton
@@ -153,11 +134,9 @@ function onCurrentIconChange(icon) {
                     class="ms-2"
                 />
             </div>
-            <div
-                class="marker-icon-select-box"
-                :class="{ 'one-line': !showAllSymbols }"
-            >
+            <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
                 <DrawingStyleIcon
+                    :tooltip-disabled="!showAllSymbols"
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
                     ref="iconButtons"
@@ -168,10 +147,7 @@ function onCurrentIconChange(icon) {
                     @load="onImageLoad"
                 />
             </div>
-            <div
-                class="transparent-overlay"
-                @click="showAllSymbols = true"
-            />
+            <div class="transparent-overlay" @click="showAllSymbols = true" />
         </div>
     </div>
 </template>

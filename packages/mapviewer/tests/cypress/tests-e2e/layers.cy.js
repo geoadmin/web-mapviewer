@@ -485,7 +485,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
                 cy.get(`[data-cy^="button-error-${wmtsUnreachableLayerId}-"]`).click()
-                cy.get('[data-cy^="tippy-button-error-"]')
+                cy.get('[data-cy^="floating-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
 
@@ -506,7 +506,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
                 cy.get(`[data-cy^="button-error-${wmtsInvalidContentLayerId}-"]`).click()
-                cy.get('[data-cy^="tippy-button-error-"]')
+                cy.get('[data-cy^="floating-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
 
@@ -527,7 +527,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
                 cy.get(`[data-cy^="button-error-${wmsUnreachableLayerId}-"]`).click()
-                cy.get('[data-cy^="tippy-button-error-"]')
+                cy.get('[data-cy^="floating-button-error-"]')
                     .should('be.visible')
                     .contains('Network error')
 
@@ -548,7 +548,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="button-has-error"]')
                     .should('have.class', 'text-danger')
                 cy.get(`[data-cy^="button-error-${wmsInvalidContentLayerId}-"]`).click()
-                cy.get('[data-cy^="tippy-button-error-"]')
+                cy.get('[data-cy^="floating-button-error-"]')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
             })
@@ -610,12 +610,12 @@ describe('Test of layer handling', () => {
                 visibleLayerIds.forEach((layerId) => {
                     cy.get(`[data-cy^="active-layer-name-${layerId}-"]`).should('be.visible')
                 })
-                cy.log(`Check that long title are truncated and have a tippy`)
+                cy.log(`Check that long title are truncated and have a tooltip`)
                 cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]')
                     .should('be.visible')
                     .contains('WMTS test layer')
                 cy.get('[data-cy="active-layer-name-test.wmts.layer-1"]').trigger('mouseenter')
-                cy.get('[data-cy="tippy-active-layer-name-test.wmts.layer-1"]')
+                cy.get('[data-cy="floating-active-layer-name-test.wmts.layer-1"]')
                     .should('be.visible')
                     .contains(
                         'WMTS test layer, with very long title that should be truncated on the menu'
@@ -869,7 +869,7 @@ describe('Test of layer handling', () => {
                 const timestamp = '20160101'
                 // "force" is needed, as else there is a false positive "button hidden"
                 // in cypress the button is effectively hidden but on real world not, somehow the
-                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // tooltip with the time selector is displayed on the right in cypress while on mobile
                 // it is displayed on the top
                 cy.get(`[data-cy="time-select-${timestamp}"]`).click({ force: true })
                 cy.get(`[data-cy^="time-selector-${timedLayerId}-"]`)
@@ -903,7 +903,7 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .realHover()
-                cy.get(`[data-cy="tippy-button-duplicate-layer-${timedLayerId}-2"]`)
+                cy.get(`[data-cy="floating-button-duplicate-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .contains(`Duplicate map`)
                 cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`).click()
@@ -940,10 +940,10 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .click()
                 const newTimestamp = '20200101'
-                cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`).should('be.visible').click()
+                cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`).should('be.visible').click({ force: true})
                 // "force" is needed, as else there is a false positive "button hidden"
                 // in cypress the button is effectively hidden but on real world not, somehow the
-                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // tooltip with the time selector is displayed on the right in cypress while on mobile
                 // it is displayed on the top
                 cy.get(`[data-cy="time-select-${newTimestamp}"]`).click({ force: true })
                 cy.get(`[data-cy="time-selector-${timedLayerId}-3"]`)
@@ -1086,7 +1086,7 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="time-selector-${topLayerId}-2"]:visible`).click()
                 // "force" is needed, as else there is a false positive "button hidden"
                 // in cypress the button is effectively hidden but on real world not, somehow the
-                // tippy with the time selector is displayed on the right in cypress while on mobile
+                // tooltip with the time selector is displayed on the right in cypress while on mobile
                 // it is displayed on the top
                 cy.get(`[data-cy="time-select-${newTimestamp}"]`).click({ force: true })
                 cy.get(`[data-cy="time-selector-${topLayerId}-2"]:visible`).contains(
