@@ -3,7 +3,7 @@
 import { registerProj4, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
-import { getGeolocationButtonAndClickIt, testErrorMessage } from  '@/../tests/cypress/tests-e2e/utils'
+import { getGeolocationButtonAndClickIt, testErrorMessage, checkStorePosition } from  '@/../tests/cypress/tests-e2e/utils'
 
 registerProj4(proj4)
 
@@ -58,7 +58,7 @@ describe('Geolocation cypress', () => {
             })
 
             // Skipped because failed in cypress
-            it.skip('Uses the values given by the Geolocation API to feed the store and position the map to the new position', () => {
+            it('Uses the values given by the Geolocation API to feed the store and position the map to the new position', () => {
                 const geoLatitude = 47.5
                 const geoLongitude = 6.8
                 // same position but in EPSG:3857
@@ -73,21 +73,49 @@ describe('Geolocation cypress', () => {
                     { latitude: geoLatitude, longitude: geoLongitude }
                 )
 
-                getGeolocationButtonAndClickIt()
-                cy.readStoreValue('state.geolocation.position').then((position) => {
-                    cy.log('position', position)
-                    expect(position).to.be.an('Array')
-                    expect(position.length).to.eq(2)
-                    expect(position[1]).to.approximately(geoY, 0.1)
-                    expect(position[0]).to.approximately(geoX, 0.1)
-                })
-                // check that the map has been centered on the geolocation and zoom is updated
+                // check that before the geolocation button is clicked, the map is not centered on the geolocation
                 cy.readStoreValue('state.position.center').then((center) => {
                     expect(center).to.be.an('Array')
                     expect(center.length).to.eq(2)
-                    expect(center[0]).to.approximately(geoX, 0.1)
-                    expect(center[1]).to.approximately(geoY, 0.1)
+                    expect(center[0]).to.not.approximately(geoX, 0.1)
+                    expect(center[1]).to.not.approximately(geoY, 0.1)
                 })
+
+                getGeolocationButtonAndClickIt()
+                checkStorePosition('state.geolocation.position', geoX, geoY)
+                // check that the map has been centered on the geolocation
+                checkStorePosition('state.position.center', geoX, geoY)
+
+                const initialCameraHeight = 137649.54177875674
+                // Camera height
+                cy.readWindowValue('cesiumViewer').then((viewer) => {
+                        expect(viewer.scene.camera.positionCartographic.height).to.approximately(
+                            initialCameraHeight, 0.1
+                        )
+                })
+
+                // Zoom in
+                cy.get('[data-cy="zoom-in"]').click()
+                // Camera height should be less than the iniital camera height
+                cy.readWindowValue('cesiumViewer').then((viewer) => {
+                    expect(viewer.scene.camera.positionCartographic.height).lt(
+                        initialCameraHeight
+                    )
+                })
+                // check that the map is still centered in the same position
+                checkStorePosition('state.position.center', geoX, geoY)
+
+                // Zoom out 2x
+                cy.get('[data-cy="zoom-out"]').click()
+                cy.get('[data-cy="zoom-out"]').click()
+                // Camera height should be greater than the iniital camera height
+                cy.readWindowValue('cesiumViewer').then((viewer) => {
+                    expect(viewer.scene.camera.positionCartographic.height).gt(
+                        initialCameraHeight
+                    )
+                })
+                // check that the map is still centered in the same position
+                checkStorePosition('state.position.center', geoX, geoY)
             })
             // Skipped because failed in cypress
             it.skip('access from outside Switzerland shows an error message', () => {

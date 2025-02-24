@@ -3,22 +3,13 @@
 import { constants, registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
-import { getGeolocationButtonAndClickIt, testErrorMessage } from  '@/../tests/cypress/tests-e2e/utils'
+import { getGeolocationButtonAndClickIt, testErrorMessage, checkStorePosition } from  '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
 
 const { GeolocationPositionError } = window
 
-
-function checkStorePosition(storeString, x, y) {
-    cy.readStoreValue(storeString).then((center) => {
-        expect(center).to.be.an('Array')
-        expect(center.length).to.eq(2)
-        expect(center[0]).to.approximately(x, 0.1)
-        expect(center[1]).to.approximately(y, 0.1)
-    })
-}
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
 // working and the geolocation is always allowed, this needs to be reworked and probably need to
 // use another plugin.

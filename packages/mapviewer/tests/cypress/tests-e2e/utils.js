@@ -28,3 +28,12 @@ export function testErrorMessage(message) {
     cy.get('[data-cy="error-window"]').should('be.visible')
     cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
 }
+
+export function checkStorePosition(storeString, x, y) {
+    cy.readStoreValue(storeString).then((center) => {
+        expect(center).to.be.an('Array')
+        expect(center.length).to.eq(2)
+        expect(center[0]).to.approximately(x, 0.1)
+        expect(center[1]).to.approximately(y, 0.1)
+    })
+}
