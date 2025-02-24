@@ -176,7 +176,6 @@ export default {
          * @type Boolean
          */
         showDragAndDropOverlay: false,
-
         /**
          * Flag set to true when the app is opening a new tab.
          *
