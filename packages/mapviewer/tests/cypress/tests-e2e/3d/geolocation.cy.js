@@ -79,7 +79,7 @@ describe('Geolocation on 3D cypress', () => {
                 checkStorePosition('state.position.center', geoX, geoY)
             })
             // Skipped because failed in cypress
-            it.skip('access from outside Switzerland shows an error message', () => {
+            it('access from outside Switzerland shows an error message', () => {
                 // null island
                 cy.goToMapView({'3d': true,}, true, { latitude: 0, longitude: 0 })
                 getGeolocationButtonAndClickIt()
