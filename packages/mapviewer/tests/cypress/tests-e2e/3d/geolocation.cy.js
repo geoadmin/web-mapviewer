@@ -18,7 +18,6 @@ describe('Geolocation on 3D cypress', () => {
             },
         },
         () => {
-            // Skipped because failed in cypress
             it('Uses the values given by the Geolocation API to feed the store and position the map to the new position', () => {
                 const geoLatitude = 47.5
                 const geoLongitude = 6.8
@@ -66,7 +65,8 @@ describe('Geolocation on 3D cypress', () => {
                 // check that the map is still centered in the same position
                 checkStorePosition('state.position.center', geoX, geoY)
 
-                // Zoom out 2x
+                // Zoom out 3x
+                cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 // Camera height should be greater than the iniital camera height
@@ -78,7 +78,6 @@ describe('Geolocation on 3D cypress', () => {
                 // check that the map is still centered in the same position
                 checkStorePosition('state.position.center', geoX, geoY)
             })
-            // Skipped because failed in cypress
             it('access from outside Switzerland shows an error message', () => {
                 // null island
                 cy.goToMapView({'3d': true,}, true, { latitude: 0, longitude: 0 })
