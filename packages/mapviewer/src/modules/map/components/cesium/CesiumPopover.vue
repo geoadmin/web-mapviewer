@@ -114,7 +114,7 @@ function updatePosition() {
         emits('close')
         return
     }
-    const cartesianCoords = SceneTransforms.wgs84ToWindowCoordinates(
+    const cartesianCoords = SceneTransforms.worldToWindowCoordinates(
         getViewer().scene,
         Cartesian3.fromDegrees(
             wgs84Coordinates.value[0],
