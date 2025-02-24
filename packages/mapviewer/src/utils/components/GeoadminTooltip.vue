@@ -55,7 +55,7 @@ const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement
     middleware: [
         shift(), // shift the element to keep it in view
         flip({
-            fallbackAxisSideDirection: 'start'
+            fallbackAxisSideDirection: 'start',
         }), // allow the opposite side if there's not enough space
         offset(10), // offset it to make room for the arrow
         arrow({ element: arrowDownLeftRef }),
@@ -112,6 +112,14 @@ const onMouseLeave = (): void => {
     }
 }
 
+const eventListenerCloser = (event: MouseEvent) => {
+    // Don't close when clicked on the tooltip
+    if (floatingElement.value && !floatingElement.value.contains(event.target as Node)) {
+        closeTooltip()
+        document.removeEventListener('click', eventListenerCloser)
+    }
+}
+
 const onClick = (event: Event): void => {
     if (openTrigger !== 'click') {
         return
@@ -122,18 +130,12 @@ const onClick = (event: Event): void => {
     // prevent that, as the order is given through the DOM order
     if (isShown.value) {
         closeTooltip()
-        document.removeEventListener('click', closeTooltip)
+        document.removeEventListener('click', eventListenerCloser)
     } else {
         openTooltip()
         event.stopPropagation()
 
-        function closer(event: Event) {
-            closeTooltip()
-            event.stopPropagation()
-            event.stopImmediatePropagation()
-        }
-
-        document.addEventListener('click', closer)
+        document.addEventListener('click', eventListenerCloser)
     }
 }
 
