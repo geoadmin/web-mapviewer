@@ -15,7 +15,7 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import ErrorButton from '@/utils/components/ErrorButton.vue'
+import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -206,28 +206,12 @@ function changeStyle(newStyle) {
                 v-if="layer.extent"
                 :extent="layer.extent"
             />
-            <GeoadminTooltip :tooltip-content="t('loading_external_layer')">
-                <button
-                    v-if="showSpinner"
-                    ref="loadingSpinner"
-                    class="loading-button btn border-0 d-flex align-items-center"
-                    :class="{
-                        'btn-lg': !compact,
-                    }"
-                    :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
-                >
-                    <FontAwesomeIcon
-                        icon="spinner"
-                        pulse
-                    />
-                </button>
-                <ErrorButton
-                    v-else-if="layer.hasError"
-                    :compact="compact"
-                    :error-message="layer.getFirstErrorMessage()"
-                    :data-cy="`button-error-${id}-${index}`"
-                />
-            </GeoadminTooltip>
+            <ExtLayerInfoButton
+                :show-spinner="showSpinner"
+                :layer="layer"
+                :index="index"
+                class="me-2"
+            />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
                 :layer-index="index"
