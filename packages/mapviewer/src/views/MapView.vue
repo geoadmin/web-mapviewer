@@ -1,7 +1,6 @@
 <script setup>
 
 import { computed, defineAsyncComponent } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
