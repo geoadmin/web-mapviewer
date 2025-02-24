@@ -10,6 +10,15 @@ registerProj4(proj4)
 
 const { GeolocationPositionError } = window
 
+
+function checkStorePosition(storeString, x, y) {
+    cy.readStoreValue(storeString).then((center) => {
+        expect(center).to.be.an('Array')
+        expect(center.length).to.eq(2)
+        expect(center[0]).to.approximately(x, 0.1)
+        expect(center[1]).to.approximately(y, 0.1)
+    })
+}
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
 // working and the geolocation is always allowed, this needs to be reworked and probably need to
 // use another plugin.
@@ -88,33 +97,41 @@ describe('Geolocation cypress', () => {
                 )
 
                 // check initial center and zoom
-                cy.readStoreValue('state.position.center').then((center) => {
-                    expect(center).to.be.an('Array')
-                    expect(center.length).to.eq(2)
-                    expect(center[0]).to.approximately(x0, 0.1)
-                    expect(center[1]).to.approximately(y0, 0.1)
-                })
+                checkStorePosition('state.position.center', x0, y0)
                 cy.readStoreValue('state.position.zoom').then((zoom) => {
                     expect(zoom).to.eq(startingZoom)
                 })
 
                 getGeolocationButtonAndClickIt()
-                cy.readStoreValue('state.geolocation.position').then((position) => {
-                    expect(position).to.be.an('Array')
-                    expect(position.length).to.eq(2)
-                    expect(position[0]).to.approximately(geoX, 0.1)
-                    expect(position[1]).to.approximately(geoY, 0.1)
-                })
+                checkStorePosition('state.geolocation.position', geoX, geoY)
+
                 // check that the map has been centered on the geolocation and zoom is updated
-                cy.readStoreValue('state.position.center').then((center) => {
-                    expect(center).to.be.an('Array')
-                    expect(center.length).to.eq(2)
-                    expect(center[0]).to.approximately(geoX, 0.1)
-                    expect(center[1]).to.approximately(geoY, 0.1)
-                })
+                checkStorePosition('state.position.center', geoX, geoY)
                 cy.readStoreValue('state.position.zoom').then((zoom) => {
                     expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })
+
+
+                // Check if the zoom is changed
+                cy.get('[data-cy="zoom-in"]').click()
+                cy.readStoreValue('state.position.zoom').then((zoom) => {
+                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
+                })
+                checkStorePosition('state.position.center', geoX, geoY)
+
+                cy.get('[data-cy="zoom-in"]').click()
+                cy.get('[data-cy="zoom-in"]').click()
+                cy.readStoreValue('state.position.zoom').then((zoom) => {
+                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
+                })
+
+                cy.get('[data-cy="zoom-out"]').click()
+                cy.get('[data-cy="zoom-out"]').click()
+                cy.get('[data-cy="zoom-out"]').click()
+                cy.readStoreValue('state.position.zoom').then((zoom) => {
+                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
+                })
+                checkStorePosition('state.position.center', geoX, geoY)
             })
             it('access from outside Switzerland shows an error message', () => {
                 // null island
