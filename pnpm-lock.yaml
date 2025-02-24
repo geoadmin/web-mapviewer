@@ -249,9 +249,6 @@ catalogs:
     start-server-and-test:
       specifier: ^2.0.11
       version: 2.0.11
-    tippy.js:
-      specifier: ^6.3.7
-      version: 6.3.7
     typescript:
       specifier: ^5.8.2
       version: 5.8.2
@@ -551,9 +548,6 @@ importers:
       sortablejs:
         specifier: 'catalog:'
         version: 1.15.6
-      tippy.js:
-        specifier: 'catalog:'
-        version: 6.3.7
       vue:
         specifier: 'catalog:'
         version: 3.5.13(typescript@5.8.2)
@@ -4705,9 +4699,6 @@ packages:
   tinyspy@3.0.2:
     resolution: {integrity: sha512-n1cw8k1k0x4pgA2+9XrOkFydTerNcJ1zWCO5Nn9scWHTD+5tp8dghT2x1uduQePZTZgd3Tupf+x9BxJjeJi77Q==}
     engines: {node: '>=14.0.0'}
-
-  tippy.js@6.3.7:
-    resolution: {integrity: sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==}
 
   tldts-core@6.1.77:
     resolution: {integrity: sha512-bCaqm24FPk8OgBkM0u/SrEWJgHnhBWYqeBo6yUmcZJDCHt/IfyWBb+14CXdGi4RInMv4v7eUAin15W0DoA+Ytg==}
@@ -10399,10 +10390,6 @@ snapshots:
   tinyrainbow@2.0.0: {}
 
   tinyspy@3.0.2: {}
-
-  tippy.js@6.3.7:
-    dependencies:
-      '@popperjs/core': 2.11.8
 
   tldts-core@6.1.77: {}
 
