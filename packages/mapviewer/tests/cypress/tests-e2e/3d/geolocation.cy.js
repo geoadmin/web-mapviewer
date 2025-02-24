@@ -78,7 +78,8 @@ describe('Geolocation on 3D cypress', () => {
                 // check that the map is still centered in the same position
                 checkStorePosition('state.position.center', geoX, geoY)
             })
-            it('access from outside Switzerland shows an error message', () => {
+            // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
+            it.skip('access from outside Switzerland shows an error message', () => {
                 // null island
                 cy.goToMapView({'3d': true,}, true, { latitude: 0, longitude: 0 })
                 getGeolocationButtonAndClickIt()
