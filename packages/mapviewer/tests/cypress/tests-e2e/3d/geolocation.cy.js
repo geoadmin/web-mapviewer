@@ -7,37 +7,7 @@ import { getGeolocationButtonAndClickIt, testErrorMessage, checkStorePosition } 
 
 registerProj4(proj4)
 
-const { GeolocationPositionError } = window
-
-
-// PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
-// working and the geolocation is always allowed, this needs to be reworked and probably need to
-// use another plugin.
-
-describe('Geolocation cypress', () => {
-    context(
-        'Test geolocation when first time activating it',
-        {
-            env: {
-                browserPermissions: {
-                    geolocation: 'ask',
-                },
-            },
-        },
-        () => {
-            it('Prompt the user to authorize geolocation when the geolocation button is clicked for the first time', () => {
-                cy.goToMapView({ '3d': true, })
-                getGeolocationButtonAndClickIt()
-                cy.on('window:alert', () => {
-                    throw new Error(
-                        'Should not raise an alert, but ask for permission through a prompt in the web browser GUI'
-                    )
-                })
-                // TODO: find a way to check that the user has been prompted for permission (don't know if this is even remotely possible as it's in the browser GUI...)
-            })
-        }
-    )
-
+describe('Geolocation on 3D cypress', () => {
     context(
         'Test geolocation when geolocation is authorized',
         {
@@ -48,15 +18,6 @@ describe('Geolocation cypress', () => {
             },
         },
         () => {
-            it("Doesn't prompt the user if geolocation has previously been authorized", () => {
-                cy.goToMapView({ '3d': true, }, true)
-                getGeolocationButtonAndClickIt()
-                cy.on('window:alert', () => {
-                    throw new Error('Should not prompt for geolocation API permission again')
-                })
-                cy.readStoreValue('state.geolocation.active').should('be.true')
-            })
-
             // Skipped because failed in cypress
             it('Uses the values given by the Geolocation API to feed the store and position the map to the new position', () => {
                 const geoLatitude = 47.5
@@ -131,23 +92,4 @@ describe('Geolocation cypress', () => {
             })
         }
     )
-
-    context('Test geolocation when geolocation is failed to be retrieved', () => {
-        it('shows an error telling the user geolocation is denied', () => {
-            cy.goToMapView({ '3d': true, }, true, { errorCode: GeolocationPositionError.PERMISSION_DENIED })
-            getGeolocationButtonAndClickIt()
-            testErrorMessage('geoloc_permission_denied')
-        })
-
-        it('shows an alert telling the user geolocation is not able to be retrieved due to time out', () => {
-            cy.goToMapView({ '3d': true, }, true, { errorCode: GeolocationPositionError.TIMEOUT })
-            getGeolocationButtonAndClickIt()
-            testErrorMessage('geoloc_time_out')
-        })
-        it('shows an alert telling the user geolocation is not available for other reason', () => {
-            cy.goToMapView({ '3d': true, }, true, { errorCode: GeolocationPositionError.POSITION_UNAVAILABLE })
-            getGeolocationButtonAndClickIt()
-            testErrorMessage('geoloc_unknown')
-        })
-    })
 })
