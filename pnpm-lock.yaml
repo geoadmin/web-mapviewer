@@ -303,6 +303,9 @@ importers:
       '@eslint/markdown':
         specifier: 'catalog:'
         version: 6.2.2
+      '@prettier/plugin-xml':
+        specifier: 'catalog:'
+        version: 3.4.1(prettier@3.5.0)
       '@types/geojson':
         specifier: 'catalog:'
         version: 7946.0.16
