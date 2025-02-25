@@ -209,15 +209,12 @@ onBeforeUnmount(() => {
 })
 
 const beforeUnloadHandler = (event) => {
-    if (showNotSharedDrawingWarning.value) {
+    // This provokes the alert message to appear when trying to close the tab.
+    // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
+    if (!IS_TESTING_WITH_CYPRESS && showNotSharedDrawingWarning.value) {
         showNotSharedDrawingWarningModal.value = true
-        // This provokes the alert message to appear when trying to close the tab.
-        // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
-        if (!IS_TESTING_WITH_CYPRESS) {
-            event.returnValue = true
-            event.preventDefault()
-            return
-        }
+        event.returnValue = true
+        event.preventDefault()
     }
 }
 
