@@ -46,7 +46,8 @@
         "prettier-plugin-jsdoc": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
-        "vue-tsc": "catalog:"
+        "vue-tsc": "catalog:",
+        "@prettier/plugin-xml": "catalog:"
     },
     "dependencies": {
         "cesium": "catalog:"
