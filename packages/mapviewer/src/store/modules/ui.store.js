@@ -176,17 +176,6 @@ export default {
          * @type Boolean
          */
         showDragAndDropOverlay: false,
-
-        /**
-         * Flag set to true when the app is opening a new tab.
-         *
-         * This helps us decide to show or not show a warning popup for lost changes if the user
-         * closes the tab. In some cases, we are opening a new tab ourselves (print result) and
-         * don't want this popup to show up.
-         *
-         * @type Boolean
-         */
-        isOpeningNewTab: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -463,9 +452,6 @@ export default {
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
-        setIsOpeningNewTab({ commit }, { isOpeningNewTab, dispatcher }) {
-            commit('setIsOpeningNewTab', { isOpeningNewTab, dispatcher })
-        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -535,7 +521,5 @@ export default {
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
-        setIsOpeningNewTab: (state, { isOpeningNewTab }) =>
-            (state.isOpeningNewTab = isOpeningNewTab),
     },
 }

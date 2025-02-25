@@ -100,8 +100,6 @@ function close() {
 async function printMap() {
     try {
         const documentUrl = await print(printGrid.value, printLegend.value)
-        // force hides the "drawing lost" warning when we open the print result
-        await store.dispatch('setIsOpeningNewTab', { isOpeningNewTab: true, ...dispatcher })
         if (documentUrl) {
             if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
                 window.open(documentUrl)
@@ -117,8 +115,6 @@ async function printMap() {
         }
     } catch (error) {
         log.error('Print failed', error)
-    } finally {
-        await store.dispatch('setIsOpeningNewTab', { isOpeningNewTab: false, ...dispatcher })
     }
 }
 
