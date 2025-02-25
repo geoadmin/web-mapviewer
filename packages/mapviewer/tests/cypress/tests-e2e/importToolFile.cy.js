@@ -440,6 +440,39 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+
+        cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
+        cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
+        // 2 warnings to remove before being able to see the 3D button (on mobile)
+        cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        cy.get('[data-cy="3d-button"]:visible').click()
+        cy.waitUntilCesiumTilesLoaded()
+        cy.readWindowValue('cesiumViewer').should((viewer) => {
+            expect(viewer.scene.primitives.length).to.eq(
+                4,
+                'should have 1 primitive (KML file) on top of labels and buildings primitives'
+            )
+        })
+
+        cy.log('adding a local KML file while being in the 3D viewer')
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="import-file-local-btn"]').click()
+        cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+            const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
+            cy.readWindowValue('cesiumViewer').should((viewer) => {
+                expect(viewer.dataSources.length).to.eq(
+                    kmlLayerCount,
+                    `should have ${kmlLayerCount} date source (KML files)`
+                )
+            })
+        })
     })
     it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
