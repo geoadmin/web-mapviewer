@@ -104,6 +104,13 @@ function getItemDescription(item) {
     return t(item.description)
 }
 
+function onMainButtonClick() {
+    if (withToggleButton) {
+        // letting the parent component handle what to do by sending an event
+        emits('click')
+    }
+}
+
 function selectItem(item) {
     emits('selectItem', item)
 }
@@ -121,6 +128,7 @@ function selectItem(item) {
             data-cy="dropdown-main-button"
             :data-bs-toggle="withToggleButton ? null : 'dropdown'"
             :aria-expanded="false"
+            @click="onMainButtonClick"
         >
             {{ t(title) }}
         </button>
