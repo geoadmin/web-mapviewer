@@ -3,13 +3,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from '
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
 import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
-import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 
@@ -103,7 +103,7 @@ function resetApp() {
                 v-if="hasReportProblemButton"
                 show-as-link
             />
-            <MoreInfo small />
+            <AdditionalInfoCollapsable />
             <HelpLink small />
             <HeaderLangSelector
                 id="menu-lang-selector"

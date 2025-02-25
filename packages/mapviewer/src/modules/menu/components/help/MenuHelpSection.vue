@@ -8,6 +8,7 @@ import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButt
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
+import UpdateInfo from '@/modules/menu/components/help/UpdateInfo.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -89,6 +90,7 @@ defineExpose({
             >
                 <div class="d-flex flex-column gap-1 w-100 justify-content-stretch">
                     <MoreInfo show-as-button />
+                    <UpdateInfo show-as-button />
                     <a
                         :href="`https://www.geo.admin.ch/${currentLang}/home.html`"
                         target="_blank"
