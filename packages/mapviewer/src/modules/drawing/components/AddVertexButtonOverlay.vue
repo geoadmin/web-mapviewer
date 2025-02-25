@@ -16,7 +16,9 @@ const { coordinates } = defineProps({
             return (
                 Array.isArray(value) &&
                 value.length >= 2 &&
-                value.every((coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3))
+                value.every(
+                    (coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3)
+                )
             )
         },
     },
@@ -124,12 +126,12 @@ onUnmounted(() => {
 <template>
     <AddVertexButton
         :reverse="true"
-        data-cy="extend-from-first-node-button"
+        data-cy-name="extend-from-first-node-button"
         @button-mounted="onFirstButtonMounted"
     />
     <AddVertexButton
         :reverse="false"
-        data-cy="extend-from-last-node-button"
+        data-cy-name="extend-from-last-node-button"
         @button-mounted="onLastButtonMounted"
     />
 </template>

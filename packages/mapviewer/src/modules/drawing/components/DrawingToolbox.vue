@@ -14,8 +14,8 @@ import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vu
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
@@ -35,6 +35,9 @@ const showShareModal = ref(false)
 const showNotSharedDrawingWarningModal = ref(false)
 const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const isClosingDrawing = ref(false)
+const showNoActiveKmlWarning = computed(() => !activeKmlLayer.value)
+
+const tooltipText = computed(() => t(!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
 const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
@@ -111,24 +114,6 @@ function onCloseClearConfirmation(confirmed) {
     }
 }
 
-const tooltipText = computed(() => (!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
-
-const { removeTippy: removeNoActiveKmlWarning } = useTippyTooltip(drawingNameContainer, tooltipText)
-
-onMounted(() => {
-    // if there's already an active KML layer, we can remove the tippy (as it will be empty, see template below)
-    if (activeKmlLayer.value) {
-        removeNoActiveKmlWarning()
-    }
-})
-
-watch(activeKmlLayer, () => {
-    if (activeKmlLayer.value) {
-        // no need for the message telling the user the drawing is empty, and he can't edit the drawing name
-        removeNoActiveKmlWarning()
-    }
-})
-
 function closeDrawing() {
     isClosingDrawing.value = true
     if (showNotSharedDrawingWarning.value) {
@@ -180,27 +165,29 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
-                <div
-                    v-if="online"
-                    ref="drawingNameContainer"
-                    class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
+                <GeoadminTooltip
+                    :tooltip-content="tooltipText"
+                    placement="bottom"
+                    :disabled="!showNoActiveKmlWarning"
                 >
-                    <label
-                        for="drawing-name"
-                        class="text-nowrap"
+                    <div
+                        v-if="online"
+                        class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
                     >
-                        {{ t('file_name') }}
-                    </label>
-                    <input
-                        id="drawing-name"
-                        v-model="drawingName"
-                        type="text"
-                        class="form-control"
-                        data-cy="drawing-toolbox-file-name-input"
-                        :placeholder="`${t('draw_layer_label')}`"
-                        :disabled="!activeKmlLayer"
-                    >
-                </div>
+                        <label for="drawing-name" class="text-nowrap">
+                            {{ t('file_name') }}
+                        </label>
+                        <input
+                            id="drawing-name"
+                            v-model="drawingName"
+                            type="text"
+                            class="form-control"
+                            data-cy="drawing-toolbox-file-name-input"
+                            :placeholder="`${t('draw_layer_label')}`"
+                            :disabled="!activeKmlLayer"
+                        />
+                    </div>
+                </GeoadminTooltip>
 
                 <div class="card-body position-relative container">
                     <div
@@ -257,10 +244,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         <div class="col d-grid">
                             <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         </div>
-                        <div
-                            v-if="online"
-                            class="col d-grid"
-                        >
+                        <div v-if="online" class="col d-grid">
                             <button
                                 type="button"
                                 class="btn btn-light"
@@ -286,10 +270,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                     </div>
-                    <div
-                        v-if="isDesktopMode && online"
-                        class="row mt-2"
-                    >
+                    <div v-if="isDesktopMode && online" class="row mt-2">
                         <div
                             class="col text-center text-muted"
                             data-cy="drawing-toolbox-disclaimer"
@@ -301,10 +282,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     </div>
                 </div>
             </div>
-            <div
-                v-if="isDesktopMode"
-                class="text-center"
-            >
+            <div v-if="isDesktopMode" class="text-center">
                 <button
                     class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
                     data-cy="menu-button"
@@ -337,10 +315,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             :title="t('warning')"
             @close="onCloseWarningModal()"
         >
-            <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
-                @accept="onAcceptWarningModal()"
-            />
+            <ShareWarningPopup :kml-layer="activeKmlLayer" @accept="onAcceptWarningModal()" />
         </ModalWithBackdrop>
     </teleport>
 </template>

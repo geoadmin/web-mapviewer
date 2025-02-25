@@ -208,14 +208,8 @@ function mediaTypes() {
 
 <template>
     <div data-cy="drawing-style-popup">
-        <div
-            v-if="isFeatureMarker || isFeatureText"
-            class="form-group mb-2"
-        >
-            <label
-                class="form-label"
-                for="drawing-style-feature-title"
-            >
+        <div v-if="isFeatureMarker || isFeatureText" class="form-group mb-2">
+            <label class="form-label" for="drawing-style-feature-title">
                 {{ t('draw_popup_title_annotation') }}
             </label>
             <textarea
@@ -231,22 +225,13 @@ function mediaTypes() {
             />
         </div>
 
-        <div
-            v-if="!isFeatureText"
-            class="form-group mb-2"
-        >
+        <div v-if="!isFeatureText" class="form-group mb-2">
             <div class="d-flex justify-content-between">
-                <label
-                    class="form-label"
-                    for="drawing-style-feature-description"
-                >
+                <label class="form-label" for="drawing-style-feature-description">
                     {{ t('modify_description') }}
                 </label>
                 <div class="d-flex justify-content-end align-items-center">
-                    <div
-                        v-for="(media, index) in mediaTypes()"
-                        :key="media.type"
-                    >
+                    <div v-for="(media, index) in mediaTypes()" :key="media.type">
                         <DrawingStylePopoverButton
                             ref="mediaPopovers"
                             :data-cy="`drawing-style-${media.type}-button`"
@@ -286,10 +271,7 @@ function mediaTypes() {
                 :value="feature.coordinates[0].slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon
-                    class="small pe-2 align-text-top"
-                    icon="fas fa-map-marker-alt"
-                />
+                <FontAwesomeIcon class="small pe-2 align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
             <FeatureAreaInfo
                 v-if="feature.geometry.type === 'Polygon'"
@@ -297,10 +279,7 @@ function mediaTypes() {
             />
         </div>
         <div class="d-flex justify-content-end align-items-center">
-            <div
-                v-if="!readOnly"
-                class="d-flex gap-1 feature-style-edit-control"
-            >
+            <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
@@ -329,7 +308,6 @@ function mediaTypes() {
                     v-if="isFeatureMarker"
                     data-cy="drawing-style-marker-button"
                     icon="fas fa-map-marker-alt"
-                    :placement="showInBottomPanel ? 'top' : 'auto'"
                 >
                     <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
