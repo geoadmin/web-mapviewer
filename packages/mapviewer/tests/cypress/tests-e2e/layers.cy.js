@@ -263,12 +263,12 @@ describe('Test of layer handling', () => {
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms1.id}-"]`)
                         .should('be.visible')
-                        .click({ position: 'right', force: true })
+                        .realClick({ position: 'right', force: true })
                     cy.openLayerSettings(mockExternalWms4.id)
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms4.id}-"]`)
                         .should('be.visible')
-                        .click({ position: 'left', force: true })
+                        .realClick({ position: 'left', force: true })
 
                     // we had some issues with wms transparency reverting back to default when reaching 0
                     // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
@@ -277,7 +277,7 @@ describe('Test of layer handling', () => {
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms3.id}-"]`)
                         .should('be.visible')
-                        .click({ position: 'right', force: true })
+                        .realClick({ position: 'right', force: true })
 
                     cy.checkOlLayer([
                         bgLayer,
@@ -785,7 +785,7 @@ describe('Test of layer handling', () => {
                     cy.openLayerSettings(layerId)
                     cy.get(`[data-cy="slider-transparency-layer-${layerId}-${index}"]`)
                         .should('be.visible')
-                        .click({ position: 'right', force: true })
+                        .realClick({ position: 'right', force: true })
 
                     cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
                         const layer = visibleLayers.find((layer) => layer.id === layerId)
@@ -906,7 +906,7 @@ describe('Test of layer handling', () => {
                 // change the opacity to check later on that the new layer as the non default opacity
                 cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
-                    .click({ position: 'right' })
+                    .realClick({ position: 'right' })
                 cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .realHover()
@@ -957,7 +957,7 @@ describe('Test of layer handling', () => {
                     .click()
                 cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-3"]`)
                     .should('be.visible')
-                    .click({ position: 'center' })
+                    .realClick({ position: 'center' })
                 cy.get(`[data-cy="time-selector-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .contains(timestamp.slice(0, 4))
@@ -1072,7 +1072,7 @@ describe('Test of layer handling', () => {
                 cy.log('Moving the layers and change the opacity')
                 cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
                 cy.get(`[data-cy^="button-lower-order-layer-${middleLayerId}-"]`).click()
-                cy.get(`[data-cy^="slider-transparency-layer-${middleLayerId}-"]`).click()
+                cy.get(`[data-cy^="slider-transparency-layer-${middleLayerId}-"]`).realClick()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
@@ -1104,9 +1104,8 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="time-selector-${topLayerId}-2"]:visible`).contains(
                     newTimestamp.slice(0, 4)
                 )
-                cy.get(`[data-cy="slider-transparency-layer-${topLayerId}-2"]`).click({
+                cy.get(`[data-cy="slider-transparency-layer-${topLayerId}-2"]`).realClick({
                     position: 'right',
-                    force: true,
                 })
                 cy.get(`[data-cy="menu-active-layer-${topLayerId}-3"]`).should('be.visible')
                 cy.get(`[data-cy="time-selector-${topLayerId}-3"]:visible`).contains('2018')
