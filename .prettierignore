@@ -1,2 +1,6 @@
 package.json
 package-lock.json
+
+packages/mapviewer/index.html
+packages/mapviewer/public/icon.svg
+packages/mapviewer/src/assets/svg/swiss-flag.svg
