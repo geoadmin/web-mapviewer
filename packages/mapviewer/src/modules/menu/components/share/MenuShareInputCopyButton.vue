@@ -78,7 +78,7 @@ onBeforeUnmount(() => {
         ref="copyButton"
         data-cy="input-copy-button"
     >
-        <label v-if="labelText">{{ t(labelText) }}: </label>
+        <label v-if="labelText">{{ t(labelText) }}:</label>
         <div
             class="input-group"
             :class="{ 'input-group-sm': small }"
@@ -91,7 +91,7 @@ onBeforeUnmount(() => {
                 :value="inputText"
                 data-cy="menu-share-input-copy-button"
                 @focus="(event) => event.target.select()"
-            >
+            />
             <button
                 class="btn"
                 :class="{

@@ -22,5 +22,5 @@ export default {
     plugins: [dts()],
     test: {
         setupFiles: ['setup-vitest.ts'],
-    }
+    },
 }

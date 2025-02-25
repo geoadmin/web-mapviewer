@@ -1,5 +1,9 @@
-<?xml version="1.0"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+<?xml version="1.0" ?>
+<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+>
   <Document>
     <name>Drawing</name>
     <Placemark id="annotation_1448263222238">

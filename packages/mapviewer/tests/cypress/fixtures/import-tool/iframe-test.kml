@@ -1,4 +1,10 @@
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"><Document><name>Dessin</name><Placemark id="drawing_feature_1736340742068"><name>test title <![CDATA[
+<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+><Document><name>Dessin</name><Placemark id="drawing_feature_1736340742068"><name
+            >test title <![CDATA[
         <p>Check out this <a href="http://evil.com/malware.exe">https://www.openstreetmap.org</a> for more info.</p>
         <iframe
   id="inlineFrameExample"
@@ -7,7 +13,8 @@
   height="200"
   src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
 </iframe>
-      ]]></name><description>test description
+      ]]></name><description
+            >test description
 <![CDATA[
 <a href="javascript:alert('Hacked!')">Click me</a>
         <p>Check out this <a href="https://www.openstreetmap.org">https://www.openstreetmap.org</a> for more info.</p>
@@ -19,4 +26,15 @@
   src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
 </iframe>
       ]]>
-</description><Style><IconStyle><scale>1.125</scale><Icon><href>https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1x-255,0,0.png</href><gx:w>48</gx:w><gx:h>48</gx:h></Icon><hotSpot x="24" y="6" xunits="pixels" yunits="pixels"/></IconStyle><LabelStyle><color>ff0000ff</color><scale>1.5</scale></LabelStyle></Style><ExtendedData><Data name="textOffset"><value>115.04166412353516,0</value></Data><Data name="type"><value>marker</value></Data></ExtendedData><Point><coordinates>7.937193879466994,46.884784752073095,0</coordinates></Point></Placemark></Document></kml>
+</description><Style><IconStyle><scale>1.125</scale><Icon><href
+                        >https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1x-255,0,0.png</href><gx:w
+                        >48</gx:w><gx:h>48</gx:h></Icon><hotSpot
+                        x="24"
+                        y="6"
+                        xunits="pixels"
+                        yunits="pixels"
+                    /></IconStyle><LabelStyle><color>ff0000ff</color><scale
+                    >1.5</scale></LabelStyle></Style><ExtendedData><Data name="textOffset"><value
+                    >115.04166412353516,0</value></Data><Data name="type"><value
+                    >marker</value></Data></ExtendedData><Point><coordinates
+                >7.937193879466994,46.884784752073095,0</coordinates></Point></Placemark></Document></kml>

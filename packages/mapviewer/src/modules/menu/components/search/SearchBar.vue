@@ -168,7 +168,7 @@ const onInputClicked = () => {
             @keydown.down.prevent="goToFirstResult"
             @keydown.esc.prevent="clearSearchQuery"
             @keyup.enter.stop.prevent="goToFirstResult"
-        >
+        />
         <button
             v-if="hasResults && !isPhoneMode"
             class="btn btn-outline-group"

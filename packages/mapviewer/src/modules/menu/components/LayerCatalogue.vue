@@ -34,9 +34,12 @@ const searchInput = useTemplateRef('searchInput')
 
 const showSearchBar = computed(() => withSearchBar && layerCatalogue.length > 0)
 
-watch(() => layerCatalogue, () => {
-    searchText.value = ''
-})
+watch(
+    () => layerCatalogue,
+    () => {
+        searchText.value = ''
+    }
+)
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
@@ -85,7 +88,7 @@ function clearSearchText() {
                 :value="searchText"
                 data-cy="search-catalogue-input"
                 @input="onSearchInput"
-            >
+            />
             <button
                 v-show="searchText?.length > 0"
                 id="searchCatalogueInputButton"
