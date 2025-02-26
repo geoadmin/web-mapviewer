@@ -319,6 +319,7 @@
     "import_tooltip": "Importer des données WMTS WMS GPX KML externes",
     "import_wms": "WMS import",
     "imported_file_out_of_bounds": "Le contenu du fichier est hors des limites de projection",
+    "in_collaboration_with_the_cantons": "En collaboration avec les cantons",
     "inform_draw_rectangl_ctrl": "Dessiner un rectangle sur la carte avec la touche CTRL (cmd on Mac) enfoncée pour choisir la zone de sélection.",
     "inspire": "INSPIRE",
     "inspire_service_link_href": "https://www.geo.admin.ch/fr/home.html",

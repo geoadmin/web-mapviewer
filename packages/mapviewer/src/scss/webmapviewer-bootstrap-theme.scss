@@ -2,6 +2,19 @@
 @import 'variables-admin.module';
 @import 'diemo';
 
+// Font used to generate the confederation logo/text.
+// It might switch in the future to NotoSans too. (Frutiger is a copyrighted font and Bund is paying a 6 figure
+// yearly fee for its use, they are planning a move to NotoSans by 2028).
+@font-face {
+    font-family: $frutiger;
+    font-weight: 300;
+    font-style: normal;
+    src: url("./fonts/FrutigerLight/FrutigerLTStd-Light.woff2") format('woff2'),
+         url("./fonts/FrutigerLight/FrutigerLTStd-Light.woff") format('woff'),
+         url("./fonts/FrutigerLight/FrutigerLTStd-Light.ttf") format('truetype'),
+         url("./fonts/FrutigerLight/FrutigerLTStd-Light.eot") format('embedded-opentype');
+}
+
 // Override bootstrap variables here
 $card-cap-padding-y: 0.25rem;
 $card-spacer-y: 0.75rem;

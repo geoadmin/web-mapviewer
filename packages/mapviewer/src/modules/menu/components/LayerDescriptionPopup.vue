@@ -161,7 +161,6 @@ onMounted(async () => {
 $spacing: 8px;
 
 .layer-description {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;

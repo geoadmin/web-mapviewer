@@ -24,6 +24,9 @@ catalogs:
     '@eslint/markdown':
       specifier: ^6.2.2
       version: 6.2.2
+    '@fontsource/noto-sans':
+      specifier: ^5.1.1
+      version: 5.1.1
     '@fortawesome/fontawesome-svg-core':
       specifier: ^6.7.2
       version: 6.7.2
@@ -570,6 +573,9 @@ importers:
       '@cypress/vue':
         specifier: 'catalog:'
         version: 6.0.2(cypress@14.0.3)(vue@3.5.13(typescript@5.7.3))
+      '@fontsource/noto-sans':
+        specifier: 'catalog:'
+        version: 5.1.1
       '@nuintun/qrcode':
         specifier: 'catalog:'
         version: 4.1.13
@@ -958,6 +964,9 @@ packages:
   '@eslint/plugin-kit@0.2.5':
     resolution: {integrity: sha512-lB05FkqEdUg2AA0xEbUz0SnkXT1LcCTa438W4IWTUh4hdOnVbQyOJ81OrDXsJk/LSiJHubgGEFoR5EHq1NsH1A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource/noto-sans@5.1.1':
+    resolution: {integrity: sha512-WesuII3BzvzVr0JqYIgnEeJPwXvpFAo9tNCMH1AqoLSCdStKJugMaIcVJ/sT+Pw9ytIlUO3ccbqbe+BhhsXm9g==}
 
   '@fortawesome/fontawesome-common-types@6.7.2':
     resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
@@ -4964,6 +4973,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.10.0
       levn: 0.4.1
+
+  '@fontsource/noto-sans@5.1.1': {}
 
   '@fortawesome/fontawesome-common-types@6.7.2': {}
 
