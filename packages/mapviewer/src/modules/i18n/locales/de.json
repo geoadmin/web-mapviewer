@@ -319,6 +319,7 @@
     "import_tooltip": "Importieren Sie externe WMTS-, WMS-, GPX- oder KML-Datenquellen",
     "import_wms": "WMS Import",
     "imported_file_out_of_bounds": "Der Dateiinhalt liegt ausserhalb der Projektionsgrenzen",
+    "in_collaboration_with_the_cantons": "In Zusammenarbeit mit den Kantonen",
     "inform_draw_rectangl_ctrl": "Mittels CTRL + Rechteck (cmd für Mac) über die Karte ziehen, lassen sich mehrere Objekte auf einmal räumlich abfragen.",
     "inspire": "INSPIRE",
     "inspire_service_link_href": "https://www.geo.admin.ch/de/home.html",

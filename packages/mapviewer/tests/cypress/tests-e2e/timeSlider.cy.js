@@ -200,7 +200,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(
                 'If there is data common to all layers, the time slider goes to the youngest year in common'
             )
-            cy.get('[data-cy="menu-swiss-flag"]').as('swissFlag').click()
+            cy.get('[data-cy="swiss-flag"]').as('swissFlag').click()
             cy.goToMapView({ layers: `${timedLayerId};${timedLayerIdWithOddYear}` })
             cy.get('[data-cy="time-slider-button"]').as('timeSliderButton').click()
             cy.get('@timeSliderYearCursor').should('have.value', '2021')

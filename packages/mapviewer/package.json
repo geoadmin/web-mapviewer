@@ -86,6 +86,7 @@
         "@4tw/cypress-drag-drop": "catalog:",
         "@cypress/vite-dev-server": "catalog:",
         "@cypress/vue": "catalog:",
+        "@fontsource/noto-sans": "catalog:",
         "@nuintun/qrcode": "catalog:",
         "@prettier/plugin-xml": "catalog:",
         "@rushstack/eslint-patch": "catalog:",
