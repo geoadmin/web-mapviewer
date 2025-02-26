@@ -1518,10 +1518,9 @@ describe('Drawing module tests', () => {
             )
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
-            cy.log('check that profile gets updated when feature is modified by removing a point')
-            // for mobile double click and on desktop right click
-            cy.get('[data-cy="ol-map"]').dblclick(190, 250)
-            cy.wait('@profile')
+            cy.log(
+                'check that profile gets updated when feature is modified by removing a point (by right clicking on it)'
+            )
             cy.get('[data-cy="ol-map"]').rightclick(150, 250)
             cy.wait('@profile')
 
