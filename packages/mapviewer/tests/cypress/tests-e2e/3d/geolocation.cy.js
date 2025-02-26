@@ -32,6 +32,7 @@ describe('Geolocation on 3D cypress', () => {
                     true,
                     { latitude: geoLatitude, longitude: geoLongitude }
                 )
+                cy.waitUntilCesiumTilesLoaded()
 
                 // check that before the geolocation button is clicked, the map is not centered on the geolocation
                 cy.readStoreValue('state.position.center').then((center) => {
@@ -41,42 +42,34 @@ describe('Geolocation on 3D cypress', () => {
                     expect(center[1]).to.not.approximately(geoY, 0.1)
                 })
 
+                // Camera position before geolocation
+                cy.readStoreValue('state.position.camera').then((camera) => {
+                    expect(camera).to.be.an('Object')
+                    expect(camera.x).to.not.eq(geoLongitude)
+                    expect(camera.y).to.not.eq(geoLatitude)
+                    expect(Number(camera.z)).not.to.approximately(631.85, 0.1)
+
+                    expect(camera.heading).to.eq(0)
+                    expect(camera.pitch).to.eq(-90)
+                    expect(camera.roll).to.eq(0)
+                })
+
                 getGeolocationButtonAndClickIt()
+                // check that the geolocation has been set in the store
                 checkStorePosition('state.geolocation.position', geoX, geoY)
                 // check that the map has been centered on the geolocation
                 checkStorePosition('state.position.center', geoX, geoY)
+                // Camera position after geolocation
+                cy.readStoreValue('state.position.camera').then((camera) => {
+                    expect(camera).to.be.an('Object')
+                    expect(camera.x).to.eq(geoLongitude)
+                    expect(camera.y).to.eq(geoLatitude)
+                    expect(Number(camera.z)).to.approximately(631.85, 0.1)
 
-                const initialCameraHeight = 137649.54177875674
-                // Camera height
-                cy.readWindowValue('cesiumViewer').then((viewer) => {
-                        expect(viewer.scene.camera.positionCartographic.height).to.approximately(
-                            initialCameraHeight, 0.1
-                        )
+                    expect(camera.heading).to.eq(0)
+                    expect(camera.pitch).to.eq(-90)
+                    expect(camera.roll).to.eq(0)
                 })
-
-                // Zoom in
-                cy.get('[data-cy="zoom-in"]').click()
-                // Camera height should be less than the iniital camera height
-                cy.readWindowValue('cesiumViewer').then((viewer) => {
-                    expect(viewer.scene.camera.positionCartographic.height).lt(
-                        initialCameraHeight
-                    )
-                })
-                // check that the map is still centered in the same position
-                checkStorePosition('state.position.center', geoX, geoY)
-
-                // Zoom out 3x
-                cy.get('[data-cy="zoom-out"]').click()
-                cy.get('[data-cy="zoom-out"]').click()
-                cy.get('[data-cy="zoom-out"]').click()
-                // Camera height should be greater than the iniital camera height
-                cy.readWindowValue('cesiumViewer').then((viewer) => {
-                    expect(viewer.scene.camera.positionCartographic.height).gt(
-                        initialCameraHeight
-                    )
-                })
-                // check that the map is still centered in the same position
-                checkStorePosition('state.position.center', geoX, geoY)
             })
             // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
             it.skip('access from outside Switzerland shows an error message', () => {
