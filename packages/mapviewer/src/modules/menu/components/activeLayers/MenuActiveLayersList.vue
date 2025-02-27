@@ -43,7 +43,7 @@ onMounted(() => {
         onStart: function () {
             aLayerIsDragged.value = true
         },
-        onEnd: function (event) {
+        onUpdated: function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
             onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
