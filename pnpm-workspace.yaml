@@ -5,6 +5,8 @@ catalog:
   "@cypress/vite-dev-server": ^6.0.2
   "@cypress/vue": ^6.0.2
   "@eslint/markdown": ^6.2.2
+  "@eslint/js": ^9.19.0
+  "@vue/eslint-config-typescript": ^14.3.0
   "@fontsource/noto-sans": ^5.1.1
   "@fortawesome/fontawesome-svg-core": ^6.7.2
   "@fortawesome/free-brands-svg-icons": ^6.7.2
@@ -51,6 +53,7 @@ catalog:
   eslint-plugin-perfectionist: ^4.8.0
   eslint-config-prettier: "^10.0.1"
   eslint-plugin-prettier: "^5.2.3"
+  eslint-plugin-vue: ^9.32.0
   file-saver: ^2.0.5
   form-data: ^4.0.1
   geographiclib-geodesic: ^2.1.1
