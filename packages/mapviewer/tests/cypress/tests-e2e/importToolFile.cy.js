@@ -531,7 +531,10 @@ describe('The Import File Tool', () => {
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
-                cy.wrap($layer).find('[data-cy^="button-has-error"]').should('be.visible').click()
+                cy.wrap($layer)
+                    .find('[data-cy^="button-has-error"]')
+                    .should('be.visible')
+                    .trigger('mouseover')
                 if (index === 0) {
                     cy.get(`[data-cy^="floating-button-has-error-${onlineUrlNotReachable}-"]`)
                         .should('be.visible')
