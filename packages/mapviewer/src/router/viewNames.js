@@ -1,7 +1,8 @@
 /** List of all views that display the map and that should contain the minimal map functionality */
 export const MAP_VIEW = 'MapView'
 export const EMBED_VIEW = 'EmbedView'
-export const MAP_VIEWS = [MAP_VIEW, EMBED_VIEW]
+export const PRINT_VIEW = 'PrintView'
+export const MAP_VIEWS = [MAP_VIEW, EMBED_VIEW, PRINT_VIEW]
 
 /** Legacy URL views used for startup */
 export const LEGACY_PARAM_VIEW = 'LegacyParamsView'

@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const acceptedInitialPositions = ['top-left', 'top-center', 'top-right']
+const acceptedInitialPositions = ['top-left', 'top-center', 'top-right', 'bottom-center']
 
 const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, small, dataCy } =
     defineProps({
@@ -192,6 +192,13 @@ onMounted(() => {
 
         &.top-center {
             top: $card-spacer-y !important;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+
+        &.bottom-center {
+            top: unset !important;
+            bottom: $card-spacer-y !important;
             left: 50%;
             transform: translate(-50%, 0);
         }

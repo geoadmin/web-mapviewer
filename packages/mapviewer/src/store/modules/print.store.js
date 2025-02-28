@@ -1,6 +1,7 @@
 import log from '@geoadmin/log'
 
-import { readPrintCapabilities } from '@/api/print.api.js'
+import { readPrintCapabilities } from '@/api/print.api'
+import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 
 export default {
     state: {
@@ -8,6 +9,10 @@ export default {
         selectedLayout: null,
         selectedScale: null,
         printSectionShown: false,
+        config: {
+            dpi: PRINT_DEFAULT_DPI,
+            layout: 'A4_L'
+        }
     },
     getters: {
         printLayoutSize(state) {
@@ -45,11 +50,15 @@ export default {
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })
         },
+        setPrintConfig({ commit }, { config, dispatcher }) {
+            commit('setPrintConfig', { config, dispatcher })
+        }
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
         setSelectedLayout: (state, { layout }) => (state.selectedLayout = layout),
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
+        setPrintConfig: (state, { config }) => (state.config = config),
     },
 }

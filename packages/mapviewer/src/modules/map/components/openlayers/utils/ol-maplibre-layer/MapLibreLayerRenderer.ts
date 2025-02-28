@@ -1,15 +1,17 @@
 import type { MapGeoJSONFeature, QueryRenderedFeaturesOptions } from 'maplibre-gl'
+import type { Feature } from 'ol'
+import type { Coordinate } from 'ol/coordinate.js'
+import type { Geometry } from 'ol/geom.js'
 import type { FrameState } from 'ol/Map.js'
+import type { Pixel } from 'ol/pixel.js'
+import type { FeatureCallback } from 'ol/renderer/vector.js'
+
+import GeoJSON from 'ol/format/GeoJSON.js'
+import { SimpleGeometry } from 'ol/geom.js'
 import { toDegrees } from 'ol/math.js'
 import { toLonLat } from 'ol/proj.js'
 import LayerRenderer from 'ol/renderer/Layer.js'
-import GeoJSON from 'ol/format/GeoJSON.js'
-import type { Coordinate } from 'ol/coordinate.js'
-import type { FeatureCallback } from 'ol/renderer/vector.js'
-import type { Feature } from 'ol'
-import type { Geometry } from 'ol/geom.js'
-import { SimpleGeometry } from 'ol/geom.js'
-import type { Pixel } from 'ol/pixel.js'
+
 import type MapLibreLayer from './MapLibreLayer.js'
 
 const VECTOR_TILE_FEATURE_PROPERTY = 'vectorTileFeature';
@@ -145,7 +147,7 @@ export default class MapLibreLayerRenderer extends LayerRenderer<MapLibreLayer> 
         ];
 
         if (hitTolerance) {
-            const [x, y] = pixels as [number, number];
+            const [x, y] = pixels;
             pixels = [
                 [x - hitTolerance, y - hitTolerance],
                 [x + hitTolerance, y + hitTolerance],
