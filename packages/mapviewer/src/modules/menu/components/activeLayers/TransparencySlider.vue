@@ -28,19 +28,26 @@ const syncOpacity = () => {
     localTransparency.value = 1 - layer.opacity
 }
 
-const saveOpacityToLayer = debounce((value: number) => {
+const saveOpacityToLayer = (opacity: number) => {
     store.dispatch('updateLayer', {
         layerId: layer.id,
         values: {
-            opacity: value,
+            opacity: opacity,
         },
         ...DISPATCHER,
     })
-}, 50)
+}
+
+const debouncedSaveOpacityToLayer = debounce(saveOpacityToLayer, 50)
 
 watch(localTransparency, (newTransparency: number) => {
     const newOpacity = 1 - newTransparency
-    saveOpacityToLayer(newOpacity)
+    // there is of course a tasty race condition if we debounce this in cypress
+    if (IS_TESTING_WITH_CYPRESS) {
+        saveOpacityToLayer(newOpacity)
+    } else {
+        debouncedSaveOpacityToLayer(newOpacity)
+    }
 })
 </script>
 
