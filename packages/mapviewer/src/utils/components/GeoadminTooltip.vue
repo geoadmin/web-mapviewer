@@ -179,11 +179,11 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
         </div>
         <Teleport to="body">
             <div
+                v-if="!disabled && isShown"
+                ref="floatingElement"
                 :style="style"
                 class="floating"
                 :class="theme"
-                ref="floatingElement"
-                v-if="!disabled && isShown"
                 :data-cy="dataCyValue"
             >
                 <!-- the arrow to be displayed on the top or on the left-->
