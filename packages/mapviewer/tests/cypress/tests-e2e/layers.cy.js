@@ -263,14 +263,14 @@ describe('Test of layer handling', () => {
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms1.id}-"]`)
                         .should('be.visible')
-                        .invoke('val', 0)
-                        .trigger('change')
+                        .invoke('val', 1)
+                        .trigger('mouseup')
                     cy.openLayerSettings(mockExternalWms4.id)
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms4.id}-"]`)
                         .should('be.visible')
-                        .invoke('val', 1)
-                        .trigger('change')
+                        .invoke('val', 0)
+                        .trigger('mouseup')
 
                     // we had some issues with wms transparency reverting back to default when reaching 0
                     // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
@@ -279,8 +279,8 @@ describe('Test of layer handling', () => {
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms3.id}-"]`)
                         .should('be.visible')
-                        .invoke('val', 0)
-                        .trigger('change')
+                        .invoke('val', 1)
+                        .trigger('mouseup')
 
                     cy.checkOlLayer([
                         bgLayer,
@@ -792,8 +792,8 @@ describe('Test of layer handling', () => {
                     cy.openLayerSettings(layerId)
                     cy.get(`[data-cy="slider-transparency-layer-${layerId}-${index}"]`)
                         .should('be.visible')
-                        .invoke('val', 0)
-                        .trigger('change')
+                        .invoke('val', 1)
+                        .trigger('mouseup')
 
                     cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
                         const layer = visibleLayers.find((layer) => layer.id === layerId)
@@ -967,7 +967,7 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="slider-transparency-layer-${timedLayerId}-3"]`)
                     .should('be.visible')
                     .invoke('val', 0.5)
-                    .trigger('change')
+                    .trigger('mouseup')
                 cy.get(`[data-cy="time-selector-${timedLayerId}-2"]`)
                     .should('be.visible')
                     .contains(timestamp.slice(0, 4))
@@ -1115,11 +1115,12 @@ describe('Test of layer handling', () => {
                     newTimestamp.slice(0, 4)
                 )
                 cy.get(`[data-cy="slider-transparency-layer-${topLayerId}-2"]`)
-                    .invoke('val', 0)
-                    .trigger('change')
+                    .invoke('val', 1)
+                    .trigger('mouseup')
 
                 cy.get(`[data-cy="menu-active-layer-${topLayerId}-3"]`).should('be.visible')
                 cy.get(`[data-cy="time-selector-${topLayerId}-3"]:visible`).contains('2018')
+                cy.log('check OL layer before moving')
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
