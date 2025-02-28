@@ -121,6 +121,13 @@ const eventListenerCloser = (event: MouseEvent) => {
 }
 
 const onClick = (event: Event): void => {
+    // if we're hovering, make the tooltip go away
+    // this is especially important on mobile, because tapping the button will otherwise
+    // make it stay!
+    if (openTrigger === 'hover') {
+        closeTooltip()
+    }
+
     if (openTrigger !== 'click') {
         return
     }
