@@ -23,7 +23,9 @@ import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
-    return ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(feature?.geometry?.type)
+    return ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(
+        feature?.geometry?.type
+    )
 }
 
 const getEditableFeatureWithId = (state, featureId) => {

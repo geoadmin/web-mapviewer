@@ -16,7 +16,8 @@
                     "width": 1
                 }
             }
-        }, {
+        },
+        {
             "geomType": "point",
             "value": 1,
             "vectorOptions": {

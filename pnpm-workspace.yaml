@@ -4,9 +4,9 @@ catalog:
   "@4tw/cypress-drag-drop": ^2.3.0
   "@cypress/vite-dev-server": ^6.0.2
   "@cypress/vue": ^6.0.2
-  "@eslint/eslintrc": ^3.2.0
-  "@eslint/js": ^9.19.0
   "@eslint/markdown": ^6.2.2
+  "@eslint/js": ^9.19.0
+  "@vue/eslint-config-typescript": ^14.3.0
   "@fontsource/noto-sans": ^5.1.1
   "@fortawesome/fontawesome-svg-core": ^6.7.2
   "@fortawesome/free-brands-svg-icons": ^6.7.2
@@ -29,9 +29,8 @@ catalog:
   "@types/proj4": ^2.5.6
   "@vitejs/plugin-basic-ssl": ^1.2.0
   "@vitejs/plugin-vue": ^5.2.1
-  "@vue/eslint-config-prettier": ^10.2.0
-  "@vue/eslint-config-typescript": ^14.3.0
   "@vue/tsconfig": ^0.7.0
+  "@vue/eslint-config-prettier": "^10.2.0"
   animate.css: ^4.1.1
   axios: ^1.7.9
   axios-retry: ^4.5.0
@@ -52,7 +51,8 @@ catalog:
   eslint-plugin-cypress: ^4.1.0
   eslint-plugin-mocha: ^10.5.0
   eslint-plugin-perfectionist: ^4.8.0
-  eslint-plugin-prettier-vue: ^5.0.0
+  eslint-config-prettier: "^10.0.1"
+  eslint-plugin-prettier: "^5.2.3"
   eslint-plugin-vue: ^9.32.0
   file-saver: ^2.0.5
   form-data: ^4.0.1

@@ -42,7 +42,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                         v-if="backgroundLayer"
                         :src="getImageForBackgroundLayer(backgroundLayer)"
                         alt="background image"
-                    >
+                    />
                 </span>
                 <span
                     class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75 show"
@@ -67,7 +67,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 <img
                     :src="getImageForBackgroundLayer(currentBackgroundLayer)"
                     alt="background image"
-                >
+                />
             </span>
             <span
                 :class="{ spread: show, animate }"

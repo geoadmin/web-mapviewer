@@ -321,15 +321,15 @@ describe('Test on legacy param import', () => {
         it('External WMTS layer', () => {
             cy.getExternalWmtsMockConfig().then((mockConfig) => {
                 const [mockExternalWmts1] = mockConfig
-                    cy.goToMapView(
-                        {
-                            layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,
-                            layers_opacity: '1,1',
-                            layers_visibility: 'false,true',
-                            layers_timestamp: '18641231,',
-                        },
-                        false
-                    )
+                cy.goToMapView(
+                    {
+                        layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,
+                        layers_opacity: '1,1',
+                        layers_visibility: 'false,true',
+                        layers_timestamp: '18641231,',
+                    },
+                    false
+                )
                 cy.wait(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`)
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(2)

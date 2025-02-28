@@ -9,10 +9,11 @@
     font-family: $frutiger;
     font-weight: 300;
     font-style: normal;
-    src: url("./fonts/FrutigerLight/FrutigerLTStd-Light.woff2") format('woff2'),
-         url("./fonts/FrutigerLight/FrutigerLTStd-Light.woff") format('woff'),
-         url("./fonts/FrutigerLight/FrutigerLTStd-Light.ttf") format('truetype'),
-         url("./fonts/FrutigerLight/FrutigerLTStd-Light.eot") format('embedded-opentype');
+    src:
+        url('./fonts/FrutigerLight/FrutigerLTStd-Light.woff2') format('woff2'),
+        url('./fonts/FrutigerLight/FrutigerLTStd-Light.woff') format('woff'),
+        url('./fonts/FrutigerLight/FrutigerLTStd-Light.ttf') format('truetype'),
+        url('./fonts/FrutigerLight/FrutigerLTStd-Light.eot') format('embedded-opentype');
 }
 
 // Override bootstrap variables here

@@ -82,9 +82,7 @@ function toggleMenu() {
                         @click="toggleMenu"
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-2">{{
-                            t(showMenu ? 'close_menu' : 'open_menu')
-                        }}</span>
+                        <span class="ms-2">{{ t(showMenu ? 'close_menu' : 'open_menu') }}</span>
                     </button>
                 </div>
             </transition>

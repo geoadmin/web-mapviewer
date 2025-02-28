@@ -258,9 +258,9 @@ function selectItem(dropdownItem) {
                 :href="t('feedback_more_info_url')"
                 target="_blank"
                 class="more-info-link"
-            >{{
-                t('feedback_more_info_text')
-            }}</a>
+            >
+                {{ t('feedback_more_info_text') }}
+            </a>
             <div
                 class="invalid-feedback"
                 data-cy="text-area-input-invalid-feedback"
@@ -341,7 +341,9 @@ function selectItem(dropdownItem) {
                     <a
                         target="_blank"
                         :href="shortLink"
-                    >{{ t('permalink') }}</a>
+                    >
+                        {{ t('permalink') }}
+                    </a>
                 </div>
                 <div>
                     <!-- eslint-disable vue/no-v-html-->

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Capabilities
     version="1.0.0"
     xmlns="http://www.opengis.net/wmts/1.0"
@@ -6,7 +6,8 @@
     xmlns:ows="http://www.opengis.net/ows/1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd">
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
+>
 
     <!-- Service Identification -->
     <ows:ServiceIdentification>
@@ -39,7 +40,8 @@
                     <ows:City>Cityville</ows:City>
                     <ows:PostalCode>12345</ows:PostalCode>
                     <ows:Country>Countryland</ows:Country>
-                    <ows:ElectronicMailAddress>john.doe@myorganization.com</ows:ElectronicMailAddress>
+                    <ows:ElectronicMailAddress
+                    >john.doe@myorganization.com</ows:ElectronicMailAddress>
                 </ows:Address>
             </ows:ContactInfo>
         </ows:ServiceContact>
@@ -88,15 +90,20 @@
             </ows:WGS84BoundingBox>
             <Style isDefault="true">
                 <ows:Identifier>default</ows:Identifier>
-                <LegendURL format="image/png"
-                    xlink:href="https://wmts.geo.admin.ch/legends/layer1.png" />
+                <LegendURL
+                    format="image/png"
+                    xlink:href="https://wmts.geo.admin.ch/legends/layer1.png"
+                />
             </Style>
             <Format>image/png</Format>
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:4326</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="https://wmts.geo.admin.ch/1.0.0/layer1/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="https://wmts.geo.admin.ch/1.0.0/layer1/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png"
+            />
         </Layer>
 
         <!-- Layer 2 -->
@@ -115,8 +122,11 @@
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:4326</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="https://wmts.geo.admin.ch/1.0.0/layer2/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="https://wmts.geo.admin.ch/1.0.0/layer2/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png"
+            />
         </Layer>
 
         <!-- Layer 3 -->
@@ -140,8 +150,11 @@
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:4326</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="https://wmts.geo.admin.ch/1.0.0/layer3/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="https://wmts.geo.admin.ch/1.0.0/layer3/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png"
+            />
         </Layer>
 
         <!-- Layer 4 -->
@@ -165,8 +178,11 @@
             <TileMatrixSetLink>
                 <TileMatrixSet>EPSG:2056</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="https://wmts.geo.admin.ch/1.0.0/layer4/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="https://wmts.geo.admin.ch/1.0.0/layer4/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.png"
+            />
         </Layer>
 
         <!-- Tile Matrix Sets -->

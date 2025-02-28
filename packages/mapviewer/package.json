@@ -92,8 +92,6 @@
         "@rushstack/eslint-patch": "catalog:",
         "@vitejs/plugin-basic-ssl": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
-        "@vue/eslint-config-prettier": "catalog:",
-        "@vue/eslint-config-typescript": "catalog:",
         "@vue/tsconfig": "catalog:",
         "axios-retry": "catalog:",
         "chai": "catalog:",

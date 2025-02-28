@@ -44,7 +44,8 @@ const { t } = useI18n()
             />
             <strong class="flex-grow-1">{{ name }}</strong>
             <small class="text-muted">
-                {{ children.length }}<span v-if="canLoadMore">+</span>
+                {{ children.length }}
+                <span v-if="canLoadMore">+</span>
             </small>
         </div>
         <div

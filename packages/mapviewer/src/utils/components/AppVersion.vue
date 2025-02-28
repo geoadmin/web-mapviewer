@@ -33,11 +33,15 @@ function openGithubRepoLink() {
         <span
             class="githubIcon"
             @click="openGithubRepoLink"
-        ><font-awesome-icon :icon="['fab', 'github']" /></span>
+        >
+            <font-awesome-icon :icon="['fab', 'github']" />
+        </span>
         <span
             class="app-version-link"
             @click="openGithubReleaseLink"
-        > {{ appVersion }}</span>
+        >
+            {{ appVersion }}
+        </span>
     </div>
 </template>
 

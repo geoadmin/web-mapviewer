@@ -47,7 +47,9 @@ function onModalClose(withConfirmation) {
                 <label
                     for="wmsUrlOverride"
                     class="form-label"
-                >WMS base URL</label>
+                >
+                    WMS base URL
+                </label>
                 <div class="input-group">
                     <input
                         id="wmsUrlOverride"
@@ -55,7 +57,7 @@ function onModalClose(withConfirmation) {
                         type="url"
                         class="form-control"
                         :placeholder="`default: ${getDefaultBaseUrl('wms')}`"
-                    >
+                    />
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
@@ -70,7 +72,9 @@ function onModalClose(withConfirmation) {
                 <label
                     for="wmtsUrlOverride"
                     class="form-label"
-                >WMTS base URL</label>
+                >
+                    WMTS base URL
+                </label>
                 <div class="input-group">
                     <input
                         id="wmtsUrlOverride"
@@ -78,7 +82,7 @@ function onModalClose(withConfirmation) {
                         type="url"
                         class="form-control"
                         :placeholder="`default: ${getDefaultBaseUrl('wmts')}`"
-                    >
+                    />
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
@@ -93,7 +97,9 @@ function onModalClose(withConfirmation) {
                 <label
                     for="api3UrlOverride"
                     class="form-label"
-                >API3 base URL</label>
+                >
+                    API3 base URL
+                </label>
                 <div class="input-group">
                     <input
                         id="api3UrlOverride"
@@ -101,7 +107,7 @@ function onModalClose(withConfirmation) {
                         type="url"
                         class="form-control"
                         :placeholder="`default: ${getDefaultBaseUrl('api3')}`"
-                    >
+                    />
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
@@ -116,7 +122,9 @@ function onModalClose(withConfirmation) {
                 <label
                     for="viewerDedicatedServicesUrlOverride"
                     class="form-label"
-                >sys-map base URL</label>
+                >
+                    sys-map base URL
+                </label>
                 <div class="input-group">
                     <input
                         id="viewerDedicatedServicesUrlOverride"
@@ -124,7 +132,7 @@ function onModalClose(withConfirmation) {
                         type="url"
                         class="form-control"
                         :placeholder="`default: ${getDefaultBaseUrl('viewerDedicatedServices')}`"
-                    >
+                    />
                     <button
                         class="btn btn-outline-secondary"
                         type="button"

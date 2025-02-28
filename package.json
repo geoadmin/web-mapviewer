@@ -19,37 +19,40 @@
         "test:component": "pnpm run -r --filter=web-mapviewer test:component",
         "test:component:ci": "pnpm run -r --filter=web-mapviewer test:component:ci",
         "lint": "eslint --fix",
-        "lint:no-fix": "eslint"
+        "lint:no-fix": "eslint",
+        "format": "prettier --write packages",
+        "format:check": "prettier --check packages"
     },
     "engines": {
         "node": ">=22",
         "pnpm": "10.*.*"
     },
     "devDependencies": {
-        "@eslint/eslintrc": "catalog:",
-        "@eslint/js": "catalog:",
         "@eslint/markdown": "catalog:",
+        "@eslint/js": "catalog:",
         "@types/geojson": "catalog:",
         "@types/jsdom": "catalog:",
         "@types/node": "catalog:",
         "@types/proj4": "catalog:",
-        "@vue/eslint-config-typescript": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-cypress": "catalog:",
+        "eslint-plugin-vue": "catalog:",
         "eslint-plugin-mocha": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",
-        "eslint-plugin-prettier-vue": "catalog:",
-        "eslint-plugin-vue": "catalog:",
+        "eslint-plugin-prettier": "catalog:",
+        "@vue/eslint-config-prettier": "catalog:",
+        "@vue/eslint-config-typescript": "catalog:",
         "globals": "catalog:",
         "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
-        "vite": "^6.0.11",
+        "vue-tsc": "catalog:",
+        "@prettier/plugin-xml": "catalog:",
+        "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
-        "vitest": "^3.0.5",
-        "vue-tsc": "catalog:"
+        "vitest": "catalog:"
     },
     "dependencies": {
         "cesium": "catalog:"

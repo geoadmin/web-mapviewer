@@ -30,7 +30,6 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
-
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 
 const olMap = inject('olMap')

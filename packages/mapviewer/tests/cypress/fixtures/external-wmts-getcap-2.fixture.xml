@@ -1,9 +1,13 @@
-<?xml version="1.0"?>
-<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1"
-    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" ?>
+<Capabilities
+    xmlns="http://www.opengis.net/wmts/1.0"
+    xmlns:ows="http://www.opengis.net/ows/1.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:gml="http://www.opengis.net/gml"
     xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
-    version="1.0.0">
+    version="1.0.0"
+>
     <ows:ServiceIdentification>
         <ows:Title>WMTS GIS Stadt Zuerich</ows:Title>
         <ows:Abstract>WMTS GIS Stadt Zuerich</ows:Abstract>
@@ -17,18 +21,19 @@
         <ows:ProviderSite xlink:href="" />
         <ows:ServiceContact>
             <ows:IndividualName>Georg Andersson</ows:IndividualName>
-            <ows:PositionName></ows:PositionName>
+            <ows:PositionName />
             <ows:ContactInfo>
                 <ows:Phone>
                     <ows:Voice>+41(44)412 46 01</ows:Voice>
-                    <ows:Facsimile></ows:Facsimile>
+                    <ows:Facsimile />
                 </ows:Phone>
                 <ows:Address>
                     <ows:DeliveryPoint>GIS-Zentrum Stadt Zuerich</ows:DeliveryPoint>
                     <ows:City>Zuerich</ows:City>
                     <ows:PostalCode>8004</ows:PostalCode>
                     <ows:Country>Schweiz</ows:Country>
-                    <ows:ElectronicMailAddress>georg.andersson@zuerich.ch</ows:ElectronicMailAddress>
+                    <ows:ElectronicMailAddress
+                    >georg.andersson@zuerich.ch</ows:ElectronicMailAddress>
                 </ows:Address>
             </ows:ContactInfo>
         </ows:ServiceContact>
@@ -36,7 +41,7 @@
     <Contents>
         <Layer>
             <ows:Title>Test External WMTS 3</ows:Title>
-            <ows:Abstract></ows:Abstract>
+            <ows:Abstract />
             <ows:WGS84BoundingBox>
                 <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
                 <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
@@ -49,12 +54,15 @@
             <TileMatrixSetLink>
                 <TileMatrixSet>ktzh</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-3/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-3/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png"
+            />
         </Layer>
         <Layer>
             <ows:Title>Test External WMTS 4</ows:Title>
-            <ows:Abstract></ows:Abstract>
+            <ows:Abstract />
             <ows:WGS84BoundingBox>
                 <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
                 <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
@@ -67,8 +75,11 @@
             <TileMatrixSetLink>
                 <TileMatrixSet>ktzh</TileMatrixSet>
             </TileMatrixSetLink>
-            <ResourceURL format="image/png" resourceType="tile"
-                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-4/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+            <ResourceURL
+                format="image/png"
+                resourceType="tile"
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-4/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png"
+            />
         </Layer>
         <TileMatrixSet>
             <ows:Identifier>ktzh</ows:Identifier>

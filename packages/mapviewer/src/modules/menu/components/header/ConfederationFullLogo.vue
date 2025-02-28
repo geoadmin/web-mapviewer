@@ -19,7 +19,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
             src="@/assets/svg/swiss-flag.svg"
             alt="swiss-flag"
             data-cy="swiss-flag"
-        >
+        />
         <div
             class="d-none d-lg-flex swiss-confederation-text position-relative flex-column text-nowrap"
             data-cy="swiss-confederation-text"
@@ -38,7 +38,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
                 class="dev-site-warning text-danger position-absolute h-100 z-3 text-center d-flex justify-content-center align-items-center opacity-50"
             >
                 <strong>
-                    TEST SITE<br>
+                    TEST SITE<br />
                     TEST SITE
                 </strong>
             </h2>

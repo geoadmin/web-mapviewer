@@ -44,7 +44,10 @@ const emit = defineEmits(['close'])
             <span
                 v-if="title"
                 class="me-auto text-truncate"
-            >{{ t(title) }}<span v-if="errorCount > 1"> ({{ errorCount }})</span></span>
+            >
+                {{ t(title) }}
+                <span v-if="errorCount > 1">({{ errorCount }})</span>
+            </span>
             <span
                 v-else
                 class="me-auto"
