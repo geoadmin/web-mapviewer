@@ -5,7 +5,6 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@geoadmin/log'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -14,6 +13,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
@@ -21,7 +21,6 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import WarningButton from '@/utils/components/WarningButton.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
@@ -62,11 +61,8 @@ const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'mov
 const store = useStore()
 const { t } = useI18n()
 
-const menuLayerItem = useTemplateRef('menuLayerItem')
-
 const layerUpButton = useTemplateRef('layerUpButton')
 const layerDownButton = useTemplateRef('layerDownButton')
-const transparencySlider = useTemplateRef('transparencySlider')
 const currentKmlStyle = ref(layer?.style ?? null)
 const id = computed(() => layer.id)
 
@@ -121,28 +117,6 @@ function onRemoveLayer() {
 
 function onToggleLayerVisibility() {
     store.dispatch('toggleLayerVisibility', { index, ...dispatcher })
-}
-
-function dispatchOpacity(opacity) {
-    if (layer.opacity.toFixed(2) !== opacity.toFixed(2)) {
-        store.dispatch('setLayerOpacity', {
-            index,
-            opacity: opacity.toFixed(2),
-            ...dispatcher,
-        })
-    }
-}
-
-function onTransparencyChange() {
-    dispatchOpacity(1.0 - transparencySlider.value.value)
-}
-
-const debounceTransparencyChange = debounce(onTransparencyChange, 50)
-
-function onTransparencyCommit() {
-    log.info('[Menu Active Layers List Item component]: Committing last transparency reached')
-
-    dispatchOpacity(1.0 - transparencySlider.value.value)
 }
 
 function showLayerDescriptionPopup() {
@@ -262,19 +236,9 @@ function changeStyle(newStyle) {
                 >
                     {{ t('transparency') }}
                 </label>
-                <input
-                    :id="`transparency-${id}`"
-                    ref="transparencySlider"
-                    class="menu-layer-transparency-slider ms-2 me-4 flex-grow-1"
-                    type="range"
-                    min="0.0"
-                    max="1.0"
-                    step="0.01"
-                    :value="1.0 - layer.opacity"
-                    :data-cy="`slider-transparency-layer-${id}-${index}`"
-                    @mouseup="onTransparencyCommit"
-                    @input="debounceTransparencyChange"
-                />
+
+                <TransparencySlider :layer="layer" :index="index" />
+
                 <div class="btn-group">
                     <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
                         <button
