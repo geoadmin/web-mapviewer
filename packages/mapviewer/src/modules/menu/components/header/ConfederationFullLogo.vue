@@ -1,7 +1,22 @@
 <script setup>
+/**
+ * Confederation logo in accordance (to the best of my abilities) to the CD Bund document found on
+ * bk.admin.ch
+ *
+ * @see https://www.bk.admin.ch/bk/de/home/dokumentation/cd-bund/das-erscheinungsbild-der-schweizerischen-bundesverwaltung-im-int.html
+ * @see https://www.bk.admin.ch/bk/fr/home/documentation/identite-visuelle-de-ladministration-federale-suisse/webdesign-bund.html
+ */
+
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+
+const { renderForDpi = null } = defineProps({
+    renderForDpi: {
+        type: Number,
+        default: null,
+    },
+})
 
 const { t } = useI18n()
 
@@ -12,7 +27,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 <template>
     <div
         class="confederation-logo d-flex"
-        :class="{ 'dev-site': hasDevSiteWarning }"
+        :class="{ 'dev-site': hasDevSiteWarning, 'dpi-responsive': renderForDpi !== null }"
     >
         <img
             class="swiss-flag"
@@ -21,7 +36,8 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
             data-cy="swiss-flag"
         />
         <div
-            class="d-none d-lg-flex swiss-confederation-text position-relative flex-column text-nowrap"
+            class="swiss-confederation-text position-relative flex-column text-nowrap"
+            :class="{'d-none d-lg-flex': renderForDpi === null, 'd-flex': renderForDpi !== null }"
             data-cy="swiss-confederation-text"
         >
             <div class="d-flex flex-column">
@@ -50,34 +66,21 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 @import '@/scss/variables-admin.module';
 @import '@/scss/media-query.mixin';
 
-$lengthUnit: 0.4rem;
+@mixin confederation-logo($lengthUnit, $fontSize, $lineHeight) {
+    // using page 21 of the document to decide margins and sizes
+    $defaultMargin: calc(2 * $lengthUnit);
+    $flagSize: calc(5 * $lengthUnit);
+    // document suggest a 55mm width, but using a 55 multiple here was generating too big of a width so I lowered it a bit
+    $logoWidth: calc(40 * $lengthUnit);
 
-$fontSize: 7.5pt;
-$lineHeight: 10.35pt;
-$letterSpacing: calc((78 / 1000) * 1em);
-
-@media print {
-    $lengthUnit: 1mm;
-}
-
-$defaultMargin: calc(2 * $lengthUnit);
-$flagSize: calc(5 * $lengthUnit);
-$logoWidth: calc(40 * $lengthUnit);
-
-.confederation-logo {
-    font-family: $frutiger;
-
-    .dev-site-warning {
-        font-family: $frutiger;
-    }
-
+    gap: $defaultMargin;
     margin: $defaultMargin;
     width: $flagSize;
-    gap: $defaultMargin;
+
     .swiss-flag {
         width: $flagSize;
-        height: fit-content;
     }
+
     .swiss-confederation-text {
         font-size: $fontSize;
         line-height: $lineHeight;
@@ -86,15 +89,51 @@ $logoWidth: calc(40 * $lengthUnit);
             margin-top: $lineHeight;
         }
     }
+
+    @include respond-above(lg) {
+        width: $logoWidth;
+    }
+}
+// the document uses some Adobe Illustrator specific unit, that looks like is in fact a 1000th of a char size
+$letterSpacing: calc((78 / 1000) * 1em);
+
+.confederation-logo {
+    font-family: $frutiger;
+
+    @include confederation-logo(
+            // the document suggest using [mm], but in the web context that is a bad call, so I've switched
+            // to a [rem] value that has about the same visual output as if I'd written [1mm] here.
+            0.4rem,
+            // font size values found in the guide document
+            7.5pt,
+            10.35pt
+    );
+
+    &.dpi-responsive {
+        // Print specific values, using screen width (or height) to adapt the logo/text to the DPI used
+        // to print. Similar to what is done in PrintView.vue.
+        $minFontSize: 8px;
+        $printFontSizeRelToWidth: 0.8vw;
+        $printFontSizeRelToHeight: 0.8vh;
+        $printFontSize: max(max($printFontSizeRelToWidth, $printFontSizeRelToHeight), $minFontSize);
+
+        @include confederation-logo(
+            calc(0.66 * $printFontSize),
+            $printFontSize,
+            calc(1.2 * $printFontSize),
+        );
+        // forcing the length of the logo to the 55mm expressed in the CD-Bund PDF guide.
+        width: 55mm;
+    }
+
+    .swiss-flag {
+        height: fit-content;
+    }
+
     &.dev-site {
         .swiss-flag {
             filter: hue-rotate(225deg);
         }
-    }
-}
-@include respond-above(lg) {
-    .confederation-logo {
-        width: $logoWidth;
     }
 }
 </style>

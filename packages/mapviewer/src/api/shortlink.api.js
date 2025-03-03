@@ -3,6 +3,8 @@ import axios from 'axios'
 
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 
+let cancelToken = null
+
 /**
  * Generates a short link from the given URL
  *
@@ -25,6 +27,13 @@ export function createShortLink(url, withCrosshair = false) {
             log.error(errorMessage, sanitizedUrl, error)
             reject(errorMessage)
         }
+
+        // if a request is currently pending, we cancel it to start the new one
+        if (cancelToken) {
+            cancelToken.cancel('new shortLink request')
+        }
+        cancelToken = axios.CancelToken.source()
+
         axios
             .post(getServiceShortLinkBaseUrl(), {
                 url: sanitizedUrl,
