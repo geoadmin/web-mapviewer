@@ -25,8 +25,11 @@ async function loadGpx(store, gpxLayer) {
             fileSource: gpxLayer.gpxFileUrl,
             currentProjection: store.state.position.projection,
         })
+        // getting the layer index. It's OK here because this layer can't be
+        // duplicated
+        const layerIndex = store.getters.getLayerIndexById(updatedLayer.id)
         store.dispatch('updateLayer', {
-            layerId: updatedLayer.id,
+            index: layerIndex,
             values: updatedLayer,
         })
     } catch (error) {
