@@ -10,8 +10,11 @@ async function loadExtentAndUpdateLayer(store, layer) {
         fileSource: layer.fileSource,
         currentProjection: toValue(store.state.position.projection),
     })
+    // getting the layer index. It's OK here because this layer can't be
+    // duplicated
+    const layerIndex = store.getLayerIndexById(layer.id)
     store.dispatch('updateLayer', {
-        layerId: layer.id,
+        index: layerIndex,
         values: {
             extent: layerWithExtent.extent,
         },
