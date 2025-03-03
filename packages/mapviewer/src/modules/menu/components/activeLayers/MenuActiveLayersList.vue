@@ -1,10 +1,11 @@
 <script setup>
+import log from '@geoadmin/log'
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
 import Sortable from 'sortablejs'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
@@ -40,13 +41,26 @@ onMounted(() => {
         animation: 150,
         direction: 'vertical',
         handle: '.menu-layer-item-title',
+        forceFallback: true,
         onStart: function () {
             aLayerIsDragged.value = true
         },
-        onUpdated: function (event) {
+        onEnd: function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
-            onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
+            if (newIndex >= 0 && newIndex < activeLayers.value.length && oldIndex >= 0 && oldIndex < activeLayers.value.length) {
+                nextTick(() =>{
+                    onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
+                })
+            } else {
+                log.warn('Invalid index for layer move', { newIndex, oldIndex })
+            }
+            // Count the number of children in the activeLayersList component
+            const numberOfChildren = activeLayersList.value.children.length
+            log.debug('Number of children in activeLayersList:', numberOfChildren)
+
+            const childrenKeys = Array.from(activeLayersList.value.children).map(child => child.getAttribute('data-layer-id'))
+            log.debug('Keys of the children in activeLayersList:', childrenKeys)
         },
     })
 })
