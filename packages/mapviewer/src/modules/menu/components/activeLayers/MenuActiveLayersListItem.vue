@@ -88,7 +88,7 @@ const isLayerClampedToGround = computed({
     get: () => layer.clampToGround,
     set: (value) => {
         store.dispatch('updateLayer', {
-            index: index,
+            layerId: id.value,
             values: {
                 clampToGround: value,
             },
@@ -133,7 +133,7 @@ function duplicateLayer() {
 
 function changeStyle(newStyle) {
     store.dispatch('updateLayer', {
-        index,
+        layerId: id.value,
         values: {
             style: newStyle.value,
         },
@@ -237,10 +237,7 @@ function changeStyle(newStyle) {
                     {{ t('transparency') }}
                 </label>
 
-                <TransparencySlider
-                    :layer="layer"
-                    :index="index"
-                />
+                <TransparencySlider :layer="layer" :index="index" />
 
                 <div class="btn-group">
                     <GeoadminTooltip :tooltip-content="t('duplicate_layer')">

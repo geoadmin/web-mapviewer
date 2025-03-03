@@ -32,6 +32,7 @@ const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) 
     return state.activeLayers.filter((layer) => matchTwoLayers(layerId, isExternal, baseUrl, layer))
 }
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
+
 const cloneActiveLayerConfig = (getters, layer) => {
     const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
     if (clone) {
@@ -194,14 +195,6 @@ const getters = {
      */
     getLayerConfigById: (state) => (geoAdminLayerId) =>
         state.config.find((layer) => layer.id === geoAdminLayerId) ?? null,
-
-    /**
-     * Get a layer index by the ID
-     *
-     * Use this sparingly. Some layers can be duplicated, which will lead to false error using this
-     * getter!
-     */
-    getLayerIndexById: (state, layerId) => state.activeLayers.find((layer) => layer.id === layerId),
 
     /**
      * Retrieves active layer(s) by layerID, isExternal, and baseUrl.
@@ -478,18 +471,13 @@ const actions = {
     /**
      * Full or partial update of a layer at index in the active layer list
      *
-     * @param {String} index Index of the layer we want to update
+     * @param {String} layerId ID of the layer we want to update
      * @param {AbstractLayer | { any: any }} values Full layer object (AbstractLayer) to update or
      *   an object with the properties to update (partial update)
      * @param {string} dispatcher Action dispatcher name
      */
-    async updateLayer({ state, commit }, { index, values, dispatcher }) {
-        const layer = getActiveLayerByIndex(state, index)
-        if (!layer) {
-            throw new Error(`Failed to update Layer at index ${index}: invalid index`)
-        }
-
-        await commit('updateLayer', { layer2Update: layer, values, dispatcher })
+    updateLayer({ commit }, { layerId, values, dispatcher }) {
+        commit('updateLayer', { layerId, values, dispatcher })
     },
 
     /**
@@ -896,9 +884,10 @@ const mutations = {
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
-    updateLayer(state, { layer2Update, values }) {
+    updateLayer(state, { layerId, values }) {
+        const layer2Update = state.activeLayers.find((layer) => layer.id === layerId)
         if (!(layer2Update instanceof AbstractLayer)) {
-            throw new Error(`Failed to updateLayer: ${layer2Update}`)
+            throw new Error(`Failed to updateLayer: no layer found with ID ${layerId}`)
         }
         Object.assign(layer2Update, values)
     },
