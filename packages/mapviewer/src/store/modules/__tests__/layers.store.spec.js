@@ -161,12 +161,19 @@ describe('Update layer', () => {
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
-        store.dispatch('updateLayer', { index: 0, values: clone, ...dispatcher })
+        store.dispatch('updateLayer', { layerId: secondLayer.id, values: clone, ...dispatcher })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
         expect(store.state.layers.activeLayers[1].visible).to.be.false
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(1900)
     })
-    it('Update a single layer with invalid index', () => {
+    it('Update a single layer with invalid layer ID', () => {
+        expect(() =>
+            store.dispatch('updateLayer', {
+                layerId: 'some.non.existant.layer',
+                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                ...dispatcher,
+            })
+        ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
                 values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
@@ -175,7 +182,7 @@ describe('Update layer', () => {
         ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
-                index: 42,
+                layerId: -1,
                 values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
                 ...dispatcher,
             })
