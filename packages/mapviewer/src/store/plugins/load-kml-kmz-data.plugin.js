@@ -27,8 +27,11 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
+        // getting the layer index. It's OK here because this layer can't be
+        // duplicated
+        const layerIndex = store.getters.getLayerIndexById()
         store.dispatch('updateLayer', {
-            layerId: kmlLayer.id,
+            index: layerIndex,
             values: {
                 kmlMetadata: metadata,
             },
@@ -44,8 +47,11 @@ async function loadMetadata(store, kmlLayer) {
  * @param {KMLLayer} layer
  */
 function sendLayerToStore(store, layer) {
+    // getting the layer index. It's OK here because this layer can't be
+    // duplicated
+    const layerIndex = store.getters.getLayerIndexById()
     store.dispatch('updateLayer', {
-        layerId: layer.id,
+        index: layerIndex,
         values: {
             name: layer.name,
             kmlData: layer.kmlData,

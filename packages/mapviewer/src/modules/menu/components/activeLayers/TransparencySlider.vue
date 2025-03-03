@@ -30,7 +30,7 @@ const syncOpacity = () => {
 
 const saveOpacityToLayer = (opacity: number) => {
     store.dispatch('updateLayer', {
-        layerId: layer.id,
+        index: index,
         values: {
             opacity: opacity,
         },

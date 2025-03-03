@@ -41,8 +41,12 @@ async function autoReloadData(store, geoJsonLayer) {
             const requester = 'auto-load-geojson-style'
             store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
             const { data } = await load(geoJsonLayer.geoJsonUrl).response
+
+            // getting the layer index. It's OK here because this layer can't be
+            // duplicated
+            const layerIndex = store.getters.getLayerIndexById(geoJsonLayer.id)
             store.dispatch('updateLayer', {
-                layerId: geoJsonLayer.id,
+                index: layerIndex,
                 layers: {
                     geoJsonData: data,
                 },
