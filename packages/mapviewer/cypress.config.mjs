@@ -1,8 +1,11 @@
+import { devServer } from '@cypress/vite-dev-server'
 import { defineConfig } from 'cypress'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 import vitePreprocessor from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
+
+import viteConfig from './vite.config.mts'
 
 export default defineConfig({
     projectId: 'fj2ezv',
@@ -105,9 +108,21 @@ export default defineConfig({
     },
 
     component: {
-        devServer: {
-            framework: 'vue',
-            bundler: 'vite',
+        /**
+         * Configure the dev server manually
+         *
+         * We need to get rid of the vite-plugin-vue-devtools plugin, as it breaks the component
+         * tests. We filter this out of the pre-defined vite config
+         */
+        devServer(devServerConfig) {
+            const viteConfigWithoutDevtools = {
+                ...viteConfig({ mode: 'development', disableDevTools: true }),
+            }
+            return devServer({
+                ...devServerConfig,
+                viteConfig: viteConfigWithoutDevtools,
+                framework: 'vue',
+            })
         },
         specPattern: 'tests/cypress/tests-component/**/*.cy.js',
         supportFile: 'tests/cypress/support/component.js',

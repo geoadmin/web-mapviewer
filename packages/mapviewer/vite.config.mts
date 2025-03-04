@@ -45,7 +45,7 @@ function manualChunks(id) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, disableDevTools = false }) => {
     return {
         base: './',
         build: {
@@ -104,7 +104,8 @@ export default defineConfig(({ mode }) => {
                     },
                 ],
             }),
-            vueDevTools()
+            // disable the dev tools if required, e.g. in cypress component tests
+            disableDevTools ? {} : vueDevTools()
         ],
         optimizeDeps: {
 
