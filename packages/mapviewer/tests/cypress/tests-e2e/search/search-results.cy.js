@@ -434,7 +434,7 @@ describe('Test the search bar result handling', () => {
 
         cy.url().should('not.contain', 'swisssearch')
         cy.readStoreValue('state.search.query').should('equal', '')
-        cy.get('@locationSearchResults').should('not.exist')
+        cy.get('@locationSearchResults').should('not.be.visible')
     })
     it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
         cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {

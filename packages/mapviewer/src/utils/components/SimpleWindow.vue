@@ -90,7 +90,7 @@ onMounted(() => {
 <template>
     <teleport to="#main-component">
         <div
-            v-show="!hide"
+            v-if="!hide"
             ref="windowRef"
             class="simple-window card"
             :data-cy="dataCy"

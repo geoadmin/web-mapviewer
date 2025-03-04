@@ -145,7 +145,6 @@ defineExpose({ focusFirstEntry })
             >
                 <SearchResultCategory
                     v-for="(category, index) in categories"
-                    v-show="category.results.length > 0"
                     :key="category.id"
                     ref="resultCategories"
                     :title="t(`${category.id}_results_header`)"

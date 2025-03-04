@@ -49,7 +49,7 @@ defineExpose({ goToFirst })
 
 <template>
     <div
-        v-show="showProviders"
+        v-if="showProviders"
         class="providers-list-container shadow border rounded-bottom overflow-auto"
     >
         <div

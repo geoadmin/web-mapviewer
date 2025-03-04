@@ -32,7 +32,7 @@ const emit = defineEmits(['close'])
 
 <template>
     <div
-        v-show="!hide"
+        v-if="!hide"
         class="simple-window card bg-warning fw-bold"
         :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
         data-cy="warning-window"

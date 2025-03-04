@@ -38,7 +38,7 @@ const loadDrawingModule = computed(() => {
         id="map-view"
         class="no-print"
     >
-        <LoadingBar v-show="showLoadingBar" />
+        <LoadingBar v-if="showLoadingBar" />
         <MapModule>
             <MenuModule />
             <MapToolbox

@@ -31,7 +31,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="infobox"]').should('be.visible')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox-content"]').should('not.be.exist')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
                     cy.get('[data-cy="infobox-content"]').should('be.visible')
@@ -52,7 +52,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox-content"]').should('not.exist')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
                     cy.get('[data-cy="infobox-content"]').should('be.visible')

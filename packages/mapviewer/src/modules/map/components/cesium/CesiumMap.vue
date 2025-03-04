@@ -169,7 +169,7 @@ provide('getViewer', () => viewer)
             <CesiumHighlightedFeatures />
             <CesiumGeolocationFeedback />
             <cesium-compass
-                v-show="isDesktopMode"
+                v-if="isDesktopMode"
                 ref="compassElement"
                 class="position-absolute start-50 translate-middle-x cesium-compass"
             />

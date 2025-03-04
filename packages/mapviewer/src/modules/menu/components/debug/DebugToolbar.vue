@@ -65,7 +65,7 @@ function toggleShowLayerFinder() {
                 />
             </div>
             <div
-                v-show="showDebugTool"
+                v-if="showDebugTool"
                 class="debug-tools-body"
             >
                 <div class="card-body">

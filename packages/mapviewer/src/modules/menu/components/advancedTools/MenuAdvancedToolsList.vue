@@ -63,7 +63,7 @@ function onToggleImportFile() {
             @toggle-menu="onToggleImportCatalogue"
         >
             <ImportCatalogue
-                v-show="showImportCatalogue"
+                v-if="showImportCatalogue"
                 class="py-2"
                 :compact="compact"
             />

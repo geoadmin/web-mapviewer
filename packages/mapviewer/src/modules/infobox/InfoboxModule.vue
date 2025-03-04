@@ -151,7 +151,7 @@ function onHideProfile() {
         </div>
 
         <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
-        <InfoboxContent v-show="showContent" />
+        <InfoboxContent v-if="showContent" />
     </div>
 </template>
 

@@ -50,7 +50,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-down')
-        cy.get('[data-cy="import-provider-list"]').should('not.be.visible')
+        cy.get('[data-cy="import-provider-list"]').should('not.be.exist')
         cy.get('[data-cy="import-catalogue-providers-toggle"]').click()
         cy.get('[data-cy="import-provider-list"]')
             .children()

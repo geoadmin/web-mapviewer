@@ -235,7 +235,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     <div class="row mt-1">
                         <div class="col">
                             <div
-                                v-show="drawingStateMessage"
+                                v-if="drawingStateMessage"
                                 class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
                                 :class="{ 'text-danger': isDrawingStateError }"
                             >

@@ -1529,7 +1529,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
             // it should hide the content (only the header stays visible)
-            cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+            cy.get('[data-cy="infobox-content"]').should('not.exist')
 
             // click once again on the header
             cy.get('[data-cy="infobox-minimize-maximize"]').click()

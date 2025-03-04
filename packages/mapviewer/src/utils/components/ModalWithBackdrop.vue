@@ -71,7 +71,7 @@ function onHideParentModal(hide) {
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
         <div
-            v-show="!hide && !hideForPrint"
+            v-if="!hide && !hideForPrint"
             data-cy="modal-with-backdrop"
         >
             <BlackBackdrop

@@ -138,7 +138,7 @@ const onInputClicked = () => {
         class="input-group"
     >
         <span
-            v-show="!isPhoneMode"
+            v-if="!isPhoneMode"
             id="searchIconText"
             class="input-group-text"
             :class="{ 'rounded-bottom-0': showResults }"
@@ -170,7 +170,7 @@ const onInputClicked = () => {
             @keyup.enter.stop.prevent="goToFirstResult"
         />
         <button
-            v-if="hasResults && !isPhoneMode"
+            v-show="hasResults && !isPhoneMode"
             class="btn btn-outline-group"
             type="button"
             tabindex="0"

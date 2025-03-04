@@ -271,7 +271,7 @@ function changeStyle(newStyle) {
             </button>
         </div>
         <div
-            v-show="showLayerDetail"
+            v-if="showLayerDetail"
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <div class="d-flex mx-1 align-items-center">
@@ -337,8 +337,7 @@ function changeStyle(newStyle) {
                 </div>
             </div>
             <div
-                v-if="isLayerKml"
-                v-show="showLayerDetail"
+                v-if="isLayerKml && showLayerDetail"
                 class="p-1 d-block"
             >
                 <div
