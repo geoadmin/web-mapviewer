@@ -41,7 +41,6 @@ onMounted(() => {
         animation: 150,
         direction: 'vertical',
         handle: '.menu-layer-item-title',
-        forceFallback: true,
         onStart: function () {
             aLayerIsDragged.value = true
         },
@@ -61,6 +60,12 @@ onMounted(() => {
 
             const childrenKeys = Array.from(activeLayersList.value.children).map(child => child.getAttribute('data-layer-id'))
             log.debug('Keys of the children in activeLayersList:', childrenKeys)
+
+            // Get all children with draggable="false" and remove them
+            const nonDraggableChildren = activeLayersList.value.querySelectorAll('[draggable="false"]')
+            nonDraggableChildren.forEach(child => child.remove())
+            log.debug('Non-draggable children removed:', nonDraggableChildren)
+
         },
     })
 })
