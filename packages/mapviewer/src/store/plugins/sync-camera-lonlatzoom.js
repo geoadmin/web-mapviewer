@@ -65,6 +65,21 @@ export default function syncCameraLonLatZoom(store) {
                 },
                 dispatcher: self,
             })
+        } else if (mutation.type === 'setZoom' && state.cesium?.active && state.position.camera) {
+            // Notes(IS): It should be cesium viewer clientWidth, but we do not have access to it here.
+            // We are using the store width instead.
+            const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
+            store.dispatch('setCameraPosition', {
+                position: {
+                    x: state.position.camera.x,
+                    y: state.position.camera.y,
+                    z: newHeight,
+                    roll: state.position.camera.roll,
+                    pitch: state.position.camera.pitch,
+                    heading: state.position.camera.heading,
+                },
+                dispatcher: self,
+            })
         }
     })
     // Subscribing to action to listen to zoomToExtent and selectResultEntry specifically.

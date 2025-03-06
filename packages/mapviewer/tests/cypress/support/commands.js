@@ -43,7 +43,8 @@ const mockGeolocation = (win, options) => {
             errorCallback(error)
         })
     } else {
-        const coords = { latitude, longitude }
+        // We set accuracy here to mimic a real geolocation API response
+        const coords = { latitude, longitude, accuracy: 100 }
         const handler = (callback) => callback({ coords })
         cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
         cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)

@@ -38,9 +38,9 @@ const isTracking = computed(() => store.state.geolocation.tracking)
 const autoRotation = computed(() => store.state.position.autoRotation)
 const hasOrientation = computed(() => store.state.position.hasOrientation)
 const is3dActive = computed(() => store.state.cesium.active)
-const hasTrackingFeedback = computed(() => isActive.value && !is3dActive.value && !isTracking.value)
+const hasTrackingFeedback = computed(() => isActive.value && !isTracking.value)
 const hastAutoRotationFeedback = computed(
-    () => isActive.value && !is3dActive.value && hasOrientation.value && !autoRotation.value
+    () => isActive.value  && hasOrientation.value && !autoRotation.value
 )
 function toggleGeolocation() {
     if (!isActive.value) {
