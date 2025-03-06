@@ -39,13 +39,13 @@ function setCenterIfInBounds(store, center) {
                             pitch: -90,
                             roll: 0,
                         },
-                        dispatcher: self,
-                    })
-                }
-                    store.dispatch('setZoom', {
-                        zoom: store.state.position.projection.get1_25000ZoomLevel(),
                         ...dispatcher,
                     })
+                }
+                store.dispatch('setZoom', {
+                    zoom: store.state.position.projection.get1_25000ZoomLevel(),
+                    ...dispatcher,
+                })
             }
         }
     } else {
