@@ -18,15 +18,15 @@ const isOpen = ref(false)
         @click="isOpen = !isOpen"
     >
         <!-- Menu Button -->
-        <button class="btn m-0 px-1 no-text-decoration btn-xs">
+        <button class="btn m-0 px-1 btn-xs">
             <FontAwesomeIcon :icon="isOpen ? 'caret-up' : 'caret-down'" />
-            <span class="small-space-left">{{ t('cms_news_button_title') }}</span>
+            <span class="ms-1">{{ t('cms_news_button_title') }}</span>
         </button>
 
         <!-- Collapsible Menu Items -->
         <div
             v-if="isOpen"
-            class="simple-news-menu shadow-lg"
+            class="d-flex flex-column-reverse shadow-lg position-absolute"
             data-cy="news-menu"
         >
             <MoreInfo
@@ -44,20 +44,6 @@ const isOpen = ref(false)
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 
-.no-text-decoration {
-    text-decoration: none;
-}
-.small-space-left {
-    margin-left: 2px;
-}
-.simple-news-menu {
-    display: grid;
-    // The menu takes the whole available width, the open close button only as much as needed
-    grid-template-rows: 1fr auto;
-    z-index: $zindex-menu-tray;
-    position: absolute;
-    text-align: left;
-}
 .darken-on-hover:hover {
     background-color: $list-item-hover-bg-color;
 }
