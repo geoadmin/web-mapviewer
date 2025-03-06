@@ -47,25 +47,27 @@ onMounted(() => {
         onEnd: function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
-            if (newIndex >= 0 && newIndex < activeLayers.value.length && oldIndex >= 0 && oldIndex < activeLayers.value.length) {
-                nextTick(() =>{
+            if (
+                newIndex >= 0 &&
+                newIndex < activeLayers.value.length &&
+                oldIndex >= 0 &&
+                oldIndex < activeLayers.value.length
+            ) {
+                nextTick(() => {
+                    // Get all children with draggable="false" and remove them
+                    const nonDraggableChildren =
+                        activeLayersList.value.querySelectorAll('[draggable="false"]')
+                    if (nonDraggableChildren.length > 0) {
+                        nonDraggableChildren.forEach((child) => child.remove())
+                        log.debug('Non-draggable children removed:', nonDraggableChildren)
+                    } else {
+                        log.debug('No non-draggable children found')
+                    }
                     onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
                 })
             } else {
                 log.warn('Invalid index for layer move', { newIndex, oldIndex })
             }
-            // Count the number of children in the activeLayersList component
-            const numberOfChildren = activeLayersList.value.children.length
-            log.debug('Number of children in activeLayersList:', numberOfChildren)
-
-            const childrenKeys = Array.from(activeLayersList.value.children).map(child => child.getAttribute('data-layer-id'))
-            log.debug('Keys of the children in activeLayersList:', childrenKeys)
-
-            // Get all children with draggable="false" and remove them
-            const nonDraggableChildren = activeLayersList.value.querySelectorAll('[draggable="false"]')
-            nonDraggableChildren.forEach(child => child.remove())
-            log.debug('Non-draggable children removed:', nonDraggableChildren)
-
         },
     })
 })
