@@ -461,6 +461,9 @@ importers:
       '@geoadmin/coordinates':
         specifier: workspace:*
         version: link:../geoadmin-coordinates
+      '@geoadmin/layers':
+        specifier: workspace:*
+        version: link:../geoadmin-layers
       '@geoadmin/log':
         specifier: workspace:*
         version: link:../geoadmin-log
