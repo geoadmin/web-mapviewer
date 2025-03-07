@@ -47,6 +47,7 @@
         "@geoadmin/coordinates": "workspace:*",
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:*",
+        "@geoadmin/layers": "workspace:*",
         "@geoblocks/cesium-compass": "catalog:",
         "@geoblocks/mapfishprint": "catalog:",
         "@geoblocks/ol-maplibre-layer": "catalog:",
