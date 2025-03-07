@@ -25,5 +25,6 @@
     "ch.swisstopo.swissbuildings3d.3d_Turm": "Torre",
     "ch.swisstopo.swissbuildings3d.3d_Unterirdisches Gebaeude": "Edificio sotterraneo",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Passerella",
-    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Passerella"
+    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Passerella",
+    "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
 }

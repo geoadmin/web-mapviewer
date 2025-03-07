@@ -128,23 +128,15 @@ function getIframeHosts(value) {
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 />
-                <div class="flex-row">
-                    <table class="w-100">
-                        <td
-                            v-if="!externalIframeHosts.length"
-                            class="fw-bold cell-left"
-                        >
-                            {{ t(key) }}
-                        </td>
-                        <!-- eslint-disable vue/no-v-html-->
-
-                        <td
-                            data-cy="feature-detail-description-content"
-                            class="float-right text-end pr-3"
-                            v-html="t(value)"
-                        />
-                        <!-- eslint-enable vue/no-v-html-->
-                    </table>
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="fw-bold">{{ t(key) }}</div>
+                    <!-- eslint-disable vue/no-v-html-->
+                    <div
+                        data-cy="feature-detail-description-content"
+                        class="text-end pr-3"
+                        v-html="t(value)"
+                    ></div>
+                    <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">

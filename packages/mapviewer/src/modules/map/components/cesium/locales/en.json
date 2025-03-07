@@ -25,5 +25,6 @@
     "ch.swisstopo.swissbuildings3d.3d_Turm": "Tower",
     "ch.swisstopo.swissbuildings3d.3d_Unterirdisches Gebaeude": "Underground building",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Skywalk",
-    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Skywalk"
+    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Skywalk",
+    "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
     }

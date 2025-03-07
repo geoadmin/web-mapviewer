@@ -59,34 +59,25 @@ export const CESIUM_CONSTRUCTIONS_LAYER_ID = 'ch.swisstopo.swisstlm3d.3d'
 export const CESIUM_LABELS_LAYER_ID = 'ch.swisstopo.swissnames3d.3d'
 
 /**
- * @returns {Object} A configuration for each layer id that should contain a property to be the id
- *   of each feature, an array of translated properties and an array of non translated properties
+ * @typedef LayerTooltipConfig
+ * @property {String} layerId The layer Id
+ * @property {String[]} translatedKeys The list of properties that need a translation
+ * @property {String[]} nonTranslatedKeys The list of properties that do not require a translation
+ * @property {String} idParam Which parameter is used as the identifier of a feature
  */
+
+/** @returns {LayerTooltipConfig[]} */
 function createTooltipConfig() {
-    const nonTranslatedAttributesForTooltip = {}
-    const translatedAttributesForTooltip = {}
-    nonTranslatedAttributesForTooltip[CESIUM_BUILDING_LAYER_ID] = [
-        'EGID',
-        'GESAMTHOEHE',
-        'DACH_MAX',
-        'GELAENDEPUNKT',
-    ]
-    translatedAttributesForTooltip[CESIUM_BUILDING_LAYER_ID] = ['OBJEKTART']
-    const paramsByCesiumLayerId = {}
-    paramsByCesiumLayerId[CESIUM_BUILDING_LAYER_ID] = {
-        id: 'EGID',
-        data: {},
+    const buildingLayersTooltipConfig = {
+        layerId: CESIUM_BUILDING_LAYER_ID,
+        translatedKeys: ['OBJEKTART'],
+        nonTranslatedKeys: ['EGID', 'GESAMTHOEHE', 'DACH_MAX', 'GELAENDEPUNKT'],
+        idParam: 'EGID',
     }
 
-    for (const layerId of Object.keys(paramsByCesiumLayerId)) {
-        paramsByCesiumLayerId[layerId].data.nonTranslated = nonTranslatedAttributesForTooltip[
-            layerId
-        ].reduce((array, value) => ({ ...array, [layerId + '_' + value]: value }), {})
-        paramsByCesiumLayerId[layerId].data.translated = translatedAttributesForTooltip[
-            layerId
-        ].reduce((array, value) => ({ ...array, [layerId + '_' + value]: value }), {})
-    }
-    return paramsByCesiumLayerId
+    const tooltipsConfig = []
+    tooltipsConfig.push(buildingLayersTooltipConfig)
+    return tooltipsConfig
 }
 
 export const CESIUM_LAYER_TOOLTIPS_CONFIGURATION = createTooltipConfig()

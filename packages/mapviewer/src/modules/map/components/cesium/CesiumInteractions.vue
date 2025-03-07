@@ -35,7 +35,7 @@ const projection = computed(() => store.state.position.projection)
 const resolution = computed(() => store.getters.resolution)
 const visibleLayers = computed(() => store.getters.visibleLayers)
 const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
-const featuresParamsByCesiumLayerId = computed(() => store.getters.featuresParamsByCesiumLayerId)
+const layersTooltipConfig = computed(() => store.getters.layersTooltipConfig)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
     visibleLayers.value.filter(
@@ -66,7 +66,9 @@ onMounted(() => {
 watch(selectedFeatures, () => {
     if (
         !selectedFeatures.value.find((feature) =>
-            Object.keys(featuresParamsByCesiumLayerId.value).includes(feature.layer.id)
+            layersTooltipConfig.value
+                .map((layerConfig) => layerConfig.layerId)
+                .includes(feature.layer.id)
         ) &&
         clickedHighlightPostProcessor.selected.length > 0
     ) {
@@ -116,19 +118,23 @@ function getlayerIdFrom3dFeature(feature) {
  */
 function create3dFeature(feature, coordinates) {
     const layerId = getlayerIdFrom3dFeature(feature)
+
     const layer = layersWithTooltips.value.find((layer) => layer.id === layerId)
-    const id = feature.getProperty(featuresParamsByCesiumLayerId.value[layerId].id) ?? '-'
+    const layerConfig = layersTooltipConfig.value.find(
+        (layerConfig) => layerConfig.layerId === layerId
+    )
+    const id = feature.getProperty(layerConfig.idParam) ?? '-'
     const data = {}
-    for (const [key, value] of Object.entries(
-        featuresParamsByCesiumLayerId.value[layerId].data.nonTranslated
-    )) {
-        data[key] = feature.getProperty(value)
-    }
-    for (const [key, value] of Object.entries(
-        featuresParamsByCesiumLayerId.value[layerId].data.translated
-    )) {
-        data[key] = layerId + '_' + feature.getProperty(value)
-    }
+    layerConfig.nonTranslatedKeys.forEach(
+        (property) =>
+            (data[`${layerId}_${property}`] =
+                feature.getProperty(property) ?? `${layerId}_no_data_available`)
+    )
+    layerConfig.translatedKeys.forEach(
+        (property) =>
+            (data[`${layerId}_${property}`] =
+                `${layerId}_${feature.getProperty(property) ?? '_no_data_available'}`)
+    )
     return new LayerFeature({
         layer,
         id,
@@ -145,14 +151,13 @@ function create3dFeature(feature, coordinates) {
 }
 
 function handleClickHighlight(features, coordinates) {
-    clickedHighlightPostProcessor.selected = []
+    clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
         features.push(create3dFeature(feature, coordinates))
     })
-    clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
-
     hoveredHighlightPostProcessor.selected = []
 }
+
 function onClick(event) {
     const viewer = getViewer()
     unhighlightGroup(viewer)
@@ -205,7 +210,6 @@ function onClick(event) {
             : features[0].coordinates
         coordinates = proj4(projection.value.epsg, WEBMERCATOR.epsg, featureCoords)
     }
-
     store.dispatch('click', {
         clickInfo: new ClickInfo({
             coordinate: coordinates,
@@ -235,12 +239,14 @@ function onMouseMove(event) {
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const o = viewer.scene.pick(event.endPosition)
+    const object = viewer.scene.pick(event.endPosition)
     if (
-        o &&
-        Object.keys(featuresParamsByCesiumLayerId.value).includes(getlayerIdFrom3dFeature(o))
+        object &&
+        layersTooltipConfig.value
+            .map((layerConfig) => layerConfig.layerId)
+            .includes(getlayerIdFrom3dFeature(object))
     ) {
-        hoveredHighlightPostProcessor.selected = [o]
+        hoveredHighlightPostProcessor.selected = [object]
         viewer.scene.requestRender()
     } else {
         hoveredHighlightPostProcessor.selected = []

@@ -62,7 +62,7 @@ function getLayerName(layerId) {
                     // when we add a group of (external) layers for the first time, features will be categorized with the sub layer ID,
                     // once we reload the app, only the group ID will remain. So we need to check if a sub-layer also match this ID,
                     // or feature selection just after adding a group of layer will output nothing
-                    (layer.layers && layer.layers.find((subLayer) => subLayer.id === layerId))
+                    layer.layers?.find((subLayer) => subLayer.id === layerId)
             )
             .map(
                 (layer) =>

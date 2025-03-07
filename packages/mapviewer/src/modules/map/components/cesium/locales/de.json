@@ -25,7 +25,8 @@
     "ch.swisstopo.swissbuildings3d.3d_Turm": "Turm",
     "ch.swisstopo.swissbuildings3d.3d_Unterirdisches Gebaeude": "Unterirdisches Gebäude",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Verbindungsbrücke",
-    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Verbindungsbrücke"
+    "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Verbindungsbrücke",
+    "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
 
 
 }

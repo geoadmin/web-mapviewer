@@ -32,11 +32,6 @@ const constructionsLayer = new GeoAdmin3DLayer({
     use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
 })
 
-// TODO :
-// move this to cesium config
-// create "local" locales translations json with layer prefixes for the keys
-// generalize generation
-
 /** Module that stores all information related to the 3D viewer */
 export default {
     state: {
@@ -85,16 +80,12 @@ export default {
          */
         isViewerReady: false,
         /**
-         * An object containing the fetchable parameters for each cesium layer
+         * An array of Cesium Layer tooltip configurations, stating which Cesium layers have
+         * tooltips, and what should be shown to the user
          *
-         * It will be used in the following manner : id is what property of the feature is used for
-         * the id of a feature in the layer. data represents the keys for each data (which will be
-         * translated), and which data property will be associated to it (this will never be
-         * translated)
-         *
-         * @type Object
+         * @type LayerTooltipConfig[]
          */
-        featuresParamsByCesiumLayerId: CESIUM_LAYER_TOOLTIPS_CONFIGURATION,
+        layersTooltipConfig: CESIUM_LAYER_TOOLTIPS_CONFIGURATION,
     },
     getters: {
         backgroundLayersFor3D(state, getters, rootState) {
@@ -125,12 +116,14 @@ export default {
             return bgLayers
         },
         layersWithTooltips(state, getters) {
-            return getters.backgroundLayersFor3D.filter((layer) =>
-                Object.keys(getters.featuresParamsByCesiumLayerId).includes(layer.id)
+            return getters.backgroundLayersFor3D.filter((bgLayer) =>
+                getters.layersTooltipConfig
+                    .map((layerConfig) => layerConfig.layerId)
+                    .includes(bgLayer.id)
             )
         },
-        featuresParamsByCesiumLayerId(state) {
-            return state.featuresParamsByCesiumLayerId
+        layersTooltipConfig(state) {
+            return state.layersTooltipConfig
         },
     },
     actions: {
