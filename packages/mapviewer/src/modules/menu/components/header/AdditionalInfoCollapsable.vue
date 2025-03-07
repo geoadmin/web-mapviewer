@@ -1,12 +1,9 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import UpdateInfo from '@/modules/menu/components/help/UpdateInfo.vue'
-
-const { t } = useI18n()
 
 const isOpen = ref(false)
 </script>
@@ -15,36 +12,40 @@ const isOpen = ref(false)
     <div
         @mouseenter="isOpen = true"
         @mouseleave="isOpen = false"
-        @click="isOpen = !isOpen"
+        @click="isOpen = true"
     >
-        <!-- Menu Button -->
-        <button class="btn m-0 px-1 btn-xs">
+        <!-- Menu Button. We need to override the rounded corners, then apply a new rounding on the top -->
+        <button class="btn m-0 px-1 btn-xs darken-on-hover rounded-0 rounded-top">
             <FontAwesomeIcon :icon="isOpen ? 'caret-up' : 'caret-down'" />
-            <span class="ms-1">{{ t('cms_news_button_title') }}</span>
+            <span class="ms-1">News</span>
         </button>
 
         <!-- Collapsible Menu Items -->
         <div
             v-if="isOpen"
-            class="d-flex flex-column-reverse shadow-lg position-absolute"
+            class="d-flex flex-column-reverse shadow-lg position-absolute z-menu-1"
             data-cy="news-menu"
         >
-            <MoreInfo
-                small
-                class="darken-on-hover"
-            />
-            <UpdateInfo
-                small
-                class="darken-on-hover"
-            />
+            <MoreInfo class="darken-on-hover collapsable-menu-element p-1 px-2 rounded-0" />
+            <UpdateInfo class="darken-on-hover collapsable-menu-element p-1 px-2 rounded-0" />
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+// we need this component to be under the searchbar when not hovered, and over it when hovered.
 
+.z-menu-1 {
+    z-index: $zindex-menu + 1;
+}
+.darken-on-hover {
+    background-color: $nav-tabs-link-active-color;
+}
 .darken-on-hover:hover {
     background-color: $list-item-hover-bg-color;
+}
+.collapsable-menu-element {
+    font-size: 0.825rem;
 }
 </style>

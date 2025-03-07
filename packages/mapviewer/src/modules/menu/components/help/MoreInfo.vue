@@ -25,6 +25,6 @@ function openCmsLink() {
         data-cy="header-cms-link"
         @click="openCmsLink"
     >
-        News
+        {{ t('cms_news_button_title') }}
     </HeaderLink>
 </template>
