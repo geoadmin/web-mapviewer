@@ -14,12 +14,7 @@ const withLegend = ref(null)
 const store = useStore()
 
 const layers = computed(() => store.state.layers.config)
-const possibleLayerTypes = [
-    LayerTypes.WMTS,
-    LayerTypes.WMS,
-    LayerTypes.AGGREGATE,
-    LayerTypes.GEOJSON,
-]
+const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerTypes.AGGREGATE, LayerTypes.GEOJSON]
 const currentLayerType = ref([...possibleLayerTypes])
 
 const filteredLayers = computed(() => {

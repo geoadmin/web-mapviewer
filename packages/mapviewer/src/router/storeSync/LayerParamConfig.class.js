@@ -92,7 +92,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.type === LayerTypes.WMTS) {
+    else if (parsedLayer.type === LayerType.WMTS) {
         layer = new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
@@ -103,7 +103,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         })
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.type === LayerTypes.WMS) {
+    else if (parsedLayer.type === LayerType.WMS) {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer({

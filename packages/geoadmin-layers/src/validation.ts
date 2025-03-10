@@ -29,7 +29,8 @@ export default class ErrorMessage {
 
 
 export class InvalidLayerDataError extends Error {
-    constructor(message, data) {
+    data: any
+    constructor(message: string, data: any) {
         super(message)
         this.data = data
         this.name = 'InvalidLayerDataError'
@@ -44,16 +45,24 @@ export const layerContainsErrorMessage = (layer: Layer, errorMessage: ErrorMessa
     return false;
 }
 
-export const getFirstLayerErrorMessage = (layer: Layer): ErrorMessage => {
-    return layer.errorMessages.values().next().value!
+export const getFirstLayerErrorMessage = (layer: Layer): ErrorMessage | null => {
+    if (layer.errorMessages) {
+        return layer.errorMessages.values().next().value!
+    }
+    return null
 }
 
 export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage): void =>  {
+    if (!layer.errorMessages) {
+        layer.errorMessages = new Set()
+    }
     layer.errorMessages.add(errorMessage)
     layer.hasError = true
 }
 
 export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMessage):void => {
+    if (!layer.errorMessages) return;
+
     // We need to find the error message that equals to remove it
     for (const msg of layer.errorMessages) {
         if (msg.isEquals(errorMessage)) {
@@ -65,6 +74,8 @@ export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMes
 }
 
 export const clearLayerErrorMessages = (layer: Layer): void => {
-    layer.errorMessages.clear()
+    if (layer.errorMessages)  {
+        layer.errorMessages.clear()
+    }
     layer.hasError = false
 }
