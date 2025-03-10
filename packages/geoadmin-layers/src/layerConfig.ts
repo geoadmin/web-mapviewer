@@ -3,7 +3,7 @@
 Maybe this could serve for some decoupling of the layer config and the actual layers?
 */
 
-import { LayerType, type GeoAdminWMTSLayer } from "@/layers"
+import { LayerType, type GeoAdminAPILayer, type GeoAdminWMTSLayer, type Layer } from "@/layers"
 import { InvalidLayerDataError } from "@/validation"
 
 // TODO migrate constants?
@@ -16,30 +16,87 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
   return baseUrl;
 }
 
+/**
+ * Creating a Layer from the layerConfig
+ *
+ * This is sort of a replica of the constructor in AbstractLayer
+ * I suspect that this could be removed some time if the entire layer
+ * thing is refactored
+ * @param layerData
+ */
+const createLayerfromConfig = (layerData: any): Layer => {
+  const {
+    name,
+    id,
+    baseUrl,
+    type,
+    opacity,
+    visible,
+    hasTooltip,
+    attributions,
+    hasDescription,
+    hasLegend,
+    isLoading,
+    isExternal,
+    timeConfig
+  } = layerData
+
+  const layer: Layer = {
+    name,
+    id,
+    baseUrl,
+    type,
+    opacity,
+    visible,
+    hasTooltip,
+    attributions,
+    hasDescription,
+    hasLegend,
+    isLoading,
+    isExternal,
+    errorMessages: new Set(),
+    hasError: false,
+    timeConfig,
+    hasMultipleTimestamps: timeConfig?.timeEntries?.length || false,
+  }
+
+  return layer;
+}
+
+
+const createGeoAdminAPILayerFromConfig = (layerData): GeoAdminAPILayer => {
+  const {
+    isHighlightable,
+    topics,
+    format,
+    searchable,
+    technicalName
+  } = layerData
+
+  const baseLayer = createLayerfromConfig(layerData)
+  const layer: GeoAdminAPILayer = Object.assign(baseLayer, {
+    isHighlightable,
+    topics,
+    searchable,
+    format,
+    technicalName,
+    isSpecificFor3d: baseLayer.id.toLowerCase().endsWith('_3d'),
+    isExternal: false
+  })
+
+  return layer
+}
+
 export const createGeoAdminWMTSLayerFromConfig = (layerData: any) => {
       if (!layerData) {
           throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
       }
       const {
         // TODO Maybe we don't want these default values? Maybe some of those are mandatory
-          name,
-          id,
           baseUrl,
-          format,
           idIn3d = null,
-          technicalName = null,
-          opacity = 1.0,
-          visible = true,
-          attributions = null,
-          timeConfig = null,
-          isBackground = false,
-          isHighlightable = false,
-          hasTooltip = false,
-          topics = [],
-          hasLegend = false,
-          searchable = false,
+          isBackground,
           maxResolution = DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
-          hasDescription = true
       } = layerData
 
       // TODO decide where to do this validation
@@ -50,32 +107,13 @@ export const createGeoAdminWMTSLayerFromConfig = (layerData: any) => {
       //     )
       // }
 
-      const wmtsLayer: GeoAdminWMTSLayer = {
-          name,
+      const baseLayer = createGeoAdminAPILayerFromConfig(layerData)
+      const wmtsLayer: GeoAdminWMTSLayer = Object.assign(baseLayer, {
           type: LayerType.WMTS,
-          id,
           idIn3d,
-          technicalName,
-          opacity,
-          visible,
-          attributions,
           isBackground,
           baseUrl: _urlWithTrailingSlash(baseUrl),
-          isHighlightable,
-          hasTooltip,
-          topics,
-          hasLegend,
-          searchable,
-          timeConfig,
-          format,
           maxResolution,
-          hasMultipleTimestamps: timeConfig?.timeEntries?.length || false,
-          isSpecificFor3d: id.toLowerCase().endsWith('_3d'),
-          isExternal: false,
-          hasDescription,
-          isLoading: false,
-          errorMessages: new Set(),
-          hasError: false,
-      }
+    })
     return wmtsLayer
 }
