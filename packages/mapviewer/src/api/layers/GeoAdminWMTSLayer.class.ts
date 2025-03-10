@@ -1,7 +1,8 @@
+// @ts-nocheck
 import { constants } from '@geoadmin/coordinates'
-import { GeoAdminWMTSLayer as GeoAdminWMTSLayerIface } from '@geoadmin/layers'
+import { type GeoAdminWMTSLayer as GeoAdminWMTSLayerIface } from '@geoadmin/layers'
 
-// import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getWmtsBaseUrl } from '@/config/baseUrl.config'
@@ -18,7 +19,10 @@ import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminWMTSLayer extends GeoAdminWMTSLayerIface {
+export default class GeoAdminWMTSLayer extends GeoAdminLayer implements GeoAdminWMTSLayerIface {
+    maxResolution
+    format
+
     /**
      * @param {String} layerData.name Layer name (internationalized)
      * @param {String} layerData.id Unique layer ID
@@ -58,6 +62,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminWMTSLayerIface {
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
+        throw new Error('not used anymore')
         if (!layerData) {
             throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
         }
@@ -106,6 +111,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminWMTSLayerIface {
             searchable,
             timeConfig,
         })
+
         this.format = format
         this.maxResolution = maxResolution
     }

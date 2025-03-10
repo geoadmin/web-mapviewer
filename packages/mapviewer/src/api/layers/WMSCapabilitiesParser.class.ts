@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { range } from 'lodash'
@@ -53,6 +54,7 @@ export default class WMSCapabilitiesParser {
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
             throw new CapabilitiesError(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 `Failed to parse WMTS Capabilities: invalid content: ${error}`,
                 'invalid_wms_capabilities'
             )
@@ -411,6 +413,7 @@ export default class WMSCapabilitiesParser {
                 title = this.Service?.Title || new URL(this.Service?.OnlineResource).hostname
             }
         } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
             log.error(msg, layer, error)
             title = new URL(this.originUrl).hostname

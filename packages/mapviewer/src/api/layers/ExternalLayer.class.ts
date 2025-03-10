@@ -1,3 +1,4 @@
+// @ts-nocheck
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
@@ -102,7 +103,7 @@ export default class ExternalLayer extends AbstractLayer {
      *   in url. Default is `null`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
-    constructor(externalLayerData) {
+    constructor(externalLayerData: Record<string, any>) {
         if (!externalLayerData) {
             throw new InvalidLayerDataError('Missing external layer data', externalLayerData)
         }

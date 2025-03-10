@@ -1,4 +1,5 @@
 <script setup>
+// import { GeoAdminWMTSLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
@@ -6,13 +7,14 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
 
 const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmtsLayerConfig: {
-        type: GeoAdminWMTSLayer,
+        // TODO this should be GeoAdminWMTSLayer Interface. But we're not on typescript
+        // here yet, hence we can't use this ATM
+        type: Object,
         required: true,
     },
     parentLayerOpacity: {

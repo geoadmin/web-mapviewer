@@ -17,7 +17,8 @@ export const EXTERNAL_SERVER_TIMEOUT = 30000
  * @property {string} key I18n translation key for user message
  */
 export class CapabilitiesError extends Error {
-    constructor(message, key) {
+    key: string
+    constructor(message: string, key: string) {
         super(message)
         this.key = key
         this.name = 'CapabilitiesError'
@@ -31,7 +32,7 @@ export class CapabilitiesError extends Error {
  * @param {string} language Language to use
  * @returns {URL} Url with wms parameter
  */
-export function setWmsGetCapParams(url, language) {
+export function setWmsGetCapParams(url: URL, language: string) {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
@@ -54,7 +55,7 @@ export function setWmsGetCapParams(url, language) {
  * @param {string} style Style to use
  * @returns {URL} Url with wms parameter
  */
-export function setWmsGetMapParams(url, layer, crs, style) {
+export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: string) {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetMap')
@@ -77,13 +78,14 @@ export function setWmsGetMapParams(url, layer, crs, style) {
  * @param {string | null} language Language parameter to use if the server support localization
  * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
  */
-export async function readWmsCapabilities(baseUrl, language = null) {
-    const url = setWmsGetCapParams(new URL(baseUrl), language).toString()
+export async function readWmsCapabilities(baseUrl: string, language: string | null = null) {
+    const url = setWmsGetCapParams(new URL(baseUrl), (language || '')).toString()
     log.debug(`Read WMTS Get Capabilities: ${url}`)
     let response = null
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         throw new CapabilitiesError(`Failed to get WMS Capabilities: ${error}`, 'network_error')
     }
 
@@ -104,11 +106,12 @@ export async function readWmsCapabilities(baseUrl, language = null) {
  *   if not found in the Capabilities
  * @returns {WMSCapabilitiesParser} Get Capabilities object
  */
-export function parseWmsCapabilities(content, originUrl) {
+export function parseWmsCapabilities(content: string, originUrl: string) {
     try {
         return new WMSCapabilitiesParser(content, originUrl)
     } catch (error) {
         throw new CapabilitiesError(
+            // @ts-ignore
             `Failed to parse WMS capabilities: ${error?.message}`,
             'invalid_wms_capabilities'
         )
@@ -122,7 +125,7 @@ export function parseWmsCapabilities(content, originUrl) {
  * @param {string} language Language to use
  * @returns {URL} Url with wmts parameters
  */
-export function setWmtsGetCapParams(url, language) {
+export function setWmtsGetCapParams(url: URL, language: string | null) {
     // Set mandatory parameters
     url.searchParams.set('SERVICE', 'WMTS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
@@ -141,7 +144,7 @@ export function setWmtsGetCapParams(url, language) {
  *   if not found in the Capabilities
  * @returns {Promise<WMTSCapabilitiesParser | null>} WMTS Capabilities
  */
-export async function readWmtsCapabilities(baseUrl, language = null) {
+export async function readWmtsCapabilities(baseUrl: string, language: string | null = null) {
     const url = setWmtsGetCapParams(new URL(baseUrl), language).toString()
     log.debug(`Read WMTS Get Capabilities: ${url}`)
 
@@ -150,7 +153,8 @@ export async function readWmtsCapabilities(baseUrl, language = null) {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
         throw new CapabilitiesError(
-            `Failed to get the remote capabilities: ${error}`,
+            // @ts-ignore
+            `Failed to get the remote capabilities: ${error?.message}`,
             'network_error'
         )
     }
@@ -172,11 +176,12 @@ export async function readWmtsCapabilities(baseUrl, language = null) {
  *   if not found in the Capabilities
  * @returns {WMTSCapabilitiesParser} Get Capabilities object
  */
-export function parseWmtsCapabilities(content, originUrl) {
+export function parseWmtsCapabilities(content: string, originUrl: string) {
     try {
         return new WMTSCapabilitiesParser(content, originUrl)
     } catch (error) {
         throw new CapabilitiesError(
+            // @ts-ignore
             `Failed to parse WMTS capabilities: ${error?.message}`,
             'invalid_wmts_capabilities'
         )
@@ -197,7 +202,7 @@ const ENC_PIPE = '%7C'
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
-export function encodeExternalLayerParam(param) {
+export function encodeExternalLayerParam(param: string) {
     return param.replace('|', ENC_PIPE)
 }
 
@@ -213,6 +218,6 @@ export function encodeExternalLayerParam(param) {
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
-export function decodeExternalLayerParam(param) {
+export function decodeExternalLayerParam(param: string) {
     return param.replace(ENC_PIPE, '|')
 }

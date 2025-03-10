@@ -1,12 +1,13 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
+import { cloneDeep } from 'lodash'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -44,7 +45,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        layer = currentLayer.clone()
+        layer = cloneDeep(currentLayer)
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? defaultOpacity
@@ -89,7 +90,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.type === LayerTypes.WMTS) {
+    else if (parsedLayer.type === LayerType.WMTS) {
         layer = new ExternalWMTSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
@@ -100,7 +101,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         })
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.type === LayerTypes.WMS) {
+    else if (parsedLayer.type === LayerType.WMS) {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer({
@@ -114,7 +115,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         })
     } else {
         // Finally check if this is a Geoadmin layer
-        layer = store.getters.getLayerConfigById(parsedLayer.id)?.clone()
+        layer = cloneDeep(store.getters.getLayerConfigById(parsedLayer.id))
         if (layer) {
             layer.visible = parsedLayer.visible
             if (parsedLayer.opacity !== undefined) {
@@ -125,8 +126,10 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             }
 
             // If we have a WMS layer add extra params from custom attributes
-            if (layer instanceof GeoAdminWMSLayer) {
-                layer.setCustomAttributes(customAttributes)
+            if (layer.type === LayerType.WMS) {
+                // TODO we don't have checks here anymore when setting it directly instead
+                // through the a method
+                layer.customAttributes = customAttributes
             }
         }
     }
@@ -184,6 +187,7 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
                 featuresRequests
             )
             if (layerObject) {
+                // TODO what's this adminId
                 if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
                         store.dispatch('setShowDrawingOverlay', {

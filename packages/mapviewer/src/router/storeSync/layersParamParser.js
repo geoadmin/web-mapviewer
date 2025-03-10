@@ -1,3 +1,5 @@
+import { LayerType } from '@geoadmin/layers'
+import { hasMultipleTimestamps } from '@geoadmin/layers'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -22,17 +24,17 @@ const ENC_AT = '%40'
 export function encodeLayerId(layer) {
     // special case for internal KMLs, we still want the type identifier before the fileUrl
     // (they won't be available in the layers config, so we treat them as "external" too)
-    if (layer.isExternal || layer.type === LayerTypes.KML) {
+    if (layer.isExternal || layer.type === LayerType.KML) {
         let externalLayerUrlId = ''
         // Group of layers uses type WMS
-        if (layer.type === LayerTypes.GROUP) {
-            externalLayerUrlId += LayerTypes.WMS
+        if (layer.type === LayerType.GROUP) {
+            externalLayerUrlId += LayerType.WMS
         } else {
             externalLayerUrlId += `${layer.type}`
         }
         externalLayerUrlId += `|${encodeExternalLayerParam(layer.baseUrl)}`
         // WMS and WMTS (GROUP are essentially WMS too) need to specify the ID of the layer in the getCap
-        if ([LayerTypes.GROUP, LayerTypes.WMS, LayerTypes.WMTS].includes(layer.type)) {
+        if ([LayerType.GROUP, LayerType.WMTS, LayerType.WMS].includes(layer.type)) {
             externalLayerUrlId += `|${encodeExternalLayerParam(layer.id)}`
         }
         return externalLayerUrlId
@@ -158,7 +160,7 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    if (layer.hasMultipleTimestamps) {
+    if (hasMultipleTimestamps(layer)) {
         // If the layer has more than 1 timestamps we need to add the `@year` attribute
         if (layer.timeConfig.currentYear !== null) {
             // Always add the `@year` if we have a valid currentYear
@@ -206,7 +208,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
     }
 
     // Add custom attributes if any
-    if (layer.customAttributes !== null) {
+    if (layer.customAttributes) {
         for (const [key, value] of Object.entries(layer.customAttributes)) {
             layerUrlString += `@${key}${value ? '=' + encodeLayerParam(value) : ''}`
         }

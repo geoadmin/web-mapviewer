@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO
 import { isTimestampYYYYMMDD } from '@geoadmin/numbers'
 
 /**

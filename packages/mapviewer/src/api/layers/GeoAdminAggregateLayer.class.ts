@@ -1,3 +1,7 @@
+// @ts-nocheck
+import { cloneDeep } from "lodash"
+
+// @ts-nocheck
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -36,8 +40,8 @@ export class AggregateSubLayer {
     }
 
     clone() {
-        let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        clone.layer = this.layer.clone()
+        const clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        clone.layer = cloneDeep(layer)
         return clone
     }
 }
@@ -122,8 +126,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
     }
 
     clone() {
-        let clone = super.clone()
-        clone.subLayers = this.subLayers.map((subLayer) => subLayer.clone())
-        return clone
+        const clone = super.clone()
+        clone.subLayers = this.subLayers.map((subLayer) => cloneDeep(subLayer))
     }
 }

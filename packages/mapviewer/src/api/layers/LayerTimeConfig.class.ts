@@ -1,3 +1,4 @@
+// @ts-nocheck
 import LayerTimeConfigEntry, { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 
 /**
@@ -13,12 +14,20 @@ import LayerTimeConfigEntry, { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTim
  * to Vue reactivity engine.
  */
 export default class LayerTimeConfig {
+    timeEntries: any[]
+    behaviour: 'last' | 'all' | 'current' | number | null
+    years: number[]
+    currentTimeEntry?: number[]
+    currentTimestamp?: string
+    currentYear?: string | number
+
+
     /**
      * @param {String} behaviour How the default timestamp is chosen
      * @param {LayerTimeConfigEntry[]} timeEntries List of timestamps identifier (that can be placed
      *   in the WMTS URL)
      */
-    constructor(behaviour = null, timeEntries = []) {
+    constructor(behaviour = null, timeEntries: any[] = []) {
         this.behaviour = behaviour
         /** @type {LayerTimeConfigEntry[]} */
         this.timeEntries = [...timeEntries]
@@ -46,7 +55,6 @@ export default class LayerTimeConfig {
          * We will return, well, the last timestamp (the most recent) of the timestamps (if there are some)
          * or if nothing has been defined in the behaviour, but there are some timestamps defined, we take the first.
          */
-        this.currentTimeEntry = null
         if ((this.behaviour === 'last' || !this.behaviour) && this.timeEntries.length > 0) {
             this.updateCurrentTimeEntry(this.timeEntries[0])
         } else if (this.behaviour) {
@@ -67,7 +75,7 @@ export default class LayerTimeConfig {
      *
      * @param {LayerTimeConfigEntry | string | null} entry Timestamp of the entry to set
      */
-    updateCurrentTimeEntry(entry) {
+    updateCurrentTimeEntry(entry: any) {
         let currentTimeEntry = null
         if (entry instanceof LayerTimeConfigEntry) {
             currentTimeEntry = entry
@@ -84,7 +92,7 @@ export default class LayerTimeConfig {
      *   the backend)
      * @returns {Boolean} True if this value was found in this time config, false otherwise
      */
-    hasTimestamp(timestamp) {
+    hasTimestamp(timestamp: string) {
         return !!this.timeEntries.find((entry) => entry.timestamp === timestamp)
     }
 
@@ -92,7 +100,7 @@ export default class LayerTimeConfig {
      * @param {Number} year
      * @returns {LayerTimeConfigEntry | null}
      */
-    getTimeEntryForYear(year) {
+    getTimeEntryForYear(year: number) {
         return this.timeEntries.find((entry) => entry.year === year) ?? null
     }
 
@@ -100,7 +108,7 @@ export default class LayerTimeConfig {
      * @param {String} timestamp
      * @returns {LayerTimeConfigEntry | null}
      */
-    getTimeEntryForTimestamp(timestamp) {
+    getTimeEntryForTimestamp(timestamp: string) {
         return this.timeEntries.find((entry) => entry.timestamp === timestamp) ?? null
     }
 
