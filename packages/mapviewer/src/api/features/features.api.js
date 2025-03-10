@@ -1,4 +1,5 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { getTopicForIdentifyAndTooltipRequests } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
@@ -554,7 +555,13 @@ export const identify = (config) => {
             log.error('Invalid screen size', screenWidth, screenHeight)
             reject(new Error('Needs valid screen width and height to run identification'))
         }
-        if (layer instanceof GeoAdminLayer) {
+        if (
+            // TODO come here again
+            [LayerType.WMTS, LayerType.WMS, LayerType.GeoJSON, LayerType.COG].includes(
+                layer.type
+            ) &&
+            !layer.isExternal
+        ) {
             identifyOnGeomAdminLayer({
                 layer,
                 projection,
@@ -571,7 +578,7 @@ export const identify = (config) => {
                     log.error("Wasn't able to get feature from GeoAdmin layer", layer, error)
                     reject(error)
                 })
-        } else if (layer instanceof ExternalLayer) {
+        } else if (layer.isExternal) {
             identifyOnExternalLayer({
                 layer,
                 coordinate,
