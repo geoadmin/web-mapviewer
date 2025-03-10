@@ -3,6 +3,9 @@
 Maybe this could serve for some decoupling of the layer config and the actual layers?
 */
 
+// TODO maybe this should be to use as a minimal factory so that default values
+// TODO don't have to be specified every time!
+
 import { LayerType, type GeoAdminAPILayer, type GeoAdminWMTSLayer, type Layer } from "@/layers"
 import { InvalidLayerDataError } from "@/validation"
 
@@ -87,7 +90,7 @@ const createGeoAdminAPILayerFromConfig = (layerData: any): GeoAdminAPILayer => {
   return layer
 }
 
-export const createGeoAdminWMTSLayerFromConfig = (layerData: any) => {
+export const createGeoAdminWMTSLayer = (layerData: any) => {
       if (!layerData) {
           throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
       }

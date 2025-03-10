@@ -115,6 +115,7 @@ export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
    * language dependent). */
   lang: string // TODO sharable?
 
+  type: LayerType.WMS
 }
 
 /**
