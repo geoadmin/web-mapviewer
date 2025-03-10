@@ -1,15 +1,15 @@
 import type ErrorMessage from "@/validation"
 
 export enum LayerType {
-    WMTS= 'WMTS',
-    WMS= 'WMS',
-    GEOJSON= 'GEOJSON',
-    AGGREGATE= 'AGGREGATE',
-    KML= 'KML',
-    GPX= 'GPX',
-    VECTOR= 'VECTOR',
-    GROUP= 'GROUP',
-    COG= 'COG',
+    WMTS = 'WMTS',
+    WMS = 'WMS',
+    GEOJSON = 'GEOJSON',
+    AGGREGATE = 'AGGREGATE',
+    KML = 'KML',
+    GPX = 'GPX',
+    VECTOR = 'VECTOR',
+    GROUP = 'GROUP',
+    COG = 'COG',
 }
 
 export interface LayerAttribution {
@@ -27,7 +27,7 @@ export interface Layer {
    * identify it (and also in subsequent backend services for GeoAdmin layers) */
   readonly id: string
   /** The layer type  */
-  readonly type: LayerType
+  readonly type: LayerType,
   /** What's the backend base URL to use when requesting
    * tiles/image for this layer, will be used to construct the URL of this layer later on */
   readonly baseUrl?: string /* can be left out because some don't have that? */
@@ -55,13 +55,14 @@ export interface Layer {
   /** Set to true if some parts of the layer (e.g. metadata) are still loading */
   isLoading: boolean
   /** Time series config */
-  readonly timeConfig?: boolean
+  /* TODO migrate the layer time config */
+  readonly timeConfig?: any
   /** The custom attributes (except the well known updateDelays, adminId, features and year)
    * passed with the layer id in url. */
   readonly customAttributes?: Record<string, string>
 
   // new fields that weren't specified in AbstractLayer's Constructor
-  errorMessages: Set<ErrorMessage>
+  errorMessages?: Set<ErrorMessage>
   hasError: boolean
   hasMultipleTimestamps: boolean
 }
@@ -103,7 +104,7 @@ export interface GeoAdminAPILayer extends Layer {
  *
  * @interface GeoAdminWmsLayer
  */
-export interface GeoAdminWmsLayer extends GeoAdminAPILayer {
+export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
   isExternal: false,
   /** How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
    * if unset this layer will be a considered a single tile WMS. */
@@ -169,4 +170,4 @@ export interface ExternalWMSLayer extends Layer {
 
 type FileLayer = KMLLayer | GPXLayer | CloudOptimizedTiffLayer;
 type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer;
-type GeoAdminLayer = GeoAdminWMTSLayer | GeoAdminWmsLayer | GeoAdminGeoJSONLayer | GeoAdmin3DLayer | GeoAdminVectorLayer;
+type GeoAdminLayer = GeoAdminWMTSLayer | GeoAdminWMSLayer | GeoAdminGeoJSONLayer | GeoAdmin3DLayer | GeoAdminVectorLayer;

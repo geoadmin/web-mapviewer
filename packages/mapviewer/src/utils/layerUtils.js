@@ -74,7 +74,7 @@ export function getTimestampFromConfig(layer) {
  */
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
     const { addTimestamp = false } = options ?? {}
-    if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
+    if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
         let timestamp = '{Time}'
         if (addTimestamp) {
             timestamp = getTimestampFromConfig(wmtsLayerConfig)

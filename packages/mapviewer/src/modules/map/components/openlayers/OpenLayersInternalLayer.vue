@@ -5,7 +5,8 @@
  */
 
 import { WEBMERCATOR } from '@geoadmin/coordinates'
-import { computed } from 'vue'
+import { LayerType } from '@geoadmin/layers'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -43,6 +44,8 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
     // have to worry about checking their validity
     return resolution.value >= subLayer.minResolution && resolution.value <= subLayer.maxResolution
 }
+
+const test = ref(layerConfig.type === LayerType.WMTS)
 </script>
 
 <template>
@@ -62,13 +65,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
+            v-if="layerConfig.type === LayerType.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
+            v-if="layerConfig.type === LayerType.WMTS && layerConfig.isExternal"
             :external-wmts-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
@@ -76,7 +79,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
-            v-if="layerConfig.type === LayerTypes.WMS"
+            v-if="layerConfig.type === LayerType.WMS"
             :wms-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

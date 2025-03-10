@@ -64,7 +64,7 @@ const createLayerfromConfig = (layerData: any): Layer => {
 }
 
 
-const createGeoAdminAPILayerFromConfig = (layerData): GeoAdminAPILayer => {
+const createGeoAdminAPILayerFromConfig = (layerData: any): GeoAdminAPILayer => {
   const {
     isHighlightable,
     topics,

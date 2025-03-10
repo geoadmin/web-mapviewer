@@ -1,3 +1,4 @@
+import { LayerType } from '@geoadmin/layers'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -26,13 +27,13 @@ export function encodeLayerId(layer) {
         let externalLayerUrlId = ''
         // Group of layers uses type WMS
         if (layer.type === LayerTypes.GROUP) {
-            externalLayerUrlId += LayerTypes.WMS
+            externalLayerUrlId += LayerType.WMS
         } else {
             externalLayerUrlId += `${layer.type}`
         }
         externalLayerUrlId += `|${encodeExternalLayerParam(layer.baseUrl)}`
         // WMS and WMTS (GROUP are essentially WMS too) need to specify the ID of the layer in the getCap
-        if ([LayerTypes.GROUP, LayerTypes.WMS, LayerTypes.WMTS].includes(layer.type)) {
+        if ([LayerTypes.GROUP, LayerType.WMS, LayerTypes.WMS].includes(layer.type)) {
             externalLayerUrlId += `|${encodeExternalLayerParam(layer.id)}`
         }
         return externalLayerUrlId
