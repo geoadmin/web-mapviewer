@@ -23,17 +23,17 @@ const ENC_AT = '%40'
 export function encodeLayerId(layer) {
     // special case for internal KMLs, we still want the type identifier before the fileUrl
     // (they won't be available in the layers config, so we treat them as "external" too)
-    if (layer.isExternal || layer.type === LayerTypes.KML) {
+    if (layer.isExternal || layer.type === LayerType.KML) {
         let externalLayerUrlId = ''
         // Group of layers uses type WMS
-        if (layer.type === LayerTypes.GROUP) {
+        if (layer.type === LayerType.GROUP) {
             externalLayerUrlId += LayerType.WMS
         } else {
             externalLayerUrlId += `${layer.type}`
         }
         externalLayerUrlId += `|${encodeExternalLayerParam(layer.baseUrl)}`
         // WMS and WMTS (GROUP are essentially WMS too) need to specify the ID of the layer in the getCap
-        if ([LayerTypes.GROUP, LayerType.WMS, LayerTypes.WMS].includes(layer.type)) {
+        if ([LayerType.GROUP, LayerType.WMTS, LayerType.WMS].includes(layer.type)) {
             externalLayerUrlId += `|${encodeExternalLayerParam(layer.id)}`
         }
         return externalLayerUrlId

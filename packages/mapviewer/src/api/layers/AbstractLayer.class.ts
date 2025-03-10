@@ -3,6 +3,7 @@ import type { Layer } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import ErrorMessage from 'node_modules/@geoadmin/layers/dist/validation'
 
 /**
  * Name (or description) of a data holder for a layer, with the possibility to define a URL
@@ -151,8 +152,7 @@ export default class AbstractLayer implements Layer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        /** @type {Set<ErrorMessage>} */
-        this.errorMessages = new Set()
+        this.errorMessages = new Set<ErrorMessage>()
         this.hasError = false
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
