@@ -1,3 +1,6 @@
+import type { Layer } from '@geoadmin/layers'
+
+import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -15,11 +18,13 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  * to Vue reactivity engine.
  */
 export class LayerAttribution {
+    name: string
+    url: string | null
     /**
      * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
      * @param {String} url Link to the data owner website (if there is one)
      */
-    constructor(name, url = null) {
+    constructor(name: string, url: string | null = null) {
         this.name = name
         this.url = url
     }
@@ -43,7 +48,26 @@ export class LayerAttribution {
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class AbstractLayer {
+export default class AbstractLayer implements Layer {
+    name
+    id
+    type
+    baseUrl?: string
+    // ensureTrailingSlashInBaseUrl
+    opacity
+    visible
+    attributions
+    hasTooltip
+    hasDescription
+    hasLegend
+    isExternal
+    isLoading
+    timeConfig
+    customAttributes?: Record<any, any>
+
+    hasError
+    errorMessages
+
     /**
      * @param {String} layerData.uuid Unique ID of this layer (UUID v4) to be able to differntiate
      *   between the same layers (e.g. when a using a layer multiple times in the map to show
@@ -83,7 +107,7 @@ export default class AbstractLayer {
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
-    constructor(layerData) {
+    constructor(layerData: Record<string, any>) {
         if (!layerData) {
             throw new InvalidLayerDataError('Missing layer data', layerData)
         }
@@ -133,46 +157,14 @@ export default class AbstractLayer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        /** @type {Set<ErrorMessage>} */
-        this.errorMessages = new Set()
+        this.errorMessages = new Set<ErrorMessage>()
         this.hasError = false
         /** @type {Set<WarningMessage><} */
         this.warningMessages = new Set()
         this.hasWarning = false
         this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        //this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
-    }
-
-    /**
-     * @param {ErrorMessage} errorMessage
-     * @returns {boolean}
-     */
-    containErrorMessage(errorMessage) {
-        return this.errorMessages.has(errorMessage)
-    }
-
-    /** @returns {ErrorMessage} */
-    getFirstErrorMessage() {
-        return this.errorMessages.values().next().value
-    }
-
-    /** @param {ErrorMessage} errorMessage */
-    addErrorMessage(errorMessage) {
-        this.errorMessages.add(errorMessage)
-        this.hasError = true
-    }
-
-    /** @param {ErrorMessage} errorMessage */
-    removeErrorMessage(errorMessage) {
-        // We need to find the error message that equals to remove it
-        for (let msg of this.errorMessages) {
-            if (msg.isEquals(errorMessage)) {
-                this.errorMessages.delete(msg)
-                break
-            }
-        }
-        this.hasError = !!this.errorMessages.size
     }
 
     clearErrorMessages() {
@@ -226,12 +218,12 @@ export default class AbstractLayer {
             for (const [key, value] of Object.entries(customAttributes)) {
                 if (typeof key !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid key`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid key`
                     )
                 }
                 if (typeof value !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid value`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid value`
                     )
                 }
             }
@@ -239,7 +231,7 @@ export default class AbstractLayer {
         if (customAttributes && Object.keys(customAttributes).length > 0) {
             this.customAttributes = customAttributes
         } else {
-            this.customAttributes = null
+            this.customAttributes = []
         }
     }
 

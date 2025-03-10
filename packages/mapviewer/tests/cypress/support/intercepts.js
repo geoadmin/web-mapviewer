@@ -1,5 +1,6 @@
 import { LV95, registerProj4, WGS84 } from '@geoadmin/coordinates'
 import { isNumber, randomIntBetween } from '@geoadmin/numbers'
+import { cloneDeep } from 'lodash'
 import proj4 from 'proj4'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -37,10 +38,10 @@ const mockExternalWms4 = new ExternalWMSLayer({
 })
 
 Cypress.Commands.add('getExternalWmsMockConfig', () => [
-    mockExternalWms1.clone(),
-    mockExternalWms2.clone(),
-    mockExternalWms3.clone(),
-    mockExternalWms4.clone(),
+    cloneDeep(mockExternalWms1),
+    cloneDeep(mockExternalWms2),
+    cloneDeep(mockExternalWms3),
+    cloneDeep(mockExternalWms4),
 ])
 
 const mockExternalWmts1 = new ExternalWMTSLayer({
@@ -68,10 +69,10 @@ const mockExternalWmts4 = new ExternalWMTSLayer({
 })
 
 Cypress.Commands.add('getExternalWmtsMockConfig', () => [
-    mockExternalWmts1.clone(),
-    mockExternalWmts2.clone(),
-    mockExternalWmts3.clone(),
-    mockExternalWmts4.clone(),
+    cloneDeep(mockExternalWmts1),
+    cloneDeep(mockExternalWmts2),
+    cloneDeep(mockExternalWmts3),
+    cloneDeep(mockExternalWmts4),
 ])
 
 /**

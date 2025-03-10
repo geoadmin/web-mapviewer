@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { cloneDeep } from 'lodash'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
@@ -368,9 +369,9 @@ describe('Test of layer handling', () => {
                     mockExternalWmts3.opacity = 0.8
 
                     const layerObjects2 = [
-                        mockExternalWmts1.clone(),
-                        mockExternalWmts2.clone(),
-                        mockExternalWmts3.clone(),
+                        cloneDeep(mockExternalWmts1),
+                        cloneDeep(mockExternalWmts2),
+                        cloneDeep(mockExternalWmts3),
                     ]
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({

@@ -5,6 +5,7 @@
  */
 
 import { CoordinateSystem } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -57,13 +58,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         :layer-config="layerConfig"
     />
     <CesiumWMTSLayer
-        v-if="layerConfig.type === LayerTypes.WMTS"
+        v-if="layerConfig.type === LayerType.WMTS"
         :wmts-layer-config="layerConfig"
         :parent-layer-opacity="parentLayerOpacity"
         :z-index="zIndex"
     />
     <CesiumWMSLayer
-        v-if="layerConfig.type === LayerTypes.WMS"
+        v-if="layerConfig.type === LayerType.WMS"
         :wms-layer-config="layerConfig"
         :parent-layer-opacity="parentLayerOpacity"
         :z-index="zIndex"

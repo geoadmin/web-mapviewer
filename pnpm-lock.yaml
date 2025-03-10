@@ -574,6 +574,9 @@ importers:
       '@turf/turf':
         specifier: 'catalog:'
         version: 7.2.0
+      '@types/lodash':
+        specifier: 'catalog:'
+        version: 4.17.16
       animate.css:
         specifier: 'catalog:'
         version: 4.1.1

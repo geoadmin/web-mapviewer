@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
@@ -333,7 +334,7 @@ export default class WMTSCapabilitiesParser {
 
     _getLayerAttribution(layerId) {
         let title = this.ServiceProvider?.ProviderName
-        let url = this.ServiceProvider?.ProviderSite
+        const url = this.ServiceProvider?.ProviderSite
 
         if (!title) {
             const msg = `No attribution title for layer ${layerId}`

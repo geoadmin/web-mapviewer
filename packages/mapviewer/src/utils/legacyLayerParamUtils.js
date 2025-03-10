@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { cloneDeep } from 'lodash'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -109,7 +110,7 @@ export function getLayersFromLegacyUrlParams(
         if (layer) {
             // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
             // in order to alter it before returning it
-            layer = layer.clone()
+            layer = cloneDeep(layer)
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
