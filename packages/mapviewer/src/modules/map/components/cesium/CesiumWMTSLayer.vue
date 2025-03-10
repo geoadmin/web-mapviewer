@@ -1,5 +1,6 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
+import { layerContainsErrorMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
@@ -70,7 +71,7 @@ watch(currentYear, () => {
 })
 
 onBeforeUnmount(() => {
-    if (wmtsLayerConfig.containErrorMessage(unsupportedProjectionError)) {
+    if (layerContainsErrorMessage(wmtsLayerConfig, unsupportedProjectionError)) {
         store.dispatch('removeLayerError', {
             layerId: wmtsLayerConfig.id,
             isExternal: wmtsLayerConfig.isExternal,

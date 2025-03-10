@@ -1,4 +1,6 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { cloneDeep } from 'lodash'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
@@ -45,7 +47,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        layer = currentLayer.clone()
+        layer = cloneDeep(currentLayer)
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? defaultOpacity
@@ -115,7 +117,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         })
     } else {
         // Finally check if this is a Geoadmin layer
-        layer = store.getters.getLayerConfigById(parsedLayer.id)?.clone()
+        layer = cloneDeep(store.getters.getLayerConfigById(parsedLayer.id))
         if (layer) {
             layer.visible = parsedLayer.visible
             if (parsedLayer.opacity !== undefined) {
@@ -126,8 +128,10 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             }
 
             // If we have a WMS layer add extra params from custom attributes
-            if (layer instanceof GeoAdminWMSLayer) {
-                layer.setCustomAttributes(customAttributes)
+            if (layer.type === LayerType.WMS) {
+                // TODO we don't have checks here anymore when setting it directly instead
+                // through the a method
+                layer.customAttributes = customAttributes
             }
         }
     }
@@ -185,6 +189,7 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
                 featuresRequests
             )
             if (layerObject) {
+                // TODO what's this adminId
                 if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
                         store.dispatch('setShowDrawingOverlay', {

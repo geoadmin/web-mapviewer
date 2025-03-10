@@ -1,6 +1,7 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { cloneDeep } from "lodash"
 
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown
@@ -37,7 +38,7 @@ export class AggregateSubLayer {
 
     clone() {
         let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        clone.layer = this.layer.clone()
+        clone.layer = cloneDeep(layer)
         return clone
     }
 }
@@ -123,7 +124,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
 
     clone() {
         let clone = super.clone()
-        clone.subLayers = this.subLayers.map((subLayer) => subLayer.clone())
-        return clone
+        clone.subLayers = this.subLayers.map((subLayer) => cloneDeep(subLayer))
     }
 }

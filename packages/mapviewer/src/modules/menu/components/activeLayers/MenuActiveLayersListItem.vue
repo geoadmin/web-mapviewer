@@ -5,6 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -127,7 +128,7 @@ function showLayerDescriptionPopup() {
 }
 
 function duplicateLayer() {
-    store.dispatch('addLayer', { layer: layer.clone(), ...dispatcher })
+    store.dispatch('addLayer', { layer: cloneDeep(layer), ...dispatcher })
 }
 
 function changeStyle(newStyle) {

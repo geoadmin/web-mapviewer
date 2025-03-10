@@ -1,5 +1,11 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import {
+    addErrorMessageToLayer,
+    clearLayerErrorMessages,
+    removeErrorMessageFromLayer,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { cloneDeep } from 'lodash'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -34,7 +40,8 @@ const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) 
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
-    const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
+    // TODO clone needed??
+    const clone = cloneDeep(getters.getLayerConfigById(layer.id)) ?? null
     if (clone) {
         if (typeof layer.visible === 'boolean') {
             clone.visible = layer.visible
@@ -357,7 +364,8 @@ const actions = {
             const layerConfig = getters.getLayerConfigById(layer.id)
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
-                const clone = layerConfig.clone()
+                // tODO clone needed?
+                const clone = cloneDeep(layerConfig)
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
@@ -370,7 +378,7 @@ const actions = {
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                return layer.clone()
+                return cloneDeep(layer)
             }
         })
         commit('setLayers', { layers: layers, dispatcher })
@@ -399,12 +407,14 @@ const actions = {
         // default values when we add it, not the settings from the layer already added)
         let clone = null
         if (layer) {
-            clone = layer.clone()
+            // tODO clone needed?
+            clone = cloneDeep(layer)
         } else if (layerConfig) {
             // Get the AbstractLayer Config object, we need to clone it in order
             clone = cloneActiveLayerConfig(getters, layerConfig)
         } else if (layerId) {
-            clone = getters.getLayerConfigById(layerId)?.clone() ?? null
+            // tODO clone needed?
+            clone = cloneDeep(getters.getLayerConfigById(layerId)) ?? null
         }
         if (clone) {
             commit('addLayer', { layer: clone, dispatcher })
@@ -428,21 +438,23 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     setLayers({ commit, getters }, { layers, dispatcher }) {
-        const clones = layers
-            .map((layer) => {
-                let clone = null
-                if (layer instanceof AbstractLayer) {
-                    clone = layer.clone()
-                } else if (layer instanceof Object) {
-                    clone = cloneActiveLayerConfig(getters, layer)
-                } else if (layer instanceof String || typeof layer === 'string') {
-                    // should be string
-                    clone = getters.getLayerConfigById(layer)?.clone() ?? null
-                }
-                return clone
-            })
-            .filter((layer) => layer !== null)
-        commit('setLayers', { layers: clones, dispatcher })
+        // const clones = layers
+        //     .map((layer) => {
+        //         let clone = null
+        //         if (layer instanceof AbstractLayer) {
+        //             // TODO clone needed?
+        //             clone = cloneDeep(layer)
+        //         } else if (layer instanceof Object) {
+        //             clone = cloneActiveLayerConfig(getters, layer)
+        //         } else if (layer instanceof String || typeof layer === 'string') {
+        //             // should be string
+        //             // TODO clone needed?
+        //             clone = cloneDeep(getters.getLayerConfigById(layer)) ?? null
+        //         }
+        //         return clone
+        //     })
+        //     .filter((layer) => layer !== null)
+        commit('setLayers', { layers, dispatcher })
     },
 
     /**
@@ -506,7 +518,8 @@ const actions = {
                         )
                     }
                     return layers2Update.map((layer2Update) => {
-                        const updatedLayer = layer2Update.clone()
+                        // TODO clone needed?
+                        const updatedLayer = cloneDeep(layer2Update)
                         Object.entries(layer).forEach(
                             (entry) => (updatedLayer[entry[0]] = entry[1])
                         )
@@ -628,9 +641,10 @@ const actions = {
         } else {
             let clone = null
             if (layer instanceof AbstractLayer) {
-                clone = layer.clone()
+                clone = cloneDeep(layer)
             } else {
-                clone = getters.getLayerConfigById(layer)?.clone()
+                // TODO clone needed?
+                clone = cloneDeep(getters.getLayerConfigById(layer))
                 if (!clone) {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
@@ -692,8 +706,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.addErrorMessage(error)
+            const clone = cloneDeep(layer)
+            addErrorMessageToLayer(clone, error)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
@@ -722,8 +736,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.removeErrorMessage(error)
+            const clone = cloneDeep(layer)
+            removeErrorMessage(clone, error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -745,8 +759,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.clearErrorMessages()
+            const clone = cloneDeep(layer)
+            clearLayerErrorMessages(clone)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -777,7 +791,7 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
+            const clone = cloneDeep(layer)
             if (data) {
                 let extent
                 if (clone.type === LayerTypes.KML) {
@@ -797,11 +811,11 @@ const actions = {
                 // Always clean up the error messages before doing the check
                 const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
                 const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
-                clone.removeErrorMessage(emptyFileErrorMessage)
-                clone.removeErrorMessage(outOfBoundsErrorMessage)
+                removeErrorMessageFromLayer(clone, emptyFileErrorMessage)
+                removeErrorMessageFromLayer(clone, outOfBoundsErrorMessage)
 
                 if (!extent) {
-                    clone.addErrorMessage(emptyFileErrorMessage)
+                    addErrorMessageToLayer(clone, emptyFileErrorMessage)
                 } else if (
                     !getExtentIntersectionWithCurrentProjection(
                         extent,
@@ -809,7 +823,7 @@ const actions = {
                         rootState.position.projection
                     )
                 ) {
-                    clone.addErrorMessage(outOfBoundsErrorMessage)
+                    addErrorMessageToLayer(clone, outOfBoundsErrorMessage)
                 }
             }
             if (metadata) {

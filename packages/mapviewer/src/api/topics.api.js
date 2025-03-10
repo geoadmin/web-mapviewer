@@ -1,5 +1,6 @@
 import log from '@geoadmin/log'
 import axios from 'axios'
+import { cloneDeep } from 'lodash'
 
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
@@ -185,7 +186,7 @@ export function parseTopics(layersConfig, rawTopics) {
             if (layer) {
                 // deep copy so that we can reassign values later on
                 // (layers come from the Vuex store so it can't be modified directly)
-                layer = layer.clone()
+                layer = cloneDeep(layer)
                 // checking if the layer should be also visible
                 layer.visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order

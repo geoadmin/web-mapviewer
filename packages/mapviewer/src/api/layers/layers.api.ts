@@ -10,8 +10,9 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { getApi3BaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
+import { createGeoAdminWMTSLayerFromConfig } from '@geoadmin/layers'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 
@@ -73,9 +74,10 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 log.info('Vector layer format is TBD in our backends')
                 break
             case 'wmts':
-                layer = new GeoAdminWMTSLayer({
+                layer = createGeoAdminWMTSLayerFromConfig({
                     name,
                     id,
+                    baseUrl: getWmtsBaseUrl(),
                     idIn3d: layerConfig.config3d ?? null,
                     technicalName: serverLayerName,
                     opacity,
