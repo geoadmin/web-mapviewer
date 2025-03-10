@@ -25,7 +25,8 @@ const visibleImageryLayers = computed(() =>
             // (we can't just modify the 3D config without cloning it, as it comes directly from the store)
             let configIn3d = layersConfig.value.find((layer) => layer.id === imageryLayer.idIn3d)
             if (configIn3d) {
-                configIn3d = configIn3d.clone()
+                // TODO clone needed?
+                configIn3d = cloneDeep(configIn3d)
                 configIn3d.opacity = imageryLayer.opacity
                 return configIn3d
             }

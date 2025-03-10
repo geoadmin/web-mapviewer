@@ -70,6 +70,7 @@
         "jquery": "catalog:",
         "jszip": "catalog:",
         "lodash": "catalog:",
+        "@types/lodash": "catalog:",
         "maplibre-gl": "catalog:",
         "ol": "catalog:",
         "pako": "catalog:",

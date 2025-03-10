@@ -1,3 +1,5 @@
+import type { Layer } from '@geoadmin/layers'
+
 import { cloneDeep } from 'lodash'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
@@ -42,7 +44,27 @@ export class LayerAttribution {
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class AbstractLayer {
+export default class AbstractLayer implements Layer {
+    name
+    id
+    type
+    baseUrl?: string
+    // ensureTrailingSlashInBaseUrl
+    opacity
+    visible
+    attributions
+    hasTooltip
+    hasDescription
+    hasLegend
+    isExternal
+    isLoading
+    timeConfig
+    customAttributes?: Record<any, any>
+
+    hasError
+    errorMessages
+    hasMultipleTimestamps
+
     /**
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
@@ -138,37 +160,6 @@ export default class AbstractLayer {
         this.setCustomAttributes(customAttributes)
     }
 
-    /**
-     * @param {ErrorMessage} errorMessage
-     * @returns {boolean}
-     */
-    containErrorMessage(errorMessage) {
-        return this.errorMessages.has(errorMessage)
-    }
-
-    /** @returns {ErrorMessage} */
-    getFirstErrorMessage() {
-        return this.errorMessages.values().next().value
-    }
-
-    /** @param {ErrorMessage} errorMessage */
-    addErrorMessage(errorMessage) {
-        this.errorMessages.add(errorMessage)
-        this.hasError = true
-    }
-
-    /** @param {ErrorMessage} errorMessage */
-    removeErrorMessage(errorMessage) {
-        // We need to find the error message that equals to remove it
-        for (let msg of this.errorMessages) {
-            if (msg.isEquals(errorMessage)) {
-                this.errorMessages.delete(msg)
-                break
-            }
-        }
-        this.hasError = !!this.errorMessages.size
-    }
-
     clearErrorMessages() {
         this.errorMessages.clear()
         this.hasError = false
@@ -233,7 +224,7 @@ export default class AbstractLayer {
         if (customAttributes && Object.keys(customAttributes).length > 0) {
             this.customAttributes = customAttributes
         } else {
-            this.customAttributes = null
+            this.customAttributes = []
         }
     }
 

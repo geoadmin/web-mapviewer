@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { cloneDeep } from 'lodash'
 
 const state = {
     /**
@@ -46,7 +47,7 @@ const actions = {
         commit('setTopics', { topics, dispatcher })
     },
     setTopicTree: ({ commit }, { layers, dispatcher }) => {
-        commit('setTopicTree', { layers: layers.map((layer) => layer.clone()), dispatcher })
+        commit('setTopicTree', { layers: layers.map((layer) => cloneDeep(layer)), dispatcher })
     },
     changeTopic: ({ commit, state }, { topicId, dispatcher }) => {
         if (

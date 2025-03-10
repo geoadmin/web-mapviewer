@@ -1,3 +1,4 @@
+import { type GeoAdminAPILayer } from "@geoadmin/layers"
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
@@ -14,7 +15,17 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminLayer extends AbstractLayer {
+export default class GeoAdminLayer extends AbstractLayer implements GeoAdminAPILayer {
+    format
+    isBackground
+    technicalName
+    topics
+    idIn3d?: string | undefined;
+    searchable: boolean;
+    isSpecificFor3D
+    isHighlightable: boolean;
+
+
     /**
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData.

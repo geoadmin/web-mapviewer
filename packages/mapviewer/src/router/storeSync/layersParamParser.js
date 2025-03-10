@@ -206,7 +206,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
     }
 
     // Add custom attributes if any
-    if (layer.customAttributes !== null) {
+    if (layer.customAttributes) {
         for (const [key, value] of Object.entries(layer.customAttributes)) {
             layerUrlString += `@${key}${value ? '=' + encodeLayerParam(value) : ''}`
         }
