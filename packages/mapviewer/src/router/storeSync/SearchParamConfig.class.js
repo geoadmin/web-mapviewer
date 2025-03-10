@@ -1,6 +1,7 @@
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
+import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { removeQueryParamFromHref } from '@/utils/searchParamUtils'
 
 export const URL_PARAM_NAME_SWISSSEARCH = 'swisssearch'
@@ -15,9 +16,15 @@ export const URL_PARAM_NAME_SWISSSEARCH = 'swisssearch'
 function dispatchSearchFromUrl(to, store, urlParamValue) {
     // avoiding dispatching the search query to the store when there is nothing to set. Not avoiding this makes the CI test very flaky
     if (urlParamValue) {
+        let shouldCenter = !(to.query.crosshair && to.query.center)
+        // When the query is a valid coordinate, we want to center the map
+        const extractedCoordinate = coordinateFromString(to.query[URL_PARAM_NAME_SWISSSEARCH])
+        if (extractedCoordinate) {
+            shouldCenter = true
+        }
         store.dispatch('setSearchQuery', {
             query: urlParamValue,
-            shouldCenter: !(to.query.crosshair && to.query.center),
+            shouldCenter: shouldCenter,
             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             originUrlParam: true,
         })
