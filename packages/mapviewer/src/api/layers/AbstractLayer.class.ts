@@ -156,7 +156,7 @@ export default class AbstractLayer implements Layer {
         this.errorMessages = new Set<ErrorMessage>()
         this.hasError = false
         this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        //this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
     }
     // /**

@@ -1,12 +1,12 @@
 // TODO maybe this can/should go to the package as well!!
 import { type LayerAttribution, type GeoAdminWMTSLayer, type GeoAdminWMSLayer, LayerType } from '@geoadmin/layers'
+import { type GeoAdminGeoJSONLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
 import GeoAdminAggregateLayer, {
     AggregateSubLayer,
 } from '@/api/layers/GeoAdminAggregateLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
@@ -147,7 +147,8 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
             return layer
         }
         case 'geojson': {
-            const layer = new GeoAdminGeoJsonLayer({
+            const layer: GeoAdminGeoJSONLayer = {
+                type: LayerType.GEOJSON,
                 name,
                 id,
                 opacity,
@@ -157,7 +158,13 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 styleUrl: layerConfig.styleUrl,
                 updateDelay: layerConfig.updateDelay,
                 hasLegend: !!hasLegend,
-            })
+                hasTooltip: false,
+                technicalName: id,
+                hasDescription: true,
+                isExternal: false,
+                isLoading: true,
+                hasError: false,
+            }
             return layer
         }
         case 'aggregate': {
