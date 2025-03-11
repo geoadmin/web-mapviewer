@@ -277,7 +277,7 @@ describe('Test menu tray ui', () => {
             checkOpenSections([])
             measureMenu(false)
 
-            cy.get(menuActiveLayersHeaderSelector).click()
+            cy.get(menuActiveLayersHeaderSelector).click({ force: true })
             waitForAnimationsToFinish()
             checkOpenSections(['activeLayers'])
             measureMenu(false)

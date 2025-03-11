@@ -1,9 +1,9 @@
 import type { Layer } from '@geoadmin/layers'
 
+import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import ErrorMessage from 'node_modules/@geoadmin/layers/dist/validation'
 
 /**
  * Name (or description) of a data holder for a layer, with the possibility to define a URL
@@ -17,11 +17,13 @@ import ErrorMessage from 'node_modules/@geoadmin/layers/dist/validation'
  * to Vue reactivity engine.
  */
 export class LayerAttribution {
+    name: string
+    url: string | null
     /**
      * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
      * @param {String} url Link to the data owner website (if there is one)
      */
-    constructor(name, url = null) {
+    constructor(name: string, url: string | null = null) {
         this.name = name
         this.url = url
     }
@@ -102,7 +104,7 @@ export default class AbstractLayer implements Layer {
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
-    constructor(layerData) {
+    constructor(layerData: Record<string, any>) {
         if (!layerData) {
             throw new InvalidLayerDataError('Missing layer data', layerData)
         }
@@ -211,12 +213,12 @@ export default class AbstractLayer implements Layer {
             for (const [key, value] of Object.entries(customAttributes)) {
                 if (typeof key !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid key`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid key`
                     )
                 }
                 if (typeof value !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid value`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid value`
                     )
                 }
             }

@@ -1,4 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import {
     addErrorMessageToLayer,
     clearLayerErrorMessages,
@@ -278,7 +279,7 @@ const getters = {
         (state, getters) =>
         (layerId, isExternal = null, baseUrl = null) => {
             const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
-            return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+            return layer?.isExternal || (layer?.type === LayerType.KML && !layer?.adminId)
         },
 
     /**
@@ -644,7 +645,7 @@ const actions = {
                 clone = cloneDeep(layer)
             } else {
                 // TODO clone needed?
-                clone = cloneDeep(getters.getLayerConfigById(layer))
+                clone = cloneDeep(getters.getLayerConfigById(layer.id))
                 if (!clone) {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }

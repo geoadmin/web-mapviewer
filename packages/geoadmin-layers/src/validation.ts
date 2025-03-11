@@ -4,7 +4,7 @@ import type { Layer } from "@/layers"
  * else or maybe this should be de-generalized?
  * Is it used somewhere outside of layers?
  */
-export default class ErrorMessage {
+export class ErrorMessage {
     msg: string
     params: Record<string, any>
 

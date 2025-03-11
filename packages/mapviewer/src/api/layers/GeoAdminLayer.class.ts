@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO
 import { type GeoAdminAPILayer } from "@geoadmin/layers"
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'

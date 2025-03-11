@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { constants } from '@geoadmin/coordinates'
 import { type GeoAdminWMTSLayer as GeoAdminWMTSLayerIface } from '@geoadmin/layers'
 

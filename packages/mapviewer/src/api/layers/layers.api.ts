@@ -32,8 +32,7 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
  * @param lang
  * @returns {GeoAdminLayer}
  */
-const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
-    let layer = undefined
+const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string, allOtherLayers: Record<string, any>, lang: string) => {
     if (!layerConfig) {
         return
     }
@@ -58,10 +57,11 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         // if we are here, no error has been raised by the URL construction
         // meaning we have a valid URL in potentialAttributionUrl
         attributionUrl = potentialAttributionUrl
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
         // this is not a well-formed URL, we do nothing with it
     }
-    let timestamps = []
+    let timestamps: any[] = []
     if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 0) {
         timestamps = layerConfig.timestamps.map(
             (timestamp) => new LayerTimeConfigEntry(timestamp)
@@ -108,7 +108,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 isExternal: false,
                 isSpecificFor3d: false,
                 isLoading: false,
-                hasMultipleTimestamps: !!timeConfig?.timeEntries?.length || false,
+                hasMultipleTimestamps: (timeConfig?.timeEntries?.length || 0) > 1,
                 hasError: false
 
             }
@@ -142,14 +142,14 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 isExternal: false,
                 isSpecificFor3d: false,
                 hasDescription: true,
-                hasMultipleTimestamps: !!timeConfig?.timeEntries?.length || false,
+                hasMultipleTimestamps: (timeConfig?.timeEntries?.length || 0) > 1,
                 isLoading: false,
                 hasError: false
             }
             return layer
         }
-        case 'geojson':
-            layer = new GeoAdminGeoJsonLayer({
+        case 'geojson': {
+            const layer = new GeoAdminGeoJsonLayer({
                 name,
                 id,
                 opacity,
@@ -160,7 +160,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 updateDelay: layerConfig.updateDelay,
                 hasLegend: !!hasLegend,
             })
-            break
+            return layer
+        }
         case 'aggregate': {
             // here it's a bit tricky, the aggregate layer has a main entry in the layers config (with everything as usual)
             // but things get complicated with sub-layers. Each sub-layer has an entry in the config but it's ID (or
@@ -182,8 +183,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             // }
 
             // here id would be "parent.layer" in the example above
-            const subLayers = []
-            layerConfig.subLayersIds.forEach((subLayerId) => {
+            const subLayers: Record<string, any> = []
+            layerConfig.subLayersIds.forEach((subLayerId: string) => {
                 // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
                 const subLayerRawConfig = allOtherLayers[subLayerId]
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
@@ -205,7 +206,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     )
                 }
             })
-            layer = new GeoAdminAggregateLayer({
+            const layer = new GeoAdminAggregateLayer({
                 name,
                 id,
                 opacity,
@@ -220,12 +221,11 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 searchable,
             })
 
-            break
+            return layer
         }
         default:
             log.error('Unknown layer type', type)
     }
-    return layer
 }
 
 /**
@@ -235,14 +235,14 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
  * @param {String} layerId The unique layer ID used in our backends
  * @returns {Promise<String>} HTML content of the layer's legend
  */
-export const getLayerDescription = (lang, layerId) => {
+export const getLayerDescription = (lang: string, layerId:string) => {
     return new Promise((resolve, reject) => {
         axios
             .get(`${getApi3BaseUrl()}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
             .then((response) => resolve(response.data))
             .catch((error) => {
                 log.error('Error while retrieving the legend for the layer', layerId, error)
-                reject(error)
+                reject(new Error(error))
             })
     })
 }
@@ -253,13 +253,13 @@ export const getLayerDescription = (lang, layerId) => {
  * @param {String} lang The ISO code for the lang in which the config should be loaded (required)
  * @returns {Promise<GeoAdminLayer[]>}
  */
-export const loadLayersConfigFromBackend = (lang) => {
+export const loadLayersConfigFromBackend = (lang: string) => {
     return new Promise((resolve, reject) => {
         if (!getApi3BaseUrl()) {
             // this could happen if we are testing the app in unit tests, we simply reject and do nothing
-            reject('API base URL is undefined')
+            reject(new Error('API base URL is undefined'))
         } else {
-            const layersConfig = []
+            const layersConfig: any[] = []
             axios
                 .get(`${getApi3BaseUrl()}rest/services/all/MapServer/layersConfig?lang=${lang}`)
                 .then(({ data: rawLayersConfig }) => {
@@ -278,13 +278,13 @@ export const loadLayersConfigFromBackend = (lang) => {
                         })
                         resolve(layersConfig)
                     } else {
-                        reject('LayersConfig loaded from backend is not an defined or is empty')
+                        reject(new Error('LayersConfig loaded from backend is not an defined or is empty'))
                     }
                 })
                 .catch((error) => {
                     const message = 'Error while loading layers config from backend'
                     log.error(message, error)
-                    reject(message)
+                    reject(new Error(message))
                 })
         }
     })

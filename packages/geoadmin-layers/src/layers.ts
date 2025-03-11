@@ -1,4 +1,4 @@
-import type ErrorMessage from "@/validation"
+import type { ErrorMessage } from "@/validation"
 
 export enum LayerType {
     WMTS = 'WMTS',
@@ -128,12 +128,19 @@ export interface GeoAdminWMTSLayer extends GeoAdminAPILayer {
   isBackground: boolean
   /** Define the maximum resolution the layer can reach */
   maxResolution: number
+  type: LayerType.WMTS
 }
 
 export interface GeoAdmin3DLayer extends Layer { }
 
 export interface GeoAdminGeoJSONLayer extends Layer {
-
+  type: LayerType.GEOJSON
+  updateDelay: number
+  styleUrl: string
+  geoJsonUrl: string
+  // TODO these are set in the class to null
+  geoJsonStyle: any
+  geoJsonData: any
 }
 
 export interface GeoAdminVectorLayer extends Layer {
