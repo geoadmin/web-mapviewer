@@ -157,7 +157,7 @@ export default class AbstractLayer implements Layer {
         this.warningMessages = new Set()
         this.hasWarning = false
         this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        //this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
     }
 

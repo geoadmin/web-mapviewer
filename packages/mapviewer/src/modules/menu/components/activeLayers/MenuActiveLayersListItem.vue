@@ -9,7 +9,7 @@ import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import layerUtils from '@geoadmin/layers'
+import { hasMultipleTimestamps as layerUtilsHasMultipleTimestamps } from '@geoadmin/layers'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -80,7 +80,7 @@ const attributionName = computed(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
 )
 const showLayerDescriptionIcon = computed(() => layer.hasDescription)
-const hasMultipleTimestamps = computed(() => layerUtils.hasMultipleTimestamps(layer))
+const hasMultipleTimestamps = computed(() => layerUtilsHasMultipleTimestamps(layer))
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 

@@ -3,6 +3,7 @@
  * it here
  */
 
+import { LayerType } from '@geoadmin/layers'
 import { addErrorMessageToLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
@@ -136,7 +137,7 @@ export default function loadGeojsonStyleAndData(store) {
     store.subscribe((mutation) => {
         const addLayersSubscriber = async (layers) => {
             const geoJsonLayers = layers
-                .filter((layer) => layer instanceof GeoAdminGeoJsonLayer)
+                .filter((layer) => layer.type === LayerType.GEOJSON)
                 // filtering out multiple active layer entries for the same GeoJSON data
                 // (only one request to get the data is necessary for all entries)
                 .filter(

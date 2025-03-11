@@ -642,11 +642,13 @@ const actions = {
             commit('setPreviewLayer', { layer: null, dispatcher })
         } else {
             let clone = null
-            if (layer instanceof AbstractLayer) {
+            if (typeof layer === 'object') {
+                // got the layer, thus we copy it directly
                 clone = cloneDeep(layer)
             } else {
                 // TODO clone needed?
-                clone = cloneDeep(getters.getLayerConfigById(layer.id))
+                // got an ID, look for the layer
+                clone = cloneDeep(getters.getLayerConfigById(layer))
                 if (!clone) {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }

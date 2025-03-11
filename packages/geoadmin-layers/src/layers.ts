@@ -139,8 +139,9 @@ export interface GeoAdminGeoJSONLayer extends Layer {
   styleUrl: string
   geoJsonUrl: string
   // TODO these are set in the class to null
-  geoJsonStyle: any
-  geoJsonData: any
+  geoJsonStyle?: any
+  geoJsonData?: any
+  technicalName: string
 }
 
 export interface GeoAdminVectorLayer extends Layer {
