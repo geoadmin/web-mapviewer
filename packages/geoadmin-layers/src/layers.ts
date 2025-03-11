@@ -56,7 +56,7 @@ export interface Layer {
   isLoading: boolean
   /** Time series config */
   /* TODO migrate the layer time config */
-  readonly timeConfig?: any
+  timeConfig?: any
   /** The custom attributes (except the well known updateDelays, adminId, features and year)
    * passed with the layer id in url. */
   readonly customAttributes?: Record<string, string>
@@ -64,7 +64,7 @@ export interface Layer {
   // new fields that weren't specified in AbstractLayer's Constructor
   errorMessages?: Set<ErrorMessage>
   hasError: boolean
-  hasMultipleTimestamps: boolean
+  // hasMultipleTimestamps: boolean
 }
 
 

@@ -246,7 +246,6 @@ export default {
             { dispatch, getters, rootState },
             { layers, coordinate, vectorFeatures = [], dispatcher }
         ) {
-            debugger
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
                 ...vectorFeatures,

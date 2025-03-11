@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { LayerType } from '@geoadmin/layers'
 
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
@@ -42,19 +43,13 @@ const startingZIndexForImageryLayers = computed(
 
 function isImageryLayer(layer) {
     return (
-        layer instanceof GeoAdminWMTSLayer ||
-        layer instanceof GeoAdminWMSLayer ||
-        layer instanceof GeoAdminAggregateLayer ||
-        layer instanceof ExternalLayer
+        [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE].includes(layer.type) ||
+        layer.isExternal
     )
 }
 
 function isPrimitiveLayer(layer) {
-    return (
-        layer instanceof GeoAdminGeoJsonLayer ||
-        layer instanceof KMLLayer ||
-        layer instanceof GPXLayer
-    )
+    return [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(layer.type)
 }
 </script>
 
