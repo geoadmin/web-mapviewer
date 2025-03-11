@@ -108,7 +108,6 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 isExternal: false,
                 isSpecificFor3d: false,
                 isLoading: false,
-                hasMultipleTimestamps: (timeConfig?.timeEntries?.length || 0) > 1,
                 hasError: false
 
             }
@@ -142,7 +141,6 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 isExternal: false,
                 isSpecificFor3d: false,
                 hasDescription: true,
-                hasMultipleTimestamps: (timeConfig?.timeEntries?.length || 0) > 1,
                 isLoading: false,
                 hasError: false
             }

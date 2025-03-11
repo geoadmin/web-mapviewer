@@ -5,6 +5,7 @@
  */
 
 import { CoordinateSystem } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 

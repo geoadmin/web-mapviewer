@@ -1,4 +1,4 @@
-import type { GeoAdminAPILayer } from "@/layers"
+import type { GeoAdminAPILayer, Layer } from "@/layers"
 
 /**
  * Returns which topic should be used in URL that needs one topic to be defined (identify or
@@ -15,4 +15,9 @@ export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminAPILayer) {
     }
     // otherwise we return the first topic to make our backend requests for identify and htmlPopup
     return layer.topics[0]
+}
+
+
+export const hasMultipleTimestamps = (layer: Layer): boolean => {
+    return (layer.timeConfig?.timeEntries?.length || 0) > 1
 }

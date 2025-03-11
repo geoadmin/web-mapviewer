@@ -49,6 +49,7 @@ describe('Testing legacyPermalinkManagement', () => {
         )
     }
 
+    // TODO change this
     const layerConfig = new GeoAdminLayer({
         attributions: [{ name: 'OFEN', url: 'https://www.bfe.admin.ch/bfe/fr/home.html' }],
         baseUrl: 'https://sys-wmts.dev.bgdi.ch/',
@@ -58,7 +59,6 @@ describe('Testing legacyPermalinkManagement', () => {
         hasDescription: true,
         hasError: false,
         hasLegend: true,
-        hasMultipleTimestamps: false,
         hasTooltip: true,
         id: 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem',
         idIn3d: null,

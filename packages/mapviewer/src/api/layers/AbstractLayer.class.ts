@@ -66,7 +66,6 @@ export default class AbstractLayer implements Layer {
 
     hasError
     errorMessages
-    hasMultipleTimestamps
 
     /**
      * @param {String} layerData.name Name of this layer in the current lang
