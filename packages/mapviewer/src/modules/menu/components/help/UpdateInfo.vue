@@ -12,7 +12,7 @@ const { showAsButton } = defineProps({
 })
 
 const { t } = useI18n()
-const cmsUrl = computed(() => t('cms_news_url'))
+const cmsUrl = computed(() => t('cms_release_url'))
 
 function openCmsLink() {
     window.open(cmsUrl.value, '_blank', 'noreferrer')
@@ -25,6 +25,6 @@ function openCmsLink() {
         data-cy="header-cms-link"
         @click="openCmsLink"
     >
-        {{ t('cms_news_button_title') }}
+        {{ t('cms_release_button_title') }}
     </HeaderLink>
 </template>
