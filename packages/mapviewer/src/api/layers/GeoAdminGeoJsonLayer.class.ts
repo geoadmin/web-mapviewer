@@ -1,4 +1,7 @@
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { type GeoAdminGeoJSONLayer as GeoAdminGeoJSONLayerIface } from '@geoadmin/layers'
+
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+// import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
@@ -13,7 +16,13 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
+export default class GeoAdminGeoJsonLayer extends AbstractLayer implements GeoAdminGeoJSONLayerIface {
+    updateDelay
+    styleUrl
+    geoJsonUrl
+    geoJsonData: any
+    geoJsonStyle: any
+
     /**
      * @param {String} layerData.name The name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer in our backend
@@ -31,7 +40,7 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      *   example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor(layerData) {
+    constructor(layerData: Record<string, any>) {
         if (!layerData) {
             throw new InvalidLayerDataError('Missing geoadmin GeoJSON layer data', layerData)
         }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { range } from 'lodash'

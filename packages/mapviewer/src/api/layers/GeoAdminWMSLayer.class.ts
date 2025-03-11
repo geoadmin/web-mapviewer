@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO
 import { type GeoAdminWMSLayer as GeoAdminWMSLayerIface } from "@geoadmin/layers"
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
