@@ -98,7 +98,7 @@ const actions = {
             // there are situations where we don't want to center on the features or coordinates searched.
             // for example: when we are sharing a position with a search query. In those situation, the
             // 'zoom to extent' should be avoided. We center by default.
-            if (extractedCoordinate  && shouldCenter) {
+            if (extractedCoordinate && shouldCenter) {
                 let coordinates = [...extractedCoordinate.coordinate]
                 if (extractedCoordinate.coordinateSystem !== currentProjection) {
                     // special case for LV03 input, we can't use proj4 to transform them into
