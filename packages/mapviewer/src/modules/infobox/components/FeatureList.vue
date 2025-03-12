@@ -50,19 +50,26 @@ watch(lang, () => {
 })
 
 function getLayerName(layerId) {
-    return activeLayers.value
-        .filter(
-            (layer) =>
-                layer.id === layerId ||
-                // when we add a group of (external) layers for the first time, features will be categorized with the sub layer ID,
-                // once we reload the app, only the group ID will remain. So we need to check if a sub-layer also match this ID,
-                // or feature selection just after adding a group of layer will output nothing
-                (layer.layers && layer.layers.find((subLayer) => subLayer.id === layerId))
-        )
-        .map(
-            (layer) => layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
-        )
-        .reduce((previousValue, currentValue) => previousValue ?? currentValue, null)
+    const layerNameFromFeatures = selectedFeaturesByLayerId.value.find(
+        (featuresForLayer) => featuresForLayer.layerId === layerId
+    )?.features[0]?.layer?.name
+    return (
+        layerNameFromFeatures ??
+        activeLayers.value
+            .filter(
+                (layer) =>
+                    layer.id === layerId ||
+                    // when we add a group of (external) layers for the first time, features will be categorized with the sub layer ID,
+                    // once we reload the app, only the group ID will remain. So we need to check if a sub-layer also match this ID,
+                    // or feature selection just after adding a group of layer will output nothing
+                    layer.layers?.find((subLayer) => subLayer.id === layerId)
+            )
+            .map(
+                (layer) =>
+                    layer.layers?.find((subLayer) => subLayer.id === layerId)?.name ?? layer.name
+            )
+            .reduce((previousValue, currentValue) => previousValue ?? currentValue, null)
+    )
 }
 
 function loadMoreResultForLayer(layerId) {

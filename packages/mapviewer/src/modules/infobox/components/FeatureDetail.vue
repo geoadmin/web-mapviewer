@@ -100,15 +100,18 @@ function getIframeHosts(value) {
 
 <template>
     <!-- eslint-disable vue/no-v-html-->
+
     <div
         v-if="hasFeatureStringData && popupDataCanBeTrusted"
         v-html="feature.data"
     />
+
     <div
         v-else-if="hasFeatureStringData"
         v-html="sanitizeHtml(feature.data)"
     />
     <!-- eslint-enable vue/no-v-html-->
+
     <div
         v-else
         class="htmlpopup-container"
@@ -125,18 +128,16 @@ function getIframeHosts(value) {
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 />
-                <div
-                    v-else
-                    class="fw-bold"
-                >
-                    {{ t(key) }}
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="fw-bold">{{ t(key) }}</div>
+                    <!-- eslint-disable vue/no-v-html-->
+                    <div
+                        data-cy="feature-detail-description-content"
+                        class="text-end pr-3"
+                        v-html="t(value)"
+                    ></div>
+                    <!-- eslint-enable vue/no-v-html-->
                 </div>
-                <!-- eslint-disable vue/no-v-html-->
-                <div
-                    data-cy="feature-detail-description-content"
-                    v-html="value"
-                />
-                <!-- eslint-enable vue/no-v-html-->
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ t('no_more_information') }}

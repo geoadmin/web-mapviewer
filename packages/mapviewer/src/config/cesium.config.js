@@ -52,3 +52,32 @@ export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 1.2742018 * 10 ** 7 // Diam
 export const MINIMUM_DISTANCE_TO_SHOW_TOOLTIP = 110000
 
 export const GPX_BILLBOARD_RADIUS = 8
+
+export const CESIUM_BUILDING_LAYER_ID = 'ch.swisstopo.swissbuildings3d.3d'
+export const CESIUM_VEGETATION_LAYER_ID = 'ch.swisstopo.vegetation.3d'
+export const CESIUM_CONSTRUCTIONS_LAYER_ID = 'ch.swisstopo.swisstlm3d.3d'
+export const CESIUM_LABELS_LAYER_ID = 'ch.swisstopo.swissnames3d.3d'
+
+/**
+ * @typedef LayerTooltipConfig
+ * @property {String} layerId The layer Id
+ * @property {String[]} translatedKeys The list of properties that need a translation
+ * @property {String[]} nonTranslatedKeys The list of properties that do not require a translation
+ * @property {String} idParam Which parameter is used as the identifier of a feature
+ */
+
+/** @returns {LayerTooltipConfig[]} */
+function createTooltipConfig() {
+    const buildingLayersTooltipConfig = {
+        layerId: CESIUM_BUILDING_LAYER_ID,
+        translatedKeys: ['OBJEKTART'],
+        nonTranslatedKeys: ['EGID', 'GESAMTHOEHE', 'DACH_MAX', 'GELAENDEPUNKT'],
+        idParam: 'EGID',
+    }
+
+    const tooltipsConfig = []
+    tooltipsConfig.push(buildingLayersTooltipConfig)
+    return tooltipsConfig
+}
+
+export const CESIUM_LAYER_TOOLTIPS_CONFIGURATION = createTooltipConfig()

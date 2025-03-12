@@ -1,5 +1,5 @@
 {
-    "3d_constructions": "Gebäude und Konstruktionen",
+    "3d_constructions": "Gebäude und Bauwerke",
     "3d_ie11_alert": "Sie verwenden InternetExplorer <= 11: Die 3D Darstellung wird nicht performant sein. Bitte nutzen Sie die neueste Version von Microsoft EDGE, Firefox oder Chrome, um optimale Ergebnisse zu erhalten",
     "3d_labels": "Geografische Namen",
     "3d_overlay_warning": "Wichtiger Hinweis: 3D-Daten nicht aktualisiert / 2D-Daten in 3D.<br/> Seit Okt. 2020 werden 3D-Daten (Gelände, Gebäude und andere 3D-Objekte) in diesem Viewer nicht mehr aktualisiert. Aktuellere Quelldaten stehen zum Download bereit. Einige 2D-Daten sind für die 3D-Visualisierung nicht optimal. Dies gilt insbesondere für Karten und Luftbilder. In steilem Gelände werden diese bei der Nutzung in 3D verzerrt dargestellt.",
