@@ -555,6 +555,10 @@ describe('Test of layer handling', () => {
         })
     })
     context('Background layer in URL at app startup', () => {
+        it('sets the background to the void layer if we set the bgLayer parameter to "void"', () => {
+            cy.goToMapView({ bgLayer: 'void' })
+            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
+        })
         it('sets the background to the topic default if none is defined in the URL', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
