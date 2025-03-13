@@ -54,7 +54,10 @@ function decreaseZoom() {
 
 <template>
     <div id="zoomButtons">
-        <GeoadminTooltip placement="left">
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="t('zoom_in')"
+        >
             <button
                 ref="zoomInButton"
                 class="toolbox-button d-print-none"
@@ -66,11 +69,12 @@ function decreaseZoom() {
                     :icon="['fas', 'plus-circle']"
                 />
             </button>
-            <template #content>
-                <div class="whitespace-nowrap zoom-tooltip">{{ t('zoom_in') }}</div>
-            </template>
         </GeoadminTooltip>
-        <GeoadminTooltip placement="left">
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="t('zoom_out')"
+            :use-extra-padding
+        >
             <button
                 ref="zoomOutButton"
                 class="toolbox-button d-print-none"
@@ -82,17 +86,10 @@ function decreaseZoom() {
                     :icon="['fas', 'minus-circle']"
                 />
             </button>
-            <template #content>
-                <div class="whitespace-nowrap zoom-tooltip">{{ t('zoom_out') }}</div>
-            </template>
         </GeoadminTooltip>
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
-
-.zoom-tooltip {
-    padding: 6px 10px;
-}
 </style>

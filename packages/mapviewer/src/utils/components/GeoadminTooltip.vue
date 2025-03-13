@@ -31,12 +31,23 @@ const {
     disabled = false,
     theme = 'light',
     openTrigger = 'hover',
+    noWrap = false,
+    useDefaultPadding = false,
 } = defineProps<{
+    /** @property {tooltipContent} string The text content of the tooltip */
     tooltipContent?: string
+    /** @property {placement} enum The desired placement */
     placement?: 'top' | 'bottom' | 'right' | 'left'
+    /** @property {disabled} boolean Disable the tooltip */
     disabled?: boolean
+    /** @property {theme} enum The tooltip theme */
     theme?: 'light' | 'warning' | 'secondary' | 'danger'
+    /** @property {openTrigger} enum How the tooltip shall be triggered */
     openTrigger?: 'hover' | 'click' | 'manual'
+    /** @property {noWrap} boolean If whitespace wrapping the content should be avoided */
+    noWrap?: boolean
+    /** - @property {useDefaultPadding} boolean Use the padding regardless of content slot usage */
+    useDefaultPadding?: boolean
 }>()
 
 const isShown = ref(false)
@@ -68,7 +79,8 @@ const style = computed(() => {
         ...floatingStyles.value,
         // if the content slot is used, we delegate the styling to the user
         // if it's the fallback, then it's a simple tooltip, thus add the padding
-        padding: slots.content ? '' : '6px 10px',
+        // if forceExtraPadding is set, we also want the padding
+        padding: slots.content && !useDefaultPadding ? '' : '6px 10px',
     }
     return style
 })
@@ -183,7 +195,10 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
                 ref="floatingElement"
                 :style="style"
                 class="floating"
-                :class="theme"
+                :class="{
+                    [theme]: true,
+                    'whitespace-nowrap': noWrap,
+                }"
                 :data-cy="dataCyValue"
             >
                 <!-- the arrow to be displayed on the top or on the left-->
