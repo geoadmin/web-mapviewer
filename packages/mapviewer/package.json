@@ -37,6 +37,7 @@
         "delete:reports:unit": "rimraf tests/results/unit/ || true"
     },
     "dependencies": {
+        "@floating-ui/vue": "catalog:",
         "@fortawesome/fontawesome-svg-core": "catalog:",
         "@fortawesome/free-brands-svg-icons": "catalog:",
         "@fortawesome/free-regular-svg-icons": "catalog:",
@@ -74,13 +75,12 @@
         "proj4": "catalog:",
         "reproject": "catalog:",
         "sortablejs": "catalog:",
-        "vue": "catalog:",
         "vue-chartjs": "catalog:",
         "vue-i18n": "catalog:",
         "vue-router": "catalog:",
+        "vue": "catalog:",
         "vue3-social-sharing": "catalog:",
-        "vuex": "catalog:",
-        "@floating-ui/vue": "catalog:"
+        "vuex": "catalog:"
     },
     "devDependencies": {
         "@4tw/cypress-drag-drop": "catalog:",
@@ -95,12 +95,12 @@
         "@vue/tsconfig": "catalog:",
         "axios-retry": "catalog:",
         "chai": "catalog:",
-        "cypress": "catalog:",
         "cypress-browser-permissions": "catalog:",
         "cypress-real-events": "catalog:",
         "cypress-recurse": "catalog:",
         "cypress-vite": "catalog:",
         "cypress-wait-until": "catalog:",
+        "cypress": "catalog:",
         "dotenv": "catalog:",
         "git-describe": "catalog:",
         "gitconfig": "catalog:",
@@ -112,7 +112,6 @@
         "sass": "catalog:",
         "sharp": "catalog:",
         "start-server-and-test": "catalog:",
-        "vite": "catalog:",
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
