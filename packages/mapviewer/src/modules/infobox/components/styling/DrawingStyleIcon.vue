@@ -93,7 +93,10 @@ function onImageLoad() {
             />
         </button>
         <template #content>
-            <div style="padding: 6px 10px">
+            <div
+                v-for="(text, key) in icon.description"
+                :key="key"
+            >
                 <strong v-if="isTextSameLanguage(key)">{{ text }}</strong>
                 <template v-else> {{ text }}</template>
             </div>
