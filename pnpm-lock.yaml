@@ -147,9 +147,6 @@ catalogs:
     dotenv:
       specifier: ^16.4.7
       version: 16.4.7
-    eslint:
-      specifier: ^9.22.0
-      version: 9.22.0
     eslint-plugin-cypress:
       specifier: ^4.2.0
       version: 4.2.0
@@ -339,9 +336,6 @@ importers:
       '@vue/tsconfig':
         specifier: 'catalog:'
         version: 0.7.0(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
-      eslint:
-        specifier: 'catalog:'
-        version: 9.22.0
       eslint-plugin-cypress:
         specifier: 'catalog:'
         version: 4.2.0(eslint@9.22.0)
@@ -654,9 +648,6 @@ importers:
       start-server-and-test:
         specifier: 'catalog:'
         version: 2.0.11
-      vite:
-        specifier: 'catalog:'
-        version: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
       vite-node:
         specifier: 'catalog:'
         version: 3.0.8(@types/node@22.13.10)(sass@1.77.6)
