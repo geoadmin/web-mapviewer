@@ -66,7 +66,10 @@ function onImageLoad() {
 </script>
 
 <template>
-    <GeoadminTooltip :disabled="isTooltipDisabled">
+    <GeoadminTooltip
+        :disabled="isTooltipDisabled"
+        use-default-padding
+    >
         <button
             ref="iconButton"
             class="icon-description btn btn-sm"

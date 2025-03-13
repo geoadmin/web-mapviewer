@@ -69,12 +69,8 @@ onBeforeUnmount(() => {
     <GeoadminTooltip
         :disabled="!tooltipContent"
         theme="warning"
+        :tooltip-content="tooltipContent"
     >
-        <template #content>
-            <div class="share-tooltip">
-                {{ tooltipContent }}
-            </div>
-        </template>
         <div
             v-if="inputText"
             ref="copyButton"
@@ -114,9 +110,5 @@ onBeforeUnmount(() => {
 @import '@/scss/webmapviewer-bootstrap-theme';
 .input-text-to-copy {
     width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
-}
-
-.share-tooltip {
-    padding: 6px 10px;
 }
 </style>

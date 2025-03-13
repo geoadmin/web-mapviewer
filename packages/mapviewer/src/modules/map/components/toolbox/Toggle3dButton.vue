@@ -56,7 +56,11 @@ function toggle3d() {
 </script>
 
 <template>
-    <GeoadminTooltip placement="left">
+    <GeoadminTooltip
+        placement="left"
+        :use-extra-padding="true"
+        :tooltip-content="tooltipContent"
+    >
         <button
             ref="toggle3DButton"
             class="toolbox-button"
@@ -70,18 +74,9 @@ function toggle3d() {
                 flip="horizontal"
             />
         </button>
-        <template #content>
-            <div class="whitespace-nowrap threed-tooltip">
-                {{ tooltipContent }}
-            </div>
-        </template>
     </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
-
-.threed-tooltip {
-    padding: 6px 10px;
-}
 </style>

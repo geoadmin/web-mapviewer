@@ -405,6 +405,7 @@ function handleKeyDownEvent(event) {
                         theme="danger"
                         :tooltip-content="tooltipYearOutsideRangeContent"
                         open-trigger="manual"
+                        use-default-padding
                     >
                         <input
                             v-model="inputYear"
@@ -433,6 +434,7 @@ function handleKeyDownEvent(event) {
                 <GeoadminTooltip
                     placement="bottom"
                     theme="secondary"
+                    use-default-padding
                 >
                     <div
                         v-if="yearsShownAsLabel.length > 0"
@@ -697,9 +699,5 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
             box-shadow: none;
         }
     }
-}
-
-.time-slider-infobox {
-    padding: 6px 10px;
 }
 </style>
