@@ -115,8 +115,8 @@
         "vite": "catalog:",
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
-        "vitest": "^3.0.5",
         "vite-plugin-vue-devtools": "catalog:",
+        "vitest": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"
     },

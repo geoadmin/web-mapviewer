@@ -28,31 +28,31 @@
         "pnpm": "10.*.*"
     },
     "devDependencies": {
-        "@eslint/markdown": "catalog:",
         "@eslint/js": "catalog:",
+        "@eslint/markdown": "catalog:",
+        "@prettier/plugin-xml": "catalog:",
         "@types/geojson": "catalog:",
         "@types/jsdom": "catalog:",
         "@types/node": "catalog:",
         "@types/proj4": "catalog:",
+        "@vue/eslint-config-prettier": "catalog:",
+        "@vue/eslint-config-typescript": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-cypress": "catalog:",
-        "eslint-plugin-vue": "catalog:",
         "eslint-plugin-mocha": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",
         "eslint-plugin-prettier": "catalog:",
-        "@vue/eslint-config-prettier": "catalog:",
-        "@vue/eslint-config-typescript": "catalog:",
+        "eslint-plugin-vue": "catalog:",
         "globals": "catalog:",
         "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
-        "vue-tsc": "catalog:",
-        "@prettier/plugin-xml": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
-        "vitest": "catalog:"
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
     },
     "dependencies": {
         "cesium": "catalog:"
