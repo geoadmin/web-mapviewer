@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'AddVertexButton.vue' }
 
-const { tooltipText, reverse, dataCyName } = defineProps({
+const { tooltipText, reverse } = defineProps({
     tooltipText: {
         type: String,
         default: 'modify_add_vertex',
@@ -20,10 +20,6 @@ const { tooltipText, reverse, dataCyName } = defineProps({
     reverse: {
         type: Boolean,
         default: false,
-    },
-    dataCyName: {
-        type: String,
-        required: true,
     },
 })
 
@@ -55,7 +51,6 @@ function addVertex() {
     >
         <button
             class="overlay-button d-print-none"
-            :data-cy="dataCyName"
             @click="addVertex"
         >
             <font-awesome-icon :icon="['fas', 'plus']" />
