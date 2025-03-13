@@ -25,10 +25,6 @@
 import { autoUpdate, useFloating, shift, arrow, offset, flip } from '@floating-ui/vue'
 import { computed, ref, useSlots, useTemplateRef, type CSSProperties } from 'vue'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-
-const DELAY = IS_TESTING_WITH_CYPRESS ? 0 : 100
-
 const {
     tooltipContent,
     placement: desiredPlacement = 'top',
@@ -98,16 +94,19 @@ const dataCyValue = computed((): string => {
     return ''
 })
 
+// on mobile touching the button is triggering the tooltip for a short moment
+// we work around this issue by a) detecting a touch event and b) putting the showing of the
+// tooltip in a later render cycle (so that the touch event is processed first)
 const openTooltip = (): void => {
     setTimeout(() => {
         isShown.value = true
-    }, DELAY)
+    }, 1)
 }
 
 const closeTooltip = (): void => {
     setTimeout(() => {
         isShown.value = false
-    }, DELAY)
+    }, 1)
 }
 
 const onTouchStart = (): void => {
@@ -115,20 +114,19 @@ const onTouchStart = (): void => {
 }
 
 const onTouchEnd = (): void => {
-    isTouching.value = false
+    // delay the touch end
+    setTimeout(() => {
+        isTouching.value = false
+    }, 500)
 }
 
 const onMouseOver = (): void => {
-    // touching the button on mobile will also trigger mouse over. This shows
-    // the tooltip for a split second until it disappears. We prevent that
-    // by detecting touch events
     if (!disabled && openTrigger === 'hover' && !isTouching.value) {
         openTooltip()
     }
 }
 
 const onMouseLeave = (): void => {
-    // see comment in onMouseOver
     if (!disabled && openTrigger === 'hover' && !isTouching.value) {
         closeTooltip()
     }
