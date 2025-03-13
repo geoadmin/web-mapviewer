@@ -55,7 +55,7 @@ See [i18n guide](https://kazupon.github.io/vue-i18n/guide/formatting.html)
 
 ## update translations
 
-See [the main README.md's section on that](../../../README.md#tooling-for-translation-update)
+See [the main README.md's section on that](../../../../../CONTRIBUTING.md#tooling-for-translation-update)
 
 ## State properties
 
