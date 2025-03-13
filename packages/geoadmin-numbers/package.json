@@ -29,9 +29,9 @@
     },
     "devDependencies": {
         "chai": "catalog:",
-        "vitest": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
+        "vitest": "catalog:",
         "vue-tsc": "catalog:"
     }
 }

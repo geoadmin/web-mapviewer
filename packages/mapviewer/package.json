@@ -37,6 +37,7 @@
         "delete:reports:unit": "rimraf tests/results/unit/ || true"
     },
     "dependencies": {
+        "@floating-ui/vue": "catalog:",
         "@fortawesome/fontawesome-svg-core": "catalog:",
         "@fortawesome/free-brands-svg-icons": "catalog:",
         "@fortawesome/free-regular-svg-icons": "catalog:",
@@ -79,8 +80,7 @@
         "vue-i18n": "catalog:",
         "vue-router": "catalog:",
         "vue3-social-sharing": "catalog:",
-        "vuex": "catalog:",
-        "@floating-ui/vue": "catalog:"
+        "vuex": "catalog:"
     },
     "devDependencies": {
         "@4tw/cypress-drag-drop": "catalog:",
@@ -112,7 +112,6 @@
         "sass": "catalog:",
         "sharp": "catalog:",
         "start-server-and-test": "catalog:",
-        "vite": "catalog:",
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
