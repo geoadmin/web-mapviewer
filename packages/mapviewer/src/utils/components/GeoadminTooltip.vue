@@ -25,6 +25,10 @@
 import { autoUpdate, useFloating, shift, arrow, offset, flip } from '@floating-ui/vue'
 import { computed, ref, useSlots, useTemplateRef, type CSSProperties } from 'vue'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+
+const DELAY = IS_TESTING_WITH_CYPRESS ? 0 : 200
+
 const {
     tooltipContent,
     placement: desiredPlacement = 'top',
@@ -94,11 +98,15 @@ const dataCyValue = computed((): string => {
 })
 
 const openTooltip = (): void => {
-    isShown.value = true
+    setTimeout(() => {
+        isShown.value = true
+    }, DELAY)
 }
 
 const closeTooltip = (): void => {
-    isShown.value = false
+    setTimeout(() => {
+        isShown.value = false
+    }, DELAY)
 }
 
 const onMouseOver = (): void => {
