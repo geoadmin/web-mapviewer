@@ -15,7 +15,7 @@ const isOpen = ref(false)
         @click="isOpen = true"
     >
         <!-- Menu Button. We need to override the rounded corners, then apply a new rounding on the top -->
-        <button class="btn m-0 px-1 btn-xs darken-on-hover rounded-0 rounded-top">
+        <button class="darken-on-hover d-flex btn btn-xs rounded-0 align-items-center">
             <FontAwesomeIcon :icon="isOpen ? 'caret-up' : 'caret-down'" />
             <span class="ms-1">News</span>
         </button>
@@ -23,7 +23,7 @@ const isOpen = ref(false)
         <!-- Collapsible Menu Items -->
         <div
             v-if="isOpen"
-            class="d-flex flex-column-reverse shadow-lg position-absolute z-menu-1"
+            class="d-flex flex-column-reverse shadow-lg position-absolute z-menu-1 background bg-white"
             data-cy="news-menu"
         >
             <MoreInfo class="darken-on-hover collapsable-menu-element p-1 px-2 rounded-0" />
@@ -40,7 +40,7 @@ const isOpen = ref(false)
     z-index: $zindex-menu + 1;
 }
 .darken-on-hover {
-    background-color: $nav-tabs-link-active-color;
+    background-color: transparent;
 }
 .darken-on-hover:hover {
     background-color: $list-item-hover-bg-color;
