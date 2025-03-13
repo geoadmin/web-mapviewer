@@ -51,6 +51,7 @@ const {
 }>()
 
 const isShown = ref(false)
+const isTouching = ref(false)
 
 const tooltipElement = useTemplateRef('tooltipElement')
 const floatingElement = useTemplateRef('floatingElement')
@@ -101,14 +102,26 @@ const closeTooltip = (): void => {
     isShown.value = false
 }
 
+const onTouchStart = (): void => {
+    isTouching.value = true
+}
+
+const onTouchEnd = (): void => {
+    isTouching.value = false
+}
+
 const onMouseOver = (): void => {
-    if (!disabled && openTrigger === 'hover') {
+    // touching the button on mobile will also trigger mouse over. This shows
+    // the tooltip for a split second until it disappears. We prevent that
+    // by detecting touch events
+    if (!disabled && openTrigger === 'hover' && !isTouching.value) {
         openTooltip()
     }
 }
 
 const onMouseLeave = (): void => {
-    if (!disabled && openTrigger === 'hover') {
+    // see comment in onMouseOver
+    if (!disabled && openTrigger === 'hover' && !isTouching.value) {
         closeTooltip()
     }
 }
@@ -172,6 +185,8 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
     >
         <div
             ref="tooltipElement"
+            @touchstart="onTouchStart"
+            @touchend="onTouchEnd"
             @mouseover="onMouseOver"
             @mouseleave="onMouseLeave"
             @click="onClick"
