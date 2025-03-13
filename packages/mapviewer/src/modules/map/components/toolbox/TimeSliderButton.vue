@@ -47,7 +47,10 @@ function toggleTimeSlider() {
         v-if="visibleLayersWithTimeConfig.length > 0"
         id="timeSlider"
     >
-        <GeoadminTooltip placement="left">
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="tooltipContent"
+        >
             <button
                 class="toolbox-button d-print-none mb-1"
                 data-cy="time-slider-button"
@@ -59,9 +62,6 @@ function toggleTimeSlider() {
                     :icon="['fas', 'clock-rotate-left']"
                 />
             </button>
-            <template #content>
-                <div class="whitespace-nowrap timeslider-tooltip">{{ tooltipContent }}</div>
-            </template>
         </GeoadminTooltip>
         <div
             class="time-sliders m-1 position-fixed"
@@ -116,9 +116,5 @@ $openCloseButtonHeight: 0rem;
             top: calc(2 * $header-height + $dev-disclaimer-height);
         }
     }
-}
-
-.timeslider-tooltip {
-    padding: 6px 10px;
 }
 </style>

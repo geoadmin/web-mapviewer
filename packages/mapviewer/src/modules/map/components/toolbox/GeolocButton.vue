@@ -40,7 +40,7 @@ const hasOrientation = computed(() => store.state.position.hasOrientation)
 const is3dActive = computed(() => store.state.cesium.active)
 const hasTrackingFeedback = computed(() => isActive.value && !isTracking.value)
 const hastAutoRotationFeedback = computed(
-    () => isActive.value  && hasOrientation.value && !autoRotation.value
+    () => isActive.value && hasOrientation.value && !autoRotation.value
 )
 function toggleGeolocation() {
     if (!isActive.value) {
@@ -67,7 +67,11 @@ function toggleGeolocation() {
         ref="geolocationButton"
         class="geoloc-button-div"
     >
-        <GeoadminTooltip placement="left">
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="tooltipContent"
+            :use-extra-padding="true"
+        >
             <button
                 class="toolbox-button d-print-none"
                 type="button"
@@ -99,11 +103,6 @@ function toggleGeolocation() {
                     />
                 </span>
             </button>
-            <template #content>
-                <div class="geoloc-tooltip">
-                    {{ tooltipContent }}
-                </div>
-            </template>
         </GeoadminTooltip>
         <OpenLayersCompassButton
             v-if="!is3dActive && compassButton"
@@ -119,10 +118,6 @@ function toggleGeolocation() {
 .geoloc-button-div {
     background-color: $map-button-hover-border-color;
     border-radius: $map-button-diameter * 0.5;
-}
-
-.geoloc-tooltip {
-    padding: 6px 10px;
 }
 
 @respond-above ('md') {

@@ -43,11 +43,12 @@ const { t } = useI18n()
             <GeoadminTooltip
                 class="px-1"
                 placement="right"
+                use-default-padding
             >
                 {{ t(title) }}
                 <!-- we're inside the <a> tag, thus we need to override the font color -->
                 <template #content>
-                    <div class="text-black tool-tooltip">{{ t(tooltip) }}</div>
+                    <div class="text-black">{{ t(tooltip) }}</div>
                 </template>
             </GeoadminTooltip>
         </a>
@@ -68,9 +69,5 @@ const { t } = useI18n()
         height: 2.75em;
         line-height: 2.75em;
     }
-}
-
-.tool-tooltip {
-    padding: 6px 10px;
 }
 </style>
