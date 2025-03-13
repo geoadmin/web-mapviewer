@@ -67,6 +67,7 @@ li {
 }
 
 @media print {
+    #__vue-devtools-container__,
     .no-print {
         display: none;
     }

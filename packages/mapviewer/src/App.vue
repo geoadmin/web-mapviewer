@@ -9,8 +9,8 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
 
@@ -25,7 +25,7 @@ let debouncedOnResize
 const showFeedbackPopup = computed(() => {
     return store.state.ui.errors.size + store.state.ui.warnings.size > 0
 })
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && store.getters.hasDevSiteWarning)
 
 onMounted(() => {
     // reading size
@@ -59,7 +59,7 @@ function refreshPageTitle() {
     >
         <router-view />
         <FeedbackPopup v-if="showFeedbackPopup" />
-        <DebugToolbar v-if="hasDevSiteWarning" />
+        <DebugToolbar v-if="showDebugToolbar" />
     </div>
 </template>
 

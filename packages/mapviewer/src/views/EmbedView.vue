@@ -4,7 +4,7 @@ import { computed, onBeforeMount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { sendChangeEventToParent } from '@/api/iframeFeatureEvent.api'
+import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.js'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'

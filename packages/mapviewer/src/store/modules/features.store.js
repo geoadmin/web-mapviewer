@@ -6,7 +6,7 @@ import { toRaw } from 'vue'
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import { sendFeatureInformationToIFrameParent } from '@/api/iframeFeatureEvent.api'
+import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,

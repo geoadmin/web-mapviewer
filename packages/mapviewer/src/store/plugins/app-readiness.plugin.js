@@ -1,5 +1,6 @@
 import log from '@geoadmin/log'
 
+import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
 import { ENVIRONMENT } from '@/config/staging.config'
 
 const dispatcher = { dispatcher: 'app-readiness-plugin' }
@@ -39,6 +40,7 @@ const appReadinessPlugin = (store) => {
 
         if (mutation.type === 'mapModuleReady') {
             store.dispatch('clearLoadingBar4MapLoading', { dispatcher })
+            sendMapReadyEventToParent()
         }
 
         // In production build we are not interested anymore in the mutation logs
