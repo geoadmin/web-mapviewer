@@ -242,12 +242,14 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 
+$border-color: rgba(0, 8, 16, 0.288);
+
 .floating {
     z-index: 100;
-    border: 1px solid rgba(0, 8, 16, 0.288);
+    border: 1px solid $border-color;
     border-radius: 4px;
     line-height: 1.4;
-    box-shadow: 0 4px 14px -2px #0008106c;
+    box-shadow: 0 0 14px 2px #0008106c;
     font-size: 16px;
     background-color: var(--background-color);
     color: var(--text-color);
@@ -276,11 +278,29 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
     width: 0;
 }
 
+// slide a second arrow underneath with 1px offset to emulate a border
+.arrow:after {
+    content: '';
+    height: 0;
+    width: 0;
+    position: fixed;
+    top: inherit;
+    left: inherit;
+    z-index: -1;
+}
+
 .arrowUp {
     top: -8px;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-bottom: 8px solid var(--background-color);
+}
+
+.arrowUp:after {
+    top: -9px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid $border-color;
 }
 
 .arrowRight {
@@ -290,6 +310,13 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
     border-left: 8px solid var(--background-color);
 }
 
+.arrowRight:after {
+    right: -9px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid $border-color;
+}
+
 .arrowLeft {
     left: -8px;
     border-top: 8px solid transparent;
@@ -297,10 +324,25 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
     border-right: 8px solid var(--background-color);
 }
 
+.arrowLeft:after {
+    content: '';
+    left: -9px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid $border-color;
+}
+
 .arrowDown {
     bottom: -8px;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-top: 8px solid var(--background-color);
+}
+
+.arrowDown:after {
+    bottom: -9px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid $border-color;
 }
 </style>
