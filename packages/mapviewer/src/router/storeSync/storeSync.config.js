@@ -2,7 +2,6 @@ import { allCoordinateSystems } from '@geoadmin/coordinates'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { SUPPORTED_LANG } from '@/modules/i18n'
 import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
@@ -127,9 +126,7 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(
                 query,
-                // in cypress, the backgroundLayers is undefined, so we skip this check
-                IS_TESTING_WITH_CYPRESS ||
-                    query === 'void' ||
+                query === 'void' ||
                     store.getters.backgroundLayers?.map((layer) => layer.id).includes(query),
                 'bgLayer'
             ),
