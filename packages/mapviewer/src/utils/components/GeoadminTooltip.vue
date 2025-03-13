@@ -74,17 +74,6 @@ const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement
     ],
 })
 
-const style = computed(() => {
-    const style: CSSProperties = {
-        ...floatingStyles.value,
-        // if the content slot is used, we delegate the styling to the user
-        // if it's the fallback, then it's a simple tooltip, thus add the padding
-        // if forceExtraPadding is set, we also want the padding
-        padding: slots.content && !useDefaultPadding ? '' : '6px 10px',
-    }
-    return style
-})
-
 const arrowStyle = computed((): CSSProperties => {
     /** The arrow data is either a position in the x or the y axis, depending on the position */
     return {
@@ -193,11 +182,16 @@ defineExpose({ tooltipElement, openTooltip, closeTooltip })
             <div
                 v-if="!disabled && isShown"
                 ref="floatingElement"
-                :style="style"
+                :style="floatingStyles"
                 class="floating"
                 :class="{
                     [theme]: true,
                     'whitespace-nowrap': noWrap,
+                    // if the content slot is used, we delegate the styling to the user
+                    // if it's the fallback, then it's a simple tooltip, thus add the padding
+                    // if forceExtraPadding is set, we also want the padding
+                    'px-2': !slots.content || useDefaultPadding,
+                    'py-1': !slots.content || useDefaultPadding,
                 }"
                 :data-cy="dataCyValue"
             >
