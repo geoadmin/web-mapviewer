@@ -40,16 +40,10 @@ export default function useImportFile() {
                     layer.extent.length === 4
                         ? layer.extent
                         : [...layer.extent[0], ...layer.extent[1]]
-                const lastImportedLayerIsPartiallyOutOfBounds =
-                    projection.value.bounds.lowerX > extent[0] ||
-                    projection.value.bounds.lowerX > extent[2] ||
-                    projection.value.bounds.upperX < extent[0] ||
-                    projection.value.bounds.upperX < extent[2] ||
-                    projection.value.bounds.lowerY > extent[1] ||
-                    projection.value.bounds.lowerY > extent[3] ||
-                    projection.value.bounds.upperY < extent[1] ||
-                    projection.value.bounds.upperY < extent[3]
-                if (lastImportedLayerIsPartiallyOutOfBounds) {
+                const isLayerFullyInBound =
+                    projection.value.bounds.isInBounds(extent[0], extent[1]) &&
+                    projection.value.bounds.isInBounds(extent[2], extent[3])
+                if (!isLayerFullyInBound) {
                     layer.hasWarning = true
                     layer.addWarningMessage(
                         new WarningMessage('file_imported_partially_out_of_bounds', {
