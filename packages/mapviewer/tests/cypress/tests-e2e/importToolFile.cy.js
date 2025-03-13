@@ -232,11 +232,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
-        cy.get('[data-cy="file-input-warning-feedback"]')
-            .should('be.visible')
-            .contains(
-                'The imported file is partially within the swiss boundaries. Some functionalities might not be available.'
-            )
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
@@ -277,6 +272,9 @@ describe('The Import File Tool', () => {
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
+                        // the line accross europe kml should have a warning icon, since it's partially
+                        // out of bounds
+                        cy.wrap($layer).find('[data-cy^="button-warning-"]').should('exist')
                         break
                     case 1:
                         cy.wrap($layer).contains('Sample KML File')
