@@ -3,7 +3,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { normalizeExtent } from '@/utils/extentUtils'
 

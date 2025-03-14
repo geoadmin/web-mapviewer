@@ -1,8 +1,10 @@
 // @ts-nocheck
+import { cloneDeep } from "lodash"
+
+// @ts-nocheck
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { cloneDeep } from "lodash"
 
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown

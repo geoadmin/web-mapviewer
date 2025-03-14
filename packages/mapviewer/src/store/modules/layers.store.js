@@ -439,7 +439,7 @@ const actions = {
      * @param {[AbstractLayer | ActiveLayerConfig | String]} layers List of active layers
      * @param {string} dispatcher Action dispatcher name
      */
-    setLayers({ commit, getters }, { layers, dispatcher }) {
+    setLayers({ commit /*, getters */ }, { layers, dispatcher }) {
         // const clones = layers
         //     .map((layer) => {
         //         let clone = null
@@ -741,7 +741,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = cloneDeep(layer)
-            removeErrorMessage(clone, error)
+            removeErrorMessageFromLayer(clone, error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
