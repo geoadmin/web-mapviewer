@@ -275,6 +275,9 @@ describe('The Import File Tool', () => {
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
+                        // the line accross europe kml should have a warning icon, since it's partially
+                        // out of bounds
+                        cy.wrap($layer).find('[data-cy^="button-has-warning-"]').should('exist')
                         break
                     case 1:
                         cy.wrap($layer).contains('Sample KML File')
