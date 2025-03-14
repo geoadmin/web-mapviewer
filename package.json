@@ -2,30 +2,29 @@
     "name": "web-mapviewer-monorepo",
     "private": true,
     "scripts": {
-        "dev": "pnpm run -r --filter=web-mapviewer dev ",
         "build-all": "pnpm run -r build",
         "build:dev": "pnpm -r run build:dev",
         "build:int": "pnpm -r run build:int",
         "build:prod": "pnpm -r run build:prod",
+        "dev": "pnpm run -r --filter=web-mapviewer dev ",
+        "format": "prettier --write packages",
+        "format:check": "prettier --check packages",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
         "preview": "pnpm run -r --filter=!web-mapviewer build && pnpm run -r --filter=web-mapviewer preview",
         "preview:dev": "pnpm run -r build:dev && pnpm run -r --filter=web-mapviewer preview:dev ",
         "preview:int": "pnpm run -r build:int && pnpm run -r --filter=web-mapviewer preview:int",
         "preview:prod": "pnpm run -r build:prod && pnpm run -r --filter=web-mapviewer preview:prod",
-        "test:unit": "pnpm run -r --if-present test:unit",
-        "test:unit:watch": "pnpm run -r --if-present  test:unit:watch",
+        "test:component": "pnpm run -r --filter=web-mapviewer test:component",
+        "test:component:ci": "pnpm run -r --filter=web-mapviewer test:component:ci",
         "test:e2e": "pnpm run -r --filter=web-mapviewer test:e2e",
         "test:e2e:ci": "pnpm run -r --filter=web-mapviewer test:e2e:ci",
         "test:e2e:headless": "pnpm run -r --filter=web-mapviewer test:e2e:headless",
-        "test:component": "pnpm run -r --filter=web-mapviewer test:component",
-        "test:component:ci": "pnpm run -r --filter=web-mapviewer test:component:ci",
-        "lint": "eslint --fix",
-        "lint:no-fix": "eslint",
-        "format": "prettier --write packages",
-        "format:check": "prettier --check packages"
+        "test:unit": "pnpm run -r --if-present test:unit",
+        "test:unit:watch": "pnpm run -r --if-present  test:unit:watch"
     },
-    "engines": {
-        "node": ">=22",
-        "pnpm": "10.*.*"
+    "dependencies": {
+        "cesium": "catalog:"
     },
     "devDependencies": {
         "@eslint/js": "catalog:",
@@ -54,20 +53,21 @@
         "vitest": "catalog:",
         "vue-tsc": "catalog:"
     },
-    "dependencies": {
-        "cesium": "catalog:"
+    "engines": {
+        "node": ">=22",
+        "pnpm": "10.*.*"
     },
     "pnpm": {
+        "onlyBuiltDependencies": [
+            "cypress",
+            "sharp"
+        ],
         "ignoredBuiltDependencies": [
             "core-js",
             "cypress",
             "es5-ext",
             "esbuild",
             "protobufjs",
-            "sharp"
-        ],
-        "onlyBuiltDependencies": [
-            "cypress",
             "sharp"
         ]
     }
