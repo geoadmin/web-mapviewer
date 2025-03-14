@@ -19,11 +19,17 @@ const { t } = useI18n()
 const hasError = computed((): boolean => {
     return !!layer.hasError
 })
+const hasWarning = computed((): boolean => {
+    return !!layer.hasWarning
+})
 
 const tooltipContent = computed((): string => {
     if (hasError.value) {
         const error: ErrorMessage = layer.getFirstErrorMessage()
         return t(error.msg, error.params)
+    } else if (hasWarning.value) {
+        const warning: WarningMessage = layer.getFirstWarningMessage()
+        return t(warning.msg, warning.params)
     }
 
     return t('loading_external_layer')
@@ -34,7 +40,7 @@ const tooltipContent = computed((): string => {
     <GeoadminTooltip
         ref="tooltip"
         :tooltip-content="tooltipContent"
-        :theme="hasError ? 'danger' : 'light'"
+        :theme="hasError ? 'danger' : hasWarning ? 'warning' : 'light'"
     >
         <button
             v-if="showSpinner"
@@ -55,6 +61,15 @@ const tooltipContent = computed((): string => {
             :data-cy="`button-has-error-${layer.id}-`"
         >
             <FontAwesomeIcon icon="circle-exclamation" />
+        </button>
+        <button
+            v-else-if="hasWarning"
+            class="btn text-warning border-0 p-0 d-flex align-items-center btn-lg"
+            aria-disabled="true"
+            tabindex="-1"
+            :data-cy="`button-has-warning-${layer.id}`"
+        >
+            <FontAwesomeIcon icon="triangle-exclamation" />
         </button>
     </GeoadminTooltip>
 </template>

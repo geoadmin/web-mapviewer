@@ -19,7 +19,6 @@ import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
-import WarningButton from '@/utils/components/WarningButton.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
@@ -187,12 +186,6 @@ function changeStyle(newStyle) {
                 :index="index"
                 class="me-2"
             />
-            <WarningButton
-                v-else-if="layer.hasWarning"
-                :compact="compact"
-                :warning-message="layer.getFirstWarningMessage()"
-                :data-cy="`button-warning-${id}-${index}`"
-            />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
                 :layer-index="index"
@@ -243,7 +236,10 @@ function changeStyle(newStyle) {
                     {{ t('transparency') }}
                 </label>
 
-                <TransparencySlider :layer="layer" :index="index" />
+                <TransparencySlider
+                    :layer="layer"
+                    :index="index"
+                />
 
                 <div class="btn-group">
                     <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
