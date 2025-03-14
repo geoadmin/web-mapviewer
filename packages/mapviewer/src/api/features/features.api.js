@@ -8,9 +8,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
@@ -188,6 +186,8 @@ export async function identifyOnGeomAdminLayer({
 }
 
 /**
+ * // TODO adjust this
+ *
  * @param {ExternalLayer} config.layer
  * @param {[Number, Number]} config.coordinate Point where we want to have a getFeatureInfo request
  *   being triggered

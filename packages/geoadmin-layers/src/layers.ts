@@ -177,6 +177,6 @@ export interface ExternalWMSLayer extends Layer {
 
 /* #endregion */
 
-type FileLayer = KMLLayer | GPXLayer | CloudOptimizedTiffLayer;
-type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer;
-type GeoAdminLayer = GeoAdminWMTSLayer | GeoAdminWMSLayer | GeoAdminGeoJSONLayer | GeoAdmin3DLayer | GeoAdminVectorLayer;
+export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedTiffLayer;
+export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer;
+export type GeoAdminLayer = GeoAdminWMTSLayer | GeoAdminWMSLayer | GeoAdminGeoJSONLayer | GeoAdmin3DLayer | GeoAdminVectorLayer;
