@@ -904,7 +904,7 @@ const mutations = {
     },
     updateLayer(state, { layerId, values }) {
         const layer2Update = state.activeLayers.find((layer) => layer.id === layerId)
-        if (!(layer2Update instanceof AbstractLayer)) {
+        if (!layer2Update.id) {
             throw new Error(`Failed to updateLayer: no layer found with ID ${layerId}`)
         }
         Object.assign(layer2Update, values)

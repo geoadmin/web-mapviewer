@@ -135,7 +135,7 @@ export default class KMLLayer extends AbstractLayer {
     }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         if (this.kmlMetadata) {
             clone.kmlMetadata = Object.assign(
                 Object.create(Object.getPrototypeOf(this.kmlMetadata)),

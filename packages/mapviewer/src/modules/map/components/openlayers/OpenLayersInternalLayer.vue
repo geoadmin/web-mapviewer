@@ -6,7 +6,7 @@
 
 import { WEBMERCATOR } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -44,8 +44,6 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
     // have to worry about checking their validity
     return resolution.value >= subLayer.minResolution && resolution.value <= subLayer.maxResolution
 }
-
-const test = ref(layerConfig.type === LayerType.WMTS)
 </script>
 
 <template>

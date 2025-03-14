@@ -334,7 +334,7 @@ export default class WMTSCapabilitiesParser {
 
     _getLayerAttribution(layerId) {
         let title = this.ServiceProvider?.ProviderName
-        let url = this.ServiceProvider?.ProviderSite
+        const url = this.ServiceProvider?.ProviderSite
 
         if (!title) {
             const msg = `No attribution title for layer ${layerId}`

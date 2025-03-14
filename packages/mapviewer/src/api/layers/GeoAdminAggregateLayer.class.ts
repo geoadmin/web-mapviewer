@@ -40,7 +40,7 @@ export class AggregateSubLayer {
     }
 
     clone() {
-        let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        const clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
         clone.layer = cloneDeep(layer)
         return clone
     }
@@ -126,7 +126,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
     }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         clone.subLayers = this.subLayers.map((subLayer) => cloneDeep(subLayer))
     }
 }

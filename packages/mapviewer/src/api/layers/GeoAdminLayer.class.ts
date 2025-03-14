@@ -1,6 +1,7 @@
 // @ts-nocheck
 // TODO
 import { type GeoAdminAPILayer } from "@geoadmin/layers"
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
@@ -157,7 +158,7 @@ export default class GeoAdminLayer extends AbstractLayer implements GeoAdminAPIL
     // }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         clone.timeConfig = this.timeConfig?.clone() ?? null
         return clone
     }
