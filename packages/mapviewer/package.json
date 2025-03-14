@@ -93,6 +93,7 @@
         "@prettier/plugin-xml": "catalog:",
         "@rushstack/eslint-patch": "catalog:",
         "@tailwindcss/vite": "catalog:",
+        "@types/lodash": "catalog:",
         "@vitejs/plugin-basic-ssl": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
