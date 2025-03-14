@@ -1,15 +1,15 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { LayerType } from '@geoadmin/layers'
 
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
+// import ExternalLayer from '@/api/layers/ExternalLayer.class'
+// import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
+// import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+// import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+// import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+// import GPXLayer from '@/api/layers/GPXLayer.class'
+// import KMLLayer from '@/api/layers/KMLLayer.class'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 
 const store = useStore()

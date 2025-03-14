@@ -5,11 +5,11 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { hasMultipleTimestamps as layerUtilsHasMultipleTimestamps } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { hasMultipleTimestamps as layerUtilsHasMultipleTimestamps } from '@geoadmin/layers'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
