@@ -1,6 +1,7 @@
 import { LV95, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { round } from '@geoadmin/numbers'
+import { Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
@@ -27,6 +28,20 @@ function setCenterIfInBounds(store, center) {
 
             if (firstTimeActivatingGeolocation) {
                 firstTimeActivatingGeolocation = !firstTimeActivatingGeolocation
+                if (store.state.cesium.active) {
+                    store.dispatch('setCameraPosition', {
+                        position: {
+                            x: store.state.position.camera.x,
+                            y: store.state.position.camera.y,
+                            z: store.state.position.camera.z,
+
+                            heading: -CesiumMath.toRadians(store.state.position.rotation),
+                            pitch: -90,
+                            roll: 0,
+                        },
+                        ...dispatcher,
+                    })
+                }
                 store.dispatch('setZoom', {
                     zoom: store.state.position.projection.get1_25000ZoomLevel(),
                     ...dispatcher,

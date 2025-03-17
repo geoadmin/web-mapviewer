@@ -16,7 +16,9 @@ const { coordinates } = defineProps({
             return (
                 Array.isArray(value) &&
                 value.length >= 2 &&
-                value.every((coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3))
+                value.every(
+                    (coord) => Array.isArray(coord) && (coord.length === 2 || coord.length === 3)
+                )
             )
         },
     },
@@ -86,6 +88,7 @@ const updateButtonPositions = () => {
 }
 
 const onFirstButtonMounted = (buttonElement) => {
+    buttonElement.setAttribute('data-cy', 'extend-from-first-node-button')
     firstButtonOverlay = new Overlay({
         element: buttonElement,
         positioning: 'center-center',
@@ -96,6 +99,7 @@ const onFirstButtonMounted = (buttonElement) => {
 }
 
 const onLastButtonMounted = (buttonElement) => {
+    buttonElement.setAttribute('data-cy', 'extend-from-last-node-button')
     lastButtonOverlay = new Overlay({
         element: buttonElement,
         positioning: 'center-center',
@@ -124,12 +128,10 @@ onUnmounted(() => {
 <template>
     <AddVertexButton
         :reverse="true"
-        data-cy="extend-from-first-node-button"
         @button-mounted="onFirstButtonMounted"
     />
     <AddVertexButton
         :reverse="false"
-        data-cy="extend-from-last-node-button"
         @button-mounted="onLastButtonMounted"
     />
 </template>

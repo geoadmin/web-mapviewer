@@ -5,6 +5,7 @@ import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
@@ -44,7 +45,7 @@ function manualChunks(id) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, disableDevTools = false }) => {
     return {
         base: './',
         build: {
@@ -103,6 +104,8 @@ export default defineConfig(({ mode }) => {
                     },
                 ],
             }),
+            // disable the dev tools if required, e.g. in cypress component tests
+            disableDevTools ? {} : vueDevTools(),
         ],
         optimizeDeps: {
             exclude: [

@@ -15,10 +15,10 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { IFRAME_EVENTS } from '@/api/iframeFeatureEvent.api'
+import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 import { transformUrlMapToEmbed } from '@/utils/utils'
 
 /**
@@ -47,9 +47,6 @@ const EmbedSizes = {
         // no width height here, as it will be user specified
     },
 }
-
-const copyButton = useTemplateRef('copyButton')
-useTippyTooltip(copyButton, 'copy_cta')
 
 const embedInput = useTemplateRef('embedInput')
 const showEmbedSharing = ref(false)
@@ -134,7 +131,7 @@ function togglePreviewModal() {
 
 function onPreviewChange(e) {
     if (e?.data?.type === IFRAME_EVENTS.CHANGE) {
-        // see iframeFeatureEvent.api.js -> sendChangeEventToParent
+        // see iframePostMessageEvent.api.js -> sendChangeEventToParent
         embedSource.value = e.data.payload.newUrl
     }
 }
@@ -190,20 +187,21 @@ watch(
                         readonly="readonly"
                         @focus="$event.target.select()"
                         @click="$event.target.select()"
-                    >
-                    <button
-                        ref="copyButton"
-                        data-cy="menu-share-embed-copy-button"
-                        class="btn btn-outline-group"
-                        type="button"
-                        @click="copyValue"
-                    >
-                        <FontAwesomeIcon
-                            class="icon"
-                            :icon="buttonIcon"
-                            data-cy="menu-share-embed-copy-button-icon"
-                        />
-                    </button>
+                    />
+                    <GeoadminTooltip :tooltip-content="t('copy_cta')">
+                        <button
+                            data-cy="menu-share-embed-copy-button"
+                            class="btn btn-outline-group"
+                            type="button"
+                            @click="copyValue"
+                        >
+                            <FontAwesomeIcon
+                                class="icon"
+                                :icon="buttonIcon"
+                                data-cy="menu-share-embed-copy-button-icon"
+                            />
+                        </button>
+                    </GeoadminTooltip>
                     <button
                         class="btn btn-outline-group"
                         data-cy="menu-share-embed-preview-button"
@@ -256,7 +254,7 @@ watch(
                             type="number"
                             class="form-control text-center custom-preview-input"
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <input
                             v-else
                             class="form-control form-control-plaintext custom-preview-input text-center"
@@ -264,7 +262,7 @@ watch(
                             value="100 %"
                             readonly
                             data-cy="menu-share-embed-iframe-custom-width"
-                        >
+                        />
                         <span class="p-2">
                             <font-awesome-icon :icon="['fas', 'xmark']" />
                         </span>
@@ -273,7 +271,7 @@ watch(
                             type="number"
                             class="form-control custom-preview-input text-center"
                             data-cy="menu-share-embed-iframe-custom-height"
-                        >
+                        />
                         <div class="align-self-center ps-2">
                             <div class="form-check">
                                 <input
@@ -283,7 +281,7 @@ watch(
                                     type="checkbox"
                                     value=""
                                     data-cy="menu-share-embed-iframe-full-width"
-                                >
+                                />
                                 <label
                                     class="form-check-label"
                                     for="fullWidthCheckbox"

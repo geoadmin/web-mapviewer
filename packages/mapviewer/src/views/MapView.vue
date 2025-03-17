@@ -1,11 +1,7 @@
 <script setup>
-import log from '@geoadmin/log'
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -22,65 +18,23 @@ import { UIModes } from '@/store/modules/ui.store'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
 const store = useStore()
-const { t } = useI18n()
 
-const showNotSharedDrawingWarningModal = ref(false)
 const is3DActive = computed(() => store.state.cesium.active)
 const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
-const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const showLoadingBar = computed(() => store.getters.showLoadingBar)
 const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
-const isOpeningNewTab = computed(() => store.state.ui.isOpeningNewTab)
-const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const loadDrawingModule = computed(() => {
     return isDrawingMode.value && !is3DActive.value
-})
-
-onMounted(() => {
-    log.info(`Map view mounted`)
-    window.addEventListener('beforeunload', beforeUnloadHandler)
-})
-
-const beforeUnloadHandler = (event) => {
-    if (showNotSharedDrawingWarning.value && !isOpeningNewTab.value) {
-        showNotSharedDrawingWarningModal.value = true
-        // This provokes the alert message to appear when trying to close the tab.
-        // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
-        if (!IS_TESTING_WITH_CYPRESS) {
-            event.returnValue = true
-            event.preventDefault()
-            return
-        }
-    }
-}
-
-onUnmounted(() => {
-    window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
 </script>
 
 <template>
-    <div
-        id="map-view"
-        class="no-print"
-    >
-        <ModalWithBackdrop
-            v-if="showNotSharedDrawingWarningModal"
-            fluid
-            :title="t('warning')"
-            @close="showNotSharedDrawingWarningModal = false"
-        >
-            <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
-                @accept="showNotSharedDrawingWarningModal = false"
-            />
-        </ModalWithBackdrop>
+    <div class="view no-print">
         <LoadingBar v-show="showLoadingBar" />
         <MapModule>
             <MenuModule />

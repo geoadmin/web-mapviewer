@@ -15,13 +15,13 @@ This project uses [vitest](https://vitest.dev/) which is the default used by Vue
 located next to the source code that is tested. By definition we put all unit testings files in a subdirectory
 name `__tests__`. Vitest search for test files using the following pattern: `src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`.
 
-To run unit tests, execute `npm run test:unit`.
+To run unit tests, execute `pnpm run test:unit`.
 
 ## E2E testing
 
 This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/cypress/tests-e2e`.
 
-There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:e2e:headless`.
+There are two ways of executing E2E tests, either with a UI feedback using `pnpm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `pnpm run test:e2e:headless`.
 
 ### Cypress Cloud
 
@@ -30,7 +30,7 @@ On the CI the tests are run in parallel using Cypress Cloud, see [web-mapviewer 
 You can also record your local run of cypress to the cloud as follow
 
 ```bash
-npm run start &
+pnpm run start &
 
 summon npx cypress run --record --tag local [--spec tests/cypress/tests-e2e/SPECFILE]
 ```
@@ -61,7 +61,7 @@ Other resources :
 
 #### Source code in WSL2 file system
 
-Be mindful that if you want to develop locally (through `npm run serve`) and also do E2E testing locally, you should host your code directly on the WSL2 file system. Otherwise `npm run serve` will not detect code changes (through WSL2 and Win file system) and your dev experience will be really degraded (having to restart `npm run serve` after each change made to the code).
+Be mindful that if you want to develop locally (through `pnpm run serve`) and also do E2E testing locally, you should host your code directly on the WSL2 file system. Otherwise `pnpm run serve` will not detect code changes (through WSL2 and Win file system) and your dev experience will be really degraded (having to restart `pnpm run serve` after each change made to the code).
 
 It is possible to use VSCode like [this one](https://code.visualstudio.com/docs/remote/wsl) or if using another IDE, you could simply mount your WSL2 file system as a Drive (and then access your code through `Z:\...`)
 
@@ -71,4 +71,4 @@ Follow the [Cypress install guide](https://docs.cypress.io/guides/getting-starte
 
 ## CI
 
-The CI will run both test types by executing `npm run test:ci` (E2E tests will be run in headless)
+The CI will run both test types by executing `pnpm run test:ci` (E2E tests will be run in headless)

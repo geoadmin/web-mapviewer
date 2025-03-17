@@ -43,7 +43,8 @@ const mockGeolocation = (win, options) => {
             errorCallback(error)
         })
     } else {
-        const coords = { latitude, longitude }
+        // We set accuracy here to mimic a real geolocation API response
+        const coords = { latitude, longitude, accuracy: 100 }
         const handler = (callback) => callback({ coords })
         cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
         cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
@@ -105,7 +106,6 @@ Cypress.Commands.add(
         // removing trailing &
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
         flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
-
 
         // Granting permission to use the clipboard (Chrome doesn't allow by default on the CI)
         // see https://github.com/cypress-io/cypress/issues/8957#issuecomment-1598395348
@@ -234,8 +234,8 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) 
  */
 Cypress.Commands.add('dragMouse', (selector, x, y, button = 0) => {
     cy.get(selector).trigger('mousedown', { button })
-    cy.get(selector).trigger('mousemove', { button, clientX: 0, clientY: 0 }) // this is needed to make the drag work
-    cy.get(selector).trigger('mousemove', { button, clientX: x, clientY: y })
+    cy.get(selector).trigger('mousemove', { button, clientX: 0, clientY: 0, force: true }) // this is needed to make the drag work
+    cy.get(selector).trigger('mousemove', { button, clientX: x, clientY: y, force: true })
     cy.get(selector).trigger('mouseup', { button })
 
     cy.log('cmd: dragMouse successful')
@@ -628,10 +628,15 @@ Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
 })
 
 Cypress.Commands.add('openLayerSettings', (layerId) => {
-    cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('be.hidden')
+    cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('not.exist')
     cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]`)
         .should('be.visible')
-        .click()
+        .click({ force: true })
+
+    cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]`)
+        // move the mouse out of the way, otherwise the tooltip of the text-truncate
+        // is still active and might cover something
+        .trigger('mousemove', -15, -15, { force: true })
     cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('be.visible')
 
     cy.log('cmd: openLayerSettings successful')

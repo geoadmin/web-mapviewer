@@ -121,7 +121,7 @@ async function updateAdminShareUrl() {
                     readonly
                     @focus="(event) => event.target.select()"
                     @click="copyAdminShareUrl()"
-                >
+                />
                 <button
                     class="btn btn-outline-group"
                     type="button"

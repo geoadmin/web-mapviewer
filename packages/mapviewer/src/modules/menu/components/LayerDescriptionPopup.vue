@@ -66,6 +66,7 @@ onMounted(async () => {
 <template>
     <SimpleWindow
         :title="title"
+        small
         movable
         allow-print
         resizeable
@@ -113,7 +114,7 @@ onMounted(async () => {
                         <img
                             v-if="legend.format.startsWith('image/')"
                             :src="legend.url"
-                        >
+                        />
                         <iframe
                             v-else-if="legend.format === 'text/html'"
                             :src="legend.url"
@@ -122,7 +123,9 @@ onMounted(async () => {
                             v-else
                             :href="legend.url"
                             target="_blank"
-                        >{{ legend.url }}</a>
+                        >
+                            {{ legend.url }}
+                        </a>
                     </div>
                 </div>
 
@@ -135,9 +138,9 @@ onMounted(async () => {
                         v-if="attributionUrl"
                         :href="attributionUrl"
                         target="_blank"
-                    >{{
-                        attributionName
-                    }}</a>
+                    >
+                        {{ attributionName }}
+                    </a>
                     <span v-else>{{ attributionName }}</span>
                 </div>
             </div>
@@ -160,7 +163,6 @@ onMounted(async () => {
 $spacing: 8px;
 
 .layer-description {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;

@@ -1,1 +1,6 @@
-src/modules/drawing/lib/modifyInteraction.js
+pnpm-lock.yaml
+.github/
+
+packages/mapviewer/index.html
+packages/mapviewer/public/icon.svg
+packages/mapviewer/src/assets/svg/swiss-flag.svg

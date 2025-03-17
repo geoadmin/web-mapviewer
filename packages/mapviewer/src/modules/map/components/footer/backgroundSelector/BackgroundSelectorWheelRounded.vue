@@ -38,7 +38,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                         :src="getImageForBackgroundLayer(backgroundLayer)"
                         alt="background image"
                         class="rounded-5"
-                    >
+                    />
                 </span>
             </button>
         </div>
@@ -54,7 +54,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                     :src="getImageForBackgroundLayer(currentBackgroundLayer)"
                     alt="background image"
                     class="rounded-5"
-                >
+                />
             </span>
         </button>
     </div>

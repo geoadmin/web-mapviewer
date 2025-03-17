@@ -42,9 +42,12 @@ const { t } = useI18n()
                 :icon="`caret-${showContent ? 'down' : 'right'}`"
                 class="me-2"
             />
-            <strong class="flex-grow-1">{{ name }}</strong>
+            <span class="flex-grow-1">
+                <strong v-if="name">{{ t(name) }}</strong>
+            </span>
             <small class="text-muted">
-                {{ children.length }}<span v-if="canLoadMore">+</span>
+                {{ children.length }}
+                <span v-if="canLoadMore">+</span>
             </small>
         </div>
         <div

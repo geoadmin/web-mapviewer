@@ -1,14 +1,11 @@
 <script setup>
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import TimeSliderDropdownList from '@/modules/map/components/toolbox/TimeSliderDropdownSearchList.vue'
-
-import { useRangeTippy } from './useRangeTippy'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { t } = useI18n()
-const store = useStore()
 
 const emit = defineEmits(['update:modelValue', 'play'])
 
@@ -32,17 +29,13 @@ const inputValue = ref('')
 
 const searchList = useTemplateRef('searchList')
 const input = useTemplateRef('input')
+const errorTooltip = useTemplateRef('errorTooltip')
 
-function tooltipContent() {
+const tooltipContent = computed(() => {
     const firstEntry = entries[0]
     const lastEntry = entries[entries.length - 1]
     return `${t('outside_valid_year_range')} ${firstEntry}-${lastEntry}`
-}
-
-const { tippyInstance: yearInputError, updateTippyContent } = useRangeTippy(
-    () => input.value,
-    tooltipContent
-)
+})
 
 const displayEntry = computed({
     get() {
@@ -85,7 +78,7 @@ function closeList() {
 
 function chooseEntry(value) {
     emit('update:modelValue', value)
-    yearInputError.value.hide()
+    errorTooltip.value.closeTooltip()
     closeList()
 }
 
@@ -102,26 +95,17 @@ function onEnter() {
         chooseEntry(inputValue.value)
         input.value.blur()
     } else {
-        yearInputError.value.show()
+        errorTooltip.value.openTooltip()
     }
 }
 
 /**
  * When the user leaves the input, the year gets reset to the the currentYear. In some cases, the
- * tippy isn't being hidden though, which is why we do it explicitly here
+ * tooltip isn't being hidden though, which is why we do it explicitly here
  */
 function onFocusOut() {
-    yearInputError.value.hide()
+    errorTooltip.value.closeTooltip()
 }
-
-// i18n.t isn't reactive, therefore we need to update the content
-// ourselves
-watch(
-    () => store.state.i18n.lang,
-    () => {
-        updateTippyContent(tooltipContent)
-    }
-)
 </script>
 
 <template>
@@ -133,19 +117,27 @@ watch(
                 data-cy="time-slider-dropdown"
                 @submit.prevent
             >
-                <input
-                    ref="input"
-                    :value="displayEntry"
-                    class="form-control rounded-end-0"
-                    :class="{ 'rounded-bottom-0': isDropdownOpen }"
-                    data-cy="time-slider-dropdown-input"
-                    @input="inputValue = $event.target.value"
-                    @focusin="openList"
-                    @focusout="onFocusOut"
-                    @keydown.esc.prevent="closeList"
-                    @keydown.down.prevent="focusSearchlist"
-                    @keydown.enter.prevent="onEnter"
+                <GeoadminTooltip
+                    ref="errorTooltip"
+                    :tooltip-content="tooltipContent"
+                    placement="bottom"
+                    theme="danger"
+                    open-trigger="manual"
                 >
+                    <input
+                        ref="input"
+                        :value="displayEntry"
+                        class="form-control rounded-end-0"
+                        :class="{ 'rounded-bottom-0': isDropdownOpen }"
+                        data-cy="time-slider-dropdown-input"
+                        @input="inputValue = $event.target.value"
+                        @focusin="openList"
+                        @focusout="onFocusOut"
+                        @keydown.esc.prevent="closeList"
+                        @keydown.down.prevent="focusSearchlist"
+                        @keydown.enter.prevent="onEnter"
+                    />
+                </GeoadminTooltip>
 
                 <div class="input-group-append btn-group">
                     <button

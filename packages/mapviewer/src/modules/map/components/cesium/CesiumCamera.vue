@@ -55,6 +55,9 @@ function flyToPosition() {
             log.debug(
                 `[Cesium] Fly to camera position ${cameraPosition.value.x}, ${cameraPosition.value.y}, ${cameraPosition.value.z}`
             )
+            log.debug(
+                `[Cesium] With heading, pitch, roll: ${cameraPosition.value.heading}, ${cameraPosition.value.pitch}, ${cameraPosition.value.roll}`
+            )
             getViewer().camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,

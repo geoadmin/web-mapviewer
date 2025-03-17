@@ -1,16 +1,16 @@
 <script setup>
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
 
-const { completeDisclaimerOnClick, showTippy, sourceName, isLocalFile } = defineProps({
+const { completeDisclaimerOnClick, showTooltip, sourceName, isLocalFile } = defineProps({
     completeDisclaimerOnClick: {
         type: Boolean,
         default: false,
     },
-    showTippy: {
+    showTooltip: {
         type: Boolean,
         default: true,
     },
@@ -25,24 +25,14 @@ const { completeDisclaimerOnClick, showTippy, sourceName, isLocalFile } = define
 })
 
 const showCompleteDisclaimer = ref(false)
-const tooltipAnchor = useTemplateRef('tooltipAnchor')
 
 const tooltipText = computed(() =>
-    isLocalFile ? 'warn_share_local_file' : 'external_data_tooltip'
+    t(isLocalFile ? 'warn_share_local_file' : 'external_data_tooltip')
 )
 
 const { t } = useI18n()
 
-const { removeTippy } = useTippyTooltip(tooltipAnchor, tooltipText, {
-    placement: 'top',
-    theme: isLocalFile ? 'secondary' : 'danger',
-})
-
-onMounted(() => {
-    if (!showTippy) {
-        removeTippy()
-    }
-})
+const theme = computed(() => (isLocalFile ? 'secondary' : 'danger'))
 
 function onClick() {
     showCompleteDisclaimer.value = completeDisclaimerOnClick && sourceName && sourceName.length > 0
@@ -50,14 +40,20 @@ function onClick() {
 </script>
 
 <template>
-    <div
-        ref="tooltipAnchor"
-        class="m-0 p-0 d-flex align-content-center justify-content-center"
-        :data-cy="isLocalFile ? 'warn-share-local-file' : 'third-part-disclaimer'"
-        @click="onClick"
+    <GeoadminTooltip
+        :tooltip-content="tooltipText"
+        :theme="theme"
+        :disabled="!showTooltip"
     >
-        <slot />
-    </div>
+        <div
+            ref="tooltipAnchor"
+            class="m-0 p-0 d-flex align-content-center justify-content-center"
+            :data-cy="isLocalFile ? 'warn-share-local-file' : 'third-party-disclaimer'"
+            @click="onClick"
+        >
+            <slot />
+        </div>
+    </GeoadminTooltip>
     <ModalWithBackdrop
         v-if="showCompleteDisclaimer"
         :title="t('external_data_tooltip')"

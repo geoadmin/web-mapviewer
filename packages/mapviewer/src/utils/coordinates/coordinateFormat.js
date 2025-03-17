@@ -28,7 +28,9 @@ export class CoordinateFormat {
         this.label = label
         this.requiredInputProjection = requiredInputProjection
         this.decimalPoints = decimalPoints
-        this.formatCallback = formatCallback ?? ((coordinates) => toRoundedString(coordinates, this.decimalPoints, true, true))
+        this.formatCallback =
+            formatCallback ??
+            ((coordinates) => toRoundedString(coordinates, this.decimalPoints, true, true))
     }
 
     /**

@@ -243,7 +243,7 @@ function containsLayer(layers, searchText) {
 
 <template>
     <div
-        v-show="showItem"
+        v-if="showItem"
         class="menu-catalogue-item"
         :class="{ compact: compact }"
         :data-cy="`catalogue-tree-item-${item.id}`"
@@ -287,7 +287,7 @@ function containsLayer(layers, searchText) {
                 class="menu-catalogue-item-name px-1"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
                 :data-cy="`catalogue-tree-item-name-${item.id}`"
-                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
+                :tooltip-placement="isPhoneMode ? 'top' : 'right'"
             >
                 <TextSearchMarker
                     :text="item.name"
@@ -315,7 +315,7 @@ function containsLayer(layers, searchText) {
         </div>
         <CollapseTransition :duration="200">
             <ul
-                v-show="showChildren"
+                v-if="showChildren"
                 class="menu-catalogue-item-children"
                 :class="`ps-${2 + depth}`"
             >

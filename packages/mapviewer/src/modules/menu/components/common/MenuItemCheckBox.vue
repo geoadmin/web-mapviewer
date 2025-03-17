@@ -46,7 +46,9 @@ function onClick(ev) {
             <label
                 v-if="label"
                 class="ms-2 menu-check-box-item-name"
-            ><TextTruncate>{{ t(label) }}</TextTruncate></label>
+            >
+                <TextTruncate>{{ t(label) }}</TextTruncate>
+            </label>
         </div>
     </div>
 </template>

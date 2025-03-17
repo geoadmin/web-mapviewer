@@ -100,8 +100,6 @@ function close() {
 async function printMap() {
     try {
         const documentUrl = await print(printGrid.value, printLegend.value)
-        // force hides the "drawing lost" warning when we open the print result
-        await store.dispatch('setIsOpeningNewTab', { isOpeningNewTab: true, ...dispatcher })
         if (documentUrl) {
             if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
                 window.open(documentUrl)
@@ -117,8 +115,6 @@ async function printMap() {
         }
     } catch (error) {
         log.error('Print failed', error)
-    } finally {
-        await store.dispatch('setIsOpeningNewTab', { isOpeningNewTab: false, ...dispatcher })
     }
 }
 
@@ -152,9 +148,9 @@ defineExpose({
             <label
                 for="print-layout-selector"
                 class="col-form-label fw-bold me-2"
-            >{{
-                t('print_layout')
-            }}</label>
+            >
+                {{ t('print_layout') }}
+            </label>
             <select
                 id="print-layout-selector"
                 v-model="selectedLayoutName"
@@ -175,9 +171,9 @@ defineExpose({
             <label
                 for="print-scale-selector"
                 class="col-form-label fw-bold me-2"
-            >{{
-                t('print_scale')
-            }}</label>
+            >
+                {{ t('print_scale') }}
+            </label>
             <select
                 id="print-scale-selector"
                 v-model="selectedScale"
@@ -199,11 +195,13 @@ defineExpose({
                     data-cy="checkboxLegend"
                     class="form-check-input"
                     type="checkbox"
-                >
+                />
                 <label
                     class="form-check-label"
                     for="checkboxLegend"
-                >{{ t('legend') }}</label>
+                >
+                    {{ t('legend') }}
+                </label>
             </div>
             <div class="form-check">
                 <input
@@ -212,11 +210,13 @@ defineExpose({
                     data-cy="checkboxGrid"
                     class="form-check-input"
                     type="checkbox"
-                >
+                />
                 <label
                     class="form-check-label"
                     for="checkboxGrid"
-                >{{ t('graticule') }}</label>
+                >
+                    {{ t('graticule') }}
+                </label>
             </div>
             <div class="full-width">
                 <input
@@ -228,7 +228,7 @@ defineExpose({
                         ].includes(printStatus),
                         'is-valid': printStatus === PrintStatus.FINISHED_SUCCESSFULLY,
                     }"
-                >
+                />
                 <div class="invalid-feedback">
                     {{ printErrorMessage }}
                 </div>

@@ -1,9 +1,10 @@
 <script setup>
 import log from '@geoadmin/log'
 import { Toast } from 'bootstrap'
-import tippy from 'tippy.js'
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { parameters } = defineProps({
     parameters: {
@@ -14,26 +15,13 @@ const { parameters } = defineProps({
 
 const { t } = useI18n()
 
+const tooltipContent = ref(t('copy_cta'))
 const deviceOrientationToast = ref(null)
 const deviceOrientationToastElement = useTemplateRef('deviceOrientationToastElement')
 const isToastActive = ref(false)
 
-let copyTooltips = null
-
 onMounted(() => {
     deviceOrientationToast.value = Toast.getOrCreateInstance(deviceOrientationToastElement.value)
-    copyTooltips = tippy('.copy-btn', {
-        trigger: 'manual',
-        arrow: true,
-        placement: 'auto',
-        hideOnClick: false,
-        // The French translation of "copy_done" contains a &nbsp;
-        allowHTML: true,
-        content: t('copy_cta'),
-    })
-})
-onBeforeUnmount(() => {
-    copyTooltips?.forEach((instance) => instance.destroy())
 })
 
 function toggleToast() {
@@ -49,12 +37,10 @@ function toggleToast() {
 async function copyValue(event, value) {
     try {
         await navigator.clipboard.writeText(value)
-        const btnElement = event.target
-        btnElement?._tippy?.setContent(t('copy_done'))
-        btnElement?._tippy?.show()
+        tooltipContent.value = t('copy_done')
+
         setTimeout(() => {
-            btnElement?._tippy?.setContent(t('copy_cta'))
-            btnElement?._tippy?.hide()
+            tooltipContent.value = t('copy_cta')
         }, 3000)
     } catch (error) {
         log.error(`Failed to copy ${value} to clipboard`, error)
@@ -103,9 +89,7 @@ async function copyValue(event, value) {
                     v-for="parameter in parameters"
                     :key="parameter.title"
                 >
-                    <div class="text-decoration-underline fw-bold">
-                        {{ parameter.title }}:
-                    </div>
+                    <div class="text-decoration-underline fw-bold">{{ parameter.title }}:</div>
                     <div>
                         <div
                             v-for="subParam in parameter.parameters"
@@ -115,17 +99,19 @@ async function copyValue(event, value) {
                             <div>
                                 {{ subParam.key ? `${subParam.key}: ` : '' }}{{ subParam.value }}
                             </div>
-                            <button
-                                v-if="subParam.hasCopyBtn"
-                                class="copy-btn btn btn-sm btn-light text-black-50"
-                                type="button"
-                                @click="copyValue($event, subParam.value)"
-                            >
-                                <FontAwesomeIcon
-                                    class="icon"
-                                    :icon="['far', 'copy']"
-                                />
-                            </button>
+                            <GeoadminTooltip :tooltip-content="tooltipContent">
+                                <button
+                                    v-if="subParam.hasCopyBtn"
+                                    class="copy-btn btn btn-sm btn-light text-black-50"
+                                    type="button"
+                                    @click="copyValue($event, subParam.value)"
+                                >
+                                    <FontAwesomeIcon
+                                        class="icon"
+                                        :icon="['far', 'copy']"
+                                    />
+                                </button>
+                            </GeoadminTooltip>
                         </div>
                     </div>
                 </div>

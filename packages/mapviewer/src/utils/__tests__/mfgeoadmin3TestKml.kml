@@ -1,4 +1,9 @@
-﻿<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+﻿<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+>
     <Document>
         <name>Dessin</name>
         <Placemark id="marker_1668530694970">
@@ -17,7 +22,12 @@
                         <gx:w>48</gx:w>
                         <gx:h>48</gx:h>
                     </Icon>
-                    <hotSpot x="24" y="4.799999999999997" xunits="pixels" yunits="pixels" />
+                    <hotSpot
+                        x="24"
+                        y="4.799999999999997"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
                 </IconStyle>
                 <LabelStyle>
                     <color>ff00ffff</color>
@@ -37,7 +47,7 @@
                 </Data>
             </ExtendedData>
             <name>text 1</name>
-            <description></description>
+            <description />
             <Style>
                 <IconStyle>
                     <scale>0</scale>
@@ -113,7 +123,7 @@
                 </Data>
             </ExtendedData>
             <name>text 2</name>
-            <description></description>
+            <description />
             <Style>
                 <IconStyle>
                     <scale>0</scale>
@@ -136,7 +146,7 @@
                 </Data>
             </ExtendedData>
             <name>text 3</name>
-            <description></description>
+            <description />
             <Style>
                 <IconStyle>
                     <scale>0</scale>
@@ -171,7 +181,8 @@
             <LineString>
                 <tessellate>1</tessellate>
                 <altitudeMode>clampToGround</altitudeMode>
-                <coordinates>8.101911065254011,47.20890519932012 8.78807916898707,47.19841048822741</coordinates>
+                <coordinates
+                >8.101911065254011,47.20890519932012 8.78807916898707,47.19841048822741</coordinates>
             </LineString>
         </Placemark>
         <Placemark id="linepolygon_1668530991477">
@@ -193,7 +204,8 @@
             <LineString>
                 <tessellate>1</tessellate>
                 <altitudeMode>clampToGround</altitudeMode>
-                <coordinates>8.093138508619504,47.03130065442874 8.809569202680157,47.006985820533394</coordinates>
+                <coordinates
+                >8.093138508619504,47.03130065442874 8.809569202680157,47.006985820533394</coordinates>
             </LineString>
         </Placemark>
         <Placemark id="measure_1668531023034">
@@ -215,7 +227,8 @@
             <LineString>
                 <tessellate>1</tessellate>
                 <altitudeMode>clampToGround</altitudeMode>
-                <coordinates>8.064599217438573,46.840305862388725 9.029823390790018,46.78371218093456</coordinates>
+                <coordinates
+                >8.064599217438573,46.840305862388725 9.029823390790018,46.78371218093456</coordinates>
             </LineString>
         </Placemark>
         <Placemark id="measure_1668531037052">
@@ -237,7 +250,8 @@
             <LineString>
                 <tessellate>1</tessellate>
                 <altitudeMode>clampToGround</altitudeMode>
-                <coordinates>8.016572173842913,46.64040453564143 8.499153637515965,46.60544796542086 8.893611064585631,46.589843133245395</coordinates>
+                <coordinates
+                >8.016572173842913,46.64040453564143 8.499153637515965,46.60544796542086 8.893611064585631,46.589843133245395</coordinates>
             </LineString>
         </Placemark>
         <Placemark id="marker_1668607213404">
@@ -246,7 +260,7 @@
                     <value>marker</value>
                 </Data>
             </ExtendedData>
-            <name></name>
+            <name />
             <description>desc 10</description>
             <Style>
                 <IconStyle>
@@ -282,7 +296,8 @@
             <Polygon>
                 <outerBoundaryIs>
                     <LinearRing>
-                        <coordinates>7.51115386937066,47.155696556678855,0 7.274907108447742,46.79579538805226,0 8.574407915810442,46.614843162382584,0 8.616346517727928,47.04174329321305,0 7.51115386937066,47.155696556678855,0</coordinates>
+                        <coordinates
+                        >7.51115386937066,47.155696556678855,0 7.274907108447742,46.79579538805226,0 8.574407915810442,46.614843162382584,0 8.616346517727928,47.04174329321305,0 7.51115386937066,47.155696556678855,0</coordinates>
                     </LinearRing>
                 </outerBoundaryIs>
             </Polygon>

@@ -3,15 +3,15 @@ import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from '
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
+import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
 import HeaderLangSelector from '@/modules/menu/components/header/HeaderLangSelector.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
-import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
-import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
-import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
 
@@ -65,21 +65,10 @@ function resetApp() {
         data-cy="app-header"
     >
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
-            <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
-                <div
-                    class="p-1 cursor-pointer text-center"
-                    data-cy="menu-swiss-flag"
-                    @click="resetApp"
-                >
-                    <SwissFlag />
-                </div>
-                <HeaderSwissConfederationText
-                    :current-lang="currentLang"
-                    class="mx-2 cursor-pointer d-none d-lg-block search-header-swiss-confederation-text"
-                    data-cy="menu-swiss-confederation-text"
-                    @click="resetApp"
-                />
-            </div>
+            <ConfederationFullLogo
+                class="cursor-pointer"
+                @click="resetApp"
+            />
             <div
                 class="search-bar-section d-flex-column flex-grow-1 me-2"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
@@ -103,20 +92,25 @@ function resetApp() {
                 v-if="hasReportProblemButton"
                 show-as-link
             />
-            <MoreInfo small />
+            <AdditionalInfoCollapsable />
             <HelpLink small />
             <HeaderLangSelector
                 id="menu-lang-selector"
                 data-cy="menu-lang-selector"
             />
         </div>
-        <!-- eslint-disable vue/no-v-html-->
         <div
             v-if="hasDevSiteWarning"
-            class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
-            v-html="t('test_host_warning')"
-        />
-        <!-- eslint-enable vue/no-v-html-->
+            class="header-warning-dev bg-danger text-white text-center fw-bold px-1"
+        >
+            <TextTruncate
+                text="test_host_warning"
+                :max-lines="1"
+                class="text-truncate"
+            >
+                {{ t('test_host_warning') }}
+            </TextTruncate>
+        </div>
     </div>
 </template>
 
@@ -139,10 +133,6 @@ $animation-time: 0.5s;
 }
 .header-warning-dev {
     height: $dev-disclaimer-height;
-    line-height: 1.1;
-    &:hover {
-        height: auto;
-    }
 }
 
 .search-bar-section {
@@ -159,10 +149,6 @@ $animation-time: 0.5s;
     display: flex;
 }
 
-.logo-section {
-    min-width: $menu-tray-width;
-}
-
 .search-header-swiss-confederation-text,
 .search-title {
     font-size: 0.825rem;
@@ -172,10 +158,6 @@ $animation-time: 0.5s;
     .header-settings-section {
         // See MenuTray.vue where the help section is enable above lg
         display: none !important;
-    }
-
-    .logo-section {
-        min-width: auto;
     }
 }
 

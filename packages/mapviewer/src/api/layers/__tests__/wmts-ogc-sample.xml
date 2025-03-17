@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Capabilities
     version="1.0.0"
     xmlns="http://www.opengis.net/wmts/1.0"
@@ -6,7 +6,8 @@
     xmlns:ows="http://www.opengis.net/ows/1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd">
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
+>
     <ows:ServiceIdentification>
         <ows:Title>Web Map Tile Service</ows:Title>
         <ows:Abstract>Service that constrains the map
@@ -92,7 +93,8 @@
             </Style>
             <Style>
                 <ows:Title>Thick And Red</ows:Title>
-                <ows:Abstract>Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
+                <ows:Abstract
+                >Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
                 <ows:Identifier>thickAndRed</ows:Identifier>
             </Style>
             <Format>image/jpeg</Format>
@@ -141,7 +143,8 @@
             </Style>
             <Style>
                 <ows:Title>Thick And Red</ows:Title>
-                <ows:Abstract>Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
+                <ows:Abstract
+                >Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
                 <ows:Identifier>thickAndRed</ows:Identifier>
             </Style>
             <Format>image/jpeg</Format>
@@ -189,7 +192,8 @@
             </Style>
             <Style>
                 <ows:Title>Thick And Red</ows:Title>
-                <ows:Abstract>Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
+                <ows:Abstract
+                >Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
                 <ows:Identifier>thickAndRed</ows:Identifier>
             </Style>
             <Format>image/jpeg</Format>
@@ -228,7 +232,8 @@
             </Style>
             <Style>
                 <ows:Title>Thick And Red</ows:Title>
-                <ows:Abstract>Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
+                <ows:Abstract
+                >Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
                 <ows:Identifier>thickAndRed</ows:Identifier>
             </Style>
             <Format>image/jpeg</Format>
@@ -279,7 +284,8 @@
             </Style>
             <Style>
                 <ows:Title>Thick And Red</ows:Title>
-                <ows:Abstract>Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
+                <ows:Abstract
+                >Specify this style if you want your maps to have thick red coastlines.</ows:Abstract>
                 <ows:Identifier>thickAndRed</ows:Identifier>
             </Style>
             <Format>image/jpeg</Format>

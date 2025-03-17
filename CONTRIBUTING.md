@@ -2,25 +2,25 @@
 
 ## Table of content
 
-- [Contributing](#contributing)
-  - [Development process](#development-process)
-    - [Automated git tagging of `develop` and `master`](#automated-git-tagging-of-develop-and-master)
-  - [NPM](#npm)
-    - [list of npm targets](#list-of-npm-targets)
-    - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
-  - [Linting](#linting)
-    - [Integration in IDE](#integration-in-ide)
-  - [Continuous integration / deployment](#continuous-integration--deployment)
-  - [Project structure](#project-structure)
-    - [Best practices](#best-practices)
-    - [Vue Composition API](#vue-composition-api)
-    - [Store module](#store-module)
-  - [Testing](#testing)
-  - [Environment variables](#environment-variables)
-  - [Tooling to update translation](#tooling-to-update-translation)
-  - [Project deployment](#project-deployment)
-    - [Automatic deploy](#automatic-deploy)
-    - [Manual deploy](#manual-deploy)
+- [Table of content](#table-of-content)
+- [Development process](#development-process)
+  - [Automated git tagging of `develop` and `master`](#automated-git-tagging-of-develop-and-master)
+- [pnpm](#pnpm)
+  - [list of pnpm targets](#list-of-pnpm-targets)
+  - [What about `pnpm-lock.yaml` file?](#what-about-pnpm-lockyaml-file)
+- [Linting](#linting)
+  - [Integration in IDE](#integration-in-ide)
+- [Continuous integration / deployment](#continuous-integration--deployment)
+- [Project structure](#project-structure)
+  - [Best practices](#best-practices)
+  - [Vue Composition API](#vue-composition-api)
+  - [Store module](#store-module)
+- [Testing](#testing)
+- [Environment variables](#environment-variables)
+- [Tooling to update translation](#tooling-to-update-translation)
+- [Project deployment](#project-deployment)
+  - [Automatic deploy](#automatic-deploy)
+  - [Manual deploy](#manual-deploy)
 
 ## Development process
 
@@ -44,42 +44,44 @@ This tag will be a bump in :
 - minor version (v0.x.0) if none of the above is true and merge is on `master`, or if a commit message of the PR contains the word `#minor`
 - beta version (v0.0.0-beta.x) if none of the above is true
 
-## NPM
+## pnpm
 
-### list of npm targets
+This project uses `pnpm` instead of `npm`. The cli commands are [more or less the same](https://pnpm.io/pnpm-cli).
+The main difference is that new packages need to be specified in the global `pnpm-workspace.yaml` file.
+The subpackages will then use the same versions of the dependencies across the entire codebase.
 
-| command                           | what it does                                                                                                                                                               |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                     | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `npm run build`                   | Compiles all file without bundling and minification                                                                                                                        |
-| `npm run build:(dev\|int\|prod)`  | Compiles all file for the according `mode`                                                                                                                                 |
-| `npm run lint`                    | Format, lints and fixes                                                                                                                                                    |
-| `npm run lint:no-fix`             | Check formatting and linting without auto fixes                                                                                                                            |
-| `npm run test:unit`               | Runs unit tests from vitest.                                                                                                                                               |
-| `npm run test:unit:watch`         | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed).                        |
-| `npm run test:e2e`                | Opens up the cypress app with a mobile sized view                                                                                                                          |
-| `npm run test:e2e:headless`       | Run cypress E2E tests in headless mode with a mobile sized view                                                                                                            |
-| `npm run test:e2e:tablet`         | Opens up the cypress app with a iPad sized view                                                                                                                            |
-| `npm run test:e2e:desktop`        | Opens up the cypress app with a 1080p sized view                                                                                                                           |
-| `npm run test:e2e:ci`             | Run cypress E2E tests on the served URL (NOTE: the server should be started before). Only tests the mobile sized view.                                                     |
-| `npm run test:component`          | Opens up the cypress component tests                                                                                                                                       |
-| `npm run test:component:headless` | Run cypress component tests in headless mode                                                                                                                               |
-| `npm run test:component:ci`       | Run cypress component tests                                                                                                                                                |
-| `npm run update:translations`     | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools.                                             |
+### list of pnpm targets
+
+| command                            | what it does                                                                                                                                                               |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm run dev`                     | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
+| `pnpm run build-all`               | Compiles all file without bundling and minification                                                                                                                        |
+| `pnpm run build:(dev\|int\|prod)`  | Compiles all file for the according `mode`                                                                                                                                 |
+| `pnpm run lint`                    | Format, lints and fixes                                                                                                                                                    |
+| `pnpm run lint:no-fix`             | Check formatting and linting without auto fixes                                                                                                                            |
+| `pnpm run test:unit`               | Runs unit tests from vitest.                                                                                                                                               |
+| `pnpm run test:unit:watch`         | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed).                        |
+| `pnpm run test:e2e`                | Opens up the cypress app with a mobile sized view                                                                                                                          |
+| `pnpm run test:e2e:headless`       | Run cypress E2E tests in headless mode with a mobile sized view                                                                                                            |
+| `pnpm run test:e2e:tablet`         | Opens up the cypress app with a iPad sized view                                                                                                                            |
+| `pnpm run test:e2e:desktop`        | Opens up the cypress app with a 1080p sized view                                                                                                                           |
+| `pnpm run test:e2e:ci`             | Run cypress E2E tests on the served URL (NOTE: the server should be started before). Only tests the mobile sized view.                                                     |
+| `pnpm run test:component`          | Opens up the cypress component tests                                                                                                                                       |
+| `pnpm run test:component:headless` | Run cypress component tests in headless mode                                                                                                                               |
+| `pnpm run test:component:ci`       | Run cypress component tests                                                                                                                                                |
+| `pnpm run update:translations`     | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools.                                             |
 
 All scripts commands starting a webserver or using one (`dev` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
-### What about `package-lock.json` file?
+### What about `pnpm-lock.yaml` file?
 
-The CI uses this file to ensure it will not stumble upon a minor version of a library that breaks the app. So this file needs to be versioned, and kept up to date (each time a new library or version of a library is added to `package.json`, `npm install` will update `package-lock.json` accordingly).
-
-The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `package-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
+The CI uses this file to ensure it will not stumble upon a minor version of a library that breaks the app. So this file needs to be versioned, and kept up to date (each time a new library or version of a library is added to `package.json`, `pnpm install` will update `pnpm-lock.yaml` accordingly).
 
 ## Linting
 
 This project uses ESLint as the main linter, and uses presets from [https://prettier.io/](https://prettier.io/)
 Lint is enforced at each build, and will result in an error if something is wrong. You can auto lint
-your code by running `npm run lint` (this will lint the whole `src/` folder)
+your code by running `pnpm run lint` (this will lint the whole `src/` folder)
 
 ### Integration in IDE
 
@@ -100,7 +102,7 @@ CI is managed by AWS CodeBuild.
 This is a [Vue](https://vuejs.org/) app that is served through `src/main.js`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
 
 The app is divided into packages (or modules) that are stored into `packages/`. The goal is for each of these modules to be able to be externalized if needed.
-They are using NPM workspaces to be linked together, making this repo a sort of monorepo.
+They are using PNPM workspaces to be linked together, making this repo a sort of monorepo.
 
 To make the code easier to navigate and maintain, we consolidated the complete state of the viewer in one place (`packages/mapviewer/src/store/`).
 The store is divided into modules that mostly correspond to the application parts but also include modules for state that is used by multiple parts of the app or would be too big for a single file.
@@ -201,7 +203,7 @@ Environment variables are defined in the following files
 - .env.integration
 - .env.prodcution
 
-The first one is used by `npm run dev` as well as for all `development` modes. The second is used to build for and deploy to our integration server. Otherwise `.env.production` is used by default.
+The first one is used by `pnpm run dev` as well as for all `development` modes. The second is used to build for and deploy to our integration server. Otherwise `.env.production` is used by default.
 For more information about loading environment variables see [Vue - Modes and Environment Variables](https://cli.vuejs.org/guide/mode-and-env.html#modes-and-environment-variables)
 
 ## Tooling to update translation
@@ -214,7 +216,7 @@ In order to easily access the google API key stored in AWS SSM we use [summon](h
 Translations can then be updated with
 
 ```bash
-summon -p ssm npm run update:translations
+summon -p ssm pnpm run update:translations
 ```
 
 The file `secrets.yml` will tell `summon` which keys to get from AWS SSM.
@@ -262,7 +264,7 @@ On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bg
 > **_NOTE:_**  
 > If deploying manually to `prod`, wait until the CI has finished building the project, as the deploy script only copy files.
 
-Depending on the target (`dev|int|prod`), you will have to build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`) prior to deplay (`npm run build:(dev|int|prod)`)
+Depending on the target (`dev|int|prod`), you will have to build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`) prior to deplay (`pnpm run build:(dev|int|prod)`)
 
 - Only `develop` branch can be deployed at the root of the `dev` bucket.
 - Only `master` branch can be deployed at the root of `int` and `prod` buckets.

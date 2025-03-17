@@ -6,10 +6,10 @@ import { useStore } from 'vuex'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const accepetedInitialPositions = ['top-left', 'top-center', 'top-right']
+const acceptedInitialPositions = ['top-left', 'top-center', 'top-right', 'bottom-center']
 
-const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dataCy } = defineProps(
-    {
+const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, small, dataCy } =
+    defineProps({
         title: {
             type: String,
             default: '',
@@ -43,12 +43,15 @@ const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, dat
             type: Boolean,
             default: false,
         },
+        small: {
+            type: Boolean,
+            default: false,
+        },
         dataCy: {
             type: String,
             default: 'simple-window',
         },
-    }
-)
+    })
 
 const store = useStore()
 
@@ -64,7 +67,7 @@ const headerRef = useTemplateRef('headerRef')
 const contentRef = useTemplateRef('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (accepetedInitialPositions.includes(initialPosition)) {
+    if (acceptedInitialPositions.includes(initialPosition)) {
         return initialPosition
     } else {
         return 'top-center'
@@ -96,6 +99,7 @@ onMounted(() => {
                 {
                     'dev-disclaimer-present': hasDevSiteWarning,
                     wide: wide,
+                    small: small,
                     resizable: resizeable && showBody,
                 },
             ]"
@@ -110,7 +114,8 @@ onMounted(() => {
                     data-cy="simple-window-title"
                     class="me-auto text-truncate"
                 >
-                    {{ t(title) }}</span>
+                    {{ t(title) }}
+                </span>
                 <span
                     v-else
                     class="me-auto"
@@ -190,6 +195,13 @@ onMounted(() => {
             left: 50%;
             transform: translate(-50%, 0);
         }
+
+        &.bottom-center {
+            top: unset !important;
+            bottom: $card-spacer-y !important;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
     }
 
     @include respond-below(phone) {
@@ -202,6 +214,13 @@ onMounted(() => {
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
         width: 100vw;
+
+        &.small {
+            left: 10px;
+            right: 10px;
+            max-width: 75vw;
+            width: 75vw;
+        }
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);

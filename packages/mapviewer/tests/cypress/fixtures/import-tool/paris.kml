@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<?xml version="1.0" encoding="UTF-8" ?>
+<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:kml="http://www.opengis.net/kml/2.2"
+    xmlns:atom="http://www.w3.org/2005/Atom"
+>
 <Document>
 	<name>paris</name>
 	<gx:CascadingStyle kml:id="__managed_style_235D90EB2C2E51D74FB5">
@@ -9,7 +14,12 @@
 				<Icon>
 					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
 				</Icon>
-				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+				<hotSpot
+                        x="64"
+                        y="128"
+                        xunits="pixels"
+                        yunits="insetPixels"
+                    />
 			</IconStyle>
 			<LabelStyle>
 			</LabelStyle>
@@ -31,7 +41,12 @@
 				<Icon>
 					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
 				</Icon>
-				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+				<hotSpot
+                        x="64"
+                        y="128"
+                        xunits="pixels"
+                        yunits="insetPixels"
+                    />
 			</IconStyle>
 			<LabelStyle>
 			</LabelStyle>

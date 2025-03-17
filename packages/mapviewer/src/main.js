@@ -10,7 +10,6 @@ import { registerProj4 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-import tippy from 'tippy.js'
 import { createApp } from 'vue'
 
 import App from '@/App.vue'
@@ -55,7 +54,6 @@ log.debug('Config is', {
     BREAKPOINT_TABLET,
 })
 
-tippy.setDefaultProps({ theme: 'light-border' })
 setupChartJS()
 
 registerProj4(proj4)

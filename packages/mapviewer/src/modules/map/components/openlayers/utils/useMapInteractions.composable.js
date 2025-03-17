@@ -1,5 +1,6 @@
 import log from '@geoadmin/log'
-import { DragPan, MouseWheelZoom } from 'ol/interaction'
+import { altKeyOnly, primaryAction } from 'ol/events/condition'
+import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -44,6 +45,12 @@ export default function useMapInteractions(map) {
             condition: function (event) {
                 return event.originalEvent.buttons === 4
             },
+        })
+    )
+
+    map.addInteraction(
+        new DragRotate({
+            condition: (event) => primaryAction(event) && altKeyOnly(event),
         })
     )
 

@@ -48,7 +48,9 @@ function send() {
             <span
                 v-else
                 data-cy="submit-send-text"
-            >{{ t('send') }}</span>
+            >
+                {{ t('send') }}
+            </span>
         </button>
     </div>
 </template>

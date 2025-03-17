@@ -1,12 +1,14 @@
 <kml
-	xmlns="http://www.opengis.net/kml/2.2"
-	xmlns:gx="http://www.google.com/kml/ext/2.2"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+>
 	<Document>
 		<name>Drawing</name>
 		<Placemark id="drawing_feature_1714651153088">
 			<name>Title1</name>
-			<description></description>
+			<description />
 			<Style>
 				<IconStyle>
 					<scale>1.125</scale>
@@ -15,7 +17,12 @@
 						<gx:w>48</gx:w>
 						<gx:h>48</gx:h>
 					</Icon>
-					<hotSpot x="24" y="6" xunits="pixels" yunits="pixels"/>
+					<hotSpot
+                        x="24"
+                        y="6"
+                        xunits="pixels"
+                        yunits="pixels"
+                    />
 				</IconStyle>
 				<LabelStyle>
 					<color>ff0000ff</color>
@@ -36,7 +43,7 @@
 		</Placemark>
 		<Placemark id="drawing_feature_1714651899088">
 			<name>Title2</name>
-			<description></description>
+			<description />
 			<Style>
 				<IconStyle>
 					<scale>1.125</scale>

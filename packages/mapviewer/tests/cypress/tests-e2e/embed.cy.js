@@ -9,7 +9,9 @@ describe('Testing the embed view', () => {
         }
     }
     it('Open in embed mode and can jump to the non embed mode', () => {
-        cy.goToEmbedView()
+        cy.goToEmbedView({
+            queryParams: { z: 2 },
+        })
 
         cy.log(`Check that the menu and the header are not displayed`)
 
@@ -41,14 +43,14 @@ describe('Testing the embed view', () => {
             .should((href) =>
                 checkUrlParams(
                     href,
-                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
+                    `#/map?lang=en&center=2660000,1190000&z=2&bgLayer=test.background.layer2&topic=ech&layers=`
                 )
             )
         cy.log('Test mouse zoom scrolling')
-        cy.location('hash').should('contain', 'z=1')
+        cy.location('hash').should('contain', 'z=2')
         cy.get('[data-cy="scaleline"]').should('contain', '50 km')
-        cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -200 })
-        cy.location('hash').should('contain', 'z=1.667')
+        cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -100 })
+        cy.location('hash').should('contain', 'z=2.333')
         cy.get('[data-cy="scaleline"]').should('contain', '20 km')
 
         cy.log('Test that location popup is deactivated')
@@ -97,13 +99,13 @@ describe('Testing the embed view', () => {
             .should((href) =>
                 checkUrlParams(
                     href,
-                    `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=1.667&bgLayer=test.background.layer2&topic=ech`
+                    `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=2.333&bgLayer=test.background.layer2&topic=ech`
                 )
             )
     })
     it('Open in legacy embed mode and can jump to the non embed mode', () => {
         cy.log(`Open in legacy mode without parameters`)
-        cy.goToEmbedView({ legacy: true })
+        cy.goToEmbedView({ legacy: true, queryParams: { zoom: 2 } })
 
         cy.log(`Check that the menu and the header are not displayed`)
 
@@ -135,15 +137,15 @@ describe('Testing the embed view', () => {
             .should((href) =>
                 checkUrlParams(
                     href,
-                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
+                    `#/map?lang=en&center=2660000,1190000&z=2&bgLayer=test.background.layer2&topic=ech&layers=`
                 )
             )
 
         cy.log('Test mouse zoom scrolling')
-        cy.location('hash').should('contain', 'z=1')
+        cy.location('hash').should('contain', 'z=2')
         cy.get('[data-cy="scaleline"]').should('contain', '50 km')
-        cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -200 })
-        cy.location('hash').should('contain', 'z=1.667')
+        cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -100 })
+        cy.location('hash').should('contain', 'z=2.333')
         cy.get('[data-cy="scaleline"]').should('contain', '20 km')
 
         cy.log('Test that location popup is deactivated')

@@ -159,6 +159,8 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     })
                 })
 
+                cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).click()
+
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 cy.log(
                     `${timedLayerIdWithOddYear} : CSS of time selectors on a layer with data on the preview Year selected`
@@ -187,6 +189,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     'contain',
                     '-'
                 )
+
+                cy.get(`[data-cy="time-selector-${timedLayerIdWithOddYear}-1"]`).click() // close it
+
                 cy.get(`[data-cy="time-selector-${timedLayerIdWithAllYear}-2"]`).click()
                 const allYearLayer = layers[timedLayerIdWithAllYear]
                 allYearLayer.timestamps.forEach((timestamp) => {
@@ -200,7 +205,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(
                 'If there is data common to all layers, the time slider goes to the youngest year in common'
             )
-            cy.get('[data-cy="menu-swiss-flag"]').as('swissFlag').click()
+            cy.get('[data-cy="swiss-flag"]').as('swissFlag').click()
             cy.goToMapView({ layers: `${timedLayerId};${timedLayerIdWithOddYear}` })
             cy.get('[data-cy="time-slider-button"]').as('timeSliderButton').click()
             cy.get('@timeSliderYearCursor').should('have.value', '2021')

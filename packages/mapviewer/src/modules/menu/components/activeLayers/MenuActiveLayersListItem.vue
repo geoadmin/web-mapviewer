@@ -5,7 +5,6 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@geoadmin/log'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -14,13 +13,13 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import ErrorButton from '@/utils/components/ErrorButton.vue'
+import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
-import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
@@ -61,11 +60,8 @@ const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'mov
 const store = useStore()
 const { t } = useI18n()
 
-const menuLayerItem = useTemplateRef('menuLayerItem')
-
 const layerUpButton = useTemplateRef('layerUpButton')
 const layerDownButton = useTemplateRef('layerDownButton')
-const transparencySlider = useTemplateRef('transparencySlider')
 const currentKmlStyle = ref(layer?.style ?? null)
 const id = computed(() => layer.id)
 
@@ -104,12 +100,6 @@ const isLayerClampedToGround = computed({
 // backend should be quick enough and don't require any spinner
 const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer.hasError)
 
-const loadingSpinner = useTemplateRef('loadingSpinner')
-useTippyTooltip(loadingSpinner, 'loading_external_layer')
-
-const duplicateLayerButton = useTemplateRef('duplicateLayerButton')
-useTippyTooltip(duplicateLayerButton, 'duplicate_layer')
-
 onMounted(() => {
     if (showLayerDetail) {
         if (focusMoveButton === 'up') {
@@ -128,30 +118,12 @@ function onToggleLayerVisibility() {
     store.dispatch('toggleLayerVisibility', { index, ...dispatcher })
 }
 
-function dispatchOpacity(opacity) {
-    if (layer.opacity.toFixed(2) !== opacity.toFixed(2)) {
-        store.dispatch('setLayerOpacity', {
-            index,
-            opacity: opacity.toFixed(2),
-            ...dispatcher,
-        })
-    }
-}
-
-function onTransparencyChange() {
-    dispatchOpacity(1.0 - transparencySlider.value.value)
-}
-
-const debounceTransparencyChange = debounce(onTransparencyChange, 50)
-
-function onTransparencyCommit() {
-    log.info('[Menu Active Layers List Item component]: Committing last transparency reached')
-
-    dispatchOpacity(1.0 - transparencySlider.value.value)
-}
-
 function showLayerDescriptionPopup() {
     emit('showLayerDescriptionPopup', id.value)
+    //close menu on mobile only
+    if (isPhoneMode.value) {
+        store.dispatch('toggleMenu', dispatcher)
+    }
 }
 
 function duplicateLayer() {
@@ -199,7 +171,7 @@ function changeStyle(newStyle) {
                 class="menu-layer-item-name p-1"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}-${index}`"
-                :tippy-options="{ placement: isPhoneMode ? 'top' : 'right' }"
+                :tooltip-placement="isPhoneMode ? 'top' : 'right'"
                 @click="onToggleLayerVisibility"
             >
                 {{ layer.name }}
@@ -208,25 +180,11 @@ function changeStyle(newStyle) {
                 v-if="layer.extent"
                 :extent="layer.extent"
             />
-            <button
-                v-if="showSpinner"
-                ref="loadingSpinner"
-                class="loading-button btn border-0 d-flex align-items-center"
-                :class="{
-                    'btn-lg': !compact,
-                }"
-                :data-cy="`button-loading-metadata-spinner-${id}-${index}`"
-            >
-                <FontAwesomeIcon
-                    icon="spinner"
-                    pulse
-                />
-            </button>
-            <ErrorButton
-                v-else-if="layer.hasError"
-                :compact="compact"
-                :error-message="layer.getFirstErrorMessage()"
-                :data-cy="`button-error-${id}-${index}`"
+            <ExtLayerInfoButton
+                :show-spinner="showSpinner"
+                :layer="layer"
+                :index="index"
+                class="me-2"
             />
             <MenuActiveLayersListItemTimeSelector
                 v-if="hasMultipleTimestamps"
@@ -267,7 +225,7 @@ function changeStyle(newStyle) {
             </button>
         </div>
         <div
-            v-show="showLayerDetail"
+            v-if="showLayerDetail"
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
             <div class="d-flex mx-1 align-items-center">
@@ -277,30 +235,24 @@ function changeStyle(newStyle) {
                 >
                     {{ t('transparency') }}
                 </label>
-                <input
-                    :id="`transparency-${id}`"
-                    ref="transparencySlider"
-                    class="menu-layer-transparency-slider ms-2 me-4 flex-grow-1"
-                    type="range"
-                    min="0.0"
-                    max="1.0"
-                    step="0.01"
-                    :value="1.0 - layer.opacity"
-                    :data-cy="`slider-transparency-layer-${id}-${index}`"
-                    @mouseup="onTransparencyCommit"
-                    @input="debounceTransparencyChange"
-                >
+
+                <TransparencySlider
+                    :layer="layer"
+                    :index="index"
+                />
+
                 <div class="btn-group">
-                    <button
-                        v-if="hasMultipleTimestamps"
-                        ref="duplicateLayerButton"
-                        class="layer-options-btn"
-                        :class="{ 'btn-lg': !compact }"
-                        :data-cy="`button-duplicate-layer-${id}-${index}`"
-                        @click.prevent="duplicateLayer()"
-                    >
-                        <FontAwesomeIcon :icon="['far', 'copy']" />
-                    </button>
+                    <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
+                        <button
+                            v-if="hasMultipleTimestamps"
+                            class="layer-options-btn"
+                            :class="{ 'btn-lg': !compact }"
+                            :data-cy="`button-duplicate-layer-${id}-${index}`"
+                            @click.prevent="duplicateLayer()"
+                        >
+                            <FontAwesomeIcon :icon="['far', 'copy']" />
+                        </button>
+                    </GeoadminTooltip>
                     <button
                         ref="layerUpButton"
                         class="layer-options-btn"
@@ -352,7 +304,7 @@ function changeStyle(newStyle) {
                         v-model="isLayerClampedToGround"
                         type="checkbox"
                         class="form-check-input"
-                    >
+                    />
                 </div>
                 <div
                     v-else
@@ -431,5 +383,9 @@ svg {
     @extend .align-items-center;
     @extend .px-2;
     @extend .border-0;
+}
+
+.btn-group {
+    position: static !important;
 }
 </style>

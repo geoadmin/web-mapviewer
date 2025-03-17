@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
@@ -22,8 +22,6 @@ const { feature, iconSets } = defineProps({
 const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor'])
 
 const { t } = useI18n()
-
-const iconButtons = useTemplateRef('iconButtons')
 
 const showAllSymbols = ref(false)
 const currentIconSet = ref(null)
@@ -60,11 +58,6 @@ onMounted(() => {
 
 function toggleShowAllSymbols() {
     showAllSymbols.value = !showAllSymbols.value
-    if (showAllSymbols.value) {
-        refreshIconTooltips()
-    } else {
-        removeIconTooltips()
-    }
 }
 
 function onCurrentIconColorChange(color) {
@@ -85,18 +78,7 @@ function onImageLoad() {
     loadedImages.value = loadedImages.value + 1
     if (loadedImages.value === currentIconSet.value.icons.length) {
         loadedImages.value = 0
-        if (currentIconSet.value.hasDescription && showAllSymbols.value) {
-            refreshIconTooltips()
-        }
     }
-}
-
-function refreshIconTooltips() {
-    iconButtons.value?.forEach((button) => button.refreshTooltip())
-}
-
-function removeIconTooltips() {
-    iconButtons.value?.forEach((button) => button.removeTooltip())
 }
 
 function onCurrentIconChange(icon) {
@@ -161,6 +143,7 @@ function onCurrentIconChange(icon) {
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
                     ref="iconButtons"
+                    :tooltip-disabled="!showAllSymbols"
                     :icon="icon"
                     :current-icon-set="currentIconSet"
                     :current-feature="feature"

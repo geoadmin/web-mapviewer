@@ -1,20 +1,17 @@
 <script setup>
 import { Ray } from 'cesium'
-import { computed, inject, useTemplateRef } from 'vue'
+import { computed, inject } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'ZoomButtons.vue' }
 
 const store = useStore()
+const { t } = useI18n()
 const is3dActive = computed(() => store.state.cesium.active)
 const resolution = computed(() => store.getters.resolution)
-
-const zoomInButton = useTemplateRef('zoomInButton')
-const zoomOutButton = useTemplateRef('zoomOutButton')
-useTippyTooltip(zoomInButton, 'zoom_in', { placement: 'left' })
-useTippyTooltip(zoomOutButton, 'zoom_out', { placement: 'left' })
 
 // telling vue that getViewer is a factory method (avoid unnecessary computation or side effects)
 const getViewer = inject('getViewer', () => {}, true)
@@ -57,28 +54,39 @@ function decreaseZoom() {
 
 <template>
     <div id="zoomButtons">
-        <button
-            ref="zoomInButton"
-            class="toolbox-button d-print-none"
-            data-cy="zoom-in"
-            @click="increaseZoom"
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="t('zoom_in')"
         >
-            <font-awesome-icon
-                size="lg"
-                :icon="['fas', 'plus-circle']"
-            />
-        </button>
-        <button
-            ref="zoomOutButton"
-            class="toolbox-button d-print-none"
-            data-cy="zoom-out"
-            @click="decreaseZoom"
+            <button
+                ref="zoomInButton"
+                class="toolbox-button d-print-none"
+                data-cy="zoom-in"
+                @click="increaseZoom"
+            >
+                <font-awesome-icon
+                    size="lg"
+                    :icon="['fas', 'plus-circle']"
+                />
+            </button>
+        </GeoadminTooltip>
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="t('zoom_out')"
+            :use-extra-padding
         >
-            <font-awesome-icon
-                size="lg"
-                :icon="['fas', 'minus-circle']"
-            />
-        </button>
+            <button
+                ref="zoomOutButton"
+                class="toolbox-button d-print-none"
+                data-cy="zoom-out"
+                @click="decreaseZoom"
+            >
+                <font-awesome-icon
+                    size="lg"
+                    :icon="['fas', 'minus-circle']"
+                />
+            </button>
+        </GeoadminTooltip>
     </div>
 </template>
 

@@ -149,7 +149,7 @@ export async function getProfileDataForChunk(chunk, startingPoint, startingDist,
             if (lastCoordinate) {
                 dist += Math.sqrt(
                     Math.pow(lastCoordinate[0] - coordinate[0], 2) +
-                    Math.pow(lastCoordinate[1] - coordinate[1], 2)
+                        Math.pow(lastCoordinate[1] - coordinate[1], 2)
                 )
             }
             lastDist = dist

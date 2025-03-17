@@ -21,10 +21,12 @@ import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButton
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
+import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
@@ -34,6 +36,7 @@ const olMap = inject('olMap')
 
 const drawingInteractions = useTemplateRef('drawingInteractions')
 const isNewDrawing = ref(true)
+const showNotSharedDrawingWarningModal = ref(false)
 
 const { t } = useI18n()
 const store = useStore()
@@ -44,6 +47,7 @@ const featureIds = computed(() => store.state.drawing.featureIds)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const noFeatureInfo = computed(() => store.getters.noFeatureInfo)
 const online = computed(() => store.state.drawing.online)
+const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedLineFeature = computed(() => {
     if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
@@ -61,6 +65,8 @@ const selectedLineFeature = computed(() => {
 const showAddVertexButton = computed(() => {
     return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
 })
+const editMode = computed(() => store.state.drawing.editingMode)
+const currentDrawingMode = computed(() => store.state.drawing.mode)
 
 const hasKml = computed(() => {
     if (online.value) {
@@ -181,6 +187,7 @@ onMounted(() => {
     // listening for "Delete" keystroke (to remove last point when drawing lines or measure)
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
     document.addEventListener('contextmenu', removeLastPointOnRightClick, { passive: true })
+    window.addEventListener('beforeunload', beforeUnloadHandler)
 
     if (IS_TESTING_WITH_CYPRESS) {
         window.drawingLayer = drawingLayer
@@ -195,11 +202,22 @@ onBeforeUnmount(() => {
 
     document.removeEventListener('contextmenu', removeLastPointOnRightClick)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
+    window.removeEventListener('beforeunload', beforeUnloadHandler)
 
     if (IS_TESTING_WITH_CYPRESS) {
         delete window.drawingLayer
     }
 })
+
+const beforeUnloadHandler = (event) => {
+    // This provokes the alert message to appear when trying to close the tab.
+    // During Cypress tests this causes the test to run indefinitely, so to prevent this we skip the alert.
+    if (!IS_TESTING_WITH_CYPRESS && showNotSharedDrawingWarning.value) {
+        showNotSharedDrawingWarningModal.value = true
+        event.returnValue = true
+        event.preventDefault()
+    }
+}
 
 function createSourceForProjection() {
     return new VectorSource({
@@ -209,7 +227,10 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    drawingInteractions.value?.removeLastPoint()
+    // only deleting the last point by right-click when we are drawing a feature (or editing it)
+    if (currentDrawingMode.value !== null || editMode.value === EditMode.EXTEND) {
+        drawingInteractions.value?.removeLastPoint()
+    }
 }
 
 function removeLastPointOnRightClick(_event) {
@@ -260,5 +281,16 @@ async function closeDrawing() {
             v-if="showAddVertexButton"
             :coordinates="selectedLineFeature.geometry.coordinates"
         />
+        <ModalWithBackdrop
+            v-if="showNotSharedDrawingWarningModal"
+            fluid
+            :title="t('warning')"
+            @close="showNotSharedDrawingWarningModal = false"
+        >
+            <ShareWarningPopup
+                :kml-layer="activeKmlLayer"
+                @accept="showNotSharedDrawingWarningModal = false"
+            />
+        </ModalWithBackdrop>
     </div>
 </template>

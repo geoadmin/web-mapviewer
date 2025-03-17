@@ -1,10 +1,10 @@
 import { round } from '@geoadmin/numbers'
+import { earthRadius } from '@turf/turf'
 import proj4 from 'proj4'
 
 import type { SingleCoordinate } from '@/utils'
 
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
-
 /**
  * These are the zoom levels, for each projection, which give us a 1:25'000 ratio map.
  *
@@ -14,6 +14,28 @@ import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
  */
 export const STANDARD_ZOOM_LEVEL_1_25000_MAP: number = 15.5
 export const SWISS_ZOOM_LEVEL_1_25000_MAP: number = 8
+
+/**
+ * Resolution (pixel/meter) found at zoom level 0 while looking at the equator. This constant is
+ * used to calculate the resolution taking latitude into account. With Mercator projection, the
+ * deformation increases when latitude increases.
+ *
+ * Length of the Earth around its equator (in meters) / 256 pixels
+ *
+ * @see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+ * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
+ */
+export const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES: number =
+    (2 * Math.PI * earthRadius) / 256
+
+export type ResolutionStep = {
+    /** Resolution of this step, in meters/pixel */
+    resolution: number
+    /** Corresponding zoom level for this resolution step */
+    zoom: number | undefined
+    /** Name of the map product shown at this resolution/zoom */
+    label?: string
+}
 
 export interface CoordinateSystemProps {
     /**
@@ -235,17 +257,21 @@ export default abstract class CoordinateSystem {
     abstract roundCoordinateValue(value: number): number
 
     /**
-     * A (descending) list of all the available resolutions for this coordinate system. If this is
-     * not the behavior you want, you have to override this function.
+     * A (descending) list of all the available resolution steps for this coordinate system. If this
+     * is not the behavior you want, you have to override this function.
      */
-    getResolutions(): number[] {
+    getResolutionSteps(latitude?: number): ResolutionStep[] {
         if (!this.bounds) {
             return []
         }
-        const size = (this.bounds.upperX - this.bounds.lowerX) / 256
-        const resolutions = []
-        for (let z = 0; z < 19; ++z) {
-            resolutions[z] = size / Math.pow(2, z)
+        const zoom0PixelSizeInMeters = PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES
+        const resolutions: ResolutionStep[] = []
+        const latInRad = ((latitude ?? 0) * Math.PI) / 180.0
+        for (let z = 0; z < 21; ++z) {
+            resolutions.push({
+                resolution: (zoom0PixelSizeInMeters * Math.cos(latInRad)) / Math.pow(2, z),
+                zoom: z,
+            })
         }
         return resolutions
     }
@@ -267,8 +293,7 @@ export default abstract class CoordinateSystem {
      */
     getMatrixIds(): number[] {
         const matrixIds = []
-
-        for (let z = 0; z < this.getResolutions().length; ++z) {
+        for (let z = 0; z < this.getResolutionSteps().length; ++z) {
             matrixIds[z] = z
         }
         return matrixIds
