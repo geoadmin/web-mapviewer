@@ -3,7 +3,7 @@ import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
+// import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
@@ -327,31 +327,31 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMTSLayer({
+                pristineLayer: {
                     id: 'fake.external.wmts',
                     name: 'Fake external WMTS',
                     baseUrl: 'https://fake.wtms.url/getCap.xml',
                     attributions,
-                }),
+                },
                 expectedLayerUrlId: 'WMTS|https://fake.wtms.url/getCap.xml|fake.external.wmts',
                 testTime: false,
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMSLayer({
+                pristineLayer: {
                     id: 'fake.external.group',
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',
                     layers: [
-                        new ExternalWMTSLayer({
+                        new {
                             id: 'fake.external.wmts',
                             name: 'Fake external WMTS',
                             baseUrl: 'https://fake.wtms.url/getCap.xml',
                             attributions,
-                        }),
+                        }(),
                     ],
                     attributions,
-                }),
+                },
                 expectedLayerUrlId: 'WMS|https://fake.wms.url?|fake.external.group',
                 testTime: false,
                 testFeaturePreSelection: true,

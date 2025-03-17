@@ -1,9 +1,10 @@
+// @ts-nocheck
 import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import { LayerLegend } from '@/api/layers/ExternalLayer.class'
-import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
+import { LayerLegend } from '@/layers'
+import WMTSCapabilitiesParser from '@/externalWMTSCapabilitiesParser'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     let capabilities

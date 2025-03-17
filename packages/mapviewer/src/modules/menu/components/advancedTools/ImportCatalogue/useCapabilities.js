@@ -1,10 +1,10 @@
+import { CapabilitiesError } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios, { AxiosError } from 'axios'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import {
-    CapabilitiesError,
     EXTERNAL_SERVER_TIMEOUT,
     parseWmsCapabilities,
     parseWmtsCapabilities,

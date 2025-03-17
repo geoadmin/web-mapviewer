@@ -6,6 +6,7 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -23,9 +24,8 @@ const dispatcher = { dispatcher: 'external-layers.plugin' }
 export default function loadExternalLayerAttributes(store) {
     const layersSubscriber = async (layers, state) => {
         const externalLayers = layers.filter(
-            (layer) =>
-                layer.isLoading &&
-                (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
+            (layer) => layer.isLoading && layer.isExternal
+            // (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
         )
         if (externalLayers.length > 0) {
             // We get first the capabilities
@@ -77,7 +77,9 @@ function getWMTSCababilitiesForLayers(layers) {
     // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
     // for example when adding several layers from the same source.
     new Set(
-        layers.filter((layer) => layer instanceof ExternalWMTSLayer).map((layer) => layer.baseUrl)
+        layers
+            .filter((layer) => layer.type === LayerType.WMTS && layer.isExternal)
+            .map((layer) => layer.baseUrl)
     ).forEach((url) => {
         capabilities[url] = readWmtsCapabilities(url)
     })
