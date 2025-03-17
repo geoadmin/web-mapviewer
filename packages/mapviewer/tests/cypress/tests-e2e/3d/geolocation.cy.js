@@ -3,7 +3,11 @@
 import { registerProj4, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
-import { getGeolocationButtonAndClickIt, testErrorMessage, checkStorePosition } from  '@/../tests/cypress/tests-e2e/utils'
+import {
+    getGeolocationButtonAndClickIt,
+    testErrorMessage,
+    checkStorePosition,
+} from '@/../tests/cypress/tests-e2e/utils'
 
 registerProj4(proj4)
 
@@ -27,11 +31,10 @@ describe('Geolocation on 3D cypress', () => {
                     geoLatitude,
                 ])
 
-                cy.goToMapView(
-                    { '3d': true },
-                    true,
-                    { latitude: geoLatitude, longitude: geoLongitude }
-                )
+                cy.goToMapView({ '3d': true }, true, {
+                    latitude: geoLatitude,
+                    longitude: geoLongitude,
+                })
                 cy.waitUntilCesiumTilesLoaded()
 
                 // check that before the geolocation button is clicked, the map is not centered on the geolocation
@@ -74,12 +77,12 @@ describe('Geolocation on 3D cypress', () => {
             // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
             it.skip('access from outside Switzerland shows an error message', () => {
                 // null island
-                cy.goToMapView({'3d': true,}, true, { latitude: 0, longitude: 0 })
+                cy.goToMapView({ '3d': true }, true, { latitude: 0, longitude: 0 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
-                cy.goToMapView({'3d': true,}, true, { latitude: -7.71, longitude: 110.37 })
+                cy.goToMapView({ '3d': true }, true, { latitude: -7.71, longitude: 110.37 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
             })

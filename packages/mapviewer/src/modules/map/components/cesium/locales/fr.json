@@ -1,10 +1,10 @@
 {
-        "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
-"ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Hauteur du bâtiment [m]",
-    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX":	"Hauteur maximale du toit [m/mer]",
-    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT":	"Niveau du terrain [m/mer]",
-    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART":"Type",
-    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt" : "Pont couvert",
+    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
+    "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Hauteur du bâtiment [m]",
+    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX": "Hauteur maximale du toit [m/mer]",
+    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT": "Niveau du terrain [m/mer]",
+    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART": "Type",
+    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt": "Pont couvert",
     "ch.swisstopo.swissbuildings3d.3d_Flugdach": "Toit flottant",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude Einzelhaus": "Bâtiment",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude unsichtbar": "Bâtiment",
@@ -27,4 +27,4 @@
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Passerelle",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Passerelle",
     "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
-    }
+}

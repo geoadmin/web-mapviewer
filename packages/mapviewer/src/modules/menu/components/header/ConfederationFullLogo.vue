@@ -37,7 +37,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
         />
         <div
             class="swiss-confederation-text position-relative flex-column text-nowrap"
-            :class="{'d-none d-lg-flex': renderForDpi === null, 'd-flex': renderForDpi !== null }"
+            :class="{ 'd-none d-lg-flex': renderForDpi === null, 'd-flex': renderForDpi !== null }"
             data-cy="swiss-confederation-text"
         >
             <div class="d-flex flex-column">
@@ -101,12 +101,12 @@ $letterSpacing: calc((78 / 1000) * 1em);
     font-family: $frutiger;
 
     @include confederation-logo(
-            // the document suggest using [mm], but in the web context that is a bad call, so I've switched
-            // to a [rem] value that has about the same visual output as if I'd written [1mm] here.
-            0.4rem,
-            // font size values found in the guide document
-            7.5pt,
-            10.35pt
+        // the document suggest using [mm], but in the web context that is a bad call, so I've switched
+        // to a [rem] value that has about the same visual output as if I'd written [1mm] here.
+        0.4rem,
+        // font size values found in the guide document
+        7.5pt,
+        10.35pt
     );
 
     &.dpi-responsive {
@@ -120,7 +120,7 @@ $letterSpacing: calc((78 / 1000) * 1em);
         @include confederation-logo(
             calc(0.66 * $printFontSize),
             $printFontSize,
-            calc(1.2 * $printFontSize),
+            calc(1.2 * $printFontSize)
         );
         // forcing the length of the logo to the 55mm expressed in the CD-Bund PDF guide.
         width: 55mm;

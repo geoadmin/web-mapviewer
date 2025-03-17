@@ -236,7 +236,10 @@ function changeStyle(newStyle) {
                     {{ t('transparency') }}
                 </label>
 
-                <TransparencySlider :layer="layer" :index="index" />
+                <TransparencySlider
+                    :layer="layer"
+                    :index="index"
+                />
 
                 <div class="btn-group">
                     <GeoadminTooltip :tooltip-content="t('duplicate_layer')">
