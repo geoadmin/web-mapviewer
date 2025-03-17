@@ -29,6 +29,8 @@ catalog:
     '@types/jsdom': ^21.1.7
     '@types/node': ^22.14.1
     '@types/lodash': ^4.17.16
+    '@types/node': ^22.13.10
+    "@types/openlayers": ^4.6.23
     '@types/proj4': ^2.5.6
     '@vitejs/plugin-basic-ssl': ^2.0.0
     '@vitejs/plugin-vue': ^5.2.3

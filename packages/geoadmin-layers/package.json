@@ -26,7 +26,7 @@
         "type-check": "vue-tsc -p tsconfig.json"
     },
     "dependencies": {
-        "@geoadmin/log": "workspace:*"
+        "@types/openlayers": "catalog:",
     },
     "devDependencies": {
         "chai": "catalog:",
