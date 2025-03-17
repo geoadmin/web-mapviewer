@@ -54,7 +54,8 @@ onMounted(() => {
                 oldIndex < activeLayers.value.length
             ) {
                 nextTick(() => {
-                    // Get all children with draggable="false" and remove them
+                    // PB-1456: fixing an issue with drag&drop left-over by removing any element still tagged by SortableJS
+                    // (having a custom attribute draggable=false)
                     const nonDraggableChildren =
                         activeLayersList.value.querySelectorAll('[draggable="false"]')
                     if (nonDraggableChildren.length > 0) {
