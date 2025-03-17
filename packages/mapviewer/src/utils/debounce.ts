@@ -5,14 +5,16 @@
  * @param {Number} delay The time to wait for another call.
  * @returns The function that can be called repeatedly.
  */
-export default function debounce(target, delay) {
-    let timeout
-    return function () {
+
+export default function debounce<T extends (...args: any[]) => any>(target: T, delay: number): (...args: any[]) => void {
+    let timeout: number
+
+    return function (this: T, ...args: any[]) {
         clearTimeout(timeout)
-        timeout = setTimeout(() => {
+        timeout = window.setTimeout(() => {
             // Call the target function the way the debounced function was called.
             // Passing `this` isn't necessary with arrow-functions but it doesn't hurt.
-            target.apply(this, arguments)
+            return target.apply(this, args)
         }, delay)
     }
 }

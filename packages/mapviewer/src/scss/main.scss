@@ -3,9 +3,6 @@
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'bootstrap/scss/bootstrap';
-// tippy-theme needs to be imported once and for the whole app in order to work
-// properly therefore it is imported here in the un-scoped app styling.
-@import '@/scss/tippy-theme';
 
 @import 'cesium/Build/Cesium/Widgets/widgets';
 
@@ -71,4 +68,9 @@ li {
     .no-print {
         display: none;
     }
+}
+
+// TODO remove this when TW is available
+.whitespace-nowrap {
+    white-space: nowrap;
 }

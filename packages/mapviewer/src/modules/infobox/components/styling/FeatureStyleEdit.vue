@@ -126,7 +126,6 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
-const showInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -329,7 +328,6 @@ function mediaTypes() {
                     v-if="isFeatureMarker"
                     data-cy="drawing-style-marker-button"
                     icon="fas fa-map-marker-alt"
-                    :placement="showInBottomPanel ? 'top' : 'auto'"
                 >
                     <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"

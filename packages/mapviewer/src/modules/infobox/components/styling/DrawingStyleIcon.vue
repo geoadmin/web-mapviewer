@@ -1,14 +1,12 @@
 <script setup>
-import log from '@geoadmin/log'
-import { computed, useTemplateRef } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { SUPPORTED_LANG } from '@/modules/i18n'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
-const { icon, currentFeature, currentIconSet } = defineProps({
+const { icon, currentFeature, currentIconSet, tooltipDisabled } = defineProps({
     icon: {
         type: DrawingIcon,
         required: true,
@@ -21,34 +19,20 @@ const { icon, currentFeature, currentIconSet } = defineProps({
         type: DrawingIconSet,
         required: true,
     },
+    /* tooltip will be disabled when the symbol selector is collapsed */
+    tooltipDisabled: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor', 'load'])
 
 const store = useStore()
 const currentLang = computed(() => store.state.i18n.lang)
+const isTooltipDisabled = computed(() => icon.description === null || tooltipDisabled)
 
-const iconButton = useTemplateRef('iconButton')
-const tooltipText = computed(() => {
-    if (icon.description) {
-        let str = ''
-        for (const [key, value] of Object.entries(icon.description)) {
-            str =
-                str +
-                `<div>${currentLang.value === key ? `<strong>${value}</strong>` : value}</div>`
-            if (!SUPPORTED_LANG.includes(key)) {
-                log.error('Language key provided is not supported: ', key)
-            }
-        }
-        return str
-    }
-    return null
-})
-
-const { refreshTippyAttachment, removeTippy } = useTippyTooltip(iconButton, tooltipText, {
-    placement: 'top',
-    allowHTML: true,
-})
+const isTextSameLanguage = (langKey) => langKey === currentLang.value
 
 function onCurrentIconChange(icon) {
     emits('change:icon', icon)
@@ -79,44 +63,48 @@ function getImageStrokeStyle(isColorable, isSelected, color) {
 function onImageLoad() {
     emits('load')
 }
-
-function refreshTooltip() {
-    refreshTippyAttachment()
-}
-
-function removeTooltip() {
-    removeTippy()
-}
-
-defineExpose({ refreshTooltip, removeTooltip })
 </script>
 
 <template>
-    <button
-        ref="iconButton"
-        class="icon-description btn btn-sm"
-        :class="{
-            'btn-light': currentFeature.icon?.name !== icon.name,
-            'btn-primary': currentFeature.icon?.name === icon.name,
-        }"
-        :data-cy="`drawing-style-icon-selector-${icon.name}`"
-        @click="onCurrentIconChange(icon)"
+    <GeoadminTooltip
+        :disabled="isTooltipDisabled"
+        use-default-padding
     >
-        <img
-            :alt="icon.name"
-            :src="generateColorizedURL(icon)"
-            class="marker-icon-image"
-            :style="
-                getImageStrokeStyle(
-                    currentIconSet.isColorable,
-                    currentFeature.icon?.name === icon.name,
-                    currentFeature.fillColor
-                )
-            "
-            crossorigin="anonymous"
-            @load="onImageLoad"
-        />
-    </button>
+        <button
+            ref="iconButton"
+            class="icon-description btn btn-sm"
+            :class="{
+                'btn-light': currentFeature.icon?.name !== icon.name,
+                'btn-primary': currentFeature.icon?.name === icon.name,
+            }"
+            :data-cy="`drawing-style-icon-selector-${icon.name}`"
+            @click="onCurrentIconChange(icon)"
+        >
+            <img
+                :alt="icon.name"
+                :src="generateColorizedURL(icon)"
+                class="marker-icon-image"
+                :style="
+                    getImageStrokeStyle(
+                        currentIconSet.isColorable,
+                        currentFeature.icon?.name === icon.name,
+                        currentFeature.fillColor
+                    )
+                "
+                crossorigin="anonymous"
+                @load="onImageLoad"
+            />
+        </button>
+        <template #content>
+            <div
+                v-for="(text, key) in icon.description"
+                :key="key"
+            >
+                <strong v-if="isTextSameLanguage(key)">{{ text }}</strong>
+                <template v-else> {{ text }}</template>
+            </div>
+        </template>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>

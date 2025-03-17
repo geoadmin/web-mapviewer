@@ -151,7 +151,7 @@ describe('Drawing module tests', () => {
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
                 ).should('not.exist')
-                // babs icon should have a tippy describing the icon
+                // babs icon should have a tooltip describing the icon
                 cy.get('[data-cy="drawing-style-icon-selector-babs-1"]').realHover()
                 // going back to the default icon set
                 cy.get(
@@ -648,7 +648,7 @@ describe('Drawing module tests', () => {
             )
 
             // Extend from the last node of line
-            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="extend-from-last-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').click(1100, 450)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(1100, 450)
@@ -660,7 +660,7 @@ describe('Drawing module tests', () => {
             )
 
             // Extend from the first node of line
-            cy.get('[data-cy="extend-from-first-node-button"]').click()
+            cy.get('[data-cy="extend-from-first-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').click(500, 250)
             cy.get('[data-cy="ol-map"]').click(600, 250)
             // finish extending the line by clicking the last point
@@ -691,7 +691,7 @@ describe('Drawing module tests', () => {
             )
 
             // Extend to make a polygon
-            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="extend-from-last-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').click(750, 350)
             // Click the first node to finish the polygon
             cy.get('[data-cy="ol-map"]').click(600, 250)
@@ -736,7 +736,7 @@ describe('Drawing module tests', () => {
             )
 
             // Extend from the last node of line
-            cy.get('[data-cy="extend-from-last-node-button"]').click()
+            cy.get('[data-cy="extend-from-last-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').click(1400, 450)
             // finish extending the line by clicking the last point
             cy.get('[data-cy="ol-map"]').click(1400, 450)
@@ -1658,7 +1658,7 @@ describe('Drawing module tests', () => {
 
         cy.openMenuIfMobile()
 
-        cy.get('[data-cy="button-has-error"]').should('be.visible')
+        cy.get('[data-cy^="button-has-error"]').should('be.visible')
 
         cy.openDrawingMode()
 

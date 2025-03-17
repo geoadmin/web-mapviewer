@@ -31,6 +31,7 @@ catalog:
   "@vue/eslint-config-prettier": ^10.2.0
   "@vue/eslint-config-typescript": ^14.5.0
   "@vue/tsconfig": ^0.7.0
+  "@floating-ui/vue": "^1.1.6"
   animate.css: ^4.1.1
   axios: ^1.8.3
   axios-retry: ^4.5.0
@@ -82,14 +83,13 @@ catalog:
   sharp: ^0.33.5
   sortablejs: ^1.15.6
   start-server-and-test: ^2.0.11
-  tippy.js: ^6.3.7
   typescript: ^5.8.2
   typescript-eslint: ^8.26.1
-  vite: ^6.2.1
   vite-node: ^3.0.8
   vite-plugin-dts: ^4.5.3
   vite-plugin-static-copy: ^2.3.0
   vite-plugin-vue-devtools: ^7.7.2
+  vite: ^6.2.1
   vitest: ^3.0.8
   vue: ^3.5.13
   vue-chartjs: ^5.3.2

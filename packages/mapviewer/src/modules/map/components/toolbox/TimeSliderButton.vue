@@ -1,27 +1,24 @@
 <script setup>
-import { computed, nextTick, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
 
 const store = useStore()
+const { t } = useI18n()
 
 const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
 
-const timeSliderButton = useTemplateRef('timeSliderButton')
-const tootlipContent = computed(() => (isTimeSliderActive.value ? 'time_hide' : 'time_show'))
-const { refreshTippyAttachment } = useTippyTooltip(timeSliderButton, tootlipContent, {
-    placement: 'left',
-})
+const tooltipContent = computed(() => t(isTimeSliderActive.value ? 'time_hide' : 'time_show'))
 
 watch(visibleLayersWithTimeConfig, () =>
     nextTick(() => {
-        refreshTippyAttachment()
         if (isTimeSliderActive.value && visibleLayersWithTimeConfig.value.length === 0) {
             store.dispatch('setTimeSliderActive', {
                 timeSliderActive: false,
@@ -50,18 +47,22 @@ function toggleTimeSlider() {
         v-if="visibleLayersWithTimeConfig.length > 0"
         id="timeSlider"
     >
-        <button
-            ref="timeSliderButton"
-            class="toolbox-button d-print-none mb-1"
-            data-cy="time-slider-button"
-            :class="{ active: isTimeSliderActive }"
-            @click="toggleTimeSlider()"
+        <GeoadminTooltip
+            placement="left"
+            :tooltip-content="tooltipContent"
         >
-            <font-awesome-icon
-                size="lg"
-                :icon="['fas', 'clock-rotate-left']"
-            />
-        </button>
+            <button
+                class="toolbox-button d-print-none mb-1"
+                data-cy="time-slider-button"
+                :class="{ active: isTimeSliderActive }"
+                @click="toggleTimeSlider()"
+            >
+                <font-awesome-icon
+                    size="lg"
+                    :icon="['fas', 'clock-rotate-left']"
+                />
+            </button>
+        </GeoadminTooltip>
         <div
             class="time-sliders m-1 position-fixed"
             :class="{

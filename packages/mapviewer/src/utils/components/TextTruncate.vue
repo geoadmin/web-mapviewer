@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Component to truncate text with elipsis and add a tippy tooltip to truncated text.
+ * Component to truncate text with elipsis and add a tooltip to truncated text.
  *
  * The tooltip is added/removed when the component is resize and is truncated or not.
  *
@@ -14,9 +14,9 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref, useSlots, useTemplateRef } from 'vue'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip.js'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
-const { text, tippyOptions } = defineProps({
+const { text, tooltipPlacement } = defineProps({
     /**
      * Text to use in tooltip.
      *
@@ -29,16 +29,13 @@ const { text, tippyOptions } = defineProps({
         type: String,
         default: '',
     },
-    /**
-     * Tippy options to pass
-     *
-     * For more details see tippy js documentations
-     */
-    tippyOptions: {
-        type: Object,
-        default() {
-            return {}
-        },
+    tooltipPlacement: {
+        type: String,
+        default: 'top',
+    },
+    dataCy: {
+        type: String,
+        default: '',
     },
 })
 
@@ -47,12 +44,14 @@ const slots = useSlots()
 const outerElement = useTemplateRef('outerElement')
 const innerElement = useTemplateRef('innerElement')
 
-const outerElementWidth = ref(outerElement.value?.getBoundingClientRect().width ?? 0)
+const outerElementWidth = ref(
+    outerElement.value?.tooltipElement?.getBoundingClientRect().width ?? 0
+)
 const innerElementWidth = ref(innerElement.value?.getBoundingClientRect().width ?? 0)
 // We add a tooltip only if the text is truncated
 const showTooltip = computed(() => innerElementWidth.value > outerElementWidth.value)
 
-const tippyContent = computed(() => {
+const tooltipContent = computed(() => {
     if (!showTooltip.value) {
         return null
     }
@@ -67,40 +66,38 @@ const tippyContent = computed(() => {
     }
     return ''
 })
-const { refreshTippyAttachment } = useTippyTooltip(outerElement, tippyContent, {
-    placement: 'right',
-    touch: ['hold', 500], // 500ms delay
-    ...tippyOptions,
-})
 
 let resizeObserver
+
 onMounted(() => {
     // Observe the catalogue entry resize to add/remove tooltip
     resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(outerElement.value)
+    resizeObserver.observe(outerElement.value.tooltipElement)
 })
+
 onBeforeUnmount(() => {
     resizeObserver?.disconnect()
 })
 
 function handleResize() {
-    outerElementWidth.value = outerElement.value?.getBoundingClientRect().width ?? 0
+    outerElementWidth.value = outerElement.value?.tooltipElement?.getBoundingClientRect().width ?? 0
     innerElementWidth.value = innerElement.value?.getBoundingClientRect().width ?? 0
-    refreshTippyAttachment()
 }
 </script>
 
 <template>
-    <div
+    <GeoadminTooltip
         ref="outerElement"
+        :tooltip-content="tooltipContent"
+        :disabled="!showTooltip"
         class="text-truncate"
-        data-cy="outer-element"
+        :placement="tooltipPlacement"
     >
         <span
             ref="innerElement"
-            data-cy="inner-element"
+            :data-cy="dataCy"
         >
             <slot data-cy="slot-element" />
         </span>
-    </div>
+    </GeoadminTooltip>
 </template>

@@ -86,7 +86,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('be.not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click({ force: true })
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -399,7 +399,7 @@ describe('The Import File Tool', () => {
             .should('be.visible')
             .should('have.class', 'text-primary')
         cy.get('[data-cy="layer-copyright-example.com"]').realHover()
-        cy.get('[data-cy="tippy-third-part-disclaimer"]')
+        cy.get('.floating')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
         cy.get('[data-cy="layer-copyright-example.com"]')
@@ -531,17 +531,20 @@ describe('The Import File Tool', () => {
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
-                cy.wrap($layer).find('[data-cy^="button-error-"]').should('be.visible').click()
+                cy.wrap($layer)
+                    .find('[data-cy^="button-has-error"]')
+                    .should('be.visible')
+                    .trigger('mouseover')
                 if (index === 0) {
-                    cy.get(`[data-cy^="tippy-button-error-${onlineUrlNotReachable}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${onlineUrlNotReachable}-"]`)
                         .should('be.visible')
                         .contains('file not accessible')
                 } else if (index === 1) {
-                    cy.get(`[data-cy^="tippy-button-error-${invalidFileOnlineUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${invalidFileOnlineUrl}-"]`)
                         .should('be.visible')
                         .contains('Invalid file')
                 } else {
-                    cy.get(`[data-cy^="tippy-button-error-${outOfBoundKMLUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${outOfBoundKMLUrl}-"]`)
                         .should('be.visible')
                         .contains('out of projection bounds')
                 }
@@ -553,9 +556,15 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing all invalid kml layer')
-        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}-"]:visible`).click()
-        cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}-"]:visible`).click()
-        cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}-"]:visible`).click({
+            force: true,
+        })
+        cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}-"]:visible`).click({
+            force: true,
+        })
+        cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}-"]:visible`).click({
+            force: true,
+        })
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
 

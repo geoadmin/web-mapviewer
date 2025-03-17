@@ -12,10 +12,10 @@
 
 import { randomIntBetween } from '@geoadmin/numbers'
 import { Dropdown } from 'bootstrap'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTippyTooltip } from '@/utils/composables/useTippyTooltip'
+import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 /**
  * @typedef DropdownItem
@@ -71,14 +71,6 @@ const dropdownMenu = useTemplateRef('dropdownMenu')
 const dropdownToggleButton = useTemplateRef('dropdownToggleButton')
 const dropdownMainButton = useTemplateRef('dropdownMainButton')
 
-const dropdownItems = useTemplateRef('dropdownItems')
-const tooltipContents = computed(() =>
-    items.filter((item) => item.description).map((item) => item.description)
-)
-if (tooltipContents.value.length > 0) {
-    useTippyTooltip(dropdownItems, tooltipContents, { placement: 'left' })
-}
-
 // generating a unique HTML ID for this dropdown
 const uniqueHtmlId = ref(`dropdown-${randomIntBetween(0, 10000)}`)
 
@@ -103,6 +95,14 @@ watch(
         }
     }
 )
+
+function getItemDescription(item) {
+    if (!item.description) {
+        return null
+    }
+
+    return t(item.description)
+}
 
 function onMainButtonClick() {
     if (withToggleButton) {
@@ -154,16 +154,21 @@ function selectItem(item) {
             <li
                 v-for="item in items"
                 :key="item.id"
-                ref="dropdownItems"
             >
-                <a
-                    class="dropdown-item"
-                    :class="{ active: currentValue === (item.value ?? item.title) }"
-                    :data-cy="`dropdown-item-${item.id}`"
-                    @click="selectItem(item)"
+                <GeoadminTooltip
+                    :tooltip-content="getItemDescription(item)"
+                    placement="left"
+                    :disabled="!item.description"
                 >
-                    {{ t(item.title) }}
-                </a>
+                    <a
+                        class="dropdown-item"
+                        :class="{ active: currentValue === (item.value ?? item.title) }"
+                        :data-cy="`dropdown-item-${item.id}`"
+                        @click="selectItem(item)"
+                    >
+                        {{ t(item.title) }}
+                    </a>
+                </GeoadminTooltip>
             </li>
         </ul>
     </div>

@@ -3,9 +3,6 @@
     "version": "0.0.1",
     "description": "Projection definition and coordinates utils for geoadmin",
     "type": "module",
-    "files": [
-        "dist"
-    ],
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -13,27 +10,30 @@
             "require": "./dist/index.cjs"
         }
     },
+    "files": [
+        "dist"
+    ],
     "scripts": {
-        "dev": "vite",
-        "type-check": "vue-tsc -p tsconfig.json",
-        "generate-types": "vue-tsc --declaration",
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build -- --mode development",
         "build:int": "pnpm run build -- --mode integration",
         "build:prod": "pnpm run build -- --mode production",
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
         "preview": "vite preview",
         "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom"
+        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "type-check": "vue-tsc -p tsconfig.json"
     },
     "dependencies": {
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:*"
     },
-    "peerDependencies": {
-        "proj4": "catalog:"
-    },
     "devDependencies": {
         "@turf/turf": "catalog:",
         "chai": "catalog:"
+    },
+    "peerDependencies": {
+        "proj4": "catalog:"
     }
 }

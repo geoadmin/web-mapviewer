@@ -77,8 +77,8 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'bg-warning')
             // Check tooltip
             // Notes: realhover only works locally, mouseenter work both locally and in CI
-            cy.get('[data-cy="input-copy-button"]').trigger('mouseenter')
-            cy.get('[data-cy="tippy-input-copy-button"]').should('be.visible')
+            cy.get('[data-cy="input-copy-button"]').trigger('mouseover')
+            cy.get('[data-cy="floating-input-copy-button"]').should('be.visible')
         })
         context(
             'Geolocation management while generating share links',
