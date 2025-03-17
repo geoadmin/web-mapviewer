@@ -84,6 +84,9 @@ catalogs:
     '@types/node':
       specifier: ^22.13.10
       version: 22.13.10
+    '@types/openlayers':
+      specifier: ^4.6.23
+      version: 4.6.23
     '@types/proj4':
       specifier: ^2.5.6
       version: 2.5.6
@@ -415,9 +418,21 @@ importers:
 
   packages/geoadmin-layers:
     dependencies:
+      '@geoadmin/coordinates':
+        specifier: workspace:*
+        version: link:../geoadmin-coordinates
       '@geoadmin/log':
         specifier: workspace:*
         version: link:../geoadmin-log
+      '@types/openlayers':
+        specifier: 'catalog:'
+        version: 4.6.23
+      ol:
+        specifier: 'catalog:'
+        version: 10.4.0
+      proj4:
+        specifier: 'catalog:'
+        version: 2.15.0
     devDependencies:
       chai:
         specifier: 'catalog:'
@@ -2024,6 +2039,9 @@ packages:
 
   '@types/node@22.13.10':
     resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
+
+  '@types/openlayers@4.6.23':
+    resolution: {integrity: sha512-7jCPIa4D4LV03Rttae1AEqvkIN0+nc6Snz4IgA/IjsJD5O3ONxpscqIOdp1qAGuAsikR/ZC9vrPF9np8JRc6ig==}
 
   '@types/pbf@3.0.5':
     resolution: {integrity: sha512-j3pOPiEcWZ34R6a6mN07mUkM4o4Lwf6hPNt8eilOeZhTFbxFXmKhvXl9Y28jotFPaI1bpPDJsbCprUoNke6OrA==}
@@ -7330,6 +7348,8 @@ snapshots:
   '@types/node@22.13.10':
     dependencies:
       undici-types: 6.20.0
+
+  '@types/openlayers@4.6.23': {}
 
   '@types/pbf@3.0.5': {}
 

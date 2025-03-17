@@ -1,4 +1,6 @@
-import { LayerType } from '@geoadmin/layers'
+import { LayerType, type Layer } from '@geoadmin/layers'
+// import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { type ExternalWMTSLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
@@ -6,7 +8,6 @@ import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -23,6 +24,38 @@ import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
+const DEFAULT_OPACITY = 1.0
+
+const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
+    const { year } = parsedLayer.customAttributes
+
+    return {
+        type: LayerType.WMTS,
+        id: parsedLayer.id,
+        name: parsedLayer.id,
+        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+        visible: parsedLayer.visible,
+        baseUrl: parsedLayer.baseUrl,
+        currentYear: year,
+        isExternal: true,
+        abstract: '',
+        legends: [],
+        availableProjections: [],
+        options: [],
+        getTileEncoding: 'REST',
+        urlTemplate: '',
+        style: '',
+        tileMatrixSets: [],
+        dimensions: [],
+        attributions: [],
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isLoading: true,
+        hasError: false,
+    }
+}
+
 /**
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
@@ -36,21 +69,26 @@ import WarningMessage from '@/utils/WarningMessage.class'
  *   this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local file) or
  *   will return the untouched ActiveLayerConfig for other layer types
  */
-export function createLayerObject(parsedLayer, currentLayer, store, featuresRequests) {
+export function createLayerObject(
+    parsedLayer: Record<string, any>,
+    currentLayer: Record<string, any>,
+    store: any,
+    featuresRequests: any
+) {
     const { year, updateDelay, features, adminId, ...customAttributes } =
         parsedLayer.customAttributes ?? {}
-    const defaultOpacity = 1.0
-    let layer = null
+    let layer: Layer
 
-    if (currentLayer && (currentLayer.isExternal || currentLayer instanceof KMLLayer)) {
+    if (currentLayer && (currentLayer.isExternal || currentLayer.type === LayerType.KML)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        layer = cloneDeep(currentLayer)
+        layer = cloneDeep(currentLayer) as KMLLayer
         layer.visible = parsedLayer.visible
         // external layer have a default opacity of 1.0
-        layer.opacity = parsedLayer.opacity ?? defaultOpacity
+        layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
         if (adminId) {
+            // TODO
             layer.adminId = adminId
         }
     } else if (parsedLayer.type === LayerTypes.KML) {
@@ -59,7 +97,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             layer = new KMLLayer({
                 kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? defaultOpacity,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
                 adminId: adminId,
                 style: parsedLayer.customAttributes?.style,
             })
@@ -74,7 +112,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             layer = new GPXLayer({
                 gpxFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? defaultOpacity,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
@@ -85,21 +123,14 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
             layer = new CloudOptimizedGeoTIFFLayer({
                 fileSource: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? defaultOpacity,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
                 isLoading: false,
             })
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (parsedLayer.type === LayerType.WMTS) {
-        layer = new ExternalWMTSLayer({
-            id: parsedLayer.id,
-            name: parsedLayer.id,
-            opacity: parsedLayer.opacity ?? defaultOpacity,
-            visible: parsedLayer.visible,
-            baseUrl: parsedLayer.baseUrl,
-            currentYear: year,
-        })
+        layer = createWMTSLayerObject(parsedLayer)
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.type === LayerType.WMS) {
@@ -108,7 +139,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
         layer = new ExternalWMSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
-            opacity: parsedLayer.opacity ?? defaultOpacity,
+            opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
             visible: parsedLayer.visible,
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,

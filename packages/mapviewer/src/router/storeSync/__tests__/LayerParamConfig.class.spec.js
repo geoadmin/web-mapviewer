@@ -1,8 +1,8 @@
+import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
@@ -71,7 +71,7 @@ describe('External layer parsing with createLayerObject', () => {
             visible: true,
             opacity: 0.8,
         })
-        expect(result).to.be.an.instanceof(ExternalWMTSLayer)
+        expect(result.type).to.equal(LayerType.WMTS)
         expect(result.baseUrl).to.eq(wmtsGetCapUrl)
         expect(result.id).to.eq(wmtsLayerId)
     })

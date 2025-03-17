@@ -1,8 +1,8 @@
-import type { Layer } from "@/layers"
+import type { Layer } from '@/layers'
 
-/** TODO this is currently a copy of the thing in src/utils of the mapviewer. Maybe belongs somewhere
- * else or maybe this should be de-generalized?
- * Is it used somewhere outside of layers?
+/**
+ * TODO this is currently a copy of the thing in src/utils of the mapviewer. Maybe belongs somewhere
+ * else or maybe this should be de-generalized? Is it used somewhere outside of layers?
  */
 export class ErrorMessage {
     msg: string
@@ -27,7 +27,6 @@ export class ErrorMessage {
     }
 }
 
-
 export class InvalidLayerDataError extends Error {
     data: any
     constructor(message: string, data: any) {
@@ -37,12 +36,11 @@ export class InvalidLayerDataError extends Error {
     }
 }
 
-
-export const layerContainsErrorMessage = (layer: Layer, errorMessage: ErrorMessage):boolean => {
+export const layerContainsErrorMessage = (layer: Layer, errorMessage: ErrorMessage): boolean => {
     if (layer.errorMessages) {
         return layer.errorMessages.has(errorMessage)
     }
-    return false;
+    return false
 }
 
 export const getFirstLayerErrorMessage = (layer: Layer): ErrorMessage | null => {
@@ -52,7 +50,7 @@ export const getFirstLayerErrorMessage = (layer: Layer): ErrorMessage | null => 
     return null
 }
 
-export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage): void =>  {
+export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
     if (!layer.errorMessages) {
         layer.errorMessages = new Set()
     }
@@ -60,8 +58,8 @@ export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage)
     layer.hasError = true
 }
 
-export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMessage):void => {
-    if (!layer.errorMessages) return;
+export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
+    if (!layer.errorMessages) return
 
     // We need to find the error message that equals to remove it
     for (const msg of layer.errorMessages) {
@@ -74,8 +72,27 @@ export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMes
 }
 
 export const clearLayerErrorMessages = (layer: Layer): void => {
-    if (layer.errorMessages)  {
+    if (layer.errorMessages) {
         layer.errorMessages.clear()
     }
     layer.hasError = false
+}
+
+/**
+ * WMS or WMTS Capabilities Error
+ *
+ * This class also contains an i18n translation key in plus of a technical english message. The
+ * translation key can be used to display a translated user message.
+ *
+ * @property {string} message Technical english message
+ * @property {string} key I18n translation key for user message
+ */
+export class CapabilitiesError extends Error {
+    key?: string
+
+    constructor(message: string, key?: string) {
+        super(message)
+        this.key = key
+        this.name = 'CapabilitiesError'
+    }
 }

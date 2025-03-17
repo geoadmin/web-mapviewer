@@ -25,13 +25,17 @@
         "test:unit:watch": "vitest --mode development --environment jsdom"
     },
     "dependencies": {
+        "@geoadmin/coordinates": "workspace:*",
+        "@geoadmin/log": "workspace:*",
         "@types/openlayers": "catalog:",
+        "ol": "catalog:",
+        "proj4": "catalog:"
     },
     "devDependencies": {
+        "chai": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
-        "vue-tsc": "catalog:",
-        "chai": "catalog:"
+        "vue-tsc": "catalog:"
     }
 }

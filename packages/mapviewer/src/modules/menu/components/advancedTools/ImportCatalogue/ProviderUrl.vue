@@ -3,7 +3,7 @@ import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
+import { CapabilitiesError } from '@geoadmin/layers'
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
