@@ -1,10 +1,11 @@
-{    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
+{
+    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
 
     "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Gebäudehöhe [m]",
-    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX":	"Maximale Dachhöhe [m ü. M.]",
-    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT":	"Geländehöhe [m ü. M.]",
+    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX": "Maximale Dachhöhe [m ü. M.]",
+    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT": "Geländehöhe [m ü. M.]",
     "ch.swisstopo.swissbuildings3d.3d_OBJEKTART": "Typ",
-    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt" : "Brücke gedeckt",
+    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt": "Brücke gedeckt",
     "ch.swisstopo.swissbuildings3d.3d_Flugdach": "Flugdach",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude Einzelhaus": "Gebäude",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude unsichtbar": "Gebäude",
@@ -27,4 +28,4 @@
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Verbindungsbrücke",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Verbindungsbrücke",
     "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
-    }
+}

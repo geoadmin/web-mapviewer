@@ -28,7 +28,7 @@ function onRouteChange(routeName) {
                 class="btn-check"
                 :name="name"
                 :checked="name === currentView"
-            >
+            />
             <label
                 class="btn btn-outline-secondary"
                 :for="name"

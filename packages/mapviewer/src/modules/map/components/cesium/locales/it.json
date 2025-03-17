@@ -1,10 +1,11 @@
-{    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
+{
+    "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
 
     "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Altezza edificio [m]",
-    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX":	"Altezza massima del tetto [m s.l.m]",
-    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT":	"Livello del terreno [m s.l.m]",
-    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART":	"Tipo",
-    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt" : "Ponte coperto",
+    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX": "Altezza massima del tetto [m s.l.m]",
+    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT": "Livello del terreno [m s.l.m]",
+    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART": "Tipo",
+    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt": "Ponte coperto",
     "ch.swisstopo.swissbuildings3d.3d_Flugdach": "Tetto flottante",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude Einzelhaus": "Edificio",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude unsichtbar": "Edificio",

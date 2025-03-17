@@ -257,8 +257,8 @@ export default abstract class CoordinateSystem {
     abstract roundCoordinateValue(value: number): number
 
     /**
-     * A (descending) list of all the available resolution steps for this coordinate system. If this is
-     * not the behavior you want, you have to override this function.
+     * A (descending) list of all the available resolution steps for this coordinate system. If this
+     * is not the behavior you want, you have to override this function.
      */
     getResolutionSteps(latitude?: number): ResolutionStep[] {
         if (!this.bounds) {

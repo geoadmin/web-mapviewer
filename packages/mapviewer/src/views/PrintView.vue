@@ -143,7 +143,7 @@ async function generateShareLink() {
                     src="@/modules/map/assets/north_arrow.png"
                     :style="northArrowStyle"
                     alt="North Arrow"
-                >
+                />
             </div>
             <OpenLayersPrintResolutionEnforcer :resolution="printResolution" />
             <template #footer>
@@ -189,7 +189,7 @@ async function generateShareLink() {
                             :src="qrCodeUrl"
                             class="qr-code position-relative bottom-0 end-0 z-3 bg-white p-2 m-n1"
                             alt="QR Code"
-                        >
+                        />
                     </template>
                     <template #middle>
                         <InfoboxModule />

@@ -6,7 +6,7 @@ export const PRINT_DPI_COMPENSATION = 144
 //So when there is a non 0 scale, we set its minimum to 0.0001
 export const MIN_PRINT_SCALE_SIZE = 0.0001
 
-/** Dimensions in mm  of the viewport for each print format */
+/** Dimensions in mm of the viewport for each print format */
 export const PRINT_DIMENSIONS = {
     A0: [1189, 841],
     A1: [841, 594],

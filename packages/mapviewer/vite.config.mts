@@ -5,7 +5,7 @@ import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
-import vueDevTools from "vite-plugin-vue-devtools"
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
@@ -105,10 +105,9 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
                 ],
             }),
             // disable the dev tools if required, e.g. in cypress component tests
-            disableDevTools ? {} : vueDevTools()
+            disableDevTools ? {} : vueDevTools(),
         ],
         optimizeDeps: {
-
             exclude: [
                 // as we are hot-reloading the geoadmin package from the local source code, we must
                 // disable the dependency optimizer for this one.

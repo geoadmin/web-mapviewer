@@ -48,14 +48,14 @@ This tag will be a bump in :
 
 This project uses `pnpm` instead of `npm`. The cli commands are [more or less the same](https://pnpm.io/pnpm-cli).
 The main difference is that new packages need to be specified in the global `pnpm-workspace.yaml` file.
-The subpackages will then use the same versions of the dependencies across the entire codebase. 
+The subpackages will then use the same versions of the dependencies across the entire codebase.
 
 ### list of pnpm targets
 
-| command                           | what it does                                                                                                                                                               |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| command                            | what it does                                                                                                                                                               |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm run dev`                     | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `pnpm run build-all`                   | Compiles all file without bundling and minification                                                                                                                        |
+| `pnpm run build-all`               | Compiles all file without bundling and minification                                                                                                                        |
 | `pnpm run build:(dev\|int\|prod)`  | Compiles all file for the according `mode`                                                                                                                                 |
 | `pnpm run lint`                    | Format, lints and fixes                                                                                                                                                    |
 | `pnpm run lint:no-fix`             | Check formatting and linting without auto fixes                                                                                                                            |

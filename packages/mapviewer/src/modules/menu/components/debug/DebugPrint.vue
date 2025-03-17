@@ -58,7 +58,7 @@ watch(currentDpi, debounce(updatePrintConfig, 500))
                         v-model="isCurrentLayoutLandscape"
                         class="form-check-input mt-0 me-1"
                         type="checkbox"
-                    >
+                    />
                     <label
                         class="form-check-label"
                         for="is-layout-landscape"
@@ -76,7 +76,7 @@ watch(currentDpi, debounce(updatePrintConfig, 500))
                     max="300"
                     step="1"
                     class="form-control"
-                >
+                />
             </div>
         </div>
     </SimpleWindow>

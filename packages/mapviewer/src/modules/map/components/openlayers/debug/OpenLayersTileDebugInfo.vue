@@ -30,7 +30,9 @@ function createDebugSourceForProjection() {
     let tileGrid = null
     if (!currentProjection.value.usesMercatorPyramid) {
         tileGrid = new TileGrid({
-            resolutions: currentProjection.value.getResolutionSteps().map((step) => step.resolution),
+            resolutions: currentProjection.value
+                .getResolutionSteps()
+                .map((step) => step.resolution),
             extent: currentProjection.value.bounds.flatten,
             origin: currentProjection.value.getTileOrigin(),
         })

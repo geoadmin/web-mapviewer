@@ -419,8 +419,8 @@ describe('Test on legacy param import', () => {
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
         })
-// camera=7.038834,46.766017,193985.5,-47,319,
-// camera=8.225457,46.858429,738575.8,-90,,
+        // camera=7.038834,46.766017,193985.5,-47,319,
+        // camera=8.225457,46.858429,738575.8,-90,,
         it('transfers camera parameter from legacy URL to the new URL only elevation', () => {
             cy.goToMapView(
                 {

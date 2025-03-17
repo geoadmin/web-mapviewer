@@ -1,10 +1,10 @@
 {
     "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
     "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Building height [m]",
-    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX":	"Maximum roof height [m.a.s.l.]",
-    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT":	"Ground level [m.a.s.l.]",
-    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART":	"Type",
-    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt" : "Covered bridge",
+    "ch.swisstopo.swissbuildings3d.3d_DACH_MAX": "Maximum roof height [m.a.s.l.]",
+    "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT": "Ground level [m.a.s.l.]",
+    "ch.swisstopo.swissbuildings3d.3d_OBJEKTART": "Type",
+    "ch.swisstopo.swissbuildings3d.3d_Bruecke gedeckt": "Covered bridge",
     "ch.swisstopo.swissbuildings3d.3d_Flugdach": "Flying roof",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude Einzelhaus": "Building",
     "ch.swisstopo.swissbuildings3d.3d_Gebaeude unsichtbar": "Building",
@@ -27,4 +27,4 @@
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbruecke": "Skywalk",
     "ch.swisstopo.swissbuildings3d.3d_Verbindungsbrücke": "Skywalk",
     "ch.swisstopo.swissbuildings3d.3d_no_data_available": "-"
-    }
+}

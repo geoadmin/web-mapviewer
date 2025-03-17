@@ -57,7 +57,6 @@ onBeforeUnmount(() => olMap.removeControl(scaleLine))
 @import '@/scss/webmapviewer-bootstrap-theme';
 
 .scale-line-container {
-
     .scale-line {
         &-inner {
             max-width: 100%;
@@ -96,7 +95,7 @@ onBeforeUnmount(() => olMap.removeControl(scaleLine))
 
         .ol-scale-step-text {
             position: absolute;
-            bottom: calc(-1.0 * $fontSize);
+            bottom: calc(-1 * $fontSize);
             font-size: $fontSize;
             z-index: 11;
             color: $scaleBarBorderColor;
