@@ -1,9 +1,9 @@
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
+import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'
 
-import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is
@@ -14,7 +14,7 @@ import store from '@/store'
 
 const dispatcher = { dispatcher: 'unit-test' }
 
-const bgLayer = new GeoAdminWMTSLayer({
+const bgLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'background',
     id: 'bg.layer',
     technicalName: 'bg.layer',
@@ -23,14 +23,14 @@ const bgLayer = new GeoAdminWMTSLayer({
     isBackground: true,
     attributions: [new LayerAttribution('test')],
 })
-const firstLayer = new GeoAdminWMTSLayer({
+const firstLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'First layer',
     id: 'first.layer',
     technicalName: 'first.layer',
     visible: true,
     attributions: [new LayerAttribution('test')],
 })
-const secondLayer = new GeoAdminWMSLayer({
+const secondLayer = layerUtils.makeGeoAdminWMSLayer({
     name: 'Second layer',
     id: 'second.layer',
     technicalName: 'second.layer',
@@ -70,7 +70,7 @@ describe('Background layer is correctly set', () => {
         store.dispatch('setLayerConfig', { config: [bgLayer], ...dispatcher })
         store.dispatch('setBackground', { bgLayerId: bgLayer.id })
         expect(getBackgroundLayerId()).to.be.a('string')
-        expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
+        // expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
         expect(getBackgroundLayerId()).to.eq(bgLayer.id)
         expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
@@ -118,7 +118,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         )
     })
     it('does not force the visibility of the layer to true when adding it', () => {
-        const invisibleLayer = firstLayer.clone()
+        const invisibleLayer = cloneDeep(firstLayer)
         invisibleLayer.visible = false
         store.dispatch('setLayerConfig', {
             config: [bgLayer, invisibleLayer, secondLayer],
@@ -127,7 +127,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         store.dispatch('addLayer', { layer: invisibleLayer, ...dispatcher })
         const addedLayers = store.getters.getActiveLayersById(invisibleLayer.id)
         expect(addedLayers).to.have.lengthOf(1)
-        expect(addedLayers[0]).to.be.an.instanceof(AbstractLayer)
+        // expect(addedLayers[0]).to.be.an.instanceof(AbstractLayer)
         expect(addedLayers[0].visible).to.be.false
     })
     it('add a duplicate layer and manage it separately', () => {
@@ -159,10 +159,10 @@ describe('Update layer', () => {
         })
     })
     it('Update a single layer by ID with a full layer object', () => {
-        const clone = secondLayer.clone()
+        const clone = cloneDeep(secondLayer)
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
@@ -209,10 +209,10 @@ describe('Update layers', () => {
     })
     it('Update duplicate layers by layer ID with full clone', () => {
         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
-        const clone = secondLayer.clone()
+        const clone = cloneDeep(secondLayer)
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
@@ -305,7 +305,6 @@ describe('Visible layers are filtered correctly by the store', () => {
         store.dispatch('addLayer', { layer: firstLayer, ...dispatcher })
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         const [layer] = getVisibleLayers()
-        expect(layer).to.be.an.instanceof(AbstractLayer)
         expect(layer.id).to.eq(firstLayer.id)
     })
     it('removes a layer from the visible layers as soon as its visibility is toggled', () => {
@@ -319,7 +318,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not adds a layer to the visible layers if its visible flag is set to false when added', () => {
-        const invisibleLayer = firstLayer.clone()
+        const invisibleLayer = cloneDeep(firstLayer)
         invisibleLayer.visible = false
         store.dispatch('setLayersConfig', [bgLayer, invisibleLayer, secondLayer])
         store.dispatch('addLayer', { layer: invisibleLayer, ...dispatcher })

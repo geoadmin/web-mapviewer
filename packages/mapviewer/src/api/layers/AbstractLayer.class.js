@@ -1,5 +1,3 @@
-import type { Layer } from '@geoadmin/layers'
-
 import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
@@ -18,13 +16,11 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  * to Vue reactivity engine.
  */
 export class LayerAttribution {
-    name: string
-    url: string | null
     /**
      * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
      * @param {String} url Link to the data owner website (if there is one)
      */
-    constructor(name: string, url: string | null = null) {
+    constructor(name, url = null) {
         this.name = name
         this.url = url
     }
@@ -48,26 +44,7 @@ export class LayerAttribution {
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class AbstractLayer implements Layer {
-    name
-    id
-    type
-    baseUrl?: string
-    // ensureTrailingSlashInBaseUrl
-    opacity
-    visible
-    attributions
-    hasTooltip
-    hasDescription
-    hasLegend
-    isExternal
-    isLoading
-    timeConfig
-    customAttributes?: Record<any, any>
-
-    hasError
-    errorMessages
-
+export default class AbstractLayer {
     /**
      * @param {String} layerData.uuid Unique ID of this layer (UUID v4) to be able to differntiate
      *   between the same layers (e.g. when a using a layer multiple times in the map to show
@@ -107,7 +84,7 @@ export default class AbstractLayer implements Layer {
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
-    constructor(layerData: Record<string, any>) {
+    constructor(layerData) {
         if (!layerData) {
             throw new InvalidLayerDataError('Missing layer data', layerData)
         }
@@ -157,7 +134,7 @@ export default class AbstractLayer implements Layer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        this.errorMessages = new Set<ErrorMessage>()
+        this.errorMessages = new Set()
         this.hasError = false
         /** @type {Set<WarningMessage><} */
         this.warningMessages = new Set()

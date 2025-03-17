@@ -14,20 +14,12 @@ import LayerTimeConfigEntry, { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTim
  * to Vue reactivity engine.
  */
 export default class LayerTimeConfig {
-    timeEntries: any[]
-    behaviour: 'last' | 'all' | 'current' | number | null
-    years: number[]
-    currentTimeEntry?: number[]
-    currentTimestamp?: string
-    currentYear?: string | number
-
-
     /**
      * @param {String} behaviour How the default timestamp is chosen
      * @param {LayerTimeConfigEntry[]} timeEntries List of timestamps identifier (that can be placed
      *   in the WMTS URL)
      */
-    constructor(behaviour = null, timeEntries: any[] = []) {
+    constructor(behaviour = null, timeEntries = []) {
         this.behaviour = behaviour
         /** @type {LayerTimeConfigEntry[]} */
         this.timeEntries = [...timeEntries]
@@ -75,7 +67,7 @@ export default class LayerTimeConfig {
      *
      * @param {LayerTimeConfigEntry | string | null} entry Timestamp of the entry to set
      */
-    updateCurrentTimeEntry(entry: any) {
+    updateCurrentTimeEntry(entry) {
         let currentTimeEntry = null
         if (entry instanceof LayerTimeConfigEntry) {
             currentTimeEntry = entry
@@ -92,7 +84,7 @@ export default class LayerTimeConfig {
      *   the backend)
      * @returns {Boolean} True if this value was found in this time config, false otherwise
      */
-    hasTimestamp(timestamp: string) {
+    hasTimestamp(timestamp) {
         return !!this.timeEntries.find((entry) => entry.timestamp === timestamp)
     }
 
@@ -100,7 +92,7 @@ export default class LayerTimeConfig {
      * @param {Number} year
      * @returns {LayerTimeConfigEntry | null}
      */
-    getTimeEntryForYear(year: number) {
+    getTimeEntryForYear(year) {
         return this.timeEntries.find((entry) => entry.year === year) ?? null
     }
 
@@ -108,7 +100,7 @@ export default class LayerTimeConfig {
      * @param {String} timestamp
      * @returns {LayerTimeConfigEntry | null}
      */
-    getTimeEntryForTimestamp(timestamp: string) {
+    getTimeEntryForTimestamp(timestamp) {
         return this.timeEntries.find((entry) => entry.timestamp === timestamp) ?? null
     }
 

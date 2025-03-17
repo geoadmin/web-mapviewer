@@ -329,12 +329,12 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
-        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click({ force: true })
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 3)
             .first()
             .should('be.visible')
-            .click({ force: true })
+            .click()
         cy.get('[data-cy="modal-content"]').contains(
             'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
         )
@@ -484,15 +484,12 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
-        cy.get('[data-cy="menu-tray-tool-section"] [data-cy="menu-section-header"]')
-            .should('be.visible')
-            .click() // close the tools first
-        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click({ force: true })
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 2)
             .first()
             .should('be.visible')
-            .click({ force: true })
+            .click()
         cy.get('[data-cy="modal-content"]').contains(
             'Warning: Third party data and/or style shown (My Organization)'
         )
@@ -543,10 +540,7 @@ describe('The Import Maps Tool', () => {
 
         cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
 
-        cy.get('[data-cy="menu-tray-tool-section"] [data-cy="menu-section-header"]')
-            .should('be.visible')
-            .click() // close the tools first
-        cy.get('[data-cy="menu-active-layers"]').should('exist').click()
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
 

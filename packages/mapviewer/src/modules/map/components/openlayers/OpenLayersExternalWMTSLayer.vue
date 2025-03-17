@@ -14,6 +14,7 @@ import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     externalWmtsLayerConfig: {
+        // TODO fix this check
         type: ExternalWMTSLayer,
         required: true,
     },

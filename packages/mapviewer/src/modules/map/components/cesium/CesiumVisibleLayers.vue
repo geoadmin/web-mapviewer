@@ -1,5 +1,6 @@
 <script setup>
 import { LayerType } from '@geoadmin/layers'
+import { cloneDeep } from "lodash"
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 

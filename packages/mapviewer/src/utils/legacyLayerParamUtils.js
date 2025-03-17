@@ -1,3 +1,4 @@
+import { timeConfigUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
@@ -165,7 +166,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
-                layer.timeConfig.updateCurrentTimeEntry(layerTimestamps[index])
+                timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }

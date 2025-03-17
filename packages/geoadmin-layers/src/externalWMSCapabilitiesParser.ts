@@ -1,28 +1,104 @@
 // @ts-nocheck
-import { allCoordinateSystems, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { allCoordinateSystems, CoordinateSystem, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { range } from 'lodash'
-import { WMSCapabilities } from 'ol/format'
+import { default as olWMSCapabilities } from 'ol/format/WMSCapabilities'
 import proj4 from 'proj4'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import { LayerLegend } from '@/api/layers/ExternalLayer.class'
-import ExternalWMSLayer, { WMSDimension } from '@/api/layers/ExternalWMSLayer.class'
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
+import { layerUtils } from '@/index'
+import {
+    type LayerAttribution,
+    type LayerLegend,
+    type ExternalWMSLayer,
+    type WMSDimension,
+    type BoundingBox,
+    WMS_SUPPORTED_VERSIONS,
+    type LayerExtent,
+} from '@/layers'
+import { makeTimeConfig, makeTimeConfigEntry } from '@/timeConfigUtils'
+import { CapabilitiesError } from '@/validation'
 
-function findLayer(layerId, startFrom, parents) {
-    let found = {}
-    const layers = startFrom
+type WMSBoundingBox = {
+    crs: string
+    extent: [number, number, number, number]
+    res: [number | null, number | null]
+}
+
+type LegendURL = { Format: string; size: [number, number]; OnlineResource: string }
+
+type CapabilityLayer = {
+    Dimension?: Record<string, any>
+    Name: string
+    parent: CapabilityLayer
+    Title: string
+    Layer?: CapabilityLayer[]
+    CRS: string[]
+    Abstract: string
+    queryable: boolean
+    WGS84BoundingBox?: { crs: string; dimensions: any }[]
+    BoundingBox?: WMSBoundingBox[]
+    EX_GeographicBoundingBox: [number, number, number, number]
+    Attribution: {
+        LogoUrl: {
+            Format: string
+            OnlineResource: string
+            size: [number, number]
+        }
+        OnlineResource: string
+        Title: string
+    }
+    Style: {
+        LegendURL: LegendURL[]
+        Identifier: string
+        isDefault: boolean
+    }[]
+}
+
+type Request = {
+    DCPType: any[]
+    Format: string[]
+}
+
+export type WMSCapabilities = {
+    originUrl: URL
+    version: string
+    Capability?: {
+        Layer?: CapabilityLayer
+        TileMatrixSet: Array<{
+            BoundingBox: BoundingBox[]
+            Identifier: string
+            SupportedCRS?: string
+            TileMatrix: Object[]
+        }>
+        Request: {
+            GetCapabilities: Request
+            GetFeatureInfo: Request
+            GetMap: Request
+        }
+    }
+    ServiceProvider?: {
+        ProviderName?: string
+        ProviderSite?: string
+    }
+    OperationsMetadata?: Record<string, any>
+    Service: {
+        Title: string
+        OnlineResource: string
+    }
+}
+
+function findLayer(layerId: string, layers: CapabilityLayer[], parents: CapabilityLayer[]) {
+    let found: {
+        layer?: CapabilityLayer
+        parents?: CapabilityLayer[]
+    } = {}
 
     for (let i = 0; i < layers?.length && !found.layer; i++) {
         if (layers[i]?.Name === layerId || layers[i]?.Title === layerId) {
             found.layer = layers[i]
             found.parents = parents
-        } else if (layers[i]?.Layer?.length > 0) {
-            found = findLayer(layerId, layers[i]?.Layer, [layers[i], ...parents])
+        } else if ((layers[i]?.Layer ?? []).length > 0) {
+            found = findLayer(layerId, layers[i]?.Layer!, [layers[i], ...parents])
         }
     }
     return found
@@ -30,12 +106,15 @@ function findLayer(layerId, startFrom, parents) {
 
 // Return the common projections of all sub layers if the main layer doesn't have any CRS defined
 // If the main layer has CRS defined, return them
-function getLayerProjections(layer) {
+function getLayerProjections(layer: CapabilityLayer): string[] {
     if (layer.CRS) {
+        // TODO is this a list?
         return layer.CRS
     }
-    if (layer.Layer?.length > 0) {
-        const allCRS = layer.Layer.map((sublayer) => getLayerProjections(sublayer))
+    if ((layer.Layer ?? []).length > 0) {
+        const allCRS = layer.Layer!.map((sublayer: CapabilityLayer) =>
+            getLayerProjections(sublayer)
+        )
         const commonCRS = allCRS.reduce((acc, crsArray) =>
             acc.filter((crs) => crsArray.includes(crs))
         )
@@ -46,11 +125,13 @@ function getLayerProjections(layer) {
 }
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
-export default class WMSCapabilitiesParser {
-    constructor(content, originUrl) {
-        const parser = new WMSCapabilities()
+export class externalWMSCapabilitiesParser {
+    capabilities: WMSCapabilities
+
+    constructor(content: string, originUrl: string) {
+        const parser = new olWMSCapabilities()
         try {
-            Object.assign(this, parser.read(content))
+            this.capabilities = parser.read(content)
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
             throw new CapabilitiesError(
@@ -60,7 +141,7 @@ export default class WMSCapabilitiesParser {
             )
         }
 
-        this.originUrl = new URL(originUrl)
+        this.capabilities.originUrl = new URL(originUrl)
     }
 
     /**
@@ -72,8 +153,8 @@ export default class WMSCapabilitiesParser {
      * @see https://www.mediamaps.ch/ogc/schemas-xsdoc/sld/1.2/capabilities_1_3_0_xsd.html#Capability
      */
     getFeatureInfoCapability(ignoreError = true) {
-        if (Array.isArray(this.Capability?.Request?.GetFeatureInfo?.DCPType)) {
-            const httpElement = this.Capability.Request.GetFeatureInfo?.DCPType[0].HTTP
+        if (Array.isArray(this.capabilities.Capability?.Request?.GetFeatureInfo?.DCPType)) {
+            const httpElement = this.capabilities.Capability.Request.GetFeatureInfo?.DCPType[0].HTTP
             let baseUrl = null
             let method = 'GET'
             if (httpElement?.Get) {
@@ -84,7 +165,7 @@ export default class WMSCapabilitiesParser {
             } else {
                 log.error(
                     "Couldn't parse GetFeatureInfo data",
-                    this.Capability.Request.GetFeatureInfo
+                    this.capabilities.Capability.Request.GetFeatureInfo
                 )
                 if (ignoreError) {
                     return null
@@ -95,8 +176,8 @@ export default class WMSCapabilitiesParser {
                 )
             }
             const formats = []
-            if (this.Capability.Request.GetFeatureInfo.Format) {
-                formats.push(...this.Capability.Request.GetFeatureInfo.Format)
+            if (this.capabilities.Capability.Request.GetFeatureInfo.Format) {
+                formats.push(...this.capabilities.Capability.Request.GetFeatureInfo.Format)
             }
             return {
                 baseUrl,
@@ -117,8 +198,16 @@ export default class WMSCapabilitiesParser {
      * }}
      *   Capability layer node and its parents or an empty object if not found
      */
-    findLayer(layerId) {
-        return findLayer(layerId, [this.Capability.Layer], [this.Capability.Layer])
+    findLayer(layerId: string) {
+        if (!this.capabilities.Capability?.Layer) {
+            return { layer: null, parents: null }
+        }
+
+        return findLayer(
+            layerId,
+            [this.capabilities.Capability.Layer],
+            [this.capabilities.Capability.Layer]
+        )
     }
 
     /**
@@ -137,8 +226,8 @@ export default class WMSCapabilitiesParser {
      * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or null in case of error
      */
     getExternalLayerObject(
-        layerId,
-        projection,
+        layerId: string,
+        projection: CoordinateSystem,
         opacity = 1,
         visible = true,
         currentYear = null,
@@ -146,8 +235,9 @@ export default class WMSCapabilitiesParser {
         ignoreError = true
     ) {
         const { layer, parents } = this.findLayer(layerId)
+
         if (!layer) {
-            const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            const msg = `No WMS layer ${layerId} found in Capabilities ${this.capabilities.originUrl.toString()}`
             log.error(msg, this)
             if (ignoreError) {
                 return null
@@ -156,12 +246,12 @@ export default class WMSCapabilitiesParser {
         }
         return this._getExternalLayerObject(
             layer,
-            parents,
+            parents ?? null,
             projection,
             opacity,
             visible,
             currentYear,
-            params,
+            params ?? undefined,
             ignoreError
         )
     }
@@ -181,17 +271,22 @@ export default class WMSCapabilitiesParser {
      * @returns {[ExternalWMSLayer]} List of ExternalWMSLayer objects
      */
     getAllExternalLayerObjects(
-        projection,
+        projection: CoordinateSystem,
         opacity = 1,
         visible = true,
-        currentYear = null,
-        params = null,
+        currentYear: number | null = null,
+        params = undefined,
         ignoreError = true
     ) {
-        return this.Capability.Layer.Layer.map((layer) =>
+        if (!this.capabilities.Capability?.Layer) {
+            return null
+        }
+
+        return this.capabilities.Capability.Layer.Layer?.map((layer) =>
             this._getExternalLayerObject(
                 layer,
-                [this.Capability.Layer],
+                // we enforced that this is available
+                [this.capabilities.Capability!.Layer!],
                 projection,
                 opacity,
                 visible,
@@ -203,15 +298,15 @@ export default class WMSCapabilitiesParser {
     }
 
     _getExternalLayerObject(
-        layer,
-        parents,
-        projection,
-        opacity,
-        visible,
-        currentYear,
-        params,
-        ignoreError
-    ) {
+        layer: CapabilityLayer,
+        parents: CapabilityLayer[] | null,
+        projection: CoordinateSystem,
+        opacity: number,
+        visible: boolean,
+        currentYear: number | null,
+        params?: Record<string, any>,
+        ignoreError: boolean = true
+    ): ExternalWMSLayer | null {
         const {
             layerId,
             title,
@@ -224,7 +319,7 @@ export default class WMSCapabilitiesParser {
             queryable,
             availableProjections,
             dimensions,
-        } = this._getLayerAttributes(layer, parents, projection, ignoreError)
+        } = this._getLayerAttributes(layer, parents!, projection, ignoreError)
 
         if (!layerId) {
             // without layerId we can do nothing
@@ -232,12 +327,14 @@ export default class WMSCapabilitiesParser {
         }
 
         // Go through the child to get valid layers
-        let layers = []
+        // TODO have another variable name here
+        let layers: ExternalWMSLayer[] = []
+
         if (layer.Layer?.length) {
             layers = layer.Layer.map((l) =>
                 this._getExternalLayerObject(
                     l,
-                    [layer, ...parents],
+                    [layer, ...parents!],
                     projection,
                     opacity,
                     visible,
@@ -247,7 +344,7 @@ export default class WMSCapabilitiesParser {
                 )
             ).filter((layer) => !!layer)
         }
-        return new ExternalWMSLayer({
+        return layerUtils.makeExternalWMSLayer({
             id: layerId,
             name: title,
             opacity,
@@ -258,20 +355,25 @@ export default class WMSCapabilitiesParser {
             wmsVersion: version,
             format: 'png',
             abstract,
-            extent,
+            extent: extent ?? undefined,
             legends,
             isLoading: false,
             availableProjections,
             hasTooltip: queryable,
             getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
-            currentYear,
+            currentYear: currentYear ?? undefined,
             customAttributes: params,
             dimensions: dimensions,
-            timeConfig: this._getTimeConfig(layerId, dimensions),
+            timeConfig: this._getTimeConfig(dimensions) ?? undefined,
         })
     }
 
-    _getLayerAttributes(layer, parents, projection, ignoreError = true) {
+    _getLayerAttributes(
+        layer: CapabilityLayer,
+        parents: CapabilityLayer[],
+        projection: CoordinateSystem,
+        ignoreError = true
+    ) {
         let layerId = layer.Name
         // Some WMS only have a Title and no Name, therefore in this case take the Title as layerId
         if (!layerId && layer.Title) {
@@ -280,7 +382,7 @@ export default class WMSCapabilitiesParser {
         }
         if (!layerId) {
             // Without layerID we cannot use the layer in our viewer
-            const msg = `No layerId found in WMS capabilities for layer in ${this.originUrl.toString()}`
+            const msg = `No layerId found in WMS capabilities for layer in ${this.capabilities.originUrl.toString()}`
             log.error(msg, layer)
             if (ignoreError) {
                 return {}
@@ -288,12 +390,15 @@ export default class WMSCapabilitiesParser {
             throw new CapabilitiesError(msg, 'no_layer_found')
         }
 
-        if (!this.version || !WMS_SUPPORTED_VERSIONS.includes(this.version)) {
+        if (
+            !this.capabilities.version ||
+            !WMS_SUPPORTED_VERSIONS.includes(this.capabilities.version)
+        ) {
             let msg = ''
-            if (!this.version) {
-                msg = `No WMS version found in Capabilities of ${this.originUrl.toString()}`
+            if (!this.capabilities.version) {
+                msg = `No WMS version found in Capabilities of ${this.capabilities.originUrl.toString()}`
             } else {
-                msg = `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
+                msg = `WMS version ${this.capabilities.version} of ${this.capabilities.originUrl.toString()} not supported`
             }
             log.error(msg, layer)
             if (ignoreError) {
@@ -308,7 +413,7 @@ export default class WMSCapabilitiesParser {
             )
             .map((crs) =>
                 allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
-            )
+            ) as CoordinateSystem[] // let's assume that the filtering won't remove any for now
 
         // by default, WGS84 must be supported
         if (availableProjections.length === 0) {
@@ -329,9 +434,9 @@ export default class WMSCapabilitiesParser {
             layerId,
             title: layer.Title,
             url:
-                this.Capability?.Request?.GetMap?.DCPType[0]?.HTTP?.Get?.OnlineResource ||
-                this.originUrl.toString(),
-            version: this.version,
+                this.capabilities.Capability?.Request?.GetMap?.DCPType[0]?.HTTP?.Get
+                    ?.OnlineResource || this.capabilities.originUrl.toString(),
+            version: this.capabilities.version,
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId, layer),
             extent: this._getLayerExtent(layerId, layer, parents, projection),
@@ -342,7 +447,12 @@ export default class WMSCapabilitiesParser {
         }
     }
 
-    _getLayerExtent(layerId, layer, parents, projection) {
+    _getLayerExtent(
+        layerId: string,
+        layer: CapabilityLayer,
+        parents: CapabilityLayer[],
+        projection: CoordinateSystem
+    ): LayerExtent | null {
         // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
         // - extent totally out of projection bounds
         //    => return null and set outOfBounds flag to true
@@ -353,7 +463,9 @@ export default class WMSCapabilitiesParser {
         // - no extent
         //   => return null and set the outOfBounds flag to false (we don't know)
         let layerExtent = null
+
         const matchedBbox = layer.BoundingBox?.find((bbox) => bbox.crs === projection.epsg)
+
         // First try to find a matching extent from the BoundingBox
         if (matchedBbox) {
             layerExtent = [
@@ -405,61 +517,67 @@ export default class WMSCapabilitiesParser {
         }
 
         if (!layerExtent) {
-            const msg = `No layer extent found for ${layerId} in ${this.originUrl.toString()}`
+            const msg = `No layer extent found for ${layerId} in ${this.capabilities.originUrl.toString()}`
             log.error(msg, layer, parents)
         }
 
         return layerExtent
     }
 
-    _getLayerAttribution(layerId, layer) {
+    _getLayerAttribution(layerId: string, layer: CapabilityLayer) {
         let title = null
         let url = null
+
         try {
-            if (layer.Attribution || this.Capability.Layer.Attribution) {
-                const attribution = layer.Attribution || this.Capability.Layer.Attribution
+            if (layer.Attribution || this.capabilities.Capability?.Layer?.Attribution) {
+                const attribution =
+                    layer.Attribution || this.capabilities.Capability?.Layer?.Attribution
                 url = attribution.OnlineResource
                 title = attribution.Title || new URL(attribution.OnlineResource).hostname
             } else {
-                title = this.Service?.Title || new URL(this.Service?.OnlineResource).hostname
+                title =
+                    this.capabilities.Service?.Title ||
+                    new URL(this.capabilities.Service?.OnlineResource).hostname
             }
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
             log.error(msg, layer, error)
-            title = new URL(this.originUrl).hostname
+            title = new URL(this.capabilities.originUrl).hostname
             url = null
         }
 
-        return [new LayerAttribution(title, url)]
+        return [{ name: title, url } as LayerAttribution]
     }
 
-    _getLayerLegends(layerId, layer) {
+    _getLayerLegends(layerId: string, layer: CapabilityLayer): LayerLegend[] {
         const styles = layer.Style?.filter((s) => s.LegendURL?.length > 0) ?? []
+
         return styles
             .map((style) =>
                 style.LegendURL.map((legend) => {
                     const width = legend.size?.length >= 2 ? legend.size[0] : null
                     const height = legend.size?.length >= 2 ? legend.size[1] : null
-                    return new LayerLegend({
+                    return {
                         url: legend.OnlineResource,
                         format: legend.Format,
-                        width,
-                        height,
-                    })
+                        width: width ?? 0,
+                        height: height ?? 0,
+                    }
                 })
             )
             .flat()
     }
 
-    _parseDimesionValues(layerId, rawValues) {
-        const parseYear = (value) => {
+    _parseDimensionValues(layerId: string, rawValues: string) {
+        const parseYear = (value: string) => {
             const date = new Date(value)
-            if (!isNaN(date)) {
+            if (!isNaN(date.getFullYear())) {
                 return date.getFullYear()
             }
             return null
         }
+
         return rawValues
             .split(',')
             .map((v) => {
@@ -474,9 +592,11 @@ export default class WMSCapabilitiesParser {
                         return null
                     }
                     let step = 1
+
                     const periodMatch = /P(\d+)Y/.exec(res)
+
                     if (periodMatch) {
-                        step = periodMatch[1]
+                        step = parseInt(periodMatch[1])
                     } else {
                         log.warn(
                             `Unsupported dimension resolution "${res}" for layer ${layerId}, fallback to 1 year period`
@@ -491,29 +611,32 @@ export default class WMSCapabilitiesParser {
             .map((v) => `${v}`)
     }
 
-    _getDimensions(layerId, layer) {
+    _getDimensions(layerId: string, layer: CapabilityLayer): WMSDimension[] {
         return (
-            layer.Dimension?.map(
-                (d) =>
-                    new WMSDimension(
-                        d.name,
-                        d.default,
-                        this._parseDimesionValues(layerId, d.values ?? ''),
-                        {
-                            current: d.current ?? false,
-                        }
-                    )
-            ) ?? []
+            layer.Dimension?.map((d: Record<string, any>) => ({
+                id: d.name,
+                dft: d.default,
+                values: this._parseDimensionValues(layerId, d.values ?? ''),
+                current: {
+                    current: d.current ?? false,
+                },
+            })) ?? []
         )
     }
 
-    _getTimeConfig(layerId, dimensions) {
-        const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
+    _getTimeConfig(dimensions: any[] | undefined) {
+        if (!dimensions) {
+            return null
+        }
+
+        const timeDimension = dimensions.find((d) => {
+            return d.id.toLowerCase() === 'time'
+        })
         if (!timeDimension) {
             return null
         }
         const timeEntries =
-            timeDimension.values?.map((value) => new LayerTimeConfigEntry(value)) ?? []
-        return new LayerTimeConfig(timeDimension.default ?? null, timeEntries)
+            timeDimension.values?.map((value: any) => makeTimeConfigEntry(value)) ?? []
+        return makeTimeConfig(timeDimension.default ?? null, timeEntries)
     }
 }

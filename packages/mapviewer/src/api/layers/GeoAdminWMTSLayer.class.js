@@ -1,16 +1,14 @@
 // @ts-nocheck
-// TODO
-import { type GeoAdminWMSLayer as GeoAdminWMSLayerIface } from "@geoadmin/layers"
+import { constants } from '@geoadmin/coordinates'
 
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getWmsBaseUrl } from '@/config/baseUrl.config'
-
-import GeoAdminLayer from "./GeoAdminLayer.class"
+import { getWmtsBaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
 
 /**
- * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
- * chunks, usually 4), or single image (only one request fired for the whole map).
+ * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
  *
  * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
  * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
@@ -20,32 +18,31 @@ import GeoAdminLayer from "./GeoAdminLayer.class"
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminWMSLayer extends GeoAdminLayer implements GeoAdminWMSLayerIface {
+export default class GeoAdminWMTSLayer extends GeoAdminLayer {
+    maxResolution
+    format
+
     /**
-     * @param {String} layerData.name The name of this layer (lang specific)
-     * @param {String} layerData.id The unique ID of this layer
+     * @param {String} layerData.name Layer name (internationalized)
+     * @param {String} layerData.id Unique layer ID
      * @param {String | null} layerData.idIn3d The layer ID to be used as substitute for this layer
      *   when we are showing the 3D map. Will be using the same layer if this is set to null.
-     * @param {String} layerData.technicalName The ID/name to use when requesting the WMS backend,
-     *   this might be different than id, and many layers (with different id) can in fact request
-     *   the same layer, through the same technical name, in the end)
-     * @param {Number} [layerData.opacity=1.0] The opacity to apply to this layer (between 0.0 and
-     *   1.0). Default is `1.0`
+     * @param {String} layerData.technicalName ID to be used in our backend (can be different from
+     *   the id)
+     * @param {Number} [layerData.opacity=1.0] Opacity value between 0.0 (transparent) and 1.0
+     *   (visible). Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
      * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
-     *   layer
-     * @param {String} [layerData.baseUrl=WMS_BASE_URL] The backend to call for tiles. Default is
-     *   `WMS_BASE_URL`
-     * @param {String} [layerData.format='png'] In which image format the backend must be requested.
+     *   layer.
+     * @param {String} [layerData.format='png'] Image format for this WMTS layer (jpeg or png).
      *   Default is `'png'`
-     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Settings telling which year has
-     *   to be used when request tiles to the backend. Default is `null`
-     * @param {String} [layerData.lang='en'] The lang ISO code to use when requesting the backend
-     *   (WMS images can have text that are language dependent). Default is `'en'`
-     * @param {Number} [layerData.gutter=0] How much of a gutter (extra pixels around the image) we
-     *   want. This is specific for tiled WMS, if unset this layer will be a considered a single
-     *   tile WMS. Default is `0`
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Settings telling which timestamp
+     *   has to be used when request tiles to the backend. Default is `null`
+     * @param {Boolean} [layerData.isBackground=false] If this layer should be treated as a
+     *   background layer. Default is `false`
+     * @param {String} layerData.baseUrl The base URL to be used to request tiles (can use the {0-9}
+     *   layerData.notation to describe many available backends)
      * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
      *   should be highlighted on the map after a click (and if the backend will provide valuable
      *   information on the
@@ -55,20 +52,18 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer implements GeoAdminW
      *   on. Default is `false`
      * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
      *   is `[]`
-     * @param {String} [layerData.wmsVersion='1.3.0'] Version of the WMS protocol to use while
-     *   requesting images on this layer. Default is `'1.3.0'`
      * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
      *   shown to users to explain its content. Default is `false`
      * @param {Boolean} [layerData.searchable=false] Define if this layer's features can be searched
      *   through the search bar. Default is `false`
-     * @param {Object | null} [layerData.customAttributes=null] The custom attributes (except the
-     *   well known updateDelays, adminId, features and year) passed with the layer id in url.
-     *   Default is `null`
+     * @param {Number} [layerData.maxResolution=DEFAULT_MAX_GEOADMIN_RESOLUTION] Define the maximum
+     *   resolution the layer can reach. Default is `DEFAULT_MAX_GEOADMIN_RESOLUTION`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
+        throw new Error('not used anymore')
         if (!layerData) {
-            throw new InvalidLayerDataError('Missing geoadmin WMS layer data', layerData)
+            throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
         }
         const {
             name = null,
@@ -78,42 +73,45 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer implements GeoAdminW
             opacity = 1.0,
             visible = true,
             attributions = null,
-            baseUrl = getWmsBaseUrl(),
             format = 'png',
             timeConfig = null,
-            wmsVersion = '1.3.0',
-            lang = 'en',
-            gutter = 0,
+            isBackground = false,
+            baseUrl = getWmtsBaseUrl(),
             isHighlightable = false,
             hasTooltip = false,
             topics = [],
             hasLegend = false,
             searchable = false,
-            customAttributes = null,
+            maxResolution = DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
         } = layerData
+        if (!constants.SWISSTOPO_TILEGRID_RESOLUTIONS.includes(maxResolution)) {
+            throw new InvalidLayerDataError(
+                'max Resolution not part of available resolutions',
+                layerData
+            )
+        }
         super({
             name,
-            type: LayerTypes.WMS,
+            type: LayerTypes.WMTS,
             id,
             idIn3d,
             technicalName,
             opacity,
             visible,
             attributions,
+            isBackground,
             baseUrl,
+            // as we will be building URL based on / paths with WMTS, we want to make sure the base URL ends with a /
+            ensureTrailingSlashInBaseUrl: true,
             isHighlightable,
             hasTooltip,
             topics,
-            // for WMS we do not want a trailing slash in the base URL in case the URL is already defined past the ? portion
-            ensureTrailingSlashInBaseUrl: false,
-            timeConfig,
             hasLegend,
             searchable,
-            customAttributes,
+            timeConfig,
         })
+
         this.format = format
-        this.lang = lang
-        this.gutter = gutter
-        this.wmsVersion = wmsVersion
+        this.maxResolution = maxResolution
     }
 }

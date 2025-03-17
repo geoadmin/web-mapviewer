@@ -1,8 +1,8 @@
-import { expect } from "chai"
-import {  describe, it } from "vitest"
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
-import { type Layer, LayerType} from "@/layers"
-import { hasMultipleTimestamps } from "@/utils";
+import { type Layer, LayerType } from '@/layers'
+import { hasMultipleTimestamps, makeTimeConfigEntry } from '@/timeConfigUtils'
 
 describe('Test utility functions', () => {
     it('Determines correctly that a layer has multiple timestamps', () => {
@@ -19,7 +19,7 @@ describe('Test utility functions', () => {
             hasLegend: false,
             isExternal: false,
             isLoading: false,
-            baseUrl: "http://bgdi.ch"
+            baseUrl: 'http://bgdi.ch',
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
@@ -28,22 +28,18 @@ describe('Test utility functions', () => {
             timeEntries: [],
             behaviour: 'last',
             years: [2002, 2003],
-            currentTimeEntry: 2002,
             currentTimestamp: '20021322',
-            currentYear: 2002
+            currentYear: 2002,
+            currentTimeEntry: null,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
 
-        simpleLayer.timeConfig.timeEntries.push({
-            timestamp: '200223123'
-        })
+        simpleLayer.timeConfig.timeEntries.push(makeTimeConfigEntry('200223123'))
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
 
-        simpleLayer.timeConfig.timeEntries.push({
-            timestamp: '200523123'
-        })
+        simpleLayer.timeConfig.timeEntries.push(makeTimeConfigEntry('200523123'))
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.true
     })

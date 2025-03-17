@@ -1,5 +1,5 @@
 <script setup>
-import { hasMultipleTimestamps } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -27,7 +27,7 @@ const filteredLayers = computed(() => {
             possibleLayerTypes.includes(layer.type) &&
             currentLayerType.value.includes(layer.type) &&
             (onlyTimeEnabled.value === null ||
-                hasMultipleTimestamps(layer) === onlyTimeEnabled.value) &&
+                layerUtils.hasMultipleTimestamps(layer) === onlyTimeEnabled.value) &&
             (with3DConfig.value === null || !!layer.idIn3d === with3DConfig.value) &&
             (withTooltip.value === null || layer.hasTooltip === withTooltip.value) &&
             (withLegend.value === null || layer.hasLegend === withLegend.value)

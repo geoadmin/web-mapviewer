@@ -1,6 +1,6 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
-import { getTopicForIdentifyAndTooltipRequests } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
@@ -8,7 +8,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
@@ -143,7 +142,7 @@ export async function identifyOnGeomAdminLayer({
     }
     const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
-        `${getApi3BaseUrl()}rest/services/${getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/identify`,
+        `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/identify`,
         {
             // params described as https://api3.geo.admin.ch/services/sdiservices.html#identify-features
             params: {
@@ -264,7 +263,7 @@ async function identifyOnExternalLayer(config) {
         // If we use different projection, we also need to project out initial coordinate
         requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
-    if (layer instanceof ExternalWMSLayer) {
+    if (layer.type === LayerType.WMS) {
         return await identifyOnExternalWmsLayer({
             coordinate: requestedCoordinate,
             projection: requestProjection,
@@ -605,7 +604,7 @@ export const identify = (config) => {
  * @returns {String}
  */
 function generateFeatureUrl(layer, featureId) {
-    return `${getApi3BaseUrl()}rest/services/${getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/${layer.id}/${featureId}`
+    return `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/${layer.id}/${featureId}`
 }
 
 /**
