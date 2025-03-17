@@ -632,76 +632,86 @@ describe('Drawing module tests', () => {
                 [900, 400],
                 [1000, 400],
             ]
-            lineCoordinates.forEach((coordinate) => {
-                cy.get('[data-cy="ol-map"]').click(...coordinate)
+            lineCoordinates.forEach(([x, y], index) => {
+                cy.get('[data-cy="ol-map"]').click(x, y)
+                if (index === lineCoordinates.length - 1) {
+                    // should create a line by re-clicking the last point
+                    cy.get('[data-cy="ol-map"]').click(x, y)
+                }
             })
-            // should create a line by re-clicking the last point
-            cy.get('[data-cy="ol-map"]').click(...lineCoordinates.at(lineCoordinates.length - 1))
+            cy.wait('@post-kml')
+
             const firstFeatureDescription = 'first feature'
             addDecription(firstFeatureDescription)
 
             checkDrawnFeature(
                 firstFeatureDescription,
-                8,
+                lineCoordinates.length,
                 'LineString',
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            // Extend from the last node of line
+            cy.log('Extending from the last node of the line')
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
-            cy.get('[data-cy="ol-map"]').click(1100, 450)
-            // finish extending the line by clicking the last point
-            cy.get('[data-cy="ol-map"]').click(1100, 450)
+            cy.get('[data-cy="ol-map"]').click(1050, 420)
+            cy.get('[data-cy="ol-map"]').dblclick(1100, 450)
+            cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                9,
+                lineCoordinates.length + 2,
                 'LineString',
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            // Extend from the first node of line
+            cy.log('Extending from the first node of the line')
             cy.get('[data-cy="extend-from-first-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').click(500, 250)
-            cy.get('[data-cy="ol-map"]').click(600, 250)
-            // finish extending the line by clicking the last point
-            cy.get('[data-cy="ol-map"]').click(600, 250)
+            cy.get('[data-cy="ol-map"]').dblclick(600, 250)
+            cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                11,
+                lineCoordinates.length + 4,
                 'LineString',
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            // Delete the last node by right click
-            cy.get('[data-cy="ol-map"]').rightclick()
+            cy.log('Deleting a node in the middle by right clicking on it')
+            cy.get('[data-cy="ol-map"]').rightclick(500, 250)
+            cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                10,
+                lineCoordinates.length + 3,
                 'LineString',
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            // Delete the last node by clicking the delete button
+            cy.log('Deleting the last node by clicking the delete button')
+            cy.get('[data-cy="extend-from-first-node-button"] button').click()
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
+            // Click the first node to finish the polygon
+            const firstPoint = lineCoordinates[0]
+            // re-clicking an existing point to finish editing
+            cy.get('[data-cy="ol-map"]').click(firstPoint[0], firstPoint[1])
+            cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                9,
+                lineCoordinates.length + 2,
                 'LineString',
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            // Extend to make a polygon
+            cy.log('Extending line into a polygon (closing it)')
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
-            cy.get('[data-cy="ol-map"]').click(750, 350)
-            // Click the first node to finish the polygon
-            cy.get('[data-cy="ol-map"]').click(600, 250)
+            cy.get('[data-cy="ol-map"]').click(firstPoint[0], firstPoint[1])
+            cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                11,
+                lineCoordinates.length + 3, // closing point counts twice (start and finish of geometry)
                 'Polygon',
                 EditableFeatureTypes.LINEPOLYGON
             )
-            // No extend button for polygon
+
+            cy.log('Checking that no more "extend button" are present with a polygon')
             cy.get('[data-cy="drawing-delete-first-point-button"]').should('not.exist')
             cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
 
@@ -737,9 +747,7 @@ describe('Drawing module tests', () => {
 
             // Extend from the last node of line
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
-            cy.get('[data-cy="ol-map"]').click(1400, 450)
-            // finish extending the line by clicking the last point
-            cy.get('[data-cy="ol-map"]').click(1400, 450)
+            cy.get('[data-cy="ol-map"]').dblclick(1400, 450)
             checkDrawnFeature(
                 secondFeatureDescription,
                 9,
@@ -1518,10 +1526,9 @@ describe('Drawing module tests', () => {
             )
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
-            cy.log('check that profile gets updated when feature is modified by removing a point')
-            // for mobile double click and on desktop right click
-            cy.get('[data-cy="ol-map"]').dblclick(190, 250)
-            cy.wait('@profile')
+            cy.log(
+                'check that profile gets updated when feature is modified by removing a point (by right clicking on it)'
+            )
             cy.get('[data-cy="ol-map"]').rightclick(150, 250)
             cy.wait('@profile')
 
