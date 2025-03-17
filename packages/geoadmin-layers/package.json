@@ -25,13 +25,20 @@
         "test:unit:watch": "vitest --mode development --environment jsdom"
     },
     "dependencies": {
-        "@types/openlayers": "catalog:",
+        "@geoadmin/coordinates": "workspace:*",
+        "@geoadmin/log": "workspace:*",
+        "@geoadmin/numbers": "workspace:^",
+        "lodash": "catalog:",
+        "ol": "catalog:",
+        "proj4": "catalog:"
     },
     "devDependencies": {
+        "@types/lodash": "catalog:",
+        "@types/openlayers": "catalog:",
+        "chai": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
-        "vue-tsc": "catalog:",
-        "chai": "catalog:"
+        "vue-tsc": "catalog:"
     }
 }

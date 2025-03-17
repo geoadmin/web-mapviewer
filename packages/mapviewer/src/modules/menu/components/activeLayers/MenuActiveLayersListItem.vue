@@ -5,7 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { hasMultipleTimestamps as layerUtilsHasMultipleTimestamps } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
@@ -80,7 +80,7 @@ const attributionName = computed(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
 )
 const showLayerDescriptionIcon = computed(() => layer.hasDescription)
-const hasMultipleTimestamps = computed(() => layerUtilsHasMultipleTimestamps(layer))
+const hasMultipleTimestamps = computed(() => timeConfigUtils.hasMultipleTimestamps(layer))
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 

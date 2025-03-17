@@ -1,29 +1,13 @@
+import {
+    externalWMSCapabilitiesParser,
+    externalWMTSCapabilitiesParser,
+    CapabilitiesError,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
-import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
-
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000
-
-/**
- * WMS or WMTS Capabilities Error
- *
- * This class also contains an i18n translation key in plus of a technical english message. The
- * translation key can be used to display a translated user message.
- *
- * @property {string} message Technical english message
- * @property {string} key I18n translation key for user message
- */
-export class CapabilitiesError extends Error {
-    key: string
-    constructor(message: string, key: string) {
-        super(message)
-        this.key = key
-        this.name = 'CapabilitiesError'
-    }
-}
 
 /**
  * Sets the WMS GetCapabilities url parameters
@@ -79,7 +63,7 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
  * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
  */
 export async function readWmsCapabilities(baseUrl: string, language: string | null = null) {
-    const url = setWmsGetCapParams(new URL(baseUrl), (language || '')).toString()
+    const url = setWmsGetCapParams(new URL(baseUrl), language || '').toString()
     log.debug(`Read WMTS Get Capabilities: ${url}`)
     let response = null
     try {
@@ -108,7 +92,7 @@ export async function readWmsCapabilities(baseUrl: string, language: string | nu
  */
 export function parseWmsCapabilities(content: string, originUrl: string) {
     try {
-        return new WMSCapabilitiesParser(content, originUrl)
+        return new externalWMSCapabilitiesParser(content, originUrl)
     } catch (error) {
         throw new CapabilitiesError(
             // @ts-ignore
@@ -178,7 +162,7 @@ export async function readWmtsCapabilities(baseUrl: string, language: string | n
  */
 export function parseWmtsCapabilities(content: string, originUrl: string) {
     try {
-        return new WMTSCapabilitiesParser(content, originUrl)
+        return new externalWMTSCapabilitiesParser(content, originUrl)
     } catch (error) {
         throw new CapabilitiesError(
             // @ts-ignore

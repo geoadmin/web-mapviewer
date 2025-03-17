@@ -1,22 +1,24 @@
-// TODO maybe this can/should go to the package as well!!
-import { type LayerAttribution, type GeoAdminWMTSLayer, type GeoAdminWMSLayer, LayerType } from '@geoadmin/layers'
-import { type GeoAdminGeoJSONLayer } from '@geoadmin/layers'
+import {
+    type LayerAttribution,
+    LayerType,
+    type GeoAdminGeoJSONLayer,
+    layerUtils,
+    timeConfigUtils,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
 import GeoAdminAggregateLayer, {
     AggregateSubLayer,
 } from '@/api/layers/GeoAdminAggregateLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
 
 const _urlWithTrailingSlash = (baseUrl: string): string => {
-  if (baseUrl && !baseUrl.endsWith('/')) {
-    return baseUrl + '/'
-  }
-  return baseUrl;
+    if (baseUrl && !baseUrl.endsWith('/')) {
+        return baseUrl + '/'
+    }
+    return baseUrl
 }
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
@@ -32,7 +34,12 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
  * @param lang
  * @returns {GeoAdminLayer}
  */
-const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string, allOtherLayers: Record<string, any>, lang: string) => {
+const generateClassForLayerConfig = (
+    layerConfig: Record<string, any>,
+    id: string,
+    allOtherLayers: Record<string, any>,
+    lang: string
+) => {
     if (!layerConfig) {
         return
     }
@@ -57,31 +64,31 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
         // if we are here, no error has been raised by the URL construction
         // meaning we have a valid URL in potentialAttributionUrl
         attributionUrl = potentialAttributionUrl
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
         // this is not a well-formed URL, we do nothing with it
     }
     let timestamps: any[] = []
     if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 0) {
-        timestamps = layerConfig.timestamps.map(
-            (timestamp) => new LayerTimeConfigEntry(timestamp)
+        timestamps = layerConfig.timestamps.map((timestamp) =>
+            timeConfigUtils.makeTimeConfigEntry(timestamp)
         )
     }
     const timeConfig =
         timestamps.length > 0
-            ? new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
+            ? timeConfigUtils.makeTimeConfig(layerConfig.timeBehaviour, timestamps)
             : null
     const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
     const attributions: LayerAttribution[] = []
     if (attributionName) {
-        attributions.push({name: attributionName, url: attributionUrl})
+        attributions.push({ name: attributionName, url: attributionUrl })
     }
     switch (type.toLowerCase()) {
         case 'vector':
             log.info('Vector layer format is TBD in our backends')
             break
         case 'wmts': {
-            const layer: GeoAdminWMTSLayer = {
+            const layer = layerUtils.makeGeoAdminWMTSLayer({
                 type: LayerType.WMTS,
                 name,
                 id,
@@ -91,7 +98,7 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 opacity,
                 attributions,
                 format,
-                timeConfig,
+                timeConfig: timeConfig ?? undefined,
                 isBackground: !!isBackground,
                 isHighlightable,
                 hasTooltip,
@@ -99,22 +106,13 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 hasLegend: !!hasLegend,
                 searchable: !!searchable,
                 maxResolution:
-                    layerConfig.resolutions?.slice(-1)[0] ??
-                    DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
+                    layerConfig.resolutions?.slice(-1)[0] ?? DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
                 hasDescription: true,
-
-                // TODO its is kinda annoying that we have to initialize this here manually
-                visible: false,
-                isExternal: false,
-                isSpecificFor3d: false,
-                isLoading: false,
-                hasError: false
-
-            }
+            })
             return layer
         }
         case 'wms': {
-            const layer: GeoAdminWMSLayer = {
+            const layer = layerUtils.makeGeoAdminWMSLayer({
                 type: LayerType.WMS,
                 name,
                 id: id,
@@ -126,7 +124,7 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 attributions,
                 baseUrl: layerConfig.wmsUrl,
                 format,
-                timeConfig,
+                timeConfig: timeConfig ?? undefined,
                 wmsVersion: '1.3.0',
                 lang,
                 gutter: layerConfig.gutter,
@@ -135,18 +133,11 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
                 topics,
                 hasLegend: !!hasLegend,
                 searchable: !!searchable,
-
-                // TODO its is kinda annoying that we have to initialize this here manually
-                visible: false,
-                isExternal: false,
-                isSpecificFor3d: false,
-                hasDescription: true,
-                isLoading: false,
-                hasError: false
-            }
+            })
             return layer
         }
         case 'geojson': {
+            // TODO CONTINUE HERE do this via utils too
             const layer: GeoAdminGeoJSONLayer = {
                 type: LayerType.GEOJSON,
                 name,
@@ -240,7 +231,7 @@ const generateClassForLayerConfig = (layerConfig: Record<string, any>, id:string
  * @param {String} layerId The unique layer ID used in our backends
  * @returns {Promise<String>} HTML content of the layer's legend
  */
-export const getLayerDescription = (lang: string, layerId:string) => {
+export const getLayerDescription = (lang: string, layerId: string) => {
     return new Promise((resolve, reject) => {
         axios
             .get(`${getApi3BaseUrl()}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
@@ -283,7 +274,11 @@ export const loadLayersConfigFromBackend = (lang: string) => {
                         })
                         resolve(layersConfig)
                     } else {
-                        reject(new Error('LayersConfig loaded from backend is not an defined or is empty'))
+                        reject(
+                            new Error(
+                                'LayersConfig loaded from backend is not an defined or is empty'
+                            )
+                        )
                     }
                 })
                 .catch((error) => {

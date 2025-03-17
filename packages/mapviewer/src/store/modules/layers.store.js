@@ -1,5 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
-import { hasMultipleTimestamps } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import {
     addErrorMessageToLayer,
@@ -54,7 +54,10 @@ const cloneActiveLayerConfig = (getters, layer) => {
         if (layer.customAttributes) {
             const { year, updateDelay } = layer.customAttributes
             if (year && clone.timeConfig) {
-                clone.timeConfig.updateCurrentTimeEntry(clone.timeConfig.getTimeEntryForYear(year))
+                timeConfigUtils.updateCurrentTimeEntry(
+                    clone.timeConfig,
+                    timeConfigUtils.getTimeEntryForYear(clone.timeConfig, year)
+                )
             }
             if (updateDelay) {
                 clone.updateDelay = updateDelay
@@ -138,7 +141,7 @@ const getters = {
             // there.
             if (
                 layer.timeConfig &&
-                hasMultipleTimestamps(layer) &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 layer.timeConfig.currentTimeEntry === null
             ) {
                 return false
@@ -266,7 +269,9 @@ const getters = {
     visibleLayersWithTimeConfig: (state) =>
         // Here we cannot take the getter visibleLayers as it also contain the preview and system
         // layers as well as the layer without valid current timeEntry are filtered out
-        state.activeLayers.filter((layer) => layer.visible && hasMultipleTimestamps(layer)),
+        state.activeLayers.filter(
+            (layer) => layer.visible && timeConfigUtils.hasMultipleTimestamps(layer)
+        ),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
@@ -315,7 +320,10 @@ const getters = {
 
     youngestYear: (state) =>
         state.config.reduce((youngestYear, layer) => {
-            if (hasMultipleTimestamps(layer) && youngestYear < layer.timeConfig.years[0]) {
+            if (
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
+                youngestYear < layer.timeConfig.years[0]
+            ) {
                 return layer.timeConfig.years[0]
             }
             return youngestYear
@@ -324,7 +332,7 @@ const getters = {
     oldestYear: (state) =>
         state.config.reduce((oldestYear, layer) => {
             if (
-                hasMultipleTimestamps(layer) &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 oldestYear > layer.timeConfig.years[layer.timeConfig.years.length - 1]
             ) {
                 return layer.timeConfig.years[layer.timeConfig.years.length - 1]
@@ -372,8 +380,12 @@ const actions = {
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
                 if (layer.timeConfig) {
-                    clone.timeConfig.updateCurrentTimeEntry(
-                        clone.timeConfig.getTimeEntryForYear(layer.timeConfig.currentYear)
+                    timeConfigUtils.updateCurrentTimeEntry(
+                        clone.timeConfig,
+                        timeConfigUtils.getTimeEntryForYear(
+                            clone.timeConfig,
+                            layer.timeConfig.currentYear
+                        )
                     )
                 }
                 return clone
@@ -440,23 +452,9 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     setLayers({ commit /*, getters */ }, { layers, dispatcher }) {
-        // const clones = layers
-        //     .map((layer) => {
-        //         let clone = null
-        //         if (layer instanceof AbstractLayer) {
-        //             // TODO clone needed?
-        //             clone = cloneDeep(layer)
-        //         } else if (layer instanceof Object) {
-        //             clone = cloneActiveLayerConfig(getters, layer)
-        //         } else if (layer instanceof String || typeof layer === 'string') {
-        //             // should be string
-        //             // TODO clone needed?
-        //             clone = cloneDeep(getters.getLayerConfigById(layer)) ?? null
-        //         }
-        //         return clone
-        //     })
-        //     .filter((layer) => layer !== null)
-        commit('setLayers', { layers, dispatcher })
+        // TODO maybe cloning it here again shouldn't really be necessary
+        const clones = layers.map((layer) => cloneDeep(layer)).filter((layer) => layer !== null)
+        commit('setLayers', { layers: clones, dispatcher })
     },
 
     /**
@@ -954,7 +952,10 @@ const mutations = {
         layer.opacity = Number(opacity)
     },
     setLayerYear(state, { layer, year }) {
-        layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+        timeConfigUtils.updateCurrentTimeEntry(
+            layer.timeConfig,
+            timeConfigUtils.getTimeEntryForYear(layer.timeConfig, year)
+        )
     },
     moveActiveLayerToIndex(state, { index, newIndex }) {
         const removed = state.activeLayers.splice(index, 1)

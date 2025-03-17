@@ -1,5 +1,5 @@
 import { LayerType } from '@geoadmin/layers'
-import { hasMultipleTimestamps } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -160,7 +160,7 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    if (hasMultipleTimestamps(layer)) {
+    if (timeConfigUtils.hasMultipleTimestamps(layer)) {
         // If the layer has more than 1 timestamps we need to add the `@year` attribute
         if (layer.timeConfig.currentYear !== null) {
             // Always add the `@year` if we have a valid currentYear

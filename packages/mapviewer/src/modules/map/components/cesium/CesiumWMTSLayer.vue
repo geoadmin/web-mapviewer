@@ -21,6 +21,7 @@ const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {
+        // TODO fix this check
         type: [GeoAdminWMTSLayer, ExternalWMTSLayer],
         required: true,
     },
