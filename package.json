@@ -46,6 +46,7 @@
         "globals": "catalog:",
         "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
         "vite": "catalog:",
