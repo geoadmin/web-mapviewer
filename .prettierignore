@@ -1,5 +1,5 @@
-package.json
-package-lock.json
+pnpm-lock.yaml
+.github/
 
 packages/mapviewer/index.html
 packages/mapviewer/public/icon.svg
