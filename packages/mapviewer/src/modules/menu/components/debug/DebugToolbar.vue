@@ -2,18 +2,24 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95, WEBMERCATOR } from '@geoadmin/coordinates'
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
 import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
+import DebugPrint from '@/modules/menu/components/debug/DebugPrint.vue'
+import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
+import { PRINT_VIEW } from '@/router/viewNames.js'
 
 const dispatcher = { dispatcher: 'DebugToolbar.vue' }
 
+const route = useRoute()
 const store = useStore()
 
 const showDebugTool = ref(false)
 const showBaseUrlOverride = ref(false)
 const showLayerFinder = ref(false)
+const showPrint = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
@@ -46,11 +52,14 @@ function toggleShowBaseUrlOverride() {
 function toggleShowLayerFinder() {
     showLayerFinder.value = !showLayerFinder.value
 }
+function toggleShowPrint() {
+    showPrint.value = !showPrint.value
+}
 </script>
 
 <template>
     <div
-        class="debug-tools card border-danger rounded-end-0 me-n1"
+        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1 no-print"
         :class="{ collapsed: !showDebugTool }"
     >
         <div class="position-relative d-flex">
@@ -68,11 +77,28 @@ function toggleShowLayerFinder() {
                 v-show="showDebugTool"
                 class="debug-tools-body"
             >
-                <div class="card-body">
+                <div class="card-body p-1">
                     <div
                         id="debug-tools-menu"
                         class="d-flex gap-2 justify-content-center flex-wrap"
                     >
+                        <DebugViewSelector />
+
+                        <div
+                            v-if="route.name === PRINT_VIEW"
+                            class="d-flex flex-column align-items-center"
+                        >
+                            <button
+                                class="toolbox-button"
+                                type="button"
+                                :class="{ active: showPrint }"
+                                @click="toggleShowPrint"
+                            >
+                                <FontAwesomeIcon :icon="['fas', 'print']" />
+                            </button>
+                            <label class="toolbox-button-label">Print</label>
+                        </div>
+
                         <div class="d-flex flex-column align-items-center">
                             <button
                                 class="toolbox-button"
@@ -152,6 +178,10 @@ function toggleShowLayerFinder() {
         <DebugLayerFinder
             v-if="showLayerFinder"
             @close="toggleShowLayerFinder"
+        />
+        <DebugPrint
+            v-if="showPrint"
+            @close="toggleShowPrint"
         />
     </div>
 </template>

@@ -3,18 +3,19 @@ import { allCoordinateSystems } from '@geoadmin/coordinates'
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { SUPPORTED_LANG } from '@/modules/i18n'
-import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class.js'
+import createBaseUrlOverrideParamConfig from '@/router/storeSync/BaseUrlOverrideParamConfig.class'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
+import PrintConfigParamConfig from '@/router/storeSync/PrintConfig.class'
 import SearchAutoSelectConfig from '@/router/storeSync/SearchAutoSelectConfig.class'
 import SearchParamConfig from '@/router/storeSync/SearchParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import TimeSliderParamConfig from '@/router/storeSync/TimeSliderParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class'
-import { FeatureInfoPositions } from '@/store/modules/ui.store.js'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -169,6 +170,7 @@ const storeSyncConfig = [
         validateUrlInput: null,
     }),
     new TimeSliderParamConfig(),
+    new PrintConfigParamConfig(),
     createBaseUrlOverrideParamConfig({ urlParamName: 'wms_url', baseUrlPropertyName: 'wms' }),
     createBaseUrlOverrideParamConfig({ urlParamName: 'wmts_url', baseUrlPropertyName: 'wmts' }),
     createBaseUrlOverrideParamConfig({ urlParamName: 'api_url', baseUrlPropertyName: 'api3' }),

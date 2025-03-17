@@ -34,10 +34,7 @@ const loadDrawingModule = computed(() => {
 </script>
 
 <template>
-    <div
-        id="map-view"
-        class="no-print"
-    >
+    <div class="view no-print">
         <LoadingBar v-show="showLoadingBar" />
         <MapModule>
             <MenuModule />

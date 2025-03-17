@@ -28,6 +28,7 @@ const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
+const printMode = computed(() => store.state.map.printMode)
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.technicalName)
 const maxResolution = computed(() => wmtsLayerConfig.maxResolution)
@@ -72,6 +73,7 @@ watch(wmtsTimeConfig, () => {
     log.debug('Update wmts dimension', wmtsTimeConfig.value)
     layer.getSource().updateDimensions(wmtsTimeConfig.value.dimensions)
 })
+watch(printMode, () => layer.setSource(createWMTSSourceForProjection()))
 
 function getTransformedXYZUrl() {
     return getWmtsXyzUrl(wmtsLayerConfig, projection.value)
@@ -83,16 +85,14 @@ function getTransformedXYZUrl() {
 /** @returns {WMTSTileGrid} The tile grid system for the wmts source */
 function createTileGridForProjection() {
     const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
-    let resolutions = projection.value.getResolutions()
-    let matrixIds = projection.value.getMatrixIds()
-    if (resolutions.length > maxResolutionIndex) {
-        resolutions = resolutions.slice(0, maxResolutionIndex + 1)
-        matrixIds = matrixIds.slice(0, maxResolutionIndex + 1)
+    let resolutionSteps = projection.value.getResolutionSteps()
+    if (resolutionSteps.length > maxResolutionIndex) {
+        resolutionSteps = resolutionSteps.slice(0, maxResolutionIndex + 1)
     }
     return new WMTSTileGrid({
-        resolutions,
+        resolutions: resolutionSteps.map((step) => step.resolution),
         origin: projection.value.getTileOrigin(),
-        matrixIds,
+        matrixIds: resolutionSteps.map((_, index) => index),
         extent: projection.value.bounds.flatten,
     })
 }
@@ -111,7 +111,13 @@ function createTileGridForProjection() {
  */
 function createWMTSSourceForProjection() {
     log.debug('Create new WMTS source for projection', wmtsSourceConfig.value, wmtsTimeConfig.value)
-    return new WMTSSource({ ...wmtsSourceConfig.value, ...wmtsTimeConfig.value })
+    return new WMTSSource({
+        ...wmtsSourceConfig.value,
+        ...wmtsTimeConfig.value,
+        // loading the next zoom tiles when in print mode
+        // (and standing in a floating zoom level below 0.5. e.g., z=5.2 will load z=6 tiles)
+        zDirection: printMode.value ? -1 : 0,
+    })
 }
 </script>
 

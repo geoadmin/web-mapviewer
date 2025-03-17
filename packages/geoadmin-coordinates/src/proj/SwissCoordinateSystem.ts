@@ -1,6 +1,7 @@
 import { closest, round } from '@geoadmin/numbers'
 
 import {
+    type ResolutionStep,
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
 } from '@/proj/CoordinateSystem'
@@ -75,6 +76,24 @@ export const SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX: number[] = [
     21, // max: 14
 ]
 
+const SWISSTOPO_ZOOM_TO_PRODUCT_SCALE: string[] = [
+    "1:2'500'000", // zoom 0
+    "1:2'500'000", // 1
+    "1:1'000'000", // 2
+    "1:1'000'000", // 3
+    "1:500'000", // 4
+    "1:200'000", // 5
+    "1:100'000", // 6
+    "1:50'000", // 7
+    "1:25'000", // 8
+    "1:25'000", // 9
+    "1:10'000", // 10
+    "1:10'000", // 11
+    "1:10'000", // 12
+    "1:10'000", // 13
+    "1:10'000", // max zoom: 14
+]
+
 const swisstopoZoomLevels: number[] = SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX.map(
     (_, index) => index
 )
@@ -90,8 +109,19 @@ const swisstopoZoomLevels: number[] = SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_M
  * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
  */
 export default class SwissCoordinateSystem extends CustomCoordinateSystem {
-    getResolutions(): number[] {
-        return SWISSTOPO_TILEGRID_RESOLUTIONS
+    getResolutionSteps(): ResolutionStep[] {
+        return SWISSTOPO_TILEGRID_RESOLUTIONS.map((resolution) => {
+            const zoom: number | undefined = LV95_RESOLUTIONS.indexOf(resolution) ?? undefined
+            let label: string | undefined
+            if (zoom) {
+                label = SWISSTOPO_ZOOM_TO_PRODUCT_SCALE[zoom]
+            }
+            return {
+                zoom,
+                label,
+                resolution: resolution,
+            }
+        })
     }
 
     get1_25000ZoomLevel(): number {

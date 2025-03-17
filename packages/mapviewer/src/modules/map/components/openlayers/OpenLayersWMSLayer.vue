@@ -138,7 +138,7 @@ function createSourceForProjection() {
     }
     if (!projection.value.usesMercatorPyramid) {
         source.tileGrid = new TileGrid({
-            resolutions: projection.value.getResolutions(),
+            resolutions: projection.value.getResolutionSteps().map((step) => step.resolution),
             extent: projection.value.bounds.flatten,
             origin: projection.value.getTileOrigin(),
             tileSize: WMS_TILE_SIZE,

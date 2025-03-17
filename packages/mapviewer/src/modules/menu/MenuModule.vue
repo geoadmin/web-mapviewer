@@ -4,7 +4,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
@@ -34,21 +33,11 @@ function toggleMenu() {
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu position-absolute w-100" />
         <transition name="fade-in-out">
-            <BlackBackdrop
-                v-if="isPhoneMode && isMenuShown"
-                @click="toggleMenu"
-            />
+            <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
         <!-- NOTE: Below we need to use v-show and not v-if otherwise when the user toggle the full-screen while
          editing a Report a problem window he will loose his content -->
-        <HeaderWithSearch
-            v-show="isHeaderShown"
-            class="header"
-        />
-        <DebugToolbar
-            v-if="hasDevSiteWarning"
-            class="position-absolute end-0 debug-toolbar"
-        />
+        <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
