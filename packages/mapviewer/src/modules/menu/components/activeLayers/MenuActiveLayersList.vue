@@ -1,10 +1,11 @@
 <script setup>
+import log from '@geoadmin/log'
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
 import Sortable from 'sortablejs'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
@@ -46,7 +47,28 @@ onMounted(() => {
         onEnd: function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
-            onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
+            if (
+                newIndex >= 0 &&
+                newIndex < activeLayers.value.length &&
+                oldIndex >= 0 &&
+                oldIndex < activeLayers.value.length
+            ) {
+                nextTick(() => {
+                    // PB-1456: fixing an issue with drag&drop left-over by removing any element still tagged by SortableJS
+                    // (having a custom attribute draggable=false)
+                    const nonDraggableChildren =
+                        activeLayersList.value.querySelectorAll('[draggable="false"]')
+                    if (nonDraggableChildren.length > 0) {
+                        nonDraggableChildren.forEach((child) => child.remove())
+                        log.debug('Non-draggable children removed:', nonDraggableChildren)
+                    } else {
+                        log.debug('No non-draggable children found')
+                    }
+                    onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
+                })
+            } else {
+                log.warn('Invalid index for layer move', { newIndex, oldIndex })
+            }
         },
     })
 })
