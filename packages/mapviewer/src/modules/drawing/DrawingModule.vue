@@ -65,6 +65,8 @@ const selectedLineFeature = computed(() => {
 const showAddVertexButton = computed(() => {
     return store.state.drawing.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
 })
+const editMode = computed(() => store.state.drawing.editingMode)
+const currentDrawingMode = computed(() => store.state.drawing.mode)
 
 const hasKml = computed(() => {
     if (online.value) {
@@ -225,7 +227,10 @@ function createSourceForProjection() {
     })
 }
 function removeLastPoint() {
-    drawingInteractions.value?.removeLastPoint()
+    // only deleting the last point by right-click when we are drawing a feature (or editing it)
+    if (currentDrawingMode.value !== null || editMode.value === EditMode.EXTEND) {
+        drawingInteractions.value?.removeLastPoint()
+    }
 }
 
 function removeLastPointOnRightClick(_event) {
