@@ -85,7 +85,7 @@ function createFeaturesForEachLayerExtent() {
         )
     }
     allLayers.value
-        .filter((layer) => layer instanceof ExternalLayer && layer.extent)
+        .filter((layer) => layer.isExternal && layer.extent)
         .forEach((layer) => {
             extents.push(
                 new Feature({

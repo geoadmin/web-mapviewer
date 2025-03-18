@@ -4,7 +4,6 @@ import { isNumber, randomIntBetween } from '@geoadmin/numbers'
 import { cloneDeep } from 'lodash'
 import proj4 from 'proj4'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 registerProj4(proj4)
@@ -20,6 +19,8 @@ const mockExternalWms1 = {
     isExternal: true,
     type: LayerType.WMS,
     visible: true,
+    wmsVersion: '1.3.0',
+    opacity: 1,
 }
 const mockExternalWms2 = {
     id: 'Periodic Tracking, with | comma & @ ; äö',
@@ -30,6 +31,7 @@ const mockExternalWms2 = {
     isExternal: true,
     type: LayerType.WMS,
     visible: true,
+    wmsVersion: '1.3.0',
 }
 const mockExternalWms3 = {
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
@@ -39,6 +41,8 @@ const mockExternalWms3 = {
     isLoading: true,
     isExternal: true,
     type: LayerType.WMS,
+    wmsVersion: '1.3.0',
+    opacity: 1,
 }
 const mockExternalWms4 = {
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
@@ -49,6 +53,7 @@ const mockExternalWms4 = {
     isLoading: true,
     isExternal: true,
     type: LayerType.WMS,
+    wmsVersion: '1.3.0',
 }
 
 Cypress.Commands.add('getExternalWmsMockConfig', () => [
@@ -66,6 +71,7 @@ const mockExternalWmts1 = {
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
     isLoading: true,
     visible: true,
+    opacity: 1.0,
 }
 
 const mockExternalWmts2 = {
@@ -76,6 +82,7 @@ const mockExternalWmts2 = {
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
     isLoading: true,
     visible: true,
+    opacity: 1.0,
 }
 
 const mockExternalWmts3 = {
@@ -86,6 +93,7 @@ const mockExternalWmts3 = {
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
     isLoading: true,
     visible: true,
+    opacity: 1.0,
 }
 
 const mockExternalWmts4 = {
@@ -96,6 +104,7 @@ const mockExternalWmts4 = {
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
     isLoading: true,
     visible: true,
+    opacity: 1.0,
 }
 
 Cypress.Commands.add('getExternalWmtsMockConfig', () => [

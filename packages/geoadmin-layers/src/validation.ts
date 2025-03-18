@@ -92,7 +92,7 @@ export class CapabilitiesError extends Error {
 
     constructor(message: string, key?: string) {
         super(message)
-        this.key = key
         this.name = 'CapabilitiesError'
+        this.key = key
     }
 }

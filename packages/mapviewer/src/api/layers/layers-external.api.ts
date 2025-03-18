@@ -7,7 +7,6 @@ import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000
 
-
 /**
  * Sets the WMS GetCapabilities url parameters
  *
@@ -62,7 +61,7 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
  * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
  */
 export async function readWmsCapabilities(baseUrl: string, language: string | null = null) {
-    const url = setWmsGetCapParams(new URL(baseUrl), (language || '')).toString()
+    const url = setWmsGetCapParams(new URL(baseUrl), language || '').toString()
     log.debug(`Read WMTS Get Capabilities: ${url}`)
     let response = null
     try {
