@@ -1,9 +1,13 @@
-// @ts-nocheck
 import { allCoordinateSystems, CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'
+
+export const WMTSEncodingTypes = {
+    KVP: 'KVP',
+    REST: 'REST',
+}
 
 import {
     LayerType,
@@ -156,7 +160,7 @@ export class externalWMTSCapabilitiesParser {
             return null
         }
 
-        return this._getExternalLayerObject(
+        const externalLayerObject = this._getExternalLayerObject(
             layer,
             projection,
             opacity,
@@ -164,6 +168,8 @@ export class externalWMTSCapabilitiesParser {
             ignoreError,
             currentYear
         )
+
+        return externalLayerObject
     }
 
     /**
@@ -213,6 +219,7 @@ export class externalWMTSCapabilitiesParser {
         const attributes = this._getLayerAttributes(layer, projection, ignoreError)
 
         if (!attributes) {
+            log.error(`No attributes found for layer ${layer.Identifier}`)
             return null
         }
 

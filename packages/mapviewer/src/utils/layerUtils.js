@@ -53,10 +53,7 @@ import { normalizeExtent } from '@/utils/extentUtils'
  */
 export function getTimestampFromConfig(layer) {
     let timestamp = layer.timeConfig?.currentTimestamp ?? null
-    if (
-        timestamp === null &&
-        (layer instanceof ExternalWMTSLayer || layer.type === LayerType.WMTS)
-    ) {
+    if (timestamp === null && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
         timestamp = 'current'
     }
