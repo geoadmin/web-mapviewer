@@ -502,7 +502,7 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('not.be.visible')
     })
 
-    it('handle swisssearch and crosshair together correctly', () => {
+    it.only('handle swisssearch and crosshair together correctly', () => {
         const latitude = 46.3163
         const longitude = 7.6347
         const swisssearch = `${latitude},${longitude}`
@@ -515,10 +515,6 @@ describe('Test the search bar result handling', () => {
             longitude,
             latitude,
         ])
-
-        // For some reason, the center is modified when the crosshair is set, but only in the test
-        const newX = 2660013.5
-        const newY = 1185172
 
         // =========================================================================== //
         cy.log('Legacy parser / router (without #map part in the URL)')
@@ -552,17 +548,17 @@ describe('Test the search bar result handling', () => {
         )
         // Check the query and the center of the map
         cy.readStoreValue('state.search.query').should('eq', swisssearch)
-        cy.readStoreValue('state.position.center[0]').should('be.approximately', newX, 0.1)
-        cy.readStoreValue('state.position.center[1]').should('be.approximately', newY, 0.1)
+        cy.readStoreValue('state.position.center[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.position.center[1]').should('be.approximately', y, 0.1)
         // Check the location of pinnedLocation
-        // cy.readStoreValue('state.map.pinnedLocation[0]').should('be.approximately', x, 0.1)
-        // cy.readStoreValue('state.map.pinnedLocation[1]').should('be.approximately', y, 0.1)
+        cy.readStoreValue('state.map.pinnedLocation[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.map.pinnedLocation[1]').should('be.approximately', y, 0.1)
         // Check the crosshair position
         cy.readStoreValue('state.position.crossHair').should('eq', CrossHairs.cross)
-        cy.readStoreValue('state.position.crossHairPosition[0]').should('be.approximately', newX, 0.1)
-        cy.readStoreValue('state.position.crossHairPosition[1]').should('be.approximately', newY, 0.1)
+        cy.readStoreValue('state.position.crossHairPosition[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.position.crossHairPosition[1]').should('be.approximately', y, 0.1)
 
-        // =========================================================================== //
+        // // =========================================================================== //
         cy.log('Current parser / router (with #map part in the URL)')
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch only')
@@ -595,15 +591,15 @@ describe('Test the search bar result handling', () => {
 
         // Check the query and the center of the map
         cy.readStoreValue('state.search.query').should('eq', swisssearch)
-        cy.readStoreValue('state.position.center[0]').should('be.approximately', newX, 0.1)
-        cy.readStoreValue('state.position.center[1]').should('be.approximately', newY, 0.1)
+        cy.readStoreValue('state.position.center[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.position.center[1]').should('be.approximately', y, 0.1)
         // Check the location of pinnedLocation
         cy.readStoreValue('state.map.pinnedLocation[0]').should('be.approximately', x, 0.1)
         cy.readStoreValue('state.map.pinnedLocation[1]').should('be.approximately', y, 0.1)
         // Check the crosshair position
         cy.readStoreValue('state.position.crossHair').should('eq', CrossHairs.cross)
-        cy.readStoreValue('state.position.crossHairPosition[0]').should('be.approximately', newX, 0.1)
-        cy.readStoreValue('state.position.crossHairPosition[1]').should('be.approximately', newY, 0.1)
+        cy.readStoreValue('state.position.crossHairPosition[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.position.crossHairPosition[1]').should('be.approximately', y, 0.1)
 
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch with crosshair and crosshair location')
@@ -617,8 +613,8 @@ describe('Test the search bar result handling', () => {
 
         // Check the query and the center of the map
         cy.readStoreValue('state.search.query').should('eq', swisssearch)
-        cy.readStoreValue('state.position.center[0]').should('be.approximately', newX, 0.1)
-        cy.readStoreValue('state.position.center[1]').should('be.approximately', newY, 0.1)
+        cy.readStoreValue('state.position.center[0]').should('be.approximately', x, 0.1)
+        cy.readStoreValue('state.position.center[1]').should('be.approximately', y, 0.1)
         // Check the location of pinnedLocation
         cy.readStoreValue('state.map.pinnedLocation[0]').should('be.approximately', x, 0.1)
         cy.readStoreValue('state.map.pinnedLocation[1]').should('be.approximately', y, 0.1)

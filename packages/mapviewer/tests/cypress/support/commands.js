@@ -85,7 +85,7 @@ Cypress.Commands.add(
             queryParams.lang = 'en'
         }
         if (
-            !['lat', 'lon', 'x', 'y', 'center', '3d'].some((unwantedKey) =>
+            !['lat', 'lon', 'x', 'y', 'center', '3d', 'swisssearch'].some((unwantedKey) =>
                 Object.keys(queryParams).includes(unwantedKey)
             )
         ) {
