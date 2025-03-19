@@ -45,9 +45,49 @@ function checkDescendantOf(selector, message) {
         return $element
     }
 }
+const acceptedDelta = 0.1
+const checkLocation = (expected, result) => {
+    expect(result).to.be.an('Array')
+    expect(result.length).to.eq(2)
+    expect(result[0]).to.approximately(expected[0], acceptedDelta)
+    expect(result[1]).to.approximately(expected[1], acceptedDelta)
+}
+
+function testQueryPositionCrosshairStore({
+    searchQuery,
+    expectedCenter,
+    expectedPinnedLocation,
+    expectedCrosshair = null,
+    expectedCrosshairPosition = null,
+}) {
+    // check the query
+    cy.readStoreValue('state.search.query').should('eq', searchQuery)
+    // check the center of the map
+    cy.readStoreValue('state.position.center').should((positionCenter) =>
+        checkLocation(expectedCenter, positionCenter)
+    )
+    // check the location of pinnedLocation
+    cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
+        checkLocation(expectedPinnedLocation, pinnedLocation)
+    )
+    // check the crosshair
+    if (expectedCrosshair !== null) {
+        cy.readStoreValue('state.position.crossHair').should('eq', expectedCrosshair)
+    } else {
+        cy.readStoreValue('state.position.crossHair').should('be.null')
+    }
+    // check the crosshair position
+    if (expectedCrosshairPosition !== null) {
+        cy.readStoreValue('state.position.crossHairPosition').should((crossHairPosition) =>
+            checkLocation(expectedCrosshairPosition, crossHairPosition)
+        )
+    } else {
+        cy.readStoreValue('state.position.crossHairPosition').should('be.null')
+    }
+}
 
 describe('Test the search bar result handling', () => {
-    const acceptedDelta = 0.1
+
     const expectedLocationLabel = '<b>Test location</b>'
     const expectedLayerLabel = '<b>Test layer</b>'
     const expectedLegendContent = '<div>Test</div>'
@@ -134,12 +174,7 @@ describe('Test the search bar result handling', () => {
             ) - 1
         )
     }
-    const checkLocation = (expected, result) => {
-        expect(result).to.be.an('Array')
-        expect(result.length).to.eq(2)
-        expect(result[0]).to.approximately(expected[0], acceptedDelta)
-        expect(result[1]).to.approximately(expected[1], acceptedDelta)
-    }
+
 
     beforeEach(() => {
         // mocking up all possible search backend response
@@ -502,40 +537,9 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('not.be.visible')
     })
 
-    function testQueryPositionCrosshairStore({
-        searchQuery,
-        expectedCenter,
-        expectedPinnedLocation,
-        expectedCrosshair = null,
-        expectedCrosshairPosition = null,
-    }) {
-        // check the query
-        cy.readStoreValue('state.search.query').should('eq', searchQuery)
-        // check the center of the map
-        cy.readStoreValue('state.position.center').should((positionCenter) =>
-            checkLocation(expectedCenter, positionCenter)
-        )
-        // check the location of pinnedLocation
-        cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
-            checkLocation(expectedPinnedLocation, pinnedLocation)
-        )
-        // check the crosshair
-        if (expectedCrosshair !== null) {
-            cy.readStoreValue('state.position.crossHair').should('eq', expectedCrosshair)
-        } else {
-            cy.readStoreValue('state.position.crossHair').should('be.null')
-        }
-        // check the crosshair position
-        if (expectedCrosshairPosition !== null) {
-            cy.readStoreValue('state.position.crossHairPosition').should((crossHairPosition) =>
-                checkLocation(expectedCrosshairPosition, crossHairPosition)
-            )
-        } else {
-            cy.readStoreValue('state.position.crossHairPosition').should('be.null')
-        }
-    }
 
-    it.only('handle swisssearch and crosshair together correctly', () => {
+
+    it('handle swisssearch and crosshair together correctly', () => {
         const latitude = 46.3163
         const longitude = 7.6347
         const swisssearchCoordinate = `${latitude},${longitude}`
@@ -634,57 +638,72 @@ describe('Test the search bar result handling', () => {
             expectedCrosshairPosition: [crossHairX, crossHairY],
         })
 
-        // // --------------------------------------------------------------------------- //
-        //
-        // // This is a location that is a valid coordinate but also will return a location on the search service
-        // const latitudeLocation = 46.5057
-        // const longitudeLocation = 6.6278
-        // const swisssearchCoordinateLocation = `${latitudeLocation},${longitudeLocation}`
-        // const [xLocation, yLocation] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
-        //     longitudeLocation,
-        //     latitudeLocation,
-        // ])
-        // cy.mockupBackendResponse(
-        //     '/rest/services/ech/SearchServer*searchText=46.5057,6.6278*?type=locations*',
-        //     locationResponse,
-        //     'search-locations-bug'
-        // )
-        // cy.intercept(
-        //     '**/rest/services/ech/SearchServer*searchText=46.5057,6.6278*?type=locations*',
-        //     {
-        //         body: {
-        //             results: [
-        //                 {
-        //                     attrs: {
-        //                         detail: 'dorfstrasse 46 5057 reitnau 4281 reitnau ch ag',
-        //                         label: 'Dorfstrasse 46 <b>5057 Reitnau</b>',
-        //                         lat: 47.247169494628906,
-        //                         lon: 8.048954963684082,
-        //                         x: 1233096.375,
-        //                         y: 2646205.0,
-        //                     },
-        //                 },
-        //             ],
-        //         },
-        //     }
-        // ).as('search-locations-bug')
+    })
 
+})
 
-        // cy.log('Swisssearch that also valid location with crosshair only')
-        // cy.goToMapView(
-        //     {
-        //         swisssearch: swisssearchCoordinateLocation,
-        //         crosshair: `${CrossHairs.cross}`,
-        //         swisssearch_autoselect: 'true',
-        //     },
-        //     true
-        // )
-        // testQueryPositionCrosshairStore({
-        //     searchQuery: swisssearchCoordinate,
-        //     expectedCenter: [xLocation, yLocation],
-        //     expectedPinnedLocation: [xLocation, yLocation],
-        //     expectedCrosshair: CrossHairs.cross,
-        //     expectedCrosshairPosition: [xLocation, yLocation],
-        // })
+describe('Test the swisssearch that happens to be valid coordinate and valid locations', () => {
+    it.skip('handle swisssearch and crosshair together correctly with a location that is also a valid coordinate', () => {
+        // --------------------------------------------------------------------------- //
+        // This is a location that is a valid coordinate but also will return a location on the search service
+        const latitudeLocation = 46.5057
+        const longitudeLocation = 6.6278
+        const swisssearchCoordinateLocation = `${latitudeLocation},${longitudeLocation}`
+        const [xLocation, yLocation] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+            longitudeLocation,
+            latitudeLocation,
+        ])
+        const response = {
+            results: [
+                {
+                    attrs: {
+                        detail: 'dorfstrasse 46 5057 reitnau 4281 reitnau ch ag',
+                        label: 'Dorfstrasse 46 <b>5057 Reitnau</b>',
+                        lat: 47.247169494628906,
+                        lon: 8.048954963684082,
+                        x: 1233096.375,
+                        y: 2646205.0,
+                    },
+                },
+            ],
+        }
+        cy.mockupBackendResponse(
+            `/rest/services/ech/SearchServer*searchText=${latitudeLocation},${longitudeLocation}*?type=locations*`,
+            response,
+            'search-locations-bug'
+        )
+
+        cy.log('Swisssearch that also valid location with crosshair only')
+        // cy.goToMapView() // go to map view first to load the map, still no idea why
+        cy.goToMapView(
+            {
+                swisssearch: swisssearchCoordinateLocation,
+                crosshair: `${CrossHairs.marker}`,
+                // swisssearch_autoselect: 'true',
+            },
+            true
+        )
+        // Wait for the intercept to be called
+        // Just to make sure the request is done
+        cy.wait('@search-locations-bug').then((interception) => {
+            // Log the intercepted request and response for debugging
+            cy.log('Intercepted Request:', interception.request);
+            cy.log('Intercepted Response:', interception.response);
+
+            // Make assertions on the intercepted request
+            expect(interception.request.url).to.include('searchText=46.5057,6.6278');
+            expect(interception.request.method).to.equal('GET');
+
+            // Make assertions on the intercepted response
+            expect(interception.response.body.results).to.have.length(1);
+            expect(interception.response.body.results[0].attrs.detail).to.equal('dorfstrasse 46 5057 reitnau 4281 reitnau ch ag');
+            testQueryPositionCrosshairStore({
+                searchQuery: swisssearchCoordinateLocation,
+                expectedCenter: [xLocation, yLocation],
+                expectedPinnedLocation: [xLocation, yLocation],
+                expectedCrosshair: CrossHairs.cross,
+                expectedCrosshairPosition: [xLocation, yLocation],
+            })
+        })
     })
 })
