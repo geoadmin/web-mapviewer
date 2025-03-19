@@ -77,7 +77,7 @@ const actions = {
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
-        console.log('setSearchQuery', query, originUrlParam, shouldCenter, dispatcher)
+        log.debug('setSearchQuery', query, originUrlParam, shouldCenter, dispatcher)
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
@@ -100,7 +100,7 @@ const actions = {
             // for example: when we are sharing a position with a search query. In those situation, the
             // 'zoom to extent' should be avoided. We center by default.
             if (extractedCoordinate && shouldCenter) {
-                console.log('valid extractedCoordinate', extractedCoordinate,shouldCenter)
+                log.debug('valid extractedCoordinate', extractedCoordinate,shouldCenter)
                 let coordinates = [...extractedCoordinate.coordinate]
                 if (extractedCoordinate.coordinateSystem !== currentProjection) {
                     // special case for LV03 input, we can't use proj4 to transform them into
@@ -108,14 +108,14 @@ const actions = {
                     // So we pass through a LV95 reframe (done by a backend service that knows all deformations between the two)
                     // and then go to the wanted coordinate system
                     if (extractedCoordinate.coordinateSystem === LV03) {
-                        console.log('extractedCoordinate.coordinateSystem === LV03')
+                        log.debug('extractedCoordinate.coordinateSystem === LV03')
                         coordinates = await reframe({
                             inputProjection: LV03,
                             inputCoordinates: coordinates,
                             outputProjection: currentProjection,
                         })
                     } else {
-                        console.log('extractedCoordinate.coordinateSystem != LV03')
+                        log.debug('extractedCoordinate.coordinateSystem != LV03')
                         coordinates = reprojectAndRound(
                             extractedCoordinate.coordinateSystem,
                             currentProjection,
@@ -166,7 +166,7 @@ const actions = {
                     dispatcher: dispatcherWhat3words,
                 })
             } else {
-                console.log('go to else')
+                log.debug('go to else')
                 try {
                     results = await search({
                         outputProjection: currentProjection,
