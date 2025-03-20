@@ -1,17 +1,20 @@
 <script setup>
+import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
-const { showProviders, providers } = defineProps({
+const { showProviders, groupedProviders } = defineProps({
     showProviders: {
         type: Boolean,
         default: false,
     },
-    providers: {
-        type: Array /* Array of Provider */,
+    groupedProviders: {
+        type: Object /* Object of grouped providers by base URL */,
         default() {
-            return []
+            return {}
         },
     },
 })
@@ -19,6 +22,11 @@ const { showProviders, providers } = defineProps({
 const emit = defineEmits(['chooseProvider', 'hide'])
 
 const providerList = useTemplateRef('providerList')
+const expandedGroups = ref({})
+
+function toggleGroup(baseUrl) {
+    expandedGroups.value[baseUrl] = !expandedGroups.value[baseUrl]
+}
 
 function goToPrevious(currentKey) {
     if (currentKey === 0) {
@@ -58,25 +66,43 @@ defineExpose({ goToFirst })
             data-cy="import-provider-list"
         >
             <div
-                v-for="(provider, key) in providers"
-                :key="provider"
-                :tabindex="key"
-                class="providers-list-item px-2 py-1 text-nowrap"
-                @keydown.up.prevent="goToPrevious(key)"
-                @keydown.down.prevent="() => goToNext(key)"
-                @keydown.home.prevent="goToFirst"
-                @keydown.end.prevent="goToLast"
-                @keydown.esc.prevent="emit('hide')"
-                @keydown.enter.prevent="emit('chooseProvider', provider.url)"
-                @click="emit('chooseProvider', provider.url)"
+                v-for="(providers, baseUrl) in groupedProviders"
+                :key="baseUrl"
+                class="providers-group"
             >
-                <TextSearchMarker
-                    :text="provider.htmlDisplay"
-                    :search="provider.emphasize"
-                />
+                <div
+                    class="providers-group-header px-2 py-1 text-nowrap"
+                    @click="toggleGroup(baseUrl)"
+                >
+                    <FontAwesomeIcon :icon="expandedGroups[baseUrl] ? faCaretDown : faCaretRight" />
+                    <span class="ms-1">{{ baseUrl }}</span>
+                </div>
+                <div
+                    v-show="expandedGroups[baseUrl]"
+                    class="providers-group-items ms-3"
+                >
+                    <div
+                        v-for="(provider, key) in providers"
+                        :key="provider.url"
+                        :tabindex="key"
+                        class="providers-list-item px-2 py-1 text-nowrap"
+                        @keydown.up.prevent="goToPrevious(key)"
+                        @keydown.down.prevent="() => goToNext(key)"
+                        @keydown.home.prevent="goToFirst"
+                        @keydown.end.prevent="goToLast"
+                        @keydown.esc.prevent="emit('hide')"
+                        @keydown.enter.prevent="emit('chooseProvider', provider.url)"
+                        @click="emit('chooseProvider', provider.url)"
+                    >
+                        <TextSearchMarker
+                            :text="provider.htmlDisplay"
+                            :search="provider.emphasize"
+                        />
+                    </div>
+                </div>
             </div>
             <div
-                v-show="providers.length === 0"
+                v-show="Object.keys(groupedProviders).length === 0"
                 class="providers-list-empty px-2 py-1"
             >
                 <span>-</span>
@@ -101,6 +127,15 @@ defineExpose({ goToFirst })
         .providers-list-item:focus,
         .providers-list-item:hover {
             background-color: $list-item-hover-bg-color;
+        }
+
+        .providers-group-header {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .providers-group-items {
+            padding-left: 1rem;
         }
     }
 }
