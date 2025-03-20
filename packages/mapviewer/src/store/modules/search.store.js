@@ -77,7 +77,6 @@ const actions = {
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
-        log.debug('setSearchQuery', query, originUrlParam, dispatcher)
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
@@ -97,7 +96,6 @@ const actions = {
             }
 
             if (extractedCoordinate) {
-                log.debug('valid extractedCoordinate', extractedCoordinate)
                 let coordinates = [...extractedCoordinate.coordinate]
                 if (extractedCoordinate.coordinateSystem !== currentProjection) {
                     // special case for LV03 input, we can't use proj4 to transform them into
@@ -105,14 +103,12 @@ const actions = {
                     // So we pass through a LV95 reframe (done by a backend service that knows all deformations between the two)
                     // and then go to the wanted coordinate system
                     if (extractedCoordinate.coordinateSystem === LV03) {
-                        log.debug('extractedCoordinate.coordinateSystem === LV03')
                         coordinates = await reframe({
                             inputProjection: LV03,
                             inputCoordinates: coordinates,
                             outputProjection: currentProjection,
                         })
                     } else {
-                        log.debug('extractedCoordinate.coordinateSystem != LV03')
                         coordinates = reprojectAndRound(
                             extractedCoordinate.coordinateSystem,
                             currentProjection,
@@ -163,7 +159,6 @@ const actions = {
                     dispatcher: dispatcherWhat3words,
                 })
             } else {
-                log.debug('go to else')
                 try {
                     results = await search({
                         outputProjection: currentProjection,

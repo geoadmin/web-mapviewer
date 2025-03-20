@@ -1,5 +1,3 @@
-import log from '@geoadmin/log'
-
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 
 /**
@@ -21,7 +19,6 @@ const redoSearchWhenNeeded = (store) => {
     store.subscribe((mutation) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
             // we redispatch the same query to the search store (the lang will be picked by the search store)
-            log.debug('lang changed, redoing search')
             redoSearch()
         } else if (
             mutation.type === 'setLayers' &&
