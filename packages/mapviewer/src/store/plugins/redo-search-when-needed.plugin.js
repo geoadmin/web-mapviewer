@@ -1,7 +1,6 @@
 import log from '@geoadmin/log'
 
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
-import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 
 /**
  * Redo the search results on lang change if the search query is defined
@@ -11,15 +10,8 @@ import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 const redoSearchWhenNeeded = (store) => {
     function redoSearch() {
         if (store.state.search.query.length > 2) {
-            let shouldCenter = store.state.position.crossHair === null
-            const extractedCoordinate = coordinateFromString(store.state.search.query)
-            if (extractedCoordinate) {
-                shouldCenter = true
-            }
             store.dispatch('setSearchQuery', {
                 query: store.state.search.query,
-                // we don't center on the search query when redoing a search if there is a crosshair
-                shouldCenter: shouldCenter,
                 originUrlParam: true, // necessary to select the first result if there is only one else it will not be because this redo search is done every time the page loaded
                 dispatcher: 'redoSearchWhenNeeded',
             })
