@@ -73,11 +73,11 @@ const actions = {
      */
     setSearchQuery: async (
         { commit, rootState, dispatch, getters },
-        { query = '', originUrlParam = false, shouldCenter = true, dispatcher }
+        { query = '', originUrlParam = false, dispatcher }
     ) => {
         let results = []
         commit('setSearchQuery', { query, dispatcher })
-        log.debug('setSearchQuery', query, originUrlParam, shouldCenter, dispatcher)
+        log.debug('setSearchQuery', query, originUrlParam, dispatcher)
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
@@ -96,11 +96,8 @@ const actions = {
                 }
             }
 
-            // there are situations where we don't want to center on the features or coordinates searched.
-            // for example: when we are sharing a position with a search query. In those situation, the
-            // 'zoom to extent' should be avoided. We center by default.
-            if (extractedCoordinate && shouldCenter) {
-                log.debug('valid extractedCoordinate', extractedCoordinate,shouldCenter)
+            if (extractedCoordinate) {
+                log.debug('valid extractedCoordinate', extractedCoordinate)
                 let coordinates = [...extractedCoordinate.coordinate]
                 if (extractedCoordinate.coordinateSystem !== currentProjection) {
                     // special case for LV03 input, we can't use proj4 to transform them into
@@ -142,7 +139,7 @@ const actions = {
                     })
                 }
                 dispatch('setPinnedLocation', { coordinates, dispatcher: dispatcherCoordinate })
-            } else if (what3wordLocation && shouldCenter) {
+            } else if (what3wordLocation) {
                 const dispatcherWhat3words = `${dispatcher}/search.store/setSearchQuery/what3words`
                 dispatch('setCenter', {
                     center: what3wordLocation,
