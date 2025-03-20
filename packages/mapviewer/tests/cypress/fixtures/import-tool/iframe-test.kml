@@ -8,6 +8,8 @@
 test title
 <![CDATA[
       <p>Check out this <a href="http://evil.com/malware.exe">https://www.openstreetmap.org</a> for more info.</p>
+      <p>Phone: <a href="tel:+1234567890">+1234567890</a> </p>
+      <p>SMS: <a href="sms:+1234567890">+1234567890</a> </p>
       <iframe
             id="inlineFrameExample"
             title="Inline Frame Example"
@@ -18,12 +20,13 @@ test title
 ]]>
                   </name>
                   <description>
+
 test description
 <![CDATA[
-      <a href="javascript:alert('Hacked!')">Click me</a>
-      <p>Check out this <a href="https://www.openstreetmap.org">https://www.openstreetmap.org</a> for more info.</p>
-      <iframe id="inlineFrameExample" title="Inline Frame Example" width="300" height="200" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
-      </iframe>
+<a href="javascript:alert('Hacked!')">Click me</a> <br>
+<p>Check out this <a href="https://www.openstreetmap.org">https://www.openstreetmap.org</a> for more info.</p>
+<iframe id="inlineFrameExample" title="Inline Frame Example" width="300" height="200" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
+</iframe>
 ]]>
                   </description>
                   <Style>
