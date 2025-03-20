@@ -27,6 +27,7 @@
     "dependencies": {
         "@geoadmin/coordinates": "workspace:*",
         "@geoadmin/log": "workspace:*",
+        "@geoadmin/numbers": "workspace:^",
         "@types/openlayers": "catalog:",
         "ol": "catalog:",
         "proj4": "catalog:"

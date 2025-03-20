@@ -1,6 +1,11 @@
+import type { Options } from 'ol/source/WMTS'
+
 import { CoordinateSystem } from '@geoadmin/coordinates'
 
+import type { LayerTimeConfig } from '@/timeConfig'
 import type { ErrorMessage } from '@/validation'
+
+export const DEFAULT_OPACITY = 1.0
 
 export enum LayerType {
     WMTS = 'WMTS',
@@ -19,18 +24,11 @@ export interface LayerAttribution {
     url: string
 }
 
-export interface LayerTimeConfig {
-    timeEntries: LayerTimeConfigEntry[]
-    behaviour: 'last' | 'all' | 'current' | number | null
-    years?: number[]
-    currentTimeEntry?: number[]
-    currentTimestamp?: string
-    currentYear?: string | number
-}
-
-export interface LayerTimeConfigEntry {
-    timestamp: string
-    year: string | null
+export interface LayerLegend {
+    url: string
+    format: string
+    width?: number
+    height?: number
 }
 
 /** @interface Layer */
@@ -38,23 +36,22 @@ export interface Layer {
     /** Name of this layer in the current lang */
     name: string
     /**
-     * The unique ID of this layer that will be used in the URL to identify it (and also in subsequent
-     * backend services for GeoAdmin layers)
+     * The unique ID of this layer that will be used in the URL to identify it (and also in
+     * subsequent backend services for GeoAdmin layers)
      */
     readonly id: string
     /** The layer type */
     readonly type: LayerType
     /**
-     * What's the backend base URL to use when requesting tiles/image for this layer, will be used to
-     * construct the URL of this layer later on
+     * What's the backend base URL to use when requesting tiles/image for this layer, will be used
+     * to construct the URL of this layer later on
      */
     readonly baseUrl?: string /* can be left out because some don't have that? */
     /**
      * Flag telling if the base URL must always have a trailing slash. It might be sometime the case
-     * that this is unwanted (i.e. for an external WMS URL already built past the point of URL params,
-     * a trailing slash would render this URL invalid). Default is `false`
+     * that this is unwanted (i.e. for an external WMS URL already built past the point of URL
+     * params, a trailing slash would render this URL invalid). Default is `false`
      */
-    // TODO this is actually only used in the constructor but not saved to the object!
     // readonly ensureTrailingSlashInBaseUrl: boolean
     /** Value from 0.0 to 1.0 telling with which opacity this layer should be shown on the map. */
     opacity: number
@@ -73,8 +70,7 @@ export interface Layer {
     /** Set to true if some parts of the layer (e.g. metadata) are still loading */
     isLoading: boolean
     /** Time series config */
-    /* TODO migrate the layer time config */
-    timeConfig?: any
+    timeConfig?: LayerTimeConfig
     /**
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.
@@ -109,10 +105,10 @@ export interface GeoAdminAPILayer extends Layer {
     format: 'png' | 'jpeg'
     /**
      * The ID/name to use when requesting the WMS backend, this might be different than id, and many
-     * layers (with different id) can in fact request the same layer, through the same technical name,
-     * in the end)
+     * layers (with different id) can in fact request the same layer, through the same technical
+     * name, in the end)
      */
-    technicalName: string
+    technicalName?: string
     /**
      * The layer ID to be used as substitute for this layer when we are showing the 3D map. Will be
      * using the same layer if this is set to null.
@@ -128,7 +124,6 @@ export interface GeoAdminAPILayer extends Layer {
  * @interface GeoAdminWmsLayer
  */
 export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
-    isExternal: false
     /**
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
      * if unset this layer will be a considered a single tile WMS.
@@ -199,20 +194,41 @@ export interface TileMatrixSet {
     tileMatrix: any
 }
 
-export type LayerExtent = [[number, number], [number, number]]
+export type BoundingBox = {
+    lowerCorner?: [number, number]
+    upperCorner?: [number, number]
+    extent?: [number, number, number, number]
+    crs?: string
+    dimensions?: number
+}
+
+export type LayerExtent =
+    | {
+          crs: string
+          dimensions: any
+      }[][]
+    | number[][]
+    | BoundingBox[][]
+    | undefined
+
+export enum WMTSEncodingType {
+    KVP = 'KVP',
+    REST = 'REST',
+}
 
 export interface ExternalWMTSLayer extends Layer {
-    abstract: string
+    abstract?: string
     extent?: LayerExtent
-    legends: any[]
-    availableProjections: CoordinateSystem[]
-    options: any[]
-    getTileEncoding: 'REST'
+    legends?: LayerLegend[]
+    availableProjections?: CoordinateSystem[]
+    options?: Options
+    getTileEncoding: WMTSEncodingType
     urlTemplate: string
-    style: string
-    tileMatrixSets: TileMatrixSet[]
-    dimensions: WMTSDimension[]
-    currentYear: number
+    style?: string
+    tileMatrixSets?: TileMatrixSet[]
+    dimensions?: WMTSDimension[]
+    currentYear?: number
+    type: LayerType.WMTS
 }
 
 export interface ExternalWMSLayer extends Layer {}

@@ -1,6 +1,6 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
-import { getTopicForIdentifyAndTooltipRequests } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
@@ -143,7 +143,7 @@ export async function identifyOnGeomAdminLayer({
     }
     const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
-        `${getApi3BaseUrl()}rest/services/${getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/identify`,
+        `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/identify`,
         {
             // params described as https://api3.geo.admin.ch/services/sdiservices.html#identify-features
             params: {
@@ -605,7 +605,7 @@ export const identify = (config) => {
  * @returns {String}
  */
 function generateFeatureUrl(layer, featureId) {
-    return `${getApi3BaseUrl()}rest/services/${getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/${layer.id}/${featureId}`
+    return `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/${layer.id}/${featureId}`
 }
 
 /**

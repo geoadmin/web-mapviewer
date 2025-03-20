@@ -1,3 +1,4 @@
+import { layerUtils, LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
@@ -7,7 +8,6 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
@@ -241,7 +241,8 @@ describe('Testing layersParamParser', () => {
         const attributions = [new LayerAttribution('fake layer attribution')]
         describe.each([
             {
-                pristineLayer: new GeoAdminWMSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMSLayer({
+                    // GeoAdminWMSLayer
                     name: 'Fake layer',
                     id: 'fake.wms.id',
                     technicalName: 'fake.wms.id',
@@ -252,7 +253,8 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new GeoAdminWMTSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMTSLayer({
+                    // GeoAdminWMTSLayer
                     name: 'fake WMTS layer',
                     id: 'fake.wmts.id',
                     technicalName: 'fake.wmts.id',
@@ -327,31 +329,31 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: {
+                pristineLayer: layerUtils.makeExternalWMTSLayer({
                     id: 'fake.external.wmts',
                     name: 'Fake external WMTS',
                     baseUrl: 'https://fake.wtms.url/getCap.xml',
                     attributions,
-                },
+                }),
                 expectedLayerUrlId: 'WMTS|https://fake.wtms.url/getCap.xml|fake.external.wmts',
                 testTime: false,
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: {
+                pristineLayer: new ExternalWMSLayer({
                     id: 'fake.external.group',
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',
                     layers: [
-                        new {
+                        {
                             id: 'fake.external.wmts',
                             name: 'Fake external WMTS',
                             baseUrl: 'https://fake.wtms.url/getCap.xml',
                             attributions,
-                        }(),
+                        },
                     ],
                     attributions,
-                },
+                }),
                 expectedLayerUrlId: 'WMS|https://fake.wms.url?|fake.external.group',
                 testTime: false,
                 testFeaturePreSelection: true,
@@ -366,7 +368,7 @@ describe('Testing layersParamParser', () => {
             }) => {
                 let layer
                 beforeEach(() => {
-                    layer = pristineLayer.clone()
+                    layer = { ...pristineLayer }
                 })
                 it('correctly transforms a layer', () => {
                     expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(

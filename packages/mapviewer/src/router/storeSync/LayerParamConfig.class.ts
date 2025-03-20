@@ -1,6 +1,4 @@
-import { LayerType, type Layer } from '@geoadmin/layers'
-// import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { type ExternalWMTSLayer } from '@geoadmin/layers'
+import { layerUtils, LayerType, type Layer, type ExternalWMTSLayer, DEFAULT_OPACITY } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
@@ -24,36 +22,19 @@ import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
-const DEFAULT_OPACITY = 1.0
 
 const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
-    const { year } = parsedLayer.customAttributes
+    const { year  } = parsedLayer.customAttributes ?? { year: null}
 
-    return {
+    return layerUtils.makeExternalWMTSLayer({
         type: LayerType.WMTS,
         id: parsedLayer.id,
         name: parsedLayer.id,
-        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+        opacity: parsedLayer.opacity,
         visible: parsedLayer.visible,
         baseUrl: parsedLayer.baseUrl,
         currentYear: year,
-        isExternal: true,
-        abstract: '',
-        legends: [],
-        availableProjections: [],
-        options: [],
-        getTileEncoding: 'REST',
-        urlTemplate: '',
-        style: '',
-        tileMatrixSets: [],
-        dimensions: [],
-        attributions: [],
-        hasTooltip: false,
-        hasDescription: false,
-        hasLegend: false,
-        isLoading: true,
-        hasError: false,
-    }
+    })
 }
 
 /**
@@ -75,7 +56,7 @@ export function createLayerObject(
     store: any,
     featuresRequests: any
 ) {
-    const { year, updateDelay, features, adminId, ...customAttributes } =
+    const { year = null, updateDelay, features, adminId, ...customAttributes } =
         parsedLayer.customAttributes ?? {}
     let layer: Layer
 
