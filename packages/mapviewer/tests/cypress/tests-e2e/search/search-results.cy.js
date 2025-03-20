@@ -542,168 +542,104 @@ describe('Test the search bar result handling', () => {
     it('handle swisssearch and crosshair together correctly', () => {
         const latitude = 46.3163
         const longitude = 7.6347
-        const swisssearchCoordinate = `${latitude},${longitude}`
+        const swissSearchString = `${latitude},${longitude}`
 
-        const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
+        const [swissSearchX, swissSearchY] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
+        const swissSearchXYCoordinates = [swissSearchX, swissSearchY]
 
         // Cross hair position
         const crossHairX = 2660113
         const crossHairY = 1185272
+        const crossHairXYCoordinates = [crossHairX, crossHairY]
 
         // =========================================================================== //
         cy.log('Legacy parser / router (without #map part in the URL)')
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only')
+        cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView(
             {
-                swisssearch: swisssearchCoordinate,
+                swisssearch: swissSearchString,
             },
             false
         )
         testQueryPositionCrosshairStore({
-            searchQuery: swisssearchCoordinate,
-            expectedCenter: [x, y],
-            expectedPinnedLocation: [x, y],
+            searchQuery: swissSearchString,
+            expectedCenter: swissSearchXYCoordinates,
+            expectedPinnedLocation: swissSearchXYCoordinates,
             expectedCrosshair: null,
             expectedCrosshairPosition: null,
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair')
+        cy.log('Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate')
         cy.goToMapView(
             {
-                swisssearch: swisssearchCoordinate,
+                swisssearch: swissSearchString,
                 crosshair: CrossHairs.cross,
             },
             false
         )
         testQueryPositionCrosshairStore({
-            searchQuery: swisssearchCoordinate,
-            expectedCenter: [x, y],
-            expectedPinnedLocation: [x, y],
+            searchQuery: swissSearchString,
+            expectedCenter: swissSearchXYCoordinates,
+            expectedPinnedLocation: swissSearchXYCoordinates,
             expectedCrosshair: CrossHairs.cross,
-            expectedCrosshairPosition: [x, y],
+            expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
         // =========================================================================== //
         cy.log('Current parser / router (with #map part in the URL)')
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only')
+        cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView(
             {
-                swisssearch: swisssearchCoordinate,
+                swisssearch: swissSearchString,
             },
             true
         )
         testQueryPositionCrosshairStore({
-            searchQuery: swisssearchCoordinate,
-            expectedCenter: [x, y],
-            expectedPinnedLocation: [x, y],
+            searchQuery: swissSearchString,
+            expectedCenter: swissSearchXYCoordinates,
+            expectedPinnedLocation: swissSearchXYCoordinates,
             expectedCrosshair: null,
             expectedCrosshairPosition: null,
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair')
+        cy.log('Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate')
         cy.goToMapView(
             {
-                swisssearch: swisssearchCoordinate,
+                swisssearch: swissSearchString,
                 crosshair: CrossHairs.cross,
             },
             true
         )
         testQueryPositionCrosshairStore({
-            searchQuery: swisssearchCoordinate,
-            expectedCenter: [x, y],
-            expectedPinnedLocation: [x, y],
+            searchQuery: swissSearchString,
+            expectedCenter: swissSearchXYCoordinates,
+            expectedPinnedLocation: swissSearchXYCoordinates,
             expectedCrosshair: CrossHairs.cross,
-            expectedCrosshairPosition: [x, y],
+            expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair and crosshair location')
+        cy.log('Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate')
         cy.goToMapView(
             {
-                swisssearch: swisssearchCoordinate,
+                swisssearch: swissSearchString,
                 crosshair: `${CrossHairs.cross},${crossHairX},${crossHairY}`,
             },
             true
         )
         testQueryPositionCrosshairStore({
-            searchQuery: swisssearchCoordinate,
-            expectedCenter: [x, y],
-            expectedPinnedLocation: [x, y],
+            searchQuery: swissSearchString,
+            expectedCenter: swissSearchXYCoordinates,
+            expectedPinnedLocation: swissSearchXYCoordinates,
             expectedCrosshair: CrossHairs.cross,
-            expectedCrosshairPosition: [crossHairX, crossHairY],
+            expectedCrosshairPosition: crossHairXYCoordinates,
         })
 
     })
 
-})
-
-describe('Test the swisssearch that happens to be valid coordinate and valid locations', () => {
-    it.skip('handle swisssearch and crosshair together correctly with a location that is also a valid coordinate', () => {
-        // --------------------------------------------------------------------------- //
-        // This is a location that is a valid coordinate but also will return a location on the search service
-        const latitudeLocation = 46.5057
-        const longitudeLocation = 6.6278
-        const swisssearchCoordinateLocation = `${latitudeLocation},${longitudeLocation}`
-        const [xLocation, yLocation] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
-            longitudeLocation,
-            latitudeLocation,
-        ])
-        const response = {
-            results: [
-                {
-                    attrs: {
-                        detail: 'dorfstrasse 46 5057 reitnau 4281 reitnau ch ag',
-                        label: 'Dorfstrasse 46 <b>5057 Reitnau</b>',
-                        lat: 47.247169494628906,
-                        lon: 8.048954963684082,
-                        x: 1233096.375,
-                        y: 2646205.0,
-                    },
-                },
-            ],
-        }
-        cy.mockupBackendResponse(
-            `/rest/services/ech/SearchServer*searchText=${latitudeLocation},${longitudeLocation}*?type=locations*`,
-            response,
-            'search-locations-bug'
-        )
-
-        cy.log('Swisssearch that also valid location with crosshair only')
-        // cy.goToMapView() // go to map view first to load the map, still no idea why
-        cy.goToMapView(
-            {
-                swisssearch: swisssearchCoordinateLocation,
-                crosshair: `${CrossHairs.marker}`,
-                // swisssearch_autoselect: 'true',
-            },
-            true
-        )
-        // Wait for the intercept to be called
-        // Just to make sure the request is done
-        cy.wait('@search-locations-bug').then((interception) => {
-            // Log the intercepted request and response for debugging
-            cy.log('Intercepted Request:', interception.request);
-            cy.log('Intercepted Response:', interception.response);
-
-            // Make assertions on the intercepted request
-            expect(interception.request.url).to.include('searchText=46.5057,6.6278');
-            expect(interception.request.method).to.equal('GET');
-
-            // Make assertions on the intercepted response
-            expect(interception.response.body.results).to.have.length(1);
-            expect(interception.response.body.results[0].attrs.detail).to.equal('dorfstrasse 46 5057 reitnau 4281 reitnau ch ag');
-            testQueryPositionCrosshairStore({
-                searchQuery: swisssearchCoordinateLocation,
-                expectedCenter: [xLocation, yLocation],
-                expectedPinnedLocation: [xLocation, yLocation],
-                expectedCrosshair: CrossHairs.cross,
-                expectedCrosshairPosition: [xLocation, yLocation],
-            })
-        })
-    })
 })
