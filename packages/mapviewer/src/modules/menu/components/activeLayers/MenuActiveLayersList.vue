@@ -53,19 +53,23 @@ onMounted(() => {
                 oldIndex >= 0 &&
                 oldIndex < activeLayers.value.length
             ) {
+                onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
                 nextTick(() => {
                     // PB-1456: fixing an issue with drag&drop left-over by removing any element still tagged by SortableJS
                     // (having a custom attribute draggable=false)
                     const nonDraggableChildren =
                         activeLayersList.value.querySelectorAll('[draggable="false"]')
                     if (nonDraggableChildren.length > 0) {
-                        nonDraggableChildren.forEach((child) => child.remove())
-                        log.debug('Non-draggable children removed:', nonDraggableChildren)
+                        if (activeLayers.value.length < activeLayersList.value.children.length) {
+                            nonDraggableChildren.forEach((child) => child.remove())
+                            log.debug('Non-draggable children removed:', nonDraggableChildren)
+                        } else {
+                            log.debug('Number of children does not exceed the number of active layers, no elements removed')
+                        }
                     } else {
                         log.debug('No non-draggable children found')
-                    }
-                    onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
-                })
+                    }}
+                )
             } else {
                 log.warn('Invalid index for layer move', { newIndex, oldIndex })
             }
