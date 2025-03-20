@@ -127,7 +127,9 @@ $letterSpacing: calc((78 / 1000) * 1em);
     }
 
     .swiss-flag {
-        height: fit-content;
+        // because Safari doesn't understand fit-content, we need to fix the height to some pixel height
+        // Without that, Safari spreads the flag way down over the menu, and breaks the menu usability
+        height: 36px;
     }
 
     &.dev-site {
