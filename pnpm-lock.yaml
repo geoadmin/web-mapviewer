@@ -424,6 +424,9 @@ importers:
       '@geoadmin/log':
         specifier: workspace:*
         version: link:../geoadmin-log
+      '@geoadmin/numbers':
+        specifier: workspace:^
+        version: link:../geoadmin-numbers
       '@types/openlayers':
         specifier: 'catalog:'
         version: 4.6.23

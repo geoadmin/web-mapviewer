@@ -1,5 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
-import { hasMultipleTimestamps } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import {
     addErrorMessageToLayer,
@@ -138,7 +138,7 @@ const getters = {
             // there.
             if (
                 layer.timeConfig &&
-                hasMultipleTimestamps(layer) &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 layer.timeConfig.currentTimeEntry === null
             ) {
                 return false
@@ -266,7 +266,9 @@ const getters = {
     visibleLayersWithTimeConfig: (state) =>
         // Here we cannot take the getter visibleLayers as it also contain the preview and system
         // layers as well as the layer without valid current timeEntry are filtered out
-        state.activeLayers.filter((layer) => layer.visible && hasMultipleTimestamps(layer)),
+        state.activeLayers.filter(
+            (layer) => layer.visible && timeConfigUtils.hasMultipleTimestamps(layer)
+        ),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
@@ -315,7 +317,10 @@ const getters = {
 
     youngestYear: (state) =>
         state.config.reduce((youngestYear, layer) => {
-            if (hasMultipleTimestamps(layer) && youngestYear < layer.timeConfig.years[0]) {
+            if (
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
+                youngestYear < layer.timeConfig.years[0]
+            ) {
                 return layer.timeConfig.years[0]
             }
             return youngestYear
@@ -324,7 +329,7 @@ const getters = {
     oldestYear: (state) =>
         state.config.reduce((oldestYear, layer) => {
             if (
-                hasMultipleTimestamps(layer) &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 oldestYear > layer.timeConfig.years[layer.timeConfig.years.length - 1]
             ) {
                 return layer.timeConfig.years[layer.timeConfig.years.length - 1]

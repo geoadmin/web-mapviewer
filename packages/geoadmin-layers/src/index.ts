@@ -4,9 +4,11 @@ import proj4 from 'proj4'
 
 export * from '@/layers'
 export * from '@/validation'
-export * from '@/layerConfig'
-export * from '@/utils'
+export * as utils from '@/utils'
 export * from '@/externalWMTSCapabilitiesParser'
+export * from '@/timeConfig'
+export * as timeConfigUtils from '@/timeConfigUtils'
+export * as layerUtils from "@/layerUtils"
 
 registerProj4(proj4)
 // register any custom projection in OpenLayers

@@ -1,5 +1,5 @@
 import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
-import { getTopicForIdentifyAndTooltipRequests } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -240,7 +240,7 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    if (getTopicForIdentifyAndTooltipRequests(entry.layer)) {
+                    if (layerUtils.getTopicForIdentifyAndTooltipRequests(entry.layer)) {
                         getFeature(entry.layer, entry.featureId, rootState.position.projection, {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,

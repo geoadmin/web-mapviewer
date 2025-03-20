@@ -1,4 +1,4 @@
-import { hasMultipleTimestamps } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
@@ -23,7 +23,9 @@ function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
         )
         // if there are no time enabled layers amongst visible layers, we don't activate the timeSlider
         if (
-            store.getters.visibleLayers.filter((layer) => hasMultipleTimestamps(layer)).length > 0
+            store.getters.visibleLayers.filter((layer) =>
+                timeConfigUtils.hasMultipleTimestamps(layer)
+            ).length > 0
         ) {
             promisesForAllDispatch.push(
                 store.dispatch('setTimeSliderActive', {
