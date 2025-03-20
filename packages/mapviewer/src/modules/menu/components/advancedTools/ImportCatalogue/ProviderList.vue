@@ -1,7 +1,6 @@
 <script setup>
-import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -27,6 +26,8 @@ const expandedGroups = ref({})
 function toggleGroup(baseUrl) {
     expandedGroups.value[baseUrl] = !expandedGroups.value[baseUrl]
 }
+
+const titleCaretIcon = computed(() => (baseUrl) => `caret-${expandedGroups.value[baseUrl] ? 'down' : 'right'}`)
 
 function goToPrevious(currentKey) {
     if (currentKey === 0) {
@@ -74,7 +75,7 @@ defineExpose({ goToFirst })
                     class="providers-group-header px-2 py-1 text-nowrap"
                     @click="toggleGroup(baseUrl)"
                 >
-                    <FontAwesomeIcon :icon="expandedGroups[baseUrl] ? faCaretDown : faCaretRight" />
+                    <font-awesome-icon :icon="['fas', titleCaretIcon(baseUrl)]" />
                     <span class="ms-1">{{ baseUrl }}</span>
                 </div>
                 <div
