@@ -165,7 +165,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
-                timeConfigUtils.updateCurrentTimeEntry(layer, layerTimestamps[index])
+                timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }
