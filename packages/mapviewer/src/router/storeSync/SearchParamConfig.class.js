@@ -17,7 +17,6 @@ function dispatchSearchFromUrl(to, store, urlParamValue) {
     if (urlParamValue) {
         store.dispatch('setSearchQuery', {
             query: urlParamValue,
-            shouldCenter: !(to.query.crosshair && to.query.center),
             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             originUrlParam: true,
         })
