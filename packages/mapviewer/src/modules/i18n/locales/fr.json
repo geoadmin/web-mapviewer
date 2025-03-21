@@ -382,6 +382,7 @@
     "linkedin_tooltip": "Partager cette carte sur LinkedIn",
     "load_local_file": "Charger",
     "loading": "Chargement",
+    "loading_error_file_deleted": "Échec du chargement, le fichier a été supprimé par son propriétaire",
     "loading_error_network_failure": "Échec du chargement, fichier non accessible",
     "loading_external_layer": "Chargement de la couche externe",
     "loading_file": "Chargement du fichier...",

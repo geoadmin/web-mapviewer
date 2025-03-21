@@ -382,6 +382,7 @@
     "linkedin_tooltip": "Teilen Sie diese Karte auf LinkedIn",
     "load_local_file": "Laden...",
     "loading": "Laden",
+    "loading_error_file_deleted": "Die Datei konnte nicht geladen werden, da sie von ihrem Besitzer gelöscht wurde.",
     "loading_error_network_failure": "Laden fehlgeschlagen, auf die Datei kann nicht zugegriffen werden",
     "loading_external_layer": "Laden der externen Layer",
     "loading_file": "Laden...",

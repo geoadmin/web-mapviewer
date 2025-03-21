@@ -382,6 +382,7 @@
     "linkedin_tooltip": "Share this map on LinkedIn",
     "load_local_file": "Load",
     "loading": "Loading",
+    "loading_error_file_deleted": "Failed to load, the file was deleted by its owner",
     "loading_error_network_failure": "Failed to load, file not accessible",
     "loading_external_layer": "Loading external layer",
     "loading_file": "Loading file...",
