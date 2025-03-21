@@ -253,6 +253,7 @@
     "feedback_unsupported_format": "Tip da datoteca betg supportà. Duvrai empè da quai pdf, .zip, .jpg, .jpeg, .kml, .kmz u .gpx",
     "field_required": "Quest champ è obligatoric",
     "file_imported_success": "Datoteca importada cun success",
+    "file_imported_partially_out_of_bounds": "Il dossier importà '{filename}' sa chatta per part ordaifer ils cunfins svizzers. Tschertas funcziuns na fissan forsa betg disponiblas.",
     "file_is_not_kml": "Questa datoteca nun è ina datoteca KML",
     "file_name": "Zeichnungsname",
     "file_too_large": "Questa datoteca è memia grond (grondezza maximala lubida: {maxFileSize})",

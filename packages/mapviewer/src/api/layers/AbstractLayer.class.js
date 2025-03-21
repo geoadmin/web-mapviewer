@@ -130,6 +130,9 @@ export default class AbstractLayer {
         /** @type {Set<ErrorMessage>} */
         this.errorMessages = new Set()
         this.hasError = false
+        /** @type {Set<WarningMessage><} */
+        this.warningMessages = new Set()
+        this.hasWarning = false
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
@@ -169,6 +172,42 @@ export default class AbstractLayer {
     clearErrorMessages() {
         this.errorMessages.clear()
         this.hasError = false
+    }
+
+    /**
+     * @param {WarningMessage} warningMessage
+     * @returns {boolean}
+     */
+    containsWarningMessage(warningMessage) {
+        return this.warningMessages.has(warningMessage)
+    }
+
+    /** @returns {WarningMessage} */
+    getFirstWarningMessage() {
+        return this.warningMessages.values().next().value
+    }
+
+    /** @param {WarningMessage} warningMessage */
+    addWarningMessage(warningMessage) {
+        this.warningMessages.add(warningMessage)
+        this.hasWarning = true
+    }
+
+    /** @param {WarningMessage} warningMessage */
+    removeWarningMessage(warningMessage) {
+        // We need to find the error message that equals to remove it
+        for (let msg of this.warningMessages) {
+            if (msg.isEquals(warningMessage)) {
+                this.warningMessages.delete(msg)
+                break
+            }
+        }
+        this.hasWarning = !!this.warningMessages.size
+    }
+
+    clearWarningMessages() {
+        this.warningMessages.clear()
+        this.hasWarning = false
     }
 
     setCustomAttributes(customAttributes) {
