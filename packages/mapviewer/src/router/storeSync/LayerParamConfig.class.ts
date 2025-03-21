@@ -1,3 +1,6 @@
+import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
+import type { GeoAdminAPILayer } from '@geoadmin/layers'
+
 import * as layers from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
@@ -28,8 +31,6 @@ import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
-import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
-import type { GeoAdminAPILayer } from '@geoadmin/layers'
 
 const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMTSLayer => {
     const { year } = parsedLayer.customAttributes ?? { year: null }

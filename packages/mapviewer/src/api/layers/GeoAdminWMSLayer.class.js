@@ -111,5 +111,6 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         this.lang = lang
         this.gutter = gutter
         this.wmsVersion = wmsVersion
+        this.isExternal = true
     }
 }
