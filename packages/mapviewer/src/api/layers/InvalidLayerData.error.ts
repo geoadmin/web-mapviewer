@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class InvalidLayerDataError extends Error {
     constructor(message, data) {
         super(message)

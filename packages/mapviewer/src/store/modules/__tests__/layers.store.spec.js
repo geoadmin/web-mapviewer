@@ -1,9 +1,8 @@
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is
@@ -14,7 +13,7 @@ import store from '@/store'
 
 const dispatcher = { dispatcher: 'unit-test' }
 
-const bgLayer = new GeoAdminWMTSLayer({
+const bgLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'background',
     id: 'bg.layer',
     technicalName: 'bg.layer',
@@ -23,14 +22,14 @@ const bgLayer = new GeoAdminWMTSLayer({
     isBackground: true,
     attributions: [new LayerAttribution('test')],
 })
-const firstLayer = new GeoAdminWMTSLayer({
+const firstLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'First layer',
     id: 'first.layer',
     technicalName: 'first.layer',
     visible: true,
     attributions: [new LayerAttribution('test')],
 })
-const secondLayer = new GeoAdminWMSLayer({
+const secondLayer = layerUtils.makeGeoAdminWMSLayer({
     name: 'Second layer',
     id: 'second.layer',
     technicalName: 'second.layer',
@@ -157,7 +156,7 @@ describe('Update layer', () => {
         const clone = secondLayer.clone()
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
@@ -207,7 +206,7 @@ describe('Update layers', () => {
         const clone = secondLayer.clone()
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)

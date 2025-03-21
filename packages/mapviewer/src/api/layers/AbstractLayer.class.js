@@ -1,3 +1,4 @@
+import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
@@ -12,6 +13,7 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  * properties, properties should change be changed either by the constructor or directly by setting
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
+ *
  */
 export class LayerAttribution {
     /**
@@ -127,49 +129,47 @@ export default class AbstractLayer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        /** @type {Set<ErrorMessage>} */
         this.errorMessages = new Set()
         this.hasError = false
         this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
+        //this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
         this.setCustomAttributes(customAttributes)
     }
+    // /**
+    //  * @param {ErrorMessage} errorMessage
+    //  * @returns {boolean}
+    //  */
+    // containErrorMessage(errorMessage: string) {
+    //     return this.errorMessages.has(errorMessage)
+    // }
 
-    /**
-     * @param {ErrorMessage} errorMessage
-     * @returns {boolean}
-     */
-    containErrorMessage(errorMessage) {
-        return this.errorMessages.has(errorMessage)
-    }
+    // /** @returns {ErrorMessage} */
+    // getFirstErrorMessage() {
+    //     return this.errorMessages.values().next().value
+    // }
 
-    /** @returns {ErrorMessage} */
-    getFirstErrorMessage() {
-        return this.errorMessages.values().next().value
-    }
+    // /** @param {ErrorMessage} errorMessage */
+    // addErrorMessage(errorMessage: string) {
+    //     this.errorMessages.add(errorMessage)
+    //     this.hasError = true
+    // }
 
-    /** @param {ErrorMessage} errorMessage */
-    addErrorMessage(errorMessage) {
-        this.errorMessages.add(errorMessage)
-        this.hasError = true
-    }
+    // /** @param {ErrorMessage} errorMessage */
+    // removeErrorMessage(errorMessage: string) {
+    //     // We need to find the error message that equals to remove it
+    //     for (const msg of this.errorMessages) {
+    //         if (msg.isEquals(errorMessage)) {
+    //             this.errorMessages.delete(msg)
+    //             break
+    //         }
+    //     }
+    //     this.hasError = !!this.errorMessages.size
+    // }
 
-    /** @param {ErrorMessage} errorMessage */
-    removeErrorMessage(errorMessage) {
-        // We need to find the error message that equals to remove it
-        for (let msg of this.errorMessages) {
-            if (msg.isEquals(errorMessage)) {
-                this.errorMessages.delete(msg)
-                break
-            }
-        }
-        this.hasError = !!this.errorMessages.size
-    }
-
-    clearErrorMessages() {
-        this.errorMessages.clear()
-        this.hasError = false
-    }
+    // clearErrorMessages() {
+    //     this.errorMessages.clear()
+    //     this.hasError = false
+    // }
 
     setCustomAttributes(customAttributes) {
         if (customAttributes !== null) {
@@ -181,12 +181,12 @@ export default class AbstractLayer {
             for (const [key, value] of Object.entries(customAttributes)) {
                 if (typeof key !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid key`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid key`
                     )
                 }
                 if (typeof value !== 'string') {
                     throw new Error(
-                        `Invalid layer ${this.id} customAttributes ${customAttributes}: contains invalid value`
+                        `Invalid layer ${this.id} customAttributes ${JSON.stringify(customAttributes)}: contains invalid value`
                     )
                 }
             }
@@ -194,7 +194,7 @@ export default class AbstractLayer {
         if (customAttributes && Object.keys(customAttributes).length > 0) {
             this.customAttributes = customAttributes
         } else {
-            this.customAttributes = null
+            this.customAttributes = []
         }
     }
 

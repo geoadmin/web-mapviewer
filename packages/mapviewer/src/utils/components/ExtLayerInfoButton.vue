@@ -1,15 +1,14 @@
 <script setup lang="ts">
+import { type Layer, getFirstLayerErrorMessage } from "@geoadmin/layers"
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
 
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
-    layer: AbstractLayer
+    layer: Layer
     index: Number
 }>()
 
@@ -22,7 +21,8 @@ const hasError = computed((): boolean => {
 
 const tooltipContent = computed((): string => {
     if (hasError.value) {
-        const error: ErrorMessage = layer.getFirstErrorMessage()
+        // save to assume that there *is* an error thanks to the guard
+        const error: ErrorMessage = getFirstLayerErrorMessage(layer)!;
         return t(error.msg, error.params)
     }
 

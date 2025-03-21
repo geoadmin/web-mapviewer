@@ -1,11 +1,10 @@
+import { layerUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
@@ -19,7 +18,7 @@ import {
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
-            new GeoAdminWMSLayer({
+            layerUtils.makeGeoAdminWMSLayer({
                 name: 'Test layer WMS',
                 id: 'test.wms.layer',
                 technicalName: 'test.wms.layer',
@@ -29,13 +28,13 @@ describe('Test parsing of legacy URL param into new params', () => {
                 format: 'png',
                 timeConfig: new LayerTimeConfig(),
             }),
-            new GeoAdminWMTSLayer({
+            layerUtils.makeExternalWMTSLayer({
                 name: 'Test layer WMTS',
                 id: 'test.wmts.layer',
                 technicalName: 'test.wmts.layer',
                 attributions: [new LayerAttribution('test')],
             }),
-            new GeoAdminWMTSLayer({
+            layerUtils.makeGeoAdminWMTSLayer({
                 name: 'Test timed layer WMTS',
                 technicalName: 'test.timed.wmts.layer',
                 id: 'test.timed.wmts.layer',

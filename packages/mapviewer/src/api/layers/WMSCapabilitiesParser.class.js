@@ -1,4 +1,6 @@
+// @ts-nocheck
 import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
+import { CapabilitiesError } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { range } from 'lodash'
 import { WMSCapabilities } from 'ol/format'
@@ -7,7 +9,6 @@ import proj4 from 'proj4'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer, { WMSDimension } from '@/api/layers/ExternalWMSLayer.class'
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
@@ -53,6 +54,7 @@ export default class WMSCapabilitiesParser {
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
             throw new CapabilitiesError(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 `Failed to parse WMTS Capabilities: invalid content: ${error}`,
                 'invalid_wms_capabilities'
             )
@@ -411,6 +413,7 @@ export default class WMSCapabilitiesParser {
                 title = this.Service?.Title || new URL(this.Service?.OnlineResource).hostname
             }
         } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
             log.error(msg, layer, error)
             title = new URL(this.originUrl).hostname

@@ -14,7 +14,7 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminLayer extends AbstractLayer {
+export default class GeoAdminLayer extends AbstractLayer  {
     /**
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData.
@@ -126,25 +126,25 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.searchable = searchable
     }
 
-    /**
-     * Returns which topic should be used in URL that needs one topic to be defined (identify or
-     * htmlPopup for instance). By default and whenever possible, the viewer should use `ech`. If
-     * `ech` is not present in the topics, the first of them should be used to request the backend.
-     *
-     * @returns {String} The topic to use in request to the backend for this layer
-     */
-    getTopicForIdentifyAndTooltipRequests() {
-        // by default, the frontend should always request `ech`, so if there's no topic that's what we do
-        // if there are some topics, we look if `ech` is one of them, if so we return it
-        if (this.topics.length === 0 || this.topics.indexOf('ech') !== -1) {
-            return 'ech'
-        }
-        // otherwise we return the first topic to make our backend requests for identify and htmlPopup
-        return this.topics[0]
-    }
+    // /**
+    //  * Returns which topic should be used in URL that needs one topic to be defined (identify or
+    //  * htmlPopup for instance). By default and whenever possible, the viewer should use `ech`. If
+    //  * `ech` is not present in the topics, the first of them should be used to request the backend.
+    //  *
+    //  * @returns {String} The topic to use in request to the backend for this layer
+    //  */
+    // getTopicForIdentifyAndTooltipRequests() {
+    //     // by default, the frontend should always request `ech`, so if there's no topic that's what we do
+    //     // if there are some topics, we look if `ech` is one of them, if so we return it
+    //     if (this.topics.length === 0 || this.topics.indexOf('ech') !== -1) {
+    //         return 'ech'
+    //     }
+    //     // otherwise we return the first topic to make our backend requests for identify and htmlPopup
+    //     return this.topics[0]
+    // }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         clone.timeConfig = this.timeConfig?.clone() ?? null
         return clone
     }

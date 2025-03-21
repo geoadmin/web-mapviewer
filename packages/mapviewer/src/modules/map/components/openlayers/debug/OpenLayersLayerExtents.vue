@@ -8,7 +8,6 @@ import { Fill, Stroke, Style, Text } from 'ol/style'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
@@ -85,7 +84,7 @@ function createFeaturesForEachLayerExtent() {
         )
     }
     allLayers.value
-        .filter((layer) => layer instanceof ExternalLayer && layer.extent)
+        .filter((layer) => layer.isExternal && layer.extent)
         .forEach((layer) => {
             extents.push(
                 new Feature({

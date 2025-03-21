@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { constants } from '@geoadmin/coordinates'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
@@ -18,6 +19,9 @@ import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
  * to Vue reactivity engine.
  */
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
+    maxResolution
+    format
+
     /**
      * @param {String} layerData.name Layer name (internationalized)
      * @param {String} layerData.id Unique layer ID
@@ -57,6 +61,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
+        throw new Error('not used anymore')
         if (!layerData) {
             throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
         }
@@ -105,6 +110,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             searchable,
             timeConfig,
         })
+
         this.format = format
         this.maxResolution = maxResolution
     }

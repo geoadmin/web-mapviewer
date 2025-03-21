@@ -6,10 +6,9 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
@@ -23,9 +22,8 @@ const dispatcher = { dispatcher: 'external-layers.plugin' }
 export default function loadExternalLayerAttributes(store) {
     const layersSubscriber = async (layers, state) => {
         const externalLayers = layers.filter(
-            (layer) =>
-                layer.isLoading &&
-                (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
+            (layer) => layer.isLoading && layer.isExternal
+            // (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
         )
         if (externalLayers.length > 0) {
             // We get first the capabilities
@@ -36,7 +34,8 @@ export default function loadExternalLayerAttributes(store) {
                 updatedLayers.push(
                     updateExternalLayer(
                         store,
-                        layer instanceof ExternalWMTSLayer
+                        // TODO better pattern for this?
+                        layer.type === LayerType.WMTS
                             ? wmtsCapabilities[layer.baseUrl]
                             : wmsCapabilities[layer.baseUrl],
                         layer,
@@ -65,7 +64,9 @@ function getWMSCababilitiesForLayers(layers) {
     // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
     // for example when adding several layers from the same source.
     new Set(
-        layers.filter((layer) => layer instanceof ExternalWMSLayer).map((layer) => layer.baseUrl)
+        layers
+            .filter((layer) => layer.type === LayerType.WMS && layer.isExternal)
+            .map((layer) => layer.baseUrl)
     ).forEach((url) => {
         capabilities[url] = readWmsCapabilities(url)
     })
@@ -76,9 +77,11 @@ function getWMTSCababilitiesForLayers(layers) {
     const capabilities = {}
     // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
     // for example when adding several layers from the same source.
-    new Set(
-        layers.filter((layer) => layer instanceof ExternalWMTSLayer).map((layer) => layer.baseUrl)
-    ).forEach((url) => {
+    const externalWMTSLayers = layers.filter(
+        (layer) => layer.type === LayerType.WMTS && layer.isExternal
+    )
+
+    new Set(externalWMTSLayers.map((layer) => layer.baseUrl)).forEach((url) => {
         capabilities[url] = readWmtsCapabilities(url)
     })
     return capabilities

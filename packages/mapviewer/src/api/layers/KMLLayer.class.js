@@ -1,3 +1,5 @@
+import { LayerType } from "@geoadmin/layers"
+
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import KmlStyles from '@/api/layers/KmlStyles.enum'
@@ -118,6 +120,7 @@ export default class KMLLayer extends AbstractLayer {
         }
         // if clampToGround isn't defined, we set it to true in case we are dealing with a geoadmin KML
         this.clampToGround = clampToGround === null ? !isExternal : clampToGround
+        this.type = LayerType.KML
     }
 
     /**
@@ -134,7 +137,7 @@ export default class KMLLayer extends AbstractLayer {
     }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         if (this.kmlMetadata) {
             clone.kmlMetadata = Object.assign(
                 Object.create(Object.getPrototypeOf(this.kmlMetadata)),
