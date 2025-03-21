@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { constants } from '@geoadmin/coordinates'
-import { type GeoAdminWMTSLayer as GeoAdminWMTSLayerIface } from '@geoadmin/layers'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
@@ -19,7 +18,7 @@ import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminWMTSLayer extends GeoAdminLayer implements GeoAdminWMTSLayerIface {
+export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     maxResolution
     format
 

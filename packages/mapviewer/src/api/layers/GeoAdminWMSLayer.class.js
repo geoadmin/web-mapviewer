@@ -1,7 +1,3 @@
-// @ts-nocheck
-// TODO
-import { type GeoAdminWMSLayer as GeoAdminWMSLayerIface } from "@geoadmin/layers"
-
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getWmsBaseUrl } from '@/config/baseUrl.config'
@@ -20,7 +16,7 @@ import GeoAdminLayer from "./GeoAdminLayer.class"
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminWMSLayer extends GeoAdminLayer implements GeoAdminWMSLayerIface {
+export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} layerData.name The name of this layer (lang specific)
      * @param {String} layerData.id The unique ID of this layer
