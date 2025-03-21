@@ -9,7 +9,6 @@
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 
@@ -66,7 +65,7 @@ function getWMSCababilitiesForLayers(layers) {
     // for example when adding several layers from the same source.
     new Set(
         layers
-            .filter((layer) => layer.type == LayerType.WMS && layer.isExternal)
+            .filter((layer) => layer.type === LayerType.WMS && layer.isExternal)
             .map((layer) => layer.baseUrl)
     ).forEach((url) => {
         capabilities[url] = readWmsCapabilities(url)

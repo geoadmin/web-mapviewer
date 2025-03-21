@@ -1,4 +1,4 @@
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
@@ -156,7 +156,7 @@ describe('Update layer', () => {
         const clone = secondLayer.clone()
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
@@ -206,7 +206,7 @@ describe('Update layers', () => {
         const clone = secondLayer.clone()
         clone.name = 'Update second layer name'
         clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
         expect(store.state.layers.activeLayers[1].visible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)

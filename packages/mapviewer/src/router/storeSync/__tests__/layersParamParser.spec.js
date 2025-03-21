@@ -1,4 +1,4 @@
-import { layerUtils, LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 

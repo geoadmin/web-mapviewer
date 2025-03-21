@@ -1,9 +1,15 @@
-import { layerUtils, LayerType, type Layer, type ExternalWMTSLayer, DEFAULT_OPACITY } from '@geoadmin/layers'
+import * as layers from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
+import * as vueRouter from 'vue-router'
+import { useStore } from 'vuex'
+
+import type { ActiveLayerConfig } from '@/utils/layerUtils'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
+import LayerFeature from '@/api/features/LayerFeature.class'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
@@ -22,12 +28,11 @@ import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
+const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMTSLayer => {
+    const { year } = parsedLayer.customAttributes ?? { year: null }
 
-const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
-    const { year  } = parsedLayer.customAttributes ?? { year: null}
-
-    return layerUtils.makeExternalWMTSLayer({
-        type: LayerType.WMTS,
+    return layers.layerUtils.makeExternalWMTSLayer({
+        type: layers.LayerType.WMTS,
         id: parsedLayer.id,
         name: parsedLayer.id,
         opacity: parsedLayer.opacity,
@@ -45,40 +50,46 @@ const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLa
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @param {Store} store Vuex store
  * @param {[Promise<LayerFeature>]} featuresRequests Array of getFeature() promises
- * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig} Will return
+ * @returns {KMLLayer | layers.ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig} Will return
  *   an instance of the corresponding layer if the given layer is an external one, returns null if
  *   this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local file) or
  *   will return the untouched ActiveLayerConfig for other layer types
  */
 export function createLayerObject(
-    parsedLayer: Record<string, any>,
+    parsedLayer: ActiveLayerConfig,
     currentLayer: Record<string, any>,
-    store: any,
-    featuresRequests: any
+    store: any
+    // featuresRequests: any
 ) {
-    const { year = null, updateDelay, features, adminId, ...customAttributes } =
-        parsedLayer.customAttributes ?? {}
-    let layer: Layer
+    const {
+        year = null,
+        updateDelay,
+        features,
+        adminId,
+        ...customAttributes
+    } = parsedLayer.customAttributes ?? {}
 
-    if (currentLayer && (currentLayer.isExternal || currentLayer.type === LayerType.KML)) {
+    let layer: layers.Layer | null = null
+
+    if (currentLayer && (currentLayer.isExternal || currentLayer.type === layers.LayerType.KML)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
         layer = cloneDeep(currentLayer) as KMLLayer
-        layer.visible = parsedLayer.visible
+        layer.visible = parsedLayer.visible ?? false
         // external layer have a default opacity of 1.0
-        layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
+        layer.opacity = parsedLayer.opacity ?? layers.DEFAULT_OPACITY
+
         if (adminId) {
-            // TODO
             layer.adminId = adminId
         }
     } else if (parsedLayer.type === LayerTypes.KML) {
         // format is KML|FILE_URL
-        if (parsedLayer.baseUrl.startsWith('http')) {
+        if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = new KMLLayer({
                 kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
                 adminId: adminId,
                 style: parsedLayer.customAttributes?.style,
             })
@@ -89,38 +100,38 @@ export function createLayerObject(
     }
     // format is GPX|FILE_URL
     else if (parsedLayer.type === LayerTypes.GPX) {
-        if (parsedLayer.baseUrl.startsWith('http')) {
+        if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = new GPXLayer({
                 gpxFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
         }
     } else if (parsedLayer.type === LayerTypes.COG) {
         // format is GEOTIFF|FILE_URL
-        if (parsedLayer.baseUrl.startsWith('http')) {
+        if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = new CloudOptimizedGeoTIFFLayer({
                 fileSource: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
                 isLoading: false,
             })
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.type === LayerType.WMTS) {
+    else if (parsedLayer.type === layers.LayerType.WMTS) {
         layer = createWMTSLayerObject(parsedLayer)
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.type === LayerType.WMS) {
+    else if (parsedLayer.type === layers.LayerType.WMS) {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer({
             id: parsedLayer.id,
             name: parsedLayer.id,
-            opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+            opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
             visible: parsedLayer.visible,
             baseUrl: parsedLayer.baseUrl,
             currentYear: year,
@@ -130,22 +141,26 @@ export function createLayerObject(
         // Finally check if this is a Geoadmin layer
         layer = cloneDeep(store.getters.getLayerConfigById(parsedLayer.id))
         if (layer) {
-            layer.visible = parsedLayer.visible
+            layer.visible = parsedLayer.visible ?? false
             if (parsedLayer.opacity !== undefined) {
                 layer.opacity = parsedLayer.opacity
             }
-            if (year !== undefined && layer.timeConfig) {
-                layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+            if (year !== undefined && year !== null && layer.timeConfig) {
+                const _year = typeof year === 'string' ? parseInt(year) : year
+                layers.timeConfigUtils.updateCurrentTimeEntry(
+                    layer.timeConfig,
+                    layers.timeConfigUtils.getTimeEntryForYear(layer.timeConfig, _year)!
+                )
             }
 
             // If we have a WMS layer add extra params from custom attributes
-            if (layer.type === LayerType.WMS) {
-                // TODO we don't have checks here anymore when setting it directly instead
-                // through the a method
+            if (layer.type === layers.LayerType.WMS) {
                 layer.customAttributes = customAttributes
             }
         }
     }
+
+    const featuresRequests: Promise<LayerFeature>[] = []
 
     // If we have a layer parse extra parameters that could be used by any type of layer
     if (layer) {
@@ -165,7 +180,13 @@ export function createLayerObject(
                             lang: store.state.i18n.lang,
                             screenWidth: store.state.ui.width,
                             screenHeight: store.state.ui.height,
-                            mapExtent: flattenExtent(store.getters.extent),
+                            mapExtent: flattenExtent(store.getters.extent) as [
+                                // TODO have a better type here
+                                number,
+                                number,
+                                number,
+                                number,
+                            ],
                         })
                     )
                 })
@@ -176,32 +197,44 @@ export function createLayerObject(
         )
     }
 
-    return layer
+    return { layer, featuresRequests }
 }
 
-function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
+function dispatchLayersFromUrlIntoStore(
+    to: vueRouter.RouteLocation,
+    store: ReturnType<useStore>,
+    urlParamValue: string
+) {
     const parsedLayers = parseLayersParam(urlParamValue)
     const promisesForAllDispatch = []
+
     log.debug(
         `Dispatch Layers from URL into store: ${urlParamValue}`,
         store.state.layers.activeLayers,
         parsedLayers
     )
-    const featuresRequests = []
+    const featuresRequests: Promise<LayerFeature>[] = []
+
     const layers = parsedLayers
         .map((parsedLayer, index) => {
             // First check if we already have the layer in the active layers
             const layerAtIndex = store.getters.getActiveLayerByIndex(index)
             const currentLayer = layerAtIndex?.id === parsedLayer.id ? layerAtIndex : null
-            const layerObject = createLayerObject(
-                parsedLayer,
-                currentLayer,
-                store,
-                featuresRequests
-            )
+
+            const { layer: layerObject, featuresRequests: layerFeatureRequests } =
+                createLayerObject(
+                    parsedLayer,
+                    currentLayer,
+                    store
+                    // featuresRequests
+                )
+
+            if (layerFeatureRequests) {
+                featuresRequests.push(...layerFeatureRequests)
+            }
+
             if (layerObject) {
-                // TODO what's this adminId
-                if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
+                if (layerObject.type === LayerType.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
                         store.dispatch('setShowDrawingOverlay', {
                             show: true,
@@ -225,6 +258,7 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
     promisesForAllDispatch.push(
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
     )
+
     if (featuresRequests.length > 0) {
         promisesForAllDispatch.push(getAndDispatchFeatures(to, featuresRequests, store))
     }
@@ -232,7 +266,11 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
     return Promise.all(promisesForAllDispatch)
 }
 
-async function getAndDispatchFeatures(to, featuresPromise, store) {
+async function getAndDispatchFeatures(
+    to: vueRouter.RouteLocation,
+    featuresPromise: Promise<LayerFeature>[],
+    store: ReturnType<useStore>
+) {
     try {
         const responses = await Promise.allSettled(featuresPromise)
         const features = responses
@@ -266,17 +304,22 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
             }
         }
     } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         log.error(`Error while processing features in feature preselection. error is ${error}`)
     }
 }
 
-function generateLayerUrlParamFromStoreValues(store) {
-    const featuresIds = orderFeaturesByLayers(store.getters.selectedFeatures)
+function generateLayerUrlParamFromStoreValues(store: ReturnType<useStore>) {
+    const featuresIds = orderFeaturesByLayers(store.getters.selectedFeatures) as Record<
+        string,
+        string[]
+    >
+
     return store.state.layers.activeLayers
-        .map((layer) =>
+        .map((layer: layers.Layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config) => config.id === layer.id),
+                store.state.layers.config.find((config: layers.Layer) => config.id === layer.id),
                 featuresIds[layer.id]
             )
         )
@@ -286,7 +329,7 @@ function generateLayerUrlParamFromStoreValues(store) {
 // this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
 // which layer won't render. It's basic, which means it will only tells the user when he gives a non
 // external layer that doesn't exist, or when he forgets the scheme for its external layer.
-function validateUrlInput(store, query) {
+function validateUrlInput(store: ReturnType<useStore>, query: string) {
     if (query === '') {
         return {
             valid: true,
@@ -295,14 +338,14 @@ function validateUrlInput(store, query) {
     }
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
-    const faultyLayers = []
-    const localLayers = []
+    const faultyLayers: ErrorMessage[] = []
+    const localLayers: WarningMessage[] = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
                 faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
-            } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
+            } else if (layer.baseUrl.match(url_matcher).length <= 0) {
                 localLayers.push(
                     new WarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
@@ -323,6 +366,8 @@ function validateUrlInput(store, query) {
 
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
+        // @ts-ignore We need to ignore here. TS parses the docs of AbstractParamConfig, which states
+        // that the constructor expects all these arguments, but not packed in an object
         super({
             urlParamName: 'layers',
             mutationsToWatch: [

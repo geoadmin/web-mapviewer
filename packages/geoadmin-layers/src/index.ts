@@ -4,7 +4,6 @@ import proj4 from 'proj4'
 
 export * from '@/layers'
 export * from '@/validation'
-export * as utils from '@/utils'
 export * from '@/externalWMTSCapabilitiesParser'
 export * from '@/timeConfig'
 export * as timeConfigUtils from '@/timeConfigUtils'

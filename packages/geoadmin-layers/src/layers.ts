@@ -75,12 +75,14 @@ export interface Layer {
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.
      */
-    readonly customAttributes?: Record<string, string>
+    customAttributes?: Record<string, string>
 
     // new fields that weren't specified in AbstractLayer's Constructor
     errorMessages?: Set<ErrorMessage>
     hasError: boolean
     // hasMultipleTimestamps: boolean
+
+    adminId?: string
 }
 
 /* #region: GeoAdminLayers */

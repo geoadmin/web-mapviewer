@@ -54,7 +54,10 @@ const cloneActiveLayerConfig = (getters, layer) => {
         if (layer.customAttributes) {
             const { year, updateDelay } = layer.customAttributes
             if (year && clone.timeConfig) {
-                clone.timeConfig.updateCurrentTimeEntry(clone.timeConfig.getTimeEntryForYear(year))
+                timeConfigUtils.updateCurrentTimeEntry(
+                    clone.timeConfig,
+                    timeConfigUtils.getTimeEntryForYear(clone.timeConfig, year)
+                )
             }
             if (updateDelay) {
                 clone.updateDelay = updateDelay
@@ -377,8 +380,12 @@ const actions = {
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
                 if (layer.timeConfig) {
-                    clone.timeConfig.updateCurrentTimeEntry(
-                        clone.timeConfig.getTimeEntryForYear(layer.timeConfig.currentYear)
+                    timeConfigUtils.updateCurrentTimeEntry(
+                        clone.timeConfig,
+                        timeConfigUtils.getTimeEntryForYear(
+                            clone.timeConfig,
+                            layer.timeConfig.currentYear
+                        )
                     )
                 }
                 return clone
@@ -959,7 +966,10 @@ const mutations = {
         layer.opacity = Number(opacity)
     },
     setLayerYear(state, { layer, year }) {
-        layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+        timeConfigUtils.updateCurrentTimeEntry(
+            layer.timeConfig,
+            timeConfigUtils.getTimeEntryForYear(layer.timeConfig, year)
+        )
     },
     moveActiveLayerToIndex(state, { index, newIndex }) {
         const removed = state.activeLayers.splice(index, 1)

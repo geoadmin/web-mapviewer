@@ -7,7 +7,6 @@ import {
     type GeoAdminWMSLayer,
     type GeoAdminWMTSLayer,
 } from '@/layers'
-import type Layer from 'ol/layer/Layer'
 
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about
 // handling this
@@ -46,7 +45,7 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
         technicalName: '',
         isSpecificFor3d: false,
         attributions: [],
-        hasDescription: false,
+        hasDescription: true,
         hasError: false,
     }
 
@@ -74,7 +73,7 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
         maxResolution: DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
         isSpecificFor3d: false,
         attributions: [],
-        hasDescription: false,
+        hasDescription: true,
         isExternal: false,
         isLoading: false,
         hasError: false,
