@@ -1,7 +1,5 @@
 import { cloneDeep } from 'lodash'
 
-// @ts-nocheck
-// TODO
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'

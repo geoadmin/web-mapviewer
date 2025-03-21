@@ -1,5 +1,3 @@
-import type { Layer } from '@geoadmin/layers'
-
 import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 
@@ -18,13 +16,11 @@ import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
  *
  */
 export class LayerAttribution {
-    name: string
-    url: string | null
     /**
      * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
      * @param {String} url Link to the data owner website (if there is one)
      */
-    constructor(name: string, url: string | null = null) {
+    constructor(name, url = null) {
         this.name = name
         this.url = url
     }
@@ -48,27 +44,7 @@ export class LayerAttribution {
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class AbstractLayer implements Layer {
-    name
-    id
-    type
-    baseUrl?: string
-    // ensureTrailingSlashInBaseUrl
-    opacity
-    visible
-    attributions
-    hasTooltip
-    hasDescription
-    hasLegend
-    isExternal
-    isLoading
-    timeConfig
-    customAttributes?: Record<any, any>
-
-    hasError
-    errorMessages
-
-
+export default class AbstractLayer {
     /**
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
@@ -105,7 +81,7 @@ export default class AbstractLayer implements Layer {
      * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
      *   `layerData.type` or `layer.baseUrl` aren't valid
      */
-    constructor(layerData: Record<string, any>) {
+    constructor(layerData) {
         if (!layerData) {
             throw new InvalidLayerDataError('Missing layer data', layerData)
         }
@@ -153,7 +129,7 @@ export default class AbstractLayer implements Layer {
         this.isLoading = isLoading
         this.hasDescription = hasDescription
         this.hasLegend = hasLegend
-        this.errorMessages = new Set<ErrorMessage>()
+        this.errorMessages = new Set()
         this.hasError = false
         this.timeConfig = timeConfig
         //this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
@@ -195,7 +171,7 @@ export default class AbstractLayer implements Layer {
     //     this.hasError = false
     // }
 
-    setCustomAttributes(customAttributes: typeof this.customAttributes) {
+    setCustomAttributes(customAttributes) {
         if (customAttributes !== null) {
             if (typeof customAttributes !== 'object') {
                 throw new Error(

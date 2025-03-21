@@ -103,7 +103,7 @@ export default class ExternalLayer extends AbstractLayer {
      *   in url. Default is `null`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
-    constructor(externalLayerData: Record<string, any>) {
+    constructor(externalLayerData) {
         if (!externalLayerData) {
             throw new InvalidLayerDataError('Missing external layer data', externalLayerData)
         }
