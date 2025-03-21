@@ -1,8 +1,9 @@
 import { resolve } from 'path'
 import { fileURLToPath, URL } from 'url'
+import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
-export default {
+export default defineConfig({
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -24,4 +25,7 @@ export default {
             outDir: 'dist',
         }),
     ],
-}
+    test: {
+        environment: 'jsdom',
+    },
+})
