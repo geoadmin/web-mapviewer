@@ -71,7 +71,7 @@ function sanitizeHtml(htmlText, withIframe = false) {
     })
     const config = {
         ADD_TAGS: withIframe ? ['iframe'] : [],
-        ALLOWED_URI_REGEXP: /^(https?|mailto|tel):/i, // Blocks file://, javascript:
+        ALLOWED_URI_REGEXP: /^(https?|mailto|tel|sms):/i, // Blocks file://, javascript:
     }
     const response = DOMPurify.sanitize(htmlText, config)
     DOMPurify.removeHook('afterSanitizeAttributes')
