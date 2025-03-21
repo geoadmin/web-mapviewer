@@ -166,7 +166,7 @@ export interface GeoAdminGeoJSONLayer extends Layer {
     geoJsonStyle?: any
     geoJsonData?: any
     technicalName: string
-    isExternal: true
+    isExternal: false
 }
 
 export interface GeoAdminVectorLayer extends Layer {}
