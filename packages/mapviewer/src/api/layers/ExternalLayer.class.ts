@@ -155,7 +155,7 @@ export default class ExternalLayer extends AbstractLayer {
         this.getFeatureInfoCapability = getFeatureInfoCapability
         this.currentYear = currentYear
         if (currentYear && this.timeConfig) {
-            this.timeConfig.updateCurrentTimeEntry(this.timeConfig.getTimeEntryForYear(currentYear))
+            timeConfigUtils.updateCurrentTimeEntry(this.timeConfig, timeConfigUtils.getTimeEntryForYear(this.currentYear))
         }
     }
 }
