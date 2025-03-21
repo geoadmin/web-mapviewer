@@ -382,6 +382,7 @@
     "linkedin_tooltip": "Condivida la carta su LinkedIn",
     "load_local_file": "Caricare",
     "loading": "Caricamento",
+    "loading_error_file_deleted": "Caricamento fallito, il file è stato cancellato dal suo proprietario",
     "loading_error_network_failure": "Impossibile caricare, file non accessibile",
     "loading_external_layer": "Caricamento del livello esterno",
     "loading_file": "Caricamento del file...",

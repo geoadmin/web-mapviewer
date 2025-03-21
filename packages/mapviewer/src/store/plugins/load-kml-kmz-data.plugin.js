@@ -99,7 +99,7 @@ async function loadData(store, kmlLayer) {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            error: new ErrorMessage('loading_error_network_failure'),
+            error: new ErrorMessage(kmlLayer.isExternal ? 'loading_error_network_failure' : 'loading_error_file_deleted'),
             ...dispatcher,
         })
         // stopping there, there won't be anything to do with this file
