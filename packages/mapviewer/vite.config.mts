@@ -132,6 +132,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             outputFile: 'tests/results/unit/unit-test-report.xml',
             silent: true,
             setupFiles: ['tests/setup-vitest.ts'],
+            environment: "jsdom"
         },
     }
 })
