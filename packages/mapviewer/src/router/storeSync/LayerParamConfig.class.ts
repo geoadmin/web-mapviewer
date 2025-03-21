@@ -3,6 +3,7 @@ import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 import * as vueRouter from 'vue-router'
+// @ts-ignore
 import { useStore } from 'vuex'
 
 import type { ActiveLayerConfig } from '@/utils/layerUtils'
@@ -27,6 +28,8 @@ import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
+import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
+import type { GeoAdminAPILayer } from '@geoadmin/layers'
 
 const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMTSLayer => {
     const { year } = parsedLayer.customAttributes ?? { year: null }
@@ -165,12 +168,12 @@ export function createLayerObject(
     // If we have a layer parse extra parameters that could be used by any type of layer
     if (layer) {
         if (updateDelay !== undefined) {
-            layer.updateDelay = updateDelay
+            (layer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
         // only highlightable feature will output something, for the others a click coordinate is required
         // (and we don't have it if we are here, as we are dealing with pre-selected feature in the URL at app startup)
-        if (layer.isHighlightable && features !== undefined) {
+        if ((layer as GeoAdminAPILayer).isHighlightable && features !== undefined) {
             features
                 .toString()
                 .split(':')
@@ -329,7 +332,7 @@ function generateLayerUrlParamFromStoreValues(store: ReturnType<useStore>) {
 // this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
 // which layer won't render. It's basic, which means it will only tells the user when he gives a non
 // external layer that doesn't exist, or when he forgets the scheme for its external layer.
-function validateUrlInput(store: ReturnType<useStore>, query: string) {
+function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>, query: string) {
     if (query === '') {
         return {
             valid: true,
