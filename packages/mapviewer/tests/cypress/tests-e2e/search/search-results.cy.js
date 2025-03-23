@@ -57,8 +57,8 @@ function testQueryPositionCrosshairStore({
     searchQuery,
     expectedCenter,
     expectedPinnedLocation,
-    expectedCrosshair = null,
-    expectedCrosshairPosition = null,
+    expectedCrosshair,
+    expectedCrosshairPosition,
 }) {
     // check the query
     cy.readStoreValue('state.search.query').should('eq', searchQuery)
@@ -71,11 +71,8 @@ function testQueryPositionCrosshairStore({
         checkLocation(expectedPinnedLocation, pinnedLocation)
     )
     // check the crosshair
-    if (expectedCrosshair !== null) {
-        cy.readStoreValue('state.position.crossHair').should('eq', expectedCrosshair)
-    } else {
-        cy.readStoreValue('state.position.crossHair').should('be.null')
-    }
+    cy.readStoreValue('state.position.crossHair').should('eq', expectedCrosshair)
+
     // check the crosshair position
     if (expectedCrosshairPosition !== null) {
         cy.readStoreValue('state.position.crossHairPosition').should((crossHairPosition) =>
