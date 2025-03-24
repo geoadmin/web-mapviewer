@@ -452,23 +452,9 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     setLayers({ commit /*, getters */ }, { layers, dispatcher }) {
-        // const clones = layers
-        //     .map((layer) => {
-        //         let clone = null
-        //         if (layer instanceof AbstractLayer) {
-        //             // TODO clone needed?
-        //             clone = cloneDeep(layer)
-        //         } else if (layer instanceof Object) {
-        //             clone = cloneActiveLayerConfig(getters, layer)
-        //         } else if (layer instanceof String || typeof layer === 'string') {
-        //             // should be string
-        //             // TODO clone needed?
-        //             clone = cloneDeep(getters.getLayerConfigById(layer)) ?? null
-        //         }
-        //         return clone
-        //     })
-        //     .filter((layer) => layer !== null)
-        commit('setLayers', { layers, dispatcher })
+        // TODO maybe cloning it here again shouldn't really be necessary
+        const clones = layers.map((layer) => cloneDeep(layer)).filter((layer) => layer !== null)
+        commit('setLayers', { layers: clones, dispatcher })
     },
 
     /**

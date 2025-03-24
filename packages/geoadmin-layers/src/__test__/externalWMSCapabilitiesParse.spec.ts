@@ -1,28 +1,36 @@
 import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
-import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
+import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import { LayerLegend } from '@/api/layers/ExternalLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
+import type { LayerAttribution, ExternalWMSLayer, LayerExtent, LayerLegend } from '@/layers'
+
+import {
+    externalWMSCapabilitiesParser,
+    type WMSCapabilities,
+} from '@/externalWMSCapabilitiesParser'
+
+// import { ExternalWMSLayer, LayerLegend } from '@/layers'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {
         const invalidContent = 'Invalid input'
 
         expect(
-            () => new WMSCapabilitiesParser(invalidContent, 'https://wms.geo.admin.ch')
+            () => new externalWMSCapabilitiesParser(invalidContent, 'https://wms.geo.admin.ch')
         ).toThrowError(/failed/i)
     })
 })
 
 describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
-    let capabilities
+    let parser: externalWMSCapabilitiesParser
+    let capabilities: WMSCapabilities
+
     beforeAll(async () => {
-        const content = await readFile(`${__dirname}/wms-geoadmin-sample.xml`, 'utf8')
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const content = await readFile(`${__dirname}/fixtures/wms-geoadmin-sample.xml`, 'utf8')
+        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        capabilities = parser.capabilities
     })
-    it('Parse Capabilities', async () => {
+    it('Parse Capabilities', () => {
         expect(capabilities.version).toBe('1.3.0')
         expect(capabilities.Capability).toBeTypeOf('object')
         expect(capabilities.Service).toBeTypeOf('object')
@@ -31,99 +39,119 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
     })
     it('Parse layer attributes', () => {
         // Base layer
-        let layer = capabilities.getExternalLayerObject('wms-bgdi', WGS84)
-        expect(layer.id).toBe('wms-bgdi')
-        expect(layer.name).toBe('WMS BGDI')
-        expect(layer.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
-        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+        let layer = parser.getExternalLayerObject('wms-bgdi', WGS84)
+
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('wms-bgdi')
+        expect(layer!.name).toBe('WMS BGDI')
+        expect(layer!.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
+        expect(layer!.baseUrl).toBe('https://wms.geo.admin.ch/?')
 
         // General layer
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layer.name).toBe('OpenData-AV')
-        expect(layer.abstract).toBe('The official survey (AV).')
-        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer!.name).toBe('OpenData-AV')
+        expect(layer!.abstract).toBe('The official survey (AV).')
+        expect(layer!.baseUrl).toBe('https://wms.geo.admin.ch/?')
 
         // Layer without .Name
-        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
-        expect(layer.id).toBe('Periodic-Tracking')
-        expect(layer.name).toBe('Periodic-Tracking')
-        expect(layer.abstract).toBe('Layer without Name element should use the Title')
-        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+        layer = parser.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer!.id).toBe('Periodic-Tracking')
+        expect(layer!.name).toBe('Periodic-Tracking')
+        expect(layer!.abstract).toBe('Layer without Name element should use the Title')
+        expect(layer!.baseUrl).toBe('https://wms.geo.admin.ch/?')
     })
     it('Parse layer attribution', () => {
         // Attribution in root layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('The federal geoportal')
-        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
-        // Attribution in layer
-        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
-        expect(layer.id).toBe('Periodic-Tracking')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('BGDI')
-        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('The federal geoportal')
+        expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
+
+        // Attribution in layer!
+        layer = parser.getExternalLayerObject('Periodic-Tracking', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('Periodic-Tracking')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('BGDI')
+        expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
     })
     it('Get Layer Extent in LV95', () => {
-        const externalLayers = capabilities.getAllExternalLayerObjects(LV95)
+        const externalLayers = parser.getAllExternalLayerObjects(LV95)
+
+        expect(externalLayers).to.not.be.null
+        assertType<ExternalWMSLayer[]>(externalLayers!)
+
         // Extent from matching CRS BoundingBox
-        expect(externalLayers[0].id).toBe('ch.swisstopo-vd.official-survey')
+        expect(externalLayers![0].id).toBe('ch.swisstopo-vd.official-survey')
         let expected = [
             [2100000, 1030000],
             [2900000, 1400000],
         ]
         // Here we should not do any re-projection therefore do an exact match
-        expect(externalLayers[0].extent).toEqual(expected)
+        expect(externalLayers![0].extent).toEqual(expected)
 
         // Extent from non matching CRS BoundingBox
-        expect(externalLayers[1].id).toBe('Periodic-Tracking')
+        expect(externalLayers![1].id).toBe('Periodic-Tracking')
         expected = [
             [2485071.58, 1075346.3],
             [2828515.82, 1299941.79],
         ]
-        expect(externalLayers[1].extent.length).toBe(2)
-        expect(externalLayers[1].extent[0].length).toBe(2)
-        expect(externalLayers[1].extent[1].length).toBe(2)
-        expect(externalLayers[1].extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers[1].extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers[1].extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers![1].extent!.length).toBe(2)
+        expect(externalLayers![1].extent![0].length).toBe(2)
+        expect(externalLayers![1].extent![1].length).toBe(2)
+        expect(externalLayers![1].extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers![1].extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers![1].extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers![1].extent![1][1]).toBeCloseTo(expected[1][1], 1)
     })
     it('Parse layer legend', () => {
         // General layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layer.abstract).not.empty
-        expect(layer.hasDescription).toBeTruthy()
-        expect(layer.hasLegend).toBeFalsy()
-        expect(layer.legends.length).toBe(0)
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer!.abstract).not.empty
+        expect(layer!.hasDescription).toBeTruthy()
+        expect(layer!.hasLegend).toBeFalsy()
+        expect(layer!.legends?.length).toBe(0)
 
         // Layer without .Name
-        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
-        expect(layer.id).toBe('Periodic-Tracking')
-        expect(layer.hasDescription).toBeTruthy()
-        expect(layer.hasLegend).toBeTruthy()
-        expect(layer.legends.length).toBe(1)
-        expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
-        expect(layer.legends[0].url).toBe(
+        layer = parser.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer!.id).toBe('Periodic-Tracking')
+        expect(layer!.hasDescription).toBeTruthy()
+        expect(layer!.hasLegend).toBeTruthy()
+        expect(layer!.legends?.length).toBe(1)
+
+        assertType<LayerLegend>(layer!.legends?.[0]!)
+        expect(layer!.legends?.[0].url).toBe(
             'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default'
         )
-        expect(layer.legends[0].format).toBe('image/png')
-        expect(layer.legends[0].width).toBe(168)
-        expect(layer.legends[0].height).toBe(22)
+        expect(layer!.legends?.[0].format).toBe('image/png')
+        expect(layer!.legends?.[0].width).toBe(168)
+        expect(layer!.legends?.[0].height).toBe(22)
 
         // Layer without abstract and legend
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.stand-oerebkataster', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.stand-oerebkataster')
-        expect(layer.hasDescription).toBeFalsy()
-        expect(layer.hasLegend).toBeFalsy()
-        expect(layer.legends.length).toBe(0)
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.stand-oerebkataster', WGS84)
+        expect(layer!.id).toBe('ch.swisstopo-vd.stand-oerebkataster')
+        expect(layer!.hasDescription).toBeFalsy()
+        expect(layer!.hasLegend).toBeFalsy()
+        expect(layer!.legends?.length).toBe(0)
     })
 })
 
@@ -143,9 +171,9 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/')
+        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer?.baseUrl).toBe('https://wms.geo.admin.ch/')
 
         // URL from Capability
         content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -174,9 +202,9 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/map?')
+        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer?.baseUrl).toBe('https://wms.geo.admin.ch/map?')
     })
 })
 
@@ -202,15 +230,19 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // No attribution, use Service
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('WMS BGDI')
-        expect(layer.attributions[0].url).toBeNull()
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        assertType<LayerAttribution>(layer!.attributions[0])
+        expect(layer!.attributions[0].name).toBe('WMS BGDI')
+        expect(layer!.attributions[0].url).toBeNull()
 
         // No attribution and Service without Title
         content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -232,15 +264,19 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // Attribution in service
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('wms.geo.admin.ch')
-        expect(layer.attributions[0].url).toBeNull()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
+        expect(layer!.attributions[0].url).toBeNull()
 
         // No attribution and no service
         content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -256,15 +292,19 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // Attribution in service
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('wms.geo.admin.ch')
-        expect(layer.attributions[0].url).toBeNull()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
+        expect(layer!.attributions[0].url).toBeNull()
     })
 
     it('Parse layer attribution - attribution in root layer', () => {
@@ -293,15 +333,19 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
 
-        const layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('The federal geoportal')
-        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
+        const layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer!.attributions).toBeArray()
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('The federal geoportal')
+        expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
     })
 
     it('Parse layer attribution - attribution in layer', () => {
@@ -335,15 +379,19 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // Attribution in layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('BGDI Layer')
-        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerAttribution[]>(layer!.attributions)
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('BGDI Layer')
+        expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
 
         // Attribution without title in layer
         content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -370,14 +418,18 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('www.geo.admin.ch')
-        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
+        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerAttribution[]>(layer!.attributions)
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('www.geo.admin.ch')
+        expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
     })
 
     it('Parse layer attribution - invalid attribution URL', () => {
@@ -400,15 +452,20 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+
         // No attribution, use Service
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.attributions).toBeArray()
-        expect(layer.attributions.length).toBe(1)
-        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
-        expect(layer.attributions[0].name).toBe('wms.geo.admin.ch')
-        expect(layer.attributions[0].url).toBeNull()
+        const layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerAttribution[]>(layer!.attributions)
+        expect(layer!.attributions.length).toBe(1)
+        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
+        expect(layer!.attributions[0].url).toBeNull()
     })
 })
 
@@ -433,49 +490,60 @@ describe('WMSCapabilitiesParser - layer extent', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+
         // LV95
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerExtent>(layer!.extent)
         let expected = [
             [2485071.58, 1075346.3],
             [2828515.82, 1299941.79],
         ]
-        expect(layer.extent.length).toBe(2)
-        expect(layer.extent[0].length).toBe(2)
-        expect(layer.extent[1].length).toBe(2)
-        expect(layer.extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(layer.extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(layer.extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(layer.extent[1][1]).toBeCloseTo(expected[1][1], 1)
+
+        expect(layer!.extent!.length).toBe(2)
+        expect(layer!.extent![0].length).toBe(2)
+        expect(layer!.extent![1].length).toBe(2)
+        expect(layer!.extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(layer!.extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(layer!.extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(layer!.extent![1][1]).toBeCloseTo(expected[1][1], 1)
 
         // WGS84
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerExtent>(layer!.extent)
+
         expected = [
             [5.96, 45.82],
             [10.49, 47.81],
         ]
+
         // No re-projection expected therefore do an exact match
-        expect(layer.extent).toEqual(expected)
+        expect(layer!.extent).toEqual(expected)
 
         // Web mercator
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+
+        assertType<LayerExtent>(layer!.extent)
+
         expected = [
             [663464.17, 5751550.86],
             [1167741.46, 6075303.61],
         ]
-        expect(layer.extent.length).toBe(2)
-        expect(layer.extent[0].length).toBe(2)
-        expect(layer.extent[1].length).toBe(2)
-        expect(layer.extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(layer.extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(layer.extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(layer.extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(layer!.extent!.length).toBe(2)
+        expect(layer!.extent![0].length).toBe(2)
+        expect(layer!.extent![1].length).toBe(2)
+        expect(layer!.extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(layer!.extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(layer!.extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(layer!.extent![1][1]).toBeCloseTo(expected[1][1], 1)
     })
     it('Parse layer layer extent from parent layer EX_GeographicBoundingBox', () => {
         const content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -497,49 +565,65 @@ describe('WMSCapabilitiesParser - layer extent', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // LV95
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+
+        assertType<LayerExtent>(layer!.extent)
+
         let expected = [
             [2485071.58, 1075346.3],
             [2828515.82, 1299941.79],
         ]
-        expect(layer.extent.length).toBe(2)
-        expect(layer.extent[0].length).toBe(2)
-        expect(layer.extent[1].length).toBe(2)
-        expect(layer.extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(layer.extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(layer.extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(layer.extent[1][1]).toBeCloseTo(expected[1][1], 1)
+
+        expect(layer!.extent!.length).toBe(2)
+        expect(layer!.extent![0].length).toBe(2)
+        expect(layer!.extent![1].length).toBe(2)
+        expect(layer!.extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(layer!.extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(layer!.extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(layer!.extent![1][1]).toBeCloseTo(expected[1][1], 1)
 
         // WGS84
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+
+        expect(layer).to.not.be.null
+        assertType<ExternalWMSLayer>(layer!)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layer!)
+
         expected = [
             [5.96, 45.82],
             [10.49, 47.81],
         ]
         // No re-projection expected therefore do an exact match
-        expect(layer.extent).toEqual(expected)
+        expect(layer!.extent).toEqual(expected)
 
         // Web mercator
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer.extent).toBeArray()
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<LayerExtent>(layer!.extent)
+
+        expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layer!)
         expected = [
             [663464.17, 5751550.86],
             [1167741.46, 6075303.61],
         ]
-        expect(layer.extent.length).toBe(2)
-        expect(layer.extent[0].length).toBe(2)
-        expect(layer.extent[1].length).toBe(2)
-        expect(layer.extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(layer.extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(layer.extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(layer.extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(layer!.extent!.length).toBe(2)
+        expect(layer!.extent![0].length).toBe(2)
+        expect(layer!.extent![1].length).toBe(2)
+        expect(layer!.extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(layer!.extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(layer!.extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(layer!.extent![1][1]).toBeCloseTo(expected[1][1], 1)
     })
 })
 
@@ -576,22 +660,28 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // LV95
-        let layers = capabilities.getAllExternalLayerObjects(LV95)
-        expect(layers.length).toBe(1)
-        expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers.length).toBe(3)
-        expect(layers[0].layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[0].id).toBe('ch.swisstopo-vd.official-survey-1')
+        const layers = parser.getAllExternalLayerObjects(LV95)
 
-        expect(layers[0].layers[1]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[1].id).toBe('ch.swisstopo-vd.official-survey-2')
+        expect(layers).to.not.be.null
+        assertType<ExternalWMSLayer[]>(layers!)
 
-        expect(layers[0].layers[2]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].id).toBe('ch.swisstopo-vd.official-survey-3')
+        expect(layers!.length).toBe(1)
+        expect(layers![0].id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layers![0])
+
+        expect(layers![0].layers!.length).toBe(3)
+        assertType<ExternalWMSLayer>(layers![0].layers![0])
+        expect(layers![0].layers![0].id).toBe('ch.swisstopo-vd.official-survey-1')
+
+        assertType<ExternalWMSLayer>(layers![0].layers![1])
+        expect(layers![0].layers![1].id).toBe('ch.swisstopo-vd.official-survey-2')
+
+        assertType<ExternalWMSLayer>(layers![0].layers![2])
+        expect(layers![0].layers![2].id).toBe('ch.swisstopo-vd.official-survey-3')
     })
+
     it('Parse group of layers - multiple hierarchy', () => {
         const content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
         <WMS_Capabilities version="1.3.0">
@@ -640,35 +730,40 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         // LV95
-        let layers = capabilities.getAllExternalLayerObjects(LV95)
-        expect(layers.length).toBe(1)
-        expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
-        expect(layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers.length).toBe(3)
-        expect(layers[0].layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[0].id).toBe('ch.swisstopo-vd.official-survey-1')
+        const layers = parser.getAllExternalLayerObjects(LV95)
 
-        expect(layers[0].layers[1]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[1].id).toBe('ch.swisstopo-vd.official-survey-2')
+        expect(layers!.length).toBe(1)
+        expect(layers![0].id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layers![0])
+        expect(layers![0]?.layers?.length).toBe(3)
+        assertType<ExternalWMSLayer>(layers![0].layers![0])
+        expect(layers![0]?.layers?.[0]?.id).toBe('ch.swisstopo-vd.official-survey-1')
 
-        expect(layers[0].layers[2]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].id).toBe('ch.swisstopo-vd.official-survey-3')
+        assertType<ExternalWMSLayer>(layers![0].layers![1])
+        expect(layers![0]?.layers?.[1]?.id).toBe('ch.swisstopo-vd.official-survey-2')
 
-        expect(layers[0].layers[2].layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].layers[0].id).toBe('ch.swisstopo-vd.official-survey-3-sub-1')
+        assertType<ExternalWMSLayer>(layers![0].layers![2])
+        expect(layers![0]?.layers?.[2]?.id).toBe('ch.swisstopo-vd.official-survey-3')
 
-        expect(layers[0].layers[2].layers[1]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].layers[1].id).toBe('ch.swisstopo-vd.official-survey-3-sub-2')
+        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![0])
+        expect(layers![0]?.layers?.[2]?.layers?.[0].id).toBe(
+            'ch.swisstopo-vd.official-survey-3-sub-1'
+        )
 
-        expect(layers[0].layers[2].layers[1].layers[0]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].layers[1].layers[0].id).toBe(
+        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1])
+        expect(layers![0]?.layers?.[2]?.layers?.[1].id).toBe(
+            'ch.swisstopo-vd.official-survey-3-sub-2'
+        )
+
+        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1].layers![0])
+        expect(layers![0]?.layers?.[2]?.layers?.[1].layers?.[0].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-2-1'
         )
 
-        expect(layers[0].layers[2].layers[1].layers[1]).toBeInstanceOf(ExternalWMSLayer)
-        expect(layers[0].layers[2].layers[1].layers[1].id).toBe(
+        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1].layers![1])
+        expect(layers![0].layers![2].layers![1].layers![1].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-2-2'
         )
     })
@@ -723,29 +818,26 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
 
         // search root layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
+        let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
         expect(layer).not.toBeNull()
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer?.id).toBe('ch.swisstopo-vd.official-survey')
 
         // search first hierarchy layer
-        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey-2', LV95)
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey-2', LV95)
         expect(layer).not.toBeNull()
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey-2')
+        expect(layer?.id).toBe('ch.swisstopo-vd.official-survey-2')
 
         // Search sublayer
-        layer = capabilities.getExternalLayerObject(
-            'ch.swisstopo-vd.official-survey-3-sub-2-1',
-            LV95
-        )
+        layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey-3-sub-2-1', LV95)
         expect(layer).not.toBeNull()
-        expect(layer.id).toBe('ch.swisstopo-vd.official-survey-3-sub-2-1')
+        expect(layer?.id).toBe('ch.swisstopo-vd.official-survey-3-sub-2-1')
 
         // Search sublayer without name
-        layer = capabilities.getExternalLayerObject('OpenData-AV 3.2.2', LV95)
+        layer = parser.getExternalLayerObject('OpenData-AV 3.2.2', LV95)
         expect(layer).not.toBeNull()
-        expect(layer.id).toBe('OpenData-AV 3.2.2')
+        expect(layer?.id).toBe('OpenData-AV 3.2.2')
     })
 })

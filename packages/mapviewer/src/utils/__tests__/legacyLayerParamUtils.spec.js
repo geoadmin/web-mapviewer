@@ -8,6 +8,7 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import { getWmtsBaseUrl } from '@/config/baseUrl.config'
 import {
     createLayersParamForFeaturePreselection,
     getLayersFromLegacyUrlParams,
@@ -32,6 +33,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 name: 'Test layer WMTS',
                 id: 'test.wmts.layer',
                 technicalName: 'test.wmts.layer',
+                baseUrl: getWmtsBaseUrl(),
                 attributions: [new LayerAttribution('test')],
             }),
             layerUtils.makeGeoAdminWMTSLayer({

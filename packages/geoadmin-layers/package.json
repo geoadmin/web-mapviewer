@@ -28,11 +28,13 @@
         "@geoadmin/coordinates": "workspace:*",
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:^",
-        "@types/openlayers": "catalog:",
+        "lodash": "catalog:",
         "ol": "catalog:",
         "proj4": "catalog:"
     },
     "devDependencies": {
+        "@types/lodash": "catalog:",
+        "@types/openlayers": "catalog:",
         "chai": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",

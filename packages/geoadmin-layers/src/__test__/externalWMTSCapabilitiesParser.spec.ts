@@ -1,16 +1,18 @@
-// @ts-nocheck
 import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
 import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import { externalWMTSCapabilitiesParser, type Capabilities } from '@/externalWMTSCapabilitiesParser'
+import {
+    externalWMTSCapabilitiesParser,
+    type WMTSCapabilities,
+} from '@/externalWMTSCapabilitiesParser'
 import { timeConfigUtils } from '@/index'
 import { type ExternalWMTSLayer } from '@/layers'
 import { type LayerLegend } from '@/layers'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     let parser: externalWMTSCapabilitiesParser
-    let capabilities: Capabilities
+    let capabilities: WMTSCapabilities
 
     beforeAll(async () => {
         const content = await readFile(`${__dirname}/fixtures/wmts-ogc-sample.xml`, 'utf8')
@@ -139,88 +141,88 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Get Layer Extent in Web Mercator', () => {
         const externalLayers = parser.getAllExternalLayerObjects(WEBMERCATOR)
         // Extent from WGS84BoundingBox
-        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers![0].id).toBe('BlueMarbleNextGenerationCH')
         let expected = [
             [663464.16, 5751550.86],
             [1167741.46, 6075303.61],
         ]
-        expect(externalLayers[0].extent.length).toBe(2)
-        expect(externalLayers[0].extent[0].length).toBe(2)
-        expect(externalLayers[0].extent[1].length).toBe(2)
-        expect(externalLayers[0].extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers[0].extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers[0].extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers[0].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers![0].extent?.length).toBe(2)
+        expect(externalLayers![0].extent?.[0].length).toBe(2)
+        expect(externalLayers![0].extent?.[1].length).toBe(2)
+        expect(externalLayers![0].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers![0].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers![0].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers![0].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers![1].id).toBe('BlueMarbleSecondGenerationAG')
         expected = [
             [868292.03, 5956776.76],
             [942876.09, 6047171.27],
         ]
-        expect(externalLayers[1].extent.length).toBe(2)
-        expect(externalLayers[1].extent[0].length).toBe(2)
-        expect(externalLayers[1].extent[1].length).toBe(2)
-        expect(externalLayers[1].extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers[1].extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers[1].extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers![1].extent?.length).toBe(2)
+        expect(externalLayers![1].extent?.[0].length).toBe(2)
+        expect(externalLayers![1].extent?.[1].length).toBe(2)
+        expect(externalLayers![1].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers![1].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers![1].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers![1].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers![2].id).toBe('BlueMarbleThirdGenerationZH')
         expected = [
             [923951.77, 5976419.03],
             [1007441.39, 6062053.42],
         ]
-        expect(externalLayers[2].extent.length).toBe(2)
-        expect(externalLayers[2].extent[0].length).toBe(2)
-        expect(externalLayers[2].extent[1].length).toBe(2)
-        expect(externalLayers[2].extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers[2].extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers[2].extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers[2].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers![2].extent?.length).toBe(2)
+        expect(externalLayers![2].extent?.[0].length).toBe(2)
+        expect(externalLayers![2].extent?.[1].length).toBe(2)
+        expect(externalLayers![2].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers![2].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers![2].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers![2].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from the TileMatrixSet
-        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers![3].id).toBe('BlueMarbleFourthGenerationJU')
         expected = [
             [758085.73, 5961683.17],
             [841575.35, 6032314.73],
         ]
-        expect(externalLayers[3].extent.length).toBe(2)
-        expect(externalLayers[3].extent[0].length).toBe(2)
-        expect(externalLayers[3].extent[1].length).toBe(2)
-        expect(externalLayers[3].extent[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers[3].extent[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers[3].extent[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers[3].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers![3].extent?.length).toBe(2)
+        expect(externalLayers![3].extent?.[0].length).toBe(2)
+        expect(externalLayers![3].extent?.[1].length).toBe(2)
+        expect(externalLayers![3].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers![3].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers![3].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers![3].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
     })
 
     it('Get Layer Extent in WGS84', () => {
         const externalLayers = parser.getAllExternalLayerObjects(WGS84)
         // Extent from WGS84BoundingBox
-        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
-        expect(externalLayers[0].extent).toEqual([
+        expect(externalLayers![0].id).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers![0].extent).toEqual([
             [5.96, 45.82],
             [10.49, 47.81],
         ])
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
-        expect(externalLayers[1].extent).toEqual([
+        expect(externalLayers![1].id).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers![1].extent).toEqual([
             [7.8, 47.09],
             [8.47, 47.64],
         ])
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
-        expect(externalLayers[2].extent).toEqual([
+        expect(externalLayers![2].id).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers![2].extent).toEqual([
             [8.3, 47.21],
             [9.05, 47.73],
         ])
 
         // Extent from the TileMatrixSet
-        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
-        expect(externalLayers[3].extent).toEqual([
+        expect(externalLayers![3].id).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers![3].extent).toEqual([
             [6.81, 47.12],
             [7.56, 47.55],
         ])
@@ -234,14 +236,15 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.id).toBe('BlueMarbleSecondGenerationAG')
 
-        expectTypeOf(layer.legends).toBeArray()
+        assertType<LayerLegend[]>(layer!.legends!)
 
-        expect(layer!.legends.length).toBe(1)
-        assertType<LayerLegend>(layer.legends[0])
-        expect(layer!.legends[0].url).toBe(
+        expect(layer!.legends?.length).toBe(1)
+        assertType<LayerLegend>(layer!.legends![0])
+
+        expect(layer!.legends![0].url).toBe(
             'http://www.miramon.uab.es/wmts/Coastlines/coastlines_darkBlue.png'
         )
-        expect(layer!.legends[0].format).toBe('image/png')
+        expect(layer!.legends![0].format).toBe('image/png')
     })
     it('Parse layer time dimension in format YYYYMMDD', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
@@ -269,59 +272,59 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
     it('Parse layer time dimension in format ISO format YYYY-MM-DD', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
-        expect(layer.id).toBe('BlueMarbleThirdGenerationZH')
-        expect(layer.timeConfig).to.be.not.null.and.not.undefined
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2011-08-05')).to.be.true
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2008-10-24')).to.be.true
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2008-10-23')).to.be.false
+        expect(layer!.id).toBe('BlueMarbleThirdGenerationZH')
+        expect(layer!.timeConfig).to.be.not.null.and.not.undefined
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2011-08-05')).to.be.true
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-24')).to.be.true
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-23')).to.be.false
 
-        expect(timeConfigUtils.getTimeEntryForYear(layer.timeConfig, 2008)).to.be.not.null.and.not
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).to.be.not.null.and.not
             .undefined
-        expect(timeConfigUtils.getTimeEntryForYear(layer.timeConfig, 2005)).to.be.null
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.null
 
-        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('2011-08-05')
-        expect(layer.timeConfig.currentTimeEntry.year).toBe(2011)
-        expect(layer.timeConfig.currentYear).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentYear).toBe(2011)
-        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimestamp).toBe('2011-08-05')
+        expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05')
+        expect(layer!.timeConfig!.currentTimeEntry!.year!).toBe(2011)
+        expect(layer!.timeConfig!.currentYear).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentYear!).toBe(2011)
+        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimestamp).toBe('2011-08-05')
     })
     it('Parse layer time dimension in format full ISO format YYYY-MM-DDTHH:mm:ss.sssZ', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleFourthGenerationJU', WGS84)
-        expect(layer.id).toBe('BlueMarbleFourthGenerationJU')
-        expect(layer.timeConfig).to.be.not.null.and.not.undefined
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2011-08-05T01:20:34.345Z')).to.be
+        expect(layer!.id).toBe('BlueMarbleFourthGenerationJU')
+        expect(layer!.timeConfig).to.be.not.null.and.not.undefined
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2011-08-05T01:20:34.345Z')).to.be
             .true
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2008-10-24T01:20:34.345Z')).to.be
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-24T01:20:34.345Z')).to.be
             .true
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, '2008-10-23T01:20:34.345Z')).to.be
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-23T01:20:34.345Z')).to.be
             .false
 
-        expect(timeConfigUtils.getTimeEntryForYear(layer.timeConfig, 2008)).to.be.not.null.and.not
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).to.be.not.null.and.not
             .undefined
-        expect(timeConfigUtils.getTimeEntryForYear(layer.timeConfig, 2005)).to.be.null
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.null
 
-        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('2011-08-05T01:20:34.345Z')
-        expect(layer.timeConfig.currentTimeEntry.year).toBe(2011)
-        expect(layer.timeConfig.currentYear).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentYear).toBe(2011)
-        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimestamp).toBe('2011-08-05T01:20:34.345Z')
+        expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05T01:20:34.345Z')
+        expect(layer!.timeConfig!.currentTimeEntry!.year).toBe(2011)
+        expect(layer!.timeConfig!.currentYear).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentYear).toBe(2011)
+        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimestamp).toBe('2011-08-05T01:20:34.345Z')
     })
     it('Parse layer time dimension in unknown format', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleFifthGenerationGE', WGS84)
-        expect(layer.id).toBe('BlueMarbleFifthGenerationGE')
-        expect(layer.timeConfig).to.be.not.null.and.not.undefined
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, 'Time A')).to.be.true
-        expect(timeConfigUtils.hasTimestamp(layer.timeConfig, 'Time B')).to.be.true
+        expect(layer!.id).toBe('BlueMarbleFifthGenerationGE')
+        expect(layer!.timeConfig).to.be.not.null.and.not.undefined
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, 'Time A')).to.be.true
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, 'Time B')).to.be.true
 
-        expect(layer.timeConfig.currentTimeEntry).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimeEntry.timestamp).toBe('Time A')
-        expect(layer.timeConfig.currentTimeEntry.year).to.be.null
-        expect(layer.timeConfig.currentYear).to.be.undefined
-        expect(layer.timeConfig.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer.timeConfig.currentTimestamp).toBe('Time A')
+        expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('Time A')
+        expect(layer!.timeConfig!.currentTimeEntry!.year).to.be.null
+        expect(layer!.timeConfig!.currentYear).to.be.undefined
+        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
+        expect(layer!.timeConfig!.currentTimestamp).toBe('Time A')
     })
 })

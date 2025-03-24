@@ -2,7 +2,6 @@ import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
 import type { GeoAdminAPILayer } from '@geoadmin/layers'
 
 import * as layers from '@geoadmin/layers'
-import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 import * as vueRouter from 'vue-router'
@@ -15,7 +14,6 @@ import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -46,6 +44,22 @@ const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.Externa
     })
 }
 
+const createWMSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMSLayer => {
+    const { year, customAttributes } = parsedLayer
+
+    // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
+    // the layer might be updated to an external group of layers if needed.
+    return layers.layerUtils.makeExternalWMSLayer({
+        id: parsedLayer.id,
+        name: parsedLayer.id,
+        opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
+        visible: parsedLayer.visible,
+        baseUrl: parsedLayer.baseUrl,
+        currentYear: year,
+        customAttributes,
+    })
+}
+
 /**
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
@@ -54,10 +68,10 @@ const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.Externa
  * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @param {Store} store Vuex store
  * @param {[Promise<LayerFeature>]} featuresRequests Array of getFeature() promises
- * @returns {KMLLayer | layers.ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig} Will return
- *   an instance of the corresponding layer if the given layer is an external one, returns null if
- *   this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local file) or
- *   will return the untouched ActiveLayerConfig for other layer types
+ * @returns {KMLLayer | layers.ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig}
+ *   Will return an instance of the corresponding layer if the given layer is an external one, returns
+ *   null if this external layer can't be "reloaded" from URL (i.e. KML/GPX added through local
+ *   file) or will return the untouched ActiveLayerConfig for other layer types
  */
 export function createLayerObject(
     parsedLayer: ActiveLayerConfig,
@@ -130,17 +144,7 @@ export function createLayerObject(
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.type === layers.LayerType.WMS) {
-        // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
-        // the layer might be updated to an external group of layers if needed.
-        layer = new ExternalWMSLayer({
-            id: parsedLayer.id,
-            name: parsedLayer.id,
-            opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
-            visible: parsedLayer.visible,
-            baseUrl: parsedLayer.baseUrl,
-            currentYear: year,
-            customAttributes,
-        })
+        layer = createWMSLayerObject(parsedLayer)
     } else {
         // Finally check if this is a Geoadmin layer
         layer = cloneDeep(store.getters.getLayerConfigById(parsedLayer.id))
@@ -169,7 +173,7 @@ export function createLayerObject(
     // If we have a layer parse extra parameters that could be used by any type of layer
     if (layer) {
         if (updateDelay !== undefined) {
-            (layer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+            ;(layer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
         // only highlightable feature will output something, for the others a click coordinate is required
@@ -238,7 +242,7 @@ function dispatchLayersFromUrlIntoStore(
             }
 
             if (layerObject) {
-                if (layerObject.type === LayerType.KML && layerObject.adminId) {
+                if (layerObject.type === layers.LayerType.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
                         store.dispatch('setShowDrawingOverlay', {
                             show: true,

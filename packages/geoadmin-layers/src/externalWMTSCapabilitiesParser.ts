@@ -1,6 +1,6 @@
 import { allCoordinateSystems, CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import { default as olWMTSCapabilities } from 'ol/format/WMTSCapabilities'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'
 
@@ -9,17 +9,73 @@ import {
     type LayerLegend,
     type LayerExtent,
     type LayerAttribution,
-    type BoundingBox,
-    // type LayerTimeConfigEntry,
     type ExternalWMTSLayer,
     type TileMatrixSet,
     type WMTSDimension,
     WMTSEncodingType,
+    type BoundingBox,
 } from '@/layers'
 import * as layerUtils from '@/layerUtils'
 import { type LayerTimeConfig } from '@/timeConfig'
 import { makeTimeConfig, makeTimeConfigEntry } from '@/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
+
+type WMTSBoundingBox = {
+    lowerCorner?: [number, number]
+    upperCorner?: [number, number]
+    extent?: [number, number, number, number]
+    crs?: string
+    dimensions?: number
+}
+
+type LegendURL = { format: string; width: number; height: number; href: string }
+
+type CapabilityLayer = {
+    Dimension?: Record<string, any>
+    ResourceURL: any
+    Identifier: string
+    Title: string
+    WGS84BoundingBox?: { crs: string; dimensions: any }[]
+    BoundingBox?: WMTSBoundingBox[]
+    TileMatrixSetLink: TileMatrixSetLink[]
+    Style: {
+        LegendURL: LegendURL[]
+        Identifier: string
+        isDefault: boolean
+    }[]
+    Abstract: string
+}
+
+type TileMatrixSetLink = {
+    TileMatrixSet: string
+    TileMatrixSetLimits: Array<{
+        MaxTileCol: number
+        MaxTileRow: number
+        MinTileCol: number
+        MinTileRow: number
+        TileMatrix: string
+    }>
+}
+
+export type WMTSCapabilities = {
+    originUrl: URL
+    version: string
+    Contents?: {
+        Layer?: Array<CapabilityLayer>
+        TileMatrixSet: Array<{
+            BoundingBox: BoundingBox[]
+            Identifier: string
+            SupportedCRS?: string
+            TileMatrix: Object[]
+        }>
+    }
+    ServiceProvider?: {
+        ProviderName?: string
+        ProviderSite?: string
+    }
+    OperationsMetadata?: Record<string, any>
+    ServiceIdentification: Record<string, any>
+}
 
 function parseCrs(crs: string) {
     let epsgNumber = crs?.split(':').pop()
@@ -47,62 +103,13 @@ function findLayer(layerId: string, layers: CapabilityLayer[]): CapabilityLayer 
     return layer
 }
 
-type LegendURL = { format: string; width: number; height: number; href: string }
-
-type CapabilityLayer = {
-    Dimension?: Record<string, any>
-    ResourceURL: any
-    Identifier: string
-    Title: string
-    WGS84BoundingBox?: { crs: string; dimensions: any }[]
-    BoundingBox?: BoundingBox[]
-    TileMatrixSetLink: TileMatrixSetLink[]
-    Style: {
-        LegendURL: LegendURL[]
-        Identifier: string
-        isDefault: boolean
-    }[]
-    Abstract: string
-}
-
-
-type TileMatrixSetLink = {
-    TileMatrixSet: string
-    TileMatrixSetLimits: Array<{
-        MaxTileCol: number
-        MaxTileRow: number
-        MinTileCol: number
-        MinTileRow: number
-        TileMatrix: string
-    }>
-}
-
-export type Capabilities = {
-    originUrl: URL
-    version: string
-    Contents?: {
-        Layer?: Array<CapabilityLayer>
-        TileMatrixSet: Array<{
-            BoundingBox: BoundingBox[]
-            Identifier: string
-            SupportedCRS?: string
-            TileMatrix: Object[]
-        }>
-    }
-    ServiceProvider?: {
-        ProviderName?: string
-        ProviderSite?: string
-    }
-    OperationsMetadata?: Record<string, any>
-}
-
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export class externalWMTSCapabilitiesParser {
     // a stubbed type of what the parser will return
-    capabilities: Capabilities
+    capabilities: WMTSCapabilities
 
     constructor(content: string, originUrl: string) {
-        const parser = new WMTSCapabilities()
+        const parser = new olWMTSCapabilities()
         const capabilities = parser.read(content)
 
         if (!capabilities.version) {
@@ -167,8 +174,8 @@ export class externalWMTSCapabilitiesParser {
             projection,
             opacity,
             visible,
-            ignoreError,
-            currentYear
+            currentYear,
+            ignoreError
         )
 
         return externalLayerObject
@@ -349,14 +356,17 @@ export class externalWMTSCapabilitiesParser {
         return availableProjections
     }
 
-
-    _getLayerExtent(layerId: string, layer: CapabilityLayer, projection: CoordinateSystem): LayerExtent {
+    _getLayerExtent(
+        layerId: string,
+        layer: CapabilityLayer,
+        projection: CoordinateSystem
+    ): LayerExtent {
         // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
 
         let layerExtent
         let extentEpsg
 
-         // First try to get the extent from the default bounding box
+        // First try to get the extent from the default bounding box
         if (layer.WGS84BoundingBox?.length) {
             layerExtent = [
                 [layer.WGS84BoundingBox[0], layer.WGS84BoundingBox[1]],
@@ -376,7 +386,6 @@ export class externalWMTSCapabilitiesParser {
                     [matching.extent[0], matching.extent[1]],
                     [matching.extent[2], matching.extent[3]],
                 ]
-
             } else if (layer.BoundingBox.length === 1 && !layer.BoundingBox[0].crs) {
                 // if we have only one bounding box without CRS, then take it searching the CRS
                 // fom the TileMatrixSet
@@ -388,12 +397,13 @@ export class externalWMTSCapabilitiesParser {
                             [layer.BoundingBox[0].extent[0], layer.BoundingBox[0].extent[1]],
                             [layer.BoundingBox[0].extent[2], layer.BoundingBox[0].extent[3]],
                         ]
+                    }
                 }
-                }
-
             } else {
                 // if we have multiple bounding box search for the one that specify a supported CRS
-                const supported = layer.BoundingBox.find((bbox: BoundingBox) => bbox.crs ? parseCrs(bbox.crs) : false)
+                const supported = layer.BoundingBox.find((bbox: BoundingBox) =>
+                    bbox.crs ? parseCrs(bbox.crs) : false
+                )
 
                 if (supported && supported.crs !== null && supported.extent) {
                     extentEpsg = parseCrs(supported.crs ?? '')?.epsg
@@ -401,7 +411,6 @@ export class externalWMTSCapabilitiesParser {
                         [supported.extent[0], supported.extent[1]],
                         [supported.extent[2], supported.extent[3]],
                     ]
-
                 }
             }
         }
@@ -423,18 +432,22 @@ export class externalWMTSCapabilitiesParser {
         }
 
         // Convert the extent if needed
-        if (layerExtent && extentEpsg && projection.epsg !== extentEpsg && Array.isArray(layerExtent)) {
+        if (
+            layerExtent &&
+            extentEpsg &&
+            projection.epsg !== extentEpsg &&
+            Array.isArray(layerExtent)
+        ) {
             layerExtent = [
                 //  we asserted it's an array above
                 proj4(extentEpsg, projection.epsg, layerExtent[0] as Array<number>),
-                proj4(extentEpsg, projection.epsg, layerExtent[1] as Array<number>)
+                proj4(extentEpsg, projection.epsg, layerExtent[1] as Array<number>),
             ]
         }
         if (!layerExtent) {
             const msg = `No layer extent found for ${layerId}`
             log.error(msg, layer)
         }
-
 
         return layerExtent
     }
@@ -487,19 +500,24 @@ export class externalWMTSCapabilitiesParser {
             return null
         }
 
-        return this.capabilities.Contents?.TileMatrixSet.filter((set) =>
-            ids.includes(set.Identifier))
-            .map((set) => {
-                const projection = parseCrs(set.SupportedCRS ?? '')
-                if (!projection) {
-                    log.warn(
-                        `Invalid or non supported CRS ${set.SupportedCRS} in TileMatrixSet ${set.Identifier} for layer ${layerId}}`
-                    )
-                    return null
-                }
-                return { id: set.Identifier, projection: projection, tileMatrix: set.TileMatrix }
-            })
-            .filter((set) => !!set) ?? null
+        return (
+            this.capabilities.Contents?.TileMatrixSet.filter((set) => ids.includes(set.Identifier))
+                .map((set) => {
+                    const projection = parseCrs(set.SupportedCRS ?? '')
+                    if (!projection) {
+                        log.warn(
+                            `Invalid or non supported CRS ${set.SupportedCRS} in TileMatrixSet ${set.Identifier} for layer ${layerId}}`
+                        )
+                        return null
+                    }
+                    return {
+                        id: set.Identifier,
+                        projection: projection,
+                        tileMatrix: set.TileMatrix,
+                    }
+                })
+                .filter((set) => !!set) ?? null
+        )
     }
 
     _getDimensions(layer: CapabilityLayer): WMTSDimension[] {

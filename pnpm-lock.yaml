@@ -427,9 +427,9 @@ importers:
       '@geoadmin/numbers':
         specifier: workspace:^
         version: link:../geoadmin-numbers
-      '@types/openlayers':
+      lodash:
         specifier: 'catalog:'
-        version: 4.6.23
+        version: 4.17.21
       ol:
         specifier: 'catalog:'
         version: 10.4.0
@@ -437,6 +437,12 @@ importers:
         specifier: 'catalog:'
         version: 2.15.0
     devDependencies:
+      '@types/lodash':
+        specifier: 'catalog:'
+        version: 4.17.16
+      '@types/openlayers':
+        specifier: 'catalog:'
+        version: 4.6.23
       chai:
         specifier: 'catalog:'
         version: 5.2.0

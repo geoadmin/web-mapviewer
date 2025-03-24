@@ -7,6 +7,7 @@ import {
     type ExternalWMTSLayer,
     type GeoAdminWMSLayer,
     type GeoAdminWMTSLayer,
+    type ExternalWMSLayer,
 } from '@/layers'
 
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about
@@ -64,7 +65,6 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
         visible: true,
         format: 'png' as 'png' | 'jpeg',
         isBackground: false,
-        // TODO should we use the getBaseUrl here?
         baseUrl: '',
         isHighlightable: false,
         hasTooltip: false,
@@ -93,14 +93,17 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
  * @returns ExternalWMTSLayer
  */
 export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer => {
+    const baseUrl = values.baseUrl ?? ''
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
-    const attributions = [{name: new URL(values.baseUrl!).hostname}]
+    const attributions = [{ name: new URL(baseUrl).hostname }]
+    const hasLegend = (values?.legends ?? []).length > 0
 
     const defaults = {
         id: '',
         name: '',
         isExternal: true,
         type: LayerType.WMTS as LayerType.WMTS,
+        baseUrl,
         opacity: DEFAULT_OPACITY,
         visible: true,
         abstract: '',
@@ -114,11 +117,11 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
         hasTooltip: false,
         hasDescription,
         searchable: false,
-        hasLegend: false,
+        hasLegend,
         isLoading: true,
         hasError: false,
         currentYear: undefined,
-        attributions
+        attributions,
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -130,7 +133,50 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
 
     // if hasDescription or attributions were provided in `values`, then these would
     // override the ones we inferred above
-    return { ...defaults, hasDescription, attributions, ...values }
+    return { ...defaults, ...values }
+}
+
+export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): ExternalWMSLayer => {
+    const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
+    const attributions = [{ name: new URL(values.baseUrl!).hostname }]
+    const hasLegend = (values?.legends ?? []).length > 0
+
+    const defaults = {
+        id: '',
+        name: '',
+        opacity: 1.0,
+        visible: true,
+        baseUrl: '',
+        layers: [],
+        attributions,
+        hasDescription,
+        wmsVersion: '1.3.0',
+        format: 'png' as 'png' | 'jpeg',
+        hasLegend,
+        abstract: '',
+        extent: undefined,
+        legends: [],
+        isLoading: true,
+        availableProjections: [],
+        hasTooltip: false,
+        getFeatureInfoCapability: null,
+        dimensions: [],
+        timeConfig: undefined,
+        currentYear: undefined,
+        customAttributes: undefined,
+        type: LayerType.WMS as LayerType.WMS,
+        isExternal: true,
+        hasError: false,
+    }
+
+    if (values.currentYear && values.timeConfig) {
+        const timeEntry = timeConfigUtils.getTimeEntryForYear(values.timeConfig, values.currentYear)
+        if (timeEntry) {
+            timeConfigUtils.updateCurrentTimeEntry(values.timeConfig, timeEntry)
+        }
+    }
+
+    return { ...defaults, ...values }
 }
 
 /**

@@ -1,8 +1,10 @@
-import { externalWMTSCapabilitiesParser, CapabilitiesError } from '@geoadmin/layers'
+import {
+    externalWMSCapabilitiesParser,
+    externalWMTSCapabilitiesParser,
+    CapabilitiesError,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
-
-import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000
@@ -90,7 +92,7 @@ export async function readWmsCapabilities(baseUrl: string, language: string | nu
  */
 export function parseWmsCapabilities(content: string, originUrl: string) {
     try {
-        return new WMSCapabilitiesParser(content, originUrl)
+        return new externalWMSCapabilitiesParser(content, originUrl)
     } catch (error) {
         throw new CapabilitiesError(
             // @ts-ignore

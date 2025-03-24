@@ -19,7 +19,7 @@ export default class LayerTimeConfig {
      * @param {LayerTimeConfigEntry[]} timeEntries List of timestamps identifier (that can be placed
      *   in the WMTS URL)
      */
-    constructor(behaviour = null, timeEntries) {
+    constructor(behaviour = null, timeEntries = []) {
         this.behaviour = behaviour
         /** @type {LayerTimeConfigEntry[]} */
         this.timeEntries = [...timeEntries]

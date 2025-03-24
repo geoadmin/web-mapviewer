@@ -233,7 +233,29 @@ export interface ExternalWMTSLayer extends Layer {
     type: LayerType.WMTS
 }
 
-export interface ExternalWMSLayer extends Layer {}
+// TODO
+export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
+
+export interface WMSDimension {
+    id: string
+    dft: string
+    values?: string[]
+    current?: boolean
+}
+
+export interface ExternalWMSLayer extends Layer {
+    abstract?: string
+    dimensions: WMSDimension[]
+    availableProjections?: CoordinateSystem[]
+    getFeatureInfoCapability?: any
+    customAttributes?: Record<string, any>
+    layers?: ExternalWMSLayer[]
+    wmsVersion: string
+    format: 'png' | 'jpeg'
+    extent?: LayerExtent
+    legends?: LayerLegend[]
+    currentYear?: number
+}
 
 /* #endregion */
 
