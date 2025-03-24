@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
-const { showProviders, groupedProviders } = defineProps({
+const { showProviders, groupedProviders, filterApplied } = defineProps({
     showProviders: {
         type: Boolean,
         default: false,
@@ -15,6 +15,10 @@ const { showProviders, groupedProviders } = defineProps({
         default() {
             return {}
         },
+    },
+    filterApplied: {
+        type: Boolean,
+        default: false,
     },
 })
 
@@ -53,6 +57,14 @@ function goToLast() {
     providerList.value.querySelector(`[tabindex="${providers.length - 1}"]`).focus()
 }
 
+// Watch for changes in groupedProviders and set the expandedGroups state
+// based on the filterApplied prop
+watch(() => groupedProviders, (currentGroupProviders) => {
+    Object.keys(currentGroupProviders).forEach(baseUrl => {
+        expandedGroups.value[baseUrl] = filterApplied
+    })
+})
+
 defineExpose({ goToFirst })
 </script>
 
@@ -70,6 +82,7 @@ defineExpose({ goToFirst })
                 v-for="(providers, baseUrl) in groupedProviders"
                 :key="baseUrl"
                 class="providers-group"
+                data-cy="import-provider-group"
             >
                 <div
                     class="providers-group-header px-2 py-1 text-nowrap"
@@ -87,6 +100,7 @@ defineExpose({ goToFirst })
                         :key="provider.url"
                         :tabindex="key"
                         class="providers-list-item px-2 py-1 text-nowrap"
+                        data-cy="import-provider-item"
                         @keydown.up.prevent="goToPrevious(key)"
                         @keydown.down.prevent="() => goToNext(key)"
                         @keydown.home.prevent="goToFirst"
