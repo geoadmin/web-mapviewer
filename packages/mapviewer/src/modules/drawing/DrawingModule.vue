@@ -68,6 +68,9 @@ const showAddVertexButton = computed(() => {
 const editMode = computed(() => store.state.drawing.editingMode)
 const currentDrawingMode = computed(() => store.state.drawing.mode)
 
+const hasLoaded = computed(() => {
+    return activeKmlLayer.value?.isLoading === false && !!activeKmlLayer.value.kmlData
+})
 const hasKml = computed(() => {
     if (online.value) {
         return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty()
@@ -98,6 +101,11 @@ const isDrawingModified = computed(() => {
 
 watch(projection, () => {
     drawingLayer.setSource(createSourceForProjection())
+})
+watch(hasLoaded, () => {
+    if (hasLoaded.value) {
+        addKmlToDrawing()
+    }
 })
 // watching feature IDs so that we can react whenever one is removed through the "trash button"
 watch(featureIds, (next, last) => {
@@ -175,7 +183,9 @@ onMounted(() => {
     // we add it back for further editing
     if (hasKml.value) {
         isNewDrawing.value = false
-        addKmlToDrawing()
+        if (hasLoaded.value) {
+            addKmlToDrawing()
+        }
     } else {
         store.dispatch('setDrawingName', {
             name: t('draw_layer_label'),
