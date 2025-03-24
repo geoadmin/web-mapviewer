@@ -72,7 +72,7 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('The federal geoportal')
         expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
 
@@ -85,7 +85,7 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer!.id).toBe('Periodic-Tracking')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('BGDI')
         expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
     })
@@ -274,7 +274,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
         expect(layer!.attributions[0].url).toBeNull()
 
@@ -302,7 +302,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
         expect(layer!.attributions[0].url).toBeNull()
     })
@@ -343,7 +343,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('The federal geoportal')
         expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
     })
@@ -389,7 +389,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         assertType<LayerAttribution[]>(layer!.attributions)
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('BGDI Layer')
         expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
 
@@ -427,13 +427,13 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         assertType<LayerAttribution[]>(layer!.attributions)
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('www.geo.admin.ch')
         expect(layer!.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
     })
 
     it('Parse layer attribution - invalid attribution URL', () => {
-        let content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
+        const content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
         <WMS_Capabilities version="1.3.0">
             <Capability>
                 <Layer>
@@ -463,7 +463,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         assertType<LayerAttribution[]>(layer!.attributions)
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
         expect(layer!.attributions[0].url).toBeNull()
     })

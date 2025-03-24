@@ -1,7 +1,15 @@
 import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
 import type { GeoAdminAPILayer } from '@geoadmin/layers'
 
-import * as layers from '@geoadmin/layers'
+import {
+    type ExternalWMTSLayer,
+    type ExternalWMSLayer,
+    type Layer,
+    LayerType,
+    DEFAULT_OPACITY,
+    timeConfigUtils,
+    layerUtils,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 import * as vueRouter from 'vue-router'
@@ -30,11 +38,11 @@ import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
-const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMTSLayer => {
+const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
     const { year } = parsedLayer.customAttributes ?? { year: null }
 
-    return layers.layerUtils.makeExternalWMTSLayer({
-        type: layers.LayerType.WMTS,
+    return layerUtils.makeExternalWMTSLayer({
+        type: LayerType.WMTS,
         id: parsedLayer.id,
         name: parsedLayer.id,
         opacity: parsedLayer.opacity,
@@ -44,15 +52,15 @@ const createWMTSLayerObject = (parsedLayer: Record<string, any>): layers.Externa
     })
 }
 
-const createWMSLayerObject = (parsedLayer: Record<string, any>): layers.ExternalWMSLayer => {
+const createWMSLayerObject = (parsedLayer: Record<string, any>): ExternalWMSLayer => {
     const { year, customAttributes } = parsedLayer
 
     // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
     // the layer might be updated to an external group of layers if needed.
-    return layers.layerUtils.makeExternalWMSLayer({
+    return layerUtils.makeExternalWMSLayer({
         id: parsedLayer.id,
         name: parsedLayer.id,
-        opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
+        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
         visible: parsedLayer.visible,
         baseUrl: parsedLayer.baseUrl,
         currentYear: year,
@@ -87,16 +95,16 @@ export function createLayerObject(
         ...customAttributes
     } = parsedLayer.customAttributes ?? {}
 
-    let layer: layers.Layer | null = null
+    let layer: Layer | null = null
 
-    if (currentLayer && (currentLayer.isExternal || currentLayer.type === layers.LayerType.KML)) {
+    if (currentLayer && (currentLayer.isExternal || currentLayer.type === LayerType.KML)) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
         layer = cloneDeep(currentLayer) as KMLLayer
         layer.visible = parsedLayer.visible ?? false
         // external layer have a default opacity of 1.0
-        layer.opacity = parsedLayer.opacity ?? layers.DEFAULT_OPACITY
+        layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
         if (adminId) {
             layer.adminId = adminId
@@ -107,7 +115,7 @@ export function createLayerObject(
             layer = new KMLLayer({
                 kmlFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
                 adminId: adminId,
                 style: parsedLayer.customAttributes?.style,
             })
@@ -122,7 +130,7 @@ export function createLayerObject(
             layer = new GPXLayer({
                 gpxFileUrl: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
@@ -133,17 +141,17 @@ export function createLayerObject(
             layer = new CloudOptimizedGeoTIFFLayer({
                 fileSource: parsedLayer.baseUrl,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? layers.DEFAULT_OPACITY,
+                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
                 isLoading: false,
             })
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.type === layers.LayerType.WMTS) {
+    else if (parsedLayer.type === LayerType.WMTS) {
         layer = createWMTSLayerObject(parsedLayer)
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.type === layers.LayerType.WMS) {
+    else if (parsedLayer.type === LayerType.WMS) {
         layer = createWMSLayerObject(parsedLayer)
     } else {
         // Finally check if this is a Geoadmin layer
@@ -155,14 +163,14 @@ export function createLayerObject(
             }
             if (year !== undefined && year !== null && layer.timeConfig) {
                 const _year = typeof year === 'string' ? parseInt(year) : year
-                layers.timeConfigUtils.updateCurrentTimeEntry(
+                timeConfigUtils.updateCurrentTimeEntry(
                     layer.timeConfig,
-                    layers.timeConfigUtils.getTimeEntryForYear(layer.timeConfig, _year)!
+                    timeConfigUtils.getTimeEntryForYear(layer.timeConfig, _year)!
                 )
             }
 
             // If we have a WMS layer add extra params from custom attributes
-            if (layer.type === layers.LayerType.WMS) {
+            if (layer.type === LayerType.WMS) {
                 layer.customAttributes = customAttributes
             }
         }
@@ -242,7 +250,7 @@ function dispatchLayersFromUrlIntoStore(
             }
 
             if (layerObject) {
-                if (layerObject.type === layers.LayerType.KML && layerObject.adminId) {
+                if (layerObject.type === LayerType.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
                         store.dispatch('setShowDrawingOverlay', {
                             show: true,
@@ -324,10 +332,10 @@ function generateLayerUrlParamFromStoreValues(store: ReturnType<useStore>) {
     >
 
     return store.state.layers.activeLayers
-        .map((layer: layers.Layer) =>
+        .map((layer: Layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config: layers.Layer) => config.id === layer.id),
+                store.state.layers.config.find((config: Layer) => config.id === layer.id),
                 featuresIds[layer.id]
             )
         )

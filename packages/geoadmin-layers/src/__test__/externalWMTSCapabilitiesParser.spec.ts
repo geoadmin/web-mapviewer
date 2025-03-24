@@ -2,12 +2,13 @@ import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
 import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
+import type { LayerAttribution, ExternalWMTSLayer } from '@/layers'
+
 import {
     externalWMTSCapabilitiesParser,
     type WMTSCapabilities,
 } from '@/externalWMTSCapabilitiesParser'
 import { timeConfigUtils } from '@/index'
-import { type ExternalWMTSLayer } from '@/layers'
 import { type LayerLegend } from '@/layers'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
@@ -63,13 +64,13 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer!.id).toBe('BlueMarbleSecondGenerationAG')
         expectTypeOf(layer!.attributions).toBeArray()
         expect(layer!.attributions.length).toBe(1)
-        expectTypeOf(layer!.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('Example')
         expect(layer!.attributions[0].url).toBe('http://www.example.com')
     })
     it('Get Layer Extent in LV95', () => {
         const externalLayers = parser.getAllExternalLayerObjects(LV95)
-        expect(externalLayers.length).to.be.greaterThan(1)
+        expect(externalLayers!.length).to.be.greaterThan(1)
 
         assertType<ExternalWMTSLayer[]>(externalLayers!)
 

@@ -559,7 +559,7 @@ export class externalWMSCapabilitiesParser {
             .flat()
     }
 
-    _parseDimesionValues(layerId: string, rawValues: string) {
+    _parseDimensionValues(layerId: string, rawValues: string) {
         const parseYear = (value: string) => {
             const date = new Date(value)
             if (!isNaN(date.getFullYear())) {
@@ -603,35 +603,30 @@ export class externalWMSCapabilitiesParser {
 
     _getDimensions(layerId: string, layer: CapabilityLayer): WMSDimension[] {
         return (
-            layer.Dimension?.map((d: Record<string, any>) => {
-                d.name,
-                    d.default,
-                    this._parseDimesionValues(layerId, d.values ?? ''),
-                    {
-                        current: d.current ?? false,
-                    }
-            }) ?? []
+            layer.Dimension?.map((d: Record<string, any>) => ({
+                id: d.name,
+                dft: d.default,
+                values: this._parseDimensionValues(layerId, d.values ?? ''),
+                current: {
+                    current: d.current ?? false,
+                },
+            })) ?? []
         )
     }
 
-    // _getTimeConfig(layerId, dimensions) {
-    //     const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
-    //     if (!timeDimension) {
-    //         return null
-    //     }
-    //     const timeEntries =
-    //         timeDimension.values?.map((value) => new LayerTimeConfigEntry(value)) ?? []
-    //     return new LayerTimeConfig(timeDimension.default ?? null, timeEntries)
-    // }
+    _getTimeConfig(dimensions: any[] | undefined) {
+        if (!dimensions) {
+            return null
+        }
 
-    _getTimeConfig(dimensions: any[] | undefined): LayerTimeConfig | null {
-        if (!dimensions) return null
-
-        const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
+        const timeDimension = dimensions.find((d) => {
+            return d.id.toLowerCase() === 'time'
+        })
         if (!timeDimension) {
             return null
         }
-        const timeEntries = timeDimension.values?.map((value: any) => makeTimeConfigEntry(value))
+        const timeEntries =
+            timeDimension.values?.map((value: any) => makeTimeConfigEntry(value)) ?? []
         return makeTimeConfig(timeDimension.default ?? null, timeEntries)
     }
 }

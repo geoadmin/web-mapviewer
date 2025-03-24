@@ -8,7 +8,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
@@ -264,7 +263,7 @@ async function identifyOnExternalLayer(config) {
         // If we use different projection, we also need to project out initial coordinate
         requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
-    if (layer instanceof ExternalWMSLayer) {
+    if (layer.type === LayerType.WMS) {
         return await identifyOnExternalWmsLayer({
             coordinate: requestedCoordinate,
             projection: requestProjection,

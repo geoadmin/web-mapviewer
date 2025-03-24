@@ -323,6 +323,8 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-button"]').click()
         cy.openMenuIfMobile()
 
+        cy.get('[data-cy="menu-tray-tool-section"]').click() // close the tool section
+
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click({ force: true })
