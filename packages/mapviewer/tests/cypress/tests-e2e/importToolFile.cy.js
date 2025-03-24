@@ -117,6 +117,8 @@ describe('The Import File Tool', () => {
             .should('have.length', 1)
             .should('contain', 'Title')
             .should('contain', 'test title')
+            .should('contain', 'Phone: +1234567890')
+            .should('contain', 'SMS: +1234567890')
             .should('contain', 'Check out this [BLOCKED EXTERNAL CONTENT] for more')
             .should('contain', 'Description')
             .should('contain', 'Contains third party content')

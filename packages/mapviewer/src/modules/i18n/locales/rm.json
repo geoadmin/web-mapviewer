@@ -380,6 +380,7 @@
     "linkedin_tooltip": "Partais quella charta sin LinkedIn",
     "load_local_file": "Chargiar",
     "loading": "Chargiada",
+    "loading_error_file_deleted": "La datoteca n'ha betg pudì vegnir chargiada, cunquai ch'ella è vegnida stizzada da ses possessur.",
     "loading_error_network_failure": "Na pudì cargar, il file na stat betg accessibel.",
     "loading_external_layer": "Chargiar la strata esterna",
     "loading_file": "La datoteca vegn chargiada",
