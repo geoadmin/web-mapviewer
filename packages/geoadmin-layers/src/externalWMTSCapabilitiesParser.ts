@@ -191,8 +191,8 @@ export class externalWMTSCapabilitiesParser {
         projection: CoordinateSystem,
         opacity = 1,
         visible = true,
-        ignoreError: boolean = true,
-        currentYear?: number
+        currentYear?: number,
+        ignoreError: boolean = true
     ) {
         if (!this.capabilities.Contents?.Layer) {
             return null
@@ -204,8 +204,8 @@ export class externalWMTSCapabilitiesParser {
                 projection,
                 opacity,
                 visible,
-                ignoreError,
-                currentYear
+                currentYear,
+                ignoreError
             )
         ).filter((layer) => !!layer)
     }
@@ -215,8 +215,8 @@ export class externalWMTSCapabilitiesParser {
         projection: CoordinateSystem,
         opacity: number,
         visible: boolean,
-        ignoreError: boolean,
-        currentYear?: number
+        currentYear?: number,
+        ignoreError: boolean = true
     ): ExternalWMTSLayer | null {
         const attributes = this._getLayerAttributes(layer, projection, ignoreError)
 

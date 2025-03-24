@@ -1,3 +1,4 @@
+import { timeConfigUtils } from '@/index'
 import {
     DEFAULT_OPACITY,
     type GeoAdminAPILayer,
@@ -88,10 +89,13 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
  * This is a helper that can work with a subset of the GeoAdminWMSLayer properties. The missing
  * values from the function parameter will be used from defaults
  *
- * @param values
- * @returns
+ * @param values An object of partial values from ExternalWMTSLayer
+ * @returns ExternalWMTSLayer
  */
 export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer => {
+    const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
+    const attributions = [{name: new URL(values.baseUrl!).hostname}]
+
     const defaults = {
         id: '',
         name: '',
@@ -107,16 +111,26 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
         style: '',
         tileMatrixSets: [],
         dimensions: [],
-        attributions: [],
         hasTooltip: false,
-        hasDescription: true,
+        hasDescription,
         searchable: false,
         hasLegend: false,
         isLoading: true,
         hasError: false,
+        currentYear: undefined,
+        attributions
     }
 
-    return { ...defaults, ...values }
+    if (values.currentYear && values.timeConfig) {
+        const timeEntry = timeConfigUtils.getTimeEntryForYear(values.timeConfig, values.currentYear)
+        if (timeEntry) {
+            timeConfigUtils.updateCurrentTimeEntry(values.timeConfig, timeEntry)
+        }
+    }
+
+    // if hasDescription or attributions were provided in `values`, then these would
+    // override the ones we inferred above
+    return { ...defaults, hasDescription, attributions, ...values }
 }
 
 /**

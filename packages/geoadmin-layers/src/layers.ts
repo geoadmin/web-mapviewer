@@ -21,7 +21,7 @@ export enum LayerType {
 
 export interface LayerAttribution {
     name: string
-    url: string
+    url?: string
 }
 
 export interface LayerLegend {
