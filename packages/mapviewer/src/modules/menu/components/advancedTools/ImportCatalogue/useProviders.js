@@ -43,7 +43,6 @@ export function useProviders(newUrl) {
     const showProviders = ref(false)
 
     const providers = computed(() => allProviders.value.filter(url.value))
-    console.log('provider', providers.value)
 
     const groupedProviders = computed(() => {
         const groups = {}
@@ -57,7 +56,7 @@ export function useProviders(newUrl) {
         return groups
     })
 
-    console.log('groupedProviders', groupedProviders.value)
+    const filterApplied = computed(() => url.value.length > 0)
 
     function toggleProviders() {
         showProviders.value = !showProviders.value
@@ -68,5 +67,6 @@ export function useProviders(newUrl) {
         showProviders,
         providers,
         toggleProviders,
+        filterApplied,
     }
 }
