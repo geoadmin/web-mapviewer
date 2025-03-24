@@ -24,6 +24,15 @@ const hasWarning = computed((): boolean => {
     return !!layer.hasWarning
 })
 
+const theme = computed(() => {
+    if (hasError.value) {
+        return "danger"
+    }
+    if (hasWarning.value) {
+        return "warning"
+    }
+    return "light"
+})
 const tooltipContent = computed((): string => {
     if (hasError.value) {
         const error: ErrorMessage = layer.getFirstErrorMessage()
@@ -42,7 +51,7 @@ const tooltipContent = computed((): string => {
     <GeoadminTooltip
         ref="tooltip"
         :tooltip-content="tooltipContent"
-        :theme="hasError ? 'danger' : hasWarning ? 'warning' : 'light'"
+        :theme="theme"
     >
         <button
             v-if="showSpinner"

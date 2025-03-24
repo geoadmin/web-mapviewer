@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
+import { flattenExtent } from '@/utils/extentUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = {
@@ -36,10 +37,7 @@ export default function useImportFile() {
 
             // checking that the same layer is not already present before adding it
             if (store.getters.getActiveLayersById(layer.id).length === 0) {
-                const extent =
-                    layer.extent.length === 4
-                        ? layer.extent
-                        : [...layer.extent[0], ...layer.extent[1]]
+                const extent = flattenExtent(layer.extent)
                 const isLayerFullyInBound =
                     projection.value.bounds.isInBounds(extent[0], extent[1]) &&
                     projection.value.bounds.isInBounds(extent[2], extent[3])
