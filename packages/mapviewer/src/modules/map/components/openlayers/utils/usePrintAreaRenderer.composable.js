@@ -118,6 +118,22 @@ export default function usePrintAreaRenderer(map) {
 
         const printRectangle = calculatePageBoundsPixels(selectedScale.value, printLayoutSize.value)
 
+        const topLeftCoordinate = map.getCoordinateFromPixel([printRectangle[0], printRectangle[1]])
+        const rightBottomCoordinate = map.getCoordinateFromPixel([
+            printRectangle[2],
+            printRectangle[3],
+        ])
+
+        store.commit('setPrintExtent', {
+            printExtent: [
+                topLeftCoordinate[0], // minX
+                rightBottomCoordinate[1], // minY
+                rightBottomCoordinate[0], // maxX
+                topLeftCoordinate[1], // maxY
+            ],
+            dispatcher,
+        })
+
         const minx = printRectangle[0]
         const miny = printRectangle[1]
         const maxx = printRectangle[2]

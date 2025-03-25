@@ -12,6 +12,7 @@ export default {
         /** @deprecated Should be removed as soon as we've switched to the new print backend */
         selectedScale: null,
         printSectionShown: false,
+        printExtent: [],
         config: {
             dpi: PRINT_DEFAULT_DPI,
             layout: 'A4_L',
@@ -59,6 +60,9 @@ export default {
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })
         },
+        setPrintExtent({ commit }, { printExtent, dispatcher }) {
+            commit('setPrintExtent', { printExtent, dispatcher })
+        },
         setPrintConfig({ commit }, { config, dispatcher }) {
             commit('setPrintConfig', { config, dispatcher })
         },
@@ -71,6 +75,7 @@ export default {
         /** @deprecated Should be removed as soon as we've switched to the new print backend */
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
+        setPrintExtent: (state, { printExtent }) => (state.printExtent = printExtent),
         setPrintConfig: (state, { config }) => (state.config = config),
     },
 }
