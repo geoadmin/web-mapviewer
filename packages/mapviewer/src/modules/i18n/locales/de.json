@@ -255,6 +255,7 @@
     "feedback_unsupported_format": "Dieser Dateityp wird leider nicht unterstützt. Bitte verwenden Sie eine .pdf, .zip, .jpg, .jpeg, .kml, .kmz oder .gpx Datei.",
     "field_required": "Dieses Feld ist erforderlich",
     "file_imported_success": "Datei erfolgreich importiert",
+    "file_imported_partially_out_of_bounds": "Die importierte Datei '{filename}' befindet sich teilweise außerhalb der Schweizer Grenzen. Einige Funktionalitäten stehen möglicherweise nicht zur Verfügung.",
     "file_is_not_kml": "Dieses File ist keine KML Datei. ",
     "file_name": "Zeichnungsname",
     "file_too_large": "Die Datei ist zu gross (maximal erlaubte Grösse: {maxFileSize}).",
