@@ -533,10 +533,7 @@ describe('The Import Maps Tool', () => {
 
         cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
 
-        cy.get('[data-cy="menu-tray-tool-section"] [data-cy="menu-section-header"]')
-            .should('be.visible')
-            .click() // close the tools first
-        cy.get('[data-cy="menu-active-layers"]').should('exist').click()
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
 
