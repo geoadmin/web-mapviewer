@@ -1,7 +1,6 @@
-import type { GeoAdminGeoJSONLayer } from '@geoadmin/layers'
-import type { GeoAdminAPILayer } from '@geoadmin/layers'
-
 import {
+    type GeoAdminGeoJSONLayer,
+    type GeoAdminAPILayer,
     type ExternalWMTSLayer,
     type ExternalWMSLayer,
     type Layer,

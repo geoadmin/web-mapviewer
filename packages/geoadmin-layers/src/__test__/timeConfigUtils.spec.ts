@@ -30,6 +30,7 @@ describe('Test utility functions', () => {
             years: [2002, 2003],
             currentTimestamp: '20021322',
             currentYear: 2002,
+            currentTimeEntry: null,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false

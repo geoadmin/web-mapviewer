@@ -2,7 +2,6 @@ import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'

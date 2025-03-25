@@ -76,28 +76,31 @@ export const makeTimeConfig = (
         years: timeEntries
             .map((entry) => entry.year)
             .filter((entry: number | string | null) => entry !== null),
+        currentTimeEntry: null,
+        currentTimestamp: null,
+        currentYear: null,
     }
     /*
-    * Here we will define what is the first "currentTimeEntry" for this configuration.
-    * We will simplify the two approaches that exists for WMS and WMTS.
-    * The first value will depend on what is in 'behaviour'
-    *
-    * With WMS the behaviour can be :
-    *  - 'last' : the most recent year has to be picked
-    *  - 'all' : all years must be picked (so the year 9999 or no year should be specified in the URL)
-    *  - any valid year that has an equivalent in 'timeEntries'
-    *
-    * With WMTS the behaviour can be :
-    *  - 'current' : 'current' is a valid timestamp in regard to WMTS URL norm so we need to do about the same as
-    *                with WMS and keep this information for later use
-    *  - 'last' : same as WMS, we pick the most recent timestamp from 'timestamps'
-    *  - any valid year that is in 'timestamps'
-    *  - nothing : we then have to pick the first timestamp of the timestamps as default (same as if it was 'last')
-    *
-    * First let's tackle layers that have "last" as a timestamp (can be both WMS and WMTS layers).
-    * We will return, well, the last timestamp (the most recent) of the timestamps (if there are some)
-    * or if nothing has been defined in the behaviour, but there are some timestamps defined, we take the first.
-    */
+     * Here we will define what is the first "currentTimeEntry" for this configuration.
+     * We will simplify the two approaches that exists for WMS and WMTS.
+     * The first value will depend on what is in 'behaviour'
+     *
+     * With WMS the behaviour can be :
+     *  - 'last' : the most recent year has to be picked
+     *  - 'all' : all years must be picked (so the year 9999 or no year should be specified in the URL)
+     *  - any valid year that has an equivalent in 'timeEntries'
+     *
+     * With WMTS the behaviour can be :
+     *  - 'current' : 'current' is a valid timestamp in regard to WMTS URL norm so we need to do about the same as
+     *                with WMS and keep this information for later use
+     *  - 'last' : same as WMS, we pick the most recent timestamp from 'timestamps'
+     *  - any valid year that is in 'timestamps'
+     *  - nothing : we then have to pick the first timestamp of the timestamps as default (same as if it was 'last')
+     *
+     * First let's tackle layers that have "last" as a timestamp (can be both WMS and WMTS layers).
+     * We will return, well, the last timestamp (the most recent) of the timestamps (if there are some)
+     * or if nothing has been defined in the behaviour, but there are some timestamps defined, we take the first.
+     */
     if ((behaviour === 'last' || !behaviour) && timeEntries.length > 0) {
         updateCurrentTimeEntry(timeConfig, timeEntries[0])
     } else if (behaviour) {

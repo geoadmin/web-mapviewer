@@ -4,8 +4,6 @@ import { range } from 'lodash'
 import { default as olWMSCapabilities } from 'ol/format/WMSCapabilities'
 import proj4 from 'proj4'
 
-import type { LayerTimeConfig } from '@/timeConfig'
-
 import { layerUtils } from '@/index'
 import {
     type LayerAttribution,

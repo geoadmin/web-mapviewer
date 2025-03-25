@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { cloneDeep } from "lodash"
+import { cloneDeep } from 'lodash'
 
 // @ts-nocheck
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
@@ -41,7 +41,7 @@ export class AggregateSubLayer {
 
     clone() {
         const clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        clone.layer = cloneDeep(layer)
+        clone.layer = cloneDeep(this.layer)
         return clone
     }
 }

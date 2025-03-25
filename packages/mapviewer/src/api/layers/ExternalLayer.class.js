@@ -1,6 +1,7 @@
 // @ts-nocheck
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import { timeConfigUtils } from '@geoadmin/layers'
 
 /**
  * Information required to create a GetFeatureInfo request to this external WM(T)S server. This
@@ -155,7 +156,10 @@ export default class ExternalLayer extends AbstractLayer {
         this.getFeatureInfoCapability = getFeatureInfoCapability
         this.currentYear = currentYear
         if (currentYear && this.timeConfig) {
-            timeConfigUtils.updateCurrentTimeEntry(this.timeConfig, timeConfigUtils.getTimeEntryForYear(this.currentYear))
+            timeConfigUtils.updateCurrentTimeEntry(
+                this.timeConfig,
+                timeConfigUtils.getTimeEntryForYear(this.currentYear)
+            )
         }
     }
 }
