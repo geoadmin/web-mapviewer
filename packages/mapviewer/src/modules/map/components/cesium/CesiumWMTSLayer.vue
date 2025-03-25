@@ -1,7 +1,6 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
-import { layerContainsErrorMessage } from '@geoadmin/layers'
-import { LayerType } from '@geoadmin/layers'
+import { layerContainsErrorMessage, LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'

@@ -155,6 +155,7 @@ const generateClassForLayerConfig = (
                 isExternal: false,
                 isLoading: true,
                 hasError: false,
+                hasWarning: false,
             }
             return layer
         }

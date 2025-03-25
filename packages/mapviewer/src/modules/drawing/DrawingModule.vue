@@ -1,4 +1,5 @@
 <script setup>
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
@@ -29,7 +30,6 @@ import { EditMode } from '@/store/modules/drawing.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 
@@ -74,7 +74,7 @@ const hasLoaded = computed(() => {
 })
 const hasKml = computed(() => {
     if (online.value) {
-        return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty()
+        return !!activeKmlLayer.value && !layerUtils.isKmlLayerEmpty(activeKmlLayer.value)
     }
     return !!store.state.layers.systemLayers.find(
         (l) => l.id === store.state.drawing.temporaryKmlId

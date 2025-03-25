@@ -1,5 +1,7 @@
 import { layerUtils } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
+import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -8,13 +10,10 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
-import { makeKmlLayer } from '@/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
@@ -83,13 +82,13 @@ describe('Testing layersParamParser', () => {
                     },
                 },
                 {
-                    type: LayerTypes.KML,
+                    type: LayerType.KML,
                     id: 'somerandomurl.ch/file.kml',
                     baseUrl: 'somerandomurl.ch/file.kml',
                     opacity: 0.4,
                 },
                 {
-                    type: LayerTypes.WMTS,
+                    type: LayerType.WMTS,
                     baseUrl: 'https://totally.fake.wmts.url/WMTSGetCapabilties.xml',
                     id: 'a.layer.id',
                     opacity: 0.8,
@@ -202,7 +201,7 @@ describe('Testing layersParamParser', () => {
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
                 expect(layer).to.be.an('Object')
-                expect(layer.type).to.eq(LayerTypes.KML)
+                expect(layer.type).to.eq(LayerType.KML)
                 expect(layer.id).to.eq(kmlFileUrl)
                 expect(layer.baseUrl).to.eq(kmlFileUrl)
                 expect(layer.visible).to.be.false
@@ -217,7 +216,7 @@ describe('Testing layersParamParser', () => {
                 const [externalWMTSLayer] = results
                 expect(externalWMTSLayer).to.be.an('Object')
                 expect(externalWMTSLayer.id).to.eq(layerId)
-                expect(externalWMTSLayer.type).to.eq(LayerTypes.WMTS)
+                expect(externalWMTSLayer.type).to.eq(LayerType.WMTS)
                 expect(externalWMTSLayer.baseUrl).to.eq(baseUrl)
                 expect(externalWMTSLayer.visible).to.be.true
                 expect(externalWMTSLayer.opacity).to.eq(1.0)
@@ -231,7 +230,7 @@ describe('Testing layersParamParser', () => {
                 const [externalWMSLayer] = results
                 expect(externalWMSLayer).to.be.an('Object')
                 expect(externalWMSLayer.id).to.eq(layerId)
-                expect(externalWMSLayer.type).to.eq(LayerTypes.WMS)
+                expect(externalWMSLayer.type).to.eq(LayerType.WMS)
                 expect(externalWMSLayer.baseUrl).to.eq(baseUrl)
                 expect(externalWMSLayer.visible).to.be.true
                 expect(externalWMSLayer.opacity).to.eq(0.8)
@@ -301,7 +300,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using an service-kml base URL to make it "internal"
                     kmlFileUrl: `${getServiceKmlBaseUrl()}fakeKmlId`,
                 }),
@@ -310,7 +309,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using any other URL as service-kml base URL to make it "external"
                     kmlFileUrl: 'https://some.random.domain.ch/file.kml',
                 }),

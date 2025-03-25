@@ -12,7 +12,6 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 

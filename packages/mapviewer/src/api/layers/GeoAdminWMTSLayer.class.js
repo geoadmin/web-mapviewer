@@ -61,7 +61,6 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
-        throw new Error('not used anymore')
         if (!layerData) {
             throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
         }

@@ -119,7 +119,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             </div>
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML && layerConfig.kmlData"
+            v-if="layerConfig.type === LayerType.KML && layerConfig.kmlData"
             :kml-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

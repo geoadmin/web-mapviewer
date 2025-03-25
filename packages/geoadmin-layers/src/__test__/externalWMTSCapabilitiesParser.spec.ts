@@ -324,7 +324,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('Time A')
         expect(layer!.timeConfig!.currentTimeEntry!.year).to.be.null
-        expect(layer!.timeConfig!.currentYear).to.be.undefined
+        expect(layer!.timeConfig!.currentYear).to.be.null
         expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimestamp).toBe('Time A')
     })

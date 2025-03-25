@@ -1,4 +1,4 @@
-import { LayerType } from '@geoadmin/layers'
+import { LayerType, KmlStyle } from '@geoadmin/layers'
 import { timeConfigUtils } from '@geoadmin/layers'
 import { isNumber } from '@geoadmin/numbers'
 
@@ -190,7 +190,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         layerUrlString += `@updateDelay=${layer.updateDelay}`
     }
 
-    if (layer.type === LayerTypes.KML) {
+    if (layer.type === LayerType.KML) {
         // for our own files, the default style is GeoAdmin (and we don't want to write that in the URL)
         const defaultKmlStyle = layer.isExternal ? KmlStyles.DEFAULT : KmlStyles.GEOADMIN
         if (layer.style !== defaultKmlStyle) {
@@ -200,8 +200,8 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         // - when style is geoadmin, and clamp to ground is false
         // - when style is default, and clamp to ground is true
         if (
-            (layer.style === KmlStyles.DEFAULT && layer.clampToGround) ||
-            (layer.style === KmlStyles.GEOADMIN && !layer.clampToGround)
+            (layer.style === KmlStyle.DEFAULT && layer.clampToGround) ||
+            (layer.style === KmlStyle.GEOADMIN && !layer.clampToGround)
         ) {
             layerUrlString += `@clampToGround=${layer.clampToGround}`
         }

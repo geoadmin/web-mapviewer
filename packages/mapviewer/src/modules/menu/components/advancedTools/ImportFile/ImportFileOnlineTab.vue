@@ -9,7 +9,6 @@ import generateErrorMessageFromErrorType from '@/modules/menu/components/advance
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const { active } = defineProps({
     active: {

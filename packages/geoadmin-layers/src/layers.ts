@@ -1,9 +1,9 @@
 import type { Options } from 'ol/source/WMTS'
 
 import { CoordinateSystem } from '@geoadmin/coordinates'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
 import type { LayerTimeConfig } from '@/timeConfig'
-import type { ErrorMessage } from '@/validation'
 
 export const DEFAULT_OPACITY = 1.0
 
@@ -79,13 +79,15 @@ export interface Layer {
 
     // new fields that weren't specified in AbstractLayer's Constructor
     errorMessages?: Set<ErrorMessage>
+    warningMessages?: Set<WarningMessage>
     hasError: boolean
+    hasWarning: boolean
     // hasMultipleTimestamps: boolean
 
     adminId?: string
 }
 
-/* #region: GeoAdminLayers */
+// #region: GeoAdminLayers
 
 /**
  * This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS
@@ -171,17 +173,48 @@ export interface GeoAdminGeoJSONLayer extends Layer {
 
 export interface GeoAdminVectorLayer extends Layer {}
 
-/* #endregion */
+// #endregion
 
-/* #region: File Type Layers */
+// #region: File Type Layers
 export interface CloudOptimizedTiffLayer extends Layer {}
 
-export interface KMLLayer extends Layer {}
+export type KmlMetadata = {
+    id: string
+    adminId: string | null
+    links: [
+        {
+            metadata: string
+            kml: string
+        },
+    ]
+    created: Date
+    updated: Date
+    author: string
+    authorVersion: string
+}
+
+export enum KmlStyle {
+    DEFAULT = 'DEFAULT',
+    GEOADMIN = 'GEOADMIN',
+}
+
+export interface KMLLayer extends Layer {
+    kmlFileUrl: string
+    fileId: string | null
+    kmlData: string | null
+    kmlMetadata: KmlMetadata | null
+    extent: [number, number, number, number] | null
+    clampToGround: boolean
+    style: KmlStyle | null
+    isExternal: boolean
+    isLocalFile: boolean
+    attributions: LayerAttribution[]
+}
 
 export interface GPXLayer extends Layer {}
-/* #endregion */
+// #endregion
 
-/* #region: external layers */
+// #region: external layers
 export interface WMTSDimension {
     id: string
     default: string
@@ -257,7 +290,7 @@ export interface ExternalWMSLayer extends Layer {
     currentYear?: number
 }
 
-/* #endregion */
+// #endregion
 
 export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedTiffLayer
 export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer

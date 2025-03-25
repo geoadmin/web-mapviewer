@@ -20,6 +20,7 @@ describe('Test utility functions', () => {
             isExternal: false,
             isLoading: false,
             baseUrl: 'http://bgdi.ch',
+            hasWarning: false,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
