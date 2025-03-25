@@ -360,7 +360,7 @@ function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>
         .forEach((layer) => {
             if (!layer.baseUrl) {
                 faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
-            } else if (layer.baseUrl.match(url_matcher).length <= 0) {
+            } else if (layer.baseUrl.match(url_matcher)?.length <= 0) {
                 localLayers.push(
                     new WarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
