@@ -16,6 +16,7 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
+import store from '@/store'
 import { adjustWidth } from '@/utils/styleUtils'
 
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
@@ -23,13 +24,25 @@ const PRINTING_DEFAULT_POLL_TIMEOUT = 600000 // ms (10 minutes)
 const SERVICE_PRINT_URL = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync with the backend)
 
+/**
+ * Customizes the printing behavior for GeoAdmin.
+ *
+ * @extends BaseCustomizer
+ */
 class GeoAdminCustomizer extends BaseCustomizer {
-    /** @param {string[]} layerIDsToExclude List of layer names to exclude from the print */
-    constructor(layerIDsToExclude, printResolution) {
-        super()
+    /**
+     * constructor(layerIDsToExclude, printResolution) {
+     *
+     * @param {number[]} printExtent - The extent of the area to be printed. super()
+     * @param {string[]} layerIDsToExclude - An array of layer IDs to exclude from the print.
+     * @param {number} printResolution - The resolution for the print.
+     */
+    constructor(printExtent, layerIDsToExclude, printResolution) {
+        super(printExtent)
         this.layerIDsToExclude = layerIDsToExclude
         this.printResolution = printResolution
         this.layerFilter = this.layerFilter.bind(this)
+        this.geometryFilter = this.geometryFilter.bind(this)
         this.line = this.line.bind(this)
         this.text = this.text.bind(this)
         this.point = this.point.bind(this)
@@ -346,9 +359,9 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-    const customizer = new GeoAdminCustomizer(excludedLayerIDs, dpi)
-    const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
+    const customizer = new GeoAdminCustomizer(store.state.print.printExtent, excludedLayerIDs, dpi)
 
+    const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
     try {
         const encodedMap = await encoder.encodeMap({
             map: olMap,
