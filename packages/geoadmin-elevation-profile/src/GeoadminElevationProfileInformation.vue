@@ -117,7 +117,7 @@ const metadataEntries = computed(() => {
                 </span>
             </small>
         </div>
-        <div class="tw:flex tw:gap-2">
+        <div class="tw:flex tw:gap-1">
             <slot />
         </div>
     </div>

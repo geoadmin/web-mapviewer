@@ -8,7 +8,7 @@ import {
     WGS84,
 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
-import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { SupportedLocales } from '@/config.ts'
@@ -42,16 +42,15 @@ const { t }: { t: VueI18nTranslateFunction<ElevationProfileErrorMessages> } = us
     SupportedLocales
 >()
 
-const coordinateSystem: ComputedRef<CoordinateSystem> = computed(
+const coordinateSystem = computed<CoordinateSystem>(
     () => allCoordinateSystems.find((cs) => cs.epsg === projection) ?? LV95
 )
-const profileData: Ref<ElevationProfile | undefined> = ref(undefined)
-const profileRequestError: Ref<ElevationProfileError | null> = ref(null)
-const hasData: ComputedRef<boolean> = computed(
-    () => !!profileData.value?.metadata?.hasElevationData
-)
+const profileData = ref<ElevationProfile>()
+const profileRequestError = ref<ElevationProfileError>()
+const reverse = ref<boolean>(false)
+const hasData = computed<boolean>(() => !!profileData.value?.metadata?.hasElevationData)
 
-const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = computed(() => {
+const profileMetadata = computed<ElevationProfileMetadata | undefined>(() => {
     if (!profileData.value) {
         return undefined
     }
@@ -59,14 +58,25 @@ const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = compu
 })
 
 onMounted(() => {
-    getProfile(points, coordinateSystem.value)
+    loadElevationProfileData()
+})
+
+watch(reverse, loadElevationProfileData)
+
+function loadElevationProfileData() {
+    profileRequestError.value = undefined
+    getProfile(reverse.value ? points.toReversed() : points, coordinateSystem.value)
         .then((profile) => {
             profileData.value = profile
         })
         .catch((err) => {
             profileRequestError.value = err
         })
-})
+}
+
+function revertProfileDirection() {
+    reverse.value = !reverse.value
+}
 
 function triggerDownload(blob: Blob, fileName: string) {
     /**
@@ -140,7 +150,13 @@ function onCSVDownload() {
             :metadata="profileMetadata"
         >
             <button
-                class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:mx-1 tw:print:hidden tw:min-w-[2.5rem] tw:cursor-pointer"
+                class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:cursor-pointer"
+                @click="revertProfileDirection"
+            >
+                <FontAwesomeIcon icon="shuffle" />
+            </button>
+            <button
+                class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:cursor-pointer"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
             >

@@ -50,7 +50,7 @@ interface ElevationProfilePlotProps {
 const { profile } = defineProps<ElevationProfilePlotProps>()
 
 const track = ref<boolean>(false)
-const pointBeingHovered = ref<ScreenPoint | null>(null)
+const pointBeingHovered = ref<ScreenPoint>()
 
 const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = computed(
     () => profile?.metadata
@@ -378,7 +378,7 @@ function stopPositionTracking(): boolean {
     return true
 }
 function clearHoverPosition() {
-    pointBeingHovered.value = null
+    pointBeingHovered.value = undefined
 }
 function resetZoomToBaseValue() {
     resetZoom(chart.value?.chart, 'none') // ref for chart
@@ -413,29 +413,24 @@ function resizeChart() {
     </div>
     <div
         ref="profileTooltip"
-        class="tw:absolute tw:bg-white tw:border tw:rounded tw:py-1 tw:px-2"
+        class="tw:fixed tw:bg-white tw:border tw:rounded tw:py-1 tw:px-2"
         :style="tooltipStyle"
         data-cy="profile-popup-tooltip"
     >
         <div
             v-if="pointBeingHovered && pointBeingHovered.hasElevationData"
-            class="profile-tooltip-inner p-1 m-auto"
+            class="tw:p-1 tw:m-auto"
         >
             <div>
                 <small>
                     <strong>{{ t('profile_x_label') }}: </strong>
-                    <span class="distance">
-                        {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
-                    </span>
+                    {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
                 </small>
             </div>
             <div>
                 <small>
                     <strong>{{ t('profile_y_label') }}: </strong>
-                    <span
-                        v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0"
-                        class="elevation"
-                    >
+                    <span v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0">
                         {{ pointBeingHovered.elevation }} m
                     </span>
                     <span v-else>{{ t('profile_not_available') }}</span>

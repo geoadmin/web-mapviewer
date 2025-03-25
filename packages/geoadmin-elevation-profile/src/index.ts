@@ -8,6 +8,7 @@ import {
     faDownload,
     faGlobe,
     faMountainSun,
+    faShuffle,
     faSortAmountDownAlt,
     faSortAmountUpAlt,
 } from '@fortawesome/free-solid-svg-icons'
@@ -44,6 +45,7 @@ library.add(
     faDownload,
     faGlobe,
     faMountainSun,
+    faShuffle,
     faSortAmountDownAlt,
     faSortAmountUpAlt
 )

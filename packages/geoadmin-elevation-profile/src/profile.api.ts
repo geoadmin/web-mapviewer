@@ -30,7 +30,7 @@ type ServiceProfilePoints = {
     northing: number
 }
 
-export type ElevationProfilePoint = {
+export interface ElevationProfilePoint {
     /** Distance from first to current point (relative to the whole profile, not by segments) */
     dist?: number
     coordinate: [number, number]
