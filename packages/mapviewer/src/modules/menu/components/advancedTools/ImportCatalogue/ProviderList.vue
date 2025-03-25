@@ -78,44 +78,58 @@ defineExpose({ goToFirst })
             class="providers-list"
             data-cy="import-provider-list"
         >
-            <div
-                v-for="(providers, baseUrl) in groupedProviders"
-                :key="baseUrl"
-                class="providers-group"
-                data-cy="import-provider-group"
-            >
-                <div
-                    class="providers-group-header px-2 py-1 text-nowrap"
-                    @click="toggleGroup(baseUrl)"
-                >
-                    <font-awesome-icon :icon="['fas', titleCaretIcon(baseUrl)]" />
-                    <span class="ms-1">{{ baseUrl }}</span>
-                </div>
-                <div
-                    v-show="expandedGroups[baseUrl]"
-                    class="providers-group-items ms-3"
-                >
+            <template v-for="(providers, baseUrl) in groupedProviders" :key="baseUrl">
+                <div v-if="providers.length > 1" class="providers-group" data-cy="import-provider-group">
                     <div
-                        v-for="(provider, key) in providers"
-                        :key="provider.url"
-                        :tabindex="key"
-                        class="providers-list-item px-2 py-1 text-nowrap"
-                        data-cy="import-provider-item"
-                        @keydown.up.prevent="goToPrevious(key)"
-                        @keydown.down.prevent="() => goToNext(key)"
+                        class="providers-group-header px-2 py-1 text-nowrap"
+                        @click="toggleGroup(baseUrl)"
+                    >
+                        <font-awesome-icon :icon="['fas', titleCaretIcon(baseUrl)]" />
+                        <span class="ms-1">{{ baseUrl }}</span>
+                    </div>
+                    <div
+                        v-show="expandedGroups[baseUrl]"
+                        class="providers-group-items ms-3"
+                    >
+                        <div
+                            v-for="(provider, key) in providers"
+                            :key="provider.url"
+                            :tabindex="key"
+                            class="providers-list-item px-2 py-1 text-nowrap"
+                            data-cy="import-provider-item"
+                            @keydown.up.prevent="goToPrevious(key)"
+                            @keydown.down.prevent="() => goToNext(key)"
+                            @keydown.home.prevent="goToFirst"
+                            @keydown.end.prevent="goToLast"
+                            @keydown.esc.prevent="emit('hide')"
+                            @keydown.enter.prevent="emit('chooseProvider', provider.url)"
+                            @click="emit('chooseProvider', provider.url)"
+                        >
+                            <TextSearchMarker
+                                :text="provider.htmlDisplay"
+                                :search="provider.emphasize"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="providers-list-item px-2 py-1 text-nowrap" data-cy="import-provider-item">
+                    <div
+                        :tabindex="0"
+                        @keydown.up.prevent="goToPrevious(0)"
+                        @keydown.down.prevent="() => goToNext(0)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', provider.url)"
-                        @click="emit('chooseProvider', provider.url)"
+                        @keydown.enter.prevent="emit('chooseProvider', providers[0].url)"
+                        @click="emit('chooseProvider', providers[0].url)"
                     >
                         <TextSearchMarker
-                            :text="provider.htmlDisplay"
-                            :search="provider.emphasize"
+                            :text="providers[0].htmlDisplay"
+                            :search="providers[0].emphasize"
                         />
                     </div>
                 </div>
-            </div>
+            </template>
             <div
                 v-show="Object.keys(groupedProviders).length === 0"
                 class="providers-list-empty px-2 py-1"
