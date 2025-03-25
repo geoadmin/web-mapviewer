@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Layer, getFirstLayerErrorMessage } from '@geoadmin/layers'
+import { type Layer, getFirstErrorMessage, getFirstWarningMessage } from '@geoadmin/layers'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, useTemplateRef } from 'vue'
@@ -33,12 +33,20 @@ const theme = computed(() => {
 const tooltipContent = computed((): string => {
     if (hasError.value) {
         // save to assume that there *is* an error thanks to the guard
-        const error: ErrorMessage = getFirstLayerErrorMessage(layer)!
-        return t(error.msg, error.params)
+        const error: ErrorMessage | null = getFirstErrorMessage(layer)
+        if (error) {
+            return t(error.msg, error.params)
+        } else {
+            return ''
+        }
     }
     if (hasWarning.value) {
-        const warning: WarningMessage = layer.getFirstWarningMessage()
-        return t(warning.msg, warning.params)
+        const warning: WarningMessage | null = getFirstWarningMessage(layer)
+        if (warning) {
+            return t(warning.msg, warning.params)
+        } else {
+            return ''
+        }
     }
 
     return t('loading_external_layer')

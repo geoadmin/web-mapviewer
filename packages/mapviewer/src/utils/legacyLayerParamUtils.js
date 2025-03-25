@@ -1,4 +1,4 @@
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils, KmlStyle } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
@@ -6,9 +6,8 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import KmlStyles from '@/api/layers/KmlStyles.enum'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 const standardURLParams = storeSyncConfig.map((param) => {
     return param.urlParamName
@@ -115,7 +114,7 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer({ kmlFileUrl: url, visible: true, style: KmlStyles.GEOADMIN })
+            layer = makeKmlLayer({ kmlFileUrl: url, visible: true, style: KmlStyle.GEOADMIN })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
@@ -205,7 +204,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
  */
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetadata = await getKmlMetadataByAdminId(adminId)
-    return new KMLLayer({
+    return makeKmlLayer({
         kmlFileUrl: kmlMetadata.links.kml,
         visible: true,
         adminId: kmlMetadata.adminId,

@@ -1,6 +1,6 @@
 <script setup>
 import { LayerType } from '@geoadmin/layers'
-import { cloneDeep } from "lodash"
+import { cloneDeep } from 'lodash'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -45,7 +45,7 @@ const startingZIndexForImageryLayers = computed(
 function isImageryLayer(layer) {
     return (
         [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE].includes(layer.type) ||
-        layer.isExternal
+        (layer.isExternal && !LayerType.KML && !LayerType.GPX && !LayerType.GEOJSON)
     )
 }
 
