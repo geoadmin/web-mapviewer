@@ -29,9 +29,9 @@ export interface LayerTimeConfig {
     timeEntries: LayerTimeConfigEntry[]
     behaviour: 'last' | 'all' | 'current' | number | null
     years: (number | string)[]
-    currentTimeEntry?: LayerTimeConfigEntry
-    currentTimestamp?: string
-    currentYear?: string | number
+    currentTimeEntry: LayerTimeConfigEntry | null
+    currentTimestamp: string | null
+    currentYear: string | number | null
 }
 
 export interface LayerTimeConfigEntry {

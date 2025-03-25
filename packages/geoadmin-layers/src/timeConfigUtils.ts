@@ -27,12 +27,10 @@ export const updateCurrentTimeEntry = (
         currentTimeEntry = entry
     }
 
-    if (currentTimeEntry) {
-        timeConfig.currentTimeEntry = currentTimeEntry
+    timeConfig.currentTimeEntry = currentTimeEntry
 
-        timeConfig.currentTimestamp = timeConfig.currentTimeEntry?.timestamp ?? undefined
-        timeConfig.currentYear = timeConfig.currentTimeEntry?.year ?? undefined
-    }
+    timeConfig.currentTimestamp = timeConfig.currentTimeEntry?.timestamp ?? null
+    timeConfig.currentYear = timeConfig.currentTimeEntry?.year ?? null
 }
 
 export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
