@@ -63,6 +63,8 @@ function refreshPageTitle() {
     </div>
 </template>
 
+<style lang="css" src="./css/tailwind.css" />
+
 <!-- this style is not scoped in order to enable the distribution of bootstrap's
 CSS rules to the whole app (otherwise it would be limited to this component) -->
 <style lang="scss" src="./scss/main.scss" />

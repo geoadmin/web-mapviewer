@@ -1,8 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { useTemplateRef } from 'vue'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { icon, popoverTitle, buttonClassOptions } = defineProps({
     /** The button should have either a title or icons (or both) */

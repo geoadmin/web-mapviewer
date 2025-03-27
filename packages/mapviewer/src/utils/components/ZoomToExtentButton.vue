@@ -1,9 +1,9 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { normalizeExtent } from '@/utils/extentUtils'
 
 const { t } = useI18n()
