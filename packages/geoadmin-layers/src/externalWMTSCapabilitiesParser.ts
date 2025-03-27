@@ -155,8 +155,8 @@ export class externalWMTSCapabilitiesParser {
         projection: CoordinateSystem,
         opacity = 1,
         visible = true,
-        ignoreError = true,
-        currentYear?: number
+        currentYear?: number,
+        ignoreError = true
     ) {
         const layer = this.findLayer(layerId)
 
