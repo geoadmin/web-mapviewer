@@ -32,8 +32,8 @@
         "test:e2e:desktop": "start-server-and-test preview 8080 'cypress open --e2e --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:headless": "start-server-and-test dev 8080 'cypress run'",
         "test:e2e:tablet": "start-server-and-test preview 8080 'cypress open --e2e --config viewportWidth=768,viewportHeight=1024'",
-        "test:unit": "pnpm run delete:reports:unit && vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "pnpm run delete:reports:unit && vitest --mode development --environment jsdom",
+        "test:unit": "pnpm run delete:reports:unit && vitest --run --mode development",
+        "test:unit:watch": "pnpm run delete:reports:unit && vitest --mode development",
         "type-check": "vue-tsc -p tsconfig.json",
         "update:translations": "node scripts/generate-i18n-files.js"
     },
