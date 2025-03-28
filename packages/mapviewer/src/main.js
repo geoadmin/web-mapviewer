@@ -36,6 +36,8 @@ import store from '@/store'
 import clickOutside from '@/utils/click-outside'
 import setupChartJS from '@/utils/setupChartJS'
 
+import '@geoadmin/tooltip/css'
+
 log.debug('Config is', {
     ENVIRONMENT,
     IS_TESTING_WITH_CYPRESS,
