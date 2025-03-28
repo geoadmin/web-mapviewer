@@ -581,7 +581,7 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    if (kmlLayer.style === KmlStyles.GEOADMIN) {
+    if (kmlLayer.style === KmlStyle.GEOADMIN) {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
             if (editableFeature) {
@@ -709,6 +709,7 @@ export const makeKmlLayer = (values) => {
 
     let style = values.kmlStyle
     if (!style) {
+        // if no style was given, we select the default style depending on the origin of the KML
         style = isExternal ? KmlStyle.DEFAULT : KmlStyle.GEOADMIN
     }
 
@@ -716,6 +717,7 @@ export const makeKmlLayer = (values) => {
 
     return layerUtils.makeKmlLayer({
         ...values,
+        baseUrl: values.kmlFileUrl,
         id: values.kmlFileUrl,
         isLocalFile,
         attributions,
@@ -723,6 +725,7 @@ export const makeKmlLayer = (values) => {
         fileId,
         name: name || 'KML',
         isLoading,
+        style,
         clampToGround,
     })
 }

@@ -1,4 +1,6 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+
 import {
     booleanIntersects,
     circle,
@@ -61,11 +63,11 @@ export function useDragBoxSelect() {
 
         const dragBox = polygon(dragBoxCoordinates)
         const visibleLayers = store.getters.visibleLayers.filter((layer) =>
-            [LayerTypes.GEOJSON, LayerTypes.GPX, LayerTypes.KML].includes(layer.type)
+            [LayerTypes.GEOJSON, LayerTypes.GPX, LayerType.KML].includes(layer.type)
         )
         const vectorFeatures = visibleLayers
             .flatMap((layer) => {
-                if (layer.type === LayerTypes.KML) {
+                if (layer.type === LayerType.KML) {
                     const kmlFeatures = parseKml(layer, store.state.position.projection, [])
                     return kmlFeatures.map((feature) => ({ feature: feature, layer }))
                 }

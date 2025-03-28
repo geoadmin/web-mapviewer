@@ -1,4 +1,5 @@
 import { layerUtils } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
@@ -7,7 +8,6 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getWmtsBaseUrl } from '@/config/baseUrl.config'
 import {
     createLayersParamForFeaturePreselection,
@@ -173,7 +173,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
                 expect(kmlLayer.id).to.eq(kmlFileUrl)
-                expect(kmlLayer.type).to.eq(LayerTypes.KML)
+                expect(kmlLayer.type).to.eq(LayerType.KML)
                 expect(kmlLayer.baseUrl).to.eq(kmlFileUrl)
             })
             it('Handles opacity/visibility correctly with external layers', () => {

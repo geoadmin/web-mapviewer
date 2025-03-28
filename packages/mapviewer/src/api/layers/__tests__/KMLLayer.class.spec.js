@@ -1,3 +1,4 @@
+import { layerUtils } from '@geoadmin/layers'
 import { describe, expect, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -66,8 +67,8 @@ describe.skip('KMLLayer', () => {
             },
         })
 
-        expect(legacyKMLLayer.isLegacy()).toBe(true)
-        expect(modernKMLLayer.isLegacy()).toBe(false)
+        expect(layerUtils.isKmlLayerLegacy(legacyKMLLayer).toBe(true))
+        expect(layerUtils.isKmlLayerLegacy(modernKMLLayer).toBe(false))
     })
 
     it('should clone KMLLayer instance', () => {

@@ -6,7 +6,6 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 

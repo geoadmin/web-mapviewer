@@ -1,4 +1,5 @@
 import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
 import axios from 'axios'
@@ -350,7 +351,7 @@ function searchFeatures(outputProjection, queryString, layer, parseData, parseFu
  */
 function searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection) {
     return layersToSearch.reduce((returnLayers, currentLayer) => {
-        if (currentLayer.type === LayerTypes.KML) {
+        if (currentLayer.type === LayerType.KML) {
             return returnLayers.concat(
                 searchFeatures(outputProjection, queryString, currentLayer, currentLayer, parseKml)
             )

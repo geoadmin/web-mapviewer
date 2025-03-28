@@ -3,11 +3,14 @@ import {
     type GeoAdminAPILayer,
     type ExternalWMTSLayer,
     type ExternalWMSLayer,
+    type KMLLayer,
     type Layer,
     LayerType,
     DEFAULT_OPACITY,
     timeConfigUtils,
     layerUtils,
+    LayerErrorMessage,
+    LayerWarningMessage,
 } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
@@ -22,7 +25,6 @@ import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -32,11 +34,9 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import { makeKmlLayer } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
     const { year } = parsedLayer.customAttributes ?? { year: null }
@@ -122,7 +122,7 @@ export function createLayerObject(
         if (adminId) {
             layer.adminId = adminId
         }
-    } else if (parsedLayer.type === LayerTypes.KML) {
+    } else if (parsedLayer.type === LayerType.KML) {
         // format is KML|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createKmlLayer(parsedLayer, adminId)
@@ -170,10 +170,10 @@ export function createLayerObject(
             }
             if (year !== undefined && year !== null && layer.timeConfig) {
                 const _year = typeof year === 'string' ? parseInt(year) : year
-                timeConfigUtils.updateCurrentTimeEntry(
-                    layer.timeConfig,
-                    timeConfigUtils.getTimeEntryForYear(layer.timeConfig, _year)!
-                )
+                const timeEntry = timeConfigUtils.getTimeEntryForYear(layer.timeConfig, _year)
+                if (timeEntry) {
+                    timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, timeEntry)
+                }
             }
 
             // If we have a WMS layer add extra params from custom attributes
@@ -361,16 +361,16 @@ function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>
     }
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
-    const faultyLayers: ErrorMessage[] = []
-    const localLayers: WarningMessage[] = []
+    const faultyLayers: LayerErrorMessage[] = []
+    const localLayers: LayerWarningMessage[] = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
-                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+                faultyLayers.push(new LayerErrorMessage('url_layer_error', { layer: layer.id }))
             } else if (layer.baseUrl.match(url_matcher)?.length <= 0) {
                 localLayers.push(
-                    new WarningMessage('url_external_layer_no_scheme_warning', {
+                    new LayerWarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
                     })
                 )

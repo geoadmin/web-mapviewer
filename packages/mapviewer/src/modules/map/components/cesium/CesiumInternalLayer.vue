@@ -99,7 +99,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         :geo-json-config="layerConfig"
     />
     <CesiumKMLLayer
-        v-if="layerConfig.type === LayerTypes.KML && !layerConfig.isLoading"
+        v-if="layerConfig.type === LayerType.KML && !layerConfig.isLoading"
         :kml-layer-config="layerConfig"
     />
     <CesiumGPXLayer

@@ -1,10 +1,10 @@
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { computed, inject, ref, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { makeKmlLayer, parseKml } from '@/utils/kmlUtils'
@@ -138,7 +138,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     ...dispatcher,
                 })
             }
-            if (!kmlLayer.isEmpty()) {
+            if (!layerUtils.isKmlLayerEmpty(kmlLayer)) {
                 await store.dispatch('addLayer', {
                     layer: kmlLayer,
                     ...dispatcher,

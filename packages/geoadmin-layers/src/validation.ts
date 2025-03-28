@@ -4,7 +4,7 @@ import type { Layer } from '@/layers'
  * TODO this is currently a copy of the thing in src/utils of the mapviewer. Maybe belongs somewhere
  * else or maybe this should be de-generalized? Is it used somewhere outside of layers?
  */
-export class ErrorMessage {
+export class LayerMessage {
     msg: string
     params: Record<string, any>
 
@@ -12,20 +12,23 @@ export class ErrorMessage {
      * @param {string} msg Translation key message
      * @param {any} params Translation params to pass to i18n (used for message formatting)
      */
-    constructor(msg: string, params = null) {
+    constructor(msg: string, params: Record<string, any> | null = null) {
         this.msg = msg
         this.params = params ?? {}
     }
 
-    isEquals(object: ErrorMessage) {
+    isEquals(object: LayerMessage) {
         return (
-            object instanceof ErrorMessage &&
+            object instanceof LayerMessage &&
             object.msg === this.msg &&
             Object.keys(this.params).length === Object.keys(object.params).length &&
             Object.keys(this.params).every((key) => this.params[key] === object.params[key])
         )
     }
 }
+
+export class LayerErrorMessage extends LayerMessage {}
+export class LayerWarningMessage extends LayerMessage {}
 
 export class InvalidLayerDataError extends Error {
     data: any
@@ -36,21 +39,24 @@ export class InvalidLayerDataError extends Error {
     }
 }
 
-export const layerContainsErrorMessage = (layer: Layer, errorMessage: ErrorMessage): boolean => {
+export const layerContainsErrorMessage = (
+    layer: Layer,
+    errorMessage: LayerErrorMessage
+): boolean => {
     if (layer.errorMessages) {
         return layer.errorMessages.has(errorMessage)
     }
     return false
 }
 
-export const getFirstLayerErrorMessage = (layer: Layer): ErrorMessage | null => {
+export const getFirstLayerErrorMessage = (layer: Layer): LayerErrorMessage | null => {
     if (layer.errorMessages) {
         return layer.errorMessages.values().next().value!
     }
     return null
 }
 
-export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
+export const addErrorMessageToLayer = (layer: Layer, errorMessage: LayerErrorMessage): void => {
     if (!layer.errorMessages) {
         layer.errorMessages = new Set()
     }
@@ -58,7 +64,10 @@ export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage)
     layer.hasError = true
 }
 
-export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
+export const removeErrorMessageFromLayer = (
+    layer: Layer,
+    errorMessage: LayerErrorMessage
+): void => {
     if (!layer.errorMessages) return
 
     // We need to find the error message that equals to remove it
@@ -76,6 +85,52 @@ export const clearLayerErrorMessages = (layer: Layer): void => {
         layer.errorMessages.clear()
     }
     layer.hasError = false
+}
+
+export const layerContainsWarningMessage = (layer: Layer, warningMessage: LayerWarningMessage) => {
+    if (layer.warningMessages) {
+        return layer.warningMessages.has(warningMessage)
+    }
+    return false
+}
+
+export const getFirstLayerWarningMessage = (layer: Layer) => {
+    if (layer.warningMessages) {
+        return layer.warningMessages.values().next().value!
+    }
+    return null
+}
+
+export const addWarningMessageToLayer = (
+    layer: Layer,
+    warningMessage: LayerWarningMessage
+): void => {
+    if (!layer.warningMessages) {
+        layer.warningMessages = new Set()
+    }
+    layer.warningMessages.add(warningMessage)
+    layer.hasWarning = true
+}
+
+export const removeWarningMessageFromLayer = (
+    layer: Layer,
+    warningMessage: LayerWarningMessage
+) => {
+    if (!layer.warningMessages) return
+
+    // We need to find the error message that equals to remove it
+    for (const msg of layer.warningMessages) {
+        if (msg.isEquals(warningMessage)) {
+            layer.warningMessages.delete(msg)
+            break
+        }
+    }
+    layer.hasWarning = !!layer.warningMessages.size
+}
+
+export const clearLayerWarningMessages = (layer: Layer) => {
+    layer.warningMessages?.clear()
+    layer.hasWarning = false
 }
 
 /**

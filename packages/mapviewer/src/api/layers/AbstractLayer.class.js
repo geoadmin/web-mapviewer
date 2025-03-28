@@ -1,4 +1,3 @@
-import { ErrorMessage } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
