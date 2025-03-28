@@ -1,10 +1,10 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
 

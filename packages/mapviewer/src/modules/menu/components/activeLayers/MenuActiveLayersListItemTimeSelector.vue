@@ -1,4 +1,5 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -8,7 +9,6 @@ import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import WarningMessage from '@/utils/WarningMessage.class'
 

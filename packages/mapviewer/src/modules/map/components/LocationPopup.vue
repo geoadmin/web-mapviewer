@@ -2,6 +2,7 @@
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import log from '@geoadmin/log'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -13,7 +14,6 @@ import LocationPopupPosition from '@/modules/map/components/LocationPopupPositio
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { stringifyQuery } from '@/utils/url-router'
 
 const dispatcher = { dispatcher: 'LocationPopup.vue' }

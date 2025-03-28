@@ -14,6 +14,8 @@
 // font-weight: bolder ==> <strong> tags
 @import '@fontsource/noto-sans/900.css';
 
+@import '@/css/tailwind.css';
+
 body {
     // disabling double tap = zoom the UI on iOS
     touch-action: manipulation;

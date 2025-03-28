@@ -1,10 +1,9 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { Ray } from 'cesium'
 import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const dispatcher = { dispatcher: 'ZoomButtons.vue' }
 

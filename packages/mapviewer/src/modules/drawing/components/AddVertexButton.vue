@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { EditMode } from '@/store/modules/drawing.store'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { t } = useI18n()
 

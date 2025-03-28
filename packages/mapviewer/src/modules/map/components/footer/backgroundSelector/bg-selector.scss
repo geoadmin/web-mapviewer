@@ -107,6 +107,9 @@ $nb-max-bg: 10;
                 padding: 0;
                 background: $white url('../../../assets/void.png');
                 img {
+                    // tailwind set max-width to 100% by default for img tags, but that breaks our style here
+                    max-width: unset;
+
                     display: inline;
                     margin: 0 auto;
                 }

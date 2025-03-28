@@ -11,11 +11,10 @@
  */
 
 import { randomIntBetween } from '@geoadmin/numbers'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { Dropdown } from 'bootstrap'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 /**
  * @typedef DropdownItem

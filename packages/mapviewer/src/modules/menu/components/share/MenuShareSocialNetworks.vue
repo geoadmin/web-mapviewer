@@ -4,12 +4,12 @@
  * sharing to external social media will be done through a popup.
  */
 
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { shortLink } = defineProps({
     shortLink: {

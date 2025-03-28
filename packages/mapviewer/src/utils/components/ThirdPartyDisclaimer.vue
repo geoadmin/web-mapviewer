@@ -1,8 +1,8 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const { completeDisclaimerOnClick, showTooltip, sourceName, isLocalFile } = defineProps({

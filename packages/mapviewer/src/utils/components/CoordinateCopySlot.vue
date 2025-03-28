@@ -1,11 +1,11 @@
 <script setup>
 import { CoordinateSystem } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
