@@ -14,7 +14,7 @@
             "import": "./dist/index.js",
             "require": "./dist/index.umd.cjs"
         },
-        "./css": [
+        "./tailwindcss": [
             "./dist/tooltip.css"
         ]
     },
