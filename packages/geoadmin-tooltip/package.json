@@ -26,9 +26,7 @@
         "build:dev": "pnpm run build -- --mode development",
         "build:int": "pnpm run build -- --mode integration",
         "build:prod": "pnpm run build -- --mode production",
-        "preview": "vite preview",
-        "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom"
+        "preview": "vite preview"
     },
     "dependencies": {
         "@floating-ui/vue": "catalog:"
