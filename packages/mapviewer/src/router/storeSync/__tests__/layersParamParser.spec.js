@@ -14,6 +14,7 @@ import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
@@ -300,7 +301,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using an service-kml base URL to make it "internal"
                     kmlFileUrl: `${getServiceKmlBaseUrl()}fakeKmlId`,
                 }),
@@ -309,7 +310,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using any other URL as service-kml base URL to make it "external"
                     kmlFileUrl: 'https://some.random.domain.ch/file.kml',
                 }),

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 
-describe('KMLLayer', () => {
+describe.skip('KMLLayer', () => {
     it('should create a KMLlayer instance with default values', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`

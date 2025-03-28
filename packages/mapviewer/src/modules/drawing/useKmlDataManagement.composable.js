@@ -7,7 +7,7 @@ import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { parseKml } from '@/utils/kmlUtils'
+import { makeKmlLayer, parseKml } from '@/utils/kmlUtils'
 
 const dispatcher = { dispatcher: 'useKmlDataManagement.composable' }
 
@@ -120,7 +120,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         if (!activeKmlLayer.value?.adminId) {
             // creation of the new KML (copy or new)
             const kmlMetadata = await createKml(kmlData)
-            const kmlLayer = new KMLLayer({
+            const kmlLayer = makeKmlLayer({
                 name: drawingName.value,
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
                 visible: true,
@@ -165,7 +165,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
      * @returns {Promise<void>}
      */
     async function saveLocalDrawing(kmlData) {
-        const kmlLayer = new KMLLayer({
+        const kmlLayer = makeKmlLayer({
             name: drawingName.value,
             kmlFileUrl: temporaryKmlId.value,
             visible: true,
