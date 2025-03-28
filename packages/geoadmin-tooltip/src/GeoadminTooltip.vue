@@ -55,13 +55,13 @@ const isTouching = ref<boolean>(false)
 
 const isOpen = computed<boolean>(() => !disabled && isShown.value)
 
-const tooltipElement = useTemplateRef('tooltipElement')
-const floatingElement = useTemplateRef('floatingElement')
-const arrowElement = useTemplateRef('arrowElement')
+const tooltipElementRef = useTemplateRef('tooltipElement')
+const floatingElementRef = useTemplateRef('floatingElement')
+const arrowElementRef = useTemplateRef('arrowElement')
 
 const slots = useSlots()
 
-const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement, floatingElement, {
+const { floatingStyles, middlewareData, placement } = useFloating(tooltipElementRef, floatingElementRef, {
     strategy: 'fixed',
     placement: desiredPlacement,
     whileElementsMounted: autoUpdate,
@@ -71,14 +71,14 @@ const { floatingStyles, middlewareData, placement } = useFloating(tooltipElement
             fallbackAxisSideDirection: 'start',
         }), // allow the opposite side if there's not enough space
         offset(10), // offset it to make room for the arrow
-        arrow({ element: arrowElement }),
+        arrow({ element: arrowElementRef }),
     ],
 })
 
 /** Extract the data-cy value from the tooltip anchor and */
 const dataCyValue = computed((): string => {
-    if (tooltipElement.value?.children.length) {
-        const dataCy = tooltipElement.value?.children[0].getAttribute('data-cy')
+    if (tooltipElementRef.value?.children.length) {
+        const dataCy = tooltipElementRef.value?.children[0].getAttribute('data-cy')
         if (dataCy) {
             return `floating-${dataCy}`
         }
@@ -126,7 +126,7 @@ const onMouseLeave = (): void => {
 
 const eventListenerCloser = (event: MouseEvent) => {
     // Don't close when clicked on the tooltip
-    if (floatingElement.value && !floatingElement.value.contains(event.target as Node)) {
+    if (floatingElementRef.value && !floatingElementRef.value.contains(event.target as Node)) {
         closeTooltip()
         document.removeEventListener('click', eventListenerCloser)
     }
@@ -173,7 +173,7 @@ const onClickContainer = (event: Event): void => {
 // some components need access to the root element because they
 // position it on the map. For the manual triggering the opener and closer are
 // needed, too
-defineExpose({ tooltipElement, isOpen, openTooltip, closeTooltip })
+defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTooltip })
 </script>
 
 <template>
