@@ -1,14 +1,14 @@
+import { layerUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
+import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
+// import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class.js'
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -82,7 +82,7 @@ describe('Testing layersParamParser', () => {
                     },
                 },
                 {
-                    type: LayerTypes.KML,
+                    type: LayerType.KML,
                     id: 'somerandomurl.ch/file.kml',
                     baseUrl: 'somerandomurl.ch/file.kml',
                     opacity: 0.4,
@@ -201,7 +201,7 @@ describe('Testing layersParamParser', () => {
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
                 expect(layer).to.be.an('Object')
-                expect(layer.type).to.eq(LayerTypes.KML)
+                expect(layer.type).to.eq(LayerType.KML)
                 expect(layer.id).to.eq(kmlFileUrl)
                 expect(layer.baseUrl).to.eq(kmlFileUrl)
                 expect(layer.visible).to.be.false
@@ -241,7 +241,8 @@ describe('Testing layersParamParser', () => {
         const attributions = [new LayerAttribution('fake layer attribution')]
         describe.each([
             {
-                pristineLayer: new GeoAdminWMSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMSLayer({
+                    // GeoAdminWMSLayer
                     name: 'Fake layer',
                     id: 'fake.wms.id',
                     technicalName: 'fake.wms.id',
@@ -252,7 +253,8 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new GeoAdminWMTSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMTSLayer({
+                    // GeoAdminWMTSLayer
                     name: 'fake WMTS layer',
                     id: 'fake.wmts.id',
                     technicalName: 'fake.wmts.id',
@@ -298,7 +300,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using an service-kml base URL to make it "internal"
                     kmlFileUrl: `${getServiceKmlBaseUrl()}fakeKmlId`,
                 }),
@@ -307,7 +309,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: makeKmlLayer({
                     // using any other URL as service-kml base URL to make it "external"
                     kmlFileUrl: 'https://some.random.domain.ch/file.kml',
                 }),
@@ -327,7 +329,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMTSLayer({
+                pristineLayer: layerUtils.makeExternalWMTSLayer({
                     id: 'fake.external.wmts',
                     name: 'Fake external WMTS',
                     baseUrl: 'https://fake.wtms.url/getCap.xml',
@@ -343,12 +345,12 @@ describe('Testing layersParamParser', () => {
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',
                     layers: [
-                        new ExternalWMTSLayer({
+                        {
                             id: 'fake.external.wmts',
                             name: 'Fake external WMTS',
                             baseUrl: 'https://fake.wtms.url/getCap.xml',
                             attributions,
-                        }),
+                        },
                     ],
                     attributions,
                 }),
@@ -366,7 +368,7 @@ describe('Testing layersParamParser', () => {
             }) => {
                 let layer
                 beforeEach(() => {
-                    layer = pristineLayer.clone()
+                    layer = { ...pristineLayer }
                 })
                 it('correctly transforms a layer', () => {
                     expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
@@ -401,7 +403,6 @@ describe('Testing layersParamParser', () => {
                             new LayerTimeConfigEntry('20000101'),
                             new LayerTimeConfigEntry('19500101'),
                         ])
-                        layer.hasMultipleTimestamps = true
                         layer.timeConfig.currentTimeEntry = wantedTimeEntry
                         expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
                             `${expectedLayerUrlId}@year=2050`

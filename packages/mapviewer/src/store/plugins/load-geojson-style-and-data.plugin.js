@@ -3,11 +3,13 @@
  * it here
  */
 
+import { LayerErrorMessage, LayerType } from '@geoadmin/layers'
+import { addErrorMessageToLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
+import { cloneDeep } from 'lodash'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
@@ -77,7 +79,7 @@ function loadDataAndStyle(geoJsonLayer) {
         controllers: [style.controller, data.controller],
         clone: Promise.all([style.response, data.response])
             .then(([{ data: style }, { data }]) => {
-                const clone = geoJsonLayer.clone()
+                const clone = cloneDeep(geoJsonLayer)
                 // as the layer comes from the store (99.9% chances), we copy it before altering it
                 // (otherwise, Vuex raises an error)
                 clone.geoJsonData = data
@@ -90,9 +92,12 @@ function loadDataAndStyle(geoJsonLayer) {
                     `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`,
                     error
                 )
-                const clone = geoJsonLayer.clone()
+                const clone = cloneDeep(geoJsonLayer)
                 clone.isLoading = false
-                clone.addErrorMessage(new ErrorMessage('loading_error_network_failure'))
+                addErrorMessageToLayer(
+                    clone,
+                    new LayerErrorMessage('loading_error_network_failure')
+                )
                 return clone
             }),
     }
@@ -134,7 +139,7 @@ export default function loadGeojsonStyleAndData(store) {
     store.subscribe((mutation) => {
         const addLayersSubscriber = async (layers) => {
             const geoJsonLayers = layers
-                .filter((layer) => layer instanceof GeoAdminGeoJsonLayer)
+                .filter((layer) => layer.type === LayerType.GEOJSON)
                 // filtering out multiple active layer entries for the same GeoJSON data
                 // (only one request to get the data is necessary for all entries)
                 .filter(
@@ -149,6 +154,7 @@ export default function loadGeojsonStyleAndData(store) {
                 const requester = 'load-geojson-style-and-data'
                 store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
                 const updatedLayers = await Promise.all(
+                    // TODO what is this clone thing
                     geoJsonLayersLoading.map((layer) => loadDataAndStyle(layer).clone)
                 )
                 if (updatedLayers.length > 0) {

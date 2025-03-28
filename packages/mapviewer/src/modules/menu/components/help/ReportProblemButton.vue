@@ -288,7 +288,10 @@ function selectItem(dropdownItem) {
                 <button
                     class="btn"
                     :class="{
-                        'is-valid': isTemporaryKmlValid && temporaryKml && !temporaryKml.isEmpty(),
+                        'is-valid':
+                            isTemporaryKmlValid &&
+                            temporaryKml &&
+                            !layerUtils.isKmlLayerEmpty(temporaryKml),
                         'is-invalid': !isTemporaryKmlValid,
                         'btn-outline-primary': !isTemporaryKmlValid,
                         'btn-outline-group': isTemporaryKmlValid,

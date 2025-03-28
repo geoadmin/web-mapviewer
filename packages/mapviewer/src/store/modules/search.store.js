@@ -1,4 +1,6 @@
 import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
+import { layerUtils } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -236,7 +238,7 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    if (entry.layer.getTopicForIdentifyAndTooltipRequests) {
+                    if (layerUtils.getTopicForIdentifyAndTooltipRequests(entry.layer)) {
                         getFeature(entry.layer, entry.featureId, rootState.position.projection, {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
@@ -256,7 +258,7 @@ const actions = {
                     } else {
                         // For imported KML and GPX files
                         let features = []
-                        if (entry.layer.type === LayerTypes.KML) {
+                        if (entry.layer.type === LayerType.KML) {
                             features = parseKml(entry.layer, rootState.position.projection, [])
                         }
                         if (entry.layer.type === LayerTypes.GPX) {

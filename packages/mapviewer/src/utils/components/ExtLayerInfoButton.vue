@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import {
+    type Layer,
+    getFirstLayerErrorMessage,
+    getFirstLayerWarningMessage,
+} from '@geoadmin/layers'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
 
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ErrorMessage from '@/utils/ErrorMessage.class'
@@ -10,7 +13,7 @@ import WarningMessage from '@/utils/WarningMessage.class'
 
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
-    layer: AbstractLayer
+    layer: Layer
     index: Number
 }>()
 
@@ -26,21 +29,30 @@ const hasWarning = computed((): boolean => {
 
 const theme = computed(() => {
     if (hasError.value) {
-        return "danger"
+        return 'danger'
     }
     if (hasWarning.value) {
-        return "warning"
+        return 'warning'
     }
-    return "light"
+    return 'light'
 })
 const tooltipContent = computed((): string => {
     if (hasError.value) {
-        const error: ErrorMessage = layer.getFirstErrorMessage()
-        return t(error.msg, error.params)
+        // save to assume that there *is* an error thanks to the guard
+        const error: ErrorMessage | null = getFirstLayerErrorMessage(layer)
+        if (error) {
+            return t(error.msg, error.params)
+        } else {
+            return ''
+        }
     }
     if (hasWarning.value) {
-        const warning: WarningMessage = layer.getFirstWarningMessage()
-        return t(warning.msg, warning.params)
+        const warning: WarningMessage | null = getFirstLayerWarningMessage(layer)
+        if (warning) {
+            return t(warning.msg, warning.params)
+        } else {
+            return ''
+        }
     }
 
     return t('loading_external_layer')

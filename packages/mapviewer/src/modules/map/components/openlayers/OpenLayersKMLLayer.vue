@@ -1,6 +1,7 @@
 <script setup>
 /** Renders a KML file on the map */
 
+import { LayerWarningMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -11,7 +12,6 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
@@ -90,7 +90,7 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new WarningMessage('kml_icon_url_cors_issue', {
+                    new LayerWarningMessage('kml_icon_url_cors_issue', {
                         layerName: layerName.value,
                         url: url,
                     }),
@@ -101,7 +101,7 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new WarningMessage('kml_icon_url_scheme_http', {
+                    new LayerWarningMessage('kml_icon_url_scheme_http', {
                         layerName: layerName.value,
                         url: url,
                     }),

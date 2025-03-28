@@ -1,3 +1,4 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { altKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
@@ -28,7 +29,7 @@ export default function useMapInteractions(map) {
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
         store.state.layers.activeLayers.filter((layer) =>
-            [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
+            [LayerType.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
         )
     )
 

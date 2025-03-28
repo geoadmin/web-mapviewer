@@ -1,3 +1,4 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
@@ -23,7 +24,7 @@ export function useLayerZIndexCalculation() {
             visibleLayersWithZIndex.push(
                 ...store.getters.visibleLayers.filter(
                     (visibleLayer) =>
-                        [LayerTypes.KML, LayerTypes.GEOJSON].indexOf(visibleLayer.type) === -1
+                        [LayerType.KML, LayerTypes.GEOJSON].indexOf(visibleLayer.type) === -1
                 )
             )
         } else {
