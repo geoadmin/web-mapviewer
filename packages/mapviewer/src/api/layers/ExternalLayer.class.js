@@ -1,7 +1,8 @@
+import { timeConfigUtils } from '@geoadmin/layers'
+
 // @ts-nocheck
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
-import { timeConfigUtils } from '@geoadmin/layers'
 
 /**
  * Information required to create a GetFeatureInfo request to this external WM(T)S server. This

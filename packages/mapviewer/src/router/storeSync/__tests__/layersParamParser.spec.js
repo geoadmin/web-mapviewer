@@ -1,5 +1,6 @@
 import { layerUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
+import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -8,13 +9,11 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
 import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
-import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
@@ -83,7 +82,7 @@ describe('Testing layersParamParser', () => {
                     },
                 },
                 {
-                    type: LayerTypes.KML,
+                    type: LayerType.KML,
                     id: 'somerandomurl.ch/file.kml',
                     baseUrl: 'somerandomurl.ch/file.kml',
                     opacity: 0.4,
@@ -202,7 +201,7 @@ describe('Testing layersParamParser', () => {
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
                 expect(layer).to.be.an('Object')
-                expect(layer.type).to.eq(LayerTypes.KML)
+                expect(layer.type).to.eq(LayerType.KML)
                 expect(layer.id).to.eq(kmlFileUrl)
                 expect(layer.baseUrl).to.eq(kmlFileUrl)
                 expect(layer.visible).to.be.false

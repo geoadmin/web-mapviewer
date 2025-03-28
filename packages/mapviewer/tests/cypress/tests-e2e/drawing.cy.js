@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { randomIntBetween } from '@geoadmin/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
@@ -14,7 +15,6 @@ import {
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import {
@@ -1006,7 +1006,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.type).to.eq(LayerTypes.KML)
+                expect(drawingLayer.type).to.eq(LayerType.KML)
                 expect(drawingLayer.visible).to.be.true
             })
 
@@ -1040,7 +1040,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1058,7 +1058,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1693,7 +1693,7 @@ describe('Drawing module tests', () => {
                 expect(layer.name).to.eq('Drawing')
                 expect(layer.hasError).to.be.false
                 expect(layer.kmlData).not.to.be.null
-                expect(layer.errorMessages.size).to.eq(0)
+                expect(layer.errorMessages).to.eq(undefined)
             })
     })
 })

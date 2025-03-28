@@ -1,4 +1,5 @@
 <script setup>
+import { LayerWarningMessage, layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -28,7 +29,6 @@ import { EditMode } from '@/store/modules/drawing.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 
@@ -73,7 +73,7 @@ const hasLoaded = computed(() => {
 })
 const hasKml = computed(() => {
     if (online.value) {
-        return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty()
+        return !!activeKmlLayer.value && !layerUtils.isKmlLayerEmpty(activeKmlLayer.value)
     }
     return !!store.state.layers.systemLayers.find(
         (l) => l.id === store.state.drawing.temporaryKmlId
@@ -138,7 +138,7 @@ watch(availableIconSets, () => {
             const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value, () => {
                 store.dispatch('addWarnings', {
                     warnings: [
-                        new WarningMessage('kml_icon_set_not_found', {
+                        new LayerWarningMessage('kml_icon_set_not_found', {
                             iconSetName: iconArgs.set,
                         }),
                     ],

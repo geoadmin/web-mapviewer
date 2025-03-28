@@ -1,9 +1,8 @@
-import { LayerType } from "@geoadmin/layers"
+import { LayerType } from '@geoadmin/layers'
 
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import KmlStyles from '@/api/layers/KmlStyles.enum'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { EMPTY_KML_DATA, parseKmlName } from '@/utils/kmlUtils'
 
@@ -73,7 +72,7 @@ export default class KMLLayer extends AbstractLayer {
         super({
             name: name ?? 'KML',
             id: kmlFileUrl,
-            type: LayerTypes.KML,
+            type: LayerType.KML,
             baseUrl: kmlFileUrl,
             opacity: opacity ?? 1.0,
             visible: visible ?? true,

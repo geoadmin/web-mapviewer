@@ -1,5 +1,6 @@
 import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
 import { layerUtils } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -257,7 +258,7 @@ const actions = {
                     } else {
                         // For imported KML and GPX files
                         let features = []
-                        if (entry.layer.type === LayerTypes.KML) {
+                        if (entry.layer.type === LayerType.KML) {
                             features = parseKml(entry.layer, rootState.position.projection, [])
                         }
                         if (entry.layer.type === LayerTypes.GPX) {

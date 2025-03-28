@@ -3,14 +3,13 @@
  * it here
  */
 
-import { LayerType } from '@geoadmin/layers'
+import { LayerErrorMessage, LayerType } from '@geoadmin/layers'
 import { addErrorMessageToLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
@@ -95,7 +94,10 @@ function loadDataAndStyle(geoJsonLayer) {
                 )
                 const clone = cloneDeep(geoJsonLayer)
                 clone.isLoading = false
-                addErrorMessageToLayer(clone, new ErrorMessage('loading_error_network_failure'))
+                addErrorMessageToLayer(
+                    clone,
+                    new LayerErrorMessage('loading_error_network_failure')
+                )
                 return clone
             }),
     }

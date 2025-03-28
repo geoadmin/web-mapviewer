@@ -1,3 +1,5 @@
+import { merge } from 'lodash'
+
 import { timeConfigUtils } from '@/index'
 import {
     DEFAULT_OPACITY,
@@ -15,6 +17,8 @@ import {
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about
 // handling this
 const DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION = 0.5 // meters/pixel
+
+export const EMPTY_KML_DATA = '<kml></kml>'
 
 // TODO think about validations
 
@@ -51,9 +55,10 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
         attributions: [],
         hasDescription: true,
         hasError: false,
+        hasWarning: false,
     }
 
-    return { ...defaults, ...values }
+    return merge(defaults, values)
 }
 
 export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer => {
@@ -80,9 +85,10 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
         isExternal: false,
         isLoading: false,
         hasError: false,
+        hasWarning: false,
     }
 
-    return { ...defaults, ...values }
+    return merge(defaults, values)
 }
 
 /**
@@ -124,6 +130,7 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
         hasError: false,
         currentYear: undefined,
         attributions,
+        hasWarning: false,
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -135,7 +142,7 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
 
     // if hasDescription or attributions were provided in `values`, then these would
     // override the ones we inferred above
-    return { ...defaults, ...values }
+    return merge(defaults, values)
 }
 
 export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): ExternalWMSLayer => {
@@ -169,6 +176,7 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         type: LayerType.WMS as LayerType.WMS,
         isExternal: true,
         hasError: false,
+        hasWarning: false,
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -178,7 +186,7 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         }
     }
 
-    return { ...defaults, ...values }
+    return merge(defaults, values)
 }
 
 export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
@@ -202,13 +210,21 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
         type: LayerType.KML,
         hasTooltip: false,
         hasError: false,
+        hasWarning: false,
         hasDescription: false,
         hasLegend: false,
         isLoading: true,
     }
 
-    return { ...defaults, ...values }
+    return merge(defaults, values)
 }
+
+export const isKmlLayerLegacy = (layer: KMLLayer): boolean => {
+    return layer.kmlMetadata?.author !== 'web-mapviewer'
+}
+
+export const isKmlLayerEmpty = (layer: KMLLayer): boolean =>
+    !layer.kmlData || layer.kmlData === EMPTY_KML_DATA
 
 /**
  * Returns which topic should be used in URL that needs one topic to be defined (identify or

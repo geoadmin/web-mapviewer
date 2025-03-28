@@ -7,6 +7,7 @@ import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
 import { BLUE } from '@/utils/featureStyleUtils'
@@ -421,7 +422,7 @@ describe('Test KML utils', () => {
             expect(kmlLayer.attributions).to.deep.equal([{ name: 'sys-public.dev.bgdi.ch' }])
             expect(kmlLayer.clampToGround).to.equal(true)
             expect(kmlLayer.fileId).to.equal('')
-            expect(kmlLayer.style).to.equal('DEFAULT')
+            expect(kmlLayer.style).to.equal('GEOADMIN')
             expect(kmlLayer.isExternal).to.equal(false)
         })
         it("Instantiates a KML layer that's a file, not a URL", () => {
