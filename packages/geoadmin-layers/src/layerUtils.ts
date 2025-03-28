@@ -8,6 +8,8 @@ import {
     type GeoAdminWMSLayer,
     type GeoAdminWMTSLayer,
     type ExternalWMSLayer,
+    type KMLLayer,
+    KmlStyle,
 } from '@/layers'
 
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about
@@ -174,6 +176,35 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         if (timeEntry) {
             timeConfigUtils.updateCurrentTimeEntry(values.timeConfig, timeEntry)
         }
+    }
+
+    return { ...defaults, ...values }
+}
+
+export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
+    const defaults = {
+        id: '',
+        name: '',
+        opacity: 1.0,
+        visible: true,
+        baseUrl: '',
+        layers: [],
+        extent: null,
+        clampToGround: false,
+        isExternal: false,
+        kmlFileUrl: '',
+        fileId: '',
+        kmlData: null,
+        kmlMetadata: null,
+        isLocalFile: false,
+        attributions: [],
+        style: KmlStyle.DEFAULT,
+        type: LayerType.KML,
+        hasTooltip: false,
+        hasError: false,
+        hasDescription: false,
+        hasLegend: false,
+        isLoading: true,
     }
 
     return { ...defaults, ...values }

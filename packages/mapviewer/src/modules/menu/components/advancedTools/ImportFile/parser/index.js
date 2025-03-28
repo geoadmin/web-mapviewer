@@ -29,7 +29,7 @@ async function parseAll(config, options) {
         allParsers.map((parser) => parser.parse(config, options))
     )
     const firstFulfilled = allSettled.find(
-        (response) => response.status === 'fulfilled' && response.value instanceof AbstractLayer
+        (response) => response.status === 'fulfilled' && response.value.id !== null
     )
     if (firstFulfilled) {
         return firstFulfilled.value

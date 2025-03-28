@@ -35,6 +35,7 @@ import {
 import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
 
 const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLayer => {
@@ -64,6 +65,19 @@ const createWMSLayerObject = (parsedLayer: Record<string, any>): ExternalWMSLaye
         baseUrl: parsedLayer.baseUrl,
         currentYear: year,
         customAttributes,
+    })
+}
+
+const createKmlLayer = (
+    parsedLayer: Record<string, any>,
+    adminId: string | undefined
+): KMLLayer => {
+    return makeKmlLayer({
+        kmlFileUrl: parsedLayer.baseUrl,
+        visible: parsedLayer.visible,
+        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+        adminId: adminId,
+        style: parsedLayer.customAttributes?.style ?? undefined,
     })
 }
 
@@ -111,13 +125,7 @@ export function createLayerObject(
     } else if (parsedLayer.type === LayerTypes.KML) {
         // format is KML|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
-            layer = new KMLLayer({
-                kmlFileUrl: parsedLayer.baseUrl,
-                visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
-                adminId: adminId,
-                style: parsedLayer.customAttributes?.style,
-            })
+            layer = createKmlLayer(parsedLayer, adminId)
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.

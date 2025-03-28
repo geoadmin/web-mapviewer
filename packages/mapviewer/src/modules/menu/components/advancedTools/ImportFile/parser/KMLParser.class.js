@@ -6,7 +6,7 @@ import InvalidFileContentError from '@/modules/menu/components/advancedTools/Imp
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
-import { getKmlExtent } from '@/utils/kmlUtils'
+import { getKmlExtent, makeKmlLayer } from '@/utils/kmlUtils'
 
 /**
  * Checks if file is KMLs
@@ -60,7 +60,7 @@ export class KMLParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
         }
-        return new KMLLayer({
+        return makeKmlLayer({
             kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
             opacity: 1.0,
