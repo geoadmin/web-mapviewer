@@ -77,6 +77,13 @@ export default {
          */
         embed: false,
         /**
+         * Flag telling if the ctrl key is required to scroll. This is useful when the map is
+         * embedded in an iframe and the parent page needs to scroll.
+         *
+         * @type Boolean
+         */
+        noSimpleZoomEmbed: false,
+        /**
          * Mapping of loading bar requesters. The loading bar on top of the screen is shown as soon
          * as this mapping (object) is not empty. A requester can request several times the loading
          * bar, but then it needs to clear it as many times it has set it.
@@ -227,6 +234,12 @@ export default {
         isDesktopMode(state) {
             return state.mode === UIModes.DESKTOP
         },
+        hasNoSimpleZoomEmbedEnabled(state) {
+            return state.noSimpleZoomEmbed
+        },
+        isEmbed(state) {
+            return state.embed
+        },
         isPhoneSize(state, getters) {
             return getters.isPhoneMode
         },
@@ -313,6 +326,14 @@ export default {
         },
         setEmbed({ commit }, { embed, dispatcher }) {
             commit('setEmbed', { embed: !!embed, dispatcher })
+        },
+        setNoSimpleZoomEmbed({ commit }, { noSimpleZoomEmbed, dispatcher }) {
+            if (typeof noSimpleZoomEmbed === 'boolean') {
+                commit('setNoSimpleZoomEmbed', {
+                    noSimpleZoomEmbed,
+                    dispatcher,
+                })
+            }
         },
         setLoadingBarRequester({ commit }, { requester, dispatcher }) {
             commit('setShowLoadingBar', { requester, loading: true, dispatcher })
@@ -466,6 +487,9 @@ export default {
         },
         setEmbed(state, { embed }) {
             state.embed = embed
+        },
+        setNoSimpleZoomEmbed(state, { noSimpleZoomEmbed }) {
+            state.noSimpleZoomEmbed = noSimpleZoomEmbed
         },
         setShowLoadingBar(state, { requester, loading }) {
             if (loading) {

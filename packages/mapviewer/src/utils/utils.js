@@ -195,6 +195,51 @@ export function transformUrlMapToEmbed(url) {
 }
 
 /**
+ * Inserts a parameter into the URL hash
+ *
+ * @param {string} url Url to transform
+ * @param {string} paramName Name of the parameter to insert
+ * @param {string} paramValue Value of the parameter to insert
+ * @returns {string} Url transformed
+ */
+
+export function insertParameterIntoUrl(url, paramName, paramValue) {
+    const { urlObj, hash, query } = parseUrlHashQuery(url)
+
+    const params = new URLSearchParams(query)
+    params.set(paramName, paramValue)
+
+    const basePath = hash.split('?')[0]
+    const newQuery = decodeURIComponent(params.toString())
+
+    urlObj.hash = `${basePath}?${newQuery}`
+
+    return urlObj.toString()
+}
+
+/**
+ * Removes a parameter from the URL hash
+ *
+ * @param {string} url
+ * @param {string} paramName
+ * @returns
+ */
+export function removeParamaterFromUrl(url, paramName) {
+    const { urlObj, hash, query } = parseUrlHashQuery(url)
+
+    const params = new URLSearchParams(query)
+    params.delete(paramName)
+
+    const basePath = hash.split('?')[0]
+    const newQuery = decodeURIComponent(params.toString())
+
+    // if the query is empty, we remove it from the hash
+    urlObj.hash = newQuery ? `${basePath}?${newQuery}` : basePath
+
+    return urlObj.toString()
+}
+
+/**
  * Check if the provided string is a valid email address
  *
  * @param {string} email Email address to check
