@@ -139,6 +139,14 @@ Cypress.Commands.add(
             cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
         }
 
+        // remove the devtools from the dom because they often get in the way
+        // But they would still be available via http://<BASE_URL>/__devtools__
+        cy.get('#__vue-devtools-container__')
+            .should((_) => {})
+            .then((element) => {
+                element.remove()
+            })
+
         cy.log('cmd: goToMapView successful')
     }
 )
