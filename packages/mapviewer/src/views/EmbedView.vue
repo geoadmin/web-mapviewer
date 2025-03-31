@@ -1,6 +1,6 @@
 <script setup>
 import log from '@geoadmin/log'
-import { computed, onBeforeMount, onMounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -20,12 +20,27 @@ const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
+const scrollWithCtrlOnly = computed(() => store.getters.scrollWithCtrlOnly)
+
+function onWheel(event) {
+  console.log('onWheel event', event)
+  if (scrollWithCtrlOnly.value && !event.ctrlKey) {
+    console.log('onWheel event.preventDefault()')
+    event.preventDefault()
+  }
+}
+
 onBeforeMount(() => {
     store.dispatch('setEmbed', { embed: true, ...dispatcher })
 })
 
 onMounted(() => {
     log.info(`Embedded map view mounted`)
+    window.addEventListener('wheel', onWheel, { passive: false }) //passive: false is required for preventDefault
+})
+
+onUnmounted(() => {
+  window.removeEventListener('wheel', onWheel)
 })
 
 watch(() => route.query, sendChangeEventToParent)
