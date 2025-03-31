@@ -1,5 +1,4 @@
 import { LV95, WGS84 } from '@geoadmin/coordinates'
-import { LayerErrorMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { round } from '@geoadmin/numbers'
 import { Math as CesiumMath } from 'cesium'
@@ -7,6 +6,7 @@ import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const { GeolocationPositionError } = window
 
@@ -51,7 +51,7 @@ function setCenterIfInBounds(store, center) {
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
         store.dispatch('addErrors', {
-            errors: [new LayerErrorMessage('geoloc_out_of_bounds', null)],
+            errors: [new ErrorMessage('geoloc_out_of_bounds', null)],
             ...dispatcher,
         })
     }
