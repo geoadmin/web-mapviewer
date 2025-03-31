@@ -1,4 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { WarningMessage } from '@geoadmin/log/Message'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
@@ -7,7 +8,6 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getKmlExtent, isKmlFeaturesValid } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 /**
  * Checks if file is KMLs

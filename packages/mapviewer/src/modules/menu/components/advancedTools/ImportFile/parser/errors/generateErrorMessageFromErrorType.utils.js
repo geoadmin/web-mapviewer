@@ -1,9 +1,9 @@
+import { ErrorMessage } from '@geoadmin/log/Message'
 import { AxiosError } from 'axios'
 
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 /**
  * Generates an error message from the type of error received from a FileParser (or the parseAll
