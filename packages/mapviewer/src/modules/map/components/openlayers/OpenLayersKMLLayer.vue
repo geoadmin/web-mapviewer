@@ -2,6 +2,7 @@
 /** Renders a KML file on the map */
 
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'

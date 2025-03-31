@@ -7,11 +7,11 @@
  */
 
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const dispatcher = { dispatcher: 'external-layers.plugin' }
 

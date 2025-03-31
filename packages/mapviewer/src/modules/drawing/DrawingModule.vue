@@ -1,5 +1,6 @@
 <script setup>
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import {

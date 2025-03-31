@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { isNumber } from '@geoadmin/numbers'
 
 import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
@@ -8,8 +9,6 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
-import ErrorMessage from '@/utils/ErrorMessage.class'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 

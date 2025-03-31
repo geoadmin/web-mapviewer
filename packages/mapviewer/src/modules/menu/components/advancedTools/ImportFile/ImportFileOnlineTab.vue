@@ -1,5 +1,6 @@
 <script setup>
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 

@@ -1,12 +1,10 @@
 <script setup lang="ts">
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
-
-import ErrorMessage from '@/utils/ErrorMessage.class'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
@@ -26,12 +24,12 @@ const hasWarning = computed((): boolean => {
 
 const theme = computed(() => {
     if (hasError.value) {
-        return "danger"
+        return 'danger'
     }
     if (hasWarning.value) {
-        return "warning"
+        return 'warning'
     }
-    return "light"
+    return 'light'
 })
 const tooltipContent = computed((): string => {
     if (hasError.value) {
