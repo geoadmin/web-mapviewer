@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'

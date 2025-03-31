@@ -1,4 +1,5 @@
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+// import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
@@ -13,7 +14,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  * them, not through a functions that updates other properties as it can lead to subtle bugs due
  * to Vue reactivity engine.
  */
-export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
+export default class GeoAdminGeoJsonLayer extends AbstractLayer {
     /**
      * @param {String} layerData.name The name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer in our backend

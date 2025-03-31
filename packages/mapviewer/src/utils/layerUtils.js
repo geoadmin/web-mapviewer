@@ -1,9 +1,7 @@
+import { LayerType } from '@geoadmin/layers'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { normalizeExtent } from '@/utils/extentUtils'
 
@@ -54,10 +52,7 @@ import { normalizeExtent } from '@/utils/extentUtils'
  */
 export function getTimestampFromConfig(layer) {
     let timestamp = layer.timeConfig?.currentTimestamp ?? null
-    if (
-        timestamp === null &&
-        (layer instanceof ExternalWMTSLayer || layer instanceof GeoAdminWMTSLayer)
-    ) {
+    if (timestamp === null && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
         timestamp = 'current'
     }
@@ -74,7 +69,7 @@ export function getTimestampFromConfig(layer) {
  */
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
     const { addTimestamp = false } = options ?? {}
-    if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
+    if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
         let timestamp = '{Time}'
         if (addTimestamp) {
             timestamp = getTimestampFromConfig(wmtsLayerConfig)

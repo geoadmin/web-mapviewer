@@ -78,9 +78,15 @@ catalogs:
     '@types/jsdom':
       specifier: ^21.1.7
       version: 21.1.7
+    '@types/lodash':
+      specifier: ^4.17.16
+      version: 4.17.16
     '@types/node':
       specifier: ^22.13.10
       version: 22.13.10
+    '@types/openlayers':
+      specifier: ^4.6.23
+      version: 4.6.23
     '@types/proj4':
       specifier: ^2.5.6
       version: 2.5.6
@@ -410,6 +416,49 @@ importers:
         specifier: 'catalog:'
         version: 5.2.0
 
+  packages/geoadmin-layers:
+    dependencies:
+      '@geoadmin/coordinates':
+        specifier: workspace:*
+        version: link:../geoadmin-coordinates
+      '@geoadmin/log':
+        specifier: workspace:*
+        version: link:../geoadmin-log
+      '@geoadmin/numbers':
+        specifier: workspace:^
+        version: link:../geoadmin-numbers
+      lodash:
+        specifier: 'catalog:'
+        version: 4.17.21
+      ol:
+        specifier: 'catalog:'
+        version: 10.4.0
+      proj4:
+        specifier: 'catalog:'
+        version: 2.15.0
+    devDependencies:
+      '@types/lodash':
+        specifier: 'catalog:'
+        version: 4.17.16
+      '@types/openlayers':
+        specifier: 'catalog:'
+        version: 4.6.23
+      chai:
+        specifier: 'catalog:'
+        version: 5.2.0
+      vite:
+        specifier: 'catalog:'
+        version: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
+      vite-plugin-dts:
+        specifier: 'catalog:'
+        version: 4.5.3(@types/node@22.13.10)(rollup@4.35.0)(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))
+      vitest:
+        specifier: 'catalog:'
+        version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@26.0.0)(sass@1.77.6)
+      vue-tsc:
+        specifier: 'catalog:'
+        version: 2.2.8(typescript@5.8.2)
+
   packages/geoadmin-log:
     dependencies:
       proj4:
@@ -461,6 +510,9 @@ importers:
       '@geoadmin/coordinates':
         specifier: workspace:*
         version: link:../geoadmin-coordinates
+      '@geoadmin/layers':
+        specifier: workspace:*
+        version: link:../geoadmin-layers
       '@geoadmin/log':
         specifier: workspace:*
         version: link:../geoadmin-log
@@ -488,6 +540,9 @@ importers:
       '@turf/turf':
         specifier: 'catalog:'
         version: 7.2.0
+      '@types/lodash':
+        specifier: 'catalog:'
+        version: 4.17.16
       animate.css:
         specifier: 'catalog:'
         version: 4.1.1
@@ -1976,6 +2031,9 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
+  '@types/lodash@4.17.16':
+    resolution: {integrity: sha512-HX7Em5NYQAXKW+1T+FiuG27NGwzJfCX3s1GjOa7ujxZa52kjJLOr4FUxT+giF6Tgxv1e+/czV/iTtBw27WTU9g==}
+
   '@types/mapbox__point-geometry@0.1.4':
     resolution: {integrity: sha512-mUWlSxAmYLfwnRBmgYV86tgYmMIICX4kza8YnE/eIlywGe2XoOxlpVnXWwir92xRLjwyarqwpu2EJKD2pk0IUA==}
 
@@ -1990,6 +2048,9 @@ packages:
 
   '@types/node@22.13.10':
     resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
+
+  '@types/openlayers@4.6.23':
+    resolution: {integrity: sha512-7jCPIa4D4LV03Rttae1AEqvkIN0+nc6Snz4IgA/IjsJD5O3ONxpscqIOdp1qAGuAsikR/ZC9vrPF9np8JRc6ig==}
 
   '@types/pbf@3.0.5':
     resolution: {integrity: sha512-j3pOPiEcWZ34R6a6mN07mUkM4o4Lwf6hPNt8eilOeZhTFbxFXmKhvXl9Y28jotFPaI1bpPDJsbCprUoNke6OrA==}
@@ -7277,6 +7338,8 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/lodash@4.17.16': {}
+
   '@types/mapbox__point-geometry@0.1.4': {}
 
   '@types/mapbox__vector-tile@1.3.4':
@@ -7294,6 +7357,8 @@ snapshots:
   '@types/node@22.13.10':
     dependencies:
       undici-types: 6.20.0
+
+  '@types/openlayers@4.6.23': {}
 
   '@types/pbf@3.0.5': {}
 

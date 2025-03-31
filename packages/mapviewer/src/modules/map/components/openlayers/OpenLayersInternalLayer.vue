@@ -5,6 +5,7 @@
  */
 
 import { WEBMERCATOR } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -62,13 +63,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
+            v-if="layerConfig.type === LayerType.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
+            v-if="layerConfig.type === LayerType.WMTS && layerConfig.isExternal"
             :external-wmts-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
@@ -76,7 +77,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
-            v-if="layerConfig.type === LayerTypes.WMS"
+            v-if="layerConfig.type === LayerType.WMS"
             :wms-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
@@ -118,7 +119,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             </div>
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML && layerConfig.kmlData"
+            v-if="layerConfig.type === LayerType.KML && layerConfig.kmlData"
             :kml-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

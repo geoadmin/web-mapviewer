@@ -1,10 +1,17 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { timeConfigUtils } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
+import {
+    addErrorMessageToLayer,
+    clearErrorMessages,
+    removeErrorMessageFromLayer,
+} from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
+import { cloneDeep } from 'lodash'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
@@ -15,7 +22,7 @@ import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
  * @param {string} layerId ID of the layer to compare
  * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
  * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
- * @param {AbstractLayer} layerToMatch Layer to compare with
+ * @param {Layer} layerToMatch Layer to compare with
  * @returns {boolean}
  */
 function matchTwoLayers(layerId, isExternal = null, baseUrl = null, layerToMatch) {
@@ -34,7 +41,8 @@ const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) 
 const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
-    const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
+    // TODO clone needed??
+    const clone = cloneDeep(getters.getLayerConfigById(layer.id)) ?? null
     if (clone) {
         if (typeof layer.visible === 'boolean') {
             clone.visible = layer.visible
@@ -45,7 +53,10 @@ const cloneActiveLayerConfig = (getters, layer) => {
         if (layer.customAttributes) {
             const { year, updateDelay } = layer.customAttributes
             if (year && clone.timeConfig) {
-                clone.timeConfig.updateCurrentTimeEntry(clone.timeConfig.getTimeEntryForYear(year))
+                timeConfigUtils.updateCurrentTimeEntry(
+                    clone.timeConfig,
+                    timeConfigUtils.getTimeEntryForYear(clone.timeConfig, year)
+                )
             }
             if (updateDelay) {
                 clone.updateDelay = updateDelay
@@ -68,7 +79,7 @@ const state = {
      *
      * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
-     * @type AbstractLayer[]
+     * @type Layer[]
      */
     activeLayers: [],
     /**
@@ -81,7 +92,7 @@ const state = {
      * A layer to show on the map when hovering a layer (catalog and search) but not in the list of
      * active layers.
      *
-     * @type AbstractLayer
+     * @type Layer
      */
     previewLayer: null,
     /**
@@ -99,7 +110,7 @@ const state = {
      * System layers. List of system layers that are added on top and cannot be directly controlled
      * by the user.
      *
-     * @type AbstractLayer[]
+     * @type Layer[]
      */
     systemLayers: [],
 }
@@ -108,7 +119,7 @@ const getters = {
     /**
      * Return the current background layer from the list of layers via ID
      *
-     * @returns {AbstractLayer} The current background layer
+     * @returns {Layer} The current background layer
      */
     currentBackgroundLayer: (state, getters) => {
         return getters.getLayerConfigById(state.currentBackgroundLayerId)
@@ -121,7 +132,7 @@ const getters = {
      *
      * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
-     * @returns {AbstractLayer[]} All layers that are currently visible on the map
+     * @returns {Layer[]} All layers that are currently visible on the map
      */
     visibleLayers: (state) => {
         const visibleLayers = state.activeLayers.filter((layer) => {
@@ -129,7 +140,7 @@ const getters = {
             // there.
             if (
                 layer.timeConfig &&
-                layer.hasMultipleTimestamps &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 layer.timeConfig.currentTimeEntry === null
             ) {
                 return false
@@ -145,7 +156,7 @@ const getters = {
     /**
      * Return the visible layer on top (layer with visible flag to true)
      *
-     * @returns {AbstractLayer | null} The visible layer or null if no layer are visible
+     * @returns {Layer | null} The visible layer or null if no layer are visible
      */
     visibleLayerOnTop: (state, getters) => {
         if (getters.visibleLayers.length > 0) {
@@ -165,7 +176,7 @@ const getters = {
      */
     activeKmlLayer: (state) =>
         state.activeLayers.findLast(
-            (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
+            (layer) => layer.visible && layer.type === LayerType.KML && !layer.isExternal
         ) ?? null,
 
     /**
@@ -183,7 +194,7 @@ const getters = {
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
      *
-     * @returns {[AbstractLayer]} List of background layers.
+     * @returns {[Layer]} List of background layers.
      */
     backgroundLayers: (state, _) =>
         state.config.filter((layer) => layer.isBackground && layer.idIn3d),
@@ -191,7 +202,7 @@ const getters = {
     /**
      * Retrieves a layer config metadata defined by its unique ID
      *
-     * @returns {AbstractLayer | null}
+     * @returns {Layer | null}
      */
     getLayerConfigById: (state) => (geoAdminLayerId) =>
         state.config.find((layer) => layer.id === geoAdminLayerId) ?? null,
@@ -203,7 +214,7 @@ const getters = {
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
      *   baseUrl
-     * @returns {[AbstractLayer]} All active layers matching the ID, isExternal, and baseUrl
+     * @returns {[Layer]} All active layers matching the ID, isExternal, and baseUrl
      */
     getActiveLayersById:
         (state) =>
@@ -222,7 +233,7 @@ const getters = {
      * @param {boolean | null} isExternal If the layer must be external, not, or both (null)
      * @param {string | null} baseUrl Base URL of the layer(s) to retrieve. If null, accept all
      *   baseUrl
-     * @returns {[AbstractLayer]} All active layers matching the ID
+     * @returns {[Layer]} All active layers matching the ID
      */
     getLayersById:
         (state) =>
@@ -240,7 +251,7 @@ const getters = {
      * Retrieves active layer by index
      *
      * @param {number} index Index of the layer to retrieve
-     * @returns {AbstractLayer | null} Active layer or null if the index is invalid
+     * @returns {Layer | null} Active layer or null if the index is invalid
      */
     getActiveLayerByIndex: (state) => (index) => {
         if (index < 0 || index === undefined || index === null) {
@@ -257,7 +268,9 @@ const getters = {
     visibleLayersWithTimeConfig: (state) =>
         // Here we cannot take the getter visibleLayers as it also contain the preview and system
         // layers as well as the layer without valid current timeEntry are filtered out
-        state.activeLayers.filter((layer) => layer.visible && layer.hasMultipleTimestamps),
+        state.activeLayers.filter(
+            (layer) => layer.visible && timeConfigUtils.hasMultipleTimestamps(layer)
+        ),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
@@ -271,7 +284,7 @@ const getters = {
         (state, getters) =>
         (layerId, isExternal = null, baseUrl = null) => {
             const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
-            return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+            return layer?.isExternal || (layer?.type === LayerType.KML && !layer?.adminId)
         },
 
     /**
@@ -280,7 +293,7 @@ const getters = {
      *
      * KML layer are treated as external when they are generated by another user (no adminId).
      *
-     * @param {AbstractLayer | null} layer Layer to check for data disclaimer
+     * @param {Layer | null} layer Layer to check for data disclaimer
      * @returns {Boolean}
      */
     isLocalFile: () => (layer) => {
@@ -288,7 +301,7 @@ const getters = {
         const isBaseUrlValidUrl = /^\w+:\/\//.test(layer?.baseUrl)
         return (
             !isBaseUrlValidUrl &&
-            (layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId))
+            (layer?.isExternal || (layer?.type === LayerType.KML && !layer?.adminId))
         )
     },
 
@@ -306,7 +319,10 @@ const getters = {
 
     youngestYear: (state) =>
         state.config.reduce((youngestYear, layer) => {
-            if (layer.hasMultipleTimestamps && youngestYear < layer.timeConfig.years[0]) {
+            if (
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
+                youngestYear < layer.timeConfig.years[0]
+            ) {
                 return layer.timeConfig.years[0]
             }
             return youngestYear
@@ -315,7 +331,7 @@ const getters = {
     oldestYear: (state) =>
         state.config.reduce((oldestYear, layer) => {
             if (
-                layer.hasMultipleTimestamps &&
+                timeConfigUtils.hasMultipleTimestamps(layer) &&
                 oldestYear > layer.timeConfig.years[layer.timeConfig.years.length - 1]
             ) {
                 return layer.timeConfig.years[layer.timeConfig.years.length - 1]
@@ -347,7 +363,7 @@ const actions = {
      *
      * Will add layers back, if some were already added before the config was changed
      *
-     * @param {AbstractLayer[]} config
+     * @param {Layer[]} config
      * @param {string} dispatcher Action dispatcher name
      */
     setLayerConfig({ commit, state, getters }, { config, dispatcher }) {
@@ -357,20 +373,25 @@ const actions = {
             const layerConfig = getters.getLayerConfigById(layer.id)
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
-                const clone = layerConfig.clone()
+                // tODO clone needed?
+                const clone = cloneDeep(layerConfig)
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
                 if (layer.timeConfig) {
-                    clone.timeConfig.updateCurrentTimeEntry(
-                        clone.timeConfig.getTimeEntryForYear(layer.timeConfig.currentYear)
+                    timeConfigUtils.updateCurrentTimeEntry(
+                        clone.timeConfig,
+                        timeConfigUtils.getTimeEntryForYear(
+                            clone.timeConfig,
+                            layer.timeConfig.currentYear
+                        )
                     )
                 }
                 return clone
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                return layer.clone()
+                return cloneDeep(layer)
             }
         })
         commit('setLayers', { layers: layers, dispatcher })
@@ -384,7 +405,7 @@ const actions = {
      * layers list (for instance having a time enabled layer added multiple time with a different
      * timestamp)
      *
-     * @param {AbstractLayer} layer
+     * @param {Layer} layer
      * @param {String} layerId
      * @param {ActiveLayerConfig} layerConfig
      * @param {Boolean} zoomToLayerExtent
@@ -399,12 +420,14 @@ const actions = {
         // default values when we add it, not the settings from the layer already added)
         let clone = null
         if (layer) {
-            clone = layer.clone()
+            // tODO clone needed?
+            clone = cloneDeep(layer)
         } else if (layerConfig) {
-            // Get the AbstractLayer Config object, we need to clone it in order
+            // Get the Layer Config object, we need to clone it in order
             clone = cloneActiveLayerConfig(getters, layerConfig)
         } else if (layerId) {
-            clone = getters.getLayerConfigById(layerId)?.clone() ?? null
+            // tODO clone needed?
+            clone = cloneDeep(getters.getLayerConfigById(layerId)) ?? null
         }
         if (clone) {
             commit('addLayer', { layer: clone, dispatcher })
@@ -424,24 +447,12 @@ const actions = {
      *
      * NOTE: the layers array is automatically deep cloned
      *
-     * @param {[AbstractLayer | ActiveLayerConfig | String]} layers List of active layers
+     * @param {[Layer | ActiveLayerConfig | String]} layers List of active layers
      * @param {string} dispatcher Action dispatcher name
      */
-    setLayers({ commit, getters }, { layers, dispatcher }) {
-        const clones = layers
-            .map((layer) => {
-                let clone = null
-                if (layer instanceof AbstractLayer) {
-                    clone = layer.clone()
-                } else if (layer instanceof Object) {
-                    clone = cloneActiveLayerConfig(getters, layer)
-                } else if (layer instanceof String || typeof layer === 'string') {
-                    // should be string
-                    clone = getters.getLayerConfigById(layer)?.clone() ?? null
-                }
-                return clone
-            })
-            .filter((layer) => layer !== null)
+    setLayers({ commit /*, getters */ }, { layers, dispatcher }) {
+        // TODO maybe cloning it here again shouldn't really be necessary
+        const clones = layers.map((layer) => cloneDeep(layer)).filter((layer) => layer !== null)
         commit('setLayers', { layers: clones, dispatcher })
     },
 
@@ -472,8 +483,8 @@ const actions = {
      * Full or partial update of a layer at index in the active layer list
      *
      * @param {String} layerId ID of the layer we want to update
-     * @param {AbstractLayer | { any: any }} values Full layer object (AbstractLayer) to update or
-     *   an object with the properties to update (partial update)
+     * @param {Layer | { any: any }} values Full layer object (Layer) to update or an object with
+     *   the properties to update (partial update)
      * @param {string} dispatcher Action dispatcher name
      */
     updateLayer({ commit }, { layerId, values, dispatcher }) {
@@ -484,15 +495,15 @@ const actions = {
      * Full or partial update of layers in the active layer list. The update is done by IDs and
      * updates all layer matching the IDs
      *
-     * @param {[AbstractLayer | { id: String; any: any }]} layers List of full layer object
-     *   (AbstractLayer) to update or an object with the layer ID to update and any property to
-     *   update (partial update)
+     * @param {[Layer | { id: String; any: any }]} layers List of full layer object (Layer) to
+     *   update or an object with the layer ID to update and any property to update (partial
+     *   update)
      * @param {string} dispatcher Action dispatcher name
      */
     updateLayers({ commit, getters }, { layers, dispatcher }) {
         const updatedLayers = layers
             .map((layer) => {
-                if (layer instanceof AbstractLayer) {
+                if (layer instanceof Object) {
                     return layer
                 } else {
                     const layers2Update = getters.getActiveLayersById(
@@ -506,7 +517,8 @@ const actions = {
                         )
                     }
                     return layers2Update.map((layer2Update) => {
-                        const updatedLayer = layer2Update.clone()
+                        // TODO clone needed?
+                        const updatedLayer = cloneDeep(layer2Update)
                         Object.entries(layer).forEach(
                             (entry) => (updatedLayer[entry[0]] = entry[1])
                         )
@@ -618,8 +630,8 @@ const actions = {
     /**
      * Set the preview layer
      *
-     * @param {AbstractLayer | String | null} layer Layer to set as preview or layer id to set as
-     *   preview or null to clear the preview layer
+     * @param {Layer | String | null} layer Layer to set as preview or layer id to set as preview or
+     *   null to clear the preview layer
      * @param {string} dispatcher Action dispatcher name
      */
     setPreviewLayer({ commit, getters }, { layer, dispatcher }) {
@@ -627,10 +639,13 @@ const actions = {
             commit('setPreviewLayer', { layer: null, dispatcher })
         } else {
             let clone = null
-            if (layer instanceof AbstractLayer) {
-                clone = layer.clone()
+            if (typeof layer === 'object') {
+                // got the layer, thus we copy it directly
+                clone = cloneDeep(layer)
             } else {
-                clone = getters.getLayerConfigById(layer)?.clone()
+                // TODO clone needed?
+                // got an ID, look for the layer
+                clone = cloneDeep(getters.getLayerConfigById(layer))
                 if (!clone) {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
@@ -692,8 +707,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.addErrorMessage(error)
+            const clone = cloneDeep(layer)
+            addErrorMessageToLayer(clone, error)
             if (clone.isLoading) {
                 clone.isLoading = false
             }
@@ -722,8 +737,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.removeErrorMessage(error)
+            const clone = cloneDeep(layer)
+            removeErrorMessageFromLayer(clone, error)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -745,8 +760,8 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
-            clone.clearErrorMessages()
+            const clone = cloneDeep(layer)
+            clearErrorMessages(clone)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -777,10 +792,10 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = layer.clone()
+            const clone = cloneDeep(layer)
             if (data) {
                 let extent
-                if (clone.type === LayerTypes.KML) {
+                if (clone.type === LayerType.KML) {
                     clone.name = parseKmlName(data)
                     if (!clone.name || clone.name === '') {
                         clone.name = clone.kmlFileUrl
@@ -797,11 +812,11 @@ const actions = {
                 // Always clean up the error messages before doing the check
                 const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
                 const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
-                clone.removeErrorMessage(emptyFileErrorMessage)
-                clone.removeErrorMessage(outOfBoundsErrorMessage)
+                removeErrorMessageFromLayer(clone, emptyFileErrorMessage)
+                removeErrorMessageFromLayer(clone, outOfBoundsErrorMessage)
 
                 if (!extent) {
-                    clone.addErrorMessage(emptyFileErrorMessage)
+                    addErrorMessageToLayer(clone, emptyFileErrorMessage)
                 } else if (
                     !getExtentIntersectionWithCurrentProjection(
                         extent,
@@ -809,18 +824,18 @@ const actions = {
                         rootState.position.projection
                     )
                 ) {
-                    clone.addErrorMessage(outOfBoundsErrorMessage)
+                    addErrorMessageToLayer(clone, outOfBoundsErrorMessage)
                 }
             }
             if (metadata) {
-                if (clone.type === LayerTypes.KML) {
+                if (clone.type === LayerType.KML) {
                     clone.kmlMetadata = metadata
                 } else if (clone.type === LayerTypes.GPX) {
                     clone.gpxMetadata = metadata
                     clone.name = metadata.name ?? 'GPX'
                 }
             }
-            if (linkFiles && clone.type === LayerTypes.KML) {
+            if (linkFiles && clone.type === LayerType.KML) {
                 clone.linkFiles = linkFiles
             }
             return clone
@@ -833,7 +848,7 @@ const actions = {
      * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are added/remove
      * by ID
      *
-     * @param {AbstractLayer} layer
+     * @param {Layer} layer
      * @param {String} dispatcher
      */
     addSystemLayer({ commit }, { layer, dispatcher }) {
@@ -842,7 +857,7 @@ const actions = {
     /**
      * Update a system layer
      *
-     * @param {AbstractLayer | Object} layer
+     * @param {Layer | Object} layer
      * @param {String} dispatcher
      */
     updateSystemLayer({ commit }, { layer, dispatcher }) {
@@ -854,7 +869,7 @@ const actions = {
      * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are added/remove
      * by ID
      *
-     * @param {AbstractLayer} layer
+     * @param {Layer} layer
      * @param {String} dispatcher
      */
     removeSystemLayer({ commit }, { layerId, dispatcher }) {
@@ -863,7 +878,7 @@ const actions = {
     /**
      * Set all system layers
      *
-     * @param {[AbstractLayer]} layers
+     * @param {[Layer]} layers
      * @param {String} dispatcher
      */
     setSystemLayers({ commit }, { layers, dispatcher }) {
@@ -886,7 +901,7 @@ const mutations = {
     },
     updateLayer(state, { layerId, values }) {
         const layer2Update = state.activeLayers.find((layer) => layer.id === layerId)
-        if (!(layer2Update instanceof AbstractLayer)) {
+        if (!layer2Update.id) {
             throw new Error(`Failed to updateLayer: no layer found with ID ${layerId}`)
         }
         Object.assign(layer2Update, values)
@@ -936,7 +951,10 @@ const mutations = {
         layer.opacity = Number(opacity)
     },
     setLayerYear(state, { layer, year }) {
-        layer.timeConfig.updateCurrentTimeEntry(layer.timeConfig.getTimeEntryForYear(year))
+        timeConfigUtils.updateCurrentTimeEntry(
+            layer.timeConfig,
+            timeConfigUtils.getTimeEntryForYear(layer.timeConfig, year)
+        )
     },
     moveActiveLayerToIndex(state, { index, newIndex }) {
         const removed = state.activeLayers.splice(index, 1)
@@ -959,7 +977,7 @@ const mutations = {
         if (!layer2Update) {
             throw new Error(`Cannot update system layer ${layer.id}: layer not found`)
         }
-        if (layer instanceof AbstractLayer) {
+        if (layer instanceof Object) {
             Object.assign(layer2Update, layer)
         } else {
             Object.entries(layer).forEach((entry) => (layer2Update[entry[0]] = entry[1]))
