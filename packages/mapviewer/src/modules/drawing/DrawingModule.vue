@@ -1,6 +1,7 @@
 <script setup>
-import { LayerWarningMessage, layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import {
@@ -138,7 +139,7 @@ watch(availableIconSets, () => {
             const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value, () => {
                 store.dispatch('addWarnings', {
                     warnings: [
-                        new LayerWarningMessage('kml_icon_set_not_found', {
+                        new WarningMessage('kml_icon_set_not_found', {
                             iconSetName: iconArgs.set,
                         }),
                     ],

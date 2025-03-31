@@ -1,6 +1,6 @@
 <script setup>
-import { LayerWarningMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -83,7 +83,7 @@ async function loadFile() {
         await handleFileSource(fileUrl.value, false)
         if (!fileUrl.value.match(/^https:\/\//)) {
             store.dispatch('addWarnings', {
-                warnings: [new LayerWarningMessage('import_http_external_file_warning', {})],
+                warnings: [new WarningMessage('import_http_external_file_warning', {})],
                 dispatcher: 'Import File Online Tab',
             })
         }

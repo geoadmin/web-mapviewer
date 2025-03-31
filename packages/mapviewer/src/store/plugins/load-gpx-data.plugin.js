@@ -3,8 +3,8 @@
  * it here
  */
 
-import { LayerErrorMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
@@ -35,7 +35,7 @@ async function loadGpx(store, gpxLayer) {
             layerId: gpxLayer.id,
             isExternal: gpxLayer.isExternal,
             baseUrl: gpxLayer.baseUrl,
-            error: new LayerErrorMessage('loading_error_network_failure'),
+            error: new ErrorMessage('loading_error_network_failure'),
             ...dispatcher,
         })
     }

@@ -6,8 +6,8 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
-import { LayerType, LayerErrorMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 
@@ -111,7 +111,7 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             layerId: layer.id,
             isExternal: layer.isExternal,
             baseUrl: layer.baseUrl,
-            error: new LayerErrorMessage(error.key ?? 'error'),
+            error: new ErrorMessage(error.key ?? 'error'),
             ...dispatcher,
         })
         return null

@@ -1,9 +1,9 @@
 import type { Options } from 'ol/source/WMTS'
 
 import { CoordinateSystem } from '@geoadmin/coordinates'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
 import type { LayerTimeConfig } from '@/timeConfig'
-import type { LayerErrorMessage, LayerWarningMessage } from '@/validation'
 
 export const DEFAULT_OPACITY = 1.0
 
@@ -78,8 +78,8 @@ export interface Layer {
     customAttributes?: Record<string, string>
 
     // new fields that weren't specified in AbstractLayer's Constructor
-    errorMessages?: Set<LayerErrorMessage>
-    warningMessages?: Set<LayerWarningMessage>
+    errorMessages?: Set<ErrorMessage>
+    warningMessages?: Set<WarningMessage>
     hasError: boolean
     hasWarning: boolean
     // hasMultipleTimestamps: boolean

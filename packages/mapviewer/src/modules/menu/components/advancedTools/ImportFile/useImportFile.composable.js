@@ -1,5 +1,6 @@
-import { addWarningMessageToLayer, LayerWarningMessage } from '@geoadmin/layers'
+import { addWarningMessageToLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -45,7 +46,7 @@ export default function useImportFile() {
                     layer.hasWarning = true
                     addWarningMessageToLayer(
                         layer,
-                        new LayerWarningMessage('file_imported_partially_out_of_bounds', {
+                        new WarningMessage('file_imported_partially_out_of_bounds', {
                             filename: layer.name ?? layer.id,
                         })
                     )

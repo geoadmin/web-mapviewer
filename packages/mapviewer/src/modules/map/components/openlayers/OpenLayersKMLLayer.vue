@@ -1,8 +1,8 @@
 <script setup>
 /** Renders a KML file on the map */
 
-import { LayerWarningMessage } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
@@ -90,7 +90,7 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new LayerWarningMessage('kml_icon_url_cors_issue', {
+                    new WarningMessage('kml_icon_url_cors_issue', {
                         layerName: layerName.value,
                         url: url,
                     }),
@@ -101,7 +101,7 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new LayerWarningMessage('kml_icon_url_scheme_http', {
+                    new WarningMessage('kml_icon_url_scheme_http', {
                         layerName: layerName.value,
                         url: url,
                     }),

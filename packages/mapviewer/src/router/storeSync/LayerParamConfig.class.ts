@@ -9,10 +9,9 @@ import {
     DEFAULT_OPACITY,
     timeConfigUtils,
     layerUtils,
-    LayerErrorMessage,
-    LayerWarningMessage,
 } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { cloneDeep } from 'lodash'
 import * as vueRouter from 'vue-router'
 // @ts-ignore
@@ -361,16 +360,16 @@ function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>
     }
     const parsed = parseLayersParam(query)
     const url_matcher = /https?:\/\//
-    const faultyLayers: LayerErrorMessage[] = []
-    const localLayers: LayerWarningMessage[] = []
+    const faultyLayers: ErrorMessage[] = []
+    const localLayers: WarningMessage[] = []
     parsed
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
-                faultyLayers.push(new LayerErrorMessage('url_layer_error', { layer: layer.id }))
+                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
             } else if (layer.baseUrl.match(url_matcher)?.length <= 0) {
                 localLayers.push(
-                    new LayerWarningMessage('url_external_layer_no_scheme_warning', {
+                    new WarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
                     })
                 )
