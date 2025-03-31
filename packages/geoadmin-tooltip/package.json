@@ -3,11 +3,6 @@
     "version": "0.0.1",
     "description": "Tooltip for geoadmin",
     "type": "module",
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/index.umd.cjs",
-    "module": "./dist/index.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -18,15 +13,20 @@
             "./dist/tooltip.css"
         ]
     },
+    "main": "./dist/index.umd.cjs",
+    "module": "./dist/index.js",
+    "files": [
+        "dist"
+    ],
     "scripts": {
-        "dev": "vite",
-        "type-check": "vue-tsc --build",
-        "generate-types": "vue-tsc --declaration",
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build -- --mode development",
         "build:int": "pnpm run build -- --mode integration",
         "build:prod": "pnpm run build -- --mode production",
-        "preview": "vite preview"
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
+        "preview": "vite preview",
+        "type-check": "vue-tsc --build"
     },
     "dependencies": {
         "@floating-ui/vue": "catalog:"
