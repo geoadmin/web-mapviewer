@@ -12,9 +12,8 @@
  *
  * <TextTruncate text="Text to truncate"><span>Text to truncate</span></TextTruncate>
  */
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useSlots, useTemplateRef } from 'vue'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { text, tooltipPlacement } = defineProps({
     /**
@@ -90,8 +89,8 @@ function handleResize() {
         ref="outerElement"
         :tooltip-content="tooltipContent"
         :disabled="!showTooltip"
-        class="text-truncate"
         :placement="tooltipPlacement"
+        class="text-truncate"
     >
         <span
             ref="innerElement"

@@ -489,7 +489,7 @@ describe('Test of layer handling', () => {
                     .trigger('mouseover')
 
                 cy.get(`[data-cy^="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
-                    .should('have.class', 'danger')
+                    .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
 
@@ -511,7 +511,7 @@ describe('Test of layer handling', () => {
                     .trigger('mouseover', { force: true })
 
                 cy.get(`[data-cy^="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
-                    .should('have.class', 'danger')
+                    .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
 
@@ -533,7 +533,7 @@ describe('Test of layer handling', () => {
                     .trigger('mouseover', { force: true })
 
                 cy.get(`[data-cy^="floating-button-has-error-${wmsUnreachableLayerId}"]`)
-                    .should('have.class', 'danger')
+                    .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
 
@@ -555,7 +555,7 @@ describe('Test of layer handling', () => {
                     .trigger('mouseover', { force: true })
 
                 cy.get(`[data-cy^="floating-button-has-error-${wmsInvalidContentLayerId}-"]`)
-                    .should('have.class', 'danger')
+                    .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
             })

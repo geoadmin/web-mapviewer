@@ -1,7 +1,6 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { useI18n } from 'vue-i18n'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { isSelected, title, tooltip } = defineProps({
     isSelected: {

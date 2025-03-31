@@ -401,7 +401,7 @@ describe('The Import File Tool', () => {
             .should('be.visible')
             .should('have.class', 'text-primary')
         cy.get('[data-cy="layer-copyright-example.com"]').realHover()
-        cy.get('.floating')
+        cy.get('[data-cy="floating-third-party-disclaimer"]')
             .should('be.visible')
             .contains('Dataset and/or style provided by third party')
         cy.get('[data-cy="layer-copyright-example.com"]')

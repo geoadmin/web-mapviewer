@@ -1,8 +1,8 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 
 const { content } = defineProps({

@@ -8,6 +8,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
+import GeoadminTooltip from '@geoadmin/tooltip'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
@@ -17,7 +18,6 @@ import { useStore } from 'vuex'
 
 import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { transformUrlMapToEmbed } from '@/utils/utils'
 
