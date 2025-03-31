@@ -114,14 +114,13 @@ const handlePositionError = (error, store, state, options = {}) => {
                 ...dispatcher,
             })
             store.dispatch('addErrors', {
-                errors: [new LayerErrorMessage('geoloc_permission_denied')],
-                ...dispatcher,
+                errors: [new ErrorMessage('geoloc_permission_denied')],
             })
             break
         case GeolocationPositionError.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
             store.dispatch('addErrors', {
-                errors: [new LayerErrorMessage('geoloc_time_out')],
+                errors: [new ErrorMessage('geoloc_time_out')],
                 ...dispatcher,
             })
             break
@@ -135,7 +134,7 @@ const handlePositionError = (error, store, state, options = {}) => {
                 }
             } else {
                 store.dispatch('addErrors', {
-                    errors: [new LayerErrorMessage('geoloc_unknown')],
+                    errors: [new ErrorMessage('geoloc_unknown')],
                     ...dispatcher,
                 })
                 if (reactivate) {
