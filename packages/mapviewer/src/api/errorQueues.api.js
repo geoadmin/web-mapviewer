@@ -1,7 +1,7 @@
-import { LayerErrorMessage } from '@geoadmin/layers'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 export function getStandardErrorMessage(query, urlParamName) {
-    return new LayerErrorMessage('url_parameter_error', {
+    return new ErrorMessage('url_parameter_error', {
         param: urlParamName,
         value: query,
     })

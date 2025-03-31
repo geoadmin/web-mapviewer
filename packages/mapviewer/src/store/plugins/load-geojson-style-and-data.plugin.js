@@ -3,9 +3,9 @@
  * it here
  */
 
-import { LayerErrorMessage, LayerType } from '@geoadmin/layers'
-import { addErrorMessageToLayer } from '@geoadmin/layers'
+import { addErrorMessageToLayer, LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
 
@@ -94,10 +94,7 @@ function loadDataAndStyle(geoJsonLayer) {
                 )
                 const clone = cloneDeep(geoJsonLayer)
                 clone.isLoading = false
-                addErrorMessageToLayer(
-                    clone,
-                    new LayerErrorMessage('loading_error_network_failure')
-                )
+                addErrorMessageToLayer(clone, new ErrorMessage('loading_error_network_failure'))
                 return clone
             }),
     }

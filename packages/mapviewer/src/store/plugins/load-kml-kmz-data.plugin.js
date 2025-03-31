@@ -3,8 +3,9 @@
  * it here
  */
 
-import { LayerType, LayerErrorMessage } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { loadKmlMetadata, checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
@@ -98,7 +99,7 @@ async function loadData(store, kmlLayer) {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            error: new LayerErrorMessage(
+            error: new ErrorMessage(
                 kmlLayer.isExternal ? 'loading_error_network_failure' : 'loading_error_file_deleted'
             ),
             ...dispatcher,

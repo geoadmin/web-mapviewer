@@ -1,8 +1,8 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
-import { layerContainsErrorMessage } from '@geoadmin/layers'
-import { LayerType, LayerErrorMessage } from '@geoadmin/layers'
+import { layerContainsErrorMessage, LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -16,7 +16,7 @@ import { getWmtsXyzUrl } from '@/utils/layerUtils'
 const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
-const unsupportedProjectionError = new LayerErrorMessage('3d_unsupported_projection')
+const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {

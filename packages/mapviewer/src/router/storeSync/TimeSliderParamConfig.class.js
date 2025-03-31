@@ -1,11 +1,10 @@
 import { timeConfigUtils } from '@geoadmin/layers'
+import { WarningMessage } from '@geoadmin/log/Message'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
-import WarningMessage from '@/utils/WarningMessage.class'
-
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     if (

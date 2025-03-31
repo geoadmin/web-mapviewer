@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import {
-    type Layer,
-    getFirstLayerErrorMessage,
-    getFirstLayerWarningMessage,
-} from '@geoadmin/layers'
+import { type Layer, getFirstErrorMessage, getFirstWarningMessage } from '@geoadmin/layers'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
-import ErrorMessage from '@/utils/ErrorMessage.class'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
@@ -39,7 +34,7 @@ const theme = computed(() => {
 const tooltipContent = computed((): string => {
     if (hasError.value) {
         // save to assume that there *is* an error thanks to the guard
-        const error: ErrorMessage | null = getFirstLayerErrorMessage(layer)
+        const error: ErrorMessage | null = getFirstErrorMessage(layer)
         if (error) {
             return t(error.msg, error.params)
         } else {
@@ -47,7 +42,7 @@ const tooltipContent = computed((): string => {
         }
     }
     if (hasWarning.value) {
-        const warning: WarningMessage | null = getFirstLayerWarningMessage(layer)
+        const warning: WarningMessage | null = getFirstWarningMessage(layer)
         if (warning) {
             return t(warning.msg, warning.params)
         } else {

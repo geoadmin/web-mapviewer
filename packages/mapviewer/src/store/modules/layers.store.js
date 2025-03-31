@@ -2,12 +2,12 @@ import { WGS84 } from '@geoadmin/coordinates'
 import { timeConfigUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import {
-    LayerErrorMessage,
     addErrorMessageToLayer,
-    clearLayerErrorMessages,
+    clearErrorMessages,
     removeErrorMessageFromLayer,
 } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import { cloneDeep } from 'lodash'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -761,7 +761,7 @@ const actions = {
         }
         const updatedLayers = layers.map((layer) => {
             const clone = cloneDeep(layer)
-            clearLayerErrorMessages(clone)
+            clearErrorMessages(clone)
             return clone
         })
         commit('updateLayers', { layers: updatedLayers, dispatcher })
@@ -810,8 +810,8 @@ const actions = {
                 clone.isLoading = false
 
                 // Always clean up the error messages before doing the check
-                const emptyFileErrorMessage = new LayerErrorMessage('kml_gpx_file_empty')
-                const outOfBoundsErrorMessage = new LayerErrorMessage('imported_file_out_of_bounds')
+                const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
+                const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
                 removeErrorMessageFromLayer(clone, emptyFileErrorMessage)
                 removeErrorMessageFromLayer(clone, outOfBoundsErrorMessage)
 

@@ -4,7 +4,10 @@ import dts from 'vite-plugin-dts'
 export default {
     build: {
         lib: {
-            entry: [resolve(__dirname, 'src/index.ts')],
+            entry: {
+                index: resolve(__dirname, 'src/index.ts'),
+                Message: resolve(__dirname, 'src/Message.ts'),
+            },
             name: '@geoadmin/log',
         },
         rollupOptions: {
