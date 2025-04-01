@@ -1,3 +1,4 @@
+import { LV95 } from '@'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
@@ -71,6 +72,32 @@ describe('CoordinateSystemBounds', () => {
                 expect(inBoundChunk.coordinates[index + 1][1]).to.eq(coordinate[1])
             })
         })
+        it('gives similar results if coordinates are given in the reverse order', () => {
+            const yValue = 50
+            // same test data as previous test, but reversed
+            const coordinatesOverlappingBounds = [
+                [bounds.lowerX - 1, yValue],
+                [bounds.lowerX + 1, yValue],
+                [50, yValue],
+                [bounds.upperX - 1, yValue],
+            ].toReversed()
+            const result = bounds.splitIfOutOfBounds(coordinatesOverlappingBounds)
+            expect(result).to.be.an('Array').of.length(2)
+            const [inBoundChunk, outOfBoundChunk] = result
+
+            // first chunk must now be the in bound one
+            expect(inBoundChunk).to.haveOwnProperty('isWithinBounds')
+            expect(inBoundChunk.isWithinBounds).to.be.true
+            expect(inBoundChunk.coordinates).to.be.an('Array').of.length(4)
+            const lastInBoundCoordinate = inBoundChunk.coordinates.splice(-1)[0]
+            expect(lastInBoundCoordinate).to.be.an('Array').of.length(2)
+            expect(lastInBoundCoordinate).to.eql([bounds.lowerX, yValue])
+
+            expect(outOfBoundChunk).to.haveOwnProperty('isWithinBounds')
+            expect(outOfBoundChunk.isWithinBounds).to.be.false
+            expect(outOfBoundChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(outOfBoundChunk.coordinates[0]).to.eql([bounds.lowerX, yValue])
+        })
         it('handles properly a line going multiple times out of bounds', () => {
             const coordinatesGoingBackAndForth = [
                 [-1, 51], // outside
@@ -139,6 +166,57 @@ describe('CoordinateSystemBounds', () => {
             expect(thirdChunk.coordinates).to.be.an('Array').of.length(2)
             expect(thirdChunk.coordinates[0]).to.eql(expectedSecondIntersection)
             expect(thirdChunk.coordinates[1]).to.eql(coordinatesGoingThrough[1])
+        })
+        it('handles some "real" use case well', () => {
+            const sample1 = [
+                [2651000, 1392000],
+                [2932500, 894500],
+            ]
+            const result = LV95.bounds.splitIfOutOfBounds(sample1)
+            expect(result).to.be.an('Array').of.length(3)
+            const [firstChunk, secondChunk, thirdChunk] = result
+
+            expect(firstChunk.isWithinBounds).to.be.false
+            expect(firstChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(firstChunk.coordinates[0]).to.eql(sample1[0])
+            expect(firstChunk.coordinates[1][0]).to.approximately(2674764.8, 0.1)
+            expect(firstChunk.coordinates[1][1]).to.approximately(1350000, 0.1)
+
+            expect(secondChunk.isWithinBounds).to.be.true
+            expect(secondChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(secondChunk.coordinates[0][0]).to.approximately(2674764.8, 0.1)
+            expect(secondChunk.coordinates[0][1]).to.approximately(1350000, 0.1)
+            expect(secondChunk.coordinates[1][0]).to.approximately(2855830.1, 0.1)
+            expect(secondChunk.coordinates[1][1]).to.approximately(1030000, 0.1)
+
+            expect(thirdChunk.isWithinBounds).to.be.false
+            expect(thirdChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(thirdChunk.coordinates[0][0]).to.approximately(2855830.1, 0.1)
+            expect(thirdChunk.coordinates[0][1]).to.approximately(1030000, 0.1)
+            expect(thirdChunk.coordinates[1]).to.eql(sample1[1])
+
+            const reversedResult = LV95.bounds.splitIfOutOfBounds(sample1.toReversed())
+            expect(reversedResult).to.be.an('Array').of.length(3)
+            const [firstReversedChunk, secondReversedChunk, thirdReversedChunk] = reversedResult
+
+            expect(firstReversedChunk.isWithinBounds).to.be.false
+            expect(firstReversedChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(firstReversedChunk.coordinates[0]).to.eql(sample1[1])
+            expect(firstReversedChunk.coordinates[1][0]).to.approximately(2855830.1, 0.1)
+            expect(firstReversedChunk.coordinates[1][1]).to.approximately(1030000, 0.1)
+
+            expect(secondReversedChunk.isWithinBounds).to.be.true
+            expect(secondReversedChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(secondReversedChunk.coordinates[0][0]).to.approximately(2855830.1, 0.1)
+            expect(secondReversedChunk.coordinates[0][1]).to.approximately(1030000, 0.1)
+            expect(secondReversedChunk.coordinates[1][0]).to.approximately(2674764.8, 0.1)
+            expect(secondReversedChunk.coordinates[1][1]).to.approximately(1350000, 0.1)
+
+            expect(thirdReversedChunk.isWithinBounds).to.be.false
+            expect(thirdReversedChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(thirdReversedChunk.coordinates[0][0]).to.approximately(2674764.8, 0.1)
+            expect(thirdReversedChunk.coordinates[0][1]).to.approximately(1350000, 0.1)
+            expect(thirdReversedChunk.coordinates[1]).to.eql(sample1[0])
         })
     })
     describe('isInBounds(x, y)', () => {
