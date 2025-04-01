@@ -49,7 +49,7 @@ function elevationDifference(points: ElevationProfilePoint[]): number {
     }
     const firstPointWithElevationData = points.find((point) => point.elevation !== undefined)
     const lastPointWithElevationData = points
-        .reverse()
+        .toReversed()
         .find((point) => point.elevation !== undefined)
     return (
         (lastPointWithElevationData?.elevation ?? 0) - (firstPointWithElevationData?.elevation ?? 0)

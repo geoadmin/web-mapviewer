@@ -1,4 +1,15 @@
-import { bboxPolygon, booleanPointInPolygon, lineSplit, lineString, points } from '@turf/turf'
+import type { Feature, FeatureCollection, GeoJsonProperties, LineString } from 'geojson'
+
+import {
+    bboxPolygon,
+    booleanPointInPolygon,
+    type Coord,
+    distance,
+    lineSplit,
+    lineString,
+    points,
+} from '@turf/turf'
+import { sortBy } from 'lodash'
 
 import type { CoordinatesChunk } from '@/proj/CoordinatesChunk'
 import type { SingleCoordinate } from '@/utils'
@@ -9,6 +20,35 @@ interface CoordinateSystemBoundsProps {
     lowerY: number
     upperY: number
     customCenter?: SingleCoordinate
+}
+
+/**
+ * Turf's lineSplit function doesn't ensure split path will be ordered in its output.
+ *
+ * This code aims to reorder the result of this function in the correct order. Comes from a GitHub
+ * issue (see link below)
+ *
+ * @see https://github.com/Turfjs/turf/issues/1989#issuecomment-753147919
+ */
+function reassembleLineSegments(
+    origin: Coord,
+    path: FeatureCollection<LineString, GeoJsonProperties>
+) {
+    let candidateFeatures = path.features
+    const orderedFeatures: Feature<LineString, GeoJsonProperties>[] = []
+    while (candidateFeatures.length > 0) {
+        candidateFeatures = sortBy(candidateFeatures, (f) => {
+            if (f.geometry) {
+                return distance(origin, f.geometry.coordinates[0])
+            } else {
+                throw new Error('Feature missing geometry')
+            }
+        })
+        const closest = candidateFeatures.shift() as Feature<LineString, GeoJsonProperties>
+        origin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
+        orderedFeatures.push(closest)
+    }
+    path.features = orderedFeatures
 }
 
 /**
@@ -92,7 +132,9 @@ export default class CoordinateSystemBounds {
         // checking if we require splitting
         if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {
             const boundsAsPolygon = bboxPolygon(this.flatten)
-            return lineSplit(lineString(coordinates), boundsAsPolygon).features.map((chunk) => {
+            const paths = lineSplit(lineString(coordinates), boundsAsPolygon)
+            reassembleLineSegments(coordinates[0], paths)
+            return paths.features.map((chunk) => {
                 return {
                     coordinates: chunk.geometry.coordinates,
                     isWithinBounds: points(chunk.geometry.coordinates).features.every((point) =>

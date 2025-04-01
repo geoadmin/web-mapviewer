@@ -38,32 +38,32 @@ const { t }: { t: VueI18nTranslateFunction<ElevationProfileInformationMessages> 
 const metadataEntries = computed(() => {
     return [
         {
-            title: t('profile_elevation_difference'),
+            title: 'profile_elevation_difference',
             icons: [['fa', 'arrows-alt-v']],
             value: formatElevation(metadata.elevationDifference),
         },
         {
-            title: t('profile_elevation_up'),
+            title: 'profile_elevation_up',
             icons: [['fa', 'sort-amount-up-alt']],
             value: formatElevation(metadata.totalAscent),
         },
         {
-            title: t('profile_elevation_down'),
+            title: 'profile_elevation_down',
             icons: [['fa', 'sort-amount-down-alt']],
             value: formatElevation(metadata.totalDescent),
         },
         {
-            title: t('profile_poi_up'),
+            title: 'profile_poi_up',
             icons: [['fa', 'chevron-up']],
             value: formatElevation(metadata.maxElevation),
         },
         {
-            title: t('profile_poi_down'),
+            title: 'profile_poi_down',
             icons: [['fa', 'chevron-down']],
             value: formatElevation(metadata.minElevation),
         },
         {
-            title: t('profile_distance'),
+            title: 'profile_distance',
             icons: [
                 ['fa', 'globe'],
                 ['fa', 'arrows-alt-h'],
@@ -71,7 +71,7 @@ const metadataEntries = computed(() => {
             value: formatDistance(metadata.totalLinearDist),
         },
         {
-            title: t('profile_slope_distance'),
+            title: 'profile_slope_distance',
             icons: [
                 ['fa', 'mountain-sun'],
                 ['fa', 'arrows-alt-h'],
@@ -79,7 +79,7 @@ const metadataEntries = computed(() => {
             value: formatDistance(metadata.slopeDistance),
         },
         {
-            title: t('profile_hike_time'),
+            title: 'profile_hike_time',
             icons: [['far', 'clock']],
             value: formatMinutesTime(metadata.hikingTime),
         },
@@ -91,13 +91,13 @@ const metadataEntries = computed(() => {
     <div class="tw:flex tw:gap-1 tw:p-1">
         <div
             v-if="metadata.hasElevationData"
-            class="tw:flex tw:border tw:rounded tw:border-neutral-300 tw:p-2 tw:py-3 tw:overflow-x-auto tw:gap-2"
+            class="tw:flex tw:border tw:rounded tw:border-neutral-300 tw:p-1 tw:py-2 tw:md:p-2 tw:md:py-3 tw:overflow-x-auto tw:gap-2"
             data-cy="profile-popup-info-container"
         >
             <GeoadminTooltip
                 v-for="(data, index) in metadataEntries"
                 :key="data.title"
-                :tooltip-content="data.title"
+                :tooltip-content="t(data.title)"
             >
                 <small
                     class="tw:text-nowrap tw:flex tw:gap-1 tw:items-center"

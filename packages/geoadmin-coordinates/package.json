@@ -28,10 +28,12 @@
     },
     "dependencies": {
         "@geoadmin/log": "workspace:*",
-        "@geoadmin/numbers": "workspace:*"
+        "@geoadmin/numbers": "workspace:*",
+        "lodash": "catalog:"
     },
     "devDependencies": {
         "@turf/turf": "catalog:",
+        "@types/lodash": "catalog:",
         "chai": "catalog:"
     },
     "peerDependencies": {

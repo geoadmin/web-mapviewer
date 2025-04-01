@@ -55,6 +55,7 @@
         "@types/jsdom": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
+        "chai": "catalog:",
         "tailwindcss": "catalog:",
         "vite": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
