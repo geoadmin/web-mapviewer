@@ -81,8 +81,12 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
         cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '3 m')
-        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]'
+        ).should('contain.text', '3 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
+        ).should('contain.text', '1341.8 m')
         cy.get('[data-cy="profile-segment-button-0"]').should('be.not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
@@ -955,8 +959,12 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
         cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
-        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]'
+        ).should('contain.text', '2.5 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
+        ).should('contain.text', '1341.8 m')
         cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
         cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
@@ -1003,11 +1011,16 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="window-close"]').click()
         cy.get('[data-cy="ol-map"]').click(170, 250)
 
+        cy.intercept(profileIntercept, {
+            body: [],
+        }).as('emptyProfile')
+
         cy.log('Check that the error is displayed in the profile popup')
         cy.get('[data-cy="show-profile"]').click()
+        cy.wait('@emptyProfile')
         cy.get('[data-cy="profile-popup-content"]').should('be.visible')
         cy.get('[data-cy="profile-error-message"]').contains(
-            'Some parts are out of bounds, no profile data could be fetched'
+            'Error : the profile could not be generated'
         )
     })
 })

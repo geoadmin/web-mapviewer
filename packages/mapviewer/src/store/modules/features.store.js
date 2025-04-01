@@ -1,5 +1,4 @@
 import log from '@geoadmin/log'
-import { simplify } from '@turf/turf'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
 
@@ -7,11 +6,9 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
-import getProfile from '@/api/profile/profile.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
-    GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
 } from '@/config/map.config'
 import { flattenExtent } from '@/utils/extentUtils'
 import {
@@ -19,7 +16,6 @@ import {
     allStylingSizes,
     allStylingTextPlacementsWithUnknown,
 } from '@/utils/featureStyleUtils'
-import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
@@ -170,7 +166,7 @@ export default {
          *   can have more data or not (if its feature count is a multiple of paginationSize)
          */
         setSelectedFeatures(
-            { commit, state },
+            { commit, dispatch, state, rootState },
             { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT, dispatcher }
         ) {
             // clearing up any relevant selected features stuff
@@ -180,9 +176,8 @@ export default {
                     dispatcher,
                 })
             }
-            if (state.profileFeature) {
-                commit('setProfileFeature', { feature: null, dispatcher })
-                commit('setProfileData', { data: null, dispatcher })
+            if (rootState.profile.feature) {
+                dispatch('setProfileFeature', { feature: null, dispatcher })
             }
             /** @type {FeaturesForLayer[]} */
             const layerFeaturesByLayerId = []
@@ -332,7 +327,7 @@ export default {
             }
         },
         /** Removes all selected features from the map */
-        clearAllSelectedFeatures({ commit, state }, { dispatcher }) {
+        clearAllSelectedFeatures({ commit, dispatch, state, rootState }, { dispatcher }) {
             commit('setSelectedFeatures', {
                 layerFeaturesByLayerId: [],
                 drawingFeatures: [],
@@ -344,9 +339,8 @@ export default {
                     dispatcher,
                 })
             }
-            if (state.profileFeature) {
-                commit('setProfileFeature', { feature: null, dispatcher })
-                commit('setProfileData', { data: null, dispatcher })
+            if (rootState.profile.feature) {
+                dispatch('setProfileFeature', { feature: null, dispatcher })
             }
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
@@ -401,11 +395,6 @@ export default {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
-            }
-        },
-        setActiveSegmentIndex({ commit, state }, { index, dispatcher }) {
-            if (state.profileData && state.profileData.activeSegmentIndex !== index) {
-                commit('setActiveSegmentIndex', { index: index, dispatcher })
             }
         },
         /**
@@ -602,62 +591,6 @@ export default {
             }
         },
         /**
-         * Sets the GeoJSON geometry for which we want a profile and request this profile from the
-         * backend (if the geometry is a valid one)
-         *
-         * Only GeoJSON LineString and Polygon types are supported to request a profile.
-         *
-         * @param {Vuex.Store} store
-         * @param {SelectableFeature | null} feature A feature which has a LineString or Polygon
-         *   geometry, and for which we want to show a height profile (or `null` if the profile
-         *   should be cleared/hidden)
-         * @param {Boolean} simplifyGeometry If set to true, the geometry of the feature will be
-         *   simplified before being sent to the profile backend. This is useful in case the data
-         *   comes from an unfiltered GPS source (GPX track), and not simplifying the track could
-         *   lead to a coastal paradox (meaning the hiking time will be way of the charts because of
-         *   all the small jumps due to GPS errors)
-         * @param dispatcher
-         */
-        setProfileFeature(store, { feature = null, simplifyGeometry = false, dispatcher }) {
-            const { state, commit, rootState } = store
-            if (feature === null) {
-                commit('setProfileFeature', { feature: null, dispatcher })
-                commit('setProfileData', { data: null, dispatcher })
-            } else if (canFeatureShowProfile(feature)) {
-                if (state.profileRequestError) {
-                    commit('setProfileRequestError', { error: null, dispatcher })
-                }
-                commit('setProfileFeature', { feature: feature, dispatcher })
-                commit('setProfileData', { data: null, dispatcher })
-                if (feature?.geometry) {
-                    let coordinates
-                    if (simplifyGeometry) {
-                        // using TurfJS instead of OL here, as we receive geometry as GeoJSON.
-                        // Using OL would mean parsing all features as OL features once again.
-                        // Both OL and TurfJS use a Ramer-Douglas-Peucker algorithm, so output will be very similar
-                        const turfGeom = transformIntoTurfEquivalent(feature.geometry)
-                        coordinates = [
-                            ...simplify(turfGeom, {
-                                tolerance: GPX_GEOMETRY_SIMPLIFICATION_TOLERANCE,
-                            }).geometry.coordinates,
-                        ]
-                    } else {
-                        coordinates = [...feature.geometry.coordinates]
-                    }
-                    getProfile(coordinates, rootState.position.projection)
-                        .then((profileData) => {
-                            commit('setProfileData', { data: profileData, dispatcher })
-                        })
-                        .catch((error) => {
-                            log.error('Error while request profile data for', feature, error)
-                            commit('setProfileRequestError', { error: error, dispatcher })
-                        })
-                }
-            } else {
-                log.warn('Geometry type not supported to show a profile, ignoring', feature)
-            }
-        },
-        /**
          * The goal of this function is to refresh the selected features according to changes that
          * happened in the store, but outside feature selection. For example, when we change the
          * language, we need to update the selected features otherwise we keep them in the old
@@ -730,9 +663,6 @@ export default {
             state.selectedFeaturesByLayerId = layerFeaturesByLayerId
             state.selectedEditableFeatures = [...drawingFeatures]
         },
-        setActiveSegmentIndex(state, { index }) {
-            state.profileData.activeSegmentIndex = index
-        },
         addSelectedFeatures(state, { featuresForLayer, features, featureCountForMoreData = 0 }) {
             featuresForLayer.features.push(...features)
             featuresForLayer.featureCountForMoreData = featureCountForMoreData
@@ -776,15 +706,6 @@ export default {
         },
         changeFeatureIsDragged(state, { feature, isDragged }) {
             feature.isDragged = isDragged
-        },
-        setProfileFeature(state, { feature }) {
-            state.profileFeature = feature
-        },
-        setProfileData(state, { data }) {
-            state.profileData = data
-        },
-        setProfileRequestError(state, { error }) {
-            state.profileRequestError = error
         },
     },
 }

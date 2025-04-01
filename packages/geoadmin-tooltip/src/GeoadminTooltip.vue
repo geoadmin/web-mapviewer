@@ -22,7 +22,7 @@
  * The placement is by default 'top' but can be overridden with the placement prop to 'bottom'
  */
 
-import { autoUpdate, useFloating, shift, arrow, offset, flip } from '@floating-ui/vue'
+import { arrow, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
 import { computed, ref, useSlots, useTemplateRef } from 'vue'
 
 const {
@@ -61,19 +61,23 @@ const arrowElementRef = useTemplateRef('arrowElement')
 
 const slots = useSlots()
 
-const { floatingStyles, middlewareData, placement } = useFloating(tooltipElementRef, floatingElementRef, {
-    strategy: 'fixed',
-    placement: desiredPlacement,
-    whileElementsMounted: autoUpdate,
-    middleware: [
-        shift(), // shift the element to keep it in view
-        flip({
-            fallbackAxisSideDirection: 'start',
-        }), // allow the opposite side if there's not enough space
-        offset(10), // offset it to make room for the arrow
-        arrow({ element: arrowElementRef }),
-    ],
-})
+const { floatingStyles, middlewareData, placement } = useFloating(
+    tooltipElementRef,
+    floatingElementRef,
+    {
+        strategy: 'fixed',
+        placement: desiredPlacement,
+        whileElementsMounted: autoUpdate,
+        middleware: [
+            shift(), // shift the element to keep it in view
+            flip({
+                fallbackAxisSideDirection: 'start',
+            }), // allow the opposite side if there's not enough space
+            offset(10), // offset it to make room for the arrow
+            arrow({ element: arrowElementRef }),
+        ],
+    }
+)
 
 /** Extract the data-cy value from the tooltip anchor and */
 const dataCyValue = computed((): string => {
@@ -101,15 +105,40 @@ const closeTooltip = (): void => {
     }, 1)
 }
 
-const onTouchStart = (): void => {
+let touchesOnTouchStart: TouchList | undefined
+let touchDidntMove = false
+const onTouchStart = (event: TouchEvent): void => {
     isTouching.value = true
+    touchesOnTouchStart = event.touches
+    touchDidntMove = true
+    // after a short "press" (one finger, same spot) on mobile/touch, we show the tooltip
+    setTimeout(() => {
+        if (touchDidntMove && isTouching.value) {
+            openTooltip()
+        }
+    }, 500)
+}
+
+const onTouchMove = (event: TouchEvent): void => {
+    const changedTouches: TouchList = event.changedTouches
+    for (let i = 0; i < changedTouches.length; i++) {
+        const changedTouch = changedTouches.item(i)
+        const startingTouch = touchesOnTouchStart?.item(i)
+        if (startingTouch && changedTouch) {
+            const dx = changedTouch.clientX - startingTouch.clientX
+            const dy = changedTouch.clientY - startingTouch.clientY
+            // a delta of 10 pixels on any "touch" is considered a move
+            touchDidntMove = Math.abs(dx) + Math.abs(dy) < 10
+        }
+    }
 }
 
 const onTouchEnd = (): void => {
+    touchDidntMove = false
     // delay the touch end
     setTimeout(() => {
         isTouching.value = false
-    }, 500)
+    }, 1000)
 }
 
 const onMouseOver = (): void => {
@@ -179,14 +208,16 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
 <template>
     <div
         data-cy="floating-container"
-        class="tw:flex"
+        class="tw:flex tw:max-w-full tw:h-full tw:items-center"
+        :class="{ 'tw:select-none': isTouching }"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
+        @touchend="onTouchEnd"
         @click="onClickContainer"
     >
         <div
             ref="tooltipElement"
-            class="tw:flex"
-            @touchstart="onTouchStart"
-            @touchend="onTouchEnd"
+            class="tw:flex tw:max-w-full tw:h-full tw:items-center"
             @mouseover="onMouseOver"
             @mouseleave="onMouseLeave"
             @click="onClick"
@@ -213,7 +244,6 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
                 }"
                 :data-cy="dataCyValue"
             >
-
                 <slot
                     name="content"
                     :close="closeTooltip"
@@ -230,29 +260,49 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
                     }"
                     class="tw:absolute tw:h-0 tw:w-0 tw:after:content-[''] tw:after:h-0 tw:after:w-0 tw:after:fixed tw:after:top-[inherit] tw:after:left-[inherit] tw:after:z-[-1]"
                     :class="{
-                        'tw:bottom-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-t-8 tw:after:bottom-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-t-8': placement == 'top',
-                        'tw:border-t-white tw:after:border-t-gray-200': placement == 'top' && theme == 'light',
-                        'tw:border-t-gray-500 tw:after:border-t-gray-600': placement == 'top' && theme == 'secondary',
-                        'tw:border-t-amber-300 tw:after:border-t-amber-400': placement == 'top' && theme == 'warning',
-                        'tw:border-t-red-500 tw:after:border-t-red-600': placement == 'top' && theme == 'danger',
+                        'tw:bottom-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-t-8 tw:after:bottom-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-t-8':
+                            placement == 'top',
+                        'tw:border-t-white tw:after:border-t-gray-200':
+                            placement == 'top' && theme == 'light',
+                        'tw:border-t-gray-500 tw:after:border-t-gray-600':
+                            placement == 'top' && theme == 'secondary',
+                        'tw:border-t-amber-300 tw:after:border-t-amber-400':
+                            placement == 'top' && theme == 'warning',
+                        'tw:border-t-red-500 tw:after:border-t-red-600':
+                            placement == 'top' && theme == 'danger',
 
-                        'tw:right-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-l-8 tw:after:right-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-l-8': placement == 'left',
-                        'tw:border-l-white tw:after:border-l-gray-200': placement == 'left' && theme == 'light',
-                        'tw:border-l-gray-500 tw:after:border-l-gray-600': placement == 'left' && theme == 'secondary',
-                        'tw:border-l-amber-300 tw:after:border-l-amber-400': placement == 'left' && theme == 'warning',
-                        'tw:border-l-red-500 tw:after:border-l-red-600': placement == 'left' && theme == 'danger',
+                        'tw:right-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-l-8 tw:after:right-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-l-8':
+                            placement == 'left',
+                        'tw:border-l-white tw:after:border-l-gray-200':
+                            placement == 'left' && theme == 'light',
+                        'tw:border-l-gray-500 tw:after:border-l-gray-600':
+                            placement == 'left' && theme == 'secondary',
+                        'tw:border-l-amber-300 tw:after:border-l-amber-400':
+                            placement == 'left' && theme == 'warning',
+                        'tw:border-l-red-500 tw:after:border-l-red-600':
+                            placement == 'left' && theme == 'danger',
 
-                        'tw:top-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-b-8 tw:after:top-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-b-8': placement == 'bottom',
-                        'tw:border-b-white tw:after:border-b-gray-200': placement == 'bottom' && theme == 'light',
-                        'tw:border-b-gray-500 tw:after:border-b-gray-600': placement == 'bottom' && theme == 'secondary',
-                        'tw:border-b-amber-300 tw:after:border-b-amber-400': placement == 'bottom' && theme == 'warning',
-                        'tw:border-b-red-500 tw:after:border-b-red-600': placement == 'bottom' && theme == 'danger',
+                        'tw:top-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-b-8 tw:after:top-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-b-8':
+                            placement == 'bottom',
+                        'tw:border-b-white tw:after:border-b-gray-200':
+                            placement == 'bottom' && theme == 'light',
+                        'tw:border-b-gray-500 tw:after:border-b-gray-600':
+                            placement == 'bottom' && theme == 'secondary',
+                        'tw:border-b-amber-300 tw:after:border-b-amber-400':
+                            placement == 'bottom' && theme == 'warning',
+                        'tw:border-b-red-500 tw:after:border-b-red-600':
+                            placement == 'bottom' && theme == 'danger',
 
-                        'tw:left-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-r-8 tw:after:left-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-r-8': placement == 'right',
-                        'tw:border-r-white tw:after:border-r-gray-200': placement == 'right' && theme == 'light',
-                        'tw:border-r-gray-500 tw:after:border-r-gray-600': placement == 'right' && theme == 'secondary',
-                        'tw:border-r-amber-300 tw:after:border-r-amber-400': placement == 'right' && theme == 'warning',
-                        'tw:border-r-red-500 tw:after:border-r-red-600': placement == 'right' && theme == 'danger',
+                        'tw:left-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-r-8 tw:after:left-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-r-8':
+                            placement == 'right',
+                        'tw:border-r-white tw:after:border-r-gray-200':
+                            placement == 'right' && theme == 'light',
+                        'tw:border-r-gray-500 tw:after:border-r-gray-600':
+                            placement == 'right' && theme == 'secondary',
+                        'tw:border-r-amber-300 tw:after:border-r-amber-400':
+                            placement == 'right' && theme == 'warning',
+                        'tw:border-r-red-500 tw:after:border-r-red-600':
+                            placement == 'right' && theme == 'danger',
                     }"
                 ></div>
             </div>

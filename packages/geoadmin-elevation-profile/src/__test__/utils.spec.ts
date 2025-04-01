@@ -25,12 +25,12 @@ describe('Profile calculation => getProfileMetadata(points)', () => {
         expect(result.totalDescent).to.eq(0)
         expect(result.hikingTime).to.eq(0)
     })
-    it('tells it has no elevation data if the only segment contains point with and without elevation', () => {
+    it('tells it has elevation data if the only parts of the points contains elevation', () => {
         const result: ElevationProfileMetadata = getProfileMetadata([
             { coordinate: [1, 1], dist: 0, hasElevationData: false },
             { coordinate: [2, 1], dist: 1, elevation: 1, hasElevationData: true },
         ])
-        expect(result.hasElevationData).to.be.false
+        expect(result.hasElevationData).to.be.true
         expect(result.hasDistanceData).to.be.true
     })
     it('gives the correct max/min distance and elevations', () => {

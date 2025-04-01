@@ -430,13 +430,18 @@ function resizeChart() {
             <div>
                 <small>
                     <strong>{{ t('profile_x_label') }}: </strong>
-                    {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
+                    <span data-cy="profile-popup-tooltip-distance">
+                        {{ pointBeingHovered.dist }} {{ unitUsedOnDistanceAxis }}
+                    </span>
                 </small>
             </div>
             <div>
                 <small>
                     <strong>{{ t('profile_y_label') }}: </strong>
-                    <span v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0">
+                    <span
+                        v-if="pointBeingHovered.elevation && pointBeingHovered.elevation > 0"
+                        data-cy="profile-popup-tooltip-elevation"
+                    >
                         {{ pointBeingHovered.elevation }} m
                     </span>
                     <span v-else>{{ t('profile_not_available') }}</span>

@@ -23,7 +23,7 @@ const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInT
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const width = computed(() => store.state.ui.width)
 
-const profileFeature = computed(() => store.state.features.profileFeature)
+const profileFeature = computed(() => store.state.profile.feature)
 const showElevationProfile = computed(() => !!profileFeature.value)
 
 const showContainer = computed(() => {
@@ -91,18 +91,30 @@ function onHideProfile() {
             data-cy="infobox-header"
         >
             <button
-                v-if="!showDrawingOverlay && showElevationProfile && showFeatureInfoInBottomPanel"
+                v-if="showElevationProfile && showFeatureInfoInBottomPanel"
                 class="btn btn-light btn-xs align-middle text-nowrap justify-content-left"
+                data-cy="infobox-hide-profile-button"
                 @click.stop="onHideProfile"
             >
                 <FontAwesomeIcon
                     icon="chevron-left"
                     class="me-1"
                 />
-                {{ t('hide_profile') }}
+                <span
+                    :class="{
+                        'd-inline': showDrawingOverlay,
+                        'd-none d-md-inline': !showDrawingOverlay,
+                    }"
+                >
+                    {{ t('hide_profile') }}
+                </span>
             </button>
-            <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
-                <TextTruncate>{{ title }}</TextTruncate>
+            <div
+                class="d-flex flex-grow-1 align-content-center justify-content-left overflow-hidden ms-1"
+            >
+                <label>
+                    <TextTruncate>{{ title }}</TextTruncate>
+                </label>
             </div>
             <ZoomToExtentButton
                 v-if="showElevationProfile && profileFeature?.extent"
@@ -149,9 +161,7 @@ function onHideProfile() {
                 <FontAwesomeIcon icon="times" />
             </button>
         </div>
-
-        <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
-        <InfoboxContent v-show="showContent" />
+        <InfoboxContent v-if="showContent" />
     </div>
 </template>
 
@@ -161,18 +171,11 @@ function onHideProfile() {
 
 .infobox {
     width: 100%;
-    &-content {
-        max-width: 100%;
-    }
     .drawing-feature {
         max-width: 100%;
         &-edit {
             min-width: $overlay-width;
         }
-    }
-
-    .header-title {
-        overflow: hidden;
     }
 
     .zoom-to-extent-button {

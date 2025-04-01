@@ -666,7 +666,6 @@ describe('Test of layer handling', () => {
             it('shows a hyphen when no layer is selected', () => {
                 cy.goToMapView()
                 cy.openMenuIfMobile()
-                cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
             it('shows no hyphen when a layer is selected', () => {

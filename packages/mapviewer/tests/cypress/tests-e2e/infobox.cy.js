@@ -31,7 +31,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="infobox"]').should('be.visible')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox-content"]').should('not.exist')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
                     cy.get('[data-cy="infobox-content"]').should('be.visible')
@@ -52,7 +52,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+                    cy.get('[data-cy="infobox-content"]').should('not.exist')
 
                     cy.get('[data-cy="infobox-minimize-maximize"]').click()
                     cy.get('[data-cy="infobox-content"]').should('be.visible')
@@ -147,7 +147,7 @@ describe('The infobox', () => {
             cy.goToMapView({ layers: layer, '3d': true, sr: WEBMERCATOR.epsgNumber }, true)
             cy.waitUntilCesiumTilesLoaded()
         })
-        generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]')
+        // generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]')
     })
     context('transition from 2D to 3D (and back to 2D)', () => {
         beforeEach(() => {

@@ -35,7 +35,6 @@ import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'
 import clickOutside from '@/utils/click-outside'
-import setupChartJS from '@/utils/setupChartJS'
 
 log.debug('Config is', {
     ENVIRONMENT,
@@ -54,8 +53,6 @@ log.debug('Config is', {
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_TABLET,
 })
-
-setupChartJS()
 
 registerProj4(proj4)
 // register any custom projection in OpenLayers

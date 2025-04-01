@@ -12,6 +12,7 @@ import layers from '@/store/modules/layers.store'
 import map from '@/store/modules/map.store'
 import position from '@/store/modules/position.store'
 import print from '@/store/modules/print.store'
+import profile from '@/store/modules/profile.store'
 import search from '@/store/modules/search.store'
 import share from '@/store/modules/share.store'
 import topics from '@/store/modules/topics.store'
@@ -59,6 +60,7 @@ const store = createStore({
         app,
         drawing,
         features,
+        profile,
         geolocation,
         i18n,
         layers,
