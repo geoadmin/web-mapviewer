@@ -80,6 +80,7 @@ export function usePrint(map) {
                     : [],
                 lang: store.state.i18n.lang,
                 printGrid: printGrid,
+                printExtent: store.getters.printExtent,
                 projection: store.state.position.projection,
                 dpi: store.getters.selectedDPI,
             })
