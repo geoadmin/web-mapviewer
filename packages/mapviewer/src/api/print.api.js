@@ -16,7 +16,6 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import store from '@/store'
 import { adjustWidth } from '@/utils/styleUtils'
 
 const PRINTING_DEFAULT_POLL_INTERVAL = 2000 // interval between each polling of the printing job status (ms)
@@ -31,7 +30,7 @@ const MAX_PRINT_SPEC_SIZE = 1 * 1024 * 1024 // 1MB in bytes (should be in sync w
  */
 class GeoAdminCustomizer extends BaseCustomizer {
     /**
-     * constructor(layerIDsToExclude, printResolution) {
+     * Constructor(layerIDsToExclude, printResolution) {
      *
      * @param {number[]} printExtent - The extent of the area to be printed. super()
      * @param {string[]} layerIDsToExclude - An array of layer IDs to exclude from the print.
@@ -331,6 +330,7 @@ async function transformOlMapToPrintParams(olMap, config) {
         scale = null,
         layersWithLegends = [],
         lang = null,
+        printExtent = null,
         printGrid = false,
         projection = null,
         excludedLayerIDs = [],
@@ -353,13 +353,16 @@ async function transformOlMapToPrintParams(olMap, config) {
     if (!lang) {
         throw new PrintError('Missing lang')
     }
+    if (!printExtent) {
+        throw new PrintError('Missing print extent')
+    }
     if (printGrid && !projection) {
         throw new PrintError('Missing projection to print the grid')
     }
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-    const customizer = new GeoAdminCustomizer(store.state.print.printExtent, excludedLayerIDs, dpi)
+    const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
     try {
@@ -485,6 +488,7 @@ export async function createPrintJob(map, config) {
         layersWithLegends = [],
         lang = null,
         printGrid = false,
+        printExtent = null,
         projection = null,
         excludedLayerIDs = [],
         outputFilename = null,
@@ -500,6 +504,7 @@ export async function createPrintJob(map, config) {
             layersWithLegends,
             lang,
             printGrid,
+            printExtent,
             projection,
             excludedLayerIDs,
             outputFilename,

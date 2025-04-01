@@ -37,6 +37,9 @@ export default {
             )
             return mapAttributes?.clientInfo?.maxDPI
         },
+        printExtent(state) {
+            return state.printExtent
+        },
     },
     actions: {
         /** @deprecated Should be removed as soon as we've switched to the new print backend */
