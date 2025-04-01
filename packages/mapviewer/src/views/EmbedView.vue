@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.js'
+
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
@@ -23,11 +24,17 @@ const is3DActive = computed(() => store.state.cesium.active)
 const scrollWithCtrlOnly = computed(() => store.getters.scrollWithCtrlOnly)
 
 function onWheel(event) {
-  console.log('onWheel event', event)
-  if (scrollWithCtrlOnly.value && !event.ctrlKey) {
-    console.log('onWheel event.preventDefault()')
+    console.log('onWheel event', event)
+    console.log('scrollWithCtrlOnly.value', scrollWithCtrlOnly.value)
+    console.log('wheel on', event.target)
+
     event.preventDefault()
-  }
+    event.stopPropagation()
+    if (scrollWithCtrlOnly.value && !event.ctrlKey) {
+        console.log('onWheel event.preventDefault()')
+        event.preventDefault()
+        event.stopPropagation()
+    }
 }
 
 onBeforeMount(() => {
@@ -35,12 +42,19 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    log.info(`Embedded map view mounted`)
-    window.addEventListener('wheel', onWheel, { passive: false }) //passive: false is required for preventDefault
+    const canvas = document.querySelector('canvas')
+
+    if (canvas) {
+        canvas.addEventListener('wheel', onWheel, { passive: false })
+    }
 })
 
 onUnmounted(() => {
-  window.removeEventListener('wheel', onWheel)
+    const canvas = document.querySelector('canvas')
+
+    if (canvas) {
+        canvas.removeEventListener('wheel', onWheel)
+    }
 })
 
 watch(() => route.query, sendChangeEventToParent)

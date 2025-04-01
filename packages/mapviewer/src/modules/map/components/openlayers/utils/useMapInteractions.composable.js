@@ -1,5 +1,5 @@
 import log from '@geoadmin/log'
-import { altKeyOnly, primaryAction } from 'ol/events/condition'
+import { altKeyOnly, always, platformModifierKey, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
@@ -25,6 +25,9 @@ const longPressEvents = [
 export default function useMapInteractions(map) {
     const store = useStore()
 
+    const scrollWithCtrlOnly = computed(() => store.getters.scrollWithCtrlOnly)
+    const isEmbed = computed(() => store.getters.isEmbed)
+
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
         store.state.layers.activeLayers.filter((layer) =>
@@ -32,8 +35,11 @@ export default function useMapInteractions(map) {
         )
     )
 
+    const isMouseWheelZoomEnabled =
+        isEmbed.value && scrollWithCtrlOnly ? platformModifierKey : always
+
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
-    const freeMouseWheelInteraction = new MouseWheelZoom()
+    //const freeMouseWheelInteraction = new MouseWheelZoom()
 
     // Make it possible to select by dragging the map with ctrl down
     const { dragBoxSelect } = useDragBoxSelect()
@@ -73,7 +79,10 @@ export default function useMapInteractions(map) {
     })
 
     registerPointerEvents()
-    map.addInteraction(freeMouseWheelInteraction)
+
+    if (isMouseWheelZoomEnabled) {
+        // map.addInteraction(freeMouseWheelInteraction)
+    }
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()
