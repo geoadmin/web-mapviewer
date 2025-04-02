@@ -39,7 +39,7 @@ export default function useMapInteractions(map) {
         isEmbed.value && scrollWithCtrlOnly ? platformModifierKey : always
 
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
-    //const freeMouseWheelInteraction = new MouseWheelZoom()
+    const freeMouseWheelInteraction = new MouseWheelZoom()
 
     // Make it possible to select by dragging the map with ctrl down
     const { dragBoxSelect } = useDragBoxSelect()
@@ -81,7 +81,7 @@ export default function useMapInteractions(map) {
     registerPointerEvents()
 
     if (isMouseWheelZoomEnabled) {
-        // map.addInteraction(freeMouseWheelInteraction)
+        map.addInteraction(freeMouseWheelInteraction)
     }
 
     onBeforeUnmount(() => {

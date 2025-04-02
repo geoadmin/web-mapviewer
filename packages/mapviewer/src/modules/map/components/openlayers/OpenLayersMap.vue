@@ -1,6 +1,7 @@
 <script setup>
 import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { defaults as defaultInteractions } from 'ol/interaction'
 import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, useTemplateRef } from 'vue'
@@ -41,7 +42,12 @@ const geolocationActive = computed(() => store.state.geolocation.active)
 const geoPosition = computed(() => store.state.geolocation.position)
 const visibleLayers = computed(() => store.getters.visibleLayers)
 
-const map = new Map({ controls: [] })
+const map = new Map({
+    controls: [],
+    interactions: defaultInteractions({
+        mouseWheelZoom: false,
+    }),
+})
 useViewBasedOnProjection(map)
 
 provide('olMap', map)
