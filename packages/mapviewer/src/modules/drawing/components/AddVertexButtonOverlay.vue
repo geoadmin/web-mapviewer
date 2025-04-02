@@ -66,11 +66,10 @@ const updateButtonPositions = () => {
 
     const firstOffset = calculateOffset(coordinates[0], coordinates[1], BASE_OFFSET_DISTANCE)
 
-    // adding this so that the button is not on top of the measure line label
     const distance =
-        BASE_OFFSET_DISTANCE + selectedFeatureType.value === 'MEASURE'
-            ? MEASURE_ADDITIONAL_OFFSET
-            : 0
+        BASE_OFFSET_DISTANCE +
+        (selectedFeatureType.value === 'MEASURE' ? MEASURE_ADDITIONAL_OFFSET : 0)
+
     const lastOffset = calculateOffset(
         coordinates[coordinates.length - 1],
         coordinates[coordinates.length - 2],
