@@ -118,7 +118,7 @@ describe('Test mouse position and interactions', () => {
         beforeEach(() => {
             cy.goToMapView({
                 center: center.join(','),
-                z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
+                z: DEFAULT_PROJECTION.getDefaultZoom() + 2.23,
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
@@ -127,6 +127,10 @@ describe('Test mouse position and interactions', () => {
                     body: { shorturl: shortLinkStub, success: true },
                 }).as('shortlink')
             }
+            // Verify that double click on the map zooms in to a full integer zoom level
+            cy.url().should('include', 'z=3.23')
+            cy.get('[data-cy="ol-map"]').should('be.visible').dblclick()
+            cy.url().should('include', 'z=4')
 
             const fakeLV03Coordinate = [1234.56, 7890.12]
             cy.intercept('**/lv95tolv03**', { coordinates: fakeLV03Coordinate }).as('reframe')
