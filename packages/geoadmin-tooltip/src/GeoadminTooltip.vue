@@ -179,12 +179,12 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
 <template>
     <div
         data-cy="floating-container"
-        class="tw:flex"
+        class="tw:flex tw:max-w-full"
         @click="onClickContainer"
     >
         <div
             ref="tooltipElement"
-            class="tw:flex"
+            class="tw:flex tw:max-w-full"
             @touchstart="onTouchStart"
             @touchend="onTouchEnd"
             @mouseover="onMouseOver"
