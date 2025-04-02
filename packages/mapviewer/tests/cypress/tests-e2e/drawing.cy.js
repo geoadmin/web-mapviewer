@@ -685,13 +685,8 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            cy.log('Deleting the last node by clicking the delete button')
-            cy.get('[data-cy="extend-from-first-node-button"] button').click()
-            cy.get('[data-cy="drawing-delete-last-point-button"]').click()
-            // Click the first node to finish the polygon
-            const firstPoint = lineCoordinates[0]
-            // re-clicking an existing point to finish editing
-            cy.get('[data-cy="ol-map"]').click(firstPoint[0], firstPoint[1])
+            cy.log('Deleting a node at the beginning by right clicking on it to verify that the extend button is not blocking the point')
+            cy.get('[data-cy="ol-map"]').rightclick(500, 500)
             cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
@@ -700,13 +695,38 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            cy.log('Extending line into a polygon (closing it)')
-            cy.get('[data-cy="extend-from-last-node-button"] button').click()
-            cy.get('[data-cy="ol-map"]').click(firstPoint[0], firstPoint[1])
+            cy.log('Deleting a node at the end by right clicking on it to verify that the extend button is not blocking the point')
+            cy.get('[data-cy="ol-map"]').rightclick(1100, 450)
             cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
-                lineCoordinates.length + 3, // closing point counts twice (start and finish of geometry)
+                lineCoordinates.length + 1,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
+
+            cy.log('Deleting the last node by clicking the delete button')
+            cy.get('[data-cy="extend-from-first-node-button"] button').click()
+            cy.get('[data-cy="drawing-delete-last-point-button"]').click()
+            // Click the second node (by now the first node because the first one got deleted) to finish the polygon
+            const secondPoint = lineCoordinates[1]
+            // re-clicking an existing point to finish editing
+            cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            cy.wait('@update-kml')
+            checkDrawnFeature(
+                firstFeatureDescription,
+                lineCoordinates.length,
+                'LineString',
+                EditableFeatureTypes.LINEPOLYGON
+            )
+
+            cy.log('Extending line into a polygon (closing it)')
+            cy.get('[data-cy="extend-from-last-node-button"] button').click()
+            cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            cy.wait('@update-kml')
+            checkDrawnFeature(
+                firstFeatureDescription,
+                lineCoordinates.length + 1, // closing point counts twice (start and finish of geometry)
                 'Polygon',
                 EditableFeatureTypes.LINEPOLYGON
             )
@@ -758,7 +778,7 @@ describe('Drawing module tests', () => {
             // check if the first feature still there
             checkDrawnFeature(
                 firstFeatureDescription,
-                11,
+                9,
                 'Polygon',
                 EditableFeatureTypes.LINEPOLYGON
             )
