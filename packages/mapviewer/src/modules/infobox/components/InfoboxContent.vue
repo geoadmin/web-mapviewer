@@ -7,8 +7,10 @@ import { computed, inject, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
+import { generateFilename } from '@/utils/utils'
 
 const content = useTemplateRef('content')
 
@@ -26,27 +28,33 @@ const currentLang = computed(() => store.state.i18n.lang)
 const is3dActive = computed(() => store.state.cesium.active)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
-const selectedFeatureGeometry = computed(() => selectedFeature.value.geometry)
-const isMultiFeature = computed(() =>
-    ['MultiPolygon', 'MultiLineString'].includes(selectedFeatureGeometry.value.type)
-)
-
-/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
-const currentGeometryElementIndex = ref(0)
-const currentGeometryElements = computed(() => selectedFeature.value.geometry.coordinates)
-const currentProfileCoordinates = computed(() => {
-    if (isMultiFeature.value) {
-        return selectedFeatureGeometry.value.coordinates[currentGeometryElementIndex.value]
-    }
-    return selectedFeatureGeometry.value.coordinates
-})
 
 const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
 const isEditingDrawingFeature = computed(
     () => showDrawingOverlay.value && isSelectedFeatureEditable.value
 )
 
-const profileFeature = computed(() => store.state.features.profileFeature)
+const profileFeature = computed(() => store.state.profile.feature)
+const isMultiFeature = computed(() =>
+    ['MultiPolygon', 'MultiLineString'].includes(profileFeature.value?.geometry?.type)
+)
+const isPolygon = computed(() => profileFeature.value?.geometry?.type === 'Polygon')
+/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
+const currentGeometryElementIndex = ref(0)
+const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
+
+const currentProfileCoordinates = computed(() => {
+    if (!profileFeature.value) {
+        return null
+    }
+    if (isMultiFeature.value) {
+        return currentGeometryElements.value[currentGeometryElementIndex.value]
+    }
+    if (isPolygon.value) {
+        return currentGeometryElements.value[0]
+    }
+    return currentGeometryElements.value
+})
 const showElevationProfile = computed(() => !!profileFeature.value)
 
 watch(selectedFeatures, (features) => {
@@ -65,55 +73,38 @@ watch(selectedFeatures, (features) => {
         class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
-        <div
-            v-if="isEditingDrawingFeature"
-            class="drawing-feature d-flex flex-column flex-md-row"
-        >
-            <FeatureStyleEdit
-                v-if="showFeatureInfoInBottomPanel"
-                :feature="selectedFeature"
-                class="drawing-feature-edit p-3"
-                :class="{ 'flex-grow-1': !showElevationProfile }"
-            />
-            <GeoadminElevationProfile
-                v-if="showElevationProfile"
-                :points="selectedFeature.geometry.coordinates"
-                :projection="projection.epsg"
-                :locale="currentLang"
-                class="flex-grow-1 position-relative"
-            />
-        </div>
-        <div
-            v-else
-            class="d-flex flex-column h-100 overflow-y-auto infobox-content"
-        >
+        <div class="d-flex h-100 overflow-y-auto justify-content-stretch flex-column flex-md-row">
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
-                class="h-100 d-flex flex-column align-content-stretch infobox-content"
+                class="d-flex flex-column align-content-stretch infobox-content"
             >
                 <div
                     v-if="isMultiFeature && currentGeometryElements.length > 1"
-                    class="ps-1 pt-1 btn-group-sm"
+                    class="ps-1 pt-1 d-flex"
                 >
-                    <button
-                        v-for="(_, index) in currentGeometryElements"
-                        :key="index"
-                        class="btn"
-                        :class="{
-                            'btn-secondary': index === currentGeometryElementIndex,
-                            'btn-light': index !== currentGeometryElementIndex,
-                        }"
-                        @click="currentGeometryElementIndex = index"
-                    >
-                        {{ t('profile_segment', { segmentNumber: index + 1 }) }}
-                    </button>
+                    <div class="d-flex gap-1 mw-100 overflow-x-auto">
+                        <button
+                            v-for="(_, index) in currentGeometryElements"
+                            :key="index"
+                            class="btn btn-sm text-nowrap"
+                            :class="{
+                                'btn-secondary': index === currentGeometryElementIndex,
+                                'btn-light': index !== currentGeometryElementIndex,
+                            }"
+                            :data-cy="`profile-segment-button-${index}`"
+                            @click="currentGeometryElementIndex = index"
+                        >
+                            {{ t('profile_segment', { segmentNumber: index + 1 }) }}
+                        </button>
+                    </div>
                 </div>
                 <GeoadminElevationProfile
                     :points="currentProfileCoordinates"
                     :projection="projection.epsg"
                     :locale="currentLang"
-                    class="flex-grow-1 profile-with-feature"
+                    :staging="ENVIRONMENT"
+                    :filename="generateFilename('.csv')"
                 >
                     <GeoadminElevationProfileCesiumBridge
                         v-if="is3dActive && getCesiumViewer()"
@@ -125,6 +116,13 @@ watch(selectedFeatures, (features) => {
                     />
                 </GeoadminElevationProfile>
             </div>
+            <FeatureStyleEdit
+                v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
+                v-show="!showElevationProfile"
+                :feature="selectedFeature"
+                class="drawing-feature-edit p-3"
+                :class="{ 'flex-grow-1': !showElevationProfile }"
+            />
             <FeatureList
                 v-if="showFeatureInfoInBottomPanel"
                 v-show="!showElevationProfile"
@@ -134,8 +132,21 @@ watch(selectedFeatures, (features) => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/media-query.mixin';
+
 .infobox-content {
-    min-height: 200px;
-    max-height: 25vh;
+    max-height: 40vh;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+@include respond-above(phone) {
+    .infobox-content {
+        max-height: 33vh;
+    }
+}
+@include respond-above(tablet) {
+    .infobox-content {
+        max-height: 25vh;
+    }
 }
 </style>

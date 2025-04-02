@@ -5,7 +5,7 @@ import { log } from '@geoadmin/log'
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { SERVICE_ALTI_BASE_URL } from '@/config'
+import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD, type Staging } from '@/config'
 import getProfileMetadata, { type ElevationProfileMetadata } from '@/utils'
 
 export class ElevationProfileError extends Error {
@@ -74,6 +74,17 @@ export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[
     return subChunks
 }
 
+function getUrlForStaging(staging: Staging = 'production'): string {
+    switch (staging) {
+        case 'development':
+            return BASE_URL_DEV
+        case 'integration':
+            return BASE_URL_INT
+        default:
+            return BASE_URL_PROD
+    }
+}
+
 function parseProfileSegmentFromBackendResponse(
     backendResponse: Awaited<ServiceProfilePoints[]>,
     startingDist: number,
@@ -104,7 +115,8 @@ export async function getProfileDataForChunk(
     chunk: CoordinatesChunk,
     startingPoint: SingleCoordinate | null = null,
     startingDist: number,
-    outputProjection: CoordinateSystem
+    outputProjection: CoordinateSystem,
+    staging: Staging = 'production'
 ): Promise<ServiceProfilePoints[]> {
     if (chunk.isWithinBounds) {
         try {
@@ -119,7 +131,7 @@ export async function getProfileDataForChunk(
                 .filter((coordinateChunk) => coordinateChunk !== null)
                 .map((coordinatesChunk) => {
                     return axios({
-                        url: `${SERVICE_ALTI_BASE_URL}rest/services/profile.json`,
+                        url: `${getUrlForStaging(staging)}rest/services/profile.json`,
                         method: 'POST',
                         params: {
                             offset: 0,
@@ -154,8 +166,8 @@ export async function getProfileDataForChunk(
                 } else {
                     log.error('Incorrect/empty response while getting profile', response)
                     throw new ElevationProfileError(
-                        'Incorrect/empty response while getting profile',
-                        new Error('profile_network_error')
+                        'profile_network_error',
+                        new Error('Incorrect/empty response while getting profile')
                     )
                 }
             })
@@ -173,8 +185,8 @@ export async function getProfileDataForChunk(
                     err
                 )
                 throw new ElevationProfileError(
-                    'Error requesting profile with too many points',
-                    new Error('profile_too_many_points_error')
+                    'profile_too_many_points_error',
+                    new Error('Error requesting profile with too many points')
                 )
             }
 
@@ -183,8 +195,8 @@ export async function getProfileDataForChunk(
                 throw err
             }
             throw new ElevationProfileError(
-                'Error while trying to fetch profile data',
-                new Error('profile_network_error')
+                'profile_network_error',
+                new Error('Error while trying to fetch profile data')
             )
         }
     }
@@ -193,7 +205,7 @@ export async function getProfileDataForChunk(
     let lastCoordinate = startingPoint
     if (!chunk?.coordinates) {
         log.error('Malformed chunk', chunk)
-        throw new ElevationProfileError('Malformed chunk', new Error('profile_network_error'))
+        throw new ElevationProfileError('profile_network_error', new Error('Malformed chunk'))
     }
     return [
         ...chunk.coordinates.map((coordinate) => {
@@ -223,8 +235,10 @@ function ensureDoubleNestedArray(
     if (Array.isArray(arr) && Array.isArray(arr[0]) && Array.isArray(arr[0][0])) {
         if (typeof arr[0][0] !== 'number') {
             throw new ElevationProfileError(
-                'Received a multi-feature (MultiLineString or MultiPolygon). This is not supported bt this component, you need to split the feature and give each element of the "multi"-feature separately.',
-                new Error('profile_could_not_generate')
+                'profile_could_not_generate',
+                new Error(
+                    'Received a multi-feature (MultiLineString or MultiPolygon). This is not supported by this component, you need to split the feature and give each element of the "multi"-feature separately.'
+                )
             )
         }
         return arr as SingleCoordinate[][]
@@ -244,7 +258,8 @@ function ensureDoubleNestedArray(
  */
 export default async (
     profileCoordinates: SingleCoordinate[] | SingleCoordinate[][],
-    projection: CoordinateSystem
+    projection: CoordinateSystem,
+    staging: Staging = 'production'
 ): Promise<ElevationProfile> => {
     if (!profileCoordinates || profileCoordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
@@ -278,17 +293,23 @@ export default async (
                 coordinatesInLV95
             )
             throw new ElevationProfileError(
-                'No data found within LV95 bounds, no profile data could be fetched',
-                new Error('profile_could_not_generate')
+                'profile_could_not_generate',
+                new Error('No data found within LV95 bounds, no profile data could be fetched')
             )
         }
         if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
             log.warn('[Profile] Some parts of the profile are out of LV95 bounds')
         }
+        if (coordinateChunks.every((chunk) => !chunk.isWithinBounds)) {
+            throw new ElevationProfileError(
+                'profile_out_of_bounds',
+                new Error('All points are out of bounds, no profile data could be fetched')
+            )
+        }
         let lastCoordinate: SingleCoordinate | null = null
         let lastDist: number = 0
         const requestsForChunks: Promise<ServiceProfilePoints[]>[] = coordinateChunks.map((chunk) =>
-            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
+            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection, staging)
         )
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {
@@ -310,6 +331,12 @@ export default async (
                 )
             }
         }
+    }
+    if (segments.every((segment) => !segment.hasElevationData)) {
+        throw new ElevationProfileError(
+            'profile_could_not_generate',
+            new Error('No elevation data found, feature might be out of bounds')
+        )
     }
     return {
         segments,

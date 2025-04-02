@@ -23,7 +23,7 @@
         "build:dev": "pnpm run build -- --mode development",
         "build:int": "pnpm run build -- --mode integration",
         "build:prod": "pnpm run build -- --mode production",
-        "dev": "vite",
+        "dev": "vite --host",
         "generate-types": "vue-tsc --declaration",
         "preview": "vite preview",
         "type-check": "vue-tsc --build"

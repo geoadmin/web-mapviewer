@@ -107,14 +107,14 @@ function isSelected(timeEntry) {
                         {{ t('time_select_year') }}
                     </div>
                     <div
-                        class="card-body rounded-bottom p-2 timestamps-popover-content"
+                        class="card-body rounded-bottom p-2 d-grid timestamps-popover-content gap-1"
                         data-cy="time-selection-popup"
                         @click="close"
                     >
                         <button
                             v-for="timeEntry in timeConfig.timeEntries"
                             :key="timeEntry.timestamp"
-                            class="btn mb-1 me-1 btn-timestamp-selection-popup"
+                            class="btn d-flex justify-content-center"
                             :class="{
                                 'btn-primary': isSelected(timeEntry),
                                 'btn-light': !isSelected(timeEntry),
@@ -135,28 +135,12 @@ function isSelected(timeEntry) {
 
 <style lang="scss" scoped>
 .timestamps-popover-content {
-    display: grid;
     max-height: 33vh;
     overflow-y: auto;
     background: white;
     grid-template-columns: 1fr 1fr 1fr;
 }
-.btn-timestamp-selection-popup {
-    max-width: 100px;
-}
 .btn-timestamp-selector {
     font-size: small;
-    $btn-width: 68px; // 68px allow the word "Actual" in all languages without being truncated
-    // Here we need to use min/max-width otherwise the size is not always identical over all layers
-    min-width: $btn-width;
-    max-width: $btn-width;
-
-    &-compact {
-        $btn-width: 60px; // 60px allow the word "Actual" in all languages without being truncated
-        min-width: $btn-width;
-        max-width: $btn-width;
-        padding-top: 2px;
-        padding-bottom: 2px;
-    }
 }
 </style>

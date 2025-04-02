@@ -29,12 +29,13 @@ const noDataPlugin: Plugin = {
 
         const {
             ctx,
-            chartArea: { top, height },
+            chartArea,
             scales: { x },
         } = chart
+        const { top, height } = chartArea ?? {}
         // We use right and left from the X axis instead of the chartArea.
         // This way our rects will end on the left and right side of the X axis, and not overlap the Y axis or right empty part of the chart
-        const { right, left } = x
+        const { right, left } = x ?? {}
 
         // going into each segment without data, to see if we need to draw a no data zone in the chart
         profile.segments
