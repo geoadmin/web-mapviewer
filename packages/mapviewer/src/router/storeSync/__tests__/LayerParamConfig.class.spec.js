@@ -5,7 +5,7 @@ import { describe, it } from 'vitest'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { createLayerObject } from '@/router/storeSync/LayerParamConfig.class'
+import { createLayerObject, validateUrlInput } from '@/router/storeSync/LayerParamConfig.class'
 
 describe('External layer parsing with createLayerObject', () => {
     it('parses a KML layer correctly', () => {
@@ -73,5 +73,19 @@ describe('External layer parsing with createLayerObject', () => {
         expect(result.type).to.equal(LayerType.WMTS)
         expect(result.baseUrl).to.eq(wmtsGetCapUrl)
         expect(result.id).to.eq(wmtsLayerId)
+    })
+    it('Creates warning when external layer has no url scheme', () => {
+        const query = 'KML|external-kml-file.kml'
+        const mockThis = { urlParamName: '' }
+        const mockStore = {
+            getters: {
+                getLayerConfigById(id) {
+                    return false
+                },
+            },
+        }
+        const { warnings } = validateUrlInput.apply(mockThis, [mockStore, query])
+        expect(warnings).to.have.length(1)
+        expect(warnings[0].msg).to.equal('url_external_layer_no_scheme_warning')
     })
 })

@@ -351,7 +351,11 @@ function generateLayerUrlParamFromStoreValues(store: ReturnType<useStore>) {
 // this one differs from the usual validateUrlInput, as it handles each layer separately, telling the user
 // which layer won't render. It's basic, which means it will only tells the user when he gives a non
 // external layer that doesn't exist, or when he forgets the scheme for its external layer.
-function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>, query: string) {
+export function validateUrlInput(
+    this: AbstractParamConfig,
+    store: ReturnType<useStore>,
+    query: string
+) {
     if (query === '') {
         return {
             valid: true,
@@ -367,7 +371,7 @@ function validateUrlInput(this: AbstractParamConfig, store: ReturnType<useStore>
         .forEach((layer) => {
             if (!layer.baseUrl) {
                 faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
-            } else if (layer.baseUrl.match(url_matcher)?.length <= 0) {
+            } else if (layer.baseUrl.match(url_matcher) === null) {
                 localLayers.push(
                     new WarningMessage('url_external_layer_no_scheme_warning', {
                         layer: `${layer.type}|${layer.baseUrl}`,
