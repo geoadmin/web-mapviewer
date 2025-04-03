@@ -94,20 +94,23 @@ watch(selectedFeatures, (features) => {
             >
                 <div
                     v-if="isMultiFeature && currentGeometryElements.length > 1"
-                    class="ps-1 pt-1 btn-group-sm"
+                    class="ps-1 pt-1 d-flex"
                 >
-                    <button
-                        v-for="(_, index) in currentGeometryElements"
-                        :key="index"
-                        class="btn"
-                        :class="{
+                    <div class="d-flex gap-1 mw-100 overflow-x-auto">
+                        <button
+                            v-for="(_, index) in currentGeometryElements"
+                            :key="index"
+                            class="btn btn-sm text-nowrap"
+                            :class="{
                             'btn-secondary': index === currentGeometryElementIndex,
                             'btn-light': index !== currentGeometryElementIndex,
                         }"
-                        @click="currentGeometryElementIndex = index"
-                    >
-                        {{ t('profile_segment', { segmentNumber: index + 1 }) }}
-                    </button>
+                            :data-cy="`profile-segment-button-${index}`"
+                            @click="currentGeometryElementIndex = index"
+                        >
+                            {{ t('profile_segment', { segmentNumber: index + 1 }) }}
+                        </button>
+                    </div>
                 </div>
                 <GeoadminElevationProfile
                     :points="currentProfileCoordinates"
@@ -135,7 +138,6 @@ watch(selectedFeatures, (features) => {
 
 <style lang="scss" scoped>
 .infobox-content {
-    min-height: 200px;
-    max-height: 25vh;
+    max-height: 40vh;
 }
 </style>

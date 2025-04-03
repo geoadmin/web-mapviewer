@@ -99,10 +99,12 @@ function onHideProfile() {
                     icon="chevron-left"
                     class="me-1"
                 />
-                {{ t('hide_profile') }}
+                <span class="d-none d-md-inline">{{ t('hide_profile') }}</span>
             </button>
-            <div class="header-title d-flex flex-grow-1 justify-content-center mt-1">
-                <TextTruncate>{{ title }}</TextTruncate>
+            <div class="d-flex flex-grow-1 align-content-center justify-content-left overflow-hidden ms-1">
+                <label>
+                    <TextTruncate>{{ title }}</TextTruncate>
+                </label>
             </div>
             <ZoomToExtentButton
                 v-if="showElevationProfile && profileFeature?.extent"
@@ -149,9 +151,7 @@ function onHideProfile() {
                 <FontAwesomeIcon icon="times" />
             </button>
         </div>
-
-        <!-- if we add d-flex directly in classes, Bootstap's !important overwrites Vue's display none and it is always visible -->
-        <InfoboxContent v-show="showContent" />
+        <InfoboxContent v-if="showContent" />
     </div>
 </template>
 
@@ -169,10 +169,6 @@ function onHideProfile() {
         &-edit {
             min-width: $overlay-width;
         }
-    }
-
-    .header-title {
-        overflow: hidden;
     }
 
     .zoom-to-extent-button {

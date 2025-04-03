@@ -36,6 +36,7 @@ type ElevationProfileErrorMessages = {
     profile_network_error: string
     profile_too_many_points_error: string
     profile_could_not_generate: string
+    profile_out_of_bounds: string
 }
 
 const { t }: { t: VueI18nTranslateFunction<ElevationProfileErrorMessages> } = useI18n<
@@ -135,9 +136,14 @@ function onCSVDownload() {
     >
         <div v-if="!hasData && profileRequestError">
             <span
-                class="tw:text-danger"
+                class="tw:font-bold tw:flex tw:items-center tw:gap-1"
                 data-cy="profile-error-message"
             >
+                <FontAwesomeIcon
+                    icon="exclamation-triangle"
+                    size="2x"
+                    class="tw:text-amber-500"
+                />
                 {{ t(profileRequestError.message) }}
             </span>
         </div>
