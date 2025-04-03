@@ -1,4 +1,4 @@
-import { WEBMERCATOR } from '@geoadmin/coordinates'
+import { WEBMERCATOR, LV95 } from '@geoadmin/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 
@@ -260,6 +260,82 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').should((viewer) => {
             expect(viewer.dataSources.length).to.eq(1)
+        })
+    })
+
+    it('Verify layer features in 2D and 3D', () => {
+        cy.log('Go to 3D and add a WMS layer')
+        const expectedWmsLayerId = 'test.wms.layer'
+        cy.goToMapView({
+            '3d': true,
+            layers: expectedWmsLayerId,
+        })
+        cy.waitUntilCesiumTilesLoaded()
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            expectLayerCountToBe(viewer, 2)
+            const wmsLayer = viewer.scene.imageryLayers.get(1)
+            expect(wmsLayer.show).to.eq(true)
+            expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
+        })
+
+        cy.log('Switching to 2D and checking that the layer is still visible')
+        // deactivate 3D
+        cy.get('[data-cy="3d-button"]').should('be.visible').click()
+        cy.readWindowValue('map').then((map) => {
+            const layers = map.getLayers().getArray()
+            expect(layers[1].getProperties().id).to.deep.equal(expectedWmsLayerId)
+
+            // If the layer is not visible, it is usually because the extent is not correct
+            expect(layers[1].getExtent()).to.deep.equal(LV95.bounds.flatten)
+        })
+
+        cy.log('Select features and check that they are visible in 3D and then also back in 2D')
+        cy.get('[data-cy="ol-map"]').click(100, 250)
+        cy.readStoreValue('getters.selectedFeatures').should('have.length', 10)
+
+        cy.get('[data-cy="highlighted-features"]')
+            .as('highlightedFeatures')
+            .should('be.visible')
+            .find('[data-cy="feature-item"]')
+            .should('have.length', 10)
+
+        // activate 3D
+        cy.get('[data-cy="3d-button"]').should('be.visible').click()
+        cy.waitUntilCesiumTilesLoaded()
+
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            expect(viewer.entities.values.length).to.eq(10)
+        })
+        cy.get('@highlightedFeatures')
+            .should('be.visible')
+            .find('[data-cy="feature-item"]')
+            .should('have.length', 10)
+
+        
+        // deactivate 3D
+        cy.get('[data-cy="3d-button"]').should('be.visible').click()
+        cy.get('@highlightedFeatures')
+            .should('be.visible')
+            .find('[data-cy="feature-item"]')
+            .should('have.length', 10)
+
+
+        cy.log('Switch to 3D and remove the layer and check that the selected features are not visible anymore')
+        // activate 3D
+        cy.get('[data-cy="3d-button"]').should('be.visible').click()
+        cy.waitUntilCesiumTilesLoaded()
+            
+        cy.openMenuIfMobile()
+
+        cy.get(
+            `[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`
+        ).click()
+
+        cy.closeMenuIfMobile()
+        cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+        cy.get('@highlightedFeatures').should('not.exist')
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            expect(viewer.entities.values.length).to.eq(0)
         })
     })
 })

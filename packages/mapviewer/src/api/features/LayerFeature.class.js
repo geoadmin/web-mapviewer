@@ -6,7 +6,7 @@ export default class LayerFeature extends SelectableFeature {
     /**
      * @param {AbstractLayer} featureData.layer The layer in which this feature belongs
      * @param {Number | String} featureData.id The unique feature ID in the layer it is part of
-     * @param {String} featureData.name The name (localized) of this feature
+     * @param {String} featureData.title The title (localized) of this feature
      * @param {Object | String} featureData.data Data for this feature's popup (or tooltip).
      * @param {[[Number, Number]]} featureData.coordinates Coordinate in the current projection
      *   ([[x,y],[x2,y2],...])
@@ -16,11 +16,11 @@ export default class LayerFeature extends SelectableFeature {
      *   `null`
      */
     constructor(featureData) {
-        const { layer, id, name, data, coordinates, extent, geometry = null } = featureData
+        const { layer, id, title, data, coordinates, extent, geometry = null } = featureData
         super({
             id,
             coordinates,
-            title: name,
+            title,
             extent,
             geometry,
             isEditable: false,

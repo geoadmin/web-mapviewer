@@ -4,7 +4,7 @@ import log from '@geoadmin/log'
 import { Cartesian2, Cartographic, PostProcessStageLibrary, ScreenSpaceEventType } from 'cesium'
 import { Point } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -59,6 +59,17 @@ onMounted(() => {
             ScreenSpaceEventType.RIGHT_CLICK
         )
         viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
+    }
+})
+
+onUnmounted(() => {
+    const viewer = getViewer()
+    if (viewer) {
+        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
+        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
+        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+        viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
+        viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
     }
 })
 
@@ -139,7 +150,7 @@ function create3dFeature(feature, coordinates) {
         layer,
         id,
         data,
-        name: id,
+        title: id,
         coordinates,
         extent: createPixelExtentAround({
             size: 5,
