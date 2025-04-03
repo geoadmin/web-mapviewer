@@ -1,5 +1,5 @@
 import log from '@geoadmin/log'
-import { altKeyOnly, always, platformModifierKey, primaryAction } from 'ol/events/condition'
+import { altKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
@@ -25,18 +25,12 @@ const longPressEvents = [
 export default function useMapInteractions(map) {
     const store = useStore()
 
-    const scrollWithCtrlOnly = computed(() => store.getters.scrollWithCtrlOnly)
-    const isEmbed = computed(() => store.getters.isEmbed)
-
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
         store.state.layers.activeLayers.filter((layer) =>
             [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
         )
     )
-
-    const isMouseWheelZoomEnabled =
-        isEmbed.value && scrollWithCtrlOnly ? platformModifierKey : always
 
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
     const freeMouseWheelInteraction = new MouseWheelZoom()
@@ -79,10 +73,7 @@ export default function useMapInteractions(map) {
     })
 
     registerPointerEvents()
-
-    if (isMouseWheelZoomEnabled) {
-        map.addInteraction(freeMouseWheelInteraction)
-    }
+    map.addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()

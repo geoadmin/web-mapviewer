@@ -44,9 +44,6 @@ const visibleLayers = computed(() => store.getters.visibleLayers)
 
 const map = new Map({
     controls: [],
-    interactions: defaultInteractions({
-        mouseWheelZoom: false,
-    }),
 })
 useViewBasedOnProjection(map)
 

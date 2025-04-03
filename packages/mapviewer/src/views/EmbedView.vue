@@ -21,32 +21,47 @@ const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
-const scrollWithCtrlOnly = computed(() => store.getters.scrollWithCtrlOnly)
+const scrollWithCtrlOnly = computed(() => store.getters.isCtrlScrollEnabled)
+const isEmbed = computed(() => store.getters.isEmbed)
 
 function onWheel(event) {
-    console.log('onWheel event', event)
-    console.log('scrollWithCtrlOnly.value', scrollWithCtrlOnly.value)
-    console.log('wheel on', event.target)
+    console.error('onWheel event', event)
+    console.error('scrollWithCtrlOnly.value', scrollWithCtrlOnly.value)
+    console.error('isEmbed', isEmbed.value)
+    console.error('wheel on', event.target)
 
     event.preventDefault()
     event.stopPropagation()
-    if (scrollWithCtrlOnly.value && !event.ctrlKey) {
-        console.log('onWheel event.preventDefault()')
-        event.preventDefault()
-        event.stopPropagation()
-    }
+    event.stopImmediatePropagation()
 }
 
 onBeforeMount(() => {
-    store.dispatch('setEmbed', { embed: true, ...dispatcher })
+    const route = useRoute()
+    store.dispatch('setEmbed', { embed: true })
+
+    const isEmbed = route.path.includes('embed')
+    const hasScrollParam = 'ctrl_scroll' in route.query
+
+    if (isEmbed && hasScrollParam) {
+        console.error('Setting scrollWithCtrlOnly to true')
+        store.dispatch('setScrollWithCtrlOnly', {
+            show: true,
+            dispatcher: 'initialEmbedInit',
+        })
+    }
 })
 
 onMounted(() => {
-    const canvas = document.querySelector('canvas')
-
-    if (canvas) {
-        canvas.addEventListener('wheel', onWheel, { passive: false })
+    const waitForCanvas = () => {
+        const canvas = document.querySelector('canvas')
+        if (canvas) {
+            canvas.addEventListener('wheel', onWheel, { passive: false })
+            console.error('Wheel event attached to canvas')
+        } else {
+            requestAnimationFrame(waitForCanvas)
+        }
     }
+    waitForCanvas()
 })
 
 onUnmounted(() => {

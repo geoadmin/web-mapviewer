@@ -7,7 +7,6 @@ export default class ScrollingModeParamConfig extends AbstractParamConfig {
         super({
             urlParamName: 'ctrl_scroll',
             setValuesInStore: dispatchScrollingModeFromUrlIntoStore,
-            keepInUrlWhenDefault: false,
             valueType: Boolean,
         })
     }
@@ -19,8 +18,8 @@ export default class ScrollingModeParamConfig extends AbstractParamConfig {
 function dispatchScrollingModeFromUrlIntoStore(to, store) {
     const isEmbed = to.path.includes('embed')
     const hasScrollParam = 'ctrl_scroll' in to.query
-    console.log('dispatch function')
-    console.log('dispatchScrollingModeFromUrlIntoStore', isEmbed, hasScrollParam)
+    console.error('dispatch function')
+    console.error('dispatchScrollingModeFromUrlIntoStore', isEmbed, hasScrollParam)
     if (isEmbed && hasScrollParam) {
         store.dispatch('setScrollWithCtrlOnly', {
             show: true,
@@ -28,4 +27,3 @@ function dispatchScrollingModeFromUrlIntoStore(to, store) {
         })
     }
 }
-

@@ -235,7 +235,10 @@ export default {
             return state.mode === UIModes.DESKTOP
         },
         isCtrlScrollEnabled(state) {
-            return state.scrollWithCtrlOnly;
+            return state.scrollWithCtrlOnly
+        },
+        isEmbed(state) {
+            return state.embed
         },
         isPhoneSize(state, getters) {
             return getters.isPhoneMode
@@ -325,7 +328,12 @@ export default {
             commit('setEmbed', { embed: !!embed, dispatcher })
         },
         setScrollWithCtrlOnly({ commit }, { scrollWithCtrlOnly, dispatcher }) {
-            commit('setScrollWithCtrlOnly', { scrollWithCtrlOnly: !!scrollWithCtrlOnly, dispatcher })
+            if (typeof scrollWithCtrlOnly === 'boolean') {
+                commit('setScrollWithCtrlOnly', {
+                    scrollWithCtrlOnly,
+                    dispatcher,
+                })
+            }
         },
         setLoadingBarRequester({ commit }, { requester, dispatcher }) {
             commit('setShowLoadingBar', { requester, loading: true, dispatcher })
@@ -481,7 +489,7 @@ export default {
             state.embed = embed
         },
         setScrollWithCtrlOnly(state, { scrollWithCtrlOnly }) {
-            state.scrollWithCtrlOnly = scrollWithCtrlOnly;
+            state.scrollWithCtrlOnly = scrollWithCtrlOnly
         },
         setShowLoadingBar(state, { requester, loading }) {
             if (loading) {
