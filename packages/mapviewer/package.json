@@ -119,6 +119,7 @@
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"

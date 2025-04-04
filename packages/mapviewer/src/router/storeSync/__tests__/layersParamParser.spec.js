@@ -14,6 +14,7 @@ import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
