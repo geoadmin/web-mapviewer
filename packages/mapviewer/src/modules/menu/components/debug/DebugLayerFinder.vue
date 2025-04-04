@@ -1,8 +1,9 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import DebugLayerFinderFilter from '@/modules/menu/components/debug/DebugLayerFinderFilter.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
@@ -14,12 +15,7 @@ const withLegend = ref(null)
 const store = useStore()
 
 const layers = computed(() => store.state.layers.config)
-const possibleLayerTypes = [
-    LayerTypes.WMTS,
-    LayerTypes.WMS,
-    LayerTypes.AGGREGATE,
-    LayerTypes.GEOJSON,
-]
+const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
 const currentLayerType = ref([...possibleLayerTypes])
 
 const filteredLayers = computed(() => {
@@ -31,7 +27,7 @@ const filteredLayers = computed(() => {
             possibleLayerTypes.includes(layer.type) &&
             currentLayerType.value.includes(layer.type) &&
             (onlyTimeEnabled.value === null ||
-                layer.hasMultipleTimestamps === onlyTimeEnabled.value) &&
+                layerUtils.hasMultipleTimestamps(layer) === onlyTimeEnabled.value) &&
             (with3DConfig.value === null || !!layer.idIn3d === with3DConfig.value) &&
             (withTooltip.value === null || layer.hasTooltip === withTooltip.value) &&
             (withLegend.value === null || layer.hasLegend === withLegend.value)

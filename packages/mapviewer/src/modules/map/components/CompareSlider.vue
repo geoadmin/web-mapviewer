@@ -1,11 +1,10 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
 import { round } from '@geoadmin/numbers'
 import { getRenderPixel } from 'ol/render'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
 
@@ -23,9 +22,7 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const shouldUseWebGlContext = computed(
-    () => store.getters.visibleLayerOnTop.type === LayerTypes.COG
-)
+const shouldUseWebGlContext = computed(() => store.getters.visibleLayerOnTop.type === LayerType.COG)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue

@@ -1,5 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { isNumber, round } from '@geoadmin/numbers'
 import GeoadminTooltip from '@geoadmin/tooltip'
@@ -226,7 +227,7 @@ function setPreviewYearToLayers() {
         const year = previewYear.value
         if (
             layer.visible &&
-            layer.hasMultipleTimestamps &&
+            timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
             layer.timeConfig.currentYear !== year
         ) {

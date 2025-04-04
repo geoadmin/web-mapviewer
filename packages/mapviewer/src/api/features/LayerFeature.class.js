@@ -1,10 +1,11 @@
+import { LayerType } from '@geoadmin/layers'
+
 import SelectableFeature from '@/api/features/SelectableFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 
 /** Describe a feature from the backend, so a feature linked to a backend layer. */
 export default class LayerFeature extends SelectableFeature {
     /**
-     * @param {AbstractLayer} featureData.layer The layer in which this feature belongs
+     * @param {Layer} featureData.layer The layer in which this feature belongs
      * @param {Number | String} featureData.id The unique feature ID in the layer it is part of
      * @param {String} featureData.title The title (localized) of this feature
      * @param {Object | String} featureData.data Data for this feature's popup (or tooltip).
@@ -30,6 +31,6 @@ export default class LayerFeature extends SelectableFeature {
         // We can't trust the content of the popup data for external layers, and for KML layers.
         // For KML, the issue is that user can create text-rich (HTML) description with links, and such.
         // It would then be possible to do some XSS through this, so we need to sanitize this before showing it.
-        this.popupDataCanBeTrusted = !this.layer.isExternal && this.layer.type !== LayerTypes.KML
+        this.popupDataCanBeTrusted = !this.layer.isExternal && this.layer.type !== LayerType.KML
     }
 }

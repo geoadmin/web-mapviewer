@@ -1,4 +1,5 @@
 import { WEBMERCATOR } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
@@ -6,10 +7,10 @@ import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
 import { BLUE } from '@/utils/featureStyleUtils'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 import { getIcon, getKmlExtent, parseIconUrl, parseKml } from '@/utils/kmlUtils'
 
 import { isKmlFeaturesValid } from '../kmlUtils'
@@ -141,7 +142,7 @@ describe('Test KML utils', () => {
 
         beforeEach(() => {
             const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
-            const kmlLayer = new KMLLayer({
+            const kmlLayer = makeKmlLayer({
                 kmlFileUrl: getServiceKmlBaseUrl(), // so that it is not considered external
                 kmlData: kml,
             })
@@ -409,6 +410,60 @@ describe('Test KML utils', () => {
             expect(icon.generateURL()).to.be.equal(
                 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
             )
+        })
+    })
+    describe('Test KML factory wrapper', () => {
+        const minimalKml = `
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+        </Document>
+    </kml>`
+
+        it('Instantiates a KML Layer correctly with minimal input', () => {
+            // TODO check this behaviour with the trailing slash
+            const serviceKmlBaseUrl = 'https://sys-public.dev.bgdi.ch/'
+            const kmlLayer = makeKmlLayer({
+                kmlFileUrl: serviceKmlBaseUrl,
+                kmlData: minimalKml,
+            })
+
+            expect(kmlLayer.name).to.equal('KML')
+            expect(kmlLayer.id).to.equal(serviceKmlBaseUrl)
+            expect(kmlLayer.type).to.equal(LayerType.KML)
+            expect(kmlLayer.opacity).to.equal(1.0)
+            expect(kmlLayer.visible).to.equal(true)
+            expect(kmlLayer.attributions).to.deep.equal([{ name: 'sys-public.dev.bgdi.ch' }])
+            expect(kmlLayer.clampToGround).to.equal(true)
+            expect(kmlLayer.fileId).to.equal('')
+            expect(kmlLayer.style).to.equal('GEOADMIN')
+            expect(kmlLayer.isExternal).to.equal(false)
+        })
+        it("Instantiates a KML layer that's a file, not a URL", () => {
+            const kmlLayer = makeKmlLayer({
+                kmlFileUrl: 'some-drawing-that-is-local.kml',
+                kmlData: minimalKml,
+            })
+
+            expect(kmlLayer.name).to.equal('some-drawing-that-is-local.kml')
+            expect(kmlLayer.isLocalFile).to.equal(true)
+            expect(kmlLayer.fileId).to.equal(null)
+            expect(kmlLayer.attributions).to.deep.equal([
+                { name: 'some-drawing-that-is-local.kml' },
+            ])
+            expect(kmlLayer.isExternal).to.equal(true)
+        })
+        it('Instantiates an external KML drawing correctly', () => {
+            const drawingUrl = 'https://sys-public.dev.bgdi.ch/api/kml/files/IaZVgxGDQcezO9iC9-Jjrw'
+            const kmlLayer = makeKmlLayer({
+                kmlFileUrl: drawingUrl,
+                kmlData: minimalKml,
+            })
+
+            expect(kmlLayer.name).to.equal('IaZVgxGDQcezO9iC9-Jjrw')
+            expect(kmlLayer.fileId).to.equal('IaZVgxGDQcezO9iC9-Jjrw')
+            expect(kmlLayer.type).to.equal(LayerType.KML)
+            expect(kmlLayer.isExternal).to.equal(false)
+            expect(kmlLayer.clampToGround).to.equal(true)
         })
     })
 })

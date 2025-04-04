@@ -1,11 +1,11 @@
 import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
 import axios from 'axios'
 import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { normalizeExtent } from '@/utils/extentUtils'
@@ -350,12 +350,12 @@ function searchFeatures(outputProjection, queryString, layer, parseData, parseFu
  */
 function searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection) {
     return layersToSearch.reduce((returnLayers, currentLayer) => {
-        if (currentLayer.type === LayerTypes.KML) {
+        if (currentLayer.type === LayerType.KML) {
             return returnLayers.concat(
                 searchFeatures(outputProjection, queryString, currentLayer, currentLayer, parseKml)
             )
         }
-        if (currentLayer.type === LayerTypes.GPX) {
+        if (currentLayer.type === LayerType.GPX) {
             return returnLayers.concat(
                 ...searchFeatures(
                     outputProjection,
