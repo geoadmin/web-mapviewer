@@ -171,7 +171,12 @@ export interface GeoAdminGeoJSONLayer extends Layer {
     isExternal: false
 }
 
-export interface GeoAdminVectorLayer extends Layer {}
+export interface GeoAdminVectorLayer extends Layer {
+    type: LayerType.VECTOR
+    technicalName: string
+    attributions: LayerAttribution[]
+    isBackground: boolean
+}
 
 // #endregion
 
