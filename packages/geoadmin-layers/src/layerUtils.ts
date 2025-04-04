@@ -1,4 +1,4 @@
-import { merge } from 'lodash'
+import { merge, omit } from 'lodash'
 
 import {
     DEFAULT_OPACITY,
@@ -12,6 +12,7 @@ import {
     type KMLLayer,
     KmlStyle,
     type GPXLayer,
+    type GeoAdminVectorLayer,
 } from '@/layers'
 import * as timeConfigUtils from '@/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -271,6 +272,35 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
     }
 
     return merge(defaults, values)
+}
+
+export const makeGeoAdminVectorLayer = (
+    values: Partial<GeoAdminVectorLayer>
+): GeoAdminVectorLayer => {
+    const attributions = [
+        ...(values.attributions ? values.attributions : []),
+        { name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' },
+    ]
+
+    const defaults = {
+        type: LayerType.VECTOR,
+        technicalName: '',
+        attributions,
+        name: '',
+        id: '',
+        opacity: 0,
+        visible: false,
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isBackground: true,
+        isExternal: false,
+        isLoading: false,
+        hasError: false,
+        hasWarning: false,
+    }
+
+    return merge(defaults, omit(values, 'attributions'))
 }
 
 export const isKmlLayerLegacy = (layer: KMLLayer): boolean => {
