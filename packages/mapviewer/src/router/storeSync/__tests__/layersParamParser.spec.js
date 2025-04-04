@@ -1,5 +1,5 @@
 import { layerUtils } from '@geoadmin/layers'
-import LayerType from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'

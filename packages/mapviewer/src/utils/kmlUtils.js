@@ -17,7 +17,6 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
-import KmlStyles from '@/api/layers/KmlStyles.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
     allStylingSizes,
@@ -691,7 +690,7 @@ export const makeKmlLayer = (values) => {
     // Based on the service-kml API reference, the KML file URL has the following structure
     // <base-url>/kml/files/{kml_id} or <base-url>/{kml_id} for legacy files. Those one are
     // redirected to <base-url>/kml/files/{kml_id}
-    const fileId = !isLocalFile && !values.isExternal ? values.kmlFileUrl?.split('/').pop() : ''
+    const fileId = !isLocalFile && !isExternal ? values.kmlFileUrl?.split('/').pop() : null
 
     let name,
         isLoading = true

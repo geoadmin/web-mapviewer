@@ -433,7 +433,7 @@ describe('Test KML utils', () => {
 
             expect(kmlLayer.name).to.equal('some-drawing-that-is-local.kml')
             expect(kmlLayer.isLocalFile).to.equal(true)
-            expect(kmlLayer.fileId).to.equal('')
+            expect(kmlLayer.fileId).to.equal(null)
             expect(kmlLayer.attributions).to.deep.equal([
                 { name: 'some-drawing-that-is-local.kml' },
             ])

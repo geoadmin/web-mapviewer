@@ -53,7 +53,7 @@ function validateUrlInput(store, query) {
 
     if (
         store.getters.visibleLayers.filter((layer) => timeConfigUtils.hasMultipleTimestamps(layer))
-            .length > 0
+            .length === 0
     ) {
         if (!validationObject.warnings) {
             validationObject.warnings = []

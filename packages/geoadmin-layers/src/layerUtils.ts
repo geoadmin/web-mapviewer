@@ -214,6 +214,7 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
         hasDescription: false,
         hasLegend: false,
         isLoading: true,
+        adminId: null,
     }
 
     return merge(defaults, values)
