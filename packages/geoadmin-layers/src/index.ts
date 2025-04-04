@@ -4,6 +4,7 @@ import proj4 from 'proj4'
 
 export * from '@/layers'
 export * from '@/validation'
+// todo make these namespace exports maybe
 export * from '@/externalWMTSCapabilitiesParser'
 export * from '@/externalWMSCapabilitiesParser'
 export * from '@/timeConfig'
