@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { randomIntBetween } from '@geoadmin/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
@@ -14,7 +15,6 @@ import {
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import {
@@ -954,7 +954,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.type).to.eq(LayerTypes.KML)
+                expect(drawingLayer.type).to.eq(LayerType.KML)
                 expect(drawingLayer.visible).to.be.true
             })
 
@@ -988,7 +988,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1006,7 +1006,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1671,5 +1671,74 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
         })
+    })
+
+    it('receives an empty KML and can use drawing mode', () => {
+        function verifyActiveKmlLayerEmptyWithError() {
+            cy.window()
+                .its('store.getters.activeKmlLayer')
+                .then((layer) => {
+                    expect(layer.fileId).to.eq(fileId)
+                    expect(layer.name).to.eq('KML')
+                    expect(layer.hasError).to.be.true
+                    expect(layer.kmlData).to.be.null
+                    expect(layer.errorMessages).not.to.be.undefined
+                    expect(layer.errorMessages).not.to.be.undefined
+                    expect(layer.errorMessages.size).to.eq(1)
+                    expect(layer.errorMessages.values().next().value.msg).to.eq(
+                        'kml_gpx_file_empty'
+                    )
+                })
+        }
+        cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(EMPTY_KML_DATA, headers)
+        }).as('get-empty-kml')
+
+        cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
+
+        const fileId = 'zBnMZymwTLSNg__5f8yv6g'
+        // load map with an injected kml layer containing an empty KML
+        cy.goToMapView({
+            layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
+        })
+
+        cy.wait('@get-empty-kml')
+        // there should be only one KML layer left in the layers, and it's the one just saved
+        verifyActiveKmlLayerEmptyWithError()
+
+        cy.openMenuIfMobile()
+
+        cy.get('[data-cy^="button-has-error"]').should('be.visible')
+
+        cy.openDrawingMode()
+
+        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+            'be.visible'
+        )
+        cy.closeDrawingMode()
+
+        // saving the drawing without drawing anything should not change the empty KML layer
+        verifyActiveKmlLayerEmptyWithError()
+
+        cy.openDrawingMode()
+
+        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+            'be.visible'
+        )
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="ol-map"]').click(120, 240)
+        cy.closeDrawingMode()
+        cy.wait('@post-new-kml')
+        // drawing a marker should create a new KML layer and overwrite the empty one
+        cy.window()
+            .its('store.getters.activeKmlLayer')
+            .then((layer) => {
+                expect(layer.fileId).not.to.eq(fileId)
+                expect(layer.name).to.eq('Drawing')
+                expect(layer.hasError).to.be.false
+                expect(layer.kmlData).not.to.be.null
+                expect(layer.errorMessages).to.eq(undefined)
+            })
     })
 })

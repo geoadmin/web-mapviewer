@@ -56,7 +56,7 @@ export default class FileParser {
     }
 
     /**
-     * @param {File | String} fileSource
+     * @param {File | String | Blob} fileSource
      * @returns {boolean}
      */
     isLocalFile(fileSource) {
@@ -98,7 +98,7 @@ export default class FileParser {
      * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file
      *   against the current projection (and raise OutOfBoundError in case no mutual data is
      *   available)
-     * @returns {Promise<AbstractLayer>}
+     * @returns {Promise<Layer>}
      */
     async parseLocalFile(file, currentProjection) {
         return this.parseFileContent(await file.arrayBuffer(), file, currentProjection)
@@ -188,7 +188,7 @@ export default class FileParser {
      * @param {ArrayBuffer} fileContent
      * @param {File | String} fileSource
      * @param {CoordinateSystem} currentProjection
-     * @returns {Promise<AbstractLayer>}
+     * @returns {Promise<Layer>}
      */
     async parseFileContent(fileContent, fileSource, currentProjection) {
         throw new Error(`Not yet implemented ${fileContent} ${fileSource} ${currentProjection}`)
@@ -206,7 +206,7 @@ export default class FileParser {
      * @param {OnlineFileCompliance} [options.fileCompliance=null] Compliance check results that
      *   were previously gathered for this file. If not given, this function will run its own
      *   compliance checks. Default is `null`
-     * @returns {Promise<AbstractLayer>}
+     * @returns {Promise<Layer>}
      */
     async parseUrl(fileUrl, currentProjection, options = {}) {
         const { loadedContent = null, fileCompliance = null } = options
@@ -251,7 +251,7 @@ export default class FileParser {
      * @param {ArrayBuffer} [options.loadedContent] File content already loaded (most likely by
      *   service-proxy). When given, no other request will be made on the file source, but this
      *   content will be used instead.
-     * @returns {Promise<AbstractLayer>} A promise to layer config derived from the file's
+     * @returns {Promise<Layer>} A promise to layer config derived from the file's
      *   metadata/content, ready to be added to the map. Or a rejected promise if the file wasn't
      *   compatible.
      * @throws OutOfBoundsError if the imported file is out of bound of the current projection

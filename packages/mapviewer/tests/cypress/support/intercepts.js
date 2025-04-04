@@ -1,77 +1,117 @@
 import { LV95, registerProj4, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { isNumber, randomIntBetween } from '@geoadmin/numbers'
+import { cloneDeep } from 'lodash'
 import proj4 from 'proj4'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 registerProj4(proj4)
 
-const mockExternalWms1 = new ExternalWMSLayer({
+const mockExternalWms1 = {
     id: 'ch.swisstopo-vd.official-survey',
     name: 'OpenData-AV',
     baseUrl: 'https://fake.wms.base-1.url/?',
     customAttributes: {
         item: 'MyItem',
     },
-})
-const mockExternalWms2 = new ExternalWMSLayer({
+    isLoading: true,
+    isExternal: true,
+    type: LayerType.WMS,
+    visible: true,
+    wmsVersion: '1.3.0',
+    opacity: 1,
+}
+const mockExternalWms2 = {
     id: 'Periodic Tracking, with | comma & @ ; äö',
     name: 'Periodic Tracking, with | comma & @ ; äö',
     baseUrl: 'https://fake.wms.base-1.url/?',
     opacity: 0.8,
-})
-const mockExternalWms3 = new ExternalWMSLayer({
+    isLoading: true,
+    isExternal: true,
+    type: LayerType.WMS,
+    visible: true,
+    wmsVersion: '1.3.0',
+}
+const mockExternalWms3 = {
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
     name: 'Spannungsarme Gebiete 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
     visible: false,
-})
-const mockExternalWms4 = new ExternalWMSLayer({
+    isLoading: true,
+    isExternal: true,
+    type: LayerType.WMS,
+    wmsVersion: '1.3.0',
+    opacity: 1,
+}
+const mockExternalWms4 = {
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
     name: 'Verfügbarkeit des ÖREB-Katasters 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
     visible: false,
     opacity: 0.4,
-})
+    isLoading: true,
+    isExternal: true,
+    type: LayerType.WMS,
+    wmsVersion: '1.3.0',
+}
 
 Cypress.Commands.add('getExternalWmsMockConfig', () => [
-    mockExternalWms1.clone(),
-    mockExternalWms2.clone(),
-    mockExternalWms3.clone(),
-    mockExternalWms4.clone(),
+    cloneDeep(mockExternalWms1),
+    cloneDeep(mockExternalWms2),
+    cloneDeep(mockExternalWms3),
+    cloneDeep(mockExternalWms4),
 ])
 
-const mockExternalWmts1 = new ExternalWMTSLayer({
+const mockExternalWmts1 = {
+    type: LayerType.WMTS,
+    isExternal: true,
     id: 'TestExternalWMTS-1',
     name: 'Test External WMTS 1',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
-})
+    isLoading: true,
+    visible: true,
+    opacity: 1.0,
+}
 
-const mockExternalWmts2 = new ExternalWMTSLayer({
+const mockExternalWmts2 = {
+    type: LayerType.WMTS,
+    isExternal: true,
     id: 'TestExternalWMTS-2;,|@special-chars-äö',
     name: 'Test External WMTS 2;,|@special-chars-äö',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
-})
+    isLoading: true,
+    visible: true,
+    opacity: 1.0,
+}
 
-const mockExternalWmts3 = new ExternalWMTSLayer({
+const mockExternalWmts3 = {
+    type: LayerType.WMTS,
+    isExternal: true,
     id: 'TestExternalWMTS-3',
     name: 'Test External WMTS 3',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
-})
+    isLoading: true,
+    visible: true,
+    opacity: 1.0,
+}
 
-const mockExternalWmts4 = new ExternalWMTSLayer({
+const mockExternalWmts4 = {
+    type: LayerType.WMTS,
+    isExternal: true,
     id: 'TestExternalWMTS-4',
     name: 'Test External WMTS 4',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
-})
+    isLoading: true,
+    visible: true,
+    opacity: 1.0,
+}
 
 Cypress.Commands.add('getExternalWmtsMockConfig', () => [
-    mockExternalWmts1.clone(),
-    mockExternalWmts2.clone(),
-    mockExternalWmts3.clone(),
-    mockExternalWmts4.clone(),
+    cloneDeep(mockExternalWmts1),
+    cloneDeep(mockExternalWmts2),
+    cloneDeep(mockExternalWmts3),
+    cloneDeep(mockExternalWmts4),
 ])
 
 /**

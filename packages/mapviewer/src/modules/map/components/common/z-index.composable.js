@@ -1,8 +1,7 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /** Composable that gives utility function to calculate/get layers' and features' z-index */
 export function useLayerZIndexCalculation() {
@@ -23,7 +22,7 @@ export function useLayerZIndexCalculation() {
             visibleLayersWithZIndex.push(
                 ...store.getters.visibleLayers.filter(
                     (visibleLayer) =>
-                        [LayerTypes.KML, LayerTypes.GEOJSON].indexOf(visibleLayer.type) === -1
+                        [LayerType.KML, LayerType.GEOJSON].indexOf(visibleLayer.type) === -1
                 )
             )
         } else {
@@ -37,7 +36,7 @@ export function useLayerZIndexCalculation() {
     const startingZIndexForThingsOnTopOfLayers = computed(() => {
         // Here we need to take into account the group of layers
         const nbOfSubLayers = visibleLayers.value
-            .filter((l) => l?.type === LayerTypes.GROUP)
+            .filter((l) => l?.type === LayerType.GROUP)
             // counting how many layers they have inside each group, note the first layer of the
             // group is already counted in the visibleLayers, therefore remove 1 from the total here
             .map((l) => l.layers.length - 1)
@@ -58,7 +57,7 @@ export function useLayerZIndexCalculation() {
      * Gives the z-index of a layer, taking into account if the map is shown in 3D or not. This
      * works for BG layer too.
      *
-     * @param {AbstractLayer} layer A background or visible layer
+     * @param {Layer} layer A background or visible layer
      * @returns {Number} The Z-Index for this layer
      */
     function getZIndexForLayer(layer) {
@@ -75,7 +74,7 @@ export function useLayerZIndexCalculation() {
             // only keeping previous layers (if layer is first, an empty array will be returned by slice(0, 0))
             .slice(0, layerIndex)
             // only keeping groups of layers
-            .filter((previousLayer) => previousLayer?.type === LayerTypes.GROUP)
+            .filter((previousLayer) => previousLayer?.type === LayerType.GROUP)
             // counting how many layers they have inside each group, note the first layer of the
             // group is already counted in the visibleLayers, therefore remove 1 from the total here
             .map((previousGroup) => previousGroup.layers.length - 1)

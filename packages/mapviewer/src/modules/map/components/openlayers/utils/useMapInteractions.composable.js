@@ -1,3 +1,4 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
@@ -5,7 +6,6 @@ import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
@@ -28,7 +28,7 @@ export default function useMapInteractions(map) {
     const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
         store.state.layers.activeLayers.filter((layer) =>
-            [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
+            [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
         )
     )
 

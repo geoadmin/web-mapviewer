@@ -1,10 +1,11 @@
 import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -236,7 +237,7 @@ const actions = {
 
                 // Automatically select the feature
                 try {
-                    if (entry.layer.getTopicForIdentifyAndTooltipRequests) {
+                    if (layerUtils.getTopicForIdentifyAndTooltipRequests(entry.layer)) {
                         getFeature(entry.layer, entry.featureId, rootState.position.projection, {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
@@ -256,10 +257,10 @@ const actions = {
                     } else {
                         // For imported KML and GPX files
                         let features = []
-                        if (entry.layer.type === LayerTypes.KML) {
+                        if (entry.layer.type === LayerType.KML) {
                             features = parseKml(entry.layer, rootState.position.projection, [])
                         }
-                        if (entry.layer.type === LayerTypes.GPX) {
+                        if (entry.layer.type === LayerType.GPX) {
                             features = parseGpx(
                                 entry.layer.gpxData,
                                 rootState.position.projection,

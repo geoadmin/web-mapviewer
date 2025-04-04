@@ -1,5 +1,6 @@
 <script setup>
 import { LV95 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
@@ -8,8 +9,6 @@ import { Fill, Stroke, Style, Text } from 'ol/style'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const { zIndex } = defineProps({
@@ -67,7 +66,18 @@ watch(allLayers, () => layer.setSource(createVectorSourceForProjection()))
 
 function createFeaturesForEachLayerExtent() {
     const extents = []
-    if (allLayers.value.some((layer) => layer instanceof GeoAdminLayer)) {
+    if (
+        allLayers.value.some(
+            (layer) =>
+                [
+                    LayerType.WMS,
+                    LayerType.WMTS,
+                    LayerType.AGGREGATE,
+                    LayerType.GROUP,
+                    LayerType.VECTOR,
+                ].include(layer.type) && !layer.isExternal
+        )
+    ) {
         const bounds = LV95.getBoundsAs(currentProjection.value)
         extents.push(
             new Feature({
@@ -85,7 +95,7 @@ function createFeaturesForEachLayerExtent() {
         )
     }
     allLayers.value
-        .filter((layer) => layer instanceof ExternalLayer && layer.extent)
+        .filter((layer) => layer.isExternal && layer.extent)
         .forEach((layer) => {
             extents.push(
                 new Feature({

@@ -1,14 +1,9 @@
+import { LayerType } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import { getWmtsBaseUrl } from '@/config/baseUrl.config'
 import {
     createLayersParamForFeaturePreselection,
     getLayersFromLegacyUrlParams,
@@ -19,32 +14,33 @@ import {
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
-            new GeoAdminWMSLayer({
+            layerUtils.makeGeoAdminWMSLayer({
                 name: 'Test layer WMS',
                 id: 'test.wms.layer',
                 technicalName: 'test.wms.layer',
                 opacity: 0.8,
-                attributions: [new LayerAttribution('attribution.test.wms.layer')],
+                attributions: [{ name: 'attribution.test.wms.layer' }],
                 baseUrl: 'https://base-url/',
                 format: 'png',
-                timeConfig: new LayerTimeConfig(),
+                timeConfig: timeConfigUtils.makeTimeConfig(),
             }),
-            new GeoAdminWMTSLayer({
+            layerUtils.makeExternalWMTSLayer({
                 name: 'Test layer WMTS',
                 id: 'test.wmts.layer',
                 technicalName: 'test.wmts.layer',
-                attributions: [new LayerAttribution('test')],
+                baseUrl: getWmtsBaseUrl(),
+                attributions: [{ name: 'test' }],
             }),
-            new GeoAdminWMTSLayer({
+            layerUtils.makeGeoAdminWMTSLayer({
                 name: 'Test timed layer WMTS',
                 technicalName: 'test.timed.wmts.layer',
                 id: 'test.timed.wmts.layer',
                 opacity: 0.8,
-                attributions: [new LayerAttribution('attribution.test.timed.wmts.layer')],
-                timeConfig: new LayerTimeConfig('123', [
-                    new LayerTimeConfigEntry('123'),
-                    new LayerTimeConfigEntry('456'),
-                    new LayerTimeConfigEntry('789'),
+                attributions: [{ name: 'attribution.test.timed.wmts.layer' }],
+                timeConfig: timeConfigUtils.makeTimeConfig('123', [
+                    timeConfigUtils.makeTimeConfigEntry('123'),
+                    timeConfigUtils.makeTimeConfigEntry('456'),
+                    timeConfigUtils.makeTimeConfigEntry('789'),
                 ]),
             }),
         ]
@@ -172,7 +168,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
                 expect(kmlLayer.id).to.eq(kmlFileUrl)
-                expect(kmlLayer.type).to.eq(LayerTypes.KML)
+                expect(kmlLayer.type).to.eq(LayerType.KML)
                 expect(kmlLayer.baseUrl).to.eq(kmlFileUrl)
             })
             it('Handles opacity/visibility correctly with external layers', () => {
@@ -204,7 +200,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmsLayer] = result
-                expect(externalWmsLayer).to.be.instanceof(ExternalWMSLayer)
+                expect(externalWmsLayer.type).to.eq(LayerType.WMS)
+                expect(externalWmsLayer.isExternal).to.be.true
                 expect(externalWmsLayer.opacity).to.eq(0.45)
                 expect(externalWmsLayer.wmsVersion).to.eq(wmsVersion)
                 expect(externalWmsLayer.id).to.eq(wmsLayerId)
@@ -226,7 +223,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmtsLayer] = result
-                expect(externalWmtsLayer).to.be.instanceof(ExternalWMTSLayer)
+                expect(externalWmtsLayer.type).to.eq(LayerType.WMTS)
+                expect(externalWmtsLayer.isExternal).to.be.true
                 expect(externalWmtsLayer.opacity).to.eq(0.77)
                 expect(externalWmtsLayer.visible).to.be.false
                 expect(externalWmtsLayer.id).to.eq(wmtsLayerId)

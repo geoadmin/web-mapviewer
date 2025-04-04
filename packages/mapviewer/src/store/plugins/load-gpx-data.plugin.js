@@ -3,10 +3,10 @@
  * it here
  */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 
 const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
@@ -50,7 +50,7 @@ async function loadGpx(store, gpxLayer) {
 export default function loadGpxDataAndMetadata(store) {
     store.subscribe((mutation) => {
         const addLayerSubscriber = (layer) => {
-            if (layer instanceof GPXLayer && !layer.gpxData) {
+            if (layer.type === LayerType.GPX && !layer.gpxData) {
                 loadGpx(store, layer)
             }
         }

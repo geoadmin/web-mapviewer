@@ -1,4 +1,6 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { KmlStyle } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import { booleanValid } from '@turf/turf'
@@ -18,7 +20,7 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
-import KmlStyles from '@/api/layers/KmlStyles.enum'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
@@ -609,8 +611,7 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-
-    if (kmlLayer.style === KmlStyles.GEOADMIN) {
+    if (kmlLayer.style === KmlStyle.GEOADMIN) {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
             if (editableFeature) {
@@ -721,4 +722,65 @@ export async function unzipKmz(kmzContent, kmzFileName) {
     }
 
     return kmz
+}
+
+/**
+ * Wrapper around the layers module's KML layer factory
+ *
+ * This is necessary as the instantiation of a KML Layer has so much logic that's coupled to the
+ * mapviewer that we can't currently abstract away to the layers module
+ *
+ * @param {Values for creating a KML layer} values
+ * @returns
+ */
+export const makeKmlLayer = (values) => {
+    const isLocalFile = values.kmlFileUrl ? !values.kmlFileUrl.startsWith('http') : false
+    const attributionName = isLocalFile
+        ? values.kmlFileUrl
+        : new URL(values.kmlFileUrl || '').hostname
+
+    const attributions = [{ name: attributionName }]
+    const baseUrl = getServiceKmlBaseUrl()
+    const isExternal = values.kmlFileUrl?.indexOf(baseUrl) === -1
+
+    // Based on the service-kml API reference, the KML file URL has the following structure
+    // <base-url>/kml/files/{kml_id} or <base-url>/{kml_id} for legacy files. Those one are
+    // redirected to <base-url>/kml/files/{kml_id}
+    const fileId = !isLocalFile && !isExternal ? values.kmlFileUrl?.split('/').pop() : null
+
+    let name,
+        isLoading = true
+
+    if (values.kmlData) {
+        name = parseKmlName(values.kmlData)
+        if (!name || name === '') {
+            name = isLocalFile
+                ? values.kmlFileUrl
+                : // only keeping what is after the last slash
+                  values.kmlFileUrl.split('/').pop()
+        }
+        isLoading = false
+    }
+
+    let style = values.style
+    if (!style) {
+        // if no style was given, we select the default style depending on the origin of the KML
+        style = isExternal ? KmlStyle.DEFAULT : KmlStyle.GEOADMIN
+    }
+
+    const clampToGround = (values.clampToGround ?? true) ? !isExternal : values.clampToGround
+
+    return layerUtils.makeKmlLayer({
+        ...values,
+        baseUrl: values.kmlFileUrl,
+        id: values.kmlFileUrl,
+        isLocalFile,
+        attributions,
+        isExternal,
+        fileId,
+        name: name || 'KML',
+        isLoading,
+        style,
+        clampToGround,
+    })
 }

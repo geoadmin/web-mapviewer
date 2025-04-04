@@ -1,7 +1,7 @@
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
 import {
@@ -61,7 +61,11 @@ const readTopicTreeRecursive = (node, availableLayers) => {
                 }
             }
         })
-        return new GeoAdminGroupOfLayers({ id: `${node.id}`, name: node.label, layers: children })
+        return layerUtils.makeGeoAdminGroupOfLayers({
+            id: `${node.id}`,
+            name: node.label,
+            layers: children,
+        })
     } else if (node.category === 'layer') {
         // we have to match IDs first, some layers have the same technicalNames (when 3D counterpart config exist for instance), and
         // matching both together will result sometimes in the 3D config being displayed in the topic instead of the correct layer
@@ -185,7 +189,7 @@ export function parseTopics(layersConfig, rawTopics) {
             if (layer) {
                 // deep copy so that we can reassign values later on
                 // (layers come from the Vuex store so it can't be modified directly)
-                layer = layer.clone()
+                layer = layerUtils.cloneLayer(layer)
                 // checking if the layer should be also visible
                 layer.visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order

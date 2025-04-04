@@ -1,6 +1,7 @@
 <script setup>
 /** Adds a GeoJSON layer to the OpenLayers map */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
@@ -8,14 +9,13 @@ import VectorSource from 'ol/source/Vector'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
 const { geoJsonConfig, parentLayerOpacity, zIndex } = defineProps({
     geoJsonConfig: {
-        type: GeoAdminGeoJsonLayer,
+        validator: (value) => value.type === LayerType.GeoJSON,
         required: true,
     },
     parentLayerOpacity: {

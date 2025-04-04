@@ -18,13 +18,6 @@ export const DEFAULT_PROJECTION = LV95
 export const WMS_TILE_SIZE = 512 // px
 
 /**
- * WMS supported versions list
- *
- * @type {String[]}
- */
-export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
-
-/**
  * Map default max resolution as it is set in mf-chsdi. Only layers with nonstandard resolutions
  * give their resolutions. In all other cases, we need to use this default value as the max
  * resolution.

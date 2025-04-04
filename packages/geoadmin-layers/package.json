@@ -1,0 +1,62 @@
+{
+    "name": "@geoadmin/layers",
+    "version": "0.0.1",
+    "description": "Layers definition for geoadmin",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./utils": {
+            "types": "./dist/utils/index.d.ts",
+            "import": "./dist/utils.js",
+            "require": "./dist/utils.cjs"
+        },
+        "./parsers": {
+            "types": "./dist/parsers/index.d.ts",
+            "import": "./dist/parsers.js",
+            "require": "./dist/parsers.cjs"
+        },
+        "./validation": {
+            "types": "./dist/validation/index.d.ts",
+            "import": "./dist/validation.js",
+            "require": "./dist/validation.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "build:dev": "pnpm run build -- --mode development",
+        "build:dev:watch": "pnpm run build --watch -- --mode development",
+        "build:int": "pnpm run build -- --mode integration",
+        "build:prod": "pnpm run build -- --mode production",
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
+        "test:unit": "vitest --run --mode development --environment jsdom",
+        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "type-check": "vue-tsc -p tsconfig.json"
+    },
+    "dependencies": {
+        "@geoadmin/coordinates": "workspace:*",
+        "@geoadmin/log": "workspace:*",
+        "@geoadmin/numbers": "workspace:^",
+        "lodash": "catalog:",
+        "ol": "catalog:",
+        "proj4": "catalog:",
+        "uuid": "catalog:"
+    },
+    "devDependencies": {
+        "@types/lodash": "catalog:",
+        "@types/openlayers": "catalog:",
+        "chai": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-dts": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    }
+}

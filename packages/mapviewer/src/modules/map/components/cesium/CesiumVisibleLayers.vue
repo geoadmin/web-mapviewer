@@ -1,14 +1,9 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
+import { cloneDeep } from 'lodash'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 
 const store = useStore()
@@ -25,7 +20,7 @@ const visibleImageryLayers = computed(() =>
             // (we can't just modify the 3D config without cloning it, as it comes directly from the store)
             let configIn3d = layersConfig.value.find((layer) => layer.id === imageryLayer.idIn3d)
             if (configIn3d) {
-                configIn3d = configIn3d.clone()
+                configIn3d = cloneDeep(configIn3d)
                 configIn3d.opacity = imageryLayer.opacity
                 return configIn3d
             }
@@ -41,19 +36,13 @@ const startingZIndexForImageryLayers = computed(
 
 function isImageryLayer(layer) {
     return (
-        layer instanceof GeoAdminWMTSLayer ||
-        layer instanceof GeoAdminWMSLayer ||
-        layer instanceof GeoAdminAggregateLayer ||
-        layer instanceof ExternalLayer
+        [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE].includes(layer.type) ||
+        (layer.isExternal && !LayerType.KML && !LayerType.GPX && !LayerType.GEOJSON)
     )
 }
 
 function isPrimitiveLayer(layer) {
-    return (
-        layer instanceof GeoAdminGeoJsonLayer ||
-        layer instanceof KMLLayer ||
-        layer instanceof GPXLayer
-    )
+    return [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(layer.type)
 }
 </script>
 

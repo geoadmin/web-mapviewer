@@ -1,3 +1,4 @@
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import {
     booleanIntersects,
@@ -15,7 +16,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
@@ -68,19 +68,19 @@ export function useDragBoxSelect() {
 
         const dragBox = polygon(dragBoxCoordinates)
         const visibleLayers = store.getters.visibleLayers.filter((layer) =>
-            [LayerTypes.GEOJSON, LayerTypes.GPX, LayerTypes.KML].includes(layer.type)
+            [LayerType.GEOJSON, LayerType.GPX, LayerType.KML].includes(layer.type)
         )
         const vectorFeatures = visibleLayers
             .flatMap((layer) => {
-                if (layer.type === LayerTypes.KML) {
+                if (layer.type === LayerType.KML) {
                     const kmlFeatures = parseKml(layer, store.state.position.projection, [])
                     return kmlFeatures.map((feature) => ({ feature: feature, layer }))
                 }
-                if (layer.type === LayerTypes.GPX) {
+                if (layer.type === LayerType.GPX) {
                     const gpxFeatures = parseGpx(layer.gpxData, store.state.position.projection, [])
                     return gpxFeatures.map((feature) => ({ feature: feature, layer }))
                 }
-                if (layer.type === LayerTypes.GEOJSON) {
+                if (layer.type === LayerType.GEOJSON) {
                     const geojsonFormat = new GeoJSON()
                     const olFeatures = geojsonFormat.readFeatures(layer.geoJsonData, {
                         featureProjection: store.state.position.projection.epsg,
@@ -98,7 +98,7 @@ export function useDragBoxSelect() {
             clickInfo: new ClickInfo({
                 coordinate: selectExtent,
                 features: vectorFeatures,
-                clickType: ClickType.DRAW_BOX
+                clickType: ClickType.DRAW_BOX,
             }),
             ...dispatcher,
         })

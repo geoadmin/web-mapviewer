@@ -1,9 +1,8 @@
 import { allCoordinateSystems } from '@geoadmin/coordinates'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { beforeEach, describe, it, vi } from 'vitest'
 
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { handleLegacyParam } from '@/router/legacyPermalinkManagement.routerPlugin'
 import * as utils from '@/utils/legacyLayerParamUtils'
 
@@ -49,7 +48,7 @@ describe('Testing legacyPermalinkManagement', () => {
         )
     }
 
-    const layerConfig = new GeoAdminLayer({
+    const layerConfig = layerUtils.makeGeoAdminWMTSLayer({
         attributions: [{ name: 'OFEN', url: 'https://www.bfe.admin.ch/bfe/fr/home.html' }],
         baseUrl: 'https://sys-wmts.dev.bgdi.ch/',
         customAttributes: null,
@@ -58,7 +57,6 @@ describe('Testing legacyPermalinkManagement', () => {
         hasDescription: true,
         hasError: false,
         hasLegend: true,
-        hasMultipleTimestamps: false,
         hasTooltip: true,
         id: 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem',
         idIn3d: null,
@@ -72,7 +70,7 @@ describe('Testing legacyPermalinkManagement', () => {
         opacity: 0.75,
         searchable: true,
         technicalName: 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem',
-        timeConfig: new LayerTimeConfig(),
+        timeConfig: timeConfigUtils.makeTimeConfig(),
         topics: ['api', 'ech', 'energie'],
         type: 'WMTS',
         visible: false,

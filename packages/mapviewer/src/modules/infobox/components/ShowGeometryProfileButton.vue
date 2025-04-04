@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const dispatcher = { dispatcher: 'ShowGeometryProfileButton.vue' }
 
@@ -24,7 +24,7 @@ function showProfile() {
     if (feature instanceof LayerFeature) {
         // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
         // as they might be coming directly from a GPS device (meaning polluted with GPS uncertainty/error)
-        simplifyGeometry = feature.layer.type === LayerTypes.GPX
+        simplifyGeometry = feature.layer.type === LayerType.GPX
     }
     store.dispatch('setProfileFeature', {
         feature,

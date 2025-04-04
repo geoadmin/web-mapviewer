@@ -2,8 +2,7 @@ import log from '@geoadmin/log'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
+import { CloudOptimizedGeoTIFFParser } from '@/api/layers/CloudOptimizedGeoTIFFParser'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -22,14 +21,14 @@ const allParsers = [
  * @param {Object} [options]
  * @param {OnlineFileCompliance} [options.fileCompliance]
  * @param {ArrayBuffer} [options.loadedContent]
- * @returns {Promise<AbstractLayer>}
+ * @returns {Promise<Layer>}
  */
 async function parseAll(config, options) {
     const allSettled = await Promise.allSettled(
         allParsers.map((parser) => parser.parse(config, options))
     )
     const firstFulfilled = allSettled.find(
-        (response) => response.status === 'fulfilled' && response.value instanceof AbstractLayer
+        (response) => response.status === 'fulfilled' && response.value.id !== null
     )
     if (firstFulfilled) {
         return firstFulfilled.value
@@ -47,7 +46,7 @@ async function parseAll(config, options) {
  * @param {File | String} fileSource
  * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file against
  *   the current projection (and raise OutOfBoundError in case no mutual data is available)
- * @returns {Promise<AbstractLayer>}
+ * @returns {Promise<Layer>}
  */
 export async function parseLayerFromFile(fileSource, currentProjection) {
     // if local file, just parse it

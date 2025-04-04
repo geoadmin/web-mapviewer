@@ -3,11 +3,11 @@
  * it here
  */
 
+import { addErrorMessageToLayer, LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import axios from 'axios'
-
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
@@ -77,7 +77,7 @@ function loadDataAndStyle(geoJsonLayer) {
         controllers: [style.controller, data.controller],
         clone: Promise.all([style.response, data.response])
             .then(([{ data: style }, { data }]) => {
-                const clone = geoJsonLayer.clone()
+                const clone = layerUtils.cloneLayer(geoJsonLayer)
                 // as the layer comes from the store (99.9% chances), we copy it before altering it
                 // (otherwise, Vuex raises an error)
                 clone.geoJsonData = data
@@ -90,9 +90,9 @@ function loadDataAndStyle(geoJsonLayer) {
                     `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`,
                     error
                 )
-                const clone = geoJsonLayer.clone()
+                const clone = layerUtils.cloneLayer(geoJsonLayer)
                 clone.isLoading = false
-                clone.addErrorMessage(new ErrorMessage('loading_error_network_failure'))
+                addErrorMessageToLayer(clone, new ErrorMessage('loading_error_network_failure'))
                 return clone
             }),
     }
@@ -134,7 +134,7 @@ export default function loadGeojsonStyleAndData(store) {
     store.subscribe((mutation) => {
         const addLayersSubscriber = async (layers) => {
             const geoJsonLayers = layers
-                .filter((layer) => layer instanceof GeoAdminGeoJsonLayer)
+                .filter((layer) => layer.type === LayerType.GEOJSON)
                 // filtering out multiple active layer entries for the same GeoJSON data
                 // (only one request to get the data is necessary for all entries)
                 .filter(
@@ -173,7 +173,7 @@ export default function loadGeojsonStyleAndData(store) {
             addLayersSubscriber(mutation.payload.layers)
         } else if (
             mutation.type === 'setPreviewLayer' &&
-            mutation.payload.layer instanceof GeoAdminGeoJsonLayer &&
+            mutation.payload.layer.type === LayerType.GEOJSON &&
             mutation.payload.layer.isLoading
         ) {
             loadAndUpdatePreviewLayer(store, mutation.payload.layer)

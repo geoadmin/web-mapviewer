@@ -5,13 +5,14 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
+import { validateLayerProp } from '@geoadmin/layers/validation'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
@@ -30,7 +31,7 @@ const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLaye
             required: true,
         },
         layer: {
-            type: AbstractLayer,
+            validator: validateLayerProp,
             required: true,
         },
         showLayerDetail: {
@@ -78,11 +79,11 @@ const attributionName = computed(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
 )
 const showLayerDescriptionIcon = computed(() => layer.hasDescription)
-const hasMultipleTimestamps = computed(() => layer.hasMultipleTimestamps)
+const hasMultipleTimestamps = computed(() => timeConfigUtils.hasMultipleTimestamps(layer))
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
-const isLayerKml = computed(() => layer instanceof KMLLayer)
+const isLayerKml = computed(() => layer.type === LayerType.KML)
 const isLayerClampedToGround = computed({
     get: () => layer.clampToGround,
     set: (value) => {
@@ -127,7 +128,7 @@ function showLayerDescriptionPopup() {
 }
 
 function duplicateLayer() {
-    store.dispatch('addLayer', { layer: layer.clone(), ...dispatcher })
+    store.dispatch('addLayer', { layer: layerUtils.cloneLayer(layer), ...dispatcher })
 }
 
 function changeStyle(newStyle) {

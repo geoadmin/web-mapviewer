@@ -1,18 +1,18 @@
 <script setup>
 import { LV03, LV95, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { GeoJsonDataSource } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 import { computed, inject, toRef } from 'vue'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
 const { geoJsonConfig } = defineProps({
     geoJsonConfig: {
-        type: GeoAdminGeoJsonLayer,
+        validator: (value) => value.type === LayerType.GEOJSON,
         required: true,
     },
 })

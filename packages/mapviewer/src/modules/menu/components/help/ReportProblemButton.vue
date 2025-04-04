@@ -1,4 +1,5 @@
 <script setup>
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -288,7 +289,10 @@ function selectItem(dropdownItem) {
                 <button
                     class="btn"
                     :class="{
-                        'is-valid': isTemporaryKmlValid && temporaryKml && !temporaryKml.isEmpty(),
+                        'is-valid':
+                            isTemporaryKmlValid &&
+                            temporaryKml &&
+                            !layerUtils.isKmlLayerEmpty(temporaryKml),
                         'is-invalid': !isTemporaryKmlValid,
                         'btn-outline-primary': !isTemporaryKmlValid,
                         'btn-outline-group': isTemporaryKmlValid,

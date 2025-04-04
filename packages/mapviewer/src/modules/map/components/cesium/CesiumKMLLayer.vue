@@ -1,4 +1,5 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import {
     ArcType,
@@ -11,14 +12,13 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 
 const { kmlLayerConfig } = defineProps({
     kmlLayerConfig: {
-        type: KMLLayer,
+        validator: (value) => value.type === LayerType.KML,
         required: true,
     },
 })

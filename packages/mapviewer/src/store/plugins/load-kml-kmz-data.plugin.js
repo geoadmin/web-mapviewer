@@ -3,12 +3,12 @@
  * it here
  */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } from '@/api/files.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import { loadKmlMetadata, checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -159,10 +159,10 @@ async function loadData(store, kmlLayer) {
  * @param {Vuex.Store} store
  */
 export default function loadKmlDataAndMetadata(store) {
-    const addLayerSubscriber = (layer) => {
-        if (layer instanceof KMLLayer && (!layer.kmlData || !layer.kmlMetadata)) {
+    const addLayerSubscriber = async (layer) => {
+        if (layer.type === LayerType.KML && (!layer.kmlData || !layer.kmlMetadata)) {
             if (!layer.kmlData) {
-                loadData(store, layer)
+                await loadData(store, layer)
             }
             if (!layer.kmlMetadata && !layer.isExternal) {
                 loadMetadata(store, layer)

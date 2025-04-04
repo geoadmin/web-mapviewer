@@ -1,7 +1,7 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { layerUtils } from '@geoadmin/layers/utils'
 import GPX from 'ol/format/GPX'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
@@ -49,7 +49,7 @@ export default class GPXParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
         }
-        return new GPXLayer({
+        return layerUtils.makeGPXLayer({
             gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
             opacity: 1.0,

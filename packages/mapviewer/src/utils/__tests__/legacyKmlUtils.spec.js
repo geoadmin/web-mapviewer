@@ -6,7 +6,6 @@ import { beforeEach, describe, it } from 'vitest'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
     BLACK,
@@ -20,6 +19,7 @@ import {
     YELLOW,
 } from '@/utils/featureStyleUtils'
 import { parseKml } from '@/utils/kmlUtils'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 const fakeDefaultIconSet = new DrawingIconSet(
     'default',
@@ -112,7 +112,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
 
     beforeEach(() => {
         const kml = readFileSync(resolve(__dirname, './mfgeoadmin3TestKml.kml'), 'utf8')
-        const kmlLayer = new KMLLayer({
+        const kmlLayer = makeKmlLayer({
             kmlFileUrl: getServiceKmlBaseUrl(), // so that it is not considered external
             kmlData: kml,
         })

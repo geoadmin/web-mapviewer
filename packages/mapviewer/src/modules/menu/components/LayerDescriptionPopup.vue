@@ -1,15 +1,15 @@
 <script setup>
+import { validateLayerProp } from '@geoadmin/layers'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { getLayerDescription } from '@/api/layers/layers.api'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const { layer, layerId, layerName } = defineProps({
     layer: {
-        type: AbstractLayer || null,
+        validator: validateLayerProp,
         default: null,
     },
     layerId: {

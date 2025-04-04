@@ -9,6 +9,7 @@ import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
@@ -158,6 +159,7 @@ export default defineConfig(({ mode }) => {
                       },
                   }),
             mode === 'development' ? vueDevTools() : {},
+            tsconfigPaths(),
         ],
         resolve: {
             alias: {
