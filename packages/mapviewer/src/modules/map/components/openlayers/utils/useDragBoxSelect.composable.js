@@ -1,6 +1,5 @@
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
-
 import {
     booleanIntersects,
     circle,

@@ -7,7 +7,6 @@ import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
 import { BLUE } from '@/utils/featureStyleUtils'

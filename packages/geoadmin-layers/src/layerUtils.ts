@@ -1,6 +1,5 @@
 import { merge } from 'lodash'
 
-import { timeConfigUtils } from '@/index'
 import {
     DEFAULT_OPACITY,
     type GeoAdminAPILayer,
@@ -12,13 +11,34 @@ import {
     type ExternalWMSLayer,
     type KMLLayer,
     KmlStyle,
+    type GPXLayer,
 } from '@/layers'
+import * as timeConfigUtils from '@/timeConfigUtils'
+import { InvalidLayerDataError } from '@/validation'
 
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about
 // handling this
 const DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION = 0.5 // meters/pixel
 
 export const EMPTY_KML_DATA = '<kml></kml>'
+
+const ENC_PIPE = '%7C'
+
+/**
+ * Encode an external layer parameter.
+ *
+ * This percent encode the special character | used to separate external layer parameters.
+ *
+ * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
+ * encodeURIComponent() therefore by only encoding | we avoid to encode other special character
+ * twice. But we need to encode | twice to avoid layer parsing issue.
+ *
+ * @param {string} param Parameter to encode
+ * @returns {string} Percent encoded parameter
+ */
+export function encodeExternalLayerParam(param: string) {
+    return param.replace('|', ENC_PIPE)
+}
 
 // TODO think about validations
 
@@ -215,6 +235,39 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
         hasLegend: false,
         isLoading: true,
         adminId: null,
+    }
+
+    return merge(defaults, values)
+}
+
+export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
+    const isLocalFile = !values.gpxFileUrl?.startsWith('http')
+    if (!values.gpxFileUrl) {
+        throw new InvalidLayerDataError('Missing GPX file URL', values)
+    }
+    const attributionName = isLocalFile ? values.gpxFileUrl : new URL(values.gpxFileUrl).hostname
+    const attributions = [{ name: attributionName }]
+    const name = values.gpxMetadata?.name ?? 'GPX'
+
+    const defaults = {
+        baseUrl: values.gpxFileUrl,
+        gpxFileUrl: null,
+        gpxData: null,
+        gpxMetadata: null,
+        extent: null,
+        name: name,
+        id: `GPX|${encodeExternalLayerParam(values.gpxFileUrl)}`,
+        type: LayerType.GPX,
+        opacity: 0,
+        visible: false,
+        attributions,
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: true,
+        hasError: false,
+        hasWarning: false,
+        isLoading: !values.gpxData,
     }
 
     return merge(defaults, values)
