@@ -1,11 +1,10 @@
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 
@@ -118,7 +117,7 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new GPXLayer({ gpxFileUrl: url, visible: true })
+            layer = layerUtils.makeGPXLayer({ gpxFileUrl: url, visible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')

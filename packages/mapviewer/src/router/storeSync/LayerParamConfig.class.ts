@@ -5,6 +5,7 @@ import {
     type ExternalWMSLayer,
     type KMLLayer,
     type Layer,
+    type GPXLayer,
     LayerType,
     DEFAULT_OPACITY,
     timeConfigUtils,
@@ -23,7 +24,6 @@ import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -80,6 +80,15 @@ const createKmlLayer = (
     })
 }
 
+const createGPGXLayer = (parsedLayer: Record<string, any>): GPXLayer => {
+    const layer = layerUtils.makeGPXLayer({
+        gpxFileUrl: parsedLayer.baseUrl,
+        visible: parsedLayer.visible,
+        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+    })
+    return layer
+}
+
 /**
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
@@ -131,13 +140,9 @@ export function createLayerObject(
         }
     }
     // format is GPX|FILE_URL
-    else if (parsedLayer.type === LayerTypes.GPX) {
+    else if (parsedLayer.type === LayerType.GPX) {
         if (parsedLayer.baseUrl?.startsWith('http')) {
-            layer = new GPXLayer({
-                gpxFileUrl: parsedLayer.baseUrl,
-                visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
-            })
+            layer = createGPGXLayer(parsedLayer)
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
         }

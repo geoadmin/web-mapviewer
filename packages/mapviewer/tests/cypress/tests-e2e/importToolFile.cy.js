@@ -26,7 +26,7 @@ describe('The Import File Tool', () => {
         cy.intercept('GET', proxifyUrl(url), getConfig).as(`proxyfied${aliasName}`)
     }
 
-    it.only('Import KML file', () => {
+    it('Import KML file', () => {
         cy.goToMapView({}, true)
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.openMenuIfMobile()
