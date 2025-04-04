@@ -17,9 +17,6 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     clicked3DFeatureFill,
@@ -47,8 +44,8 @@ const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
 const layersTooltipConfig = computed(() => store.getters.layersTooltipConfig)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    visibleLayers.value.filter(
-        (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
+    visibleLayers.value.filter((l) =>
+        [LayerType.KML, LayerType.GEOJSON, LayerType.GPX].includes(l.type)
     )
 )
 
@@ -195,7 +192,7 @@ function onClick(event) {
 
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     visiblePrimitiveLayers.value
-        .filter((l) => l instanceof GeoAdminGeoJsonLayer)
+        .filter((l) => l.type === LayerType.GEOJSON)
         .forEach((geoJSonLayer) => {
             features.push(
                 ...identifyGeoJSONFeatureAt(
@@ -208,7 +205,7 @@ function onClick(event) {
         })
 
     visiblePrimitiveLayers.value
-        .filter((l) => l instanceof KMLLayer)
+        .filter((l) => l.type === LayerType.KML)
         .forEach((kmlLayer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)

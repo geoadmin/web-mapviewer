@@ -1,13 +1,13 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { addWarningMessageToLayer } from '@geoadmin/layers'
 import { WarningMessage } from '@geoadmin/log/Message'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
-import { getKmlExtent, isKmlFeaturesValid } from '@/utils/kmlUtils'
+import { makeKmlLayer, getKmlExtent, isKmlFeaturesValid } from '@/utils/kmlUtils'
 
 /**
  * Checks if file is KMLs
@@ -61,7 +61,7 @@ export class KMLParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
         }
-        const kmlLayer = new KMLLayer({
+        const kmlLayer = makeKmlLayer({
             kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             visible: true,
             opacity: 1.0,
@@ -73,7 +73,8 @@ export class KMLParser extends FileParser {
         })
 
         if (!isKmlFeaturesValid(kmlAsText)) {
-            kmlLayer.addWarningMessage(
+            addWarningMessageToLayer(
+                kmlLayer,
                 new WarningMessage('kml_malformed', {
                     filename: kmlLayer.name ?? kmlLayer.id,
                 })

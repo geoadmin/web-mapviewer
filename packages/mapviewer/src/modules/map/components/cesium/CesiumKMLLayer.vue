@@ -1,15 +1,15 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 
 const { kmlLayerConfig } = defineProps({
     kmlLayerConfig: {
-        type: KMLLayer,
+        validator: (value) => value.type === LayerType.KML,
         required: true,
     },
 })
