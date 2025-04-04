@@ -1,4 +1,4 @@
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { validateLayerProp } from '@geoadmin/layers'
 
 /**
  * @returns {Object} Props definition to use in concert with useBackgroundSelector to build a
@@ -11,7 +11,7 @@ export default function () {
             default: () => [],
         },
         currentBackgroundLayer: {
-            type: AbstractLayer,
+            validator: validateLayerProp,
             default: null,
         },
     }

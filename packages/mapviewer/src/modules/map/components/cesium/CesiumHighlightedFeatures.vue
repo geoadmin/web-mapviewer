@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -70,7 +70,12 @@ function highlightSelectedFeatures() {
     const geometries = selectedFeatures.value.map((f) => {
         // Cesium Layers are highlighted through cesium itself, so we don't
         // give anything to the highlighter.
-        if (f.layer instanceof GeoAdmin3DLayer) {
+        if (f.layer.type === LayerType.VECTOR) {
+            // this initially tested if the Layer was of instance GeoAdmin3D.
+            // since we don't have any instances of classes anymore, this isn't
+            // possible. Also, the 3d layers are historically of type "vector"
+            // maybe some point we should consider a 3d layer to be a separate
+            // type
             return null
         }
         // GeoJSON and KML layers have different geometry structure

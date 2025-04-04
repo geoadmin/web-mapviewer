@@ -1,4 +1,5 @@
 <script setup>
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
@@ -73,7 +74,7 @@ const hasLoaded = computed(() => {
 })
 const hasKml = computed(() => {
     if (online.value) {
-        return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty()
+        return !!activeKmlLayer.value && !layerUtils.isKmlLayerEmpty(activeKmlLayer.value)
     }
     return !!store.state.layers.systemLayers.find(
         (l) => l.id === store.state.drawing.temporaryKmlId

@@ -1,4 +1,7 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
+import { CURRENT_YEAR_TIMESTAMP, ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
@@ -6,13 +9,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import {
-    ALL_YEARS_TIMESTAMP,
-    CURRENT_YEAR_TIMESTAMP,
-} from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_FEATURE_COUNT_SINGLE_POINT, DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import { createPixelExtentAround, projExtent } from '@/utils/extentUtils'
@@ -137,7 +133,7 @@ export async function identifyOnGeomAdminLayer({
     }
     const imageDisplay = `${screenWidth},${screenHeight},96`
     const identifyResponse = await axios.get(
-        `${getApi3BaseUrl()}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
+        `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/identify`,
         {
             // params described as https://api3.geo.admin.ch/services/sdiservices.html#identify-features
             params: {
@@ -180,6 +176,8 @@ export async function identifyOnGeomAdminLayer({
 }
 
 /**
+ * // TODO adjust this
+ *
  * @param {ExternalLayer} config.layer
  * @param {[Number, Number]} config.coordinate Point where we want to have a getFeatureInfo request
  *   being triggered
@@ -256,7 +254,7 @@ async function identifyOnExternalLayer(config) {
         // If we use different projection, we also need to project out initial coordinate
         requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
-    if (layer instanceof ExternalWMSLayer) {
+    if (layer.type === LayerType.WMS) {
         return await identifyOnExternalWmsLayer({
             coordinate: requestedCoordinate,
             projection: requestProjection,
@@ -499,7 +497,7 @@ async function identifyOnExternalWmsLayer(config) {
  * http://api3.geo.admin.ch/services/sdiservices.html#identify-features or the
  * {@link getFeatureInfoCapability} of an external layer
  *
- * @param {AbstractLayer} config.layer
+ * @param {Layer} config.layer
  * @param {Number[]} config.coordinate Coordinate where to identify feature in EPSG:3857
  * @param {Number} config.resolution Current map resolution, in meters/pixel
  * @param {Number[]} config.mapExtent
@@ -547,7 +545,13 @@ export const identify = (config) => {
             log.error('Invalid screen size', screenWidth, screenHeight)
             reject(new Error('Needs valid screen width and height to run identification'))
         }
-        if (layer instanceof GeoAdminLayer) {
+        if (
+            // TODO come here again
+            [LayerType.WMTS, LayerType.WMS, LayerType.GeoJSON, LayerType.COG].includes(
+                layer.type
+            ) &&
+            !layer.isExternal
+        ) {
             identifyOnGeomAdminLayer({
                 layer,
                 projection,
@@ -564,7 +568,7 @@ export const identify = (config) => {
                     log.error("Wasn't able to get feature from GeoAdmin layer", layer, error)
                     reject(error)
                 })
-        } else if (layer instanceof ExternalLayer) {
+        } else if (layer.isExternal) {
             identifyOnExternalLayer({
                 layer,
                 coordinate,
@@ -591,7 +595,7 @@ export const identify = (config) => {
  * @returns {String}
  */
 function generateFeatureUrl(layer, featureId) {
-    return `${getApi3BaseUrl()}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${layer.id}/${featureId}`
+    return `${getApi3BaseUrl()}rest/services/${layerUtils.getTopicForIdentifyAndTooltipRequests(layer)}/MapServer/${layer.id}/${featureId}`
 }
 
 /**
