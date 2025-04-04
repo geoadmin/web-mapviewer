@@ -2,6 +2,8 @@
 /** Renders a WMS layer on the map */
 
 import { LV95 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
+import { ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
@@ -9,9 +11,6 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, watch, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -20,7 +19,7 @@ import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const { wmsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmsLayerConfig: {
-        type: [GeoAdminWMSLayer, ExternalWMSLayer],
+        validator: (value) => value.type === LayerType.WMS,
         required: true,
     },
     parentLayerOpacity: {
@@ -154,7 +153,7 @@ function createSourceForProjection() {
 function setExtent() {
     if (wmsLayerConfig.extent) {
         layer.setExtent(flattenExtent(wmsLayerConfig.extent))
-    } else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
+    } else if (wmsLayerConfig.type === LayerType.WMS && !wmsLayerConfig.isExternal) {
         // do not request stuff outside our technical extent with our own layers.
         layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
     }

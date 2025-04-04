@@ -40,7 +40,7 @@ export function getFeatureCountForCoordinate(coordinate) {
 /**
  * Identifies feature at the given coordinates
  *
- * @param {AbstractLayer[]} config.layers
+ * @param {Layer[]} config.layers
  * @param {[Number, Number] | [Number, Number, Number, Number]} config.coordinate Where to identify,
  *   either a single point, or an extent (expressed as [minX, maxY, minY, maxY])
  * @param {Number} config.resolution The current map resolution, in meter/pixel
@@ -226,8 +226,8 @@ export default {
          * @param dispatch
          * @param getters
          * @param rootState
-         * @param {AbstractLayer[]} layers List of layers for which we want to know if features are
-         *   present at given coordinates
+         * @param {Layer[]} layers List of layers for which we want to know if features are present
+         *   at given coordinates
          * @param {LayerFeature[]} [vectorFeatures=[]] List of existing vector features at given
          *   coordinate (that should be added to the selected features after identification has been
          *   run on the backend). Default is `[]`

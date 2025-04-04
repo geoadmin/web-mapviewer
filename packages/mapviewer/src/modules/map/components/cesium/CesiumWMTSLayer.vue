@@ -1,13 +1,12 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
+import { layerContainsErrorMessage, LayerType, WMTSEncodingType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { getWmtsXyzUrl } from '@/utils/layerUtils'
@@ -19,7 +18,7 @@ const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {
-        type: [GeoAdminWMTSLayer, ExternalWMTSLayer],
+        validator: (value) => value.type === LayerType.WMTS,
         required: true,
     },
     zIndex: {
@@ -70,7 +69,7 @@ watch(currentYear, () => {
 })
 
 onBeforeUnmount(() => {
-    if (wmtsLayerConfig.containErrorMessage(unsupportedProjectionError)) {
+    if (layerContainsErrorMessage(wmtsLayerConfig, unsupportedProjectionError)) {
         store.dispatch('removeLayerError', {
             layerId: wmtsLayerConfig.id,
             isExternal: wmtsLayerConfig.isExternal,
@@ -83,10 +82,11 @@ onBeforeUnmount(() => {
 
 function createProvider() {
     let provider
-    if (wmtsLayerConfig instanceof ExternalWMTSLayer && tileMatrixSetId.value) {
+    const type = wmtsLayerConfig.type
+    if (type === LayerType.WMTS && wmtsLayerConfig.isExternal && tileMatrixSetId.value) {
         provider = new WebMapTileServiceImageryProvider({
             url:
-                wmtsLayerConfig.getTileEncoding === WMTSEncodingTypes.KVP
+                wmtsLayerConfig.getTileEncoding === WMTSEncodingType.KVP
                     ? wmtsLayerConfig.baseUrl
                     : wmtsLayerConfig.urlTemplate,
             layer: wmtsLayerConfig.id,
@@ -94,7 +94,7 @@ function createProvider() {
             tileMatrixSetID: tileMatrixSetId.value,
             tileMatrixLabels: tileMatrixLabels.value,
         })
-    } else if (wmtsLayerConfig instanceof GeoAdminWMTSLayer) {
+    } else if (type === LayerType.WMTS && !wmtsLayerConfig.isExternal) {
         provider = new UrlTemplateImageryProvider({
             rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
             maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
