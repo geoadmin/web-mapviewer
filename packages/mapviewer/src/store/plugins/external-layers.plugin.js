@@ -22,7 +22,10 @@ const dispatcher = { dispatcher: 'external-layers.plugin' }
 export default function loadExternalLayerAttributes(store) {
     const layersSubscriber = async (layers, state) => {
         const externalLayers = layers.filter(
-            (layer) => layer.isLoading && layer.isExternal
+            (layer) =>
+                layer.isLoading &&
+                layer.isExternal &&
+                ![LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
             // (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
         )
         if (externalLayers.length > 0) {

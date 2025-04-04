@@ -211,7 +211,34 @@ export interface KMLLayer extends Layer {
     attributions: LayerAttribution[]
 }
 
-export interface GPXLayer extends Layer {}
+export type GPXLink = {
+    text?: string | undefined
+    type?: string | undefined
+}
+
+export type GPXAuthor = {
+    name?: string | undefined
+    email?: string | undefined
+    link?: GPXLink | undefined
+}
+
+export type GPXMetadata = {
+    name?: string | undefined
+    desc?: string | undefined
+    author?: GPXAuthor | undefined
+    link?: GPXLink | undefined
+    time?: number | undefined
+    keywords?: string | undefined
+    bounds?: number[] | undefined
+    extensions?: any
+}
+
+export interface GPXLayer extends Layer {
+    gpxFileUrl: string | null
+    gpxData: string | null
+    gpxMetadata: GPXMetadata | null
+    extent: [number, number, number, number] | null
+}
 // #endregion
 
 // #region: external layers

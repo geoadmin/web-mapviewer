@@ -9,7 +9,6 @@ import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
@@ -38,8 +37,8 @@ const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
 const layersTooltipConfig = computed(() => store.getters.layersTooltipConfig)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    visibleLayers.value.filter(
-        (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
+    visibleLayers.value.filter((l) =>
+        [LayerType.KML, LayerType.GEOJSON, LayerType.GPX].includes(l.type)
     )
 )
 

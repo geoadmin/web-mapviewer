@@ -2,7 +2,6 @@ import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { createLayerObject, validateUrlInput } from '@/router/storeSync/LayerParamConfig.class'
@@ -79,7 +78,7 @@ describe('External layer parsing with createLayerObject', () => {
         const mockThis = { urlParamName: '' }
         const mockStore = {
             getters: {
-                getLayerConfigById(id) {
+                getLayerConfigById(_) {
                     return false
                 },
             },
