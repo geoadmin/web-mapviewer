@@ -16,9 +16,6 @@ export default class ScrollingModeParamConfig extends AbstractParamConfig {
     }
 }
 
-// This function is called when the URL changes and the value of the parameter is extracted from the URL
-// we want to check if the destination url contains embed and scrolling_mode, and if it does,
-// we want to set the setScrollWithCtrlOnly to true
 function dispatchScrollingModeFromUrlIntoStore(to, store) {
     const isEmbed = to.path.includes('embed')
     const hasScrollParam = 'ctrl_scroll' in to.query

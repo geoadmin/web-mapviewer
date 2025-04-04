@@ -1,11 +1,9 @@
 <script setup>
-import log from '@geoadmin/log'
-import { computed, onBeforeMount, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.js'
-
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
@@ -14,27 +12,28 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 
-const dispatcher = { dispatcher: 'EmbedView.vue' }
-
 const store = useStore()
 const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
 const scrollWithCtrlOnly = computed(() => store.getters.isCtrlScrollEnabled)
-const isEmbed = computed(() => store.getters.isEmbed)
+
+const showCtrlScrollHint = ref(false)
+let ctrlScrollHintTimeout = null
 
 function onWheel(event) {
-    console.error('onWheel event', event)
-    console.error('scrollWithCtrlOnly.value', scrollWithCtrlOnly.value)
-    console.error('isEmbed', isEmbed.value)
-    console.error('wheel on', event.target)
-
     if (scrollWithCtrlOnly.value && !event.ctrlKey) {
-        console.error('scrollWithCtrlOnly is true, but ctrl key not pressed')
         event.preventDefault()
         event.stopPropagation()
         event.stopImmediatePropagation()
+
+        showCtrlScrollHint.value = true
+        clearTimeout(ctrlScrollHintTimeout)
+        ctrlScrollHintTimeout = setTimeout(() => {
+            showCtrlScrollHint.value = false
+        }, 3000)
+
         return
     }
 }
@@ -47,7 +46,6 @@ onBeforeMount(() => {
     const hasScrollParam = route.query.ctrl_scroll === 'true'
 
     if (isEmbed && hasScrollParam) {
-        console.error('Setting scrollWithCtrlOnly to true')
         store.dispatch('setScrollWithCtrlOnly', {
             scrollWithCtrlOnly: true,
             dispatcher: 'initialEmbedInit',
@@ -60,7 +58,6 @@ onMounted(() => {
         const canvas = document.querySelector('canvas')
         if (canvas) {
             canvas.addEventListener('wheel', onWheel, { passive: false })
-            console.error('Wheel event attached to canvas')
         } else {
             requestAnimationFrame(waitForCanvas)
         }
@@ -81,6 +78,14 @@ watch(() => route.query, sendChangeEventToParent)
 
 <template>
     <div class="view no-print">
+        <div
+            v-if="showCtrlScrollHint"
+            class="ctrl-scroll-hint position-absolute top-0 start-50 translate-middle-x bg-light border border-dark p-2 rounded mt-3 shadow"
+            style="z-index: 9999"
+        >
+            <strong>Hold Ctrl or Cmd</strong> while scrolling to zoom the map
+        </div>
+
         <OpenFullAppLink />
         <MapModule>
             <MapToolbox
