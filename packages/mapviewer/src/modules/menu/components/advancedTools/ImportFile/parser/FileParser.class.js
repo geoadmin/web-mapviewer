@@ -56,7 +56,7 @@ export default class FileParser {
     }
 
     /**
-     * @param {File | String} fileSource
+     * @param {File | String | Blob} fileSource
      * @returns {boolean}
      */
     isLocalFile(fileSource) {

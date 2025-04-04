@@ -159,10 +159,10 @@ async function loadData(store, kmlLayer) {
  * @param {Vuex.Store} store
  */
 export default function loadKmlDataAndMetadata(store) {
-    const addLayerSubscriber = (layer) => {
+    const addLayerSubscriber = async (layer) => {
         if (layer.type === LayerType.KML && (!layer.kmlData || !layer.kmlMetadata)) {
             if (!layer.kmlData) {
-                loadData(store, layer)
+                await loadData(store, layer)
             }
             if (!layer.kmlMetadata && !layer.isExternal) {
                 loadMetadata(store, layer)

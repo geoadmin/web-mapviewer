@@ -3,6 +3,7 @@ import {
     type GeoAdminAPILayer,
     type ExternalWMTSLayer,
     type ExternalWMSLayer,
+    type CloudOptimizedGeoTIFFLayer,
     type KMLLayer,
     type Layer,
     type GPXLayer,
@@ -23,7 +24,6 @@ import type { ActiveLayerConfig } from '@/utils/layerUtils'
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -89,6 +89,19 @@ const createGPGXLayer = (parsedLayer: Record<string, any>): GPXLayer => {
     return layer
 }
 
+const createCloudOptimizedGeoTIFFLayer = (
+    layer: any,
+    parsedLayer: ActiveLayerConfig
+): CloudOptimizedGeoTIFFLayer => {
+    layer = layerUtils.makeCloudOptimizedGeoTIFFLayer({
+        fileSource: parsedLayer.baseUrl,
+        visible: parsedLayer.visible,
+        opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
+        isLoading: false,
+    })
+    return layer
+}
+
 /**
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
@@ -149,12 +162,7 @@ export function createLayerObject(
     } else if (parsedLayer.type === LayerTypes.COG) {
         // format is GEOTIFF|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
-            layer = new CloudOptimizedGeoTIFFLayer({
-                fileSource: parsedLayer.baseUrl,
-                visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
-                isLoading: false,
-            })
+            layer = createCloudOptimizedGeoTIFFLayer(layer, parsedLayer)
         }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID

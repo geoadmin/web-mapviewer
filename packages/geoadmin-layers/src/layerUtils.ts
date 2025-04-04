@@ -14,6 +14,7 @@ import {
     type GPXLayer,
     type GeoAdminVectorLayer,
     type GeoAdmin3DLayer,
+    type CloudOptimizedGeoTIFFLayer,
 } from '@/layers'
 import * as timeConfigUtils from '@/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -331,6 +332,44 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
         isSpecificFor3d: false,
     }
 
+    return merge(defaults, values)
+}
+
+export const makeCloudOptimizedGeoTIFFLayer = (
+    values: Partial<CloudOptimizedGeoTIFFLayer>
+): CloudOptimizedGeoTIFFLayer => {
+    if (values.fileSource === null || values.fileSource === undefined) {
+        throw new InvalidLayerDataError('Missing COG file source', values)
+    }
+
+    const fileSource = values.fileSource
+    const isLocalFile = !fileSource?.startsWith('http')
+    const attributionName = isLocalFile ? fileSource : new URL(fileSource).hostname
+    const attributions = [{ name: attributionName }]
+    const fileName = isLocalFile
+        ? fileSource
+        : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
+
+    const defaults = {
+        type: LayerType.COG,
+        isLocalFile: false,
+        fileSource: null,
+        data: null,
+        noDataValue: null,
+        extent: null,
+        name: fileName,
+        id: fileSource,
+        opacity: 1,
+        visible: false,
+        attributions,
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: false,
+        isLoading: false,
+        hasError: false,
+        hasWarning: false,
+    }
     return merge(defaults, values)
 }
 

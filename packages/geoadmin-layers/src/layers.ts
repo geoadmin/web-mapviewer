@@ -186,7 +186,14 @@ export interface GeoAdminVectorLayer extends Layer {
 // #endregion
 
 // #region: File Type Layers
-export interface CloudOptimizedTiffLayer extends Layer {}
+export interface CloudOptimizedGeoTIFFLayer extends Layer {
+    type: LayerType.COG
+    isLocalFile: boolean
+    fileSource: string | null
+    data: string | Blob | null
+    noDataValue: number | null
+    extent: [number, number, number, number] | null
+}
 
 export type KmlMetadata = {
     id: string
@@ -329,7 +336,7 @@ export interface ExternalWMSLayer extends Layer {
 
 // #endregion
 
-export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedTiffLayer
+export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedGeoTIFFLayer
 export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer
 export type GeoAdminLayer =
     | GeoAdminWMTSLayer
