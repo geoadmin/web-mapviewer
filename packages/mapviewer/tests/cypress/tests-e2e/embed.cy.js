@@ -204,4 +204,32 @@ describe('Testing the embed view', () => {
                 )
             )
     })
+
+    it('Open in embed mode with ctrl scrolling', () => {
+        cy.goToEmbedView({
+            queryParams: { z: 2, ctrl_scroll: true },
+        })
+
+        cy.log('Test that mouse zoom scrolling fails without pressing ctrl')
+
+        cy.get('[data-cy="ol-map"]').trigger('wheel', {
+            deltaY: -100,
+            ctrlKey: false,
+            bubbles: true, // needed to make sure the listener is triggered
+        })
+
+        cy.wait(500)
+        cy.location('hash').should('contain', 'z=2')
+
+        cy.log('Test that mouse zoom scrolling works with pressing ctrl')
+
+        cy.get('[data-cy="ol-map"]').trigger('wheel', {
+            deltaY: -100,
+            ctrlKey: true,
+            bubbles: true,
+        })
+
+        cy.wait(500)
+        cy.location('hash').should('contain', 'z=2.333')
+    })
 })

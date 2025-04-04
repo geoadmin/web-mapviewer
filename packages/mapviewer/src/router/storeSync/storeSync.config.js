@@ -8,6 +8,7 @@ import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import ScrollingModeParamConfig from '@/router/storeSync/ScrollingModeParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import PrintConfigParamConfig from '@/router/storeSync/PrintConfig.class'
 import SearchAutoSelectConfig from '@/router/storeSync/SearchAutoSelectConfig.class'
@@ -36,6 +37,7 @@ const storeSyncConfig = [
         validateUrlInput: (store, query) =>
             getStandardValidationResponse(query, SUPPORTED_LANG.includes(query), 'lang'),
     }),
+    new ScrollingModeParamConfig(),
     new SimpleUrlParamConfig({
         urlParamName: 'sr',
         mutationsToWatch: ['setProjection'],

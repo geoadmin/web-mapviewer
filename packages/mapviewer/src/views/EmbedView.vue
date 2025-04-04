@@ -1,6 +1,5 @@
 <script setup>
-import log from '@geoadmin/log'
-import { computed, onBeforeMount, onMounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -13,19 +12,67 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 
-const dispatcher = { dispatcher: 'EmbedView.vue' }
-
 const store = useStore()
 const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
+const scrollWithCtrlOnly = computed(() => store.getters.isCtrlScrollEnabled)
+
+const showCtrlScrollHint = ref(false)
+let ctrlScrollHintTimeout = null
+
+function onWheel(event) {
+    const isZoomModifierPressed = event.ctrlKey || event.metaKey //needed for macOS
+
+    if (scrollWithCtrlOnly.value && !isZoomModifierPressed) {
+        event.preventDefault()
+        event.stopPropagation()
+        event.stopImmediatePropagation()
+
+        showCtrlScrollHint.value = true
+        clearTimeout(ctrlScrollHintTimeout)
+        ctrlScrollHintTimeout = setTimeout(() => {
+            showCtrlScrollHint.value = false
+        }, 3000)
+
+        return
+    }
+}
+
 onBeforeMount(() => {
-    store.dispatch('setEmbed', { embed: true, ...dispatcher })
+    const route = useRoute()
+    store.dispatch('setEmbed', { embed: true })
+
+    const isEmbed = route.path.includes('embed')
+    const hasScrollParam = route.query.ctrl_scroll === 'true'
+
+    if (isEmbed && hasScrollParam) {
+        store.dispatch('setScrollWithCtrlOnly', {
+            scrollWithCtrlOnly: true,
+            dispatcher: 'initialEmbedInit',
+        })
+    }
 })
 
 onMounted(() => {
-    log.info(`Embedded map view mounted`)
+    const waitForCanvas = () => {
+        const canvas = document.querySelector('canvas')
+        if (canvas) {
+            canvas.addEventListener('wheel', onWheel, { passive: false })
+        } else {
+            requestAnimationFrame(waitForCanvas)
+        }
+    }
+    waitForCanvas()
+})
+
+onUnmounted(() => {
+    const canvas = document.querySelector('canvas')
+
+    if (canvas) {
+        canvas.removeEventListener('wheel', onWheel)
+    }
 })
 
 watch(() => route.query, sendChangeEventToParent)
@@ -33,6 +80,14 @@ watch(() => route.query, sendChangeEventToParent)
 
 <template>
     <div class="view no-print">
+        <div
+            v-if="showCtrlScrollHint"
+            class="ctrl-scroll-hint position-absolute top-0 start-50 translate-middle-x bg-light border border-dark p-2 rounded mt-3 shadow"
+            style="z-index: 9999"
+        >
+            <strong>Hold Ctrl or Cmd</strong> while scrolling to zoom the map
+        </div>
+
         <OpenFullAppLink />
         <MapModule>
             <MapToolbox
