@@ -482,7 +482,7 @@ async function identifyOnExternalWmsLayer(config) {
             return new LayerFeature({
                 layer,
                 id: featureId,
-                name: featureName,
+                title: featureName,
                 data: feature.properties,
                 coordinates: getGeoJsonFeatureCoordinates(
                     geometry,
@@ -695,7 +695,7 @@ function parseGeomAdminFeature(
     return new LayerFeature({
         layer,
         id: featureMetadata.id,
-        name: featureName,
+        title: featureName,
         data: featureHtmlPopup,
         coordinates,
         extent: featureExtent,

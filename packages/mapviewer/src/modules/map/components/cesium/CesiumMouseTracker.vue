@@ -56,7 +56,8 @@ onBeforeUnmount(() => {
 })
 
 function setupHandler() {
-    if (!getViewer()) {
+    // To prevent that the handler is setup multiple times which then creates handlers that are not destroyed in the onBeforeUnmount
+    if (!getViewer() || handler) {
         return
     }
     handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
