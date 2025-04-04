@@ -3,6 +3,9 @@ import { describe, it } from 'vitest'
 
 import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api.js'
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
+// We need to import the router here to avoid error when initializing router plugins, this is
+// needed since some store plugins might require access to router to get the query parameters
+// (e.g. topic management plugin)
 import { adjustWidth } from '@/utils/styleUtils'
 
 describe('Print API unit tests', () => {
