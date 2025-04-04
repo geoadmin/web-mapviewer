@@ -66,31 +66,22 @@ watch(selectedFeatures, (features) => {
         data-cy="infobox-content"
     >
         <div
-            v-if="isEditingDrawingFeature"
-            class="drawing-feature d-flex flex-column flex-md-row"
+            class="d-flex h-100 overflow-y-auto justify-content-stretch"
+            :class="{
+                'flex-column': !showFeatureInfoInBottomPanel,
+                'flex-md-row': showFeatureInfoInBottomPanel,
+            }"
         >
             <FeatureStyleEdit
-                v-if="showFeatureInfoInBottomPanel"
+                v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
                 :feature="selectedFeature"
                 class="drawing-feature-edit p-3"
                 :class="{ 'flex-grow-1': !showElevationProfile }"
             />
-            <GeoadminElevationProfile
-                v-if="showElevationProfile"
-                :points="selectedFeature.geometry.coordinates"
-                :projection="projection.epsg"
-                :locale="currentLang"
-                class="flex-grow-1 position-relative"
-            />
-        </div>
-        <div
-            v-else
-            class="d-flex flex-column h-100 overflow-y-auto infobox-content"
-        >
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
-                class="h-100 d-flex flex-column align-content-stretch infobox-content"
+                class="d-flex flex-column align-content-stretch infobox-content"
             >
                 <div
                     v-if="isMultiFeature && currentGeometryElements.length > 1"
@@ -102,9 +93,9 @@ watch(selectedFeatures, (features) => {
                             :key="index"
                             class="btn btn-sm text-nowrap"
                             :class="{
-                            'btn-secondary': index === currentGeometryElementIndex,
-                            'btn-light': index !== currentGeometryElementIndex,
-                        }"
+                                'btn-secondary': index === currentGeometryElementIndex,
+                                'btn-light': index !== currentGeometryElementIndex,
+                            }"
                             :data-cy="`profile-segment-button-${index}`"
                             @click="currentGeometryElementIndex = index"
                         >
@@ -116,7 +107,6 @@ watch(selectedFeatures, (features) => {
                     :points="currentProfileCoordinates"
                     :projection="projection.epsg"
                     :locale="currentLang"
-                    class="flex-grow-1 profile-with-feature"
                 >
                     <GeoadminElevationProfileCesiumBridge
                         v-if="is3dActive && getCesiumViewer()"
@@ -137,7 +127,21 @@ watch(selectedFeatures, (features) => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/scss/media-query.mixin';
+
 .infobox-content {
     max-height: 40vh;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+@include respond-above(phone) {
+    .infobox-content {
+        max-height: 33vh;
+    }
+}
+@include respond-above(tablet) {
+    .infobox-content {
+        max-height: 25vh;
+    }
 }
 </style>

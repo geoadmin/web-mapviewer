@@ -161,9 +161,6 @@ function onHideProfile() {
 
 .infobox {
     width: 100%;
-    &-content {
-        max-width: 100%;
-    }
     .drawing-feature {
         max-width: 100%;
         &-edit {
