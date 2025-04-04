@@ -38,7 +38,7 @@ defineExpose({ hidePopover })
         >
             <button
                 ref="popoverButton"
-                class="btn btn-sm btn-light d-flex align-items-center"
+                class="btn btn-sm btn-light h-100 d-flex align-items-center"
                 :class="[buttonClassOptions ? buttonClassOptions : '']"
             >
                 <FontAwesomeIcon :icon="icon" />
