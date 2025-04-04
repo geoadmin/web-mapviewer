@@ -617,7 +617,6 @@ describe('Drawing module tests', () => {
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
-
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -1320,6 +1319,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
 
             // Checking that it can export the profile as CSV
+            cy.get('[data-cy="show-profile"]').click()
             cy.wait('@profile')
             // triggering a CSV download
             cy.get('[data-cy="profile-popup-csv-download-button"]').click()

@@ -208,7 +208,7 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
 <template>
     <div
         data-cy="floating-container"
-        class="tw:flex tw:max-w-full"
+        class="tw:flex tw:max-w-full tw:h-full tw:items-center"
         :class="{ 'tw:select-none': isTouching }"
         @touchstart="onTouchStart"
         @touchmove="onTouchMove"
@@ -217,7 +217,7 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
     >
         <div
             ref="tooltipElement"
-            class="tw:flex tw:max-w-full"
+            class="tw:flex tw:max-w-full tw:h-full tw:items-center"
             @mouseover="onMouseOver"
             @mouseleave="onMouseLeave"
             @click="onClick"

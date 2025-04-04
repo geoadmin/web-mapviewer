@@ -5,7 +5,7 @@ import { log } from '@geoadmin/log'
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { SERVICE_ALTI_BASE_URL } from '@/config'
+import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD, type Staging } from '@/config'
 import getProfileMetadata, { type ElevationProfileMetadata } from '@/utils'
 
 export class ElevationProfileError extends Error {
@@ -74,6 +74,17 @@ export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[
     return subChunks
 }
 
+function getUrlForStaging(staging: Staging = 'production'): string {
+    switch (staging) {
+        case 'development':
+            return BASE_URL_DEV
+        case 'integration':
+            return BASE_URL_INT
+        default:
+            return BASE_URL_PROD
+    }
+}
+
 function parseProfileSegmentFromBackendResponse(
     backendResponse: Awaited<ServiceProfilePoints[]>,
     startingDist: number,
@@ -104,7 +115,8 @@ export async function getProfileDataForChunk(
     chunk: CoordinatesChunk,
     startingPoint: SingleCoordinate | null = null,
     startingDist: number,
-    outputProjection: CoordinateSystem
+    outputProjection: CoordinateSystem,
+    staging: Staging = 'production'
 ): Promise<ServiceProfilePoints[]> {
     if (chunk.isWithinBounds) {
         try {
@@ -119,7 +131,7 @@ export async function getProfileDataForChunk(
                 .filter((coordinateChunk) => coordinateChunk !== null)
                 .map((coordinatesChunk) => {
                     return axios({
-                        url: `${SERVICE_ALTI_BASE_URL}rest/services/profile.json`,
+                        url: `${getUrlForStaging(staging)}rest/services/profile.json`,
                         method: 'POST',
                         params: {
                             offset: 0,
@@ -246,7 +258,8 @@ function ensureDoubleNestedArray(
  */
 export default async (
     profileCoordinates: SingleCoordinate[] | SingleCoordinate[][],
-    projection: CoordinateSystem
+    projection: CoordinateSystem,
+    staging: Staging = 'production'
 ): Promise<ElevationProfile> => {
     if (!profileCoordinates || profileCoordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
@@ -296,7 +309,7 @@ export default async (
         let lastCoordinate: SingleCoordinate | null = null
         let lastDist: number = 0
         const requestsForChunks: Promise<ServiceProfilePoints[]>[] = coordinateChunks.map((chunk) =>
-            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
+            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection, staging)
         )
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {

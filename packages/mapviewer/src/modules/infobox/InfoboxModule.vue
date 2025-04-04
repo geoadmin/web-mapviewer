@@ -23,7 +23,7 @@ const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInT
 const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
 const width = computed(() => store.state.ui.width)
 
-const profileFeature = computed(() => store.state.features.profileFeature)
+const profileFeature = computed(() => store.state.profile.feature)
 const showElevationProfile = computed(() => !!profileFeature.value)
 
 const showContainer = computed(() => {
@@ -91,7 +91,7 @@ function onHideProfile() {
             data-cy="infobox-header"
         >
             <button
-                v-if="!showDrawingOverlay && showElevationProfile && showFeatureInfoInBottomPanel"
+                v-if="showElevationProfile && showFeatureInfoInBottomPanel"
                 class="btn btn-light btn-xs align-middle text-nowrap justify-content-left"
                 @click.stop="onHideProfile"
             >
@@ -99,9 +99,18 @@ function onHideProfile() {
                     icon="chevron-left"
                     class="me-1"
                 />
-                <span class="d-none d-md-inline">{{ t('hide_profile') }}</span>
+                <span
+                    :class="{
+                        'd-inline': showDrawingOverlay,
+                        'd-none d-md-inline': !showDrawingOverlay,
+                    }"
+                >
+                    {{ t('hide_profile') }}
+                </span>
             </button>
-            <div class="d-flex flex-grow-1 align-content-center justify-content-left overflow-hidden ms-1">
+            <div
+                class="d-flex flex-grow-1 align-content-center justify-content-left overflow-hidden ms-1"
+            >
                 <label>
                     <TextTruncate>{{ title }}</TextTruncate>
                 </label>

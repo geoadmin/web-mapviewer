@@ -7,6 +7,7 @@ import { computed, inject, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 
@@ -26,27 +27,33 @@ const currentLang = computed(() => store.state.i18n.lang)
 const is3dActive = computed(() => store.state.cesium.active)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
-const selectedFeatureGeometry = computed(() => selectedFeature.value.geometry)
-const isMultiFeature = computed(() =>
-    ['MultiPolygon', 'MultiLineString'].includes(selectedFeatureGeometry.value.type)
-)
-
-/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
-const currentGeometryElementIndex = ref(0)
-const currentGeometryElements = computed(() => selectedFeature.value.geometry.coordinates)
-const currentProfileCoordinates = computed(() => {
-    if (isMultiFeature.value) {
-        return selectedFeatureGeometry.value.coordinates[currentGeometryElementIndex.value]
-    }
-    return selectedFeatureGeometry.value.coordinates
-})
 
 const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
 const isEditingDrawingFeature = computed(
     () => showDrawingOverlay.value && isSelectedFeatureEditable.value
 )
 
-const profileFeature = computed(() => store.state.features.profileFeature)
+const profileFeature = computed(() => store.state.profile.feature)
+const isMultiFeature = computed(() =>
+    ['MultiPolygon', 'MultiLineString'].includes(profileFeature.value?.geometry?.type)
+)
+const isPolygon = computed(() => profileFeature.value?.geometry?.type === 'Polygon')
+/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
+const currentGeometryElementIndex = ref(0)
+const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
+
+const currentProfileCoordinates = computed(() => {
+    if (!profileFeature.value) {
+        return null
+    }
+    if (isMultiFeature.value) {
+        return currentGeometryElements.value[currentGeometryElementIndex.value]
+    }
+    if (isPolygon.value) {
+        return currentGeometryElements.value[0]
+    }
+    return currentGeometryElements.value
+})
 const showElevationProfile = computed(() => !!profileFeature.value)
 
 watch(selectedFeatures, (features) => {
@@ -65,19 +72,7 @@ watch(selectedFeatures, (features) => {
         class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
-        <div
-            class="d-flex h-100 overflow-y-auto justify-content-stretch"
-            :class="{
-                'flex-column': !showFeatureInfoInBottomPanel,
-                'flex-md-row': showFeatureInfoInBottomPanel,
-            }"
-        >
-            <FeatureStyleEdit
-                v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
-                :feature="selectedFeature"
-                class="drawing-feature-edit p-3"
-                :class="{ 'flex-grow-1': !showElevationProfile }"
-            />
+        <div class="d-flex h-100 overflow-y-auto justify-content-stretch flex-column flex-md-row">
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
@@ -107,6 +102,7 @@ watch(selectedFeatures, (features) => {
                     :points="currentProfileCoordinates"
                     :projection="projection.epsg"
                     :locale="currentLang"
+                    :staging="ENVIRONMENT"
                 >
                     <GeoadminElevationProfileCesiumBridge
                         v-if="is3dActive && getCesiumViewer()"
@@ -118,6 +114,13 @@ watch(selectedFeatures, (features) => {
                     />
                 </GeoadminElevationProfile>
             </div>
+            <FeatureStyleEdit
+                v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
+                v-show="!showElevationProfile"
+                :feature="selectedFeature"
+                class="drawing-feature-edit p-3"
+                :class="{ 'flex-grow-1': !showElevationProfile }"
+            />
             <FeatureList
                 v-if="showFeatureInfoInBottomPanel"
                 v-show="!showElevationProfile"

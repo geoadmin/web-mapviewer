@@ -7,15 +7,17 @@ import {
     type SingleCoordinate,
     WGS84,
 } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
+import { lineString, simplify as simplifyGeometry } from '@turf/turf'
 import proj4 from 'proj4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { SupportedLocales } from '@/config.ts'
 import type { ElevationProfileMetadata } from '@/utils'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
+import { GEOMETRY_SIMPLIFICATION_TOLERANCE, type Staging, type SupportedLocales } from '@/config'
 import GeoadminElevationProfileInformation from '@/GeoadminElevationProfileInformation.vue'
 import GeoadminElevationProfilePlot from '@/GeoadminElevationProfilePlot.vue'
 import getProfile, { type ElevationProfile, ElevationProfileError } from '@/profile.api'
@@ -24,12 +26,16 @@ interface ElevationProfileProps {
     title?: string
     points?: SingleCoordinate[]
     projection?: string
+    simplify?: boolean
+    staging?: Staging
 }
 
 const {
     title = undefined,
     points = [],
     projection = LV95.epsg,
+    simplify = false,
+    staging = 'production'
 } = defineProps<ElevationProfileProps>()
 
 type ElevationProfileErrorMessages = {
@@ -64,16 +70,38 @@ onMounted(() => {
 })
 
 watch(reverse, loadElevationProfileData)
+watch(() => simplify, loadElevationProfileData)
 watch(() => points, loadElevationProfileData)
 
 function loadElevationProfileData() {
+    if (!Array.isArray(points)) {
+        profileRequestError.value = new ElevationProfileError(
+            'profile_could_not_generate',
+            new Error('Missing points, could not generate a profile')
+        )
+        return
+    }
+    let pointsForProfile = [...points]
     profileRequestError.value = undefined
-    getProfile(reverse.value ? points.toReversed() : points, coordinateSystem.value)
-        .then((profile) => {
+    if (simplify) {
+        pointsForProfile = simplifyGeometry(lineString(pointsForProfile), {
+            tolerance: GEOMETRY_SIMPLIFICATION_TOLERANCE,
+        }).geometry.coordinates as SingleCoordinate[]
+    }
+    if (reverse.value) {
+        pointsForProfile = pointsForProfile.toReversed()
+    }
+    getProfile(pointsForProfile, coordinateSystem.value, staging)
+        .then((profile: ElevationProfile) => {
             profileData.value = profile
         })
-        .catch((err) => {
+        .catch((err: ElevationProfileError) => {
             profileRequestError.value = err
+            log.error(
+                '[GeoadminElevationProfile] Error while loading elevation profile data',
+                err.message,
+                err.technicalError?.message
+            )
         })
 }
 
@@ -159,7 +187,7 @@ function onCSVDownload() {
         >
             <GeoadminTooltip tooltip-content="profile_invert">
                 <button
-                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:cursor-pointer"
+                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     @click="revertProfileDirection"
                 >
                     <FontAwesomeIcon icon="shuffle" />
@@ -167,7 +195,7 @@ function onCSVDownload() {
             </GeoadminTooltip>
             <GeoadminTooltip tooltip-content="profile_download_csv">
                 <button
-                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:cursor-pointer"
+                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     data-cy="profile-popup-csv-download-button"
                     @click="onCSVDownload"
                 >
