@@ -30,9 +30,13 @@ function onWheel(event) {
     console.error('isEmbed', isEmbed.value)
     console.error('wheel on', event.target)
 
-    event.preventDefault()
-    event.stopPropagation()
-    event.stopImmediatePropagation()
+    if (scrollWithCtrlOnly.value && !event.ctrlKey) {
+        console.error('scrollWithCtrlOnly is true, but ctrl key not pressed')
+        event.preventDefault()
+        event.stopPropagation()
+        event.stopImmediatePropagation()
+        return
+    }
 }
 
 onBeforeMount(() => {
@@ -40,12 +44,12 @@ onBeforeMount(() => {
     store.dispatch('setEmbed', { embed: true })
 
     const isEmbed = route.path.includes('embed')
-    const hasScrollParam = 'ctrl_scroll' in route.query
+    const hasScrollParam = route.query.ctrl_scroll === 'true'
 
     if (isEmbed && hasScrollParam) {
         console.error('Setting scrollWithCtrlOnly to true')
         store.dispatch('setScrollWithCtrlOnly', {
-            show: true,
+            scrollWithCtrlOnly: true,
             dispatcher: 'initialEmbedInit',
         })
     }
