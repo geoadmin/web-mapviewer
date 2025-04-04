@@ -157,7 +157,12 @@ export interface GeoAdminWMTSLayer extends GeoAdminAPILayer {
     type: LayerType.WMTS
 }
 
-export interface GeoAdmin3DLayer extends Layer {}
+export interface GeoAdmin3DLayer extends GeoAdminAPILayer {
+    type: LayerType.VECTOR
+    technicalName: string
+    use3dTileSubFolder: boolean
+    urlTimestampToUse: boolean
+}
 
 export interface GeoAdminGeoJSONLayer extends Layer {
     type: LayerType.GEOJSON

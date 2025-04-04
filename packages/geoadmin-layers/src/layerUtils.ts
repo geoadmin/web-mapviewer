@@ -13,6 +13,7 @@ import {
     KmlStyle,
     type GPXLayer,
     type GeoAdminVectorLayer,
+    type GeoAdmin3DLayer,
 } from '@/layers'
 import * as timeConfigUtils from '@/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -301,6 +302,36 @@ export const makeGeoAdminVectorLayer = (
     }
 
     return merge(defaults, omit(values, 'attributions'))
+}
+
+export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer => {
+    const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
+
+    const defaults = {
+        technicalName: '',
+        use3dTileSubFolder: false,
+        urlTimestampToUse: false,
+        name: values.name ?? values.id ?? '',
+        id: '',
+        type: LayerType.VECTOR,
+        opacity: 1,
+        visible: true,
+        attributions,
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: false,
+        isLoading: false,
+        hasError: false,
+        hasWarning: false,
+        isHighlightable: false,
+        topics: [],
+        searchable: false,
+        format: 'JPEG', // TODO move away from the attempt of restructuring things
+        isSpecificFor3d: false,
+    }
+
+    return merge(defaults, values)
 }
 
 export const isKmlLayerLegacy = (layer: KMLLayer): boolean => {
