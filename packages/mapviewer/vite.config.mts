@@ -7,6 +7,7 @@ import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
@@ -108,6 +109,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             }),
             // disable the dev tools if required, e.g. in cypress component tests
             disableDevTools ? {} : vueDevTools(),
+            tsconfigPaths(),
         ],
         optimizeDeps: {
             exclude: [
