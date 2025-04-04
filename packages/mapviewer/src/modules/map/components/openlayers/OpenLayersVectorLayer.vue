@@ -14,13 +14,13 @@ import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
 import { computed, inject, watch } from 'vue'
 
-import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const { vectorLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     vectorLayerConfig: {
-        type: GeoAdminVectorLayer,
+        // type: GeoAdminVectorLayer,
+        type: Object,
         required: true,
     },
     parentLayerOpacity: {
