@@ -23,7 +23,9 @@ const showCtrlScrollHint = ref(false)
 let ctrlScrollHintTimeout = null
 
 function onWheel(event) {
-    if (scrollWithCtrlOnly.value && !event.ctrlKey) {
+    const isZoomModifierPressed = event.ctrlKey || event.metaKey //needed for macOS
+
+    if (scrollWithCtrlOnly.value && !isZoomModifierPressed) {
         event.preventDefault()
         event.stopPropagation()
         event.stopImmediatePropagation()
