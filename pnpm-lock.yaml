@@ -130,8 +130,8 @@ catalogs:
       specifier: ^2.2.0
       version: 2.2.0
     cypress:
-      specifier: ^14.2.0
-      version: 14.2.0
+      specifier: ^14.2.1
+      version: 14.2.1
     cypress-browser-permissions:
       specifier: ^1.1.0
       version: 1.1.0
@@ -279,6 +279,9 @@ catalogs:
     vite-plugin-vue-devtools:
       specifier: ^7.7.2
       version: 7.7.2
+    vite-tsconfig-paths:
+      specifier: ^5.1.4
+      version: 5.1.4
     vitest:
       specifier: ^3.0.8
       version: 3.0.8
@@ -630,13 +633,13 @@ importers:
     devDependencies:
       '@4tw/cypress-drag-drop':
         specifier: 'catalog:'
-        version: 2.3.0(cypress@14.2.0)
+        version: 2.3.0(cypress@14.2.1)
       '@cypress/vite-dev-server':
         specifier: 'catalog:'
-        version: 6.0.2(cypress@14.2.0)
+        version: 6.0.2(cypress@14.2.1)
       '@cypress/vue':
         specifier: 'catalog:'
-        version: 6.0.2(cypress@14.2.0)(vue@3.5.13(typescript@5.8.2))
+        version: 6.0.2(cypress@14.2.1)(vue@3.5.13(typescript@5.8.2))
       '@fontsource/noto-sans':
         specifier: 'catalog:'
         version: 5.2.5
@@ -666,13 +669,13 @@ importers:
         version: 5.2.0
       cypress:
         specifier: 'catalog:'
-        version: 14.2.0
+        version: 14.2.1
       cypress-browser-permissions:
         specifier: 'catalog:'
-        version: 1.1.0(cypress@14.2.0)
+        version: 1.1.0(cypress@14.2.1)
       cypress-real-events:
         specifier: 'catalog:'
-        version: 1.14.0(cypress@14.2.0)
+        version: 1.14.0(cypress@14.2.1)
       cypress-recurse:
         specifier: 'catalog:'
         version: 1.35.3
@@ -724,6 +727,9 @@ importers:
       vite-plugin-vue-devtools:
         specifier: 'catalog:'
         version: 7.7.2(rollup@4.35.0)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))(vue@3.5.13(typescript@5.8.2))
+      vite-tsconfig-paths:
+        specifier: 'catalog:'
+        version: 5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))
       vitest:
         specifier: 'catalog:'
         version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@26.0.0)(sass@1.77.6)
@@ -935,8 +941,8 @@ packages:
     resolution: {integrity: sha512-UJnjoFsmxfKUdNYdWgOB0mWUypuLvAfQPH1+pyvRJs6euowbFkFC6P13w1l8mJyi3vxYMxc9kld5jZEGRQs6bw==}
     engines: {node: '>=18'}
 
-  '@cypress/request@3.0.7':
-    resolution: {integrity: sha512-LzxlLEMbBOPYB85uXrDqvD4MgcenjRBLIns3zyhx7vTPj/0u2eQhzXvPiGcaJrV38Q9dbkExWp6cOHPJ+EtFYg==}
+  '@cypress/request@3.0.8':
+    resolution: {integrity: sha512-h0NFgh1mJmm1nr4jCwkGHwKneVYKghUyWe6TMNrk0B9zsjAJxpg8C4/+BAcmLgCPa1vj1V8rNUaILl+zYRUWBQ==}
     engines: {node: '>= 6'}
 
   '@cypress/vite-dev-server@6.0.2':
@@ -2776,8 +2782,8 @@ packages:
   cypress-wait-until@3.0.2:
     resolution: {integrity: sha512-iemies796dD5CgjG5kV0MnpEmKSH+s7O83ZoJLVzuVbZmm4lheMsZqAVT73hlMx4QlkwhxbyUzhOBUOZwoOe0w==}
 
-  cypress@14.2.0:
-    resolution: {integrity: sha512-u7fuc9JEpSYLOdu8mzZDZ/JWsHUzR5pc8i1TeSqMz/bafXp+6IweMAeyphsEJ6/13qbB6nwTEY1m+GUAp6GqCQ==}
+  cypress@14.2.1:
+    resolution: {integrity: sha512-5xd0E7fUp0pjjib1D7ljkmCwFDgMkWuW06jWiz8dKrI7MNRrDo0C65i4Sh+oZ9YHjMHZRJBR0XZk1DfekOhOUw==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
@@ -3400,6 +3406,9 @@ packages:
   globals@16.0.0:
     resolution: {integrity: sha512-iInW14XItCXET01CQFqudPOWP2jYMl7T+QRQT+UNcR/iQncN/F0UNpgd76iFkBPgNQb4+X3LV9tLJYzwh+Gl3A==}
     engines: {node: '>=18'}
+
+  globrex@0.1.2:
+    resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
 
   google-auth-library@9.15.1:
     resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
@@ -4416,6 +4425,10 @@ packages:
     resolution: {integrity: sha512-EJPeIn0CYrGu+hli1xilKAPXODtJ12T0sP63Ijx2/khC2JtuaN3JyNIpvmnkmaEtha9ocbG4A4cMcr+TvqvwQg==}
     engines: {node: '>=0.6'}
 
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
+
   quansync@0.2.8:
     resolution: {integrity: sha512-4+saucphJMazjt7iOM27mbFCk+D9dd/zmgMDCzRZ8MEoBfYp7lAvoN38et/phRQF6wOPMy/OROBGgoWeSKyluA==}
 
@@ -4854,6 +4867,16 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
+  tsconfck@3.1.5:
+    resolution: {integrity: sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
@@ -4998,6 +5021,14 @@ packages:
     resolution: {integrity: sha512-cBk172kZKTdvGpJuzCCLg8lJ909wopwsu3Ve9FsL1XsnLBiRT9U3MePcqrgGHgCX2ZgkqZmAGR8taxw+TV6s7A==}
     peerDependencies:
       vite: ^3.0.0-0 || ^4.0.0-0 || ^5.0.0-0 || ^6.0.0-0
+
+  vite-tsconfig-paths@5.1.4:
+    resolution: {integrity: sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==}
+    peerDependencies:
+      vite: '*'
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   vite@6.2.1:
     resolution: {integrity: sha512-n2GnqDb6XPhlt9B8olZPrgMD/es/Nd1RdChF6CBD/fHW6pUyUTt2sQW2fPRX5GiD9XEa6+8A6A4f2vT6pSsE7Q==}
@@ -5287,9 +5318,9 @@ packages:
 
 snapshots:
 
-  '@4tw/cypress-drag-drop@2.3.0(cypress@14.2.0)':
+  '@4tw/cypress-drag-drop@2.3.0(cypress@14.2.1)':
     dependencies:
-      cypress: 14.2.0
+      cypress: 14.2.1
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -5571,7 +5602,7 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.3': {}
 
-  '@cypress/request@3.0.7':
+  '@cypress/request@3.0.8':
     dependencies:
       aws-sign2: 0.7.0
       aws4: 1.13.2
@@ -5586,15 +5617,15 @@ snapshots:
       json-stringify-safe: 5.0.1
       mime-types: 2.1.35
       performance-now: 2.1.0
-      qs: 6.13.1
+      qs: 6.14.0
       safe-buffer: 5.2.1
       tough-cookie: 5.1.1
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
-  '@cypress/vite-dev-server@6.0.2(cypress@14.2.0)':
+  '@cypress/vite-dev-server@6.0.2(cypress@14.2.1)':
     dependencies:
-      cypress: 14.2.0
+      cypress: 14.2.1
       debug: 4.4.0(supports-color@8.1.1)
       find-up: 6.3.0
       node-html-parser: 5.3.3
@@ -5602,9 +5633,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cypress/vue@6.0.2(cypress@14.2.0)(vue@3.5.13(typescript@5.8.2))':
+  '@cypress/vue@6.0.2(cypress@14.2.1)(vue@3.5.13(typescript@5.8.2))':
     dependencies:
-      cypress: 14.2.0
+      cypress: 14.2.1
       vue: 3.5.13(typescript@5.8.2)
 
   '@cypress/xvfb@1.2.4(supports-color@8.1.1)':
@@ -8130,14 +8161,14 @@ snapshots:
 
   csstype@3.1.3: {}
 
-  cypress-browser-permissions@1.1.0(cypress@14.2.0):
+  cypress-browser-permissions@1.1.0(cypress@14.2.1):
     dependencies:
-      cypress: 14.2.0
+      cypress: 14.2.1
       lodash: 4.17.21
 
-  cypress-real-events@1.14.0(cypress@14.2.0):
+  cypress-real-events@1.14.0(cypress@14.2.1):
     dependencies:
-      cypress: 14.2.0
+      cypress: 14.2.1
 
   cypress-recurse@1.35.3:
     dependencies:
@@ -8153,9 +8184,9 @@ snapshots:
 
   cypress-wait-until@3.0.2: {}
 
-  cypress@14.2.0:
+  cypress@14.2.1:
     dependencies:
-      '@cypress/request': 3.0.7
+      '@cypress/request': 3.0.8
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.9
@@ -8919,6 +8950,8 @@ snapshots:
   globals@15.15.0: {}
 
   globals@16.0.0: {}
+
+  globrex@0.1.2: {}
 
   google-auth-library@9.15.1:
     dependencies:
@@ -10106,6 +10139,10 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
   quansync@0.2.8: {}
 
   queue-microtask@1.2.3: {}
@@ -10576,6 +10613,10 @@ snapshots:
     dependencies:
       typescript: 5.8.2
 
+  tsconfck@3.1.5(typescript@5.8.2):
+    optionalDependencies:
+      typescript: 5.8.2
+
   tslib@2.8.1: {}
 
   tunnel-agent@0.6.0:
@@ -10762,6 +10803,17 @@ snapshots:
       vite: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
     transitivePeerDependencies:
       - supports-color
+
+  vite-tsconfig-paths@5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6)):
+    dependencies:
+      debug: 4.4.0(supports-color@8.1.1)
+      globrex: 0.1.2
+      tsconfck: 3.1.5(typescript@5.8.2)
+    optionalDependencies:
+      vite: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   vite@6.2.1(@types/node@22.13.10)(sass@1.77.6):
     dependencies:

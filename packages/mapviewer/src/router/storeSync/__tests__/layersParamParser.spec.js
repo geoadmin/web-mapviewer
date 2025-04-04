@@ -1,7 +1,6 @@
 import { layerUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
-import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
@@ -14,6 +13,7 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
