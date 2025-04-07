@@ -243,6 +243,7 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
         hasLegend: false,
         isLoading: true,
         adminId: null,
+        linkFiles: new Map(),
     }
 
     return merge(defaults, values)
