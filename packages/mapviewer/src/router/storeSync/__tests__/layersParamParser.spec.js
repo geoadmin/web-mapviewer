@@ -5,9 +5,6 @@ import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
-// import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
@@ -264,7 +261,7 @@ describe('Testing layersParamParser', () => {
                 testTime: true,
             },
             {
-                pristineLayer: new GeoAdminAggregateLayer({
+                pristineLayer: layerUtils.makeGeoAdminAggregateLayer({
                     name: 'fake aggregate layer',
                     id: 'fake.aggregate.id',
                     attributions,
@@ -288,6 +285,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
+                // TODO make a maker
                 pristineLayer: new GeoAdminGeoJsonLayer({
                     name: 'fake GeoJSON layer',
                     id: 'fake.geojson.id',
@@ -318,7 +316,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new ExternalWMSLayer({
+                pristineLayer: layerUtils.makeExternalWMSLayer({
                     id: 'fake.external.wms',
                     name: 'Fake external WMS',
                     baseUrl: 'https://fake.wms.url?',
@@ -340,7 +338,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMSLayer({
+                pristineLayer: layerUtils.makeExternalWMSLayer({
                     id: 'fake.external.group',
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',

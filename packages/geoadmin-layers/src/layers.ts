@@ -336,6 +336,23 @@ export interface ExternalWMSLayer extends Layer {
 
 // #endregion
 
+// #region Combined layers
+
+export interface AggregateSubLayer {
+    subLayerId: string | null
+    layer: Layer
+    minResolution: number
+    maxResolution: number
+}
+
+export interface GeoAdminAggregateLayer extends Layer {
+    type: LayerType.AGGREGATE
+    baseUrl: ''
+    subLayers: AggregateSubLayer[]
+}
+
+// #endregion
+
 export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedGeoTIFFLayer
 export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer
 export type GeoAdminLayer =
