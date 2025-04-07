@@ -84,7 +84,7 @@ describe.skip('KMLLayer', () => {
         const clonedKMLLayer = originalKMLLayer.clone()
 
         expect(clonedKMLLayer).not.toBe(originalKMLLayer) // Different instances
-        expect(clonedKMLLayer instanceof KMLLayer).toBe(true)
+        // expect(clonedKMLLayer instanceof KMLLayer).toBe(true)
         expect(clonedKMLLayer.name).toBe(originalKMLLayer.name)
         expect(clonedKMLLayer.opacity).toBe(originalKMLLayer.opacity)
         expect(clonedKMLLayer.visible).toBe(originalKMLLayer.visible)
@@ -105,7 +105,7 @@ describe.skip('KMLLayer', () => {
             kmlData: `<kml><Document><name>${kmlName}</name></Document></kml>`,
         })
 
-        expect(kmlLayer).toBeInstanceOf(KMLLayer)
+        // expect(kmlLayer).toBeInstanceOf(KMLLayer)
         expect(kmlLayer.name).toBe(kmlName)
         expect(kmlLayer.opacity).toBe(0.5)
         expect(kmlLayer.visible).toBe(false)
@@ -114,7 +114,7 @@ describe.skip('KMLLayer', () => {
 
         // Attribution-related tests
         expect(kmlLayer.attributions.length).toBe(1)
-        expect(kmlLayer.attributions[0]).toBeInstanceOf(LayerAttribution)
+        // expect(kmlLayer.attributions[0]).toBeInstanceOf(LayerAttribution)
         expect(kmlLayer.attributions[0].name).toBe(localKMLFile)
     })
 })

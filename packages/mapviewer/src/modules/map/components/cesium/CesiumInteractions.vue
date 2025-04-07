@@ -8,7 +8,6 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     clicked3DFeatureFill,
@@ -196,7 +195,7 @@ function onClick(event) {
             )
         })
     visiblePrimitiveLayers.value
-        .filter((l) => l instanceof KMLLayer)
+        .filter((l) => l.type === LayerType.KML)
         .forEach((kmlLayer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
