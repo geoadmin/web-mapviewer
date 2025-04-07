@@ -81,6 +81,7 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
         hasDescription: true,
         hasError: false,
         hasWarning: false,
+        timeConfig: null,
     }
 
     return merge(defaults, values)
@@ -111,6 +112,7 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
         isLoading: false,
         hasError: false,
         hasWarning: false,
+        timeConfig: null,
     }
 
     return merge(defaults, values)
@@ -156,6 +158,7 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
         currentYear: undefined,
         attributions,
         hasWarning: false,
+        timeConfig: null,
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -195,13 +198,13 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         hasTooltip: false,
         getFeatureInfoCapability: null,
         dimensions: [],
-        timeConfig: undefined,
         currentYear: undefined,
         customAttributes: undefined,
         type: LayerType.WMS as LayerType.WMS,
         isExternal: true,
         hasError: false,
         hasWarning: false,
+        timeConfig: null,
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -273,6 +276,7 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
         hasError: false,
         hasWarning: false,
         isLoading: !values.gpxData,
+        timeConfig: null,
     }
 
     return merge(defaults, values)
@@ -302,6 +306,8 @@ export const makeGeoAdminVectorLayer = (
         isLoading: false,
         hasError: false,
         hasWarning: false,
+
+        timeConfig: null,
     }
 
     return merge(defaults, omit(values, 'attributions'))
@@ -332,6 +338,7 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
         searchable: false,
         format: 'JPEG', // TODO move away from the attempt of restructuring things
         isSpecificFor3d: false,
+        timeConfig: null,
     }
 
     return merge(defaults, values)
@@ -371,6 +378,7 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         isLoading: false,
         hasError: false,
         hasWarning: false,
+        timeConfig: null,
     }
     return merge(defaults, values)
 }
@@ -394,6 +402,7 @@ export const makeGeoAdminAggregateLayer = (
         isLoading: false,
         hasError: false,
         hasWarning: false,
+        timeConfig: null,
     }
     return merge(defaults, values)
 }
@@ -419,6 +428,9 @@ export const makeGeoAdminGeoJSONLayer = (
         isLoading: false,
         hasError: false,
         hasWarning: false,
+        geoJsonStyle: null,
+        geoJsonData: null,
+        timeConfig: null,
     }
 
     return merge(defaults, values)
