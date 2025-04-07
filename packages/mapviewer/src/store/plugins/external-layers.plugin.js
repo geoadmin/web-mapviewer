@@ -26,7 +26,6 @@ export default function loadExternalLayerAttributes(store) {
                 layer.isLoading &&
                 layer.isExternal &&
                 ![LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
-            // (layer instanceof ExternalWMSLayer || layer instanceof ExternalWMTSLayer)
         )
         if (externalLayers.length > 0) {
             // We get first the capabilities

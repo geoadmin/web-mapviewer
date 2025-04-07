@@ -98,7 +98,7 @@ if (gutter.value !== -1) {
 // That means that data will not be requested if the map viewport is outside the extent.
 if (wmsLayerConfig.extent) {
     layer.setExtent(flattenExtent(wmsLayerConfig.extent))
-} else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
+} else if (wmsLayerConfig.type === LayerType.WMS && !wmsLayerConfig.isExternal) {
     // do not request stuff outside our technical extent with our own layers.
     layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
 }

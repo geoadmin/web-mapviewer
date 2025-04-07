@@ -13,7 +13,6 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
@@ -84,7 +83,7 @@ const hasMultipleTimestamps = computed(() => timeConfigUtils.hasMultipleTimestam
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
-const isLayerKml = computed(() => layer instanceof KMLLayer)
+const isLayerKml = computed(() => layer.type === LayerType.KML)
 const isLayerClampedToGround = computed({
     get: () => layer.clampToGround,
     set: (value) => {
