@@ -8,7 +8,6 @@ import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
@@ -174,7 +173,7 @@ function onClick(event) {
     const kmlFeatures = {}
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     visiblePrimitiveLayers.value
-        .filter((l) => l instanceof GeoAdminGeoJsonLayer)
+        .filter((l) => l.type === LayerType.GEOJSON)
         .forEach((geoJSonLayer) => {
             features.push(
                 ...identifyGeoJSONFeatureAt(

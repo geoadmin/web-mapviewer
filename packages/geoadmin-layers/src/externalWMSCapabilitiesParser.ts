@@ -107,7 +107,6 @@ function findLayer(layerId: string, layers: CapabilityLayer[], parents: Capabili
 // If the main layer has CRS defined, return them
 function getLayerProjections(layer: CapabilityLayer): string[] {
     if (layer.CRS) {
-        // TODO is this a list?
         return layer.CRS
     }
     if ((layer.Layer ?? []).length > 0) {
@@ -326,7 +325,6 @@ export class externalWMSCapabilitiesParser {
         }
 
         // Go through the child to get valid layers
-        // TODO have another variable name here
         let layers: ExternalWMSLayer[] = []
 
         if (layer.Layer?.length) {

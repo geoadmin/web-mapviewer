@@ -137,8 +137,7 @@ const generateClassForLayerConfig = (
             return layer
         }
         case 'geojson': {
-            // TODO CONTINUE HERE do this via utils too
-            const layer: GeoAdminGeoJSONLayer = {
+            const layer: GeoAdminGeoJSONLayer = layerUtils.makeGeoAdminGeoJSONLayer({
                 type: LayerType.GEOJSON,
                 name,
                 id,
@@ -156,7 +155,7 @@ const generateClassForLayerConfig = (
                 isLoading: true,
                 hasError: false,
                 hasWarning: false,
-            }
+            })
             return layer
         }
         case 'aggregate': {

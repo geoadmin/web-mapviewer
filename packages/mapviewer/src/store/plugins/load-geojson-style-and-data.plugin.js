@@ -9,8 +9,6 @@ import { ErrorMessage } from '@geoadmin/log/Message'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
 const intervalsByLayerId = {}
@@ -175,7 +173,7 @@ export default function loadGeojsonStyleAndData(store) {
             addLayersSubscriber(mutation.payload.layers)
         } else if (
             mutation.type === 'setPreviewLayer' &&
-            mutation.payload.layer instanceof GeoAdminGeoJsonLayer &&
+            mutation.payload.layer.type === LayerType.GEOJSON &&
             mutation.payload.layer.isLoading
         ) {
             loadAndUpdatePreviewLayer(store, mutation.payload.layer)
