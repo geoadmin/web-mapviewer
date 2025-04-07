@@ -1,4 +1,5 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRef } from 'vue'
 

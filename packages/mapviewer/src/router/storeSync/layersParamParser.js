@@ -8,7 +8,6 @@ import {
     decodeExternalLayerParam,
     encodeExternalLayerParam,
 } from '@/api/layers/layers-external.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const ENC_COMMA = '%2C'
 const ENC_SEMI_COLON = '%3B'
@@ -49,7 +48,7 @@ export function encodeLayerId(layer) {
  */
 export function decodeUrlLayerId(urlLayerId) {
     const [layerType, layerBaseUrl, layerId] = urlLayerId.split('|')
-    if (Object.values(LayerTypes).includes(layerType)) {
+    if (Object.values(LayerType).includes(layerType)) {
         const decodedBaseUrl = decodeExternalLayerParam(layerBaseUrl)
         // KML/GPX do not have layer IDs, so we use their baseUrl as "ID"
         const decodedLayerId = layerId ? decodeExternalLayerParam(layerId) : decodedBaseUrl

@@ -10,7 +10,6 @@ import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { cloneDeep } from 'lodash'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'
@@ -802,7 +801,7 @@ const actions = {
                     }
                     clone.kmlData = data
                     extent = getKmlExtent(data)
-                } else if (clone.type === LayerTypes.GPX) {
+                } else if (clone.type === LayerType.GPX) {
                     // The name of the GPX is derived from the metadata below
                     clone.gpxData = data
                     extent = getGpxExtent(data)
@@ -830,7 +829,7 @@ const actions = {
             if (metadata) {
                 if (clone.type === LayerType.KML) {
                     clone.kmlMetadata = metadata
-                } else if (clone.type === LayerTypes.GPX) {
+                } else if (clone.type === LayerType.GPX) {
                     clone.gpxMetadata = metadata
                     clone.name = metadata.name ?? 'GPX'
                 }

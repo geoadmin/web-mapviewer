@@ -6,7 +6,6 @@ import axios from 'axios'
 import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { normalizeExtent } from '@/utils/extentUtils'
@@ -356,7 +355,7 @@ function searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection
                 searchFeatures(outputProjection, queryString, currentLayer, currentLayer, parseKml)
             )
         }
-        if (currentLayer.type === LayerTypes.GPX) {
+        if (currentLayer.type === LayerType.GPX) {
             return returnLayers.concat(
                 ...searchFeatures(
                     outputProjection,

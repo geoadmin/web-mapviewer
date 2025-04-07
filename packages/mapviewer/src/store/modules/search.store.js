@@ -6,7 +6,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import reframe from '@/api/lv03Reframe.api'
 import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
@@ -261,7 +260,7 @@ const actions = {
                         if (entry.layer.type === LayerType.KML) {
                             features = parseKml(entry.layer, rootState.position.projection, [])
                         }
-                        if (entry.layer.type === LayerTypes.GPX) {
+                        if (entry.layer.type === LayerType.GPX) {
                             features = parseGpx(
                                 entry.layer.gpxData,
                                 rootState.position.projection,
