@@ -1,4 +1,4 @@
-import { layerUtils, timeConfigUtils, LayerAttribution } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'
@@ -20,14 +20,14 @@ const bgLayer = layerUtils.makeGeoAdminWMTSLayer({
     visible: true,
     format: 'jpeg',
     isBackground: true,
-    attributions: [new LayerAttribution('test')],
+    attributions: [{ name: 'test' }],
 })
 const firstLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'First layer',
     id: 'first.layer',
     technicalName: 'first.layer',
     visible: true,
-    attributions: [new LayerAttribution('test')],
+    attributions: [{ name: 'test' }],
 })
 const secondLayer = layerUtils.makeGeoAdminWMSLayer({
     name: 'Second layer',
@@ -39,7 +39,7 @@ const secondLayer = layerUtils.makeGeoAdminWMSLayer({
         new LayerTimeConfigEntry('19000203'),
         new LayerTimeConfigEntry('18400101'),
     ]),
-    attributions: [new LayerAttribution('test')],
+    attributions: [{ name: 'test' }],
 })
 
 const resetStore = () => {

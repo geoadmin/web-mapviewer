@@ -1,4 +1,4 @@
-import { layerUtils, LayerAttribution, LayerType } from '@geoadmin/layers'
+import { layerUtils, LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
@@ -233,7 +233,7 @@ describe('Testing layersParamParser', () => {
         })
     })
     describe('transformLayerIntoUrlString', () => {
-        const attributions = [new LayerAttribution('fake layer attribution')]
+        const attributions = [{ name: 'fake layer attribution' }]
         describe.each([
             {
                 pristineLayer: layerUtils.makeGeoAdminWMSLayer({
