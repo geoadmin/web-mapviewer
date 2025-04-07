@@ -1,11 +1,11 @@
 import { layerUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
+import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
@@ -285,8 +285,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                // TODO make a maker
-                pristineLayer: new GeoAdminGeoJsonLayer({
+                pristineLayer: layerUtils.makeGeoAdminGeoJSONLayer({
                     name: 'fake GeoJSON layer',
                     id: 'fake.geojson.id',
                     geoJsonUrl: 'https://fake.geo.admin.ch',
@@ -425,7 +424,7 @@ describe('Testing layersParamParser', () => {
         it('GeoAdmin GeoJSON layer : adds the updateDelay to the URL if not default value', () => {
             const geoJsonId = 'fake.geojson.id'
             const defaultUpdateDelay = 20000
-            const geoJsonLayer = new GeoAdminGeoJsonLayer({
+            const geoJsonLayer = layerUtils.makeGeoAdminGeoJSONLayer({
                 name: 'fake GeoJSON layer',
                 id: geoJsonId,
                 geoJsonUrl: 'https://fake.geo.admin.ch',
@@ -433,7 +432,7 @@ describe('Testing layersParamParser', () => {
                 attributions,
                 updateDelay: defaultUpdateDelay,
             })
-            const layer = geoJsonLayer.clone()
+            const layer = cloneDeep(geoJsonLayer)
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(`${layer.id}`)
             layer.updateDelay = defaultUpdateDelay + 200
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(

@@ -16,6 +16,7 @@ import {
     type GeoAdmin3DLayer,
     type CloudOptimizedGeoTIFFLayer,
     type GeoAdminAggregateLayer,
+    type GeoAdminGeoJSONLayer,
 } from '@/layers'
 import * as timeConfigUtils from '@/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -394,6 +395,32 @@ export const makeGeoAdminAggregateLayer = (
         hasError: false,
         hasWarning: false,
     }
+    return merge(defaults, values)
+}
+
+export const makeGeoAdminGeoJSONLayer = (
+    values: Partial<GeoAdminGeoJSONLayer>
+): GeoAdminGeoJSONLayer => {
+    const defaults = {
+        type: LayerType.GEOJSON,
+        updateDelay: 0,
+        styleUrl: '',
+        geoJsonUrl: '',
+        technicalName: '',
+        isExternal: false,
+        name: '',
+        id: '',
+        opacity: 1,
+        visible: true,
+        attributions: [],
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isLoading: false,
+        hasError: false,
+        hasWarning: false,
+    }
+
     return merge(defaults, values)
 }
 
