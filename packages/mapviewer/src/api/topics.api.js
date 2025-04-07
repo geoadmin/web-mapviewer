@@ -11,6 +11,7 @@ import {
 } from '@/utils/legacyLayerParamUtils'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
+// TODO implement this through @geoadmin/layers' GeoAdminTopic
 export class Topic {
     /**
      * @param {String} id The id of the topic (unique)

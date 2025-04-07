@@ -6,6 +6,7 @@ import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import type { LayerTimeConfig } from '@/timeConfig'
 
 export const DEFAULT_OPACITY = 1.0
+export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
 
 export enum LayerType {
     WMTS = 'WMTS',
@@ -70,7 +71,7 @@ export interface Layer {
     /** Set to true if some parts of the layer (e.g. metadata) are still loading */
     isLoading: boolean
     /** Time series config */
-    timeConfig?: LayerTimeConfig
+    timeConfig: LayerTimeConfig | null
     /**
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.
@@ -88,7 +89,6 @@ export interface Layer {
 }
 
 // #region: GeoAdminLayers
-
 /**
  * This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS
  *
@@ -102,9 +102,9 @@ export interface GeoAdminAPILayer extends Layer {
      */
     isHighlightable: boolean
     /** All the topics in which belongs this layer. */
-    topics: any[] /* TODO type for this? */
+    topics: string[]
     /** Define if this layer's features can be searched through the search bar. */
-    searchable: boolean // TODO shareable?
+    searchable: boolean
     /** In which image format the backend must be requested. */
     format: 'png' | 'jpeg'
     /**
@@ -118,7 +118,7 @@ export interface GeoAdminAPILayer extends Layer {
      * using the same layer if this is set to null.
      */
     idIn3d?: string
-    isSpecificFor3d: boolean /* TODO maybe the wrong place for this */
+    isSpecificFor3d: boolean
     /* oh OK this is determined by the _3d suffix. Why then isn't it made a 3d layer? */
 }
 
@@ -139,7 +139,7 @@ export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
      * The lang ISO code to use when requesting the backend (WMS images can have text that are
      * language dependent).
      */
-    lang: string // TODO sharable?
+    lang: string
 
     type: LayerType.WMS
 }
@@ -169,9 +169,11 @@ export interface GeoAdminGeoJSONLayer extends Layer {
     updateDelay: number
     styleUrl: string
     geoJsonUrl: string
-    // TODO these are set in the class to null
-    geoJsonStyle?: any
-    geoJsonData?: any
+    geoJsonStyle: {
+        type: string
+        ranges: number[]
+    } | null
+    geoJsonData: string | null
     technicalName: string
     isExternal: false
 }
@@ -268,9 +270,8 @@ export interface WMTSDimension {
 
 export interface TileMatrixSet {
     id: string
-    // TODO type for these
-    projection: any
-    tileMatrix: any
+    projection: CoordinateSystem
+    tileMatrix: any // TODO type this properly
 }
 
 export type BoundingBox = {
@@ -309,9 +310,6 @@ export interface ExternalWMTSLayer extends Layer {
     currentYear?: number
     type: LayerType.WMTS
 }
-
-// TODO
-export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
 
 export interface WMSDimension {
     id: string
