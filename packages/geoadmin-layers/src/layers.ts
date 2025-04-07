@@ -83,8 +83,8 @@ export interface Layer {
     warningMessages?: Set<WarningMessage>
     hasError: boolean
     hasWarning: boolean
-    // hasMultipleTimestamps: boolean
 
+    /* The admin id to allow editing. If null then the user is not allowed to edit the file. */
     adminId?: string
 }
 
@@ -160,14 +160,23 @@ export interface GeoAdminWMTSLayer extends GeoAdminAPILayer {
 export interface GeoAdmin3DLayer extends GeoAdminAPILayer {
     type: LayerType.VECTOR
     technicalName: string
+    /* If the JSON file stored in the /3d-tiles/ sub-folder on the S3 bucket */
     use3dTileSubFolder: boolean
-    urlTimestampToUse: boolean
+    /* If this layers' JSON is stored in a
+       dedicated timed folder, it can be described with this property. This will be added at the
+       end of the URL, before the /tileset.json (or /style.json, depending on the layer type) */
+    urlTimestampToUse: boolean | null
 }
 
 export interface GeoAdminGeoJSONLayer extends Layer {
     type: LayerType.GEOJSON
-    updateDelay: number
+    /* Delay after which the data of this layer
+        should be re-requested (if null is given, no further data reload will be triggered). A good
+        example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null` */
+    updateDelay: number | null
+    /* The URL to use to request the styling to apply to the data */
     styleUrl: string
+    /* The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     geoJsonUrl: string
     geoJsonStyle: {
         type: string
@@ -192,8 +201,12 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     type: LayerType.COG
     isLocalFile: boolean
     fileSource: string | null
+    /* Data/content of the COG file, as a string. */
     data: string | Blob | null
+    /* Which value will be describing the absence of data in this COG. Will be used to create
+      transparency whenever this value is present. */
     noDataValue: number | null
+    /* The extent of this COG. */
     extent: [number, number, number, number] | null
 }
 
@@ -218,16 +231,29 @@ export enum KmlStyle {
 }
 
 export interface KMLLayer extends Layer {
+    /* The URL to access the KML data. */
     kmlFileUrl: string
     fileId: string | null
+    /* Data/content of the KML file, as a string. */
     kmlData: string | null
+    /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
     kmlMetadata: KmlMetadata | null
+
     extent: [number, number, number, number] | null
+    /* Flag defining if the KML should be clamped to
+       the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
+       true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
+       tracks) that were not clamped to the ground (they are providing height values), and others
+       wanted to have their flat surface visible on the ground, so that is the way to please both
+       crowds. */
     clampToGround: boolean
     style: KmlStyle | null
     isExternal: boolean
     isLocalFile: boolean
     attributions: LayerAttribution[]
+    /* Map of KML link files. Those files are usually sent with the kml inside a KMZ archive and can
+       be referenced inside the KML (e.g. icon, image, ...). */
+    linkFiles: Map<String, ArrayBuffer>
 }
 
 export type GPXLink = {
@@ -253,8 +279,11 @@ export type GPXMetadata = {
 }
 
 export interface GPXLayer extends Layer {
+    /* URL to the GPX file (can also be a local file URI) */
     gpxFileUrl: string | null
+    /* Data/content of the GPX file, as a string. */
     gpxData: string | null
+    /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
     gpxMetadata: GPXMetadata | null
     extent: [number, number, number, number] | null
 }
@@ -262,15 +291,23 @@ export interface GPXLayer extends Layer {
 
 // #region: external layers
 export interface WMTSDimension {
+    /* Dimension identifier */
     id: string
+    /* Dimension default value */
     default: string
+    /* All dimension values */
     values: string[]
+    /* Boolean flag if the dimension support current (see WMTS OGC spec) */
+
     current?: boolean
 }
 
 export interface TileMatrixSet {
+    /* Identifier of the tile matrix set (see WMTS OGC spec) */
     id: string
+    /* Coordinate system supported by the Tile Matrix Set */
     projection: CoordinateSystem
+    /* TileMatrix from GetCapabilities (see WMTS OGC spec) */
     tileMatrix: any // TODO type this properly
 }
 
@@ -297,16 +334,28 @@ export enum WMTSEncodingType {
 }
 
 export interface ExternalWMTSLayer extends Layer {
+    /* Abstract of this layer to be shown to the   user. */
     abstract?: string
     extent?: LayerExtent
+    /* Layer legends. */
     legends?: LayerLegend[]
+    /* All projection that can be used to request this layer. */
     availableProjections?: CoordinateSystem[]
+    /* WMTS Get Capabilities options */
     options?: Options
+    /* WMTS Get Tile encoding (KVP or REST). */
     getTileEncoding: WMTSEncodingType
+    /* WMTS Get Tile url template for REST encoding. */
     urlTemplate: string
+    /* WMTS layer style. If no style is given here, and no style is found in the options, the 'default' style will be used. */
     style?: string
+    /* WMTS tile matrix sets */
     tileMatrixSets?: TileMatrixSet[]
+    /* WMTS tile dimensions */
     dimensions?: WMTSDimension[]
+    /* Current year of the time series config to use. This parameter is needed as it is set in the
+       URL while the timeConfig parameter is not yet available and parse later on from the
+       GetCapabilities. */
     currentYear?: number
     type: LayerType.WMTS
 }
@@ -319,16 +368,29 @@ export interface WMSDimension {
 }
 
 export interface ExternalWMSLayer extends Layer {
+    /* Abstract of this layer to be shown to the user. */
     abstract?: string
+    /* WMS Dimensions */
     dimensions: WMSDimension[]
+    /*All projection that can   be used to request this layer. */
     availableProjections?: CoordinateSystem[]
+    /* Configuration describing how to request this layer's server to get feature information. */
     getFeatureInfoCapability?: any
+    /* The custom attributes (except the well known updateDelays, adminId, features and year)
+       passed with the layer id in url. */
     customAttributes?: Record<string, any>
+    /* Description of the layers being part of this WMS layer (they will all be displayed at the
+       same time, in contrast to an aggregate layer) */
     layers?: ExternalWMSLayer[]
+    /* WMS protocol version to be used when querying this server.  */
     wmsVersion: string
     format: 'png' | 'jpeg'
     extent?: LayerExtent
+    /* Layer legends */
     legends?: LayerLegend[]
+    /* Current year of the time series config to use. This parameter is needed as it is set in the
+       URL while the timeConfig parameter is not yet available and parse later on from the
+       GetCapabilities. */
     currentYear?: number
 }
 
@@ -337,9 +399,13 @@ export interface ExternalWMSLayer extends Layer {
 // #region Combined layers
 
 export interface AggregateSubLayer {
+    /* The ID used in the GeoAdmin's backend to describe this sub-layer */
     subLayerId: string | null
-    layer: Layer
+    /* The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a  {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer}) */
+    layer: GeoAdminGeoJSONLayer | GeoAdminWMTSLayer | GeoAdminWMSLayer
+    /* In meter/px, at which resolution this sub-layer should start to  be visible */
     minResolution: number
+    /* In meter/px, from which resolution the layer should be hidden */
     maxResolution: number
 }
 
