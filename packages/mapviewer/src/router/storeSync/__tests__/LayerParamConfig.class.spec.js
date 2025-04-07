@@ -2,7 +2,6 @@ import { LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { createLayerObject, validateUrlInput } from '@/router/storeSync/LayerParamConfig.class'
 
@@ -48,7 +47,7 @@ describe('External layer parsing with createLayerObject', () => {
         const wmsVersion = '1.3.0'
         const wmsLayerId = 'random.wms.layer_id'
         const { layer: result } = createLayerObject({
-            type: LayerTypes.WMS,
+            type: LayerType.WMS,
             id: wmsLayerId,
             baseUrl: wmsBaseUrl,
             visible: true,
@@ -63,7 +62,7 @@ describe('External layer parsing with createLayerObject', () => {
         const wmtsGetCapUrl = 'https://base.wmts.url/getCapabilitiesEndpoint.xml'
         const wmtsLayerId = 'random.wmts.layer_id'
         const { layer: result } = createLayerObject({
-            type: LayerTypes.WMTS,
+            type: LayerType.WMTS,
             id: wmtsLayerId,
             baseUrl: wmtsGetCapUrl,
             visible: true,

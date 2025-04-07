@@ -5,6 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
 import { timeConfigUtils, validateLayerProp } from '@geoadmin/layers'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { cloneDeep } from 'lodash'

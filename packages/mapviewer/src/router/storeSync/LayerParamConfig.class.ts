@@ -24,7 +24,6 @@ import type { ActiveLayerConfig } from '@/utils/layerUtils'
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
@@ -159,7 +158,7 @@ export function createLayerObject(
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
         }
-    } else if (parsedLayer.type === LayerTypes.COG) {
+    } else if (parsedLayer.type === LayerType.COG) {
         // format is GEOTIFF|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createCloudOptimizedGeoTIFFLayer(layer, parsedLayer)

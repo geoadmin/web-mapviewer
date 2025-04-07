@@ -1,9 +1,8 @@
 <script setup>
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils, LayerType } from '@geoadmin/layers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import DebugLayerFinderFilter from '@/modules/menu/components/debug/DebugLayerFinderFilter.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
@@ -15,7 +14,7 @@ const withLegend = ref(null)
 const store = useStore()
 
 const layers = computed(() => store.state.layers.config)
-const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerTypes.AGGREGATE, LayerTypes.GEOJSON]
+const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
 const currentLayerType = ref([...possibleLayerTypes])
 
 const filteredLayers = computed(() => {
