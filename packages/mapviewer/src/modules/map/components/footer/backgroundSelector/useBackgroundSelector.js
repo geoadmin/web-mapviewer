@@ -4,10 +4,10 @@ import { ref } from 'vue'
  * Centralisation of the logic behind the background selector. This helps us define two flavors of
  * background selector with the same Vue code basis.
  *
- * @param {(AbstractLayer | null)[]} backgroundLayers All backgrounds defined in the store (void
- *   included, meaning a null value inside the array)
- * @param {AbstractLayer | null} currentBackgroundLayer The background currently displayed on the
- *   map (if none, or void, then a null value can be passed here)
+ * @param {(Layer | null)[]} backgroundLayers All backgrounds defined in the store (void included,
+ *   meaning a null value inside the array)
+ * @param {Layer | null} currentBackgroundLayer The background currently displayed on the map (if
+ *   none, or void, then a null value can be passed here)
  * @param {EmitFn} emit The emit function built by defineEmit (Vue helper function). It is sadely
  *   not possible to define emit events directly in the composable portion, each component built
  *   with this composable needs to define events itself.

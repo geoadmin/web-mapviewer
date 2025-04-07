@@ -1,9 +1,8 @@
-import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils, LayerAttribution } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is

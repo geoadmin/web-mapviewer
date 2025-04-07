@@ -506,7 +506,7 @@ async function identifyOnExternalWmsLayer(config) {
  * http://api3.geo.admin.ch/services/sdiservices.html#identify-features or the
  * {@link getFeatureInfoCapability} of an external layer
  *
- * @param {AbstractLayer} config.layer
+ * @param {Layer} config.layer
  * @param {Number[]} config.coordinate Coordinate where to identify feature in EPSG:3857
  * @param {Number} config.resolution Current map resolution, in meters/pixel
  * @param {Number[]} config.mapExtent

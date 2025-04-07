@@ -9,6 +9,7 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
@@ -19,8 +20,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 
 const { vectorLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     vectorLayerConfig: {
-        // type: GeoAdminVectorLayer,
-        type: Object,
+        validator: (value) => value.type === LayerType.GeoJSON,
         required: true,
     },
     parentLayerOpacity: {

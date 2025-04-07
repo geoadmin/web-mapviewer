@@ -111,3 +111,25 @@ export class CapabilitiesError extends Error {
         this.key = key
     }
 }
+
+/**
+ * Validate a component prop for basic layer type
+ *
+ * In cases where we don't yet use TS in vue components, we can't check the props against the
+ * interfaces. It used to be done with a instanceof AbstractLayer check. This function helps solving
+ * that issue by checking for the very basic and absolutely necessary properties of a Layer object.
+ * This should be good enough in the transition to TS to ensure that the provided property is indeed
+ * an implementation of Layer
+ *
+ * @param value Any Object
+ * @returns Boolean
+ */
+export const validateLayerProp = (value: Record<any, any>): boolean => {
+    const requiredProps = ['id', 'type', 'baseUrl', 'name']
+    for (const prop of requiredProps) {
+        if (!(prop in value)) {
+            return false
+        }
+    }
+    return true
+}

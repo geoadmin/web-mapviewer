@@ -1,14 +1,12 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
-import { layerContainsErrorMessage, LayerType } from '@geoadmin/layers'
+import { layerContainsErrorMessage, LayerType, WMTSEncodingType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { getWmtsXyzUrl } from '@/utils/layerUtils'
@@ -20,8 +18,7 @@ const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {
-        // TODO fix this check
-        type: [GeoAdminWMTSLayer, ExternalWMTSLayer],
+        validator: (value) => value.type === LayerType.WMTS,
         required: true,
     },
     zIndex: {
@@ -89,7 +86,7 @@ function createProvider() {
     if (type === LayerType.WMTS && wmtsLayerConfig.isExternal && tileMatrixSetId.value) {
         provider = new WebMapTileServiceImageryProvider({
             url:
-                wmtsLayerConfig.getTileEncoding === WMTSEncodingTypes.KVP
+                wmtsLayerConfig.getTileEncoding === WMTSEncodingType.KVP
                     ? wmtsLayerConfig.baseUrl
                     : wmtsLayerConfig.urlTemplate,
             layer: wmtsLayerConfig.id,

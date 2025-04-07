@@ -1,11 +1,9 @@
-import { layerUtils } from '@geoadmin/layers'
-import { LayerType } from '@geoadmin/layers'
+import { layerUtils, LayerAttribution, LayerType } from '@geoadmin/layers'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'

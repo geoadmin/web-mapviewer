@@ -17,7 +17,7 @@ const ENC_AT = '%40'
 /**
  * Transform a layer ID in its URL value equivalent
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @returns {String}
  * @see https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
  */
@@ -152,7 +152,7 @@ export function parseLayersParam(queryValue) {
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
  * layer and its state (visibility, opacity, etc...)
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @param {GeoAdminLayer} [defaultLayerConfig]
  * @param {String[] | null} featuresIds
  * @returns {String}
