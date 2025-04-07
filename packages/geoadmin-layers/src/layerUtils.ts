@@ -15,6 +15,7 @@ import {
     type GeoAdminVectorLayer,
     type GeoAdmin3DLayer,
     type CloudOptimizedGeoTIFFLayer,
+    type GeoAdminAggregateLayer,
 } from '@/layers'
 import * as timeConfigUtils from '@/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -362,6 +363,29 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         opacity: 1,
         visible: false,
         attributions,
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: false,
+        isLoading: false,
+        hasError: false,
+        hasWarning: false,
+    }
+    return merge(defaults, values)
+}
+
+export const makeGeoAdminAggregateLayer = (
+    values: Partial<GeoAdminAggregateLayer>
+): GeoAdminAggregateLayer => {
+    const defaults = {
+        type: LayerType.AGGREGATE,
+        baseUrl: '',
+        subLayers: [],
+        name: '',
+        id: '',
+        opacity: 1,
+        visible: true,
+        attributions: [],
         hasTooltip: false,
         hasDescription: false,
         hasLegend: false,
