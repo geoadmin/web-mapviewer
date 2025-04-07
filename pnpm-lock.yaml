@@ -46,8 +46,8 @@ catalogs:
       specifier: ^0.6.0
       version: 0.6.0
     '@geoblocks/mapfishprint':
-      specifier: ^0.2.19
-      version: 0.2.19
+      specifier: ^0.2.20
+      version: 0.2.20
     '@geoblocks/ol-maplibre-layer':
       specifier: ^1.0.3
       version: 1.0.3
@@ -521,7 +521,7 @@ importers:
         version: 0.6.0(@cesium/engine@15.0.0)
       '@geoblocks/mapfishprint':
         specifier: 'catalog:'
-        version: 0.2.19(ol@10.4.0)
+        version: 0.2.20(ol@10.4.0)
       '@geoblocks/ol-maplibre-layer':
         specifier: 'catalog:'
         version: 1.0.3(maplibre-gl@5.2.0)(ol@10.4.0)
@@ -1243,8 +1243,8 @@ packages:
     peerDependencies:
       '@cesium/engine': '>=10'
 
-  '@geoblocks/mapfishprint@0.2.19':
-    resolution: {integrity: sha512-8hgcjHTz1yJxO5VyzrKsc2+WEXdVT0u6Sge5KclYWI9T88/LsCAI/Ub8cP/zqiNPTot7kUdlTjTRy9L8rQpdbw==}
+  '@geoblocks/mapfishprint@0.2.20':
+    resolution: {integrity: sha512-9Z0IhGhCkWIDH1L/k7q+k6DAODUc2OaX+csIucNeEoW34XydN2QNZtvNRA19/9NhWhdx2dOJSV+N2h7nEbyOFg==}
     peerDependencies:
       ol: 6 || 7 || 8 || 9 || 10
 
@@ -5996,7 +5996,7 @@ snapshots:
       '@cesium/engine': 15.0.0
       lit: 3.2.1
 
-  '@geoblocks/mapfishprint@0.2.19(ol@10.4.0)':
+  '@geoblocks/mapfishprint@0.2.20(ol@10.4.0)':
     dependencies:
       ol: 10.4.0
     optionalDependencies:
