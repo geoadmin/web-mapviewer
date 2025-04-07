@@ -9,8 +9,6 @@ import { LayerType } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumGPXLayer from '@/modules/map/components/cesium/CesiumGPXLayer.vue'
 import CesiumKMLLayer from '@/modules/map/components/cesium/CesiumKMLLayer.vue'
@@ -20,7 +18,7 @@ import CesiumWMTSLayer from '@/modules/map/components/cesium/CesiumWMTSLayer.vue
 
 const { layerConfig, zIndex, projection, isTimeSliderActive, parentLayerOpacity } = defineProps({
     layerConfig: {
-        type: AbstractLayer,
+        validator: validateLayerProp,
         default: null,
     },
     zIndex: {
@@ -54,7 +52,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
 
 <template>
     <CesiumVectorLayer
-        v-if="layerConfig.type === LayerTypes.VECTOR"
+        v-if="layerConfig.type === LayerType.VECTOR"
         :layer-config="layerConfig"
     />
     <CesiumWMTSLayer
@@ -69,7 +67,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         :parent-layer-opacity="parentLayerOpacity"
         :z-index="zIndex"
     />
-    <div v-if="layerConfig.type === LayerTypes.GROUP">
+    <div v-if="layerConfig.type === LayerType.GROUP">
         <CesiumWMSLayer
             v-for="(layer, index) in layerConfig.layers"
             :key="`${layer.id}-${index}`"
@@ -78,7 +76,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex + index"
         />
     </div>
-    <div v-if="layerConfig.type === LayerTypes.AGGREGATE">
+    <div v-if="layerConfig.type === LayerType.AGGREGATE">
         <!-- we can't v-for and v-if at the same time, so we need to wrap all sub-layers in a <div> -->
         <div
             v-for="aggregateSubLayer in layerConfig.subLayers"
@@ -95,7 +93,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         </div>
     </div>
     <CesiumGeoJSONLayer
-        v-if="layerConfig.type === LayerTypes.GEOJSON && !layerConfig.isLoading"
+        v-if="layerConfig.type === LayerType.GEOJSON && !layerConfig.isLoading"
         :geo-json-config="layerConfig"
     />
     <CesiumKMLLayer
@@ -103,7 +101,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         :kml-layer-config="layerConfig"
     />
     <CesiumGPXLayer
-        v-if="layerConfig.type === LayerTypes.GPX && !layerConfig.isLoading"
+        v-if="layerConfig.type === LayerType.GPX && !layerConfig.isLoading"
         :gpx-layer-config="layerConfig"
     />
     <slot />

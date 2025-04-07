@@ -1,10 +1,10 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
@@ -16,7 +16,7 @@ const { t } = useI18n()
 
 const { kmlLayer } = defineProps({
     kmlLayer: {
-        type: KMLLayer,
+        validator: (value) => value.type === LayerType.KML,
         default: null,
     },
 })

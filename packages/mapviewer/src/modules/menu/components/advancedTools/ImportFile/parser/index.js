@@ -21,7 +21,7 @@ const allParsers = [
  * @param {Object} [options]
  * @param {OnlineFileCompliance} [options.fileCompliance]
  * @param {ArrayBuffer} [options.loadedContent]
- * @returns {Promise<AbstractLayer>}
+ * @returns {Promise<Layer>}
  */
 async function parseAll(config, options) {
     const allSettled = await Promise.allSettled(
@@ -46,7 +46,7 @@ async function parseAll(config, options) {
  * @param {File | String} fileSource
  * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file against
  *   the current projection (and raise OutOfBoundError in case no mutual data is available)
- * @returns {Promise<AbstractLayer>}
+ * @returns {Promise<Layer>}
  */
 export async function parseLayerFromFile(fileSource, currentProjection) {
     // if local file, just parse it

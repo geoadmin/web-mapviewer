@@ -107,7 +107,7 @@ const createCloudOptimizedGeoTIFFLayer = (
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
  *
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
- * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
+ * @param {Layer | null} currentLayer Current layer if it is found in active layers
  * @param {Store} store Vuex store
  * @param {[Promise<LayerFeature>]} featuresRequests Array of getFeature() promises
  * @returns {KMLLayer | layers.ExternalWMTSLayer | ExternalWMSLayer | null | ActiveLayerConfig}

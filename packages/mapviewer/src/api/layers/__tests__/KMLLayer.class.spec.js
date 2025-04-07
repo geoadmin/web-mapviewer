@@ -1,7 +1,7 @@
 import { layerUtils } from '@geoadmin/layers'
+import { LayerAttribution } from '@geoadmin/layers'
 import { describe, expect, it } from 'vitest'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 
 describe.skip('KMLLayer', () => {

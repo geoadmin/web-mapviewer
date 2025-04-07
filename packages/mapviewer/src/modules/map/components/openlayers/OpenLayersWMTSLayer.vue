@@ -1,5 +1,5 @@
 <script setup>
-// import { GeoAdminWMTSLayer } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
@@ -12,9 +12,7 @@ import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/u
 
 const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmtsLayerConfig: {
-        // TODO this should be GeoAdminWMTSLayer Interface. But we're not on typescript
-        // here yet, hence we can't use this ATM
-        type: Object,
+        validator: (value) => value.type === LayerType.WMTS,
         required: true,
     },
     parentLayerOpacity: {

@@ -5,14 +5,13 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils, validateLayerProp } from '@geoadmin/layers'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
@@ -31,7 +30,7 @@ const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLaye
             required: true,
         },
         layer: {
-            type: AbstractLayer,
+            validator: validateLayerProp,
             required: true,
         },
         showLayerDetail: {

@@ -85,7 +85,7 @@ export function parseOpacity(value) {
  * @param {String} legacyOpacities A string containing the opacity value for each layer
  * @param {String} legacyTimestamp A string containing the timestamp or year for each time enabled
  *   layer
- * @returns {AbstractLayer[]}
+ * @returns {Layer[]}
  */
 export function getLayersFromLegacyUrlParams(
     layersConfig,

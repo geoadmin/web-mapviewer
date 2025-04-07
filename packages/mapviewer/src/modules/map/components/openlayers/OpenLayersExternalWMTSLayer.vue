@@ -1,6 +1,7 @@
 <script setup>
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
@@ -8,14 +9,12 @@ import WMTS from 'ol/source/WMTS'
 import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     externalWmtsLayerConfig: {
-        // TODO fix this check
-        type: ExternalWMTSLayer,
+        validator: (value) => value.type === LayerType.WMTS && value.isExternal,
         required: true,
     },
     parentLayerOpacity: {

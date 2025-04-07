@@ -58,7 +58,7 @@ export function useLayerZIndexCalculation() {
      * Gives the z-index of a layer, taking into account if the map is shown in 3D or not. This
      * works for BG layer too.
      *
-     * @param {AbstractLayer} layer A background or visible layer
+     * @param {Layer} layer A background or visible layer
      * @returns {Number} The Z-Index for this layer
      */
     function getZIndexForLayer(layer) {

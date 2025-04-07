@@ -6,11 +6,10 @@
 
 import { WEBMERCATOR } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
+import { validateLayerProp } from '@geoadmin/layers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'
@@ -22,7 +21,7 @@ import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersW
 
 const { layerConfig, parentLayerOpacity, zIndex } = defineProps({
     layerConfig: {
-        type: AbstractLayer,
+        validator: validateLayerProp,
         default: null,
     },
     parentLayerOpacity: {
@@ -57,7 +56,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             (see OpenLayersMap main component)
         -->
         <OpenLayersVectorLayer
-            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
+            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerType.VECTOR"
             :vector-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
@@ -83,12 +82,12 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
-            v-if="layerConfig.type === LayerTypes.GEOJSON"
+            v-if="layerConfig.type === LayerType.GEOJSON"
             :geo-json-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
-        <div v-if="layerConfig.type === LayerTypes.GROUP">
+        <div v-if="layerConfig.type === LayerType.GROUP">
             <OpenLayersInternalLayer
                 v-for="(layer, index) in layerConfig.layers"
                 :key="`${layer.id}-${index}`"
@@ -104,7 +103,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         component in another child (that would be OpenLayersAggregateLayer.vue component, that doesn't work).
         See https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components for more info
         -->
-        <div v-if="layerConfig.type === LayerTypes.AGGREGATE">
+        <div v-if="layerConfig.type === LayerType.AGGREGATE">
             <!-- we can't v-for and v-if at the same time, so we need to wrap all sub-layers in a <div> -->
             <div
                 v-for="aggregateSubLayer in layerConfig.subLayers"
@@ -125,13 +124,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             :z-index="zIndex"
         />
         <OpenLayersGPXLayer
-            v-if="layerConfig.type === LayerTypes.GPX"
+            v-if="layerConfig.type === LayerType.GPX"
             :gpx-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersCOGTiffLayer
-            v-if="layerConfig.type === LayerTypes.COG"
+            v-if="layerConfig.type === LayerType.COG"
             :geotiff-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

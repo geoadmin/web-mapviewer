@@ -47,7 +47,7 @@ import { normalizeExtent } from '@/utils/extentUtils'
 /**
  * Returns timestamp for WMS or WMTS layer from config data
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @returns {String | null | LayerTimeConfig.currentTimeEntry.timestamp}
  */
 export function getTimestampFromConfig(layer) {
@@ -106,7 +106,7 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
  * Creates a LayerFeature object from an OpenLayers feature and a layer.
  *
  * @param {ol.Feature} olFeature - The OpenLayers feature to convert.
- * @param {AbstractLayer} layer - The layer associated with the feature.
+ * @param {Layer} layer - The layer associated with the feature.
  * @returns {LayerFeature | null} The created LayerFeature object or null if the feature has no
  *   geometry.
  */

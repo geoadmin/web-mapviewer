@@ -47,7 +47,7 @@ export interface Layer {
      * What's the backend base URL to use when requesting tiles/image for this layer, will be used
      * to construct the URL of this layer later on
      */
-    readonly baseUrl?: string /* can be left out because some don't have that? */
+    readonly baseUrl: string
     /**
      * Flag telling if the base URL must always have a trailing slash. It might be sometime the case
      * that this is unwanted (i.e. for an external WMS URL already built past the point of URL

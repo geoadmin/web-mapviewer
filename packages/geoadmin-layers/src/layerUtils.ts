@@ -292,6 +292,7 @@ export const makeGeoAdminVectorLayer = (
     ]
 
     const defaults = {
+        baseUrl: '',
         type: LayerType.VECTOR,
         technicalName: '',
         attributions,
@@ -318,6 +319,7 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
     const defaults = {
+        baseUrl: '',
         technicalName: '',
         use3dTileSubFolder: false,
         urlTimestampToUse: false,
@@ -361,6 +363,7 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
 
     const defaults = {
+        baseUrl: '',
         type: LayerType.COG,
         isLocalFile: false,
         fileSource: null,
@@ -412,6 +415,7 @@ export const makeGeoAdminGeoJSONLayer = (
     values: Partial<GeoAdminGeoJSONLayer>
 ): GeoAdminGeoJSONLayer => {
     const defaults = {
+        baseUrl: '',
         type: LayerType.GEOJSON,
         updateDelay: 0,
         styleUrl: '',
