@@ -460,13 +460,16 @@ importers:
         version: 5.2.0
       vite:
         specifier: 'catalog:'
-        version: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
+        version: 6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6)
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 4.5.3(@types/node@22.13.10)(rollup@4.35.0)(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))
+        version: 4.5.3(@types/node@22.13.10)(rollup@4.35.0)(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))
+      vite-tsconfig-paths:
+        specifier: 'catalog:'
+        version: 5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))
       vitest:
         specifier: 'catalog:'
-        version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@26.0.0)(sass@1.77.6)
+        version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(sass@1.77.6)
       vue-tsc:
         specifier: 'catalog:'
         version: 2.2.8(typescript@5.8.2)
@@ -781,14 +784,10 @@ importers:
         version: 2.3.0(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))
       vite-plugin-vue-devtools:
         specifier: 'catalog:'
-<<<<<<< HEAD
         version: 7.7.2(rollup@4.35.0)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))(vue@3.5.13(typescript@5.8.2))
-=======
-        version: 7.7.2(rollup@4.35.0)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))(vue@3.5.13(typescript@5.8.2))
       vite-tsconfig-paths:
         specifier: 'catalog:'
-        version: 5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6))
->>>>>>> 72c41062 (PB-1383 Install vite-tsconfig-paths for the unit tests)
+        version: 5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))
       vitest:
         specifier: 'catalog:'
         version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(sass@1.77.6)
@@ -798,46 +797,6 @@ importers:
       yargs:
         specifier: 'catalog:'
         version: 17.7.2
-
-  packages/testbed:
-    dependencies:
-      '@geoadmin/tooltip':
-        specifier: 'workspace:'
-        version: link:../geoadmin-tooltip
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.13(typescript@5.8.2)
-    devDependencies:
-      '@tailwindcss/vite':
-        specifier: 'catalog:'
-        version: 4.0.17(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))
-      '@tsconfig/node22':
-        specifier: 'catalog:'
-        version: 22.0.1
-      '@types/jsdom':
-        specifier: 'catalog:'
-        version: 21.1.7
-      '@vitejs/plugin-vue':
-        specifier: 'catalog:'
-        version: 5.2.1(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))(vue@3.5.13(typescript@5.8.2))
-      '@vue/tsconfig':
-        specifier: 'catalog:'
-        version: 0.7.0(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
-      tailwindcss:
-        specifier: 'catalog:'
-        version: 4.0.17
-      vite:
-        specifier: 'catalog:'
-        version: 6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6)
-      vite-plugin-vue-devtools:
-        specifier: 'catalog:'
-        version: 7.7.2(rollup@4.35.0)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6))(vue@3.5.13(typescript@5.8.2))
-      vitest:
-        specifier: 'catalog:'
-        version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(sass@1.77.6)
-      vue-tsc:
-        specifier: 'catalog:'
-        version: 2.2.8(typescript@5.8.2)
 
 packages:
 
@@ -4672,10 +4631,6 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
-
-  qs@6.13.1:
-    resolution: {integrity: sha512-EJPeIn0CYrGu+hli1xilKAPXODtJ12T0sP63Ijx2/khC2JtuaN3JyNIpvmnkmaEtha9ocbG4A4cMcr+TvqvwQg==}
-    engines: {node: '>=0.6'}
 
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
@@ -9301,7 +9256,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 6.7.1
       google-auth-library: 9.15.1
-      qs: 6.13.1
+      qs: 6.14.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -10511,10 +10466,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  qs@6.13.1:
-    dependencies:
-      side-channel: 1.1.0
-
   qs@6.14.0:
     dependencies:
       side-channel: 1.1.0
@@ -11184,22 +11135,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-<<<<<<< HEAD
-  vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6):
-=======
-  vite-tsconfig-paths@5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(sass@1.77.6)):
+  vite-tsconfig-paths@5.1.4(typescript@5.8.2)(vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6)):
     dependencies:
       debug: 4.4.0(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 3.1.5(typescript@5.8.2)
     optionalDependencies:
-      vite: 6.2.1(@types/node@22.13.10)(sass@1.77.6)
+      vite: 6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@6.2.1(@types/node@22.13.10)(sass@1.77.6):
->>>>>>> 72c41062 (PB-1383 Install vite-tsconfig-paths for the unit tests)
+  vite@6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6):
     dependencies:
       esbuild: 0.25.1
       postcss: 8.5.3
