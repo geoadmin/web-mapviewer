@@ -363,9 +363,9 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
 
     const defaults = {
-        baseUrl: '',
+        baseUrl: fileSource,
         type: LayerType.COG,
-        isLocalFile: false,
+        isLocalFile,
         fileSource: null,
         data: null,
         noDataValue: null,
