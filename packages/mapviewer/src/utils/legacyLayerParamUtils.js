@@ -1,4 +1,5 @@
-import { timeConfigUtils, KmlStyle, layerUtils } from '@geoadmin/layers'
+import { KmlStyle } from '@geoadmin/layers'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 

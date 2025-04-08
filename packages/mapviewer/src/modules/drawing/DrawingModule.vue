@@ -1,5 +1,5 @@
 <script setup>
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'

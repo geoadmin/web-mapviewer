@@ -8,6 +8,21 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.umd.cjs"
+        },
+        "./utils": {
+            "types": "./dist/utils/index.d.ts",
+            "import": "./dist/utils.js",
+            "require": "./dist/utils.cjs"
+        },
+        "./parsers": {
+            "types": "./dist/parsers/index.d.ts",
+            "import": "./dist/parsers.js",
+            "require": "./dist/parsers.cjs"
+        },
+        "./validation": {
+            "types": "./dist/validation/index.d.ts",
+            "import": "./dist/validation.js",
+            "require": "./dist/validation.cjs"
         }
     },
     "files": [
@@ -39,6 +54,7 @@
         "chai": "catalog:",
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"
     }

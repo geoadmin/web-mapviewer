@@ -1,11 +1,11 @@
 import { WGS84 } from '@geoadmin/coordinates'
-import { timeConfigUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
 import {
     addErrorMessageToLayer,
     clearErrorMessages,
     removeErrorMessageFromLayer,
 } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { cloneDeep } from 'lodash'

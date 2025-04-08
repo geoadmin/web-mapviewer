@@ -1,6 +1,6 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'

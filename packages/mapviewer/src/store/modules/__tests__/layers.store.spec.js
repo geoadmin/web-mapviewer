@@ -1,4 +1,4 @@
-import { layerUtils, timeConfigUtils } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'

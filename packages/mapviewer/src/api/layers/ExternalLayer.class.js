@@ -1,4 +1,4 @@
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 
 // @ts-nocheck
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'

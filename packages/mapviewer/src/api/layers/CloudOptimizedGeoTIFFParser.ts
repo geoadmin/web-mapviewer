@@ -1,5 +1,5 @@
 import { allCoordinateSystems, CoordinateSystem } from '@geoadmin/coordinates'
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import { fromBlob, fromUrl } from 'geotiff'
 
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'

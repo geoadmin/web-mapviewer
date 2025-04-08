@@ -2,14 +2,10 @@ import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
 import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { LayerAttribution, ExternalWMTSLayer } from '@/layers'
+import type { LayerLegend, LayerAttribution, ExternalWMTSLayer } from '@/types/layers'
 
-import {
-    externalWMTSCapabilitiesParser,
-    type WMTSCapabilities,
-} from '@/externalWMTSCapabilitiesParser'
-import { timeConfigUtils } from '@/index'
-import { type LayerLegend } from '@/layers'
+import { externalWMTSCapabilitiesParser, type WMTSCapabilities } from '@/parsers'
+import { timeConfigUtils } from '@/utils/index'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     let parser: externalWMTSCapabilitiesParser

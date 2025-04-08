@@ -1,5 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import GPX from 'ol/format/GPX'
 
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'

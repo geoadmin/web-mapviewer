@@ -1,4 +1,4 @@
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import { WarningMessage } from '@geoadmin/log/Message'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'

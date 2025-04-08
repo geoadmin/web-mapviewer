@@ -6,7 +6,12 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
     build: {
         lib: {
-            entry: [resolve(__dirname, 'src/index.ts')],
+            entry: {
+                index: resolve(__dirname, 'src/index.ts'),
+                parsers: resolve(__dirname, 'src/parsers/index.ts'),
+                utils: resolve(__dirname, 'src/utils/index.ts'),
+                validation: resolve(__dirname, 'src/validation/index.ts'),
+            },
             name: '@geoadmin/utils',
         },
         rollupOptions: {
