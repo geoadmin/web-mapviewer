@@ -1,6 +1,7 @@
 import { merge, omit } from 'lodash'
 
 import {
+    type Layer,
     DEFAULT_OPACITY,
     type GeoAdminAPILayer,
     WMTSEncodingType,
@@ -45,7 +46,20 @@ export function encodeExternalLayerParam(param: string) {
     return param.replace('|', ENC_PIPE)
 }
 
-// TODO think about validations
+const validateBaseData = (values: Partial<Layer>): void => {
+    if (values.name === null) {
+        throw new InvalidLayerDataError('Missing layer name', values)
+    }
+    if (values.id === null) {
+        throw new InvalidLayerDataError('Missing layer ID', values)
+    }
+    if (values.type === null) {
+        throw new InvalidLayerDataError('Missing layer type', values)
+    }
+    if (values.baseUrl === null) {
+        throw new InvalidLayerDataError('Missing base URL', values)
+    }
+}
 
 /**
  * Construct a basic GeoAdmin WMS Layer
@@ -53,10 +67,11 @@ export function encodeExternalLayerParam(param: string) {
  * This is a helper that can work with a subset of the GeoAdminWMSLayer properties. The missing
  * values from the function parameter will be used from defaults
  *
- * @param values
- * @returns
+ * @param values GeoAdminWMSLayer partial
+ * @returns GeoAdminWMSLayer
  */
 export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer => {
+    validateBaseData(values)
     const defaults = {
         id: '',
         name: '',
@@ -87,7 +102,17 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
     return merge(defaults, values)
 }
 
+/**
+ * Construct a basic GeoAdmin WMTS Layer
+ *
+ * This is a helper that can work with a subset of the GeoAdminWMTSLayer properties. The missing
+ * values from the function parameter will be used from defaults
+ *
+ * @param values An object of partial values from GeoAdminWMTSLayer
+ * @returns GeoAdminWMTSLayer
+ */
 export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer => {
+    validateBaseData(values)
     const defaults = {
         name: '',
         id: '',
@@ -122,12 +147,14 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
  * Construct a basic WMTS layer with all the necessary defaults
  *
  * This is a helper that can work with a subset of the GeoAdminWMSLayer properties. The missing
- * values from the function parameter will be used from defaults
+ * values from the function parameter will be useLayerTypesd from defaults
  *
  * @param values An object of partial values from ExternalWMTSLayer
  * @returns ExternalWMTSLayer
  */
 export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer => {
+    validateBaseData(values)
+
     const baseUrl = values.baseUrl ?? ''
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
     const attributions = [{ name: new URL(baseUrl).hostname }]
@@ -173,7 +200,17 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
     return merge(defaults, values)
 }
 
+/**
+ * Construct an external WMSLayer
+ *
+ * This is a helper that can work with a subset of the WMSLayer properties. The missing values from
+ * the function parameter will be useLayerTypesd from defaults
+ *
+ * @param values Partial values of WMSLayer
+ * @returns ExternalWMSLayer
+ */
 export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): ExternalWMSLayer => {
+    validateBaseData(values)
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
     const attributions = [{ name: new URL(values.baseUrl!).hostname }]
     const hasLegend = (values?.legends ?? []).length > 0
@@ -217,7 +254,17 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
     return merge(defaults, values)
 }
 
+/**
+ * Construct a KML Layer
+ *
+ * This is a helper that can work with a subset of the KMLLayer properties. The missing values from
+ * the function parameter will be used from defaults
+ *
+ * @param values Partial values of KMLLayer
+ * @returns KMLLayer
+ */
 export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
+    validateBaseData(values)
     const defaults = {
         id: '',
         name: '',
@@ -249,7 +296,17 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
     return merge(defaults, values)
 }
 
+/**
+ * Construct a GPX Layer
+ *
+ * This is a helper that can work with a subset of the GPXLayer properties. The missing values from
+ * the function parameter will be used from defaults
+ *
+ * @param values Partial values of GPXLayer
+ * @returns GPXLayer
+ */
 export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
+    validateBaseData(values)
     const isLocalFile = !values.gpxFileUrl?.startsWith('http')
     if (!values.gpxFileUrl) {
         throw new InvalidLayerDataError('Missing GPX file URL', values)
@@ -283,9 +340,19 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
     return merge(defaults, values)
 }
 
+/**
+ * Construct a GeoAdminVectorLayer Layer
+ *
+ * This is a helper that can work with a subset of the GeoAdminVectorLayer properties. The missing
+ * values from the function parameter will be used from defaults
+ *
+ * @param values Partial values of GeoAdminVectorLayer
+ * @returns GeoAdminVectorLayer
+ */
 export const makeGeoAdminVectorLayer = (
     values: Partial<GeoAdminVectorLayer>
 ): GeoAdminVectorLayer => {
+    validateBaseData(values)
     const attributions = [
         ...(values.attributions ? values.attributions : []),
         { name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' },
@@ -315,7 +382,17 @@ export const makeGeoAdminVectorLayer = (
     return merge(defaults, omit(values, 'attributions'))
 }
 
+/**
+ * Construct a GeoAdmin3DLayer Layer
+ *
+ * This is a helper that can work with a subset of the GeoAdmin3DLayer properties. The missing
+ * values from the function parameter will be used from defaults
+ *
+ * @param values Partial values of GeoAdmin3DLayer
+ * @returns GeoAdmin3DLayer
+ */
 export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer => {
+    validateBaseData(values)
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
     const defaults = {
@@ -347,9 +424,19 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
     return merge(defaults, values)
 }
 
+/**
+ * Construct a CloudOptimizedGeoTIFFLayer Layer
+ *
+ * This is a helper that can work with a subset of the CloudOptimizedGeoTIFFLayer properties. The
+ * missing values from the function parameter will be used from defaults
+ *
+ * @param values Partial values of CloudOptimizedGeoTIFFLayer
+ * @returns CloudOptimizedGeoTIFFLayer
+ */
 export const makeCloudOptimizedGeoTIFFLayer = (
     values: Partial<CloudOptimizedGeoTIFFLayer>
 ): CloudOptimizedGeoTIFFLayer => {
+    validateBaseData(values)
     if (values.fileSource === null || values.fileSource === undefined) {
         throw new InvalidLayerDataError('Missing COG file source', values)
     }
@@ -387,9 +474,19 @@ export const makeCloudOptimizedGeoTIFFLayer = (
     return merge(defaults, values)
 }
 
+/**
+ * Construct a GeoAdminAggregateLayer Layer
+ *
+ * This is a helper that can work with a subset of the GeoAdminAggregateLayer properties. The
+ * missing values from the function parameter will be used from defaults
+ *
+ * @param values Partial values of GeoAdminAggregateLayer
+ * @returns GeoAdminAggregateLayer
+ */
 export const makeGeoAdminAggregateLayer = (
     values: Partial<GeoAdminAggregateLayer>
 ): GeoAdminAggregateLayer => {
+    validateBaseData(values)
     const defaults = {
         type: LayerType.AGGREGATE,
         baseUrl: '',
@@ -411,9 +508,19 @@ export const makeGeoAdminAggregateLayer = (
     return merge(defaults, values)
 }
 
+/**
+ * Construct a GeoAdminGeoJSONLayer Layer
+ *
+ * This is a helper that can work with a subset of the GeoAdminGeoJSONLayer properties. The missing
+ * values from the function parameter will be used from defaults
+ *
+ * @param values Partial values of GeoAdminGeoJSONLayer
+ * @returns GeoAdminGeoJSONLayer
+ */
 export const makeGeoAdminGeoJSONLayer = (
     values: Partial<GeoAdminGeoJSONLayer>
 ): GeoAdminGeoJSONLayer => {
+    validateBaseData(values)
     const defaults = {
         baseUrl: '',
         type: LayerType.GEOJSON,
