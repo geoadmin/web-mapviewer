@@ -18,8 +18,8 @@ import {
     type CloudOptimizedGeoTIFFLayer,
     type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
-} from '@/layers'
-import * as timeConfigUtils from '@/timeConfigUtils'
+} from '@/types/layers'
+import * as timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
 
 // TODO this is taken from map.config.js. We don't want coupling to that module, so think about

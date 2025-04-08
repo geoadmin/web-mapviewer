@@ -1,4 +1,5 @@
-import { layerUtils, LayerType } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'

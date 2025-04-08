@@ -1,5 +1,5 @@
-import { layerUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 

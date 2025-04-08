@@ -4,7 +4,6 @@ import { range } from 'lodash'
 import { default as olWMSCapabilities } from 'ol/format/WMSCapabilities'
 import proj4 from 'proj4'
 
-import { layerUtils } from '@/index'
 import {
     type LayerAttribution,
     type LayerLegend,
@@ -13,8 +12,9 @@ import {
     type BoundingBox,
     WMS_SUPPORTED_VERSIONS,
     type LayerExtent,
-} from '@/layers'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/timeConfigUtils'
+} from '@/types/layers'
+import { layerUtils } from '@/utils'
+import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
 type WMSBoundingBox = {

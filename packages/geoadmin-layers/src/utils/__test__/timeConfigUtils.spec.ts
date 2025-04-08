@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { type Layer, LayerType } from '@/layers'
-import { hasMultipleTimestamps, makeTimeConfigEntry } from '@/timeConfigUtils'
+import { type Layer, LayerType } from '@/types/layers'
+import { hasMultipleTimestamps, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
 
 describe('Test utility functions', () => {
     it('Determines correctly that a layer has multiple timestamps', () => {

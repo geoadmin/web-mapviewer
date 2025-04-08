@@ -1,13 +1,13 @@
 import { isTimestampYYYYMMDD } from '@geoadmin/numbers'
 
-import type { Layer } from '@/layers'
+import type { Layer } from '@/types'
 
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
     type LayerTimeConfig,
     type LayerTimeConfigEntry,
-} from '@/timeConfig'
+} from '@/types'
 
 export const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
     !!timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)

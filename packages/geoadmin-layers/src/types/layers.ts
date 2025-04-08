@@ -3,7 +3,7 @@ import type { Options } from 'ol/source/WMTS'
 import { CoordinateSystem } from '@geoadmin/coordinates'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
-import type { LayerTimeConfig } from '@/timeConfig'
+import type { LayerTimeConfig } from '@/types/timeConfig'
 
 export const DEFAULT_OPACITY = 1.0
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']

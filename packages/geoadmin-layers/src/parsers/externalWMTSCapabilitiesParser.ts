@@ -14,10 +14,10 @@ import {
     type WMTSDimension,
     WMTSEncodingType,
     type BoundingBox,
-} from '@/layers'
-import * as layerUtils from '@/layerUtils'
-import { type LayerTimeConfig } from '@/timeConfig'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/timeConfigUtils'
+} from '@/types'
+import { type LayerTimeConfig } from '@/types/timeConfig'
+import { layerUtils } from '@/utils'
+import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
 type WMTSBoundingBox = {

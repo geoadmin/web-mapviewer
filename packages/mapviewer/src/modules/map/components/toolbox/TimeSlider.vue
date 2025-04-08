@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { isNumber, round } from '@geoadmin/numbers'
 import GeoadminTooltip from '@geoadmin/tooltip'
