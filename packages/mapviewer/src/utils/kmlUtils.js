@@ -1,5 +1,6 @@
 import { WGS84 } from '@geoadmin/coordinates'
-import { KmlStyle, layerUtils } from '@geoadmin/layers'
+import { KmlStyle } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import JSZip from 'jszip'

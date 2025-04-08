@@ -1,6 +1,6 @@
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
-import type { Layer } from '@/layers'
+import type { Layer } from '@/types'
 
 export class InvalidLayerDataError extends Error {
     data: any

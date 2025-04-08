@@ -1,8 +1,8 @@
 import {
     externalWMSCapabilitiesParser,
     externalWMTSCapabilitiesParser,
-    CapabilitiesError,
-} from '@geoadmin/layers'
+} from '@geoadmin/layers/parsers'
+import { CapabilitiesError } from '@geoadmin/layers/validation'
 import log from '@geoadmin/log'
 import axios from 'axios'
 

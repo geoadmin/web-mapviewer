@@ -2,14 +2,9 @@ import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
 import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { LayerAttribution, ExternalWMSLayer, LayerExtent, LayerLegend } from '@/layers'
+import type { LayerAttribution, ExternalWMSLayer, LayerExtent, LayerLegend } from '@/types/layers'
 
-import {
-    externalWMSCapabilitiesParser,
-    type WMSCapabilities,
-} from '@/externalWMSCapabilitiesParser'
-
-// import { ExternalWMSLayer, LayerLegend } from '@/layers'
+import { externalWMSCapabilitiesParser, type WMSCapabilities } from '@/parsers'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {
@@ -70,7 +65,7 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('The federal geoportal')
@@ -83,7 +78,7 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('Periodic-Tracking')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('BGDI')
@@ -238,7 +233,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('WMS BGDI')
@@ -272,7 +267,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
@@ -300,7 +295,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('wms.geo.admin.ch')
@@ -341,7 +336,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        expectTypeOf(layer!.attributions).toBeArray()
+        expectTypeOf(layer!.attributions).toBeArray
         expect(layer!.attributions.length).toBe(1)
         assertType<LayerAttribution>(layer!.attributions[0])
         expect(layer!.attributions[0].name).toBe('The federal geoportal')

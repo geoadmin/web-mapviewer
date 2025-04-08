@@ -9,9 +9,8 @@ import {
     type GPXLayer,
     LayerType,
     DEFAULT_OPACITY,
-    timeConfigUtils,
-    layerUtils,
 } from '@geoadmin/layers'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { cloneDeep } from 'lodash'

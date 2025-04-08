@@ -1,10 +1,5 @@
-import {
-    type LayerAttribution,
-    LayerType,
-    type GeoAdminGeoJSONLayer,
-    layerUtils,
-    timeConfigUtils,
-} from '@geoadmin/layers'
+import { type LayerAttribution, LayerType, type GeoAdminGeoJSONLayer } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 

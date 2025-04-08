@@ -1,5 +1,6 @@
 <script setup>
-import { layerUtils, LayerType } from '@geoadmin/layers'
+import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 

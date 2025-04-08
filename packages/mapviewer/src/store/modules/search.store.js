@@ -1,6 +1,6 @@
 import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
-import { layerUtils } from '@geoadmin/layers'
 import { LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 

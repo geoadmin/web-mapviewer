@@ -1,4 +1,4 @@
-import { layerUtils } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {

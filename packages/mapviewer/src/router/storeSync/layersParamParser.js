@@ -1,5 +1,5 @@
 import { LayerType, KmlStyle } from '@geoadmin/layers'
-import { timeConfigUtils } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
