@@ -272,8 +272,8 @@ const actions = {
     zoomToExtent: ({ commit, state, rootState }, { extent, extentProjection, maxZoom, dispatcher }) => {
         // If the extentProjection is not defined, we assume the extent is in the current projection
         // and we don't need to reproject it.
-        if (extentProjection && extentProjection.epsg !== state.projection.epsg) {
-            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg)
+        if (extentProjection?.epsg && extentProjection.epsg !== state.projection.epsg) {
+            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg);
         }
         const normalizedExtent = extent ? normalizeExtent(extent) : null
         if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {
