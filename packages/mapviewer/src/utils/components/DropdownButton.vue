@@ -2,51 +2,19 @@
 /**
  * Manages a Bootstrap dropdown.
  *
- * All items must be passed as instances of DropdownItem (imported from the same file as the
- * component). The active item (the one with the .active CSS class) will be defined by comparing the
- * props `currentValue` with each item's value.
- *
  * It is possible to have the dropdown attached to an extra button with a caret, instead of all
  * inline. For that you have to add the with-toggle-button HTML attribute to the component use
  */
 
 import { randomIntBetween } from '@geoadmin/numbers'
-import GeoadminTooltip from '@geoadmin/tooltip'
 import { Dropdown } from 'bootstrap'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-/**
- * @typedef DropdownItem
- *
- *   Represents an option in the select made for a dropdown. If no value is given, the title of the
- *   item will be considered the value.
- * @property {String | Number} id
- * @property {String} title
- * @property {String | Number | Object} [value]
- * @property {String} [description]
- */
-
-const { title, currentValue, items, withToggleButton, disabled, small } = defineProps({
+const { title, withToggleButton, disabled, small } = defineProps({
     title: {
         type: String,
         required: true,
-    },
-    currentValue: {
-        type: [Object, String, Number, Boolean, null],
-        required: true,
-    },
-    /** @type DropdownItem[] */
-    items: {
-        type: Array,
-        required: true,
-        validator: (items) => {
-            // checking that we received an array of only DropdownItem instances with at least one item
-            if (Array.isArray(items) && items.length > 1) {
-                return items.filter((item) => !!item?.id && !!item?.title).length === items.length
-            }
-            return false
-        },
     },
     withToggleButton: {
         type: Boolean,
@@ -95,23 +63,11 @@ watch(
     }
 )
 
-function getItemDescription(item) {
-    if (!item.description) {
-        return null
-    }
-
-    return t(item.description)
-}
-
 function onMainButtonClick() {
     if (withToggleButton) {
         // letting the parent component handle what to do by sending an event
         emits('click')
     }
-}
-
-function selectItem(item) {
-    emits('selectItem', item)
 }
 </script>
 
@@ -150,25 +106,7 @@ function selectItem(item) {
             class="dropdown-menu"
             :aria-labelledby="uniqueHtmlId"
         >
-            <li
-                v-for="item in items"
-                :key="item.id"
-            >
-                <GeoadminTooltip
-                    :tooltip-content="getItemDescription(item)"
-                    placement="left"
-                    :disabled="!item.description"
-                >
-                    <a
-                        class="dropdown-item"
-                        :class="{ active: currentValue === (item.value ?? item.title) }"
-                        :data-cy="`dropdown-item-${item.id}`"
-                        @click="selectItem(item)"
-                    >
-                        {{ t(item.title) }}
-                    </a>
-                </GeoadminTooltip>
-            </li>
+            <slot />
         </ul>
     </div>
 </template>

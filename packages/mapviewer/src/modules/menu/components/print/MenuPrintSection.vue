@@ -11,6 +11,8 @@ import {
     usePrint,
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 
 const dispatcher = { dispatcher: 'MapPrintSection.vue' }
@@ -27,19 +29,34 @@ const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
 
 const { t } = useI18n()
 const store = useStore()
-const availablePrintLayouts = computed(() => store.state.print.layouts)
 const selectedLayout = computed(() => store.state.print.selectedLayout)
-const scales = computed(() => selectedLayout.value?.scales || [])
+const availablePrintLayouts = computed(() =>
+    store.state.print.layouts.map((layout) => ({
+        id: layout.name,
+        title: formatTitle(layout.name),
+        value: layout,
+    }))
+)
+
+const scales = computed(
+    () =>
+        selectedLayout?.value?.scales?.map((scale) => ({
+            id: scale,
+            title: formatScale(scale),
+            value: scale,
+        })) ?? []
+)
+
 // approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
 const printDuration = computed(() => 8 * (store.getters.visibleLayers.length + 1))
 
 const selectedLayoutName = computed({
     get() {
-        return store.state.print.selectedLayout?.name ?? ''
+        return store.state.print.selectedLayout
     },
     set(value) {
         store.dispatch('setSelectedLayout', {
-            layout: availablePrintLayouts.value.find((layout) => layout.name === value),
+            layout: availablePrintLayouts.value.find((layout) => layout.value.name === value).value,
             ...dispatcher,
         })
     },
@@ -90,7 +107,10 @@ function togglePrintMenu() {
     }
 }
 function selectLayout(layout) {
-    selectedLayoutName.value = layout.name
+    selectedLayoutName.value = layout.value.name
+}
+function selectScale(scale) {
+    selectedScale.value = scale.value
 }
 
 function close() {
@@ -125,6 +145,14 @@ function onOpenMenuSection(sectionId) {
     emits('openMenuSection', sectionId)
 }
 
+function formatTitle(title) {
+    return title ? title.replace(/^\d+\.\s*/, '') : ''
+}
+
+function formatScale(scale) {
+    return scale ? '1:' + formatThousand(scale) : ''
+}
+
 defineExpose({
     close,
     sectionId,
@@ -151,43 +179,38 @@ defineExpose({
             >
                 {{ t('print_layout') }}
             </label>
-            <select
+            <DropdownButton
                 id="print-layout-selector"
-                v-model="selectedLayoutName"
-                class="form-select"
+                :title="formatTitle(selectedLayoutName?.name)"
                 data-cy="print-layout-selector"
             >
-                <option
-                    v-for="layout in availablePrintLayouts"
-                    :key="layout.name"
-                    :value="layout.name"
-                    @click="selectLayout(layout)"
-                >
-                    <!-- on the backend the layout are enumerated to keep the ordering, but here we don't want the
-                 enumeration therefore we remove it -->
-                    {{ layout.name.replace(/^\d+\.\s*/, '') }}
-                </option>
-            </select>
+                <DropdownButtonItem
+                    v-for="item in availablePrintLayouts"
+                    :key="item.id"
+                    v-bind="item"
+                    :current-value="selectedLayoutName"
+                    @select-item="selectLayout"
+                />
+            </DropdownButton>
             <label
                 for="print-scale-selector"
                 class="col-form-label fw-bold me-2"
             >
                 {{ t('print_scale') }}
             </label>
-            <select
+            <DropdownButton
                 id="print-scale-selector"
-                v-model="selectedScale"
-                class="form-select"
+                :title="formatScale(selectedScale)"
                 data-cy="print-scale-selector"
             >
-                <option
-                    v-for="scale in scales"
-                    :key="scale"
-                    :value="scale"
-                >
-                    {{ '1:' + formatThousand(scale) }}
-                </option>
-            </select>
+                <DropdownButtonItem
+                    v-for="item in scales"
+                    :key="item.id"
+                    v-bind="item"
+                    :current-value="selectedScale"
+                    @select-item="selectScale"
+                />
+            </DropdownButton>
             <div class="form-check">
                 <input
                     id="checkboxLegend"

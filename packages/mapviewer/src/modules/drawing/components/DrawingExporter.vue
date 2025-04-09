@@ -5,6 +5,7 @@ import { useStore } from 'vuex'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import { generateFilename } from '@/utils/utils'
 
 /** @type {DropdownItem[]} */
@@ -50,12 +51,17 @@ function exportDrawing() {
 <template>
     <DropdownButton
         title="export_kml"
-        :current-value="exportSelection"
-        :items="exportOptions"
         :disabled="isDrawingEmpty"
         with-toggle-button
         data-cy="drawing-toolbox-export-button"
-        @select-item="onExportOptionSelected"
         @click="exportDrawing()"
-    />
+    >
+        <DropdownButtonItem
+            v-for="item in exportOptions"
+            :key="item.id"
+            v-bind="item"
+            :current-value="exportSelection"
+            @select-item="onExportOptionSelected"
+        />
+    </DropdownButton>
 </template>

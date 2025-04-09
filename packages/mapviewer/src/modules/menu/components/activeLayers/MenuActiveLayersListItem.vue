@@ -16,6 +16,7 @@ import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -316,11 +317,16 @@ function changeStyle(newStyle) {
                     </label>
                     <DropdownButton
                         :title="currentKmlStyle.toLowerCase()"
-                        :items="kmlStylesAsDropdownItems"
-                        :current-value="currentKmlStyle"
                         small
-                        @select-item="changeStyle"
-                    />
+                    >
+                        <DropdownButtonItem
+                            v-for="item in kmlStylesAsDropdownItems"
+                            :key="item.id"
+                            v-bind="item"
+                            :current-value="currentKmlStyle"
+                            @select-item="changeStyle"
+                        />
+                    </DropdownButton>
                 </div>
             </div>
         </div>

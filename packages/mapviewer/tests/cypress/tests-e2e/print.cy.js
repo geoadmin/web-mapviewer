@@ -17,10 +17,19 @@ function launchPrint(config = {}) {
     cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
     if (layout !== '1. A4 landscape') {
-        cy.get('[data-cy="print-layout-selector"]').select(layout)
+        cy.get('[data-cy="print-layout-selector"]')
+            .click()
+        cy.get('[data-cy="print-layout-selector"]')
+            .find('li a')
+            .contains(layout)
+            .click()
     }
     if (scale !== 1500000) {
-        cy.get('[data-cy="print-scale-selector"]').select(`1:${formatThousand(scale)}`)
+        cy.get('[data-cy="print-scale-selector"]').click()
+        cy.get('[data-cy="print-scale-selector"]')
+            .find('li a')
+            .contains(`1:${formatThousand(scale)}`)
+            .click()
     }
     if (withLegend) {
         cy.get('[data-cy="checkboxLegend"]').check()
@@ -168,14 +177,14 @@ describe('Testing print', () => {
             launchPrint()
             cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
-            cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 5)
+            cy.get('[data-cy="print-layout-selector"]').find('li').should('have.length', 5)
             cy.get('[data-cy="print-layout-selector"]')
-                .find('option:selected')
-                .should('have.value', '1. A4 landscape')
-            cy.get('[data-cy="print-scale-selector"]').find('option').should('have.length', 15)
+                .find('li a.active')
+                .should('contain', 'A4 landscape')
+            cy.get('[data-cy="print-scale-selector"]').find('li').should('have.length', 15)
             cy.get('[data-cy="print-scale-selector"]')
-                .find('option:selected')
-                .should('have.text', `1:${formatThousand(1500000)}`)
+                .find('li a.active')
+                .should('contain', `1:${formatThousand(1500000)}`)
         })
     })
 
@@ -200,7 +209,7 @@ describe('Testing print', () => {
         })
         it('should send a print request to mapfishprint (all parameters updated)', () => {
             launchPrint({
-                layout: '2. A4 portrait',
+                layout: 'A4 portrait',
                 scale: 500000,
                 withLegend: true,
                 withGrid: true,
