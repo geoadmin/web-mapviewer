@@ -37,6 +37,18 @@ export function normalizeAngle(rotation) {
 }
 
 /**
+ * Reprojects an extent to the target projection.
+ *
+ * @param {Array} extent - The extent to reproject, array of point
+ * @param {String} sourceProjection - The source projection's EPSG Code of the extent.
+ * @param {String} targetProjection - The target projection's EPSG Code to reproject to.
+ * @returns {Array} - The reprojected extent.
+ */
+function reprojectExtent(extent, sourceProjection, targetProjection) {
+    return extent.map((point) => proj4(sourceProjection, targetProjection, point));
+}
+
+/**
  * Structure of the camera position
  *
  * @typedef CameraPosition
@@ -258,8 +270,14 @@ const actions = {
             }
         }
     },
-    zoomToExtent: ({ commit, state, rootState }, { extent, maxZoom, dispatcher }) => {
-        console.log('zoomToExtent', extent, maxZoom, dispatcher)
+    zoomToExtent: ({ commit, state, rootState }, { extent, extentProjection, maxZoom, dispatcher }) => {
+        console.log('zoomToExtent', extent, extentProjection, maxZoom, dispatcher)
+        // If the extentProjection is not defined, we assume the extent is in the current projection
+        // and we don't need to reproject it.
+        if (extentProjection && extentProjection.epsg !== state.projection.epsg) {
+            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg)
+            console.log('reprojectedExtent', extent)
+        }
         const normalizedExtent = extent ? normalizeExtent(extent) : null
         console.log('normalisedExtent', normalizedExtent)
         if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {

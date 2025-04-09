@@ -59,6 +59,7 @@ export default class KMLLayer extends AbstractLayer {
             kmlMetadata = null,
             linkFiles = new Map(),
             extent = null,
+            extentProjection = null,
             style = null,
             clampToGround = null,
         } = kmlLayerData
@@ -106,6 +107,7 @@ export default class KMLLayer extends AbstractLayer {
         this.kmlData = kmlData
         this.linkFiles = linkFiles
         this.extent = extent
+        this.extentProjection = extentProjection
         if (style === null) {
             // if no style was given, we select the default style depending on the origin of the KML
             if (isExternal) {

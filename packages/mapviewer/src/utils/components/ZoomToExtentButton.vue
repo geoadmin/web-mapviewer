@@ -1,5 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { CoordinateSystem } from '@geoadmin/coordinates'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -10,11 +11,16 @@ const { t } = useI18n()
 
 const dispatcher = { dispatcher: 'ZoomToExtentButton.vue' }
 
-const { extent } = defineProps({
+const { extent, extentProjection } = defineProps({
     extent: {
         type: Array,
         required: true,
         validator: (value) => Array.isArray(value) && !!normalizeExtent(value),
+    },
+    extentProjection: {
+        type: CoordinateSystem,
+        default: () => CoordinateSystem.LV95,
+        validator: (value) => Object.values(CoordinateSystem).includes(value),
     },
 })
 
@@ -23,6 +29,7 @@ const store = useStore()
 function zoomToFeatureExtent() {
     store.dispatch('zoomToExtent', {
         extent: normalizeExtent(extent),
+        extentProjection: extentProjection,
         ...dispatcher,
     })
 }

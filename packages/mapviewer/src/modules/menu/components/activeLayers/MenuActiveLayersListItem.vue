@@ -179,6 +179,7 @@ function changeStyle(newStyle) {
             <ZoomToExtentButton
                 v-if="layer.extent"
                 :extent="layer.extent"
+                :extent-projection="layer.extentProjection"
             />
             <ExtLayerInfoButton
                 :show-spinner="showSpinner"
