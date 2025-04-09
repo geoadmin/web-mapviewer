@@ -230,6 +230,7 @@ const actions = {
      *   output of the debug console)
      */
     setCenter: ({ commit }, { center, dispatcher }) => {
+        console.log('setCenter', center, dispatcher)
         if (
             !center ||
             (Array.isArray(center) && center.length !== 2) ||
@@ -258,7 +259,9 @@ const actions = {
         }
     },
     zoomToExtent: ({ commit, state, rootState }, { extent, maxZoom, dispatcher }) => {
+        console.log('zoomToExtent', extent, maxZoom, dispatcher)
         const normalizedExtent = extent ? normalizeExtent(extent) : null
+        console.log('normalisedExtent', normalizedExtent)
         if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
@@ -347,6 +350,7 @@ const actions = {
      *   of the debug console)
      */
     setCameraPosition({ commit }, { position, dispatcher }) {
+        console.log('setCameraPosition', position, dispatcher)
         // position can be null (in 2d mode), therefore do not wrap it in this case
         const wrappedPosition = position
             ? {

@@ -91,8 +91,16 @@ export default function syncCameraLonLatZoom(store) {
                 return
             }
             if (['zoomToExtent', 'selectResultEntry'].includes(action.type)) {
-                log.debug('Adapting camera position to match zoomToExtent/selectResultEntry')
+                log.info('Adapting camera position to match zoomToExtent/selectResultEntry')
                 const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
+                console.log(
+                    'newHeight',
+                    newHeight,
+                    'resolution',
+                    store.getters.resolution,
+                    'width',
+                    state.ui.width
+                )
                 store.dispatch('setCameraPosition', {
                     position: {
                         x: store.getters.centerEpsg4326[0],
