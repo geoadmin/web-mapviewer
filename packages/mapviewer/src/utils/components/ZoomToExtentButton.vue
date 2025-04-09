@@ -2,6 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { CoordinateSystem } from '@geoadmin/coordinates'
 import GeoadminTooltip from '@geoadmin/tooltip'
+import WGS84CoordinateSystem from 'node_modules/@geoadmin/coordinates/dist/proj/WGS84CoordinateSystem'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -19,8 +20,8 @@ const { extent, extentProjection } = defineProps({
     },
     extentProjection: {
         type: CoordinateSystem,
-        default: () => CoordinateSystem.LV95,
-        validator: (value) => Object.values(CoordinateSystem).includes(value),
+        default: () => WGS84CoordinateSystem,
+        required: false,
     },
 })
 

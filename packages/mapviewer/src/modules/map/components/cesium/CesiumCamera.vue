@@ -119,7 +119,7 @@ function onCameraMoveEnd() {
     if (!isEqual(newCameraPosition, cameraPosition.value)) {
         store.dispatch('setCameraPosition', {
             position: newCameraPosition,
-            dispatcher: 'useCesiumCamera.composable/onCameraMoveEnd',
+            ...dispatcher,
         })
     }
 }
