@@ -94,14 +94,8 @@ if (gutter.value !== -1) {
         source: createSourceForProjection(),
     })
 }
-// If the layer config comes with an extent, we set it up to both types of WMS layer.
-// That means that data will not be requested if the map viewport is outside the extent.
-if (wmsLayerConfig.extent) {
-    layer.setExtent(flattenExtent(wmsLayerConfig.extent))
-} else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
-    // do not request stuff outside our technical extent with our own layers.
-    layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
-}
+
+setExtent()
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
 const olMap = inject('olMap', null)
@@ -110,7 +104,10 @@ useAddLayerToMap(layer, olMap, () => zIndex)
 // reacting to changes accordingly
 watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, () => layer.setSource(createSourceForProjection()))
+watch(projection, () => {
+    layer.setSource(createSourceForProjection())
+    setExtent()
+})
 watch(wmsUrlParams, () => {
     layer.getSource().updateParams(wmsUrlParams.value)
 })
@@ -145,6 +142,17 @@ function createSourceForProjection() {
         })
     }
     return source
+}
+
+// If the layer config comes with an extent, we set it up to both types of WMS layer.
+// That means that data will not be requested if the map viewport is outside the extent.
+function setExtent() {
+    if (wmsLayerConfig.extent) {
+        layer.setExtent(flattenExtent(wmsLayerConfig.extent))
+    } else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
+        // do not request stuff outside our technical extent with our own layers.
+        layer.setExtent(LV95.getBoundsAs(projection.value).flatten)
+    }
 }
 </script>
 

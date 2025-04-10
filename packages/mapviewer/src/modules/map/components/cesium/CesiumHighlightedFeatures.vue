@@ -2,6 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
@@ -17,6 +18,8 @@ import { FeatureInfoPositions } from '@/store/modules/ui.store'
 const dispatcher = {
     dispatcher: 'CesiumHighlightedFeatures.vue',
 }
+
+const { t } = useI18n()
 
 const popoverCoordinates = ref([])
 
@@ -37,10 +40,17 @@ watch(
     (newSelectedFeatures) => {
         if (newSelectedFeatures.length > 0) {
             highlightSelectedFeatures()
+        } else {
+            // To un highlight the features when the layer is removed or the visibility is set to false
+            const viewer = getViewer()
+            if (viewer) {
+                unhighlightGroup(viewer)
+            }
         }
     },
     {
         deep: true,
+        immediate: true,
     }
 )
 
@@ -108,6 +118,7 @@ function setBottomPanelFeatureInfoPosition() {
         :coordinates="popoverCoordinates"
         :projection="projection"
         authorize-print
+        :title="t('object_information')"
         :use-content-padding="!!editFeature"
         @close="onPopupClose"
     >

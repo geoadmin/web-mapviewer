@@ -35,6 +35,19 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                     }
                     return coordinates.map((coordinate) => reprojectCoordinates(coordinate))
                 }
+                const reprojectGeometry = (geometry) => {
+                    if (!geometry || typeof geometry !== 'object') {
+                        return geometry
+                    }
+                
+                    const reprojectedGeometry = { ...geometry }
+                
+                    if (Array.isArray(geometry.coordinates)) {
+                        reprojectedGeometry.coordinates = reprojectCoordinates(geometry.coordinates)
+                    }
+                
+                    return reprojectedGeometry
+                }
 
                 // re-projecting selected features with the new projection
                 const reprojectedSelectedFeatures = []
@@ -44,7 +57,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                             new LayerFeature({
                                 layer: selectedFeature.layer,
                                 id: selectedFeature.id,
-                                name: selectedFeature.name,
+                                title: selectedFeature.title,
                                 data: selectedFeature.data,
                                 coordinates: reprojectCoordinates(selectedFeature.coordinates),
                                 extent: projExtent(
@@ -52,7 +65,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                                     newProjection,
                                     selectedFeature.extent
                                 ),
-                                geometry: selectedFeature.geometry,
+                                geometry: reprojectGeometry(selectedFeature.geometry),
                             })
                         )
                     } else if (selectedFeature.isEditable) {

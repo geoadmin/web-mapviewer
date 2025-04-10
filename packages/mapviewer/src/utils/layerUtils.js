@@ -123,7 +123,7 @@ export function createLayerFeature(olFeature, layer, coordinates, geometry) {
     return new LayerFeature({
         layer: layer,
         id: olFeature.getId(),
-        name:
+        title:
             olFeature.get('label') ??
             // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
             // some of their layers are
