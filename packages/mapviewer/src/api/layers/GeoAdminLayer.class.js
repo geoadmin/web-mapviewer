@@ -144,7 +144,7 @@ export default class GeoAdminLayer extends AbstractLayer {
     }
 
     clone() {
-        let clone = super.clone()
+        const clone = super.clone()
         clone.timeConfig = this.timeConfig?.clone() ?? null
         return clone
     }

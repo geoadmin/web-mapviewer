@@ -4,7 +4,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
@@ -23,7 +22,7 @@ const { layerIndex, layerId, timeConfig, compact } = defineProps({
         required: true,
     },
     timeConfig: {
-        type: LayerTimeConfig,
+        validator: Object,
         required: true,
     },
     compact: {

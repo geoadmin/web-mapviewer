@@ -1,12 +1,11 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -17,7 +16,7 @@ const MAXIMUM_LEVEL_OF_DETAILS = 18
 
 const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmsLayerConfig: {
-        type: [GeoAdminWMSLayer, ExternalWMSLayer],
+        validator: (value) => value.type === LayerType.WMS,
         required: true,
     },
     zIndex: {

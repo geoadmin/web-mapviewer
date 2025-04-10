@@ -1,13 +1,15 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRef } from 'vue'
 
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 
 const { layerConfig } = defineProps({
     layerConfig: {
-        type: GeoAdmin3DLayer,
+        // actually this expects a 3d layer, but we can't represent that with the current
+        // typing of the layers
+        validator: (value) => value.type === LayerType.VECTOR,
         required: true,
     },
 })

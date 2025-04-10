@@ -44,6 +44,7 @@
         "@fortawesome/free-solid-svg-icons": "catalog:",
         "@fortawesome/vue-fontawesome": "catalog:",
         "@geoadmin/coordinates": "workspace:*",
+        "@geoadmin/layers": "workspace:*",
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:*",
         "@geoadmin/tooltip": "workspace:*",
@@ -54,6 +55,7 @@
         "@mapbox/togeojson": "catalog:",
         "@popperjs/core": "catalog:",
         "@turf/turf": "catalog:",
+        "@types/lodash": "catalog:",
         "animate.css": "catalog:",
         "axios": "catalog:",
         "bootstrap": "catalog:",
@@ -118,6 +120,7 @@
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"

@@ -1,23 +1,23 @@
 <script setup>
 /** Renders a KML file on the map */
 
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
 const { kmlLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     kmlLayerConfig: {
-        type: KMLLayer,
+        validator: (value) => value.type === LayerType.KML,
         required: true,
     },
     parentLayerOpacity: {

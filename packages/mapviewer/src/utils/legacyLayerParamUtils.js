@@ -1,11 +1,12 @@
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
+import { cloneDeep } from 'lodash'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 const standardURLParams = storeSyncConfig.map((param) => {
     return param.urlParamName
@@ -84,7 +85,7 @@ export function parseOpacity(value) {
  * @param {String} legacyOpacities A string containing the opacity value for each layer
  * @param {String} legacyTimestamp A string containing the timestamp or year for each time enabled
  *   layer
- * @returns {AbstractLayer[]}
+ * @returns {Layer[]}
  */
 export function getLayersFromLegacyUrlParams(
     layersConfig,
@@ -108,15 +109,15 @@ export function getLayersFromLegacyUrlParams(
         if (layer) {
             // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
             // in order to alter it before returning it
-            layer = layer.clone()
+            layer = cloneDeep(layer)
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer({ kmlFileUrl: url, visible: true })
+            layer = makeKmlLayer({ kmlFileUrl: url, visible: true })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new GPXLayer({ gpxFileUrl: url, visible: true })
+            layer = layerUtils.makeGPXLayer({ gpxFileUrl: url, visible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
@@ -163,7 +164,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
-                layer.timeConfig.updateCurrentTimeEntry(layerTimestamps[index])
+                timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }
@@ -202,7 +203,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
  */
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetadata = await getKmlMetadataByAdminId(adminId)
-    return new KMLLayer({
+    return makeKmlLayer({
         kmlFileUrl: kmlMetadata.links.kml,
         visible: true,
         adminId: kmlMetadata.adminId,

@@ -1,4 +1,6 @@
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import { layerUtils } from '@geoadmin/layers/utils'
+
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     CESIUM_BUILDING_LAYER_ID,
     CESIUM_CONSTRUCTIONS_LAYER_ID,
@@ -7,29 +9,33 @@ import {
     CESIUM_VEGETATION_LAYER_ID,
 } from '@/config/cesium.config'
 
-const labelLayer = new GeoAdmin3DLayer({
-    layerId: CESIUM_LABELS_LAYER_ID,
-    layerName: '3d_labels',
+const labelLayer = layerUtils.makeGeoAdmin3DLayer({
+    id: CESIUM_LABELS_LAYER_ID,
+    name: '3d_labels',
     urlTimestampToUse: '20180716',
     use3dTileSubFolder: true,
+    baseUrl: get3dTilesBaseUrl(),
 })
-const vegetationLayer = new GeoAdmin3DLayer({
-    layerId: CESIUM_VEGETATION_LAYER_ID,
-    layerName: '3d_vegetation',
+const vegetationLayer = layerUtils.makeGeoAdmin3DLayer({
+    id: CESIUM_VEGETATION_LAYER_ID,
+    name: '3d_vegetation',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false,
+    baseUrl: get3dTilesBaseUrl(),
 })
-const buildingsLayer = new GeoAdmin3DLayer({
-    layerId: CESIUM_BUILDING_LAYER_ID,
-    layerName: '3d_constructions',
+const buildingsLayer = layerUtils.makeGeoAdmin3DLayer({
+    id: CESIUM_BUILDING_LAYER_ID,
+    name: '3d_constructions',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
+    baseUrl: get3dTilesBaseUrl(),
 })
-const constructionsLayer = new GeoAdmin3DLayer({
-    layerId: CESIUM_CONSTRUCTIONS_LAYER_ID,
-    layerName: '3d_constructions',
+const constructionsLayer = layerUtils.makeGeoAdmin3DLayer({
+    id: CESIUM_CONSTRUCTIONS_LAYER_ID,
+    name: '3d_constructions',
     urlTimestampToUse: 'v1',
     use3dTileSubFolder: false, // buildings JSON has already been migrated to the new URL nomenclature
+    baseUrl: get3dTilesBaseUrl(),
 })
 
 /** Module that stores all information related to the 3D viewer */

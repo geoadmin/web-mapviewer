@@ -1,3 +1,5 @@
+import { LayerType, KmlStyle } from '@geoadmin/layers'
+import { timeConfigUtils } from '@geoadmin/layers/utils'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -6,7 +8,6 @@ import {
     decodeExternalLayerParam,
     encodeExternalLayerParam,
 } from '@/api/layers/layers-external.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const ENC_COMMA = '%2C'
 const ENC_SEMI_COLON = '%3B'
@@ -15,24 +16,24 @@ const ENC_AT = '%40'
 /**
  * Transform a layer ID in its URL value equivalent
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @returns {String}
  * @see https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
  */
 export function encodeLayerId(layer) {
     // special case for internal KMLs, we still want the type identifier before the fileUrl
     // (they won't be available in the layers config, so we treat them as "external" too)
-    if (layer.isExternal || layer.type === LayerTypes.KML) {
+    if (layer.isExternal || layer.type === LayerType.KML) {
         let externalLayerUrlId = ''
         // Group of layers uses type WMS
-        if (layer.type === LayerTypes.GROUP) {
-            externalLayerUrlId += LayerTypes.WMS
+        if (layer.type === LayerType.GROUP) {
+            externalLayerUrlId += LayerType.WMS
         } else {
             externalLayerUrlId += `${layer.type}`
         }
         externalLayerUrlId += `|${encodeExternalLayerParam(layer.baseUrl)}`
         // WMS and WMTS (GROUP are essentially WMS too) need to specify the ID of the layer in the getCap
-        if ([LayerTypes.GROUP, LayerTypes.WMS, LayerTypes.WMTS].includes(layer.type)) {
+        if ([LayerType.GROUP, LayerType.WMTS, LayerType.WMS].includes(layer.type)) {
             externalLayerUrlId += `|${encodeExternalLayerParam(layer.id)}`
         }
         return externalLayerUrlId
@@ -47,7 +48,7 @@ export function encodeLayerId(layer) {
  */
 export function decodeUrlLayerId(urlLayerId) {
     const [layerType, layerBaseUrl, layerId] = urlLayerId.split('|')
-    if (Object.values(LayerTypes).includes(layerType)) {
+    if (Object.values(LayerType).includes(layerType)) {
         const decodedBaseUrl = decodeExternalLayerParam(layerBaseUrl)
         // KML/GPX do not have layer IDs, so we use their baseUrl as "ID"
         const decodedLayerId = layerId ? decodeExternalLayerParam(layerId) : decodedBaseUrl
@@ -150,7 +151,7 @@ export function parseLayersParam(queryValue) {
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
  * layer and its state (visibility, opacity, etc...)
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @param {GeoAdminLayer} [defaultLayerConfig]
  * @param {String[] | null} featuresIds
  * @returns {String}
@@ -158,7 +159,7 @@ export function parseLayersParam(queryValue) {
 export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresIds) {
     // NOTE we need to encode ,;@ characters from the layer to avoid parsing issue.
     let layerUrlString = encodeLayerParam(encodeLayerId(layer))
-    if (layer.hasMultipleTimestamps) {
+    if (timeConfigUtils.hasMultipleTimestamps(layer)) {
         // If the layer has more than 1 timestamps we need to add the `@year` attribute
         if (layer.timeConfig.currentYear !== null) {
             // Always add the `@year` if we have a valid currentYear
@@ -188,7 +189,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         layerUrlString += `@updateDelay=${layer.updateDelay}`
     }
 
-    if (layer.type === LayerTypes.KML) {
+    if (layer.type === LayerType.KML) {
         // for our own files, the default style is GeoAdmin (and we don't want to write that in the URL)
         const defaultKmlStyle = layer.isExternal ? KmlStyles.DEFAULT : KmlStyles.GEOADMIN
         if (layer.style !== defaultKmlStyle) {
@@ -198,15 +199,15 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         // - when style is geoadmin, and clamp to ground is false
         // - when style is default, and clamp to ground is true
         if (
-            (layer.style === KmlStyles.DEFAULT && layer.clampToGround) ||
-            (layer.style === KmlStyles.GEOADMIN && !layer.clampToGround)
+            (layer.style === KmlStyle.DEFAULT && layer.clampToGround) ||
+            (layer.style === KmlStyle.GEOADMIN && !layer.clampToGround)
         ) {
             layerUrlString += `@clampToGround=${layer.clampToGround}`
         }
     }
 
     // Add custom attributes if any
-    if (layer.customAttributes !== null) {
+    if (layer.customAttributes) {
         for (const [key, value] of Object.entries(layer.customAttributes)) {
             layerUrlString += `@${key}${value ? '=' + encodeLayerParam(value) : ''}`
         }

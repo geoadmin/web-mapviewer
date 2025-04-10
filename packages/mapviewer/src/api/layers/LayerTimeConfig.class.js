@@ -1,3 +1,4 @@
+// @ts-nocheck
 import LayerTimeConfigEntry, { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 
 /**
@@ -46,7 +47,6 @@ export default class LayerTimeConfig {
          * We will return, well, the last timestamp (the most recent) of the timestamps (if there are some)
          * or if nothing has been defined in the behaviour, but there are some timestamps defined, we take the first.
          */
-        this.currentTimeEntry = null
         if ((this.behaviour === 'last' || !this.behaviour) && this.timeEntries.length > 0) {
             this.updateCurrentTimeEntry(this.timeEntries[0])
         } else if (this.behaviour) {

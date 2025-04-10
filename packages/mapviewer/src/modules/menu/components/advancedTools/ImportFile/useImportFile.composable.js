@@ -1,11 +1,12 @@
+import { addWarningMessageToLayer } from '@geoadmin/layers'
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { flattenExtent } from '@/utils/extentUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = {
     dispatcher: 'useImportFile.composable',
@@ -43,7 +44,8 @@ export default function useImportFile() {
                     projection.value.bounds.isInBounds(extent[2], extent[3])
                 if (!isLayerFullyInBound) {
                     layer.hasWarning = true
-                    layer.addWarningMessage(
+                    addWarningMessageToLayer(
+                        layer,
                         new WarningMessage('file_imported_partially_out_of_bounds', {
                             filename: layer.name ?? layer.id,
                         })

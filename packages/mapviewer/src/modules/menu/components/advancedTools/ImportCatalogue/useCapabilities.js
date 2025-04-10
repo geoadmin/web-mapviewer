@@ -1,10 +1,10 @@
+import { CapabilitiesError } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import axios, { AxiosError } from 'axios'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import {
-    CapabilitiesError,
     EXTERNAL_SERVER_TIMEOUT,
     parseWmsCapabilities,
     parseWmtsCapabilities,
@@ -37,7 +37,8 @@ export function useCapabilities(newUrl) {
 
     function handleWms(content, fullUrl) {
         let wmsMaxSize = null
-        const capabilities = parseWmsCapabilities(content, fullUrl)
+        const parser = parseWmsCapabilities(content, fullUrl)
+        const capabilities = parser.capabilities
         if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
             wmsMaxSize = {
                 width: capabilities.Service.MaxWidth,
@@ -45,7 +46,7 @@ export function useCapabilities(newUrl) {
             }
         }
         return {
-            layers: capabilities.getAllExternalLayerObjects(projection.value, 1, true),
+            layers: parser.getAllExternalLayerObjects(projection.value, 1, true),
             wmsMaxSize,
         }
     }

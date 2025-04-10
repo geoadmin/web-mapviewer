@@ -1,4 +1,4 @@
-import ErrorMessage from '@/utils/ErrorMessage.class'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 export function getStandardErrorMessage(query, urlParamName) {
     return new ErrorMessage('url_parameter_error', {
