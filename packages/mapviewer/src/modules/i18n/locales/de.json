@@ -640,6 +640,8 @@
     "time_slider_legend_tooltip_partial_data": "Teilweise Daten",
     "time_slider_no_time_layer_active_url_warning": "Es ist nicht möglich, einen Zeitschieberegler hinzuzufügen, wenn keine aktiven Zeitkarten vorhanden sind",
     "title": "Titel",
+    "toggle_zooming_mode" : "Zoom nur mit der Ctrl/Cmd-Taste zulassen",
+    "toggle_zooming_mode_tooltip" : "Wenn Sie hier klicken, kann der Zoom Ihres iFrames nur durch Gedrückthalten der Ctrl/Cmd erfolgen.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Bundesamt für Raumentwicklung",
     "topic_astra_tooltip": "Bundesamt für Strassen",
@@ -734,5 +736,6 @@
     "woodland": "Wald",
     "yellow": "Gelb",
     "zoom_in": "Vergrössere Kartenausschnitt",
-    "zoom_out": "Verkleinere Kartenausschnitt"
+    "zoom_out": "Verkleinere Kartenausschnitt",
+    "zooming_mode_warning" : "Zum Zoomen der Karte Strg/Cmd gedrückt halten"
 }

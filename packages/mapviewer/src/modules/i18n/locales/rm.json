@@ -638,6 +638,8 @@
     "time_slider_legend_tooltip_partial_data": "Datas parzialas",
     "time_slider_no_time_layer_active_url_warning": "I n'è betg pussaivel d'agiuntar in reglader da temp, sch'i na dat naginas cartas da temp activas",
     "title": "Titel",
+    "toggle_zooming_mode" : "Permetter il zoom exclusivamain cun la tasta da Ctrl/Cmd",
+    "toggle_zooming_mode_tooltip" : "Cun cliccar qua, il zoom da l'iFrame vegn mo ad esser pussaivel cun tegnair en il buttun Ctrl/Cmd.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Uffizi federal da planisaziun dal territori",
     "topic_astra_tooltip": "Uffizi federal da vias",
@@ -732,5 +734,6 @@
     "woodland": "Guaud",
     "yellow": "mellen",
     "zoom_in": "Engrondir l'extract da la charta",
-    "zoom_out": "Empitschnir l'extract da la charta"
+    "zoom_out": "Empitschnir l'extract da la charta",
+    "zooming_mode_warning" : "Tegnair Ctrl/Cmd cuntschaint per zoomar la charta"
 }

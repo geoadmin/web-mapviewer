@@ -640,6 +640,8 @@
     "time_slider_legend_tooltip_partial_data": "Données partielles",
     "time_slider_no_time_layer_active_url_warning": "Il est impossible d'ajouter un curseur temporel lorsqu'il n'y a pas de cartes temporelles actives",
     "title": "Titre",
+    "toggle_zooming_mode" : "Permettre le zoom uniquement avec la touche Ctrl/Cmd",
+    "toggle_zooming_mode_tooltip" : "En cliquant ici, le zoom de votre iFrame ne sera possible qu'en maintenant le bouton Ctrl/Cmd enfoncé.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Office fédéral du développement territorial ",
     "topic_astra_tooltip": "Office fédéral des routes",
@@ -734,5 +736,6 @@
     "woodland": "Forêt",
     "yellow": "jaune",
     "zoom_in": "Zoomer plus",
-    "zoom_out": "Zoomer moins"
+    "zoom_out": "Zoomer moins",
+    "zooming_mode_warning" : "Maintenir Ctrl/Cmd pour zoomer sur la carte"
 }

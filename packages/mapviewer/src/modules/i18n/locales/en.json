@@ -640,6 +640,8 @@
     "time_slider_legend_tooltip_partial_data": "Partial data",
     "time_slider_no_time_layer_active_url_warning": "It is not possible to add a time slider, when there is no active time map available",
     "title": "Title",
+    "toggle_zooming_mode" : "Enable zooming only with Ctrl/Cmd key",
+    "toggle_zooming_mode_tooltip" : "By klicking this button, your iFrame's zooming will only be possible by keeping the Ctrl/Cmd button pressed.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Federal Office for Spatial Development ",
     "topic_astra_tooltip": "Federal roads office",
@@ -734,5 +736,6 @@
     "woodland": "Forest",
     "yellow": "yellow",
     "zoom_in": "Zoom in",
-    "zoom_out": "Zoom out"
+    "zoom_out": "Zoom out",
+    "zooming_mode_warning" : "Hold Ctrl/Cmd while scrolling to zoom the map"
 }

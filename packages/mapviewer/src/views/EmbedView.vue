@@ -1,6 +1,7 @@
 <script setup>
 import log from '@geoadmin/log'
-import { computed, onBeforeMount, onMounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -20,12 +21,53 @@ const route = useRoute()
 
 const is3DActive = computed(() => store.state.cesium.active)
 
+const { t } = useI18n()
+
+const noSimpleZoomEmbed = computed(() => store.getters.hasNoSimpleZoomEmbedEnabled)
+
+const showSimpleZoomHint = ref(false)
+let simpleZoomHintTimeout = null
+
+function onWheel(event) {
+    const isZoomModifierPressed = event.ctrlKey || event.metaKey //needed for macOS
+
+    if (noSimpleZoomEmbed.value && !isZoomModifierPressed) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+
+        showSimpleZoomHint.value = true
+        clearTimeout(simpleZoomHintTimeout)
+        simpleZoomHintTimeout = setTimeout(() => {
+            showSimpleZoomHint.value = false
+        }, 3000)
+
+        return
+    }
+}
+
 onBeforeMount(() => {
     store.dispatch('setEmbed', { embed: true, ...dispatcher })
 })
 
 onMounted(() => {
     log.info(`Embedded map view mounted`)
+    const waitForCanvas = () => {
+        const canvas = document.querySelector('canvas')
+        if (canvas) {
+            canvas.addEventListener('wheel', onWheel, { passive: false })
+        } else {
+            requestAnimationFrame(waitForCanvas)
+        }
+    }
+    waitForCanvas()
+})
+
+onUnmounted(() => {
+    const canvas = document.querySelector('canvas')
+
+    if (canvas) {
+        canvas.removeEventListener('wheel', onWheel)
+    }
 })
 
 watch(() => route.query, sendChangeEventToParent)
@@ -33,6 +75,14 @@ watch(() => route.query, sendChangeEventToParent)
 
 <template>
     <div class="view no-print">
+        <div
+            v-if="showSimpleZoomHint"
+            class="ctrl-scroll-hint position-absolute top-0 start-50 translate-middle-x bg-light border border-dark p-2 rounded mt-3 shadow"
+            style="z-index: 9999"
+        >
+            {{ t('zooming_mode_warning') }}
+        </div>
+
         <OpenFullAppLink />
         <MapModule>
             <MapToolbox
