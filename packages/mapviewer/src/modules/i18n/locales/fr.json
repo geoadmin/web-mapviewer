@@ -445,6 +445,7 @@
     "no_file": "Pas de fichier",
     "no_layer_found": "Pas de couche trouvée",
     "no_layers_info": "Aucune couche sur la carte",
+    "no_layers_info_compare" : "Vous devez avoir au moins une couche visible pour utiliser cette fonction.",
     "no_more_information": "Pas d'autres informations",
     "no_result": "Pas de résultat",
     "no_searchable_layer": "Pas de couche disponible",
