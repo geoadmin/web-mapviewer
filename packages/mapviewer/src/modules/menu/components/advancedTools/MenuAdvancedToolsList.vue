@@ -1,5 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import GeoadminTooltip from '@geoadmin/tooltip'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
@@ -22,6 +24,12 @@ const storeCompareRatio = computed(() => store.state.ui.compareRatio)
 const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
+
+const { t } = useI18n()
+
+const hasNoActiveLayersWarning = computed(() => {
+    return !isCompareSliderActive.value && store.getters.visibleLayers.length === 0
+})
 
 function onToggleImportCatalogue() {
     store.dispatch('toggleImportCatalogue', dispatcher)
@@ -47,6 +55,17 @@ function onToggleImportFile() {
     }
     store.dispatch('toggleImportFile', dispatcher)
 }
+
+const showTooltip = ref(false)
+
+watch(hasNoActiveLayersWarning, (value) => {
+    if (value) {
+        showTooltip.value = true
+        setTimeout(() => {
+            showTooltip.value = false
+        }, 3000)
+    }
+})
 </script>
 
 <template>
@@ -87,8 +106,24 @@ function onToggleImportFile() {
                 <ImportFile />
             </SimpleWindow>
         </MenuAdvancedToolsListItem>
+        <GeoadminTooltip
+            v-if="hasNoActiveLayersWarning"
+            ref="tooltip"
+            :tooltip-content="t('no_layers_info_compare')"
+            theme="warning"
+            placement="right"
+            :visible="showTooltip"
+        >
+            <MenuAdvancedToolsListItem
+                :is-selected="isCompareSliderActive"
+                title="compare"
+                tooltip="swipe_tooltip"
+                @click.stop="onToggleCompareSlider"
+            />
+        </GeoadminTooltip>
+
         <MenuAdvancedToolsListItem
-            v-if="!is3dActive"
+            v-else-if="!is3dActive"
             :is-selected="isCompareSliderActive"
             title="compare"
             tooltip="swipe_tooltip"
