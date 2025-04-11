@@ -11,6 +11,7 @@ import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
@@ -244,16 +245,21 @@ function selectItem(dropdownItem) {
                 :title="
                     feedback.category ? `feedback_category_${feedback.category}` : 'select_category'
                 "
-                :current-value="feedback.category"
-                :items="feedbackCategories"
                 data-cy="report-problem-category"
                 class="my-2"
                 :class="{
                     'is-valid': feedback.category,
                     'is-invalid': !feedback.category && activateValidation,
                 }"
-                @select-item="selectItem"
-            />
+            >
+                <DropdownButtonItem
+                    v-for="item in feedbackCategories"
+                    :key="item.id"
+                    v-bind="item"
+                    :current-value="feedback.category"
+                    @select-item="selectItem"
+                />
+            </DropdownButton>
             <a
                 :href="t('feedback_more_info_url')"
                 target="_blank"
