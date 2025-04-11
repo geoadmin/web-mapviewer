@@ -5,6 +5,7 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import KmlStyles from '@/api/layers/KmlStyles.enum'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 
 const standardURLParams = storeSyncConfig.map((param) => {
@@ -112,7 +113,7 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer({ kmlFileUrl: url, visible: true })
+            layer = new KMLLayer({ kmlFileUrl: url, visible: true, style: KmlStyles.GEOADMIN })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
