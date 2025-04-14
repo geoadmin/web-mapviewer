@@ -3,8 +3,6 @@ import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 
@@ -122,7 +120,7 @@ export function getLayersFromLegacyUrlParams(
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
-                layer = new ExternalWMTSLayer({ name: id, baseUrl: url, id })
+                layer = layerUtils.makeExternalWMTSLayer({ name: id, baseUrl: url, id })
             }
         }
         if (layerId.startsWith('WMS||')) {
@@ -141,7 +139,7 @@ export function getLayersFromLegacyUrlParams(
                 } catch (error) {
                     log.error(`Invalid URL ${url}`, error)
                 }
-                layer = new ExternalWMSLayer({
+                layer = layerUtils.makeExternalWMSLayer({
                     id,
                     name: name ? name : id,
                     baseUrl: url,
