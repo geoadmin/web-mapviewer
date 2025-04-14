@@ -19,6 +19,7 @@ import {
     type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
     type GeoAdminGroupOfLayers,
+    type AggregateSubLayer,
 } from '@/types/layers'
 import * as timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -550,6 +551,10 @@ export const makeGeoAdminGeoJSONLayer = (
         geoJsonStyle: null,
         geoJsonData: null,
         timeConfig: null,
+        isHighlightable: false,
+        searchable: false,
+        topics: [],
+        isSpecificFor3d: false
     }
 
     return merge(defaults, values)
@@ -586,6 +591,25 @@ export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>
     }
 
     return merge(defaults, values)
+}
+
+/**
+ * Construct an aggregate sub layer
+ *
+ * @param values Partial of AggregateSubLayer
+ * @returns AggregateSubLayer
+ */
+export const makeAggregateSubLayer = (values: Partial<AggregateSubLayer>): AggregateSubLayer => {
+    if (values.layer === undefined || values.subLayerId === undefined) {
+        throw new InvalidLayerDataError('Must provide a layer for the aggregate sublayer', values)
+    }
+
+    const defaults =  {
+        minResolution: 0,
+        maxResolution: 0
+    }
+
+    return merge(defaults, values as AggregateSubLayer)
 }
 
 export const isKmlLayerLegacy = (layer: KMLLayer): boolean => {

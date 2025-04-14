@@ -169,7 +169,7 @@ export interface GeoAdmin3DLayer extends GeoAdminLayer {
     urlTimestampToUse: boolean | null
 }
 
-export interface GeoAdminGeoJSONLayer extends Layer {
+export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     type: LayerType.GEOJSON
     /* Delay after which the data of this layer
         should be re-requested (if null is given, no further data reload will be triggered). A good
@@ -403,7 +403,7 @@ export interface AggregateSubLayer {
     /* The ID used in the GeoAdmin's backend to describe this sub-layer */
     subLayerId: string | null
     /* The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a  {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer}) */
-    layer: GeoAdminGeoJSONLayer | GeoAdminWMTSLayer | GeoAdminWMSLayer
+    layer: GeoAdminLayer,
     /* In meter/px, at which resolution this sub-layer should start to  be visible */
     minResolution: number
     /* In meter/px, from which resolution the layer should be hidden */

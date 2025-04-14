@@ -1,11 +1,8 @@
-import { type LayerAttribution, LayerType, type GeoAdminGeoJSONLayer } from '@geoadmin/layers'
+import { type LayerAttribution, LayerType, type GeoAdminGeoJSONLayer, type GeoAdminLayer, type AggregateSubLayer } from '@geoadmin/layers'
 import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import GeoAdminAggregateLayer, {
-    AggregateSubLayer,
-} from '@/api/layers/GeoAdminAggregateLayer.class'
 import { getApi3BaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
 
@@ -34,9 +31,9 @@ const generateClassForLayerConfig = (
     id: string,
     allOtherLayers: Record<string, any>,
     lang: string
-) => {
+): GeoAdminLayer | null => {
     if (!layerConfig) {
-        return
+        return null
     }
     const {
         serverLayerName,
@@ -174,13 +171,13 @@ const generateClassForLayerConfig = (
             // }
 
             // here id would be "parent.layer" in the example above
-            const subLayers: Record<string, any> = []
+            const subLayers: AggregateSubLayer[] = []
             layerConfig.subLayersIds.forEach((subLayerId: string) => {
                 // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
                 const subLayerRawConfig = allOtherLayers[subLayerId]
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                 // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
-                const subLayer = generateClassForLayerConfig(
+                const subLayer: GeoAdminLayer | null = generateClassForLayerConfig(
                     subLayerRawConfig,
                     subLayerRawConfig.serverLayerName,
                     allOtherLayers,
@@ -188,16 +185,16 @@ const generateClassForLayerConfig = (
                 )
                 if (subLayer) {
                     subLayers.push(
-                        new AggregateSubLayer(
+                        layerUtils.makeAggregateSubLayer({
                             subLayerId,
-                            subLayer,
-                            subLayerRawConfig.minResolution,
-                            subLayerRawConfig.maxResolution
-                        )
+                            layer: subLayer,
+                            minResolution: subLayerRawConfig.minResolution,
+                            maxResolution: subLayerRawConfig.maxResolution
+                        })
                     )
                 }
             })
-            const layer = new GeoAdminAggregateLayer({
+            const layer = layerUtils.makeGeoAdminAggregateLayer({
                 name,
                 id,
                 opacity,
@@ -217,6 +214,7 @@ const generateClassForLayerConfig = (
         default:
             log.error('Unknown layer type', type)
     }
+    return null
 }
 
 /**

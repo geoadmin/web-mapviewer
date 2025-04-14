@@ -1,6 +1,6 @@
 import {
     type GeoAdminGeoJSONLayer,
-    type GeoAdminAPILayer,
+    type GeoAdminLayer,
     type ExternalWMTSLayer,
     type ExternalWMSLayer,
     type CloudOptimizedGeoTIFFLayer,
@@ -203,7 +203,7 @@ export function createLayerObject(
 
         // only highlightable feature will output something, for the others a click coordinate is required
         // (and we don't have it if we are here, as we are dealing with pre-selected feature in the URL at app startup)
-        if ((layer as GeoAdminAPILayer).isHighlightable && features !== undefined) {
+        if ((layer as GeoAdminLayer).isHighlightable && features !== undefined) {
             features
                 .toString()
                 .split(':')
@@ -214,7 +214,6 @@ export function createLayerObject(
                             screenWidth: store.state.ui.width,
                             screenHeight: store.state.ui.height,
                             mapExtent: flattenExtent(store.getters.extent) as [
-                                // TODO have a better type here
                                 number,
                                 number,
                                 number,
