@@ -92,9 +92,9 @@ export interface Layer {
 /**
  * This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS
  *
- * @interface GeoAdminAPILayer
+ * @interface GeoAdminLayer
  */
-export interface GeoAdminAPILayer extends Layer {
+export interface GeoAdminLayer extends Layer {
     /**
      * Tells if this layer possess features that should be highlighted on the map after a click (and
      * if the backend will provide valuable information on the
@@ -105,8 +105,6 @@ export interface GeoAdminAPILayer extends Layer {
     topics: string[]
     /** Define if this layer's features can be searched through the search bar. */
     searchable: boolean
-    /** In which image format the backend must be requested. */
-    format: 'png' | 'jpeg'
     /**
      * The ID/name to use when requesting the WMS backend, this might be different than id, and many
      * layers (with different id) can in fact request the same layer, through the same technical
@@ -127,7 +125,7 @@ export interface GeoAdminAPILayer extends Layer {
  *
  * @interface GeoAdminWmsLayer
  */
-export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
+export interface GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
      * if unset this layer will be a considered a single tile WMS.
@@ -140,7 +138,8 @@ export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
      * language dependent).
      */
     lang: string
-
+    /** In which image format the backend must be requested. */
+    format: 'png' | 'jpeg'
     type: LayerType.WMS
 }
 
@@ -149,15 +148,17 @@ export interface GeoAdminWMSLayer extends GeoAdminAPILayer {
  *
  * @interface GeoAdminWMTSLayer
  */
-export interface GeoAdminWMTSLayer extends GeoAdminAPILayer {
+export interface GeoAdminWMTSLayer extends GeoAdminLayer {
     /** If this layer should be treated as a background layer. */
     isBackground: boolean
     /** Define the maximum resolution the layer can reach */
     maxResolution: number
+    /** In which image format the backend must be requested. */
+    format: 'png' | 'jpeg'
     type: LayerType.WMTS
 }
 
-export interface GeoAdmin3DLayer extends GeoAdminAPILayer {
+export interface GeoAdmin3DLayer extends GeoAdminLayer {
     type: LayerType.VECTOR
     technicalName: string
     /* If the JSON file stored in the /3d-tiles/ sub-folder on the S3 bucket */
@@ -187,7 +188,7 @@ export interface GeoAdminGeoJSONLayer extends Layer {
     isExternal: false
 }
 
-export interface GeoAdminVectorLayer extends Layer {
+export interface GeoAdminVectorLayer extends GeoAdminLayer {
     type: LayerType.VECTOR
     technicalName: string
     attributions: LayerAttribution[]
@@ -409,19 +410,19 @@ export interface AggregateSubLayer {
     maxResolution: number
 }
 
-export interface GeoAdminAggregateLayer extends Layer {
+export interface GeoAdminAggregateLayer extends GeoAdminLayer {
     type: LayerType.AGGREGATE
     baseUrl: ''
     subLayers: AggregateSubLayer[]
+}
+
+export interface GeoAdminGroupOfLayers extends Layer {
+    /* Description of the layers being part of this group */
+    layers: GeoAdminLayer[]
+    type: LayerType.GROUP
 }
 
 // #endregion
 
 export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedGeoTIFFLayer
 export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer
-export type GeoAdminLayer =
-    | GeoAdminWMTSLayer
-    | GeoAdminWMSLayer
-    | GeoAdminGeoJSONLayer
-    | GeoAdmin3DLayer
-    | GeoAdminVectorLayer

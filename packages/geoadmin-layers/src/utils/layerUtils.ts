@@ -3,7 +3,7 @@ import { merge, omit } from 'lodash'
 import {
     type Layer,
     DEFAULT_OPACITY,
-    type GeoAdminAPILayer,
+    type GeoAdminLayer,
     WMTSEncodingType,
     LayerType,
     type ExternalWMTSLayer,
@@ -18,6 +18,7 @@ import {
     type CloudOptimizedGeoTIFFLayer,
     type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
+    type GeoAdminGroupOfLayers,
 } from '@/types/layers'
 import * as timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -375,8 +376,11 @@ export const makeGeoAdminVectorLayer = (
         isLoading: false,
         hasError: false,
         hasWarning: false,
-
+        isHighlightable: false,
         timeConfig: null,
+        topics: [],
+        searchable: false,
+        isSpecificFor3d: false
     }
 
     return merge(defaults, omit(values, 'attributions'))
@@ -416,7 +420,6 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
         isHighlightable: false,
         topics: [],
         searchable: false,
-        format: 'JPEG', // TODO move away from the attempt of restructuring things
         isSpecificFor3d: false,
         timeConfig: null,
     }
@@ -504,6 +507,10 @@ export const makeGeoAdminAggregateLayer = (
         hasError: false,
         hasWarning: false,
         timeConfig: null,
+        isHighlightable: false,
+        topics: [],
+        searchable: false,
+        isSpecificFor3d: false
     }
     return merge(defaults, values)
 }
@@ -548,6 +555,39 @@ export const makeGeoAdminGeoJSONLayer = (
     return merge(defaults, values)
 }
 
+/**
+ * Construct a GeoAdminGroupOfLayers
+ *
+ * This is a helper that can work with a subset of the GeoAdminGeoJSONLayer properties. The missing
+ * values from the function parameter will be used from defaults
+ * @param values Partial values of GeoAdminGroupOfLayers
+ * @returns GeoAdminGroupOfLayers
+ */
+export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers => {
+    validateBaseData(values)
+
+    const defaults =  {
+        layers: [],
+        name: '',
+        id: '',
+        type: LayerType.WMTS,
+        baseUrl: '',
+        opacity: 1,
+        visible: true,
+        attributions: [],
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: false,
+        isLoading: false,
+        timeConfig: null,
+        hasError: false,
+        hasWarning: false
+    }
+
+    return merge(defaults, values)
+}
+
 export const isKmlLayerLegacy = (layer: KMLLayer): boolean => {
     return layer.kmlMetadata?.author !== 'web-mapviewer'
 }
@@ -562,7 +602,7 @@ export const isKmlLayerEmpty = (layer: KMLLayer): boolean =>
  *
  * @returns {String} The topic to use in request to the backend for this layer
  */
-export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminAPILayer) {
+export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer) {
     // by default, the frontend should always request `ech`, so if there's no topic that's what we do
     // if there are some topics, we look if `ech` is one of them, if so we return it
     if (layer.topics.length === 0 || layer.topics.indexOf('ech') !== -1) {
