@@ -117,13 +117,14 @@ $letterSpacing: calc((78 / 1000) * 1em);
         $printFontSizeRelToHeight: 0.8vh;
         $printFontSize: max(max($printFontSizeRelToWidth, $printFontSizeRelToHeight), $minFontSize);
 
+        // forcing the length of the logo to the 55mm expressed in the CD-Bund PDF guide.
+        width: 55mm;
+
         @include confederation-logo(
             calc(0.66 * $printFontSize),
             $printFontSize,
             calc(1.2 * $printFontSize)
         );
-        // forcing the length of the logo to the 55mm expressed in the CD-Bund PDF guide.
-        width: 55mm;
     }
 
     .swiss-flag {
