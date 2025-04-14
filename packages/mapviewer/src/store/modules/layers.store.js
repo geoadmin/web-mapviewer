@@ -738,7 +738,7 @@ const actions = {
      * @param {string} dispatcher Action dispatcher name
      */
     clearLayerErrors({ commit, getters }, { layerId, dispatcher }) {
-        const layers = getters.getLayerById(layerId)
+        const layers = getters.getLayersById(layerId)
         if (layers.length === 0) {
             throw new Error(
                 `Failed to clear layer error keys "${layerId}", layer not found in active layers`
