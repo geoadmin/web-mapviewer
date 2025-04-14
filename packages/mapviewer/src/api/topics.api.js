@@ -1,8 +1,8 @@
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
 
-import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
 import {
@@ -11,7 +11,6 @@ import {
 } from '@/utils/legacyLayerParamUtils'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
-// TODO implement this through @geoadmin/layers' GeoAdminTopic
 export class Topic {
     /**
      * @param {String} id The id of the topic (unique)
@@ -63,7 +62,11 @@ const readTopicTreeRecursive = (node, availableLayers) => {
                 }
             }
         })
-        return new GeoAdminGroupOfLayers({ id: `${node.id}`, name: node.label, layers: children })
+        return layerUtils.makeGeoAdminGroupOfLayers({
+            id: `${node.id}`,
+            name: node.label,
+            layers: children,
+        })
     } else if (node.category === 'layer') {
         // we have to match IDs first, some layers have the same technicalNames (when 3D counterpart config exist for instance), and
         // matching both together will result sometimes in the 3D config being displayed in the topic instead of the correct layer
