@@ -1,14 +1,15 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
 import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
 import proj4 from 'proj4'
 import {
     computed,
     inject,
     nextTick,
-    onBeforeUnmount,
     onMounted,
+    onBeforeUnmount,
     ref,
     useTemplateRef,
     watch,
@@ -26,7 +27,6 @@ const { t } = useI18n()
 
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
 const projection = computed(() => store.state.position.projection)
-
 const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
 const getViewer = inject('getViewer', () => {}, true)
 
@@ -36,28 +36,33 @@ watch(
     is3DReady,
     (newValue) => {
         if (newValue) {
-            setupHandler()
+            nextTick(() => {
+                checkViewerReadyThenSetupHandler()
+            })
         }
     },
     { immediate: true }
 )
-
 onMounted(() => {
-    nextTick(() => {
-        setupHandler()
-    })
+    nextTick(() => checkViewerReadyThenSetupHandler())
 })
-
 onBeforeUnmount(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
         handler.destroy()
     }
 })
-
+function checkViewerReadyThenSetupHandler() {
+    // we check every 100 milliseconds if the viewer is ready.
+    if (!getViewer()) {
+        window.setTimeout(checkViewerReadyThenSetupHandler, 100)
+    } else {
+        setupHandler()
+    }
+}
 function setupHandler() {
-    // To prevent that the handler is setup multiple times which then creates handlers that are not destroyed in the onBeforeUnmount
-    if (!getViewer() || handler) {
+    // If the handler already exists for some reason, there is no need to create it again
+    if (handler) {
         return
     }
     handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
@@ -93,9 +98,9 @@ function formatCoordinate(coordinate) {
     if (displayedFormat) {
         if (showCoordinateLabel(displayedFormat)) {
             return `${t('coordinates_label')} ${displayedFormat.format(
-                coordinate,
+                [coordinate[0], coordinate[1]],
                 projection.value
-            )}`
+            )}, ${round(coordinate[2], 2)}`
         }
         return displayedFormat.format(coordinate, projection.value, true)
     } else {
