@@ -445,6 +445,7 @@
     "no_file": "Keine Datei",
     "no_layer_found": "Keine Layer gefunden",
     "no_layers_info": "Kein Layer auf der Karte",
+    "no_layers_info_compare" : "Sie benötigen mindestens ein sichtbarer Datensatz, um das Vergleichen Werkzeug zu verwenden.",
     "no_more_information": "Keine weiteren Informationen",
     "no_result": "Kein Ergebnis",
     "no_searchable_layer": "Kein abfragbarer Datensatz",

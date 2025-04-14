@@ -445,6 +445,7 @@
     "no_file": "Nessun file",
     "no_layer_found": "Nessun layer trovato",
     "no_layers_info": "Nessun layer sulla mappa",
+    "no_layers_info_compare" : "Per utilizzare lo strumento di confronto è necessario almeno un layer visibile.",
     "no_more_information": "Nessun'altra informazione",
     "no_result": "Nessun risultato",
     "no_searchable_layer": "Nessun layer disponibile.",

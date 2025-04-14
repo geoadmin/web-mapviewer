@@ -255,8 +255,10 @@ describe('Testing of the compare slider', () => {
                         expect(compareRatio).to.eq(0.5)
                     })
 
+                    // PB-419 : A new user feedback is displayed, and the slider is only active
+                    // if there is at least one visible layer
                     cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(true)
+                        expect(isSliderActive).to.eq(false)
                     })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
