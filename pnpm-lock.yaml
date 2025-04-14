@@ -6,15 +6,78 @@ settings:
 
 catalogs:
   default:
+    '@4tw/cypress-drag-drop':
+      specifier: ^2.3.0
+      version: 2.3.0
+    '@cypress/vite-dev-server':
+      specifier: ^6.0.2
+      version: 6.0.2
+    '@cypress/vue':
+      specifier: ^6.0.2
+      version: 6.0.2
     '@eslint/js':
       specifier: ^9.22.0
       version: 9.22.0
     '@eslint/markdown':
       specifier: ^6.3.0
       version: 6.3.0
+    '@floating-ui/vue':
+      specifier: ^1.1.6
+      version: 1.1.6
+    '@fontsource/noto-sans':
+      specifier: ^5.2.5
+      version: 5.2.5
+    '@fortawesome/fontawesome-svg-core':
+      specifier: ^6.7.2
+      version: 6.7.2
+    '@fortawesome/free-brands-svg-icons':
+      specifier: ^6.7.2
+      version: 6.7.2
+    '@fortawesome/free-regular-svg-icons':
+      specifier: ^6.7.2
+      version: 6.7.2
+    '@fortawesome/free-solid-svg-icons':
+      specifier: ^6.7.2
+      version: 6.7.2
+    '@fortawesome/vue-fontawesome':
+      specifier: ^3.0.8
+      version: 3.0.8
+    '@geoblocks/cesium-compass':
+      specifier: ^0.6.0
+      version: 0.6.0
+    '@geoblocks/mapfishprint':
+      specifier: ^0.2.20
+      version: 0.2.20
+    '@geoblocks/ol-maplibre-layer':
+      specifier: ^1.0.3
+      version: 1.0.3
+    '@ivanv/vue-collapse-transition':
+      specifier: ^1.0.2
+      version: 1.0.2
+    '@mapbox/togeojson':
+      specifier: ^0.16.2
+      version: 0.16.2
+    '@nuintun/qrcode':
+      specifier: ^4.1.14
+      version: 4.1.14
+    '@popperjs/core':
+      specifier: ^2.11.8
+      version: 2.11.8
     '@prettier/plugin-xml':
       specifier: ^3.4.1
       version: 3.4.1
+    '@rushstack/eslint-patch':
+      specifier: ^1.11.0
+      version: 1.11.0
+    '@tailwindcss/vite':
+      specifier: ^4.0.9
+      version: 4.0.17
+    '@tsconfig/node22':
+      specifier: ^22.0.0
+      version: 22.0.1
+    '@turf/turf':
+      specifier: ^7.2.0
+      version: 7.2.0
     '@types/geojson':
       specifier: ^7946.0.16
       version: 7946.0.16
@@ -27,6 +90,12 @@ catalogs:
     '@types/proj4':
       specifier: ^2.5.6
       version: 2.5.6
+    '@vitejs/plugin-basic-ssl':
+      specifier: ^2.0.0
+      version: 2.0.0
+    '@vitejs/plugin-vue':
+      specifier: ^5.2.1
+      version: 5.2.1
     '@vue/eslint-config-prettier':
       specifier: ^10.2.0
       version: 10.2.0
@@ -36,9 +105,54 @@ catalogs:
     '@vue/tsconfig':
       specifier: ^0.7.0
       version: 0.7.0
+    animate.css:
+      specifier: ^4.1.1
+      version: 4.1.1
+    axios:
+      specifier: ^1.8.3
+      version: 1.8.3
+    axios-retry:
+      specifier: ^4.5.0
+      version: 4.5.0
+    bootstrap:
+      specifier: ^5.3.3
+      version: 5.3.3
     cesium:
       specifier: 1.119.0
       version: 1.119.0
+    chai:
+      specifier: ^5.2.0
+      version: 5.2.0
+    chart.js:
+      specifier: ^4.4.8
+      version: 4.4.8
+    chartjs-plugin-zoom:
+      specifier: ^2.2.0
+      version: 2.2.0
+    cypress:
+      specifier: ^14.2.0
+      version: 14.2.0
+    cypress-browser-permissions:
+      specifier: ^1.1.0
+      version: 1.1.0
+    cypress-real-events:
+      specifier: ^1.14.0
+      version: 1.14.0
+    cypress-recurse:
+      specifier: ^1.35.3
+      version: 1.35.3
+    cypress-vite:
+      specifier: ^1.6.0
+      version: 1.6.0
+    cypress-wait-until:
+      specifier: ^3.0.2
+      version: 3.0.2
+    dompurify:
+      specifier: ^3.2.4
+      version: 3.2.4
+    dotenv:
+      specifier: ^16.4.7
+      version: 16.4.7
     eslint:
       specifier: ^9.22.0
       version: 9.22.0
@@ -57,9 +171,60 @@ catalogs:
     eslint-plugin-vue:
       specifier: ^10.0.0
       version: 10.0.0
+    file-saver:
+      specifier: ^2.0.5
+      version: 2.0.5
+    form-data:
+      specifier: ^4.0.2
+      version: 4.0.2
+    geographiclib-geodesic:
+      specifier: ^2.1.1
+      version: 2.1.1
+    geotiff:
+      specifier: ^2.1.3
+      version: 2.1.3
+    git-describe:
+      specifier: ^4.1.1
+      version: 4.1.1
+    gitconfig:
+      specifier: ^2.0.8
+      version: 2.0.8
     globals:
       specifier: ^16.0.0
       version: 16.0.0
+    googleapis:
+      specifier: ^146.0.0
+      version: 146.0.0
+    hammerjs:
+      specifier: ^2.0.8
+      version: 2.0.8
+    jquery:
+      specifier: ^3.7.1
+      version: 3.7.1
+    jsdom:
+      specifier: ^26.0.0
+      version: 26.0.0
+    jszip:
+      specifier: ^3.10.1
+      version: 3.10.1
+    lodash:
+      specifier: ^4.17.21
+      version: 4.17.21
+    maplibre-gl:
+      specifier: ^5.2.0
+      version: 5.2.0
+    mime-types:
+      specifier: ^2.1.35
+      version: 2.1.35
+    mocha-junit-reporter:
+      specifier: ^2.2.1
+      version: 2.2.1
+    ol:
+      specifier: ^10.4.0
+      version: 10.4.0
+    pako:
+      specifier: ^2.1.0
+      version: 2.1.0
     prettier:
       specifier: ^3.5.3
       version: 3.5.3
@@ -69,6 +234,33 @@ catalogs:
     prettier-plugin-packagejson:
       specifier: ^v2.5.10
       version: 2.5.10
+    print-js:
+      specifier: ^1.6.0
+      version: 1.6.0
+    proj4:
+      specifier: ^2.15.0
+      version: 2.15.0
+    reproject:
+      specifier: ^1.2.7
+      version: 1.2.7
+    rimraf:
+      specifier: ^6.0.1
+      version: 6.0.1
+    sass:
+      specifier: 1.77.6
+      version: 1.77.6
+    sharp:
+      specifier: ^0.33.5
+      version: 0.33.5
+    sortablejs:
+      specifier: ^1.15.6
+      version: 1.15.6
+    start-server-and-test:
+      specifier: ^2.0.11
+      version: 2.0.11
+    tailwindcss:
+      specifier: ^4.0.9
+      version: 4.0.17
     typescript:
       specifier: ^5.8.2
       version: 5.8.2
@@ -78,15 +270,48 @@ catalogs:
     vite:
       specifier: ^6.2.1
       version: 6.2.1
+    vite-node:
+      specifier: ^3.0.8
+      version: 3.0.8
     vite-plugin-dts:
       specifier: ^4.5.3
       version: 4.5.3
+    vite-plugin-static-copy:
+      specifier: ^2.3.0
+      version: 2.3.0
+    vite-plugin-vue-devtools:
+      specifier: ^7.7.2
+      version: 7.7.2
     vitest:
       specifier: ^3.0.8
       version: 3.0.8
+    vue:
+      specifier: ^3.5.13
+      version: 3.5.13
+    vue-chartjs:
+      specifier: ^5.3.2
+      version: 5.3.2
+    vue-i18n:
+      specifier: ^11.1.2
+      version: 11.1.2
+    vue-router:
+      specifier: ^4.5.0
+      version: 4.5.0
     vue-tsc:
       specifier: ^2.2.8
       version: 2.2.8
+    vue3-social-sharing:
+      specifier: ^1.3.1
+      version: 1.3.1
+    vuex:
+      specifier: ^4.1.0
+      version: 4.1.0
+    write-yaml-file:
+      specifier: ^5.0.0
+      version: 5.0.0
+    yargs:
+      specifier: ^17.7.2
+      version: 17.7.2
 
 importers:
 
@@ -5633,7 +5858,7 @@ snapshots:
   '@eslint/config-array@0.19.2':
     dependencies:
       '@eslint/object-schema': 2.1.6
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -5651,7 +5876,7 @@ snapshots:
   '@eslint/eslintrc@3.3.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -7398,7 +7623,7 @@ snapshots:
       '@typescript-eslint/types': 8.26.1
       '@typescript-eslint/typescript-estree': 8.26.1(typescript@5.8.2)
       '@typescript-eslint/visitor-keys': 8.26.1
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       eslint: 9.22.0(jiti@2.4.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -7413,7 +7638,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.26.1(typescript@5.8.2)
       '@typescript-eslint/utils': 8.26.1(eslint@9.22.0(jiti@2.4.2))(typescript@5.8.2)
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       eslint: 9.22.0(jiti@2.4.2)
       ts-api-utils: 2.0.1(typescript@5.8.2)
       typescript: 5.8.2
@@ -7426,7 +7651,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.26.1
       '@typescript-eslint/visitor-keys': 8.26.1
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -8219,10 +8444,6 @@ snapshots:
     optionalDependencies:
       supports-color: 8.1.1
 
-  debug@4.4.0:
-    dependencies:
-      ms: 2.1.3
-
   debug@4.4.0(supports-color@8.1.1):
     dependencies:
       ms: 2.1.3
@@ -8499,7 +8720,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       escape-string-regexp: 4.0.0
       eslint-scope: 8.3.0
       eslint-visitor-keys: 4.2.0
@@ -9000,7 +9221,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -9013,7 +9234,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -9753,7 +9974,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       decode-named-character-reference: 1.1.0
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -10720,7 +10941,7 @@ snapshots:
   vite-node@3.0.8(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       es-module-lexer: 1.6.0
       pathe: 2.0.3
       vite: 6.2.1(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.77.6)
@@ -10745,7 +10966,7 @@ snapshots:
       '@volar/typescript': 2.4.12
       '@vue/language-core': 2.2.0(typescript@5.8.2)
       compare-versions: 6.1.1
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       kolorist: 1.8.0
       local-pkg: 1.1.1
       magic-string: 0.30.17
@@ -10835,7 +11056,7 @@ snapshots:
       '@vitest/spy': 3.0.8
       '@vitest/utils': 3.0.8
       chai: 5.2.0
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       expect-type: 1.2.0
       magic-string: 0.30.17
       pathe: 2.0.3
@@ -10884,7 +11105,7 @@ snapshots:
 
   vue-eslint-parser@10.1.1(eslint@9.22.0(jiti@2.4.2)):
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.0(supports-color@8.1.1)
       eslint: 9.22.0(jiti@2.4.2)
       eslint-scope: 8.3.0
       eslint-visitor-keys: 4.2.0
