@@ -1,10 +1,8 @@
 import { LayerType } from '@geoadmin/layers'
-import { layerUtils } from '@geoadmin/layers/utils'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { getWmtsBaseUrl } from '@/config/baseUrl.config'
 import {
     createLayersParamForFeaturePreselection,
@@ -24,7 +22,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 attributions: [{ name: 'attribution.test.wms.layer' }],
                 baseUrl: 'https://base-url/',
                 format: 'png',
-                timeConfig: new LayerTimeConfig(),
+                timeConfig: timeConfigUtils.makeTimeConfig(),
             }),
             layerUtils.makeExternalWMTSLayer({
                 name: 'Test layer WMTS',
@@ -39,10 +37,10 @@ describe('Test parsing of legacy URL param into new params', () => {
                 id: 'test.timed.wmts.layer',
                 opacity: 0.8,
                 attributions: [{ name: 'attribution.test.timed.wmts.layer' }],
-                timeConfig: new LayerTimeConfig('123', [
-                    new LayerTimeConfigEntry('123'),
-                    new LayerTimeConfigEntry('456'),
-                    new LayerTimeConfigEntry('789'),
+                timeConfig: timeConfigUtils.makeTimeConfig('123', [
+                    timeConfigUtils.makeTimeConfigEntry('123'),
+                    timeConfigUtils.makeTimeConfigEntry('456'),
+                    timeConfigUtils.makeTimeConfigEntry('789'),
                 ]),
             }),
         ]

@@ -1,13 +1,10 @@
 import { LayerType } from '@geoadmin/layers'
-import { layerUtils } from '@geoadmin/layers/utils'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
@@ -265,13 +262,13 @@ describe('Testing layersParamParser', () => {
                     id: 'fake.aggregate.id',
                     attributions,
                     subLayers: [
-                        new GeoAdminWMSLayer({
+                        layerUtils.makeGeoAdminWMSLayer({
                             name: 'sub layer 1',
                             id: 'sub.layer.id.1',
                             technicalName: 'sub.layer.id.1',
                             attributions,
                         }),
-                        new GeoAdminWMSLayer({
+                        layerUtils.makeGeoAdminWMSLayer({
                             name: 'sub layer 2',
                             id: 'sub.layer.id.2',
                             technicalName: 'sub.layer.id.2',
@@ -392,12 +389,12 @@ describe('Testing layersParamParser', () => {
                 })
                 if (testTime) {
                     it('handles correctly time as extra param', () => {
-                        const wantedTimeEntry = new LayerTimeConfigEntry('20500101')
-                        layer.timeConfig = new LayerTimeConfig('last', [
+                        const wantedTimeEntry = timeConfigUtils.makeTimeConfigEntry('20500101')
+                        layer.timeConfig = timeConfigUtils.makeTimeConfig('last', [
                             wantedTimeEntry,
                             // adding a bunch more
-                            new LayerTimeConfigEntry('20000101'),
-                            new LayerTimeConfigEntry('19500101'),
+                            timeConfigUtils.makeTimeConfigEntry('20000101'),
+                            timeConfigUtils.makeTimeConfigEntry('19500101'),
                         ])
                         layer.timeConfig.currentTimeEntry = wantedTimeEntry
                         expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
