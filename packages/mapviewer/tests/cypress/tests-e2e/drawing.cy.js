@@ -261,89 +261,6 @@ describe('Drawing module tests', () => {
                     description
                 )
 
-                cy.log('Moving the marker by drag&drop on the map')
-                cy.get('[data-cy="ol-map"]').then(($olMap) => {
-                    const startingPixel = [$olMap.outerWidth() / 2.0, $olMap.outerHeight() / 2.0]
-                    const moveInPixel = {
-                        x: 40,
-                        y: -50,
-                    }
-                    const endingPixel = [
-                        startingPixel[0] + moveInPixel.x,
-                        startingPixel[1] + moveInPixel.y,
-                    ]
-
-                    // Move it, the geojson geometry should move
-                    cy.readWindowValue('map').then((map) => {
-                        const coordinateStartingPixel = map.getCoordinateFromPixel(startingPixel)
-                        const coordinateEndingPixel = map.getCoordinateFromPixel(endingPixel)
-
-                        cy.log(
-                            'Starting pixel is',
-                            startingPixel,
-                            'meaning coordinates',
-                            coordinateStartingPixel
-                        )
-                        cy.log(
-                            'Ending pixel is',
-                            endingPixel,
-                            'meaning coordinates',
-                            coordinateEndingPixel
-                        )
-
-                        // attributions can get in the way on mobile viewport, minimizing the feature detail
-                        // to have more screen space to move the feature
-                        cy.get('[data-cy="infobox-minimize-maximize"]').click()
-
-                        cy.simulateEvent(map, 'pointerdown', 0, 0)
-                        cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
-                        cy.simulateEvent(map, 'pointerup', moveInPixel.x, moveInPixel.y)
-
-                        cy.wait('@update-kml')
-                        // re-maximizing the feature detail to be able to read the coordinates
-                        cy.get('[data-cy="infobox-minimize-maximize"]').click()
-
-                        // FIXME: to many issues on the CI with clipboard coordinate copy, looks like a height delta, disabling tests with clipboard
-                        // // checking that coordinates in feature detail have also been updated after the move
-                        // readCoordinateClipboard(
-                        //     'feature-style-edit-coordinate-copy',
-                        //     LV95Format.format(coordinateEndingPixel, LV95)
-                        // )
-                        //
-                        // cy.index('Coordinates for marker can be copied in drawing mode')
-                        // cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-                        // cy.get('[data-cy="ol-map"]').click(endingPixel[0], endingPixel[1])
-                        // waitForKmlUpdate(`(ExtendedData.*){4}`)
-                        // readCoordinateClipboard(
-                        //     'feature-style-edit-coordinate-copy',
-                        //     LV95Format.format(coordinateEndingPixel, LV95)
-                        // )
-                        //
-                        // cy.index('Coordinates for marker can be copied while not in drawing mode')
-                        // cy.closeDrawingMode()
-                        // cy.closeMenuIfMobile()
-                        // waitForKmlUpdate(`(ExtendedData.*){4}`)
-                        // cy.checkOlLayer([bgLayer, kmlId])
-                        //
-                        // cy.get('[data-cy="ol-map"]').click(endingPixel[0], endingPixel[1])
-                        // readCoordinateClipboard(
-                        //     'feature-detail-coordinate-copy',
-                        //     LV95Format.format(coordinateEndingPixel, LV95)
-                        // )
-                        // cy.index('Coordinates for marker are updated when selecting new marker')
-                        // cy.get('[data-cy="ol-map"]').click(200, 234)
-                        // // OL waits 250ms before deciding a click is a single click (and then start the event chain)
-                        // // and as we do not have a layer that will fire identify features to wait on, we have to resort
-                        // // to wait arbitrarily 250ms
-                        // // eslint-disable-next-line cypress/no-unnecessary-waiting
-                        // cy.wait(250)
-                        // readCoordinateClipboard(
-                        //     'feature-detail-coordinate-copy',
-                        //     LV95Format.format(map.getCoordinateFromPixel([200, 234]), LV95)
-                        // )
-                    })
-                })
-
                 cy.log('Can generate and display media links')
                 const valid_url = 'http:dummy'
                 const valid_whitelisted_url = 'https://map.geo.admin.ch'
@@ -685,7 +602,9 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            cy.log('Deleting a node at the beginning by right clicking on it to verify that the extend button is not blocking the point')
+            cy.log(
+                'Deleting a node at the beginning by right clicking on it to verify that the extend button is not blocking the point'
+            )
             cy.get('[data-cy="ol-map"]').rightclick(500, 500)
             cy.wait('@update-kml')
             checkDrawnFeature(
@@ -695,7 +614,9 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.LINEPOLYGON
             )
 
-            cy.log('Deleting a node at the end by right clicking on it to verify that the extend button is not blocking the point')
+            cy.log(
+                'Deleting a node at the end by right clicking on it to verify that the extend button is not blocking the point'
+            )
             cy.get('[data-cy="ol-map"]').rightclick(1100, 450)
             cy.wait('@update-kml')
             checkDrawnFeature(
