@@ -575,7 +575,7 @@ export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>
         layers: [],
         name: '',
         id: '',
-        type: LayerType.WMTS,
+        type: LayerType.GROUP,
         baseUrl: '',
         opacity: 1,
         visible: true,
