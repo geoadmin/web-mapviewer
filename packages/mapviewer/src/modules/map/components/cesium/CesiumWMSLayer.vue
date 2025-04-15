@@ -1,12 +1,12 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
+import { ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'

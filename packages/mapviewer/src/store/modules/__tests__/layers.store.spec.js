@@ -3,8 +3,6 @@ import { expect } from 'chai'
 import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'
 
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is
 // needed since some store plugins might require access to router to get the query parameters
 // (e.g. topic management plugin)
@@ -34,10 +32,10 @@ const secondLayer = layerUtils.makeGeoAdminWMSLayer({
     id: 'second.layer',
     technicalName: 'second.layer',
     visible: true,
-    timeConfig: new LayerTimeConfig('last', [
-        new LayerTimeConfigEntry('20240112'),
-        new LayerTimeConfigEntry('19000203'),
-        new LayerTimeConfigEntry('18400101'),
+    timeConfig: timeConfigUtils.makeTimeConfig('last', [
+        timeConfigUtils.makeTimeConfigEntry('20240112'),
+        timeConfigUtils.makeTimeConfigEntry('19000203'),
+        timeConfigUtils.makeTimeConfigEntry('18400101'),
     ]),
     attributions: [{ name: 'test' }],
 })

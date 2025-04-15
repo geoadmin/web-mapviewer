@@ -3,6 +3,7 @@
 
 import { LV95 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
+import { ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
@@ -10,7 +11,6 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'

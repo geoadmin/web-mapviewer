@@ -1,5 +1,6 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
+import { CURRENT_YEAR_TIMESTAMP, ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
@@ -8,10 +9,6 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import {
-    ALL_YEARS_TIMESTAMP,
-    CURRENT_YEAR_TIMESTAMP,
-} from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
 import { createPixelExtentAround, projExtent } from '@/utils/extentUtils'

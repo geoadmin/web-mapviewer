@@ -1,13 +1,10 @@
 <script setup>
+import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP } from '@geoadmin/layers'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import {
-    ALL_YEARS_TIMESTAMP,
-    CURRENT_YEAR_TIMESTAMP,
-} from '@/api/layers/LayerTimeConfigEntry.class'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
@@ -100,20 +97,20 @@ function isSelected(timeEntry) {
             <template #content="{ close }">
                 <div
                     ref="timeSelectorModal"
-                    class="card border-0"
+                    class="border-0 card"
                 >
                     <div class="card-header d-flex align-items-center justify-content-between">
                         {{ t('time_select_year') }}
                     </div>
                     <div
-                        class="card-body rounded-bottom p-2 timestamps-popover-content"
+                        class="p-2 card-body rounded-bottom timestamps-popover-content"
                         data-cy="time-selection-popup"
                         @click="close"
                     >
                         <button
                             v-for="timeEntry in timeConfig.timeEntries"
                             :key="timeEntry.timestamp"
-                            class="btn mb-1 me-1 btn-timestamp-selection-popup"
+                            class="mb-1 btn me-1 btn-timestamp-selection-popup"
                             :class="{
                                 'btn-primary': isSelected(timeEntry),
                                 'btn-light': !isSelected(timeEntry),
