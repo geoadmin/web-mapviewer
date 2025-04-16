@@ -100,18 +100,15 @@ function getIframeHosts(value) {
 
 <template>
     <!-- eslint-disable vue/no-v-html-->
-
     <div
         v-if="hasFeatureStringData && popupDataCanBeTrusted"
         v-html="feature.data"
     />
-
     <div
         v-else-if="hasFeatureStringData"
         v-html="sanitizeHtml(feature.data)"
     />
     <!-- eslint-enable vue/no-v-html-->
-
     <div
         v-else
         class="htmlpopup-container"
@@ -138,7 +135,7 @@ function getIframeHosts(value) {
                 <div
                     data-cy="feature-detail-description-content"
                     v-html="t(value)"
-                ></div>
+                />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <div v-if="sanitizedFeatureDataEntries.length === 0">
