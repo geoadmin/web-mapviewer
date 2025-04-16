@@ -196,8 +196,9 @@ defineExpose({ goToFirst })
             top: 0;
             z-index: 1;
             background-color: $body-bg; // Ensure it matches the background
-            padding-right: 1rem; // Add padding to ensure background covers the full width
+            width: max-content; // Allow the header to expand to fit its content
             white-space: nowrap; // Prevent text wrapping
+            overflow: visible; // Allow horizontal scrolling for long text
         }
 
         .providers-group-items {
