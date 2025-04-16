@@ -311,7 +311,6 @@ describe('Test of layer handling in 3D', () => {
             .find('[data-cy="feature-item"]')
             .should('have.length', 10)
 
-        
         // deactivate 3D
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
         cy.get('@highlightedFeatures')
@@ -319,17 +318,17 @@ describe('Test of layer handling in 3D', () => {
             .find('[data-cy="feature-item"]')
             .should('have.length', 10)
 
+        cy.log(
+            'Switch to 3D and remove the layer and check that the selected features are not visible anymore'
+        )
 
-        cy.log('Switch to 3D and remove the layer and check that the selected features are not visible anymore')
         // activate 3D
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
         cy.waitUntilCesiumTilesLoaded()
-            
+
         cy.openMenuIfMobile()
 
-        cy.get(
-            `[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`
-        ).click()
+        cy.get(`[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`).click()
 
         cy.closeMenuIfMobile()
         cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
