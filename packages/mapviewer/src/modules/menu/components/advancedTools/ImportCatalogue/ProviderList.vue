@@ -57,6 +57,10 @@ function goToLast() {
     providerList.value.querySelector(`[tabindex="${providers.length - 1}"]`).focus()
 }
 
+function getRelativeUrl(providerUrl, baseUrl) {
+    return providerUrl.replace(baseUrl, '');
+}
+
 // Watch for changes in groupedProviders and set the expandedGroups state
 // based on the filterApplied prop
 watch(() => groupedProviders, (currentGroupProviders) => {
@@ -106,7 +110,7 @@ defineExpose({ goToFirst })
                             @click="emit('chooseProvider', provider.url)"
                         >
                             <TextSearchMarker
-                                :text="provider.htmlDisplay"
+                                :text="getRelativeUrl(provider.url, baseUrl)"
                                 :search="provider.emphasize"
                             />
                         </div>
