@@ -165,6 +165,10 @@ defineExpose({ goToFirst })
         .providers-group-header {
             cursor: pointer;
             font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: $body-bg; // Ensure it matches the background
         }
 
         .providers-group-items {
