@@ -5,6 +5,7 @@ import proj4 from 'proj4'
 import type { SingleCoordinate } from '@/utils'
 
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
+
 /**
  * These are the zoom levels, for each projection, which give us a 1:25'000 ratio map.
  *
@@ -48,6 +49,11 @@ export interface CoordinateSystemProps {
      * key)
      */
     label: string
+    /**
+     * Name of this projection, if applicable, so that it can be tested against name in fields such
+     * as COG metadata parsing.
+     */
+    technicalName?: string
     /**
      * A string describing how proj4 should handle projection/reprojection of this coordinate
      * system, in regard to WGS84. These matrices can be found on the EPSG website for each
@@ -103,6 +109,11 @@ export default abstract class CoordinateSystem {
      */
     public readonly label: string
     /**
+     * Name of this projection, if applicable, so that it can be tested against name in fields such
+     * as COG metadata parsing.
+     */
+    public readonly technicalName?: string
+    /**
      * A string describing how proj4 should handle projection/reprojection of this coordinate
      * system, in regard to WGS84. These matrices can be found on the EPSG website for each
      * projection in the Export section, inside the PROJ.4 export type (can be directly accessed by
@@ -138,6 +149,7 @@ export default abstract class CoordinateSystem {
             label,
             proj4transformationMatrix,
             bounds,
+            technicalName,
             usesMercatorPyramid = false,
         } = args
         this.epsgNumber = epsgNumber
@@ -150,6 +162,7 @@ export default abstract class CoordinateSystem {
         this.label = label
         this.proj4transformationMatrix = proj4transformationMatrix
         this.bounds = bounds
+        this.technicalName = technicalName
         this.usesMercatorPyramid = usesMercatorPyramid
     }
 

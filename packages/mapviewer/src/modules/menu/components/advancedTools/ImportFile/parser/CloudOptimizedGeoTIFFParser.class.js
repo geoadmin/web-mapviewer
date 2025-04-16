@@ -8,6 +8,9 @@ import UnknownProjectionError from '@/modules/menu/components/advancedTools/Impo
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { flattenExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 
+// see http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
+const USER_DEFINED_CS = 32767
+
 export class CloudOptimizedGeoTIFFParser extends FileParser {
     constructor() {
         super({
@@ -37,9 +40,16 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             throw new InvalidFileContentError('Could not parse COG from file source')
         }
         const firstImage = await geoTIFFInstance.getImage()
-        const imageGeoKey = firstImage.getGeoKeys()?.ProjectedCSTypeGeoKey
+        const imageGeoKeys = firstImage.getGeoKeys()
+        const imageGeoKey = imageGeoKeys?.ProjectedCSTypeGeoKey
+        const imageGeoKeyName = imageGeoKeys?.GTCitationGeoKey ?? ''
         const cogProjection = allCoordinateSystems.find(
-            (coordinateSystem) => coordinateSystem.epsgNumber === imageGeoKey
+            (coordinateSystem) => {
+                if (imageGeoKey !== USER_DEFINED_CS) {
+                    return coordinateSystem.epsgNumber === imageGeoKey
+                }
+                return imageGeoKeyName.indexOf(coordinateSystem.technicalName) !== -1
+            }
         )
         if (!cogProjection) {
             throw new UnknownProjectionError(
