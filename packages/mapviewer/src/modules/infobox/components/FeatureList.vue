@@ -72,11 +72,14 @@ function loadMoreResultForLayer(layerId) {
 <template>
     <div
         ref="featureListContainer"
-        class="clear-no-ios-long-press"
-        :class="['feature-list', isPhoneMode ? 'mobile' : 'desktop']"
+        class="clear-no-ios-long-press feature-list"
+        :class="[isPhoneMode ? 'mobile' : 'desktop']"
         data-cy="highlighted-features"
     >
-        <div class="feature-list-inner">
+        <div
+            class="feature-list-inner"
+            data-cy="feature-list-inner"
+        >
             <!-- Only showing drawing features when outside the drawing module/mode -->
             <FeatureListCategory
                 v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"

@@ -350,7 +350,7 @@ describe('Testing the feature selection', () => {
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
                 .should('have.length', featureCountWithKml)
-            cy.get('@highlightedFeatures').scrollTo('bottom')
+            cy.get('[data-cy="feature-list-inner"]').scrollTo('bottom')
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
             cy.get('@loadMore').click()
@@ -379,7 +379,7 @@ describe('Testing the feature selection', () => {
                 results: [],
             }).as('noMoreResults')
 
-            cy.get('@highlightedFeatures').scrollTo('bottom')
+            cy.get('[data-cy="feature-list-inner"]').scrollTo('bottom')
             cy.get('@loadMore').click()
             cy.wait('@noMoreResults')
 
