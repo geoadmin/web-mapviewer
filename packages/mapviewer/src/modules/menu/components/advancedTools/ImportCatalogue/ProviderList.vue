@@ -57,9 +57,36 @@ function goToLast() {
     providerList.value.querySelector(`[tabindex="${providers.length - 1}"]`).focus()
 }
 
-function getRelativeUrl(providerUrl, baseUrl) {
-    return providerUrl.replace(baseUrl, '');
+function getLongestCommonPrefix(urls) {
+    if (!urls.length) return '';
+    let prefix = urls[0];
+    for (const url of urls) {
+        while (!url.startsWith(prefix)) {
+            prefix = prefix.slice(0, -1);
+            if (!prefix) break;
+        }
+    }
+    // Ensure the prefix ends with a '/'
+    return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1);
 }
+
+const groupedProvidersWithPrefixes = computed(() => {
+    const result = {};
+    for (const [baseUrl, providers] of Object.entries(groupedProviders)) {
+        const urls = providers.map(provider => provider.url);
+        const commonPrefix = getLongestCommonPrefix(urls);
+        result[baseUrl] = {
+            commonPrefix: commonPrefix || baseUrl,
+            providers: providers.map(provider => ({
+                ...provider,
+                relativeUrl: providers.length > 1
+                    ? provider.url.replace(commonPrefix || baseUrl, '')
+                    : provider.url, // Show full URL if only one provider
+            })),
+        };
+    }
+    return result;
+})
 
 // Watch for changes in groupedProviders and set the expandedGroups state
 // based on the filterApplied prop
@@ -82,21 +109,21 @@ defineExpose({ goToFirst })
             class="providers-list"
             data-cy="import-provider-list"
         >
-            <template v-for="(providers, baseUrl) in groupedProviders" :key="baseUrl">
-                <div v-if="providers.length > 1" class="providers-group" data-cy="import-provider-group">
+            <template v-for="(group, baseUrl) in groupedProvidersWithPrefixes" :key="baseUrl">
+                <div v-if="group.providers.length > 1" class="providers-group" data-cy="import-provider-group">
                     <div
                         class="providers-group-header px-2 py-1 text-nowrap"
                         @click="toggleGroup(baseUrl)"
                     >
                         <font-awesome-icon :icon="['fas', titleCaretIcon(baseUrl)]" />
-                        <span class="ms-1">{{ baseUrl }}</span>
+                        <span class="ms-1">{{ group.commonPrefix }}</span>
                     </div>
                     <div
                         v-show="expandedGroups[baseUrl]"
                         class="providers-group-items ms-3"
                     >
                         <div
-                            v-for="(provider, key) in providers"
+                            v-for="(provider, key) in group.providers"
                             :key="provider.url"
                             :tabindex="key"
                             class="providers-list-item px-2 py-1 text-nowrap"
@@ -110,7 +137,7 @@ defineExpose({ goToFirst })
                             @click="emit('chooseProvider', provider.url)"
                         >
                             <TextSearchMarker
-                                :text="getRelativeUrl(provider.url, baseUrl)"
+                                :text="provider.relativeUrl"
                                 :search="provider.emphasize"
                             />
                         </div>
@@ -124,12 +151,12 @@ defineExpose({ goToFirst })
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', providers[0].url)"
-                        @click="emit('chooseProvider', providers[0].url)"
+                        @keydown.enter.prevent="emit('chooseProvider', group.providers[0].url)"
+                        @click="emit('chooseProvider', group.providers[0].url)"
                     >
                         <TextSearchMarker
-                            :text="providers[0].htmlDisplay"
-                            :search="providers[0].emphasize"
+                            :text="group.providers[0].url"
+                            :search="group.providers[0].emphasize"
                         />
                     </div>
                 </div>
@@ -169,6 +196,8 @@ defineExpose({ goToFirst })
             top: 0;
             z-index: 1;
             background-color: $body-bg; // Ensure it matches the background
+            padding-right: 1rem; // Add padding to ensure background covers the full width
+            white-space: nowrap; // Prevent text wrapping
         }
 
         .providers-group-items {
