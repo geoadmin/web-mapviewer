@@ -6,6 +6,7 @@ import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatal
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 
@@ -23,9 +24,12 @@ const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActiv
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
+const hasNoVisibleLayer = computed(() => !store.getters.visibleLayerOnTop)
+
 function onToggleImportCatalogue() {
     store.dispatch('toggleImportCatalogue', dispatcher)
 }
+
 function onToggleCompareSlider() {
     if (storeCompareRatio.value === null) {
         // this allows us to set a value to the compare ratio, in case there was none
@@ -35,9 +39,16 @@ function onToggleCompareSlider() {
         })
     }
     store.dispatch('setCompareSliderActive', {
-        compareSliderActive: !isCompareSliderActive.value,
         ...dispatcher,
+        compareSliderActive: !hasNoVisibleLayer.value && !isCompareSliderActive.value,
     })
+
+    if (hasNoVisibleLayer.value) {
+        store.dispatch('addWarnings', {
+            warnings: [new WarningMessage('no_layers_info_compare')],
+            ...dispatcher,
+        })
+    }
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {
@@ -87,6 +98,7 @@ function onToggleImportFile() {
                 <ImportFile />
             </SimpleWindow>
         </MenuAdvancedToolsListItem>
+
         <MenuAdvancedToolsListItem
             v-if="!is3dActive"
             :is-selected="isCompareSliderActive"

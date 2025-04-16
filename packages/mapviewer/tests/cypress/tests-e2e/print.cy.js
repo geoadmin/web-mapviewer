@@ -17,10 +17,19 @@ function launchPrint(config = {}) {
     cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
     if (layout !== '1. A4 landscape') {
-        cy.get('[data-cy="print-layout-selector"]').select(layout)
+        cy.get('[data-cy="print-layout-selector"]')
+            .click()
+        cy.get('[data-cy="print-layout-selector"]')
+            .find('li a')
+            .contains(layout)
+            .click()
     }
     if (scale !== 1500000) {
-        cy.get('[data-cy="print-scale-selector"]').select(`1:${formatThousand(scale)}`)
+        cy.get('[data-cy="print-scale-selector"]').click()
+        cy.get('[data-cy="print-scale-selector"]')
+            .find('li a')
+            .contains(`1:${formatThousand(scale)}`)
+            .click()
     }
     if (withLegend) {
         cy.get('[data-cy="checkboxLegend"]').check()
@@ -107,6 +116,7 @@ function checkPrintRequest(body, expectedValues = {}) {
     expect(mapAttributes.projection).to.equals(projection, 'wrong map projection')
 
     const layersInSpec = body.attributes.map?.layers
+
     expect(layersInSpec).to.be.an('array').lengthOf(layers.length, 'Missing layer in print spec')
     layers.forEach((layer, index) => {
         const layerInSpec = layersInSpec[index]
@@ -167,14 +177,14 @@ describe('Testing print', () => {
             launchPrint()
             cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
-            cy.get('[data-cy="print-layout-selector"]').find('option').should('have.length', 5)
+            cy.get('[data-cy="print-layout-selector"]').find('li').should('have.length', 5)
             cy.get('[data-cy="print-layout-selector"]')
-                .find('option:selected')
-                .should('have.value', '1. A4 landscape')
-            cy.get('[data-cy="print-scale-selector"]').find('option').should('have.length', 15)
+                .find('li a.active')
+                .should('contain', 'A4 landscape')
+            cy.get('[data-cy="print-scale-selector"]').find('li').should('have.length', 15)
             cy.get('[data-cy="print-scale-selector"]')
-                .find('option:selected')
-                .should('have.text', `1:${formatThousand(1500000)}`)
+                .find('li a.active')
+                .should('contain', `1:${formatThousand(1500000)}`)
         })
     })
 
@@ -199,7 +209,7 @@ describe('Testing print', () => {
         })
         it('should send a print request to mapfishprint (all parameters updated)', () => {
             launchPrint({
-                layout: '2. A4 portrait',
+                layout: 'A4 portrait',
                 scale: 500000,
                 withLegend: true,
                 withGrid: true,
@@ -227,7 +237,10 @@ describe('Testing print', () => {
         })
     })
     context('Send print request with layers', () => {
-        function startPrintWithKml(kmlFixture) {
+        // When we attempt to print a layer and there are no features from that layer
+        // within the print extent, the layer is absent from the print spec. We need
+        // to ensure the print extent contains the feature (or ensure it does not contain the feature)
+        function startPrintWithKml(kmlFixture, center = '2660000,1190000') {
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
@@ -237,6 +250,7 @@ describe('Testing print', () => {
                 {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: 9,
+                    center,
                 },
                 true
             )
@@ -320,7 +334,7 @@ describe('Testing print', () => {
                 })
         })
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
-            startPrintWithKml('import-tool/external-kml-file.kml')
+            startPrintWithKml('import-tool/external-kml-file.kml', '2776665.89,1175560.26')
 
             cy.wait('@printRequest')
                 .its('request.body')
@@ -423,7 +437,7 @@ describe('Testing print', () => {
         })
         /** We need to ensure the structure of the query sent is correct */
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
-            startPrintWithKml('print/label.kml')
+            startPrintWithKml('print/label.kml', '2614500.01,1210249.96')
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -492,7 +506,7 @@ describe('Testing print', () => {
             })
         })
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
-            startPrintWithKml('print/old-geoadmin-label.kml')
+            startPrintWithKml('print/old-geoadmin-label.kml', '2655000.02,1203249.96')
 
             cy.wait('@printRequest').then((interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
@@ -558,6 +572,32 @@ describe('Testing print', () => {
                 for (const attribute in textSymbolAttributes) {
                     expect(textSymbol).to.haveOwnProperty(attribute)
                 }
+            })
+        })
+        it('should send a print request correctly to mapfishprint when there are no features from the external layers within the print extent', () => {
+            startPrintWithKml('print/label.kml', '2514218.7,1158958.4')
+
+            cy.wait('@printRequest').then((interception) => {
+                expect(interception.request.body).to.haveOwnProperty('layout')
+                expect(interception.request.body).to.haveOwnProperty('format')
+
+                const attributes = interception.request.body.attributes
+                expect(attributes).to.haveOwnProperty('printLegend')
+                expect(attributes).to.haveOwnProperty('qrimage')
+
+                expect(attributes).to.haveOwnProperty('map')
+                const mapAttributes = attributes.map
+
+                expect(mapAttributes).to.haveOwnProperty('scale')
+                expect(mapAttributes).to.haveOwnProperty('dpi')
+                expect(mapAttributes).to.haveOwnProperty('projection')
+
+                expect(mapAttributes).to.haveOwnProperty('layers')
+
+                const layers = mapAttributes.layers
+
+                expect(layers).to.be.an('array')
+                expect(layers).to.have.length(1)
             })
         })
     })

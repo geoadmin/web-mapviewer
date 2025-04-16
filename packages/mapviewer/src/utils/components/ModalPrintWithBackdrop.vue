@@ -49,7 +49,7 @@ onMounted(() => {
                 place-for-modal
                 @click.stop="emits('close')"
             />
-            <div class="modal-popup positipon-absolute start-0 top-0 w-100 h-100 p-3">
+            <div class="modal-popup position-absolute start-0 top-0 w-100 h-100 p-3">
                 <div class="card">
                     <div
                         ref="modalContent"

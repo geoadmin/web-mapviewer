@@ -8,6 +8,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
+import GeoadminTooltip from '@geoadmin/tooltip'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
@@ -17,9 +18,9 @@ import { useStore } from 'vuex'
 
 import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { transformUrlMapToEmbed } from '@/utils/utils'
+import { insertParameterIntoUrl, removeParamaterFromUrl } from '@/utils/utils'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -52,6 +53,8 @@ const embedInput = useTemplateRef('embedInput')
 const showEmbedSharing = ref(false)
 const showPreviewModal = ref(false)
 const currentPreviewSize = ref(EmbedSizes.SMALL)
+const zoomModeLabel = ref(null)
+const labelWidth = ref(0)
 const customSize = ref({
     width: EmbedSizes.SMALL.width,
     height: EmbedSizes.SMALL.height,
@@ -64,9 +67,14 @@ const route = useRoute()
 const store = useStore()
 
 const embedSource = ref(transformUrlMapToEmbed(window.location.href))
+const noSimpleZoom = ref(false)
 const embedPreviewModalWidth = computed(() => {
-    // Uses the iframe's width as maximal width for the entire modal window
-    const style = { 'max-width': iFrameWidth.value }
+    // Uses the width of the zoomModeLabel to set the width of the modal
+    // to avoid line breaks
+    const style = {
+        'max-width': `${Math.max(labelWidth.value, iFrameWidth.value)}px`,
+        'min-width': `${Math.max(300, labelWidth.value)}px`,
+    }
     if (isPreviewSizeCustom.value) {
         style['min-width'] = '630px'
     }
@@ -123,6 +131,10 @@ function toggleEmbedSharing() {
 function togglePreviewModal() {
     showPreviewModal.value = !showPreviewModal.value
     if (showPreviewModal.value) {
+        if (zoomModeLabel.value) {
+            //margin to display zooming mode label correctly
+            labelWidth.value = zoomModeLabel.value.offsetWidth
+        }
         window.addEventListener('message', onPreviewChange)
     } else {
         window.removeEventListener('message', onPreviewChange)
@@ -155,6 +167,13 @@ watch(
         embedSource.value = transformUrlMapToEmbed(window.location.href)
     }
 )
+
+watch(noSimpleZoom, (value) => {
+    const currentUrl = embedSource.value
+    embedSource.value = value
+        ? insertParameterIntoUrl(currentUrl, 'noSimpleZoom', true)
+        : removeParamaterFromUrl(currentUrl, 'noSimpleZoom')
+})
 </script>
 
 <template>
@@ -292,6 +311,24 @@ watch(
                         </div>
                     </div>
                 </div>
+                <div class="form-check ms-2">
+                    <input
+                        id="toggleZoomModeCheckbox"
+                        v-model="noSimpleZoom"
+                        class="form-check-input"
+                        type="checkbox"
+                        data-cy="menu-share-embed-zoom-toggle"
+                    />
+                    <GeoadminTooltip :tooltip-content="t('toggle_zooming_mode_tooltip')">
+                        <label
+                            ref="zoomModeLabel"
+                            class="form-check-label"
+                            for="toggleZoomModeCheckbox"
+                        >
+                            {{ t('toggle_zooming_mode') }}
+                        </label>
+                    </GeoadminTooltip>
+                </div>
                 <div class="d-flex flex-row mb-2">
                     <MenuShareInputCopyButton
                         class="flex-grow-1"
@@ -309,6 +346,7 @@ watch(
                         :src="embedSource"
                         :style="iFrameStyle"
                         allow="geolocation"
+                        data-cy="menu-share-embed-iframe-preview"
                     />
                 </div>
                 <!-- eslint-disable vue/no-v-html-->

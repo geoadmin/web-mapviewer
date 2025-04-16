@@ -1,9 +1,9 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TimeSliderDropdownList from '@/modules/map/components/toolbox/TimeSliderDropdownSearchList.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { t } = useI18n()
 

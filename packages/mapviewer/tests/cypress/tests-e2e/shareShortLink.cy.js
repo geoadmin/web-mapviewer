@@ -195,6 +195,15 @@ describe('Testing the share menu', () => {
                     .should('contain.value', `height: ${height}`)
             }
 
+            // This is needed to perform actions in the iframe (see cypress docs)
+            function getIframeBody() {
+                return cy
+                    .get('[data-cy="menu-share-embed-iframe-preview"]')
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+            }
+
             beforeEach(() => {
                 // beforeEach for the whole test is clicking on the menu button once, we must click it another time
                 // otherwise the menu will be closed by the first click
@@ -253,6 +262,42 @@ describe('Testing the share menu', () => {
                     .should('contain.value', '100 %')
                     .should('have.attr', 'readonly')
                 checkIFrameSnippetSize('100%', 300)
+            })
+            it('enables the user to tick the zoom checkbox and require ctrl/cmd to zoom', () => {
+                cy.get('[data-cy="menu-share-embed-preview-button"]').click()
+                cy.get('[data-cy="menu-share-embed-zoom-toggle"]').should('exist')
+                cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').select('Custom size')
+                cy.get('[data-cy="menu-share-embed-iframe-preview"]').should('be.visible')
+
+                cy.get('[data-cy="menu-share-embed-zoom-toggle"]').click()
+
+                cy.get(
+                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                ).should('contain.value', 'noSimpleZoom')
+
+                cy.log('Test that mouse zoom scrolling fails without pressing ctrl')
+
+                getIframeBody().find('[data-cy="ol-map"]').trigger('wheel', {
+                    deltaY: -100,
+                    ctrlKey: false,
+                    bubbles: true,
+                })
+
+                cy.get(
+                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                ).should('contain.value', 'z=1')
+
+                cy.log('Test that mouse zoom scrolling works with pressing ctrl')
+
+                getIframeBody().find('[data-cy="ol-map"]').trigger('wheel', {
+                    deltaY: -100,
+                    ctrlKey: true,
+                    bubbles: true,
+                })
+
+                cy.get(
+                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                ).should('contain.value', 'z=1.333')
             })
         }
     )

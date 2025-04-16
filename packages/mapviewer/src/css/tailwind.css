@@ -1,0 +1,2 @@
+@import 'tailwindcss' prefix(tw);
+@import '@geoadmin/tooltip/tailwindcss';

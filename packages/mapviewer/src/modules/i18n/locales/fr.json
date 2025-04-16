@@ -255,6 +255,7 @@
     "feedback_unsupported_format": "Le format du fichier n’est pas pris en charge, merci d’utiliser un autre format pour votre pièce jointe.",
     "field_required": "Ce champ est requis",
     "file_imported_success": "Fichier importé avec succès",
+    "file_imported_partially_out_of_bounds": "Le fichier importé '{filename}' est partiellement en dehors des frontières suisses. Certaines fonctionnalités peuvent ne pas être disponibles.",
     "file_is_not_kml": "Ce fichier n'est pas un fichier KML.",
     "file_name": "Nom du dessin",
     "file_too_large": "Ce fichier est trop volumineux (taille maximale autorisée : {maxFileSize})",
@@ -444,6 +445,7 @@
     "no_file": "Pas de fichier",
     "no_layer_found": "Pas de couche trouvée",
     "no_layers_info": "Aucune couche sur la carte",
+    "no_layers_info_compare" : "Vous devez avoir au moins une couche visible pour utiliser cette fonction.",
     "no_more_information": "Pas d'autres informations",
     "no_result": "Pas de résultat",
     "no_searchable_layer": "Pas de couche disponible",
@@ -639,6 +641,8 @@
     "time_slider_legend_tooltip_partial_data": "Données partielles",
     "time_slider_no_time_layer_active_url_warning": "Il est impossible d'ajouter un curseur temporel lorsqu'il n'y a pas de cartes temporelles actives",
     "title": "Titre",
+    "toggle_zooming_mode" : "Permettre le zoom uniquement avec la touche Ctrl/Cmd",
+    "toggle_zooming_mode_tooltip" : "En cliquant ici, le zoom de votre iFrame ne sera possible qu'en maintenant le bouton Ctrl/Cmd enfoncé.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Office fédéral du développement territorial ",
     "topic_astra_tooltip": "Office fédéral des routes",
@@ -733,5 +737,6 @@
     "woodland": "Forêt",
     "yellow": "jaune",
     "zoom_in": "Zoomer plus",
-    "zoom_out": "Zoomer moins"
+    "zoom_out": "Zoomer moins",
+    "zooming_mode_warning" : "Maintenir Ctrl/Cmd pour zoomer sur la carte"
 }

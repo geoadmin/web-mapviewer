@@ -2,13 +2,13 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
 import { isNumber, round } from '@geoadmin/numbers'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import debounce from '@/utils/debounce'
 
 const dispatcher = { dispatcher: 'TimeSlider.vue' }

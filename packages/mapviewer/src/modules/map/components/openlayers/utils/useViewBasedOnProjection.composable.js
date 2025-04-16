@@ -2,6 +2,7 @@ import { constants, LV95, WEBMERCATOR } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { round } from '@geoadmin/numbers'
 import { View } from 'ol'
+import { DoubleClickZoom } from 'ol/interaction'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -40,6 +41,24 @@ export default function useViewBasedOnProjection(map) {
         projection: WEBMERCATOR.epsg,
     })
 
+    const roundedDoubleClickZoom = new DoubleClickZoom()
+
+    roundedDoubleClickZoom.handleEvent = function (event) {
+        if (event.type === 'dblclick') {
+            event.preventDefault()
+            event.stopPropagation()
+            const view = map.getView()
+            const zoom = view.getZoom()
+            let roundedZoom = store.state.position.projection.roundZoomLevel(zoom, true)
+            // Check if the zoom level is already rounded
+            if (zoom !== roundedZoom) {
+                view.setZoom(roundedZoom)
+            }
+        }
+        // Call the original handleEvent method to allow other interactions to work
+        return DoubleClickZoom.prototype.handleEvent.call(this, event)
+    }
+
     watch(projection, setViewAccordingToProjection)
 
     watch(center, (newCenter) =>
@@ -66,10 +85,12 @@ export default function useViewBasedOnProjection(map) {
     onMounted(() => {
         setViewAccordingToProjection()
         map.on('moveend', updateMapPositionInStore)
+        map.addInteraction(roundedDoubleClickZoom)
     })
 
     onBeforeUnmount(() => {
         map.un('moveend', updateMapPositionInStore)
+        map.removeInteraction(roundedDoubleClickZoom)
     })
 
     function setViewAccordingToProjection() {

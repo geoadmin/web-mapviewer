@@ -56,6 +56,7 @@ export default class GPXParser extends FileParser {
             gpxData: gpxAsText,
             gpxMetadata: gpxMetadataParser.readMetadata(gpxAsText),
             extent: extentInCurrentProjection,
+            extentProjection: currentProjection,
         })
     }
 }

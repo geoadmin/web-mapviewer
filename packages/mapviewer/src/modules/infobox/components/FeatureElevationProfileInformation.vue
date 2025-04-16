@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { format } from '@geoadmin/numbers'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { formatMinutesTime } from '@/utils/utils'
 
 const { t } = useI18n()

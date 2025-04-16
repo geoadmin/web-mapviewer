@@ -3,7 +3,6 @@ import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
 import { registerProj4, WEBMERCATOR } from '@geoadmin/coordinates'
 import { randomIntBetween } from '@geoadmin/numbers'
-import { MapBrowserEvent } from 'ol'
 import proj4 from 'proj4'
 
 import { getDefaultFixturesAndIntercepts } from './intercepts'
@@ -67,7 +66,7 @@ Cypress.Commands.add(
         queryParams = {},
         withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7, errorCode: null },
-        fixturesAndIntercepts = {}
+        fixturesAndIntercepts = {},
     ) => {
         // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
         // default intercept.
@@ -84,8 +83,9 @@ Cypress.Commands.add(
         if (!('lang' in queryParams)) {
             queryParams.lang = 'en'
         }
+
         if (
-            !['lat', 'lon', 'x', 'y', 'center', '3d'].some((unwantedKey) =>
+            !['lat', 'lon', 'x', 'y', 'center', '3d', 'swisssearch'].some((unwantedKey) =>
                 Object.keys(queryParams).includes(unwantedKey)
             )
         ) {
@@ -497,57 +497,6 @@ Cypress.Commands.add('readClipboardValue', () => {
         .its('navigator.clipboard')
         .then((clip) => cy.wrap(clip.readText()))
 })
-
-/**
- * This function has been taken from the OL draw spec. Simulates a browser event on the map
- * viewport. The client x/y location will be adjusted as if the map were centered at 0,0.
- *
- * @param {string} type Event type.
- * @param {number} x Horizontal offset from map center.
- * @param {number} y Vertical offset from map center.
- * @param {boolean} [opt_shiftKey] Shift key is pressed.
- * @param {number} [opt_pointerId] Pointer id.
- * @returns {MapBrowserEvent} The simulated event.
- */
-Cypress.Commands.add(
-    'simulateEvent',
-    { prevSubject: false },
-    (map, type, x = 0, y = 0, opt_shiftKey = false, opt_pointerId = 0) => {
-        Cypress.log({
-            name: 'simulateEvent',
-            message: `simulating ${type} at [${x}, ${y}]`,
-            consoleProps() {
-                return {
-                    type,
-                    x,
-                    y,
-                    opt_shiftKey,
-                    opt_pointerId,
-                }
-            },
-        })
-
-        const viewport = map.getViewport()
-
-        // calculated in case body has top < 0 (test runner with small window)
-        const event = {
-            type,
-            target: viewport.firstChild,
-            clientX: viewport.clientLeft + x + viewport.clientWidth / 2,
-            clientY: viewport.clientTop + y + viewport.clientHeight / 2,
-            shiftKey: opt_shiftKey,
-            preventDefault() {},
-            pointerType: 'mouse',
-            pointerId: opt_pointerId,
-            isPrimary: true,
-            button: 0,
-        }
-
-        const simulatedEvent = new MapBrowserEvent(type, map, event)
-        map.handleMapBrowserEvent(simulatedEvent)
-        cy.log('cmd: simulateEvent successful')
-    }
-)
 
 Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
     if (Array.isArray(mockupData)) {

@@ -253,6 +253,7 @@
     "feedback_unsupported_format": "Tip da datoteca betg supportà. Duvrai empè da quai pdf, .zip, .jpg, .jpeg, .kml, .kmz u .gpx",
     "field_required": "Quest champ è obligatoric",
     "file_imported_success": "Datoteca importada cun success",
+    "file_imported_partially_out_of_bounds": "Il dossier importà '{filename}' sa chatta per part ordaifer ils cunfins svizzers. Tschertas funcziuns na fissan forsa betg disponiblas.",
     "file_is_not_kml": "Questa datoteca nun è ina datoteca KML",
     "file_name": "Zeichnungsname",
     "file_too_large": "Questa datoteca è memia grond (grondezza maximala lubida: {maxFileSize})",
@@ -442,6 +443,7 @@
     "no_file": "Nagina datoteca",
     "no_layer_found": "Nagut strato chattà",
     "no_layers_info": "Nagin layer sin la charta",
+    "no_layers_info_compare": "Per utilisar l'instrument da cumparaziun basegni almain ina charta activada.",
     "no_more_information": "Naginas infurmaziuns ulteriuras",
     "no_result": "Nagut resultat",
     "no_searchable_layer": "Nagina unitad da datas disponibla",
@@ -637,6 +639,8 @@
     "time_slider_legend_tooltip_partial_data": "Datas parzialas",
     "time_slider_no_time_layer_active_url_warning": "I n'è betg pussaivel d'agiuntar in reglader da temp, sch'i na dat naginas cartas da temp activas",
     "title": "Titel",
+    "toggle_zooming_mode" : "Permetter il zoom exclusivamain cun la tasta da Ctrl/Cmd",
+    "toggle_zooming_mode_tooltip" : "Cun cliccar qua, il zoom da l'iFrame vegn mo ad esser pussaivel cun tegnair en il buttun Ctrl/Cmd.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Uffizi federal da planisaziun dal territori",
     "topic_astra_tooltip": "Uffizi federal da vias",
@@ -731,5 +735,6 @@
     "woodland": "Guaud",
     "yellow": "mellen",
     "zoom_in": "Engrondir l'extract da la charta",
-    "zoom_out": "Empitschnir l'extract da la charta"
+    "zoom_out": "Empitschnir l'extract da la charta",
+    "zooming_mode_warning" : "Tegnair Ctrl/Cmd cuntschaint per zoomar la charta"
 }

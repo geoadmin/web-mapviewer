@@ -1,10 +1,9 @@
 <script setup>
 import log from '@geoadmin/log'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { Toast } from 'bootstrap'
 import { onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { parameters } = defineProps({
     parameters: {

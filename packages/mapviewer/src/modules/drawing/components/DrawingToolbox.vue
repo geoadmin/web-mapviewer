@@ -1,5 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import DOMPurify from 'dompurify'
 import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -14,7 +15,6 @@ import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vu
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
 

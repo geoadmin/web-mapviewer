@@ -304,8 +304,6 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible')
-        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('be.visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('be.visible').click()
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
         cy.get('[data-cy="search-catalogue-input"]')
             .should('be.visible')
@@ -319,6 +317,11 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="floating-catalogue-tree-item-name-${singleLayerId}"]`)
             .should('be.visible')
             .contains(singleLayerName)
+            .trigger('mouseleave')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').click() // close the import
+
+        cy.get('[data-cy="menu-button"]').click()
+        cy.openMenuIfMobile()
 
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
@@ -423,6 +426,7 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-tree-item-${layer2Id}"]`)
             .should('be.visible')
             .contains(layer2Name)
+
         cy.get(`[data-cy="catalogue-collapse-layer-button-${layer2Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layer2Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-tree-item-info-${layer2Id}"]`).should('not.exist')
@@ -464,6 +468,8 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
         cy.get('[data-cy="window-close"]').click()
 
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').click() // close the import
+
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
@@ -476,6 +482,7 @@ describe('The Import Maps Tool', () => {
             'Warning: Third party data and/or style shown (My Organization)'
         )
         cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        cy.openMenuIfMobile()
         if (isMobile()) {
             cy.get('[data-cy="menu-button"]').click()
         }
@@ -492,8 +499,10 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="time-select-20110805"]').should('be.visible').contains(2011).click()
         cy.get('[data-cy="time-selector-layer2-1"]').should('be.visible').contains(2011)
 
-        // Add a layer with non standard timestamp
         cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').click() // open the import
+
+        // Add a layer with non standard timestamp
         const layer4Name = 'Layer 4'
         const layer4Id = 'layer4'
 
@@ -511,9 +520,15 @@ describe('The Import Maps Tool', () => {
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
+
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').click() // close the import
+
+        cy.get('[data-cy="menu-button"]').should('be.visible').click()
+        cy.openMenuIfMobile()
+
         cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
 
-        cy.get('[data-cy="menu-active-layers"]').should('exist').click()
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
 

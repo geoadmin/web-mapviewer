@@ -1,10 +1,10 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 

@@ -29,6 +29,7 @@ export default class GPXLayer extends AbstractLayer {
             gpxData = null,
             gpxMetadata = null,
             extent = null,
+            extentProjection = null,
         } = gpxLayerData
         if (gpxFileUrl === null) {
             throw new InvalidLayerDataError('Missing GPX file URL', gpxLayerData)
@@ -54,5 +55,6 @@ export default class GPXLayer extends AbstractLayer {
         this.gpxData = gpxData
         this.gpxMetadata = gpxMetadata
         this.extent = extent
+        this.extentProjection = extentProjection
     }
 }

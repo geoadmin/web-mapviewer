@@ -1,10 +1,10 @@
 <script setup>
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import GeoadminTooltip from '@/utils/components/GeoadminTooltip.vue'
 
 const { icon, currentFeature, currentIconSet, tooltipDisabled } = defineProps({
     icon: {

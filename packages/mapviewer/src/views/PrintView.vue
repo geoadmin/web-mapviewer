@@ -229,11 +229,11 @@ $printFontSize: max(max($printFontSizeRelToWidth, $printFontSizeRelToHeight), $m
         height: calc(3 * $printFontSize);
     }
     .north-arrow {
+        $dropShadowSize: calc(0.5 * $printFontSize);
+        filter: drop-shadow($dropShadowSize $dropShadowSize $dropShadowSize #222);
         img {
             max-width: calc(3 * $printFontSize);
         }
-        $dropShadowSize: calc(0.5 * $printFontSize);
-        filter: drop-shadow($dropShadowSize $dropShadowSize $dropShadowSize #222);
     }
     .qr-code {
         max-width: calc(12 * $printFontSize);

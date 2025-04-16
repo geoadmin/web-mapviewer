@@ -255,6 +255,7 @@
     "feedback_unsupported_format": "This file format is not supported. Thanks for using another format for you attachment.",
     "field_required": "This field is required",
     "file_imported_success": "File successfully imported",
+    "file_imported_partially_out_of_bounds": "The imported file '{filename}' is partially outside the swiss boundaries. Some functionalities might not be available.",
     "file_is_not_kml": "The file is not a KML file.",
     "file_name": "Drawing name",
     "file_too_large": "The file is too large (max size allowed {maxFileSize}).",
@@ -444,6 +445,7 @@
     "no_file": "No file",
     "no_layer_found": "No layer found",
     "no_layers_info": "No layer in the map",
+    "no_layers_info_compare" : "You need at least one visible layer to use the compare tool.",
     "no_more_information": "No further information",
     "no_result": "No result",
     "no_searchable_layer": "No searchable layer",
@@ -639,6 +641,8 @@
     "time_slider_legend_tooltip_partial_data": "Partial data",
     "time_slider_no_time_layer_active_url_warning": "It is not possible to add a time slider, when there is no active time map available",
     "title": "Title",
+    "toggle_zooming_mode" : "Enable zooming only with Ctrl/Cmd key",
+    "toggle_zooming_mode_tooltip" : "By klicking this button, your iFrame's zooming will only be possible by keeping the Ctrl/Cmd button pressed.",
     "tooltip": "Tooltip",
     "topic_are_tooltip": "Federal Office for Spatial Development ",
     "topic_astra_tooltip": "Federal roads office",
@@ -733,5 +737,6 @@
     "woodland": "Forest",
     "yellow": "yellow",
     "zoom_in": "Zoom in",
-    "zoom_out": "Zoom out"
+    "zoom_out": "Zoom out",
+    "zooming_mode_warning" : "Hold Ctrl/Cmd while scrolling to zoom the map"
 }
