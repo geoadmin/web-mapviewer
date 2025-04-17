@@ -269,11 +269,12 @@ defineExpose({ goToFirst })
             font-weight: bold;
             position: sticky;
             top: 0;
-            z-index: 1;
+            z-index: 2; // Ensure it stays above sub-groups
             background-color: $body-bg; // Ensure it matches the background
-            width: max-content; // Allow the header to expand to fit its content
+            width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
-            overflow: visible; // Allow horizontal scrolling for long text
+            overflow: hidden; // Prevent any text from showing behind
+            margin-bottom: 0; // Remove gap between group and sub-group headers
         }
 
         .providers-group-items {
@@ -284,12 +285,13 @@ defineExpose({ goToFirst })
             cursor: pointer;
             font-weight: bold;
             position: sticky;
-            top: 0;
-            z-index: 1;
+            top: 1.5rem; // Adjust to place below the group header
+            z-index: 1; // Ensure it stays below the group header
             background-color: $body-bg; // Ensure it matches the background
-            width: max-content; // Allow the header to expand to fit its content
+            width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
-            overflow: visible; // Allow horizontal scrolling for long text
+            overflow: hidden; // Prevent any text from showing behind
+            margin-top: 0; // Remove gap between group and sub-group headers
         }
 
         .providers-sub-group-items {
