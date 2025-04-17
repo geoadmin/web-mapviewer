@@ -82,6 +82,16 @@ function getLongestCommonPrefix(urls) {
 const groupedProvidersWithSubGroups = computed(() => {
     const result = {};
     for (const [baseUrl, providers] of Object.entries(groupedProviders)) {
+        if (providers.length === 1) {
+            // If there is only one provider in the group, show it as a provider URL, not a group
+            result[baseUrl] = {
+                fullUrl: providers[0].url, // Use the common prefix to determine the full URL
+                relativeUrl: providers[0].url,
+                emphasize: providers[0].emphasize,
+            };
+            continue;
+        }
+
         const urls = providers.map(provider => provider.url);
         const commonPrefix = getLongestCommonPrefix(urls);
         const subGroups = {};
@@ -101,16 +111,13 @@ const groupedProvidersWithSubGroups = computed(() => {
 
         result[baseUrl] = {
             commonPrefix: commonPrefix || baseUrl,
-            subGroups: Object.entries(subGroups).map(([key, subGroupProviders]) => {
+            subGroups: Object.entries(subGroups).flatMap(([key, subGroupProviders]) => {
                 if (subGroupProviders.length === 1) {
-                    return {
-                        key,
-                        providers: subGroupProviders.map(provider => ({
-                            ...provider,
-                            relativeUrl: provider.url.replace(commonPrefix || baseUrl, ''),
-                            fullUrl: provider.url, // Show full URL for single provider
-                        })),
-                    };
+                    // Show the single provider like there is no sub-group, without the prefix
+                    return subGroupProviders.map(provider => ({
+                        ...provider,
+                        relativeUrl: provider.url.replace(commonPrefix || baseUrl, ''),
+                    }));
                 }
                 return {
                     key,
@@ -119,8 +126,9 @@ const groupedProvidersWithSubGroups = computed(() => {
             }),
         };
     }
+    console.log('Grouped Providers with Sub Groups:', result);
     return result;
-})
+});
 
 // Watch for changes in groupedProviders and set the expandedGroups state
 // based on the filterApplied prop
@@ -144,7 +152,7 @@ defineExpose({ goToFirst })
             data-cy="import-provider-list"
         >
             <template v-for="(group, baseUrl) in groupedProvidersWithSubGroups" :key="baseUrl">
-                <div v-if="group.subGroups.length > 1" class="providers-group" data-cy="import-provider-group">
+                <div v-if="Array.isArray(group.subGroups)" class="providers-group" data-cy="import-provider-group">
                     <div
                         class="providers-group-header px-2 py-1 text-nowrap"
                         @click="toggleGroup(baseUrl)"
@@ -157,7 +165,7 @@ defineExpose({ goToFirst })
                         class="providers-group-items ms-3"
                     >
                         <template v-for="subGroup in group.subGroups" :key="subGroup.key">
-                            <div v-if="subGroup.providers.length > 1" class="providers-sub-group" data-cy="import-provider-sub-group">
+                            <div v-if="subGroup.providers?.length > 1" class="providers-sub-group" data-cy="import-provider-sub-group">
                                 <div
                                     class="providers-sub-group-header px-2 py-1 text-nowrap"
                                     @click="toggleSubGroup(baseUrl, subGroup.key)"
@@ -198,12 +206,12 @@ defineExpose({ goToFirst })
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
                                     @keydown.esc.prevent="emit('hide')"
-                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.providers[0].fullUrl)"
-                                    @click="emit('chooseProvider', subGroup.providers[0].fullUrl)"
+                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.fullUrl)"
+                                    @click="emit('chooseProvider', subGroup.fullUrl)"
                                 >
                                     <TextSearchMarker
-                                        :text="subGroup.providers[0].fullUrl"
-                                        :search="subGroup.providers[0].emphasize"
+                                        :text="subGroup.relativeUrl"
+                                        :search="subGroup.emphasize"
                                     />
                                 </div>
                             </div>
@@ -218,12 +226,12 @@ defineExpose({ goToFirst })
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', group.subGroups[0].providers[0].fullUrl)"
-                        @click="emit('chooseProvider', group.subGroups[0].providers[0].fullUrl)"
+                        @keydown.enter.prevent="emit('chooseProvider', group.fullUrl)"
+                        @click="emit('chooseProvider', group.fullUrl)"
                     >
                         <TextSearchMarker
-                            :text="group.subGroups[0].providers[0].fullUrl"
-                            :search="group.subGroups[0].providers[0].emphasize"
+                            :text="group.relativeUrl"
+                            :search="group.emphasize"
                         />
                     </div>
                 </div>
