@@ -84,12 +84,14 @@ let layer
 if (gutter.value !== -1) {
     layer = new TileLayer({
         id: layerId.value,
+        uuid: wmsLayerConfig.uuid,
         opacity: opacity.value,
         source: createSourceForProjection(),
     })
 } else {
     layer = new ImageLayer({
         id: layerId.value,
+        uuid: wmsLayerConfig.uuid,
         opacity: opacity.value,
         source: createSourceForProjection(),
     })
