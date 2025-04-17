@@ -36,11 +36,11 @@ watch(
     visibleLayerOnTop,
     (newLayerOnTop, oldLayerOnTop) => {
         if (oldLayerOnTop) {
-            unRegisterRenderingEvents(oldLayerOnTop.id)
+            unRegisterRenderingEvents(oldLayerOnTop.id, oldLayerOnTop?.timeConfig?.currentTimestamp)
         }
 
         if (getLayerFromMapById(newLayerOnTop.id)) {
-            registerRenderingEvents(newLayerOnTop.id)
+            registerRenderingEvents(newLayerOnTop.id, newLayerOnTop?.timeConfig?.currentTimestamp)
         } else {
             // The layer config is always modified before the map, which means the
             // visible layer on top according to the config could not exist within
@@ -50,7 +50,10 @@ watch(
             // the olMap changes due to a webGL layer being added or removed) to still add the
             // rendering events to the top layer.
             olMap?.once('precompose', () => {
-                registerRenderingEvents(newLayerOnTop.id)
+                registerRenderingEvents(
+                    newLayerOnTop.id,
+                    newLayerOnTop?.timeConfig?.currentTimestamp
+                )
             })
         }
         olMap.render()
@@ -63,7 +66,6 @@ watch(
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
-    registerRenderingEvents(visibleLayerOnTop.value.id)
     olMap.render()
 })
 
@@ -75,9 +77,8 @@ onBeforeUnmount(() => {
     olMap.render()
 })
 
-function registerRenderingEvents(layerId) {
-    const layer = getLayerFromMapById(layerId)
-
+function registerRenderingEvents(layerId, currentTimestamp) {
+    const layer = getLayerFromMapById(layerId, currentTimestamp)
     // When loading a layer for the first time, we might need to clean the
     // context to ensure it is also cut correctly upon activating the compare slider
     // or loading a new COG layer on top.
@@ -91,17 +92,22 @@ function registerRenderingEvents(layerId) {
     layer?.on('postrender', onPostRender)
 }
 
-function unRegisterRenderingEvents(layerId) {
-    const layer = getLayerFromMapById(layerId)
+function unRegisterRenderingEvents(layerId, currentTimestamp) {
+    const layer = getLayerFromMapById(layerId, currentTimestamp)
     layer?.un('prerender', onPreRender)
     layer?.un('postrender', onPostRender)
 }
 
-function getLayerFromMapById(layerId) {
+function getLayerFromMapById(layerId, currentTimestamp) {
     return olMap
         ?.getAllLayers()
         .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
-        .find((layer) => layer.get('id') === layerId)
+        .find(
+            (layer) =>
+                layer.get('id') === layerId &&
+                typeof layer.getSource().getDimensions === 'function' &&
+                layer.getSource().getDimensions().Time === currentTimestamp
+        )
 }
 
 function onPreRender(event) {
