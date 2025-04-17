@@ -132,6 +132,6 @@ function setBottomPanelFeatureInfoPosition() {
             :read-only="!isCurrentlyDrawing"
             :feature="feature"
         />
-        <FeatureList fluid />
+        <FeatureList />
     </OpenLayersPopover>
 </template>
