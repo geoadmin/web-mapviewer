@@ -51,7 +51,7 @@ function goToPrevious(currentKey) {
 }
 
 function goToNext(currentKey) {
-    if (currentKey >= providers.length - 1) {
+    if (currentKey >= providerList.length - 1) {
         return
     }
     const key = currentKey + 1
@@ -63,7 +63,7 @@ function goToFirst() {
 }
 
 function goToLast() {
-    providerList.value.querySelector(`[tabindex="${providers.length - 1}"]`).focus()
+    providerList.value.querySelector(`[tabindex="${providerList.length - 1}"]`).focus()
 }
 
 function getLongestCommonPrefix(urls) {
@@ -85,8 +85,7 @@ const groupedProvidersWithSubGroups = computed(() => {
         if (providers.length === 1) {
             // If there is only one provider in the group, show it as a provider URL, not a group
             result[baseUrl] = {
-                fullUrl: providers[0].url, // Use the common prefix to determine the full URL
-                relativeUrl: providers[0].url,
+                url: providers[0].url, // Use the common prefix to determine the full URL
                 emphasize: providers[0].emphasize,
             };
             continue;
@@ -225,11 +224,11 @@ defineExpose({ goToFirst })
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', group.fullUrl)"
-                        @click="emit('chooseProvider', group.fullUrl)"
+                        @keydown.enter.prevent="emit('chooseProvider', group.url)"
+                        @click="emit('chooseProvider', group.url)"
                     >
                         <TextSearchMarker
-                            :text="group.relativeUrl"
+                            :text="group.url"
                             :search="group.emphasize"
                         />
                     </div>
