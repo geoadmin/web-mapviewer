@@ -65,19 +65,14 @@ const selectedLineCoordinates = computed(() => {
 })
 const editMode = computed(() => store.state.drawing.editingMode)
 const isAllowDeleteLastPoint = computed(
-    () => {
+    () =>
         // Allow to delete the last point only if we are drawing line or measure
-        if (isDrawingLineOrMeasure.value) {
-            return true
-        } else {
         // or when extending line
-        return (
+        isDrawingLineOrMeasure.value || (
             editMode.value === EditMode.EXTEND &&
             selectedLineString.value &&
             selectedLineCoordinates.value?.length > 2
             )
-        }
-    }
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const drawingName = computed({
