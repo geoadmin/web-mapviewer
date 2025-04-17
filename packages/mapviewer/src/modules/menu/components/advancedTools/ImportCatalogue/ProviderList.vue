@@ -126,7 +126,6 @@ const groupedProvidersWithSubGroups = computed(() => {
             }),
         };
     }
-    console.log('Grouped Providers with Sub Groups:', result);
     return result;
 });
 
@@ -206,8 +205,8 @@ defineExpose({ goToFirst })
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
                                     @keydown.esc.prevent="emit('hide')"
-                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.fullUrl)"
-                                    @click="emit('chooseProvider', subGroup.fullUrl)"
+                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.url)"
+                                    @click="emit('chooseProvider', subGroup.url)"
                                 >
                                     <TextSearchMarker
                                         :text="subGroup.relativeUrl"

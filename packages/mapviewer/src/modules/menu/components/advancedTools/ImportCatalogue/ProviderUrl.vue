@@ -174,7 +174,7 @@ function hideProviders() {
                     v-if="
                         // We use v-if instead of v-show here in order to have bootstrap handling
                         // the rounded corner correctly
-                        !capabilitiesParsed && url.length && isValidUrl(url)
+                        !capabilitiesParsed && url?.length && isValidUrl(url)
                     "
                     id="urlConnectButton"
                     type="button"
