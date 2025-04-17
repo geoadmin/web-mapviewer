@@ -26,12 +26,21 @@ const emit = defineEmits(['chooseProvider', 'hide'])
 
 const providerList = useTemplateRef('providerList')
 const expandedGroups = ref({})
+const expandedSubGroups = ref({})
 
 function toggleGroup(baseUrl) {
     expandedGroups.value[baseUrl] = !expandedGroups.value[baseUrl]
 }
 
+function toggleSubGroup(baseUrl, subGroupKey) {
+    if (!expandedSubGroups.value[baseUrl]) {
+        expandedSubGroups.value[baseUrl] = {}
+    }
+    expandedSubGroups.value[baseUrl][subGroupKey] = !expandedSubGroups.value[baseUrl][subGroupKey]
+}
+
 const titleCaretIcon = computed(() => (baseUrl) => `caret-${expandedGroups.value[baseUrl] ? 'down' : 'right'}`)
+const subGroupCaretIcon = computed(() => (baseUrl, subGroupKey) => `caret-${expandedSubGroups.value[baseUrl]?.[subGroupKey] ? 'down' : 'right'}`)
 
 function goToPrevious(currentKey) {
     if (currentKey === 0) {
@@ -70,19 +79,44 @@ function getLongestCommonPrefix(urls) {
     return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1);
 }
 
-const groupedProvidersWithPrefixes = computed(() => {
+const groupedProvidersWithSubGroups = computed(() => {
     const result = {};
     for (const [baseUrl, providers] of Object.entries(groupedProviders)) {
         const urls = providers.map(provider => provider.url);
         const commonPrefix = getLongestCommonPrefix(urls);
+        const subGroups = {};
+
+        providers.forEach(provider => {
+            const relativeUrl = provider.url.replace(commonPrefix || baseUrl, '');
+            const subGroupKey = relativeUrl.split('/')[0];
+
+            if (!subGroups[subGroupKey]) {
+                subGroups[subGroupKey] = [];
+            }
+            subGroups[subGroupKey].push({
+                ...provider,
+                relativeUrl: relativeUrl.replace(subGroupKey + '/', ''),
+            });
+        });
+
         result[baseUrl] = {
             commonPrefix: commonPrefix || baseUrl,
-            providers: providers.map(provider => ({
-                ...provider,
-                relativeUrl: providers.length > 1
-                    ? provider.url.replace(commonPrefix || baseUrl, '')
-                    : provider.url, // Show full URL if only one provider
-            })),
+            subGroups: Object.entries(subGroups).map(([key, subGroupProviders]) => {
+                if (subGroupProviders.length === 1) {
+                    return {
+                        key,
+                        providers: subGroupProviders.map(provider => ({
+                            ...provider,
+                            relativeUrl: provider.url.replace(commonPrefix || baseUrl, ''),
+                            fullUrl: provider.url, // Show full URL for single provider
+                        })),
+                    };
+                }
+                return {
+                    key,
+                    providers: subGroupProviders,
+                };
+            }),
         };
     }
     return result;
@@ -109,8 +143,8 @@ defineExpose({ goToFirst })
             class="providers-list"
             data-cy="import-provider-list"
         >
-            <template v-for="(group, baseUrl) in groupedProvidersWithPrefixes" :key="baseUrl">
-                <div v-if="group.providers.length > 1" class="providers-group" data-cy="import-provider-group">
+            <template v-for="(group, baseUrl) in groupedProvidersWithSubGroups" :key="baseUrl">
+                <div v-if="group.subGroups.length > 1" class="providers-group" data-cy="import-provider-group">
                     <div
                         class="providers-group-header px-2 py-1 text-nowrap"
                         @click="toggleGroup(baseUrl)"
@@ -122,25 +156,58 @@ defineExpose({ goToFirst })
                         v-show="expandedGroups[baseUrl]"
                         class="providers-group-items ms-3"
                     >
-                        <div
-                            v-for="(provider, key) in group.providers"
-                            :key="provider.url"
-                            :tabindex="key"
-                            class="providers-list-item px-2 py-1 text-nowrap"
-                            data-cy="import-provider-item"
-                            @keydown.up.prevent="goToPrevious(key)"
-                            @keydown.down.prevent="() => goToNext(key)"
-                            @keydown.home.prevent="goToFirst"
-                            @keydown.end.prevent="goToLast"
-                            @keydown.esc.prevent="emit('hide')"
-                            @keydown.enter.prevent="emit('chooseProvider', provider.url)"
-                            @click="emit('chooseProvider', provider.url)"
-                        >
-                            <TextSearchMarker
-                                :text="provider.relativeUrl"
-                                :search="provider.emphasize"
-                            />
-                        </div>
+                        <template v-for="subGroup in group.subGroups" :key="subGroup.key">
+                            <div v-if="subGroup.providers.length > 1" class="providers-sub-group" data-cy="import-provider-sub-group">
+                                <div
+                                    class="providers-sub-group-header px-2 py-1 text-nowrap"
+                                    @click="toggleSubGroup(baseUrl, subGroup.key)"
+                                >
+                                    <font-awesome-icon :icon="['fas', subGroupCaretIcon(baseUrl, subGroup.key)]" />
+                                    <span class="ms-1">{{ subGroup.key }}</span>
+                                </div>
+                                <div
+                                    v-show="expandedSubGroups[baseUrl]?.[subGroup.key]"
+                                    class="providers-sub-group-items ms-3"
+                                >
+                                    <div
+                                        v-for="(provider, key) in subGroup.providers"
+                                        :key="provider.url"
+                                        :tabindex="key"
+                                        class="providers-list-item px-2 py-1 text-nowrap"
+                                        data-cy="import-provider-item"
+                                        @keydown.up.prevent="goToPrevious(key)"
+                                        @keydown.down.prevent="() => goToNext(key)"
+                                        @keydown.home.prevent="goToFirst"
+                                        @keydown.end.prevent="goToLast"
+                                        @keydown.esc.prevent="emit('hide')"
+                                        @keydown.enter.prevent="emit('chooseProvider', provider.url)"
+                                        @click="emit('chooseProvider', provider.url)"
+                                    >
+                                        <TextSearchMarker
+                                            :text="provider.relativeUrl"
+                                            :search="provider.emphasize"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="providers-list-item px-2 py-1 text-nowrap" data-cy="import-provider-item">
+                                <div
+                                    :tabindex="0"
+                                    @keydown.up.prevent="goToPrevious(0)"
+                                    @keydown.down.prevent="() => goToNext(0)"
+                                    @keydown.home.prevent="goToFirst"
+                                    @keydown.end.prevent="goToLast"
+                                    @keydown.esc.prevent="emit('hide')"
+                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.providers[0].fullUrl)"
+                                    @click="emit('chooseProvider', subGroup.providers[0].fullUrl)"
+                                >
+                                    <TextSearchMarker
+                                        :text="subGroup.providers[0].fullUrl"
+                                        :search="subGroup.providers[0].emphasize"
+                                    />
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
                 <div v-else class="providers-list-item px-2 py-1 text-nowrap" data-cy="import-provider-item">
@@ -151,12 +218,12 @@ defineExpose({ goToFirst })
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', group.providers[0].url)"
-                        @click="emit('chooseProvider', group.providers[0].url)"
+                        @keydown.enter.prevent="emit('chooseProvider', group.subGroups[0].providers[0].fullUrl)"
+                        @click="emit('chooseProvider', group.subGroups[0].providers[0].fullUrl)"
                     >
                         <TextSearchMarker
-                            :text="group.providers[0].url"
-                            :search="group.providers[0].emphasize"
+                            :text="group.subGroups[0].providers[0].fullUrl"
+                            :search="group.subGroups[0].providers[0].emphasize"
                         />
                     </div>
                 </div>
@@ -202,6 +269,22 @@ defineExpose({ goToFirst })
         }
 
         .providers-group-items {
+            padding-left: 1rem;
+        }
+
+        .providers-sub-group-header {
+            cursor: pointer;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: $body-bg; // Ensure it matches the background
+            width: max-content; // Allow the header to expand to fit its content
+            white-space: nowrap; // Prevent text wrapping
+            overflow: visible; // Allow horizontal scrolling for long text
+        }
+
+        .providers-sub-group-items {
             padding-left: 1rem;
         }
     }
