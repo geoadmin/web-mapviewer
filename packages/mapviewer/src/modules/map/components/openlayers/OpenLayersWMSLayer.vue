@@ -108,9 +108,9 @@ watch(projection, () => {
     layer.setSource(createSourceForProjection())
     setExtent()
 })
-watch(wmsUrlParams, () => {
-    layer.getSource().updateParams(wmsUrlParams.value)
-})
+
+watch(wmsUrlParams, layer.getSource().updateParams(wmsUrlParams.value))
+watch(() => wmsLayerConfig, setExtent, { deep: true })
 
 function createSourceForProjection() {
     let source = null
