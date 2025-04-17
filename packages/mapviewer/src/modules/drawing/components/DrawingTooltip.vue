@@ -83,6 +83,7 @@ function onPointerMove(event) {
     )
 
     const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
+    const nonPointFeatureTypes = [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE]
     const featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
     let translationKeys
 
@@ -127,6 +128,13 @@ function onPointerMove(event) {
 
             if (hoveringVertex) {
                 translationKeys = `modify_existing_vertex_${featureDrawingMode}`
+                if (nonPointFeatureTypes.includes(featureDrawingMode)) {
+                    const selectedFeature = selectedFeatures.value[0]
+                    const geometryType = selectedFeature.geometry.type.toLowerCase()
+                    if(geometryType){
+                        translationKeys = `modify_existing_vertex_${featureDrawingMode}_${geometryType}`
+                    }
+                }
                 mapElement.classList.remove(cssPointer)
                 mapElement.classList.add(cssGrab)
             } else {
