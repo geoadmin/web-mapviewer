@@ -534,7 +534,6 @@ describe('Drawing module tests', () => {
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
-
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -1241,6 +1240,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
 
             // Checking that it can export the profile as CSV
+            cy.get('[data-cy="show-profile"]').click()
             cy.wait('@profile')
             // triggering a CSV download
             cy.get('[data-cy="profile-popup-csv-download-button"]').click()
@@ -1423,10 +1423,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(100, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').dblclick(120, 260)
+            cy.wait('@post-kml')
+            cy.get('[data-cy="show-profile"]').click()
             cy.wait('@empty-profile')
 
             // the profile info container shouldn't show up if there's no data for this profile
             cy.get('[data-cy="profile-popup-info-container"]').should('not.exist')
+            cy.get('[data-cy="infobox-hide-profile-button"]').click()
 
             // deleting feature
             cy.get('[data-cy="drawing-style-delete-button"]').click()
@@ -1443,6 +1446,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(190, 250)
             cy.get('[data-cy="ol-map"]').dblclick(120, 270)
+            cy.wait('@update-kml')
+            cy.get('[data-cy="show-profile"]').click()
             cy.wait('@profile')
 
             // checking all the information found in the info container
@@ -1459,8 +1464,8 @@ describe('Drawing module tests', () => {
             })
             cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
             cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-            cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
-            cy.get('[data-cy="profile-popup-tooltip"] .elevation').should(
+            cy.get('[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]').should('contain.text', '2.5 m')
+            cy.get('[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]').should(
                 'contain.text',
                 '1341.8 m'
             )
@@ -1472,11 +1477,12 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').rightclick(150, 250)
             cy.wait('@profile')
 
+            cy.log('check that the profile content can be minimized/maximized')
             // clicking on the header of the profile container
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
             // it should hide the content (only the header stays visible)
-            cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+            cy.get('[data-cy="infobox-content"]').should('not.exist')
 
             // click once again on the header
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
