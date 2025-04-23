@@ -101,15 +101,32 @@ function buildTreeNode(baseUrl, providers) {
 
 const treeData = reactive([]);
 
+function addVisibleIndex(treeData) {
+    let index = 0;
+
+    function dfs(node) {
+        node.visibleIndex = index++;
+        if (node.children && node.children.length > 0) {
+            node.children.forEach(child => dfs(child));
+        }
+    }
+
+    treeData.forEach(node => dfs(node));
+}
+
 Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
     treeData.push(buildTreeNode(baseUrl, providers));
 });
+addVisibleIndex(treeData);
+// console.log('treeData', treeData);
 
 watch(() => groupedProviders, (newGroupedProviders) => {
     treeData.length = 0; // Clear the existing treeData
     Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
         treeData.push(buildTreeNode(baseUrl, providers));
     })
+    addVisibleIndex(treeData);
+    // console.log('treeData', treeData);
 });
 
 function toggleNode(node) {
@@ -121,6 +138,7 @@ function toggleNode(node) {
 function emitProviderSelection(url) {
     emit('chooseProvider', url);
 }
+
 </script>
 
 <template>
@@ -138,6 +156,7 @@ function emitProviderSelection(url) {
                     :is="node.type === 'group' ? 'div' : 'div'"
                     :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
                     :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
+                    :visible-index="node.visibleIndex"
                 >
                     <div
                         v-if="node.type === 'group'"
@@ -149,6 +168,7 @@ function emitProviderSelection(url) {
                     </div>
                     <div
                         v-if="node.type === 'group' && node.expanded"
+                        :visible-index="node.visibleIndex"
                         class="providers-group-items ms-3"
                     >
                         <template v-for="child in node.children" :key="child.id">
@@ -160,6 +180,7 @@ function emitProviderSelection(url) {
                                 <div
                                     v-if="child.type === 'group'"
                                     class="providers-sub-group-header px-2 py-1 text-nowrap"
+                                    :visible-index="child.visibleIndex"
                                     @click="toggleNode(child)"
                                 >
                                     <font-awesome-icon :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']" />
@@ -174,6 +195,7 @@ function emitProviderSelection(url) {
                                         :key="grandChild.id"
                                         class="providers-list-item px-2 py-1 text-nowrap"
                                         data-cy="import-provider-item"
+                                        :visible-index="grandChild.visibleIndex"
                                         @click="emitProviderSelection(grandChild.url)"
                                     >
                                         <TextSearchMarker
@@ -186,6 +208,7 @@ function emitProviderSelection(url) {
                                     v-else-if="child.type === 'url'"
                                     class="providers-list-item px-2 py-1 text-nowrap"
                                     data-cy="import-provider-item"
+                                    :visible-index="child.visibleIndex"
                                     @click="emitProviderSelection(child.url)"
                                 >
                                     <TextSearchMarker
@@ -200,6 +223,7 @@ function emitProviderSelection(url) {
                         v-else-if="node.type === 'url'"
                         class="providers-list-item px-2 py-1 text-nowrap"
                         data-cy="import-provider-item"
+                        :visible-index="node.visibleIndex"
                         @click="emitProviderSelection(node.url)"
                     >
                         <TextSearchMarker
