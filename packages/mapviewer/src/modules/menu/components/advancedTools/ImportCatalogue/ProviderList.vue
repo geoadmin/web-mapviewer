@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -76,7 +76,7 @@ function buildTreeNode(baseUrl, providers) {
             if (subGroupProviders.length === 1) {
                 return {
                     id: subGroupProviders[0].url,
-                    name: subGroupProviders[0].relativeUrl,
+                    name: key + '/' + subGroupProviders[0].relativeUrl,
                     type: 'url',
                     url: subGroupProviders[0].url,
                     emphasize: subGroupProviders[0].emphasize,
@@ -105,11 +105,17 @@ Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
     treeData.push(buildTreeNode(baseUrl, providers));
 });
 
+watch(() => groupedProviders, (newGroupedProviders) => {
+    treeData.length = 0; // Clear the existing treeData
+    Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
+        treeData.push(buildTreeNode(baseUrl, providers));
+    })
+});
+
 function toggleNode(node) {
     if (node.type === 'group') {
         node.expanded = !node.expanded;
     }
-    console.log(treeData);
 }
 
 function emitProviderSelection(url) {
