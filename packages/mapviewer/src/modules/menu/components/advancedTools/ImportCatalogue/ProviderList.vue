@@ -370,6 +370,10 @@ function emitProviderSelection(url) {
             overflow: hidden; // Prevent any text from showing behind
             // margin-bottom: 0; // Remove gap between group and sub-group headers
         }
+        .providers-group-header:focus,
+        .providers-group-header:hover {
+            background-color: $list-item-hover-bg-color;
+        }
 
         .providers-group-items {
             padding-left: 1rem;
@@ -386,6 +390,10 @@ function emitProviderSelection(url) {
             white-space: nowrap; // Prevent text wrapping
             overflow: hidden; // Prevent any text from showing behind
             // margin-top: 0; // Remove gap between group and sub-group headers
+        }
+        .providers-sub-group-header:focus,
+        .providers-sub-group-header:hover {
+            background-color: $list-item-hover-bg-color;
         }
 
         .providers-sub-group-items {
