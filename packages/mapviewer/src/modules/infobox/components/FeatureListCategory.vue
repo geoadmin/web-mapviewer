@@ -43,7 +43,11 @@ const { t } = useI18n()
                 class="me-2"
             />
             <span class="flex-grow-1">
-                <strong v-if="name">{{ t(name) }}</strong>
+                <strong
+                    v-if="name"
+                    data-cy="feature-list-category-title"
+                    >{{ t(name) }}</strong
+                >
             </span>
             <small class="text-muted">
                 {{ children.length }}

@@ -671,9 +671,12 @@ export default {
             const featuresPromises = []
             getters.selectedLayerFeatures.forEach((feature) => {
                 // we avoid requesting the drawings and external layers, they're not handled here
-                if (rootState.layers.config.find((layer) => layer.id === feature.layer.id)) {
+                const currentFeatureLayer = rootState.layers.config.find(
+                    (layer) => layer.id === feature.layer.id
+                )
+                if (currentFeatureLayer) {
                     featuresPromises.push(
-                        getFeature(feature.layer, feature.id, rootState.position.projection, {
+                        getFeature(currentFeatureLayer, feature.id, rootState.position.projection, {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
                             screenHeight: rootState.ui.height,

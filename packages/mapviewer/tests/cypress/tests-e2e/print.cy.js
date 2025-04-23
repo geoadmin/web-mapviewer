@@ -17,12 +17,8 @@ function launchPrint(config = {}) {
     cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
     if (layout !== '1. A4 landscape') {
-        cy.get('[data-cy="print-layout-selector"]')
-            .click()
-        cy.get('[data-cy="print-layout-selector"]')
-            .find('li a')
-            .contains(layout)
-            .click()
+        cy.get('[data-cy="print-layout-selector"]').click()
+        cy.get('[data-cy="print-layout-selector"]').find('li a').contains(layout).click()
     }
     if (scale !== 1500000) {
         cy.get('[data-cy="print-scale-selector"]').click()
