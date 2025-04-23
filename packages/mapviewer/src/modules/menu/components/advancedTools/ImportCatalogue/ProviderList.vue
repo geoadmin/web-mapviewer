@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref, computed, watch } from 'vue'
+import { reactive } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -25,46 +25,6 @@ const { showProviders, groupedProviders, filterApplied } = defineProps({
 const emit = defineEmits(['chooseProvider', 'hide'])
 
 const providerList = useTemplateRef('providerList')
-const expandedGroups = ref({})
-const expandedSubGroups = ref({})
-
-function toggleGroup(baseUrl) {
-    expandedGroups.value[baseUrl] = !expandedGroups.value[baseUrl]
-}
-
-function toggleSubGroup(baseUrl, subGroupKey) {
-    if (!expandedSubGroups.value[baseUrl]) {
-        expandedSubGroups.value[baseUrl] = {}
-    }
-    expandedSubGroups.value[baseUrl][subGroupKey] = !expandedSubGroups.value[baseUrl][subGroupKey]
-}
-
-const titleCaretIcon = computed(() => (baseUrl) => `caret-${expandedGroups.value[baseUrl] ? 'down' : 'right'}`)
-const subGroupCaretIcon = computed(() => (baseUrl, subGroupKey) => `caret-${expandedSubGroups.value[baseUrl]?.[subGroupKey] ? 'down' : 'right'}`)
-
-function goToPrevious(currentKey) {
-    if (currentKey === 0) {
-        return
-    }
-    const key = currentKey - 1
-    providerList.value.querySelector(`[tabindex="${key}"]`).focus()
-}
-
-function goToNext(currentKey) {
-    if (currentKey >= providerList.length - 1) {
-        return
-    }
-    const key = currentKey + 1
-    providerList.value.querySelector(`[tabindex="${key}"]`).focus()
-}
-
-function goToFirst() {
-    providerList.value.querySelector('[tabindex="0"]').focus()
-}
-
-function goToLast() {
-    providerList.value.querySelector(`[tabindex="${providerList.length - 1}"]`).focus()
-}
 
 function getLongestCommonPrefix(urls) {
     if (!urls.length) return '';
@@ -79,64 +39,82 @@ function getLongestCommonPrefix(urls) {
     return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1);
 }
 
-const groupedProvidersWithSubGroups = computed(() => {
-    const result = {};
-    for (const [baseUrl, providers] of Object.entries(groupedProviders)) {
-        if (providers.length === 1) {
-            // If there is only one provider in the group, show it as a provider URL, not a group
-            result[baseUrl] = {
-                url: providers[0].url, // Use the common prefix to determine the full URL
-                emphasize: providers[0].emphasize,
-            };
-            continue;
-        }
-
-        const urls = providers.map(provider => provider.url);
-        const commonPrefix = getLongestCommonPrefix(urls);
-        const subGroups = {};
-
-        providers.forEach(provider => {
-            const relativeUrl = provider.url.replace(commonPrefix || baseUrl, '');
-            const subGroupKey = relativeUrl.split('/')[0];
-
-            if (!subGroups[subGroupKey]) {
-                subGroups[subGroupKey] = [];
-            }
-            subGroups[subGroupKey].push({
-                ...provider,
-                relativeUrl: relativeUrl.replace(subGroupKey + '/', ''),
-            });
-        });
-
-        result[baseUrl] = {
-            commonPrefix: commonPrefix || baseUrl,
-            subGroups: Object.entries(subGroups).flatMap(([key, subGroupProviders]) => {
-                if (subGroupProviders.length === 1) {
-                    // Show the single provider like there is no sub-group, without the prefix
-                    return subGroupProviders.map(provider => ({
-                        ...provider,
-                        relativeUrl: provider.url.replace(commonPrefix || baseUrl, ''),
-                    }));
-                }
-                return {
-                    key,
-                    providers: subGroupProviders,
-                };
-            }),
+function buildTreeNode(baseUrl, providers) {
+    if (providers.length === 1) {
+        return {
+            id: baseUrl,
+            name: providers[0].url,
+            type: 'url',
+            url: providers[0].url,
+            emphasize: providers[0].emphasize,
         };
     }
-    return result;
+
+    const urls = providers.map((provider) => provider.url);
+    const commonPrefix = getLongestCommonPrefix(urls);
+    const subGroups = {};
+
+    providers.forEach((provider) => {
+        const relativeUrl = provider.url.replace(commonPrefix || baseUrl, '');
+        const subGroupKey = relativeUrl.split('/')[0];
+
+        if (!subGroups[subGroupKey]) {
+            subGroups[subGroupKey] = [];
+        }
+        subGroups[subGroupKey].push({
+            ...provider,
+            relativeUrl: relativeUrl.replace(subGroupKey + '/', ''),
+        });
+    });
+
+    return {
+        id: baseUrl,
+        name: commonPrefix || baseUrl,
+        type: 'group',
+        expanded: filterApplied,
+        children: Object.entries(subGroups).map(([key, subGroupProviders]) => {
+            if (subGroupProviders.length === 1) {
+                return {
+                    id: subGroupProviders[0].url,
+                    name: subGroupProviders[0].relativeUrl,
+                    type: 'url',
+                    url: subGroupProviders[0].url,
+                    emphasize: subGroupProviders[0].emphasize,
+                };
+            }
+            return {
+                id: `${baseUrl}-${key}`,
+                name: key,
+                type: 'group',
+                expanded: false,
+                children: subGroupProviders.map((provider) => ({
+                    id: provider.url,
+                    name: provider.relativeUrl,
+                    type: 'url',
+                    url: provider.url,
+                    emphasize: provider.emphasize,
+                })),
+            };
+        }),
+    };
+}
+
+const treeData = reactive([]);
+
+Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
+    treeData.push(buildTreeNode(baseUrl, providers));
 });
 
-// Watch for changes in groupedProviders and set the expandedGroups state
-// based on the filterApplied prop
-watch(() => groupedProviders, (currentGroupProviders) => {
-    Object.keys(currentGroupProviders).forEach(baseUrl => {
-        expandedGroups.value[baseUrl] = filterApplied
-    })
-})
+function toggleNode(node) {
+    if (node.type === 'group') {
+        node.expanded = !node.expanded;
+    }
+    console.log(treeData);
+}
 
-defineExpose({ goToFirst })
+function emitProviderSelection(url) {
+    emit('chooseProvider', url);
+}
 </script>
 
 <template>
@@ -149,93 +127,84 @@ defineExpose({ goToFirst })
             class="providers-list"
             data-cy="import-provider-list"
         >
-            <template v-for="(group, baseUrl) in groupedProvidersWithSubGroups" :key="baseUrl">
-                <div v-if="Array.isArray(group.subGroups)" class="providers-group" data-cy="import-provider-group">
+            <template v-for="node in treeData" :key="node.id">
+                <component
+                    :is="node.type === 'group' ? 'div' : 'div'"
+                    :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
+                    :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
+                >
                     <div
+                        v-if="node.type === 'group'"
                         class="providers-group-header px-2 py-1 text-nowrap"
-                        @click="toggleGroup(baseUrl)"
+                        @click="toggleNode(node)"
                     >
-                        <font-awesome-icon :icon="['fas', titleCaretIcon(baseUrl)]" />
-                        <span class="ms-1">{{ group.commonPrefix }}</span>
+                        <font-awesome-icon :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']" />
+                        <span class="ms-1">{{ node.name }}</span>
                     </div>
                     <div
-                        v-show="expandedGroups[baseUrl]"
+                        v-if="node.type === 'group' && node.expanded"
                         class="providers-group-items ms-3"
                     >
-                        <template v-for="subGroup in group.subGroups" :key="subGroup.key">
-                            <div v-if="subGroup.providers?.length > 1" class="providers-sub-group" data-cy="import-provider-sub-group">
+                        <template v-for="child in node.children" :key="child.id">
+                            <component
+                                :is="child.type === 'group' ? 'div' : 'div'"
+                                :class="child.type === 'group' ? 'providers-sub-group' : 'providers-list-item'"
+                                :data-cy="child.type === 'group' ? 'import-provider-sub-group' : 'import-provider-item'"
+                            >
                                 <div
+                                    v-if="child.type === 'group'"
                                     class="providers-sub-group-header px-2 py-1 text-nowrap"
-                                    @click="toggleSubGroup(baseUrl, subGroup.key)"
+                                    @click="toggleNode(child)"
                                 >
-                                    <font-awesome-icon :icon="['fas', subGroupCaretIcon(baseUrl, subGroup.key)]" />
-                                    <span class="ms-1">{{ subGroup.key }}</span>
+                                    <font-awesome-icon :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']" />
+                                    <span class="ms-1">{{ child.name }}</span>
                                 </div>
                                 <div
-                                    v-show="expandedSubGroups[baseUrl]?.[subGroup.key]"
+                                    v-if="child.type === 'group' && child.expanded"
                                     class="providers-sub-group-items ms-3"
                                 >
                                     <div
-                                        v-for="(provider, key) in subGroup.providers"
-                                        :key="provider.url"
-                                        :tabindex="key"
+                                        v-for="grandChild in child.children"
+                                        :key="grandChild.id"
                                         class="providers-list-item px-2 py-1 text-nowrap"
                                         data-cy="import-provider-item"
-                                        @keydown.up.prevent="goToPrevious(key)"
-                                        @keydown.down.prevent="() => goToNext(key)"
-                                        @keydown.home.prevent="goToFirst"
-                                        @keydown.end.prevent="goToLast"
-                                        @keydown.esc.prevent="emit('hide')"
-                                        @keydown.enter.prevent="emit('chooseProvider', provider.url)"
-                                        @click="emit('chooseProvider', provider.url)"
+                                        @click="emitProviderSelection(grandChild.url)"
                                     >
                                         <TextSearchMarker
-                                            :text="provider.relativeUrl"
-                                            :search="provider.emphasize"
+                                            :text="grandChild.name"
+                                            :search="grandChild.emphasize"
                                         />
                                     </div>
                                 </div>
-                            </div>
-                            <div v-else class="providers-list-item px-2 py-1 text-nowrap" data-cy="import-provider-item">
                                 <div
-                                    :tabindex="0"
-                                    @keydown.up.prevent="goToPrevious(0)"
-                                    @keydown.down.prevent="() => goToNext(0)"
-                                    @keydown.home.prevent="goToFirst"
-                                    @keydown.end.prevent="goToLast"
-                                    @keydown.esc.prevent="emit('hide')"
-                                    @keydown.enter.prevent="emit('chooseProvider', subGroup.url)"
-                                    @click="emit('chooseProvider', subGroup.url)"
+                                    v-else-if="child.type === 'url'"
+                                    class="providers-list-item px-2 py-1 text-nowrap"
+                                    data-cy="import-provider-item"
+                                    @click="emitProviderSelection(child.url)"
                                 >
                                     <TextSearchMarker
-                                        :text="subGroup.relativeUrl"
-                                        :search="subGroup.emphasize"
+                                        :text="child.name"
+                                        :search="child.emphasize"
                                     />
                                 </div>
-                            </div>
+                            </component>
                         </template>
                     </div>
-                </div>
-                <div v-else class="providers-list-item px-2 py-1 text-nowrap" data-cy="import-provider-item">
                     <div
-                        :tabindex="0"
-                        @keydown.up.prevent="goToPrevious(0)"
-                        @keydown.down.prevent="() => goToNext(0)"
-                        @keydown.home.prevent="goToFirst"
-                        @keydown.end.prevent="goToLast"
-                        @keydown.esc.prevent="emit('hide')"
-                        @keydown.enter.prevent="emit('chooseProvider', group.url)"
-                        @click="emit('chooseProvider', group.url)"
+                        v-else-if="node.type === 'url'"
+                        class="providers-list-item px-2 py-1 text-nowrap"
+                        data-cy="import-provider-item"
+                        @click="emitProviderSelection(node.url)"
                     >
                         <TextSearchMarker
-                            :text="group.url"
-                            :search="group.emphasize"
+                            :text="node.name"
+                            :search="node.emphasize"
                         />
                     </div>
-                </div>
+                </component>
             </template>
             <div
-                v-show="Object.keys(groupedProviders).length === 0"
+                v-show="treeData.length === 0"
                 class="providers-list-empty px-2 py-1"
             >
                 <span>-</span>
