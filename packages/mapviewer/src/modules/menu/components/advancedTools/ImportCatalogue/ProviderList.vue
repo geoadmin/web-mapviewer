@@ -26,6 +26,63 @@ const emit = defineEmits(['chooseProvider', 'hide'])
 
 const providerList = useTemplateRef('providerList')
 
+let maxtabindex = 0
+
+
+function goToPrevious(tabindex) {
+    console.log('[goToPrevious] from tabindex', tabindex)
+    if (tabindex === 0) {
+        return
+    }
+    let key = tabindex - 1;
+    while (key >= 0) {
+        const element = providerList.value.querySelector(`[tabindex="${key}"]`);
+        if (element && element.offsetParent !== null) { // Check if the element is visible
+            element.focus();
+            console.log('[goToPrevious] Find previous tabindex', key)
+            break;
+        }
+        key--;
+    }
+    if (key < 0) {
+        console.log('[goToPrevious] can not find previous tabindex', tabindex)
+    }
+}
+
+function goToNext(tabindex) {
+    console.log('[goToNext] from tabindex', tabindex)
+    if (tabindex >= maxtabindex) {
+        return
+    }
+    let key = tabindex + 1;
+    while (key <= maxtabindex) {
+        const element = providerList.value.querySelector(`[tabindex="${key}"]`);
+        if (element && element.offsetParent !== null) { // Check if the element is visible
+            element.focus();
+            console.log('[goToNext] Find next tabindex', key)
+            break;
+        }
+        key++;
+    }
+    if (key > maxtabindex) {
+        console.log('[goToNext] can not find next tabindex', tabindex)
+    }
+}
+
+function goToFirst() {
+    console.log('goToFirst called')
+    const e = providerList.value.querySelector('[tabindex="0"]')
+    console.log('first element', e)
+    providerList.value.querySelector('[tabindex="0"]').focus()
+}
+
+function goToLast() {
+    console.log('goToLast called')
+    goToPrevious(maxtabindex + 1)
+}
+
+defineExpose({ goToFirst })
+
 function getLongestCommonPrefix(urls) {
     if (!urls.length) return '';
     let prefix = urls[0];
@@ -101,23 +158,25 @@ function buildTreeNode(baseUrl, providers) {
 
 const treeData = reactive([]);
 
-function addVisibleIndex(treeData) {
+function addtabindex(treeData) {
     let index = 0;
 
     function dfs(node) {
-        node.visibleIndex = index++;
+        node.tabindex = index++;
         if (node.children && node.children.length > 0) {
             node.children.forEach(child => dfs(child));
         }
     }
 
     treeData.forEach(node => dfs(node));
+    maxtabindex = index - 1;
+    // console.log('treeData max index', index);
 }
 
 Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
     treeData.push(buildTreeNode(baseUrl, providers));
 });
-addVisibleIndex(treeData);
+addtabindex(treeData);
 // console.log('treeData', treeData);
 
 watch(() => groupedProviders, (newGroupedProviders) => {
@@ -125,13 +184,25 @@ watch(() => groupedProviders, (newGroupedProviders) => {
     Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
         treeData.push(buildTreeNode(baseUrl, providers));
     })
-    addVisibleIndex(treeData);
+    addtabindex(treeData);
     // console.log('treeData', treeData);
 });
 
 function toggleNode(node) {
     if (node.type === 'group') {
         node.expanded = !node.expanded;
+    }
+}
+
+function expandNode(node) {
+    if (node.type === 'group') {
+        node.expanded = true;
+    }
+}
+
+function collapseNode(node) {
+    if (node.type === 'group') {
+        node.expanded = false;
     }
 }
 
@@ -156,20 +227,27 @@ function emitProviderSelection(url) {
                     :is="node.type === 'group' ? 'div' : 'div'"
                     :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
                     :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
-                    :visible-index="node.visibleIndex"
+
                 >
                     <div
                         v-if="node.type === 'group'"
                         class="providers-group-header px-2 py-1 text-nowrap"
+                        :tabindex="node.tabindex"
                         @click="toggleNode(node)"
+                        @keydown.right.prevent="expandNode(node)"
+                        @keydown.left.prevent="collapseNode(node)"
+                        @keydown.up.prevent="goToPrevious(node.tabindex)"
+                        @keydown.down.prevent="() => goToNext(node.tabindex)"
+                        @keydown.home.prevent="goToFirst"
+                        @keydown.end.prevent="goToLast"
                     >
                         <font-awesome-icon :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']" />
                         <span class="ms-1">{{ node.name }}</span>
                     </div>
                     <div
                         v-if="node.type === 'group' && node.expanded"
-                        :visible-index="node.visibleIndex"
                         class="providers-group-items ms-3"
+
                     >
                         <template v-for="child in node.children" :key="child.id">
                             <component
@@ -180,8 +258,14 @@ function emitProviderSelection(url) {
                                 <div
                                     v-if="child.type === 'group'"
                                     class="providers-sub-group-header px-2 py-1 text-nowrap"
-                                    :visible-index="child.visibleIndex"
+                                    :tabindex="child.tabindex"
                                     @click="toggleNode(child)"
+                                    @keydown.right.prevent="expandNode(child)"
+                                    @keydown.left.prevent="collapseNode(child)"
+                                    @keydown.up.prevent="goToPrevious(child.tabindex)"
+                                    @keydown.down.prevent="() => goToNext(child.tabindex)"
+                                    @keydown.home.prevent="goToFirst"
+                                    @keydown.end.prevent="goToLast"
                                 >
                                     <font-awesome-icon :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']" />
                                     <span class="ms-1">{{ child.name }}</span>
@@ -189,14 +273,19 @@ function emitProviderSelection(url) {
                                 <div
                                     v-if="child.type === 'group' && child.expanded"
                                     class="providers-sub-group-items ms-3"
+
                                 >
                                     <div
                                         v-for="grandChild in child.children"
                                         :key="grandChild.id"
                                         class="providers-list-item px-2 py-1 text-nowrap"
                                         data-cy="import-provider-item"
-                                        :visible-index="grandChild.visibleIndex"
+                                        :tabindex="grandChild.tabindex"
                                         @click="emitProviderSelection(grandChild.url)"
+                                        @keydown.up.prevent="goToPrevious(grandChild.tabindex)"
+                                        @keydown.down.prevent="() => goToNext(grandChild.tabindex)"
+                                        @keydown.home.prevent="goToFirst"
+                                        @keydown.end.prevent="goToLast"
                                     >
                                         <TextSearchMarker
                                             :text="grandChild.name"
@@ -208,8 +297,12 @@ function emitProviderSelection(url) {
                                     v-else-if="child.type === 'url'"
                                     class="providers-list-item px-2 py-1 text-nowrap"
                                     data-cy="import-provider-item"
-                                    :visible-index="child.visibleIndex"
+                                    :tabindex="child.tabindex"
                                     @click="emitProviderSelection(child.url)"
+                                    @keydown.up.prevent="goToPrevious(child.tabindex)"
+                                    @keydown.down.prevent="() => goToNext(child.tabindex)"
+                                    @keydown.home.prevent="goToFirst"
+                                    @keydown.end.prevent="goToLast"
                                 >
                                     <TextSearchMarker
                                         :text="child.name"
@@ -223,8 +316,12 @@ function emitProviderSelection(url) {
                         v-else-if="node.type === 'url'"
                         class="providers-list-item px-2 py-1 text-nowrap"
                         data-cy="import-provider-item"
-                        :visible-index="node.visibleIndex"
+                        :tabindex="node.tabindex"
                         @click="emitProviderSelection(node.url)"
+                        @keydown.up.prevent="goToPrevious(node.tabindex)"
+                        @keydown.down.prevent="() => goToNext(node.tabindex)"
+                        @keydown.home.prevent="goToFirst"
+                        @keydown.end.prevent="goToLast"
                     >
                         <TextSearchMarker
                             :text="node.name"
@@ -271,7 +368,7 @@ function emitProviderSelection(url) {
             width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
             overflow: hidden; // Prevent any text from showing behind
-            margin-bottom: 0; // Remove gap between group and sub-group headers
+            // margin-bottom: 0; // Remove gap between group and sub-group headers
         }
 
         .providers-group-items {
@@ -288,7 +385,7 @@ function emitProviderSelection(url) {
             width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
             overflow: hidden; // Prevent any text from showing behind
-            margin-top: 0; // Remove gap between group and sub-group headers
+            // margin-top: 0; // Remove gap between group and sub-group headers
         }
 
         .providers-sub-group-items {
