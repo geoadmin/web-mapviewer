@@ -93,7 +93,7 @@ function buildTreeNode(baseUrl, providers) {
     if (providers.length === 1) {
         return {
             id: baseUrl,
-            name: providers[0].url,
+            name: providers[0].htmlDisplay,
             type: 'url',
             url: providers[0].url,
             emphasize: providers[0].emphasize,
@@ -105,7 +105,7 @@ function buildTreeNode(baseUrl, providers) {
     const subGroups = {};
 
     providers.forEach((provider) => {
-        const relativeUrl = provider.url.replace(commonPrefix || baseUrl, '');
+        const relativeUrl = provider.htmlDisplay.replace(commonPrefix || baseUrl, '');
         const subGroupKey = relativeUrl.split('/')[0];
 
         if (!subGroups[subGroupKey]) {
