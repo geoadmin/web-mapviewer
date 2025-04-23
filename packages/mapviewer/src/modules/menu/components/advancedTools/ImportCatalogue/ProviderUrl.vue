@@ -70,7 +70,6 @@ function chooseProvider(providerUrl) {
 }
 
 function goToProviderList() {
-    console.log('goToProviderList')
     if (showProviders.value) {
         providerList.value.goToFirst()
     }

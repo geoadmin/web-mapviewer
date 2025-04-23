@@ -30,7 +30,6 @@ let maxtabindex = 0
 
 
 function goToPrevious(tabindex) {
-    console.log('[goToPrevious] from tabindex', tabindex)
     if (tabindex === 0) {
         return
     }
@@ -39,18 +38,14 @@ function goToPrevious(tabindex) {
         const element = providerList.value.querySelector(`[tabindex="${key}"]`);
         if (element && element.offsetParent !== null) { // Check if the element is visible
             element.focus();
-            console.log('[goToPrevious] Find previous tabindex', key)
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
             break;
         }
         key--;
     }
-    if (key < 0) {
-        console.log('[goToPrevious] can not find previous tabindex', tabindex)
-    }
 }
 
 function goToNext(tabindex) {
-    console.log('[goToNext] from tabindex', tabindex)
     if (tabindex >= maxtabindex) {
         return
     }
@@ -59,25 +54,23 @@ function goToNext(tabindex) {
         const element = providerList.value.querySelector(`[tabindex="${key}"]`);
         if (element && element.offsetParent !== null) { // Check if the element is visible
             element.focus();
-            console.log('[goToNext] Find next tabindex', key)
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
             break;
         }
         key++;
     }
-    if (key > maxtabindex) {
-        console.log('[goToNext] can not find next tabindex', tabindex)
-    }
 }
 
 function goToFirst() {
-    console.log('goToFirst called')
-    const e = providerList.value.querySelector('[tabindex="0"]')
-    console.log('first element', e)
-    providerList.value.querySelector('[tabindex="0"]').focus()
+    const element = providerList.value.querySelector('[tabindex="0"]')
+    if (element) {
+        element.focus();
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
+    }
 }
 
 function goToLast() {
-    console.log('goToLast called')
+    // Find the last shown element, it might be not the maxtabindex (e.g. a group)
     goToPrevious(maxtabindex + 1)
 }
 
@@ -170,14 +163,12 @@ function addtabindex(treeData) {
 
     treeData.forEach(node => dfs(node));
     maxtabindex = index - 1;
-    // console.log('treeData max index', index);
 }
 
 Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
     treeData.push(buildTreeNode(baseUrl, providers));
 });
 addtabindex(treeData);
-// console.log('treeData', treeData);
 
 watch(() => groupedProviders, (newGroupedProviders) => {
     treeData.length = 0; // Clear the existing treeData
@@ -185,7 +176,6 @@ watch(() => groupedProviders, (newGroupedProviders) => {
         treeData.push(buildTreeNode(baseUrl, providers));
     })
     addtabindex(treeData);
-    // console.log('treeData', treeData);
 });
 
 function toggleNode(node) {
@@ -240,6 +230,7 @@ function emitProviderSelection(url) {
                         @keydown.down.prevent="() => goToNext(node.tabindex)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
+                        @keydown.esc.prevent="emit('hide')"
                     >
                         <font-awesome-icon :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']" />
                         <span class="ms-1">{{ node.name }}</span>
@@ -266,6 +257,7 @@ function emitProviderSelection(url) {
                                     @keydown.down.prevent="() => goToNext(child.tabindex)"
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
+                                    @keydown.esc.prevent="emit('hide')"
                                 >
                                     <font-awesome-icon :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']" />
                                     <span class="ms-1">{{ child.name }}</span>
@@ -282,10 +274,12 @@ function emitProviderSelection(url) {
                                         data-cy="import-provider-item"
                                         :tabindex="grandChild.tabindex"
                                         @click="emitProviderSelection(grandChild.url)"
+                                        @keydown.enter.prevent="emitProviderSelection(grandChild.url)"
                                         @keydown.up.prevent="goToPrevious(grandChild.tabindex)"
                                         @keydown.down.prevent="() => goToNext(grandChild.tabindex)"
                                         @keydown.home.prevent="goToFirst"
                                         @keydown.end.prevent="goToLast"
+                                        @keydown.esc.prevent="emit('hide')"
                                     >
                                         <TextSearchMarker
                                             :text="grandChild.name"
@@ -299,10 +293,12 @@ function emitProviderSelection(url) {
                                     data-cy="import-provider-item"
                                     :tabindex="child.tabindex"
                                     @click="emitProviderSelection(child.url)"
+                                    @keydown.enter.prevent="emitProviderSelection(child.url)"
                                     @keydown.up.prevent="goToPrevious(child.tabindex)"
                                     @keydown.down.prevent="() => goToNext(child.tabindex)"
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
+                                    @keydown.esc.prevent="emit('hide')"
                                 >
                                     <TextSearchMarker
                                         :text="child.name"
@@ -318,10 +314,12 @@ function emitProviderSelection(url) {
                         data-cy="import-provider-item"
                         :tabindex="node.tabindex"
                         @click="emitProviderSelection(node.url)"
+                        @keydown.enter.prevent="emitProviderSelection(node.url)"
                         @keydown.up.prevent="goToPrevious(node.tabindex)"
                         @keydown.down.prevent="() => goToNext(node.tabindex)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
+                        @keydown.esc.prevent="emit('hide')"
                     >
                         <TextSearchMarker
                             :text="node.name"
@@ -342,8 +340,10 @@ function emitProviderSelection(url) {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+// Adjust overflow to ensure focus outline is not clipped
 .providers-list-container {
     max-height: 13rem;
+    overflow: visible; // Allow focus outline to be fully visible
 
     .providers-list {
         .providers-list-empty {
@@ -367,7 +367,7 @@ function emitProviderSelection(url) {
             background-color: $body-bg; // Ensure it matches the background
             width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
-            overflow: hidden; // Prevent any text from showing behind
+            overflow: visible; // Ensure focus outline is not clipped for group headers
             // margin-bottom: 0; // Remove gap between group and sub-group headers
         }
         .providers-group-header:focus,
@@ -388,7 +388,7 @@ function emitProviderSelection(url) {
             background-color: $body-bg; // Ensure it matches the background
             width: 100%; // Expand to full width
             white-space: nowrap; // Prevent text wrapping
-            overflow: hidden; // Prevent any text from showing behind
+            overflow: visible; // Ensure focus outline is not clipped for group headers
             // margin-top: 0; // Remove gap between group and sub-group headers
         }
         .providers-sub-group-header:focus,
