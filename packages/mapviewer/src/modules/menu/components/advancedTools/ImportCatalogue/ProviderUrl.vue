@@ -22,7 +22,7 @@ const providerList = useTemplateRef('providerList')
 const isLoading = ref(false)
 const providerInput = useTemplateRef('providerInput')
 
-const { groupedProviders, showProviders, filterApplied, toggleProviders } = useProviders(url)
+const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } = useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
 
 // Computed properties
@@ -208,6 +208,7 @@ function hideProviders() {
             :grouped-providers="groupedProviders"
             :show-providers="showProviders"
             :filter-applied="filterApplied"
+            :filter-text="filterText"
             @choose-provider="chooseProvider"
             @hide="showProviders = false"
         />

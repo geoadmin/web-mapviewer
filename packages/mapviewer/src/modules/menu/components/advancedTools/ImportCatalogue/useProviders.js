@@ -56,6 +56,7 @@ export function useProviders(newUrl) {
         return groups
     })
 
+    const filterText = computed(() => url.value)
     const filterApplied = computed(() => url.value.length > 0)
 
     function toggleProviders() {
@@ -68,5 +69,6 @@ export function useProviders(newUrl) {
         providers,
         toggleProviders,
         filterApplied,
+        filterText
     }
 }

@@ -5,7 +5,7 @@ import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
-const { showProviders, groupedProviders, filterApplied } = defineProps({
+const { showProviders, groupedProviders, filterApplied, filterText } = defineProps({
     showProviders: {
         type: Boolean,
         default: false,
@@ -19,6 +19,10 @@ const { showProviders, groupedProviders, filterApplied } = defineProps({
     filterApplied: {
         type: Boolean,
         default: false,
+    },
+    filterText: {
+        type: String,
+        default: '',
     },
 })
 
@@ -81,6 +85,7 @@ function buildTreeNode(baseUrl, providers) {
         name: commonPrefix || baseUrl,
         type: 'group',
         expanded: filterApplied,
+        emphasize: filterText,
         children: Object.entries(subGroups).map(([key, subGroupProviders]) => {
             if (subGroupProviders.length === 1) {
                 return {
@@ -95,7 +100,8 @@ function buildTreeNode(baseUrl, providers) {
                 id: `${baseUrl}-${key}`,
                 name: key,
                 type: 'group',
-                expanded: false,
+                expanded: false, // Perhaps we want to expand this if there is a matching filter
+                emphasize: filterText,
                 children: subGroupProviders.map((provider) => ({
                     id: provider.url,
                     name: provider.relativeUrl,
@@ -251,7 +257,11 @@ defineExpose({ goToFirst })
                         <font-awesome-icon
                             :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']"
                         />
-                        <span class="ms-1">{{ node.name }}</span>
+                        <TextSearchMarker
+                            class="ms-1"
+                            :text="node.name"
+                            :search="node.emphasize"
+                        />
                     </div>
                     <div
                         v-if="node.type === 'group' && node.expanded"
@@ -279,7 +289,11 @@ defineExpose({ goToFirst })
                                     <font-awesome-icon
                                         :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']"
                                     />
-                                    <span class="ms-1">{{ child.name }}</span>
+                                    <TextSearchMarker
+                                        class="ms-1"
+                                        :text="child.name"
+                                        :search="child.emphasize"
+                                    />
                                 </div>
                                 <div
                                     v-if="child.type === 'group' && child.expanded"
