@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -22,73 +22,32 @@ const { showProviders, groupedProviders, filterApplied } = defineProps({
     },
 })
 
+// reactive data
 const emit = defineEmits(['chooseProvider', 'hide'])
-
 const providerList = useTemplateRef('providerList')
+const maxTabIndex = ref(0)
+const treeData = reactive([])
 
-const maxtabindex = ref(0)
-
-
-function goToPrevious(tabindex) {
-    if (tabindex === 0) {
-        return
-    }
-    let key = tabindex - 1;
-    while (key >= 0) {
-        const element = providerList.value.querySelector(`[tabindex="${key}"]`);
-        if (element && element.offsetParent !== null) { // Check if the element is visible
-            element.focus();
-            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
-            break;
-        }
-        key--;
-    }
-}
-
-function goToNext(tabindex) {
-    if (tabindex >= maxtabindex.value) {
-        return
-    }
-    let key = tabindex + 1;
-    while (key <= maxtabindex.value) {
-        const element = providerList.value.querySelector(`[tabindex="${key}"]`);
-        if (element && element.offsetParent !== null) { // Check if the element is visible
-            element.focus();
-            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
-            break;
-        }
-        key++;
-    }
-}
-
-function goToFirst() {
-    const element = providerList.value.querySelector('[tabindex="0"]')
-    if (element) {
-        element.focus();
-        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Ensure the element is visible
-    }
-}
-
-function goToLast() {
-    // Find the last shown element, it might be not the maxtabindex (e.g. a group)
-    goToPrevious(maxtabindex.value + 1)
-}
-
-defineExpose({ goToFirst })
-
+// Function to get the longest common prefix of an array of URLs must end with '/'
 function getLongestCommonPrefix(urls) {
-    if (!urls.length) return '';
-    let prefix = urls[0];
+    if (!urls.length) return ''
+    let prefix = urls[0]
     for (const url of urls) {
         while (!url.startsWith(prefix)) {
-            prefix = prefix.slice(0, -1);
-            if (!prefix) break;
+            prefix = prefix.slice(0, -1)
+            if (!prefix) break
         }
     }
     // Ensure the prefix ends with a '/'
-    return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1);
+    return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1)
 }
 
+// Function to build the tree node structure
+// This function takes a base URL and an array of providers and returns a tree node
+// structure. If there is only one provider, it returns a URL node. If there are multiple
+// providers, it groups them by their common prefix and creates a group node with
+// sub-group nodes for each unique prefix.
+//  It also set the name as the text to be shown in the UI
 function buildTreeNode(baseUrl, providers) {
     if (providers.length === 1) {
         return {
@@ -97,25 +56,25 @@ function buildTreeNode(baseUrl, providers) {
             type: 'url',
             url: providers[0].url,
             emphasize: providers[0].emphasize,
-        };
+        }
     }
 
-    const urls = providers.map((provider) => provider.url);
-    const commonPrefix = getLongestCommonPrefix(urls);
-    const subGroups = {};
+    const urls = providers.map((provider) => provider.url)
+    const commonPrefix = getLongestCommonPrefix(urls)
+    const subGroups = {}
 
     providers.forEach((provider) => {
-        const relativeUrl = provider.htmlDisplay.replace(commonPrefix || baseUrl, '');
-        const subGroupKey = relativeUrl.split('/')[0];
+        const relativeUrl = provider.htmlDisplay.replace(commonPrefix || baseUrl, '')
+        const subGroupKey = relativeUrl.split('/')[0]
 
         if (!subGroups[subGroupKey]) {
-            subGroups[subGroupKey] = [];
+            subGroups[subGroupKey] = []
         }
         subGroups[subGroupKey].push({
             ...provider,
             relativeUrl: relativeUrl.replace(subGroupKey + '/', ''),
-        });
-    });
+        })
+    })
 
     return {
         id: baseUrl,
@@ -130,7 +89,7 @@ function buildTreeNode(baseUrl, providers) {
                     type: 'url',
                     url: subGroupProviders[0].url,
                     emphasize: subGroupProviders[0].emphasize,
-                };
+                }
             }
             return {
                 id: `${baseUrl}-${key}`,
@@ -144,62 +103,120 @@ function buildTreeNode(baseUrl, providers) {
                     url: provider.url,
                     emphasize: provider.emphasize,
                 })),
-            };
+            }
         }),
-    };
+    }
 }
 
-const treeData = reactive([]);
-
-function addtabindex(treeData) {
-    let index = 0;
+// Set tabindex for each node in the tree with DFS strategy so that the tab
+// index is in correct order visually
+function addTabIndex(treeData) {
+    let index = 0
 
     function dfs(node) {
-        node.tabindex = index++;
+        node.tabindex = index++
         if (node.children && node.children.length > 0) {
-            node.children.forEach(child => dfs(child));
+            node.children.forEach((child) => dfs(child))
         }
     }
 
-    treeData.forEach(node => dfs(node));
-    maxtabindex.value = index - 1;
+    treeData.forEach((node) => dfs(node))
+    maxTabIndex.value = index - 1
 }
 
-Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
-    treeData.push(buildTreeNode(baseUrl, providers));
-});
-addtabindex(treeData);
+// Watches
+watch(
+    () => groupedProviders,
+    (newGroupedProviders) => {
+        treeData.length = 0 // Clear the existing treeData
+        Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
+            treeData.push(buildTreeNode(baseUrl, providers))
+        })
+        addTabIndex(treeData)
+    }
+)
 
-watch(() => groupedProviders, (newGroupedProviders) => {
-    treeData.length = 0; // Clear the existing treeData
-    Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
-        treeData.push(buildTreeNode(baseUrl, providers));
+// Lifecycle hooks
+onMounted(() => {
+    Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
+        treeData.push(buildTreeNode(baseUrl, providers))
     })
-    addtabindex(treeData);
-});
+    addTabIndex(treeData)
+})
 
+// Methods
 function toggleNode(node) {
     if (node.type === 'group') {
-        node.expanded = !node.expanded;
+        node.expanded = !node.expanded
     }
 }
 
 function expandNode(node) {
     if (node.type === 'group') {
-        node.expanded = true;
+        node.expanded = true
     }
 }
 
 function collapseNode(node) {
     if (node.type === 'group') {
-        node.expanded = false;
+        node.expanded = false
     }
 }
 
 function emitProviderSelection(url) {
-    emit('chooseProvider', url);
+    emit('chooseProvider', url)
 }
 
+function goToPrevious(currentTaxIndex) {
+    if (currentTaxIndex === 0) {
+        return
+    }
+    let key = currentTaxIndex - 1
+    while (key >= 0) {
+        const element = providerList.value.querySelector(`[tabindex="${key}"]`)
+        if (element && element.offsetParent !== null) {
+            // Check if the element is visible
+            element.focus()
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) // Ensure the element is visible
+            break
+        }
+        key--
+    }
+}
+
+function goToNext(currentTabIndex) {
+    if (currentTabIndex >= maxTabIndex.value) {
+        return
+    }
+    let key = currentTabIndex + 1
+    while (key <= maxTabIndex.value) {
+        const element = providerList.value.querySelector(`[tabindex="${key}"]`)
+        if (element && element.offsetParent !== null) {
+            // Check if the element is visible
+            element.focus()
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) // Ensure the element is visible
+            break
+        }
+        key++
+    }
+}
+
+function goToFirst() {
+    const element = providerList.value.querySelector('[tabindex="0"]')
+    if (element) {
+        element.focus()
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) // Ensure the element is visible
+    }
+}
+
+function goToLast() {
+    // Find the last shown element, it might be not the maxtabindex (e.g. a group)
+    goToPrevious(maxTabIndex.value + 1)
+}
+
+
+
+defineExpose({ goToFirst })
 </script>
 
 <template>
@@ -217,7 +234,6 @@ function emitProviderSelection(url) {
                     :is="node.type === 'group' ? 'div' : 'div'"
                     :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
                     :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
-
                 >
                     <div
                         v-if="node.type === 'group'"
@@ -227,18 +243,19 @@ function emitProviderSelection(url) {
                         @keydown.right.prevent="expandNode(node)"
                         @keydown.left.prevent="collapseNode(node)"
                         @keydown.up.prevent="goToPrevious(node.tabindex)"
-                        @keydown.down.prevent="() => goToNext(node.tabindex)"
+                        @keydown.down.prevent="goToNext(node.tabindex)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
                     >
-                        <font-awesome-icon :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']" />
+                        <font-awesome-icon
+                            :icon="['fas', node.expanded ? 'caret-down' : 'caret-right']"
+                        />
                         <span class="ms-1">{{ node.name }}</span>
                     </div>
                     <div
                         v-if="node.type === 'group' && node.expanded"
                         class="providers-group-items ms-3"
-
                     >
                         <template v-for="child in node.children" :key="child.id">
                             <component
@@ -254,18 +271,19 @@ function emitProviderSelection(url) {
                                     @keydown.right.prevent="expandNode(child)"
                                     @keydown.left.prevent="collapseNode(child)"
                                     @keydown.up.prevent="goToPrevious(child.tabindex)"
-                                    @keydown.down.prevent="() => goToNext(child.tabindex)"
+                                    @keydown.down.prevent="goToNext(child.tabindex)"
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
                                     @keydown.esc.prevent="emit('hide')"
                                 >
-                                    <font-awesome-icon :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']" />
+                                    <font-awesome-icon
+                                        :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']"
+                                    />
                                     <span class="ms-1">{{ child.name }}</span>
                                 </div>
                                 <div
                                     v-if="child.type === 'group' && child.expanded"
                                     class="providers-sub-group-items ms-3"
-
                                 >
                                     <div
                                         v-for="grandChild in child.children"
@@ -276,7 +294,7 @@ function emitProviderSelection(url) {
                                         @click="emitProviderSelection(grandChild.url)"
                                         @keydown.enter.prevent="emitProviderSelection(grandChild.url)"
                                         @keydown.up.prevent="goToPrevious(grandChild.tabindex)"
-                                        @keydown.down.prevent="() => goToNext(grandChild.tabindex)"
+                                        @keydown.down.prevent="goToNext(grandChild.tabindex)"
                                         @keydown.home.prevent="goToFirst"
                                         @keydown.end.prevent="goToLast"
                                         @keydown.esc.prevent="emit('hide')"
@@ -295,7 +313,7 @@ function emitProviderSelection(url) {
                                     @click="emitProviderSelection(child.url)"
                                     @keydown.enter.prevent="emitProviderSelection(child.url)"
                                     @keydown.up.prevent="goToPrevious(child.tabindex)"
-                                    @keydown.down.prevent="() => goToNext(child.tabindex)"
+                                    @keydown.down.prevent="goToNext(child.tabindex)"
                                     @keydown.home.prevent="goToFirst"
                                     @keydown.end.prevent="goToLast"
                                     @keydown.esc.prevent="emit('hide')"
@@ -316,7 +334,7 @@ function emitProviderSelection(url) {
                         @click="emitProviderSelection(node.url)"
                         @keydown.enter.prevent="emitProviderSelection(node.url)"
                         @keydown.up.prevent="goToPrevious(node.tabindex)"
-                        @keydown.down.prevent="() => goToNext(node.tabindex)"
+                        @keydown.down.prevent="goToNext(node.tabindex)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @keydown.esc.prevent="emit('hide')"
