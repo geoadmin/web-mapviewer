@@ -1,18 +1,10 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
 import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
 import proj4 from 'proj4'
-import {
-    computed,
-    inject,
-    nextTick,
-    onBeforeUnmount,
-    onMounted,
-    ref,
-    useTemplateRef,
-    watch,
-} from 'vue'
+import { computed, inject, onMounted, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -26,9 +18,8 @@ const { t } = useI18n()
 
 const is3DReady = computed(() => store.state.cesium.isViewerReady)
 const projection = computed(() => store.state.position.projection)
-
 const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
-const getViewer = inject('getViewer', () => {}, true)
+const getViewer = inject('getViewer', () => undefined, true)
 
 let handler = null
 
@@ -41,13 +32,9 @@ watch(
     },
     { immediate: true }
 )
-
 onMounted(() => {
-    nextTick(() => {
-        setupHandler()
-    })
+    setupHandler()
 })
-
 onBeforeUnmount(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
@@ -56,8 +43,8 @@ onBeforeUnmount(() => {
 })
 
 function setupHandler() {
-    // To prevent that the handler is setup multiple times which then creates handlers that are not destroyed in the onBeforeUnmount
-    if (!getViewer() || handler) {
+    // If the handler already exists for some reason, there is no need to create it again
+    if (handler || !getViewer()) {
         return
     }
     handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
@@ -91,13 +78,10 @@ function setDisplayedFormatWithId() {
 function formatCoordinate(coordinate) {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
-        if (showCoordinateLabel(displayedFormat)) {
-            return `${t('coordinates_label')} ${displayedFormat.format(
-                coordinate,
-                projection.value
-            )}`
-        }
-        return displayedFormat.format(coordinate, projection.value, true)
+        return `${showCoordinateLabel(displayedFormat) ? t('coordinates_label') : ''} ${displayedFormat.format(
+            [coordinate[0], coordinate[1]],
+            projection.value
+        )}, ${t('elevation')}: ${round(coordinate[2], 2)} m`
     } else {
         log.error('Unknown coordinates display format', displayedFormatId.value)
     }

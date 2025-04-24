@@ -78,6 +78,10 @@ onMounted(() => {
 onUnmounted(() => {
     if (viewer) {
         store.dispatch('setCameraPosition', { position: null, ...dispatcher })
+        store.dispatch('setViewerReady', {
+            isViewerReady: false,
+            ...dispatcher,
+        })
         viewer.destroy()
     }
 })
