@@ -366,9 +366,6 @@ function emitProviderSelection(url) {
             z-index: 2; // Ensure it stays above sub-groups
             background-color: $body-bg; // Ensure it matches the background
             width: 100%; // Expand to full width
-            white-space: nowrap; // Prevent text wrapping
-            overflow: visible; // Ensure focus outline is not clipped for group headers
-            // margin-bottom: 0; // Remove gap between group and sub-group headers
         }
         .providers-group-header:focus,
         .providers-group-header:hover {
@@ -387,9 +384,6 @@ function emitProviderSelection(url) {
             z-index: 1; // Ensure it stays below the group header
             background-color: $body-bg; // Ensure it matches the background
             width: 100%; // Expand to full width
-            white-space: nowrap; // Prevent text wrapping
-            overflow: visible; // Ensure focus outline is not clipped for group headers
-            // margin-top: 0; // Remove gap between group and sub-group headers
         }
         .providers-sub-group-header:focus,
         .providers-sub-group-header:hover {
