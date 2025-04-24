@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -26,7 +26,7 @@ const emit = defineEmits(['chooseProvider', 'hide'])
 
 const providerList = useTemplateRef('providerList')
 
-let maxtabindex = 0
+const maxtabindex = ref(0)
 
 
 function goToPrevious(tabindex) {
@@ -46,11 +46,11 @@ function goToPrevious(tabindex) {
 }
 
 function goToNext(tabindex) {
-    if (tabindex >= maxtabindex) {
+    if (tabindex >= maxtabindex.value) {
         return
     }
     let key = tabindex + 1;
-    while (key <= maxtabindex) {
+    while (key <= maxtabindex.value) {
         const element = providerList.value.querySelector(`[tabindex="${key}"]`);
         if (element && element.offsetParent !== null) { // Check if the element is visible
             element.focus();
@@ -71,7 +71,7 @@ function goToFirst() {
 
 function goToLast() {
     // Find the last shown element, it might be not the maxtabindex (e.g. a group)
-    goToPrevious(maxtabindex + 1)
+    goToPrevious(maxtabindex.value + 1)
 }
 
 defineExpose({ goToFirst })
@@ -162,7 +162,7 @@ function addtabindex(treeData) {
     }
 
     treeData.forEach(node => dfs(node));
-    maxtabindex = index - 1;
+    maxtabindex.value = index - 1;
 }
 
 Object.entries(groupedProviders).forEach(([baseUrl, providers]) => {
