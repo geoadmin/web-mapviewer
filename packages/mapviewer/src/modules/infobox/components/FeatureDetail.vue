@@ -112,6 +112,7 @@ function getIframeHosts(value) {
     <div
         v-else
         class="htmlpopup-container"
+        data-cy="feature-detail-htmlpopup-container"
     >
         <div class="htmlpopup-content">
             <div
@@ -178,14 +179,13 @@ function getIframeHosts(value) {
     padding: 7px;
 }
 // fix for layer HTML containing table, such as ch.bafu.gefahren-aktuelle_erdbeben
-:global(.t_list) {
+:global(.htmlpopup-container .t_list) {
     width: 100%;
 }
-td {
+:global(.htmlpopup-container td) {
     vertical-align: top;
 }
-
-td.cell-left {
+:global(.htmlpopup-container td.cell-left) {
     padding-right: 10px;
 }
 </style>

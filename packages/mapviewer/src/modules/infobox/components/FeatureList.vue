@@ -1,5 +1,5 @@
 <script setup>
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -33,8 +33,15 @@ const canLoadMore = computed(() => (layerId) => {
     )
 })
 
-watch(lang, () => {
-    store.dispatch('updateFeatures', dispatcher)
+// when the language changes, we have to wait until the active layers are updated
+// before dispatching the updateFeatures action,
+// else the feature.layer.name will not be up to date
+const lastLang = ref(lang.value)
+watch(activeLayers, () => {
+    if (lang.value !== lastLang.value) {
+        lastLang.value = lang.value
+        store.dispatch('updateFeatures', dispatcher)
+    }
 })
 
 function getLayerName(layerId) {
