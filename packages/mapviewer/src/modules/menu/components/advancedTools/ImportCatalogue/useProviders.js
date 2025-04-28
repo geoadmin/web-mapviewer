@@ -16,7 +16,7 @@ class Provider {
             return urlObj.origin
         } catch (e) {
             log.error('Invalid URL:', this.url, e)
-            return ''
+            return null
         }
     }
 }
