@@ -14,7 +14,7 @@ import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParse
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
  */
 const stringifyWithoutLangOrNull = (key, value) =>
-    key === 'lang' || value === null ? undefined : value
+    key === 'lang' || key === 'uuid' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
     const bgLayer = 'test.background.layer2'

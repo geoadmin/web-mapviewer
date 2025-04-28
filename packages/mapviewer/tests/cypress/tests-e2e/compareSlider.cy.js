@@ -326,6 +326,31 @@ describe('Testing of the compare slider', () => {
             }
         )
     })
+
+    context('With two times the same layer', () => {
+        it('layers are independent layers with different uuids', () => {
+            cy.goToMapView(
+                {
+                    layers: [
+                        'test.timeenabled.wmts.layer@year=2015',
+                        'test.timeenabled.wmts.layer@year=2021',
+                    ].join(';'),
+                    compareRatio: '0.3',
+                },
+                true
+            )
+            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+                expect(visibleLayers).to.be.an('Array')
+                expect(visibleLayers.length).to.deep.equal(2)
+                visibleLayers.forEach((_, index) => {
+                    expect(visibleLayers[index]).to.be.an('Object')
+                    expect(visibleLayers[index].uuid).to.not.be.undefined
+                })
+                const [uuid1, uuid2] = visibleLayers.map((layer) => layer.uuid)
+                expect(uuid1).to.not.equal(uuid2)
+            })
+        })
+    })
 })
 
 describe('The compare Slider and the menu elements should not be available in 3d', () => {

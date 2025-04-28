@@ -267,6 +267,9 @@ catalogs:
     typescript-eslint:
       specifier: ^8.29.1
       version: 8.29.1
+    uuid:
+      specifier: ^11.1.0
+      version: 11.1.0
     vite:
       specifier: ^6.2.6
       version: 6.2.6
@@ -603,6 +606,9 @@ importers:
       sortablejs:
         specifier: 'catalog:'
         version: 1.15.6
+      uuid:
+        specifier: 'catalog:'
+        version: 11.1.0
       vue:
         specifier: 'catalog:'
         version: 3.5.13(typescript@5.8.3)
@@ -5248,6 +5254,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
@@ -11246,6 +11256,8 @@ snapshots:
   url-template@2.0.8: {}
 
   util-deprecate@1.0.2: {}
+
+  uuid@11.1.0: {}
 
   uuid@8.3.2: {}
 

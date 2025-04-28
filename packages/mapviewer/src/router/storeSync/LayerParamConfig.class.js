@@ -21,7 +21,6 @@ import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import WarningMessage from '@/utils/WarningMessage.class'
-
 /**
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
