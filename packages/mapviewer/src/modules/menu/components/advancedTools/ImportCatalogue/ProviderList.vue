@@ -78,7 +78,7 @@ function buildTreeNode(baseUrl, providers) {
     const subGroups = {}
 
     providers.forEach((provider) => {
-        const relativeUrl = provider.htmlDisplay.replace(commonPrefix || baseUrl, '')
+        const relativeUrl = provider.htmlDisplay.replace(commonPrefix ?? baseUrl, '')
         // We group by the first part of the relative URL (good enough for our cases)
         const subGroupKey = relativeUrl.split('/')[0]
 
@@ -93,7 +93,7 @@ function buildTreeNode(baseUrl, providers) {
 
     return {
         id: baseUrl,
-        name: commonPrefix || baseUrl,
+        name: commonPrefix ?? baseUrl,
         type: 'group',
         expanded: filterApplied,
         emphasize: filterText,
@@ -101,7 +101,7 @@ function buildTreeNode(baseUrl, providers) {
             if (subGroupProviders.length === 1) {
                 return {
                     id: subGroupProviders[0].url,
-                    name: key + '/' + subGroupProviders[0].relativeUrl,
+                    name:`${key}/${subGroupProviders[0].relativeUrl}`,
                     type: 'url',
                     url: subGroupProviders[0].url,
                     emphasize: subGroupProviders[0].emphasize,
@@ -125,20 +125,38 @@ function buildTreeNode(baseUrl, providers) {
     }
 }
 
-// Set tabindex for each node in the tree with DFS strategy so that the tab
-// index is in correct order visually
-function addTabIndex(treeData) {
-    let index = 0
 
-    function dfs(node) {
-        node.tabindex = index++
-        if (node.children && node.children.length > 0) {
-            node.children.forEach((child) => dfs(child))
-        }
+/**
+ * Assigns a `tabindex` property to each node in the tree data using a Depth-First Search (DFS) strategy.
+ * This ensures that the tab order matches the visual order of the nodes.
+ *
+ * @param {ProviderTreeNode[]} treeData - The tree data containing nodes to which `tabindex` will be assigned.
+ */
+ function addTabIndex(treeData) {
+    let currentIndex = 0;
+
+    treeData.forEach((node) => {
+        currentIndex = assignTabIndex(node, currentIndex);
+    });
+
+    maxTabIndex.value = currentIndex - 1;
+}
+
+/**
+ * Recursively assigns `tabindex` properties to a node and its children.
+ *
+ * @param {ProviderTreeNode} node - The current node to process.
+ * @param {number} startIndex - The starting index for the current node.
+ * @returns {number} The next available index after processing the node and its children.
+ */
+function assignTabIndex(node, startIndex) {
+    node.tabindex = startIndex++;
+    if (node.children && node.children.length > 0) {
+        node.children.forEach((child) => {
+            startIndex = assignTabIndex(child, startIndex);
+        });
     }
-
-    treeData.forEach((node) => dfs(node))
-    maxTabIndex.value = index - 1
+    return startIndex;
 }
 
 // Watches
