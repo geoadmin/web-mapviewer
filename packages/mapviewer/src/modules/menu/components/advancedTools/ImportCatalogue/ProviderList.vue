@@ -265,8 +265,7 @@ defineExpose({ goToFirst })
             data-cy="import-provider-list"
         >
             <template v-for="node in treeData" :key="node.id">
-                <component
-                    :is="node.type === 'group' ? 'div' : 'div'"
+                <div
                     :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
                     :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
                 >
@@ -297,8 +296,7 @@ defineExpose({ goToFirst })
                         class="providers-group-items ms-3"
                     >
                         <template v-for="child in node.children" :key="child.id">
-                            <component
-                                :is="child.type === 'group' ? 'div' : 'div'"
+                            <div
                                 :class="child.type === 'group' ? 'providers-sub-group' : 'providers-list-item'"
                                 :data-cy="child.type === 'group' ? 'import-provider-sub-group' : 'import-provider-item'"
                             >
@@ -368,7 +366,7 @@ defineExpose({ goToFirst })
                                         :search="child.emphasize"
                                     />
                                 </div>
-                            </component>
+                            </div>
                         </template>
                     </div>
                     <div
@@ -390,7 +388,7 @@ defineExpose({ goToFirst })
                             :search="node.emphasize"
                         />
                     </div>
-                </component>
+                </div>
             </template>
             <div
                 v-show="treeData.length === 0"
