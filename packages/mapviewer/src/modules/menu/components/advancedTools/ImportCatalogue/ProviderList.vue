@@ -4,6 +4,7 @@ import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import { getLongestCommonPrefix } from '@/utils/utils.js'
 
 /**
  * @typedef {Object} Provider
@@ -20,7 +21,7 @@ import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
  * @property {string} [url] - The URL of the node (only for `'url'` type).
  * @property {boolean} emphasize - The emphasized text to highlight in the provider name.
  * @property {boolean} [expanded] - Whether the group node is expanded (only for `'group'` type).
- * @property {Array<ProviderTreeNode>} [children] - The child nodes (only for `'group'` type).
+ * @property {ProviderTreeNode[]} [children] - The child nodes (only for `'group'` type).
  */
 
 const { showProviders, groupedProviders, filterApplied, filterText } = defineProps({
@@ -50,28 +51,6 @@ const providerList = useTemplateRef('providerList')
 const maxTabIndex = ref(0)
 const treeData = reactive([])
 
-// Function to get the longest common prefix of an array of URLs must end with '/'
-function getLongestCommonPrefix(urls) {
-    if (!urls.length) {
-        return ''
-    }
-    let prefix = urls[0]
-    for (const url of urls) {
-        while (!url.startsWith(prefix)) {
-            prefix = prefix.slice(0, -1)
-            if (!prefix) {
-                break
-            }
-        }
-    }
-    // Ensure the prefix ends with a '/'
-    const lastSlashIndex = prefix.lastIndexOf('/')
-    if (lastSlashIndex === -1) {
-        prefix = prefix.slice(0, lastSlashIndex + 1)
-    }
-    return prefix
-}
-
 /**
  * Builds a tree node structure from a base URL and an array of providers.
  *
@@ -80,7 +59,7 @@ function getLongestCommonPrefix(urls) {
  * prefix and creates a group node with sub-group nodes for each unique prefix.
  *
  * @param {string} baseUrl - The base URL for the providers.
- * @param {Array<Provider>} providers - An array of provider objects.
+ * @param {Provider[]} providers - An array of provider objects.
  * @returns {ProviderTreeNode} - The constructed tree node.
  */
 function buildTreeNode(baseUrl, providers) {
@@ -100,6 +79,7 @@ function buildTreeNode(baseUrl, providers) {
 
     providers.forEach((provider) => {
         const relativeUrl = provider.htmlDisplay.replace(commonPrefix || baseUrl, '')
+        // We group by the first part of the relative URL (good enough for our cases)
         const subGroupKey = relativeUrl.split('/')[0]
 
         if (!subGroups[subGroupKey]) {
