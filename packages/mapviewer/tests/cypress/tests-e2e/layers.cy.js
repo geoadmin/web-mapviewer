@@ -139,6 +139,16 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmsMockConfig().then((layerObjects) => {
                     const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
                         layerObjects
+                    /**
+                     * Some WMS allow for options to be passed to the base URL, which caused issues
+                     * with the readyness check. Basically, it tested the optionless base URL
+                     * against the current one, which caused the layer to be perpetually loading. We
+                     * test here that such a situation does not happen anymore.
+                     */
+                    cy.log(
+                        "Adding an option to one of the layer's base URL to check if these calls behave in a correct way"
+                    )
+                    layerObjects[1].baseUrl = layerObjects[1].baseUrl + 'item=22_06_86t13214'
                     const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
                     cy.goToMapView({ layers })
 
