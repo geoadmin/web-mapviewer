@@ -36,8 +36,11 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
             data-cy="swiss-flag"
         />
         <div
-            class="swiss-confederation-text position-relative flex-column text-nowrap"
-            :class="{ 'd-none d-lg-flex': renderForDpi === null, 'd-flex': renderForDpi !== null }"
+            class="swiss-confederation-text position-relative flex-column"
+            :class="{
+                'd-none d-lg-flex': renderForDpi === null,
+                'd-flex': renderForDpi !== null,
+            }"
             data-cy="swiss-confederation-text"
         >
             <div class="d-flex flex-column">
@@ -117,14 +120,21 @@ $letterSpacing: calc((78 / 1000) * 1em);
         $printFontSizeRelToHeight: 0.8vh;
         $printFontSize: max(max($printFontSizeRelToWidth, $printFontSizeRelToHeight), $minFontSize);
 
-        // forcing the length of the logo to the 55mm expressed in the CD-Bund PDF guide.
-        width: 55mm;
-
         @include confederation-logo(
             calc(0.66 * $printFontSize),
             $printFontSize,
             calc(1.2 * $printFontSize)
         );
+
+        .swiss-confederation-text {
+            /* Prevent shrinking and ensure the width matches the content */
+            flex: 0 0 auto;
+            width: fit-content;
+        }
+        & {
+            // ensuring the logo and text have enough space
+            width: 100%;
+        }
     }
 
     .swiss-flag {
