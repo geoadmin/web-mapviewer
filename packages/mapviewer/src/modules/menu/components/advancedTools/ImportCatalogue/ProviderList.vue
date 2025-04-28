@@ -5,6 +5,24 @@ import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
+/**
+ * @typedef {Object} Provider
+ * @property {string} url - The URL of the provider.
+ * @property {string} htmlDisplay - The display name of the provider.
+ * @property {string} emphasize - The emphasized text to highlight in the provider name.
+ */
+
+/**
+ * @typedef {Object} ProviderTreeNode
+ * @property {string} id - The unique identifier for the node.
+ * @property {string} name - The display name of the node.
+ * @property {string} type - The type of the node (`'group'` or `'url'`).
+ * @property {string} [url] - The URL of the node (only for `'url'` type).
+ * @property {boolean} emphasize - The emphasized text to highlight in the provider name.
+ * @property {boolean} [expanded] - Whether the group node is expanded (only for `'group'` type).
+ * @property {Array<ProviderTreeNode>} [children] - The child nodes (only for `'group'` type).
+ */
+
 const { showProviders, groupedProviders, filterApplied, filterText } = defineProps({
     showProviders: {
         type: Boolean,
@@ -34,24 +52,37 @@ const treeData = reactive([])
 
 // Function to get the longest common prefix of an array of URLs must end with '/'
 function getLongestCommonPrefix(urls) {
-    if (!urls.length) return ''
+    if (!urls.length) {
+        return ''
+    }
     let prefix = urls[0]
     for (const url of urls) {
         while (!url.startsWith(prefix)) {
             prefix = prefix.slice(0, -1)
-            if (!prefix) break
+            if (!prefix) {
+                break
+            }
         }
     }
     // Ensure the prefix ends with a '/'
-    return prefix.endsWith('/') ? prefix : prefix.slice(0, prefix.lastIndexOf('/') + 1)
+    const lastSlashIndex = prefix.lastIndexOf('/')
+    if (lastSlashIndex === -1) {
+        prefix = prefix.slice(0, lastSlashIndex + 1)
+    }
+    return prefix
 }
 
-// Function to build the tree node structure
-// This function takes a base URL and an array of providers and returns a tree node
-// structure. If there is only one provider, it returns a URL node. If there are multiple
-// providers, it groups them by their common prefix and creates a group node with
-// sub-group nodes for each unique prefix.
-//  It also set the name as the text to be shown in the UI
+/**
+ * Builds a tree node structure from a base URL and an array of providers.
+ *
+ * This function creates a hierarchical structure of nodes. If there is only one provider,
+ * it returns a URL node. If there are multiple providers, it groups them by their common
+ * prefix and creates a group node with sub-group nodes for each unique prefix.
+ *
+ * @param {string} baseUrl - The base URL for the providers.
+ * @param {Array<Provider>} providers - An array of provider objects.
+ * @returns {ProviderTreeNode} - The constructed tree node.
+ */
 function buildTreeNode(baseUrl, providers) {
     if (providers.length === 1) {
         return {
