@@ -979,6 +979,72 @@ describe('The Import File Tool', () => {
             'Checking that the stitching of the GPX track was successful, and no segment was left (all were stitched together as a single track)'
         )
         cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
+        cy.get('[data-cy="infobox-close"]').click()
+
+        cy.reload()
+        cy.log('Loading separated multi segment GPX file to test segment buttons')
+        cy.waitMapIsReady()
+        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
+        cy.openMenuIfMobile()
+        cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`).click()
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // the menu should be automatically closed on opening import tool box
+        cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+        cy.get('[data-cy="import-file-content"]').should('be.visible')
+        cy.get('[data-cy="import-file-online-content"]').should('be.visible')
+        const gpxMultiSeparatedSegmentFileName = 'external-gpx-file-multi-separated-segment.gpx'
+        const gpxMultiSeparatedSegmentFileFixture = `import-tool/${gpxMultiSeparatedSegmentFileName}`
+        const validMultiSeparatedSegmentOnlineUrl = 'https://example.com/valid-multi-separated-segement-gpx-file.gpx'
+        createHeadAndGetIntercepts(
+            validMultiSeparatedSegmentOnlineUrl,
+            'GpxFile',
+            {
+                fixture: gpxMultiSeparatedSegmentFileFixture,
+            },
+            {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/gpx+xml' },
+            }
+        )
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="text-input"]:visible').type(validMultiSeparatedSegmentOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.closeMenuIfMobile()
+        cy.get('[data-cy="window-close"]').click()
+
+        cy.get('[data-cy="ol-map"]').click(150, 250)
+
+        cy.get('[data-cy="show-profile"]').click()
+        // Test segment buttons and highlights
+        cy.log('Check that the segment buttons are working and that the segment is highlighted')
+        let segmentFeature
+        cy.readWindowValue('map').then((map) => {
+            const layers = map.getLayers().getArray()
+            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
+            expect(segmentHighlightLayer.length).to.deep.equal(1)
+            segmentFeature = segmentHighlightLayer[0]
+        })
+        cy.get('[data-cy="profile-segment-button-1"]').click()
+        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        cy.readWindowValue('map').then((map) => {
+            const layers = map.getLayers().getArray()
+            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
+            expect(segmentHighlightLayer.length).to.deep.equal(1)
+            expect(segmentFeature).to.not.equal(segmentHighlightLayer[0])
+            segmentFeature = segmentHighlightLayer[0]
+        })
+        cy.get('[data-cy="profile-segment-button-2"]').click()
+        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 2)
+        cy.readWindowValue('map').then((map) => {
+            const layers = map.getLayers().getArray()
+            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
+            expect(segmentHighlightLayer.length).to.deep.equal(1)
+            expect(segmentFeature).to.not.equal(segmentHighlightLayer[0])
+            segmentFeature = segmentHighlightLayer[0]
+        })
 
         // Import file partially out of bounds
         cy.log('Test import file partially out of bounds')
@@ -987,10 +1053,9 @@ describe('The Import File Tool', () => {
 
         cy.reload()
         cy.waitMapIsReady()
-        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
         cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`
+            `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}-"]:visible`
         ).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()

@@ -10,6 +10,7 @@ import { randomIntBetween } from '@geoadmin/numbers'
 import { explode, nearestPoint, point } from '@turf/turf'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
+import { LineString } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -38,6 +39,10 @@ const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.sho
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
+const profileFeature = computed(() => store.state.profile.feature)
+const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
+const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
+const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
 
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
@@ -55,6 +60,27 @@ const featureTransformedAsOlFeatures = computed(() => {
         })
     })
 })
+
+const segmentTransformedAsOlFeatures = computed(() => {
+    if (!profileFeature.value || !isMultiFeature.value) {
+        return []
+    }
+
+    return currentGeometryElements.value.reduce((features, geometry, index) => {
+        if (currentFeatureSegmentIndex.value === index) {
+            features.push(
+                new Feature({
+                    id: `geom-segment-${randomIntBetween(0, 100000)}`,
+                    geometry: new LineString(geometry),
+                    // flag that will be processed by the style function to change the color when the segment is selected
+                    isCurrentSegment: currentFeatureSegmentIndex.value === index,
+                })
+            )
+        }
+        return features
+    }, [])
+})
+
 const southPole = point([0.0, -90.0])
 const popoverCoordinate = computed(() => {
     // if we are dealing with any editable feature while drawing, we return its last coordinate
@@ -90,6 +116,10 @@ const popoverCoordinate = computed(() => {
 const olMap = inject('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
 useVectorLayer(olMap, featureTransformedAsOlFeatures, {
+    zIndex: zIndexHighlightedFeatures,
+    styleFunction: highlightFeatureStyle,
+})
+useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
     zIndex: zIndexHighlightedFeatures,
     styleFunction: highlightFeatureStyle,
 })

@@ -86,6 +86,7 @@ export function getMarkerStyle(markerStyle) {
 export function highlightFeatureStyle(olFeature) {
     const geometryType = olFeature.get('geometry').getType()
     const isHovered = !!olFeature.get('isHovered')
+    const isCurrentSegment = !!olFeature.get('isCurrentSegment')
     switch (geometryType) {
         case 'LineString':
         case 'MultiLineString':
@@ -93,10 +94,10 @@ export function highlightFeatureStyle(olFeature) {
         case 'MultiPolygon':
         case 'Circle':
         case 'GeometryCollection':
-            return isHovered ? hoveredLinePolygonStyle : highlightedLinePolygonStyle
+            return isHovered || isCurrentSegment ? hoveredLinePolygonStyle : highlightedLinePolygonStyle
         case 'Point':
         case 'MultiPoint':
-            return isHovered ? hoveredPointStyle : highlightPointStyle
+            return isHovered || isCurrentSegment ? hoveredPointStyle : highlightPointStyle
         default:
             return null
     }

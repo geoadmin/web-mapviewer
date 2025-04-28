@@ -3,7 +3,7 @@ import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,
 } from '@geoadmin/elevation-profile'
-import { computed, inject, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, nextTick, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -11,6 +11,8 @@ import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { generateFilename } from '@/utils/utils'
+
+const dispatcher = { dispatcher: 'InfoboxContent.vue' }
 
 const content = useTemplateRef('content')
 
@@ -35,12 +37,11 @@ const isEditingDrawingFeature = computed(
 )
 
 const profileFeature = computed(() => store.state.profile.feature)
-const isMultiFeature = computed(() =>
-    ['MultiPolygon', 'MultiLineString'].includes(profileFeature.value?.geometry?.type)
-)
+const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
+
 const isPolygon = computed(() => profileFeature.value?.geometry?.type === 'Polygon')
 /** Used to track MultiLineString or MultiPolygon element to give to the profile component */
-const currentGeometryElementIndex = ref(0)
+const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
 const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
 
 const currentProfileCoordinates = computed(() => {
@@ -48,7 +49,7 @@ const currentProfileCoordinates = computed(() => {
         return null
     }
     if (isMultiFeature.value) {
-        return currentGeometryElements.value[currentGeometryElementIndex.value]
+        return currentGeometryElements.value[currentFeatureSegmentIndex.value]
     }
     if (isPolygon.value) {
         return currentGeometryElements.value[0]
@@ -65,8 +66,19 @@ watch(selectedFeatures, (features) => {
         content.value?.scrollTo(0, 0)
     })
 })
-watch(profileFeature, () => {
-    currentGeometryElementIndex.value = 0
+
+function setCurrentSegmentIndex(index) {
+    if (index === currentFeatureSegmentIndex.value) {
+        return
+    }
+    store.dispatch('setCurrentFeatureSegmentIndex', {
+        index,
+        ...dispatcher,
+    })
+}
+
+onUnmounted(() => {
+    setCurrentSegmentIndex(0)
 })
 </script>
 
@@ -92,11 +104,11 @@ watch(profileFeature, () => {
                             :key="index"
                             class="btn btn-sm text-nowrap"
                             :class="{
-                                'btn-secondary': index === currentGeometryElementIndex,
-                                'btn-light': index !== currentGeometryElementIndex,
+                                'btn-secondary': index === currentFeatureSegmentIndex,
+                                'btn-light': index !== currentFeatureSegmentIndex,
                             }"
                             :data-cy="`profile-segment-button-${index}`"
-                            @click="currentGeometryElementIndex = index"
+                            @click="setCurrentSegmentIndex(index)"
                         >
                             {{ t('profile_segment', { segmentNumber: index + 1 }) }}
                         </button>
