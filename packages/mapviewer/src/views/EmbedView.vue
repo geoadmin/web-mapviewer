@@ -24,7 +24,7 @@ const is3DActive = computed(() => store.state.cesium.active)
 const { t } = useI18n()
 
 const noSimpleZoomEmbed = computed(() => store.getters.hasNoSimpleZoomEmbedEnabled)
-
+const hideEmbedUI = computed(() => store.getters.hideEmbedUI)
 const showSimpleZoomHint = ref(false)
 let simpleZoomHintTimeout = null
 
@@ -83,9 +83,10 @@ watch(() => route.query, sendChangeEventToParent)
             {{ t('zooming_mode_warning') }}
         </div>
 
-        <OpenFullAppLink />
+        <OpenFullAppLink v-if="!hideEmbedUI" />
         <MapModule>
             <MapToolbox
+                v-if="!hideEmbedUI"
                 :has-header="false"
                 toggle3d-button
             />
