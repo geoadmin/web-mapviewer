@@ -377,9 +377,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         // Item with the filtered text should be visible (it means the group is also expanded)
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').should('be.visible')
-        // Select the first one
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').first().click()
+        cy.get('[data-cy="import-provider-group"]').contains('https://wmts.geo.admin.ch').should('be.visible')
+        // Select the first provider under the group
+        cy.get('[data-cy="import-provider-group"]')
+            .contains('https://wmts.geo.admin.ch') // Ensure the group contains the desired text
+            .parents('[data-cy="import-provider-group"]') // Navigate to the parent group first
+            .find('[data-cy="import-provider-item"]') // Find the child items
+            .first()
+            .should('be.visible')
+            .click()
         cy.wait('@wmts-get-capabilities')
         cy.get('[data-cy="import-catalog-content"]')
             .find('[data-cy^=catalogue-tree-item-name-]')
@@ -555,9 +561,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         // Item with the filtered text should be visible (it means the group is also expanded)
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').should('be.visible')
-        // Select the first one
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').first().click()
+        cy.get('[data-cy="import-provider-group"]').contains('https://wmts.geo.admin.ch').should('be.visible')
+        // Select the first provider under the group
+        cy.get('[data-cy="import-provider-group"]')
+            .contains('https://wmts.geo.admin.ch') // Ensure the group contains the desired text
+            .parents('[data-cy="import-provider-group"]') // Navigate to the parent group first
+            .find('[data-cy="import-provider-item"]') // Find the child items
+            .first()
+            .should('be.visible')
+            .click()
         cy.wait('@wmts-get-capabilities-unreachable')
         cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
         cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
@@ -586,9 +598,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         // Item with the filtered text should be visible (it means the group is also expanded)
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').should('be.visible')
-        // Select the first one
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').first().click()
+        cy.get('[data-cy="import-provider-group"]').contains('https://wmts.geo.admin.ch').should('be.visible')
+        // Select the first provider under the group
+        cy.get('[data-cy="import-provider-group"]')
+            .contains('https://wmts.geo.admin.ch') // Ensure the group contains the desired text
+            .parents('[data-cy="import-provider-group"]') // Navigate to the parent group first
+            .find('[data-cy="import-provider-item"]') // Find the child items
+            .first()
+            .should('be.visible')
+            .click()
         cy.wait('@wmts-get-capabilities-unreachable')
         cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
         cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
@@ -616,9 +634,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         // Item with the filtered text should be visible (it means the group is also expanded)
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').should('be.visible')
-        // Select the first one
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').first().click()
+        cy.get('[data-cy="import-provider-group"]').contains('https://wmts.geo.admin.ch').should('be.visible')
+        // Select the first provider under the group
+        cy.get('[data-cy="import-provider-group"]')
+            .contains('https://wmts.geo.admin.ch') // Ensure the group contains the desired text
+            .parents('[data-cy="import-provider-group"]') // Navigate to the parent group first
+            .find('[data-cy="import-provider-item"]') // Find the child items
+            .first()
+            .should('be.visible')
+            .click()
         cy.wait('@wmts-get-capabilities-unreachable')
         cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
         cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
@@ -649,9 +673,15 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         // Item with the filtered text should be visible (it means the group is also expanded)
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').should('be.visible')
-        // Select the first one
-        cy.get('[data-cy="import-provider-item"]').contains('https://wmts.geo.admin.ch').first().click()
+        cy.get('[data-cy="import-provider-group"]').contains('https://wmts.geo.admin.ch').should('be.visible')
+        // Select the first provider under the group
+        cy.get('[data-cy="import-provider-group"]')
+            .contains('https://wmts.geo.admin.ch') // Ensure the group contains the desired text
+            .parents('[data-cy="import-provider-group"]') // Navigate to the parent group first
+            .find('[data-cy="import-provider-item"]') // Find the child items
+            .first()
+            .should('be.visible')
+            .click()
         cy.wait('@wmts-get-capabilities-unreachable')
         cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
         cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
