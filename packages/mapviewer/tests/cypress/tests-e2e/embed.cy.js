@@ -233,4 +233,14 @@ describe('Testing the embed view', () => {
             return match && parseFloat(match[1]) > 2
         })
     })
+
+    it('Open without the UI in embed mode when asked to', () => {
+        cy.goToEmbedView({
+            queryParams: { z: 2, hideEmbedUI: true },
+        })
+        cy.get('[data-cy="zoom-in"]').should('not.exist')
+        cy.get('[data-cy="zoom-out"]').should('not.exist')
+        cy.get('[data-cy="3d-button"]').should('not.exist')
+        cy.get('[data-cy="open-full-app-link"]').should('not.exist')
+    })
 })

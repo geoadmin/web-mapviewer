@@ -186,7 +186,8 @@ export default {
 
         /**
          * Flag telling if we should hide the UI elements in the embed viewer. Zoom buttons, 3d
-         * button and the `view on geoadmin link`
+         * button and the `view on geoadmin link`. This is only for the Geo Platform Schweiz current
+         * implementation and should not be disclosed to users as something they can use.
          *
          * @type Boolean
          */
