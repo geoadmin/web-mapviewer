@@ -64,8 +64,41 @@ const showItem = computed(() => {
 })
 
 const hasChildren = computed(() => item?.layers?.length > 0)
+const hasChildrenHaveDescription = computed(() => hasChildren.value && hasChildrenDescription(item))
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+function hasChildrenDescription(item) {
+    if (item?.layers?.length > 0) {
+        return item.layers.some((layer) => layer.hasDescription)
+    }
+    return item?.hasDescription
+}
+
+function compileItem(item) {
+    const newItem = { ...item }
+    if (newItem?.layers?.length > 0) {
+        newItem.legends = [
+            ...newItem.legends,
+            ...newItem.layers.reduce((acc, layer) => {
+                if (layer.legends?.length) {
+                    acc.push(...layer.legends)
+                }
+                return acc
+            }, []),
+        ]
+        newItem.abstract = [
+            newItem.abstract,
+            ...newItem.layers.reduce((acc, layer) => {
+                if (layer.abstract?.length) {
+                    acc.push(layer.abstract)
+                }
+                return acc
+            }, []),
+        ].join('\n')
+    }
+    return newItem
+}
 
 /**
  * Flag telling if one of the children (deep search) match the search text When no search text is
@@ -302,7 +335,7 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
             <button
-                v-if="hasDescription"
+                v-if="hasDescription || hasChildrenHaveDescription"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`catalogue-tree-item-info-${item.id}`"
@@ -328,7 +361,7 @@ function containsLayer(layers, searchText) {
         </ul>
         <LayerDescriptionPopup
             v-if="showLayerDescription"
-            :layer="item"
+            :layer="compileItem(item)"
             @close="showLayerDescription = false"
         />
     </div>
