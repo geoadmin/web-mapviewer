@@ -183,6 +183,15 @@ export default {
          * @type Boolean
          */
         showDragAndDropOverlay: false,
+
+        /**
+         * Flag telling if we should hide the UI elements in the embed viewer. Zoom buttons, 3d
+         * button and the `view on geoadmin link`. This is only for the Geo Platform Schweiz current
+         * implementation and should not be disclosed to users as something they can use.
+         *
+         * @type Boolean
+         */
+        hideEmbedUI: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -293,6 +302,10 @@ export default {
          */
         hasReportProblemButton(state) {
             return REPORT_PROBLEM_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
+        },
+
+        hideEmbedUI(state) {
+            return state.hideEmbedUI
         },
     },
     actions: {
@@ -473,6 +486,9 @@ export default {
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
+        setHideEmbedUI({ commit }, { hideEmbedUI, dispatcher }) {
+            commit('sethideEmbedUI', { hideEmbedUI: !!hideEmbedUI, dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -545,5 +561,6 @@ export default {
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
+        sethideEmbedUI: (state, { hideEmbedUI }) => (state.hideEmbedUI = hideEmbedUI),
     },
 }
