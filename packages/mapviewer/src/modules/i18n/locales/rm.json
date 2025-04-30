@@ -488,6 +488,7 @@
     "operation_successful": "Success! ",
     "orange": "oransch",
     "orient_map_north": "Orientar la carta",
+    "outage_warning": "WARNUNG: Das Anzeigen und Ausdrucken von Karten ist zurzeit beeinträchtigt. Aktuellste Informationen zur Störung finden Sie <a target=\"_blank\" href=\"https://www.geo.admin.ch/de/wms-wmts-incident-de\">hier</a>.",
     "outside_valid_year_range": "L'onn entrà sa chatta ordaifer il sectur disponibe:",
     "page_description": "map.geo.admin.ch è la plattafurma da chartas da la Confederaziun svizra. Access a las chartas, geoinfurmaziuns, a las geodatas, als geoservetschs ed a las metadatas da la Svizra.",
     "page_title": "Chartas da la Svizra - Confederaziun svizra - map.geo.admin.ch",
