@@ -22,7 +22,8 @@ const providerList = useTemplateRef('providerList')
 const isLoading = ref(false)
 const providerInput = useTemplateRef('providerInput')
 
-const { providers, showProviders, toggleProviders } = useProviders(url)
+const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
+    useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
 
 // Computed properties
@@ -174,7 +175,7 @@ function hideProviders() {
                     v-if="
                         // We use v-if instead of v-show here in order to have bootstrap handling
                         // the rounded corner correctly
-                        !capabilitiesParsed && url.length && isValidUrl(url)
+                        !capabilitiesParsed && url?.length && isValidUrl(url)
                     "
                     id="urlConnectButton"
                     type="button"
@@ -205,8 +206,10 @@ function hideProviders() {
         <ProviderList
             id="urlProvidersList"
             ref="providerList"
-            :providers="providers"
+            :grouped-providers="groupedProviders"
             :show-providers="showProviders"
+            :filter-applied="filterApplied"
+            :filter-text="filterText"
             @choose-provider="chooseProvider"
             @hide="showProviders = false"
         />
