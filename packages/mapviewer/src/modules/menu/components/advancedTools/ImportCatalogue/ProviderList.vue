@@ -6,6 +6,13 @@ import { useTemplateRef } from 'vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import { getLongestCommonPrefix } from '@/utils/utils.js'
 
+/** @enum */
+const NodeType = {
+    GROUP: 'group',
+    SUBGROUP: 'sub-group',
+    URL: 'url',
+}
+
 /**
  * @typedef {Object} Provider
  * @property {string} url - The URL of the provider.
@@ -17,12 +24,13 @@ import { getLongestCommonPrefix } from '@/utils/utils.js'
  * @typedef {Object} ProviderTreeNode
  * @property {string} id - The unique identifier for the node.
  * @property {string} name - The display name of the node.
- * @property {string} type - The type of the node (`'group'` or `'url'`).
+ * @property {NodeType} type - The type of the node (e.g. `'group'`, `'url'`).
  * @property {string} [url] - The URL of the node (only for `'url'` type).
  * @property {boolean} emphasize - The emphasized text to highlight in the provider name.
  * @property {boolean} [expanded] - Whether the group node is expanded (only for `'group'` type).
  * @property {ProviderTreeNode[]} [children] - The child nodes (only for `'group'` type).
  */
+
 
 const { showProviders, groupedProviders, filterApplied, filterText } = defineProps({
     showProviders: {
@@ -67,7 +75,7 @@ function buildTreeNode(baseUrl, providers) {
         return {
             id: baseUrl,
             name: providers[0].htmlDisplay,
-            type: 'url',
+            type: NodeType.URL,
             url: providers[0].url,
             emphasize: providers[0].emphasize,
         }
@@ -94,7 +102,7 @@ function buildTreeNode(baseUrl, providers) {
     return {
         id: baseUrl,
         name: commonPrefix ?? baseUrl,
-        type: 'group',
+        type: NodeType.GROUP,
         expanded: filterApplied,
         emphasize: filterText,
         children: Object.entries(subGroups).map(([key, subGroupProviders]) => {
@@ -102,7 +110,7 @@ function buildTreeNode(baseUrl, providers) {
                 return {
                     id: subGroupProviders[0].url,
                     name:`${key}/${subGroupProviders[0].relativeUrl}`,
-                    type: 'url',
+                    type: NodeType.URL,
                     url: subGroupProviders[0].url,
                     emphasize: subGroupProviders[0].emphasize,
                 }
@@ -110,13 +118,13 @@ function buildTreeNode(baseUrl, providers) {
             return {
                 id: `${baseUrl}-${key}`,
                 name: key,
-                type: 'group',
+                type: NodeType.SUBGROUP,
                 expanded: false, // Perhaps we want to expand this if there is a matching filter
                 emphasize: filterText,
                 children: subGroupProviders.map((provider) => ({
                     id: provider.url,
                     name: provider.relativeUrl,
-                    type: 'url',
+                    type: NodeType.URL,
                     url: provider.url,
                     emphasize: provider.emphasize,
                 })),
@@ -181,19 +189,19 @@ onMounted(() => {
 
 // Methods
 function toggleNode(node) {
-    if (node.type === 'group') {
+    if (node.type === NodeType.GROUP || node.type === NodeType.SUBGROUP) {
         node.expanded = !node.expanded
     }
 }
 
 function expandNode(node) {
-    if (node.type === 'group') {
+    if (node.type === NodeType.GROUP || node.type === NodeType.SUBGROUP) {
         node.expanded = true
     }
 }
 
 function collapseNode(node) {
-    if (node.type === 'group') {
+    if (node.type === NodeType.GROUP || node.type === NodeType.SUBGROUP) {
         node.expanded = false
     }
 }
@@ -265,12 +273,13 @@ defineExpose({ goToFirst })
             data-cy="import-provider-list"
         >
             <template v-for="node in treeData" :key="node.id">
+                <!-- The first level container  -->
                 <div
-                    :class="node.type === 'group' ? 'providers-group' : 'providers-list-item'"
-                    :data-cy="node.type === 'group' ? 'import-provider-group' : 'import-provider-item'"
+                    :class="`providers-${node.type}`"
+                    :data-cy="`import-provider-${node.type}`"
                 >
                     <div
-                        v-if="node.type === 'group'"
+                        v-if="node.type === NodeType.GROUP"
                         class="providers-group-header px-2 py-1 text-nowrap"
                         :tabindex="node.tabindex"
                         @click="toggleNode(node)"
@@ -292,13 +301,14 @@ defineExpose({ goToFirst })
                         />
                     </div>
                     <div
-                        v-if="node.type === 'group' && node.expanded"
+                        v-if="node.type === NodeType.GROUP && node.expanded"
                         class="providers-group-items ms-3"
                     >
                         <template v-for="child in node.children" :key="child.id">
+                            <!-- The second level container  -->
                             <div
-                                :class="child.type === 'group' ? 'providers-sub-group' : 'providers-list-item'"
-                                :data-cy="child.type === 'group' ? 'import-provider-sub-group' : 'import-provider-item'"
+                                :class="`providers-${child.type}`"
+                                :data-cy="`import-provider-${child.type}`"
                             >
                                 <div
                                     v-if="child.type === 'group'"
@@ -323,7 +333,7 @@ defineExpose({ goToFirst })
                                     />
                                 </div>
                                 <div
-                                    v-if="child.type === 'group' && child.expanded"
+                                    v-if="child.type === NodeType.SUBGROUP && child.expanded"
                                     class="providers-sub-group-items ms-3"
                                 >
                                     <div
@@ -348,7 +358,7 @@ defineExpose({ goToFirst })
                                     </div>
                                 </div>
                                 <div
-                                    v-else-if="child.type === 'url'"
+                                    v-else-if="child.type === NodeType.URL"
                                     class="providers-list-item px-2 py-1 text-nowrap"
                                     data-cy="import-provider-item"
                                     :tabindex="child.tabindex"
@@ -370,7 +380,7 @@ defineExpose({ goToFirst })
                         </template>
                     </div>
                     <div
-                        v-else-if="node.type === 'url'"
+                        v-else-if="node.type === NodeType.URL"
                         class="providers-list-item px-2 py-1 text-nowrap"
                         data-cy="import-provider-item"
                         :tabindex="node.tabindex"
@@ -412,11 +422,11 @@ defineExpose({ goToFirst })
             user-select: none;
         }
 
-        .providers-list-item {
+        .providers-url {
             cursor: pointer;
         }
-        .providers-list-item:focus,
-        .providers-list-item:hover {
+        .providers-url:focus,
+        .providers-url:hover {
             background-color: $list-item-hover-bg-color;
         }
 
