@@ -37,7 +37,9 @@ const warning = computed(() => {
             title="warning"
             @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
         >
-            <div>{{ t(warning.msg, warning.params) }}</div>
+            <!-- eslint-disable vue/no-v-html-->
+            <div v-html="t(warning.msg, warning.params)"></div>
+            <!-- eslint-enable vue/no-v-html-->
         </WarningWindow>
     </div>
 </template>

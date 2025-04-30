@@ -1,7 +1,8 @@
 <script setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config.js'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -18,6 +19,7 @@ import { UIModes } from '@/store/modules/ui.store'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
+import WarningMessage from '@/utils/WarningMessage.class'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
@@ -31,6 +33,19 @@ const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOver
 const loadDrawingModule = computed(() => {
     return isDrawingMode.value && !is3DActive.value
 })
+
+onMounted(() => {
+    addOutageWarning()
+})
+
+function addOutageWarning() {
+    if (!IS_TESTING_WITH_CYPRESS) {
+        store.dispatch('addWarnings', {
+            warnings: [new WarningMessage('outage_warning')],
+            dispatcher: 'MapView.vue',
+        })
+    }
+}
 </script>
 
 <template>
