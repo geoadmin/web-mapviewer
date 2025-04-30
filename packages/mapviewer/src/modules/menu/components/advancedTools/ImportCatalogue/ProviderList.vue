@@ -269,18 +269,16 @@ defineExpose({ goToFirst })
     >
         <div
             ref="providerList"
-            class="providers-list"
             data-cy="import-provider-list"
         >
             <template v-for="node in treeData" :key="node.id">
                 <!-- The first level container  -->
                 <div
-                    :class="`providers-${node.type}`"
                     :data-cy="`import-provider-${node.type}`"
                 >
                     <div
                         v-if="node.type === NodeType.GROUP"
-                        class="providers-group-header px-2 py-1 text-nowrap"
+                        class="px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-0 z-2 bg-body w-100 providers-item"
                         :tabindex="node.tabindex"
                         @click="toggleNode(node)"
                         @keydown.right.prevent="expandNode(node)"
@@ -302,17 +300,16 @@ defineExpose({ goToFirst })
                     </div>
                     <div
                         v-if="node.type === NodeType.GROUP && node.expanded"
-                        class="providers-group-items ms-3"
+                        class="ps-2 ms-3"
                     >
                         <template v-for="child in node.children" :key="child.id">
                             <!-- The second level container  -->
                             <div
-                                :class="`providers-${child.type}`"
                                 :data-cy="`import-provider-${child.type}`"
                             >
                                 <div
-                                    v-if="child.type === 'group'"
-                                    class="providers-sub-group-header px-2 py-1 text-nowrap"
+                                    v-if="child.type === NodeType.SUBGROUP"
+                                    class="providers-item px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-3 z-1 bg-body w-100"
                                     :tabindex="child.tabindex"
                                     @click="toggleNode(child)"
                                     @keydown.right.prevent="expandNode(child)"
@@ -334,12 +331,12 @@ defineExpose({ goToFirst })
                                 </div>
                                 <div
                                     v-if="child.type === NodeType.SUBGROUP && child.expanded"
-                                    class="providers-sub-group-items ms-3"
+                                    class="ps-2 ms-3 cursor-pointer"
                                 >
                                     <div
                                         v-for="grandChild in child.children"
                                         :key="grandChild.id"
-                                        class="providers-list-item px-2 py-1 text-nowrap"
+                                        class="px-2 py-1 text-nowrap providers-item"
                                         data-cy="import-provider-item"
                                         :tabindex="grandChild.tabindex"
                                         @click="emitProviderSelection(grandChild.url)"
@@ -359,7 +356,7 @@ defineExpose({ goToFirst })
                                 </div>
                                 <div
                                     v-else-if="child.type === NodeType.URL"
-                                    class="providers-list-item px-2 py-1 text-nowrap"
+                                    class="px-2 py-1 text-nowrap cursor-pointer providers-item"
                                     data-cy="import-provider-item"
                                     :tabindex="child.tabindex"
                                     @click="emitProviderSelection(child.url)"
@@ -381,7 +378,7 @@ defineExpose({ goToFirst })
                     </div>
                     <div
                         v-else-if="node.type === NodeType.URL"
-                        class="providers-list-item px-2 py-1 text-nowrap"
+                        class=" px-2 py-1 text-nowrap cursor-pointer providers-item"
                         data-cy="import-provider-item"
                         :tabindex="node.tabindex"
                         @click="emitProviderSelection(node.url)"
@@ -402,7 +399,7 @@ defineExpose({ goToFirst })
             </template>
             <div
                 v-show="treeData.length === 0"
-                class="providers-list-empty px-2 py-1"
+                class="px-2 py-1 user-select-none"
             >
                 <span>-</span>
             </div>
@@ -417,54 +414,9 @@ defineExpose({ goToFirst })
     max-height: 13rem;
     overflow: visible; // Allow focus outline to be fully visible
 
-    .providers-list {
-        .providers-list-empty {
-            user-select: none;
-        }
-
-        .providers-url {
-            cursor: pointer;
-        }
-        .providers-url:focus,
-        .providers-url:hover {
-            background-color: $list-item-hover-bg-color;
-        }
-
-        .providers-group-header {
-            cursor: pointer;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 2; // Ensure it stays above sub-groups
-            background-color: $body-bg; // Ensure it matches the background
-            width: 100%; // Expand to full width
-        }
-        .providers-group-header:focus,
-        .providers-group-header:hover {
-            background-color: $list-item-hover-bg-color;
-        }
-
-        .providers-group-items {
-            padding-left: 1rem;
-        }
-
-        .providers-sub-group-header {
-            cursor: pointer;
-            font-weight: bold;
-            position: sticky;
-            top: 1.5rem; // Adjust to place below the group header
-            z-index: 1; // Ensure it stays below the group header
-            background-color: $body-bg; // Ensure it matches the background
-            width: 100%; // Expand to full width
-        }
-        .providers-sub-group-header:focus,
-        .providers-sub-group-header:hover {
-            background-color: $list-item-hover-bg-color;
-        }
-
-        .providers-sub-group-items {
-            padding-left: 1rem;
-        }
+    .providers-item:focus,
+    .providers-item:hover{
+        background-color: $list-item-hover-bg-color;
     }
 }
 </style>
