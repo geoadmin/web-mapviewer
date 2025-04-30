@@ -1,5 +1,7 @@
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { kml as kmlToGeoJSON } from '@mapbox/togeojson'
+import { booleanValid } from '@turf/turf'
 import axios from 'axios'
 import JSZip from 'jszip'
 import {
@@ -579,6 +581,7 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
+
     if (kmlLayer.style === KmlStyles.GEOADMIN) {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
@@ -600,6 +603,31 @@ export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlP
     }
 
     return features
+}
+
+/**
+ * Check if the KML features are valid
+ *
+ * @param {string} kmlData KML data
+ * @returns {boolean} Returns true if the KML data is valid, false otherwise
+ */
+export function isKmlFeaturesValid(kmlData) {
+    try {
+        const kmlDom = new DOMParser().parseFromString(kmlData, 'text/xml')
+        const kmlGeoJson = kmlToGeoJSON(kmlDom, { styles: false })
+
+        const invalidFeatures = kmlGeoJson.features.filter(feature => !booleanValid(feature))
+        const errorsCount = invalidFeatures.length
+        if (errorsCount > 0) {
+            log.warn(`KML file contains ${errorsCount} invalid feature(s)`)
+            return false
+        }
+
+        return true
+    } catch (error) {
+        log.error(`Failed to parse or validate KML file: ${error.message || error}`)
+        return false
+    }
 }
 
 export class KMZError extends Error {}

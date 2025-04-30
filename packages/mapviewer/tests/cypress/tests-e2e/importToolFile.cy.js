@@ -230,6 +230,16 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
+        //----------------------------------------------------------------------
+        // Attach a local KML file with a broken feature inside
+        cy.log('Test add another local KML file - feature being in bound and outbound')
+        const kmlFeatureError = 'import-tool/kml_feature_error.kml'
+        cy.fixture(kmlFeatureError, null).as('kmlFeatureError')
+        cy.get('[data-cy="file-input"]').selectFile('@kmlFeatureError', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
         // Assertions for successful import
         cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
@@ -239,7 +249,7 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 5)
 
         //----------------------------------------------------------------------
         cy.log('Switching back to online tab, should keep previous entry')
@@ -265,7 +275,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
-            .should('have.length', 4)
+            .should('have.length', 5)
             .each(($layer, index) => {
                 cy.wrap($layer).find('[data-cy^="button-error-"]').should('not.exist')
                 cy.wrap($layer)
@@ -273,24 +283,36 @@ describe('The Import File Tool', () => {
                     .should('not.exist')
                 switch (index) {
                     case 0:
+                        cy.wrap($layer).contains('uetlibergwege_kml')
+                        cy.wrap($layer)
+                            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
+                            .should('be.visible')
+                        cy.wrap($layer)
+                            .find('[data-cy="button-has-warning-kml_feature_error.kml-"]')
+                            .should('be.visible')
+                        break
+                    case 1:
                         cy.wrap($layer).contains('Line accross europe')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
+                        cy.wrap($layer)
+                            .find('[data-cy="button-has-warning-line-accross-eu.kml-"]')
+                            .should('be.visible')
                         break
-                    case 1:
+                    case 2:
                         cy.wrap($layer).contains('Sample KML File')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         break
-                    case 2:
+                    case 3:
                         cy.wrap($layer).contains('Another KML')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                             .should('be.visible')
                         break
-                    case 3:
+                    case 4:
                         cy.wrap($layer).contains('Sample KML File')
                         cy.wrap($layer)
                             .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
@@ -337,6 +359,13 @@ describe('The Import File Tool', () => {
 
         cy.log('Test search for a feature in the local KML file')
         cy.closeMenuIfMobile()
+
+        // 2 warnings to remove
+        cy.get('[data-cy="warning-window"]').contains('The imported file \'Line accross europe\' is partially outside the swiss boundaries. Some functionalities might not be available.')
+        cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        cy.get('[data-cy="warning-window"]').contains('The imported KML file \'uetlibergwege_kml\' is malformed, please verify your file.')
+        cy.get('[data-cy="warning-window-close"]').click({ force: true })
+
         cy.get('[data-cy="searchbar"]').paste('placemark')
         cy.wait(['@search-layers', '@search-locations'])
         cy.get('[data-cy="search-results"]').should('be.visible')
@@ -378,7 +407,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-active-layers"]')
             .children()
             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible')
-            .first()
+            .eq(1)
             .click()
         cy.get('[data-cy="modal-content"]')
             .should('be.visible')
@@ -390,8 +419,8 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing an external layer')
         cy.get(`[data-cy^="button-remove-layer-${validOnlineUrl}-"]:visible`).click()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
-        cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 3)
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
+        cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 4)
 
         //---------------------------------------------------------------------
         // Test the disclaimer in the footer
@@ -445,8 +474,12 @@ describe('The Import File Tool', () => {
 
         cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
         cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        // 2 warnings to remove before being able to see the 3D button (on mobile)
+        // 3 warnings to remove before being able to see the 3D button (on mobile)
+        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.')
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.')
+        cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.')
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
