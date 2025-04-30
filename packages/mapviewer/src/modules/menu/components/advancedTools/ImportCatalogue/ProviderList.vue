@@ -278,7 +278,7 @@ defineExpose({ goToFirst })
                 >
                     <div
                         v-if="node.type === NodeType.GROUP"
-                        class="px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-0 z-2 bg-body w-100 providers-item"
+                        class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-0 z-2 w-100"
                         :tabindex="node.tabindex"
                         @click="toggleNode(node)"
                         @keydown.right.prevent="expandNode(node)"
@@ -309,7 +309,7 @@ defineExpose({ goToFirst })
                             >
                                 <div
                                     v-if="child.type === NodeType.SUBGROUP"
-                                    class="providers-item px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-3 z-1 bg-body w-100"
+                                    class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-3 z-1 w-100"
                                     :tabindex="child.tabindex"
                                     @click="toggleNode(child)"
                                     @keydown.right.prevent="expandNode(child)"
@@ -414,8 +414,14 @@ defineExpose({ goToFirst })
     max-height: 13rem;
     overflow: visible; // Allow focus outline to be fully visible
 
+    .providers-header {
+        background-color: $body-bg; // Ensure it matches the background, the bootstrap bg-body does not work with the focus/hover
+    }
+
     .providers-item:focus,
-    .providers-item:hover{
+    .providers-item:hover,
+    .providers-header:focus,
+    .providers-header:hover {
         background-color: $list-item-hover-bg-color;
     }
 }
