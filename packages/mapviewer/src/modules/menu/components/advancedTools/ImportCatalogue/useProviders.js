@@ -46,7 +46,7 @@ export function useProviders(newUrl) {
 
     const groupedProviders = computed(() => {
         const groups = {}
-        providers.value.forEach(provider => {
+        providers.value.forEach((provider) => {
             const baseUrl = provider.getBaseUrl()
             if (!groups[baseUrl]) {
                 groups[baseUrl] = []
@@ -69,6 +69,6 @@ export function useProviders(newUrl) {
         providers,
         toggleProviders,
         filterApplied,
-        filterText
+        filterText,
     }
 }

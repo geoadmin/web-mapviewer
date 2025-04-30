@@ -22,7 +22,8 @@ const providerList = useTemplateRef('providerList')
 const isLoading = ref(false)
 const providerInput = useTemplateRef('providerInput')
 
-const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } = useProviders(url)
+const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
+    useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
 
 // Computed properties

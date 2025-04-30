@@ -31,7 +31,6 @@ const NodeType = {
  * @property {ProviderTreeNode[]} [children] - The child nodes (only for `'group'` type).
  */
 
-
 const { showProviders, groupedProviders, filterApplied, filterText } = defineProps({
     showProviders: {
         type: Boolean,
@@ -62,9 +61,9 @@ const treeData = reactive([])
 /**
  * Builds a tree node structure from a base URL and an array of providers.
  *
- * This function creates a hierarchical structure of nodes. If there is only one provider,
- * it returns a URL node. If there are multiple providers, it groups them by their common
- * prefix and creates a group node with sub-group nodes for each unique prefix.
+ * This function creates a hierarchical structure of nodes. If there is only one provider, it
+ * returns a URL node. If there are multiple providers, it groups them by their common prefix and
+ * creates a group node with sub-group nodes for each unique prefix.
  *
  * @param {string} baseUrl - The base URL for the providers.
  * @param {Provider[]} providers - An array of provider objects.
@@ -109,7 +108,7 @@ function buildTreeNode(baseUrl, providers) {
             if (subGroupProviders.length === 1) {
                 return {
                     id: subGroupProviders[0].url,
-                    name:`${key}/${subGroupProviders[0].relativeUrl}`,
+                    name: `${key}/${subGroupProviders[0].relativeUrl}`,
                     type: NodeType.URL,
                     url: subGroupProviders[0].url,
                     emphasize: subGroupProviders[0].emphasize,
@@ -133,21 +132,21 @@ function buildTreeNode(baseUrl, providers) {
     }
 }
 
-
 /**
- * Assigns a `tabindex` property to each node in the tree data using a Depth-First Search (DFS) strategy.
- * This ensures that the tab order matches the visual order of the nodes.
+ * Assigns a `tabindex` property to each node in the tree data using a Depth-First Search (DFS)
+ * strategy. This ensures that the tab order matches the visual order of the nodes.
  *
- * @param {ProviderTreeNode[]} treeData - The tree data containing nodes to which `tabindex` will be assigned.
+ * @param {ProviderTreeNode[]} treeData - The tree data containing nodes to which `tabindex` will be
+ *   assigned.
  */
- function addTabIndex(treeData) {
-    let currentIndex = 0;
+function addTabIndex(treeData) {
+    let currentIndex = 0
 
     treeData.forEach((node) => {
-        currentIndex = assignTabIndex(node, currentIndex);
-    });
+        currentIndex = assignTabIndex(node, currentIndex)
+    })
 
-    maxTabIndex.value = currentIndex - 1;
+    maxTabIndex.value = currentIndex - 1
 }
 
 /**
@@ -158,13 +157,13 @@ function buildTreeNode(baseUrl, providers) {
  * @returns {number} The next available index after processing the node and its children.
  */
 function assignTabIndex(node, startIndex) {
-    node.tabindex = startIndex++;
+    node.tabindex = startIndex++
     if (node.children && node.children.length > 0) {
         node.children.forEach((child) => {
-            startIndex = assignTabIndex(child, startIndex);
-        });
+            startIndex = assignTabIndex(child, startIndex)
+        })
     }
-    return startIndex;
+    return startIndex
 }
 
 // Watches
@@ -257,8 +256,6 @@ function goToLast() {
     goToPrevious(maxTabIndex.value + 1)
 }
 
-
-
 defineExpose({ goToFirst })
 </script>
 
@@ -271,11 +268,12 @@ defineExpose({ goToFirst })
             ref="providerList"
             data-cy="import-provider-list"
         >
-            <template v-for="node in treeData" :key="node.id">
+            <template
+                v-for="node in treeData"
+                :key="node.id"
+            >
                 <!-- The first level container  -->
-                <div
-                    :data-cy="`import-provider-${node.type}`"
-                >
+                <div :data-cy="`import-provider-${node.type}`">
                     <div
                         v-if="node.type === NodeType.GROUP"
                         class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-0 z-2 w-100"
@@ -302,11 +300,12 @@ defineExpose({ goToFirst })
                         v-if="node.type === NodeType.GROUP && node.expanded"
                         class="ps-2 ms-3"
                     >
-                        <template v-for="child in node.children" :key="child.id">
+                        <template
+                            v-for="child in node.children"
+                            :key="child.id"
+                        >
                             <!-- The second level container  -->
-                            <div
-                                :data-cy="`import-provider-${child.type}`"
-                            >
+                            <div :data-cy="`import-provider-${child.type}`">
                                 <div
                                     v-if="child.type === NodeType.SUBGROUP"
                                     class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-3 z-1 w-100"
@@ -321,7 +320,10 @@ defineExpose({ goToFirst })
                                     @keydown.esc.prevent="emit('hide')"
                                 >
                                     <font-awesome-icon
-                                        :icon="['fas', child.expanded ? 'caret-down' : 'caret-right']"
+                                        :icon="[
+                                            'fas',
+                                            child.expanded ? 'caret-down' : 'caret-right',
+                                        ]"
                                     />
                                     <TextSearchMarker
                                         class="ms-1"
@@ -340,8 +342,12 @@ defineExpose({ goToFirst })
                                         data-cy="import-provider-item"
                                         :tabindex="grandChild.tabindex"
                                         @click="emitProviderSelection(grandChild.url)"
-                                        @keydown.enter.prevent="emitProviderSelection(grandChild.url)"
-                                        @keydown.space.prevent="emitProviderSelection(grandChild.url)"
+                                        @keydown.enter.prevent="
+                                            emitProviderSelection(grandChild.url)
+                                        "
+                                        @keydown.space.prevent="
+                                            emitProviderSelection(grandChild.url)
+                                        "
                                         @keydown.up.prevent="goToPrevious(grandChild.tabindex)"
                                         @keydown.down.prevent="goToNext(grandChild.tabindex)"
                                         @keydown.home.prevent="goToFirst"
@@ -378,7 +384,7 @@ defineExpose({ goToFirst })
                     </div>
                     <div
                         v-else-if="node.type === NodeType.URL"
-                        class=" px-2 py-1 text-nowrap cursor-pointer providers-item"
+                        class="px-2 py-1 text-nowrap cursor-pointer providers-item"
                         data-cy="import-provider-item"
                         :tabindex="node.tabindex"
                         @click="emitProviderSelection(node.url)"

@@ -8,7 +8,7 @@ import {
     humanFileSize,
     parseUrlHashQuery,
     transformUrlMapToEmbed,
-    getLongestCommonPrefix
+    getLongestCommonPrefix,
 } from '@/utils/utils'
 
 describe('utils', () => {
@@ -138,33 +138,27 @@ describe('utils', () => {
     describe('getLongestCommonPrefix', () => {
         it('returns the longest common prefix for a list of URLs', () => {
             // Empty array
-            expect(getLongestCommonPrefix([])).to.equal('');
+            expect(getLongestCommonPrefix([])).to.equal('')
 
             // Single URL
-            let urls = ['https://example.com/path/to/resource'];
-            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/resource');
+            let urls = ['https://example.com/path/to/resource']
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/resource')
 
             // Multiple URLs with common prefix
             urls = [
                 'https://example.com/path/to/resource',
                 'https://example.com/path/to/another',
                 'https://example.com/path/to/something-else',
-            ];
-            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/');
+            ]
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/')
 
             // Multiple URLs with no common prefix
-            urls = [
-                'https://example1.com/path',
-                'https://example2.com/path',
-            ];
-            expect(getLongestCommonPrefix(urls)).to.equal('');
+            urls = ['https://example1.com/path', 'https://example2.com/path']
+            expect(getLongestCommonPrefix(urls)).to.equal('')
 
             // Multiple URLs with one URL is the common prefix
-            urls = [
-                'https://example.com/path',
-                'https://example.com/path/to',
-            ];
-            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path');
+            urls = ['https://example.com/path', 'https://example.com/path/to']
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path')
         })
-    });
+    })
 })
