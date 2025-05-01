@@ -490,7 +490,6 @@
     "operation_successful": "Erfolg!",
     "orange": "Orange",
     "orient_map_north": "Karte einnorden",
-    "outage_warning": "WARNUNG: Das Anzeigen und Ausdrucken von Karten ist zurzeit beeinträchtigt. Aktuellste Informationen zur Störung finden Sie <a target=\"_blank\" href=\"https://www.geo.admin.ch/de/wms-wmts-incident-de\">hier</a>.",
     "outside_valid_year_range": "Das eingegebene Jahr liegt ausserhalb des verfügbaren Bereichs:",
     "page_description": "map.geo.admin.ch ist die Kartenplattform der schweizerischen Eidgenossenschaft. Zugang zu Karten, Geoinformationen, -daten, -dienste und Metadaten der Schweiz.",
     "page_title": "Karten der Schweiz - Schweizerische Eidgenossenschaft - map.geo.admin.ch",

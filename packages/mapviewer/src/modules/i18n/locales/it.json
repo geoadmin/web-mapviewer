@@ -490,7 +490,6 @@
     "operation_successful": "Successo!",
     "orange": "arancione",
     "orient_map_north": "Orientare la mappa",
-    "outage_warning": "ATTENZIONE: la visualizzazione e la stampa delle mappe sono attualmente compromesse. Le informazioni più aggiornate sul malfunzionamento sono disponibili <a target=\"_blank\" href=\"https://www.geo.admin.ch/it/wms-wmts-incident-it\">qui</a>.",
     "outside_valid_year_range": "L'anno inserito è al di fuori dell'intervallo disponibile:",
     "page_description": "map.geo.admin.ch è la piattaforma cartografica della Confederazione svizzera e dei cantoni. Dà accesso alle mappe, alle geoinformazioni, ai geodati, ai geoservizi e ai metadati della Svizzera.",
     "page_title": "Carta della Svizzera - Confederazione svizzera - map.geo.admin.ch",

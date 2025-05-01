@@ -490,7 +490,6 @@
     "operation_successful": "Operation successful!",
     "orange": "orange",
     "orient_map_north": "Orient the map",
-    "outage_warning": "WARNING: The display and printout of maps is currently disrupted. You can find the latest information about the issue <a target=\"_blank\" href=\"https://www.geo.admin.ch/en/wms-wmts-incident-en\">here</a>.",
     "outside_valid_year_range": "The entered year is outside of the available range:",
     "page_description": "map.geo.admin.ch is the mapping platform of the Swiss Confederation. Access federal geographical information, maps, data, services and metadata of Switzerland.",
     "page_title": "Maps of Switzerland - Swiss Confederation  - map.geo.admin.ch",
