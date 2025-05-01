@@ -17,6 +17,7 @@ const route = useRoute()
 const store = useStore()
 
 const showDebugTool = ref(false)
+const showViewSelector = ref(false)
 const showBaseUrlOverride = ref(false)
 const showLayerFinder = ref(false)
 const showPrint = ref(false)
@@ -48,6 +49,9 @@ function toggleShowLayerExtents() {
 }
 function toggleShowBaseUrlOverride() {
     showBaseUrlOverride.value = !showBaseUrlOverride.value
+}
+function toggleShowViewSelector() {
+    showViewSelector.value = !showViewSelector.value
 }
 function toggleShowLayerFinder() {
     showLayerFinder.value = !showLayerFinder.value
@@ -82,7 +86,19 @@ function toggleShowPrint() {
                         id="debug-tools-menu"
                         class="d-flex gap-2 justify-content-center flex-wrap"
                     >
-                        <DebugViewSelector />
+                        <div
+                            class="d-flex flex-column align-items-center"
+                        >
+                            <button
+                                class="toolbox-button"
+                                type="button"
+                                :class="{ active: showViewSelector }"
+                                @click="toggleShowViewSelector"
+                            >
+                                <FontAwesomeIcon :icon="['fas', 'folder-tree']" />
+                            </button>
+                            <label class="toolbox-button-label">Views</label>
+                        </div>
 
                         <div
                             v-if="route.name === PRINT_VIEW"
@@ -171,6 +187,10 @@ function toggleShowPrint() {
                 </div>
             </div>
         </div>
+        <DebugViewSelector
+            v-if="showViewSelector"
+            @close="toggleShowViewSelector"
+        />
         <BaseUrlOverrideModal
             v-if="showBaseUrlOverride"
             @close="toggleShowBaseUrlOverride"

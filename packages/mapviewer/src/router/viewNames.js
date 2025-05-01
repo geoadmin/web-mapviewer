@@ -2,7 +2,8 @@
 export const MAP_VIEW = 'MapView'
 export const EMBED_VIEW = 'EmbedView'
 export const PRINT_VIEW = 'PrintView'
-export const MAP_VIEWS = [MAP_VIEW, EMBED_VIEW, PRINT_VIEW]
+export const PRINT_LEGEND_VIEW = 'PrintLegendView'
+export const MAP_VIEWS = [MAP_VIEW, EMBED_VIEW, PRINT_VIEW, PRINT_LEGEND_VIEW]
 
 /** Legacy URL views used for startup */
 export const LEGACY_PARAM_VIEW = 'LegacyParamsView'

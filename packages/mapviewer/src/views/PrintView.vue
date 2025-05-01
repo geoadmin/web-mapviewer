@@ -1,6 +1,5 @@
 <script setup>
 import log from '@geoadmin/log'
-import { getPointResolution } from 'ol/proj'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -8,11 +7,6 @@ import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-import {
-    PRINT_DEFAULT_DPI,
-    PRINT_DIMENSIONS,
-    PRINT_MARGIN_IN_MILLIMETERS,
-} from '@/config/print.config'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'
@@ -20,6 +14,7 @@ import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
 import { stringifyQuery } from '@/utils/url-router'
+import usePrintViewCommons from '@/views/usePrintViewCommons.composable'
 
 const dispatcher = { dispatcher: 'PrintView.vue' }
 
@@ -27,48 +22,18 @@ const route = useRoute()
 const store = useStore()
 const { t } = useI18n()
 
-const inchToMillimeter = 25.4
-
 const shortLink = ref(null)
 const qrCodeUrl = computed(() => getGenerateQRCodeUrl(shortLink.value))
 
 const now = new Date()
 
-const printLayout = computed(() => store.state.print.config.layout ?? 'A4_L')
-const isLayerLandscape = computed(() => printLayout.value.endsWith('_L'))
-const printDPI = computed(() => store.state.print.config.dpi ?? PRINT_DEFAULT_DPI)
-const layoutIdentifier = computed(() => printLayout.value.replace('_L', '').replace('_P', ''))
-const layoutDimensions = computed(() => {
-    const dimensions = PRINT_DIMENSIONS[layoutIdentifier.value]
-    if (!isLayerLandscape.value) {
-        return dimensions.toReversed()
-    }
-    return dimensions
-})
 const mapResolution = computed(() => store.getters.resolution)
 const mapRotation = computed(() => store.state.position.rotation)
 const currentProjection = computed(() => store.state.position.projection)
-const mapCenter = computed(() => store.state.position.center)
 const currentLang = computed(() => store.state.i18n.lang)
-const printContainerSize = computed(() => {
-    if (!layoutDimensions.value) {
-        return null
-    }
-    return {
-        width: Math.round((layoutDimensions.value[0] * printDPI.value) / inchToMillimeter),
-        height: Math.round((layoutDimensions.value[1] * printDPI.value) / inchToMillimeter),
-    }
-})
-const printContainerStyle = computed(() => {
-    if (!printContainerSize.value) {
-        return null
-    }
-    return {
-        width: `${printContainerSize.value.width}px`,
-        height: `${printContainerSize.value.height}px`,
-        padding: `${(PRINT_MARGIN_IN_MILLIMETERS * printDPI.value) / inchToMillimeter}px`,
-    }
-})
+
+const { printDPI, printResolution, printContainerSize, printContainerStyle } = usePrintViewCommons()
+
 const mapScaleWidth = computed(() => {
     if (!printContainerSize.value) {
         return null
@@ -100,16 +65,6 @@ const matchingResolutionStepWithLabel = computed(() =>
                 mapResolution.value > res.resolution
             )
         })
-)
-
-const printResolution = computed(
-    () =>
-        mapResolution.value /
-        getPointResolution(
-            currentProjection.value.epsg,
-            printDPI.value / inchToMillimeter,
-            mapCenter.value
-        )
 )
 
 onMounted(() => {
