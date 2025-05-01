@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -21,6 +21,8 @@ const { layer, layerId, transformUrlIntoQrcode } = defineProps({
         default: false,
     },
 })
+
+const emits = defineEmits(['loaded'])
 
 const htmlContent = ref('')
 
@@ -51,7 +53,11 @@ watch(
         }
     }
 )
-watch(htmlContent, transformATagIntoQRCodes)
+watch(htmlContent, () => {
+    nextTick(() => {
+        transformATagIntoQRCodes()
+    })
+})
 
 onMounted(async () => {
     if (!isExternal.value && layer) {
@@ -67,6 +73,7 @@ function transformATagIntoQRCodes() {
             a.innerHTML = `<img width="90" src="${getGenerateQRCodeUrl(a.href)}" alt="">`
         })
     }
+    emits('loaded')
 }
 </script>
 

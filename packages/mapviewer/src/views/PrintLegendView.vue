@@ -1,14 +1,29 @@
 <script setup>
-import { computed } from 'vue'
+import log from '@geoadmin/log'
+import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
 import LayerDescription from '@/modules/menu/components/LayerDescription.vue'
 import usePrintViewCommons from '@/views/usePrintViewCommons.composable'
 
 const { printLayout, printContainerStyle } = usePrintViewCommons()
 
+const loadedLayerDescriptions = ref(0)
+
 const store = useStore()
 const visibleLayers = computed(() => store.getters.visibleLayers)
+const visibleLayersCount = computed(() => visibleLayers.value.length)
+
+watch(visibleLayersCount, () => {
+    loadedLayerDescriptions.value = 0
+})
+watch(loadedLayerDescriptions, () => {
+    if (loadedLayerDescriptions.value === visibleLayersCount.value) {
+        log.debug('All layer descriptions loaded. Sending map ready event to parent window.')
+        sendMapReadyEventToParent()
+    }
+})
 </script>
 
 <template>
@@ -23,6 +38,7 @@ const visibleLayers = computed(() => store.getters.visibleLayers)
             :layer="layer"
             :layer-id="layer.id"
             transform-url-into-qrcode
+            @loaded="loadedLayerDescriptions++"
         />
     </div>
 </template>
@@ -31,7 +47,7 @@ const visibleLayers = computed(() => store.getters.visibleLayers)
 .print-legend-view {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 @media print {
