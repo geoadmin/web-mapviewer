@@ -523,7 +523,7 @@
     "profile_hike_time": "Marschzeit",
     "profile_invert": "Gegenrichtung",
     "profile_no_data": "kein Datum",
-    "profile_out_of_bounds": "Objekte sind außerhalb der Grenzen, keine Profildaten konnten wiederhergestellt werden",
+    "profile_out_of_bounds": "Objekte sind ausserhalb der Grenzen, keine Profildaten konnten wiederhergestellt werden",
     "profile_poi_down": "Tiefster Punkt",
     "profile_poi_up": "Höchster Punkt",
     "profile_segment": "Segment {segmentNumber}",

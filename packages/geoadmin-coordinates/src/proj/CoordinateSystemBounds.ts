@@ -33,7 +33,7 @@ interface CoordinateSystemBoundsProps {
 function reassembleLineSegments(
     origin: Coord,
     path: FeatureCollection<LineString, GeoJsonProperties>
-) {
+): Feature<LineString>[] {
     let candidateFeatures = path.features
     const orderedFeatures: Feature<LineString, GeoJsonProperties>[] = []
     while (candidateFeatures.length > 0) {
@@ -48,7 +48,7 @@ function reassembleLineSegments(
         origin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
         orderedFeatures.push(closest)
     }
-    path.features = orderedFeatures
+    return orderedFeatures
 }
 
 /**
@@ -133,7 +133,7 @@ export default class CoordinateSystemBounds {
         if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {
             const boundsAsPolygon = bboxPolygon(this.flatten)
             const paths = lineSplit(lineString(coordinates), boundsAsPolygon)
-            reassembleLineSegments(coordinates[0], paths)
+            paths.features = reassembleLineSegments(coordinates[0], paths)
             return paths.features.map((chunk) => {
                 return {
                     coordinates: chunk.geometry.coordinates,

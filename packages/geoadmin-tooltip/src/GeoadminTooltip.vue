@@ -90,9 +90,10 @@ const dataCyValue = computed((): string => {
     return ''
 })
 
-// on mobile touching the button is triggering the tooltip for a short moment
-// we work around this issue by a) detecting a touch event and b) putting the showing of the
-// tooltip in a later render cycle (so that the touch event is processed first)
+// On mobile, touching the element is triggering/showing the tooltip for a short moment.
+// We work around this issue by:
+//   a) detecting a touch event
+//   b) putting the showing of the tooltip in a later render cycle (so that the touch event is processed first)
 const openTooltip = (): void => {
     setTimeout(() => {
         isShown.value = true
@@ -119,6 +120,9 @@ const onTouchStart = (event: TouchEvent): void => {
     }, 500)
 }
 
+// Keeping track of the starting position/ending position from touches.
+// This is done to prevent a touch and drag that starts on the element to show the tooltip
+// (the gesture ends out of the element, no tooltip should be shown)
 const onTouchMove = (event: TouchEvent): void => {
     const changedTouches: TouchList = event.changedTouches
     for (let i = 0; i < changedTouches.length; i++) {
@@ -309,7 +313,3 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
         </Teleport>
     </div>
 </template>
-
-<style>
-@import '@/style.css';
-</style>

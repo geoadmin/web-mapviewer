@@ -38,15 +38,17 @@ const {
     filename = 'export',
 } = defineProps<ElevationProfileProps>()
 
-type ElevationProfileErrorMessages = {
+type ElevationProfileMessages = {
+    profile_download_csv: string
+    profile_invert: string
     profile_network_error: string
     profile_too_many_points_error: string
     profile_could_not_generate: string
     profile_out_of_bounds: string
 }
 
-const { t }: { t: VueI18nTranslateFunction<ElevationProfileErrorMessages> } = useI18n<
-    ElevationProfileErrorMessages,
+const { t }: { t: VueI18nTranslateFunction<ElevationProfileMessages> } = useI18n<
+    ElevationProfileMessages,
     SupportedLocales
 >()
 
@@ -71,7 +73,7 @@ onMounted(() => {
 
 watch(reverse, loadElevationProfileData)
 watch(() => simplify, loadElevationProfileData)
-watch(() => points, loadElevationProfileData)
+watch(() => points, loadElevationProfileData, { deep: true })
 
 function loadElevationProfileData() {
     if (!Array.isArray(points)) {
@@ -127,37 +129,38 @@ function triggerDownload(blob: Blob) {
 }
 
 function onCSVDownload() {
-    if (profileData.value && hasData.value) {
-        const csvData =
-            [
-                ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
-                ...profileData.value.segments
-                    .flatMap((segment) => segment.points)
-                    .map((point) => {
-                        const [lon, lat] = proj4(
-                            coordinateSystem.value.epsg,
-                            WGS84.epsg,
-                            point.coordinate
-                        )
-                        const [x, y] = proj4(
-                            coordinateSystem.value.epsg,
-                            LV95.epsg,
-                            point.coordinate
-                        )
-                        return [
-                            point.dist,
-                            point.elevation,
-                            LV95.roundCoordinateValue(x),
-                            LV95.roundCoordinateValue(y),
-                            WGS84.roundCoordinateValue(lon),
-                            WGS84.roundCoordinateValue(lat),
-                        ]
-                    }),
-            ]
-                .map((row) => row.join(';'))
-                .join('\n') + '\n' // with an added empty line
-        triggerDownload(new Blob([csvData], { type: 'text/csv' }))
+    if (!profileData.value || !hasData.value) {
+        return
     }
+    const csvData =
+        [
+            ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
+            ...profileData.value.segments
+                .flatMap((segment) => segment.points)
+                .map((point) => {
+                    const [lon, lat] = proj4(
+                        coordinateSystem.value.epsg,
+                        WGS84.epsg,
+                        point.coordinate
+                    )
+                    const [x, y] = proj4(
+                        coordinateSystem.value.epsg,
+                        LV95.epsg,
+                        point.coordinate
+                    )
+                    return [
+                        point.dist,
+                        point.elevation,
+                        LV95.roundCoordinateValue(x),
+                        LV95.roundCoordinateValue(y),
+                        WGS84.roundCoordinateValue(lon),
+                        WGS84.roundCoordinateValue(lat),
+                    ]
+                }),
+        ]
+            .map((row) => row.join(';'))
+            .join('\n') + '\n' // with an added empty line
+    triggerDownload(new Blob([csvData], { type: 'text/csv' }))
 }
 </script>
 
@@ -189,7 +192,7 @@ function onCSVDownload() {
             v-if="profileMetadata"
             :metadata="profileMetadata"
         >
-            <GeoadminTooltip tooltip-content="profile_invert">
+            <GeoadminTooltip :tooltip-content="t('profile_invert')">
                 <button
                     class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     @click="revertProfileDirection"
@@ -197,7 +200,7 @@ function onCSVDownload() {
                     <FontAwesomeIcon icon="shuffle" />
                 </button>
             </GeoadminTooltip>
-            <GeoadminTooltip tooltip-content="profile_download_csv">
+            <GeoadminTooltip :tooltip-content="t('profile_download_csv')">
                 <button
                     class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     data-cy="profile-popup-csv-download-button"
@@ -210,7 +213,3 @@ function onCSVDownload() {
         </GeoadminElevationProfileInformation>
     </div>
 </template>
-
-<style>
-@import '@/style.css';
-</style>

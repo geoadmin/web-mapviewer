@@ -33,6 +33,7 @@ import noDataPlugin from '@/chartjs-plugins/nodata.plugin'
 import GeoadminElevationProfile from '@/GeoadminElevationProfile.vue'
 import GeoadminElevationProfileCesiumBridge from '@/GeoadminElevationProfileCesiumBridge.vue'
 import GeoadminElevationProfileOpenLayersBridge from '@/GeoadminElevationProfileOpenLayersBridge.vue'
+import '@/style.css'
 
 registerProj4(proj4)
 
