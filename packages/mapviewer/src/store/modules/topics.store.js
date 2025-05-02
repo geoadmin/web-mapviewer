@@ -1,5 +1,5 @@
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
-import { cloneDeep } from 'lodash'
 
 const state = {
     /**
@@ -47,7 +47,10 @@ const actions = {
         commit('setTopics', { topics, dispatcher })
     },
     setTopicTree: ({ commit }, { layers, dispatcher }) => {
-        commit('setTopicTree', { layers: layers.map((layer) => cloneDeep(layer)), dispatcher })
+        commit('setTopicTree', {
+            layers: layers.map((layer) => layerUtils.cloneLayer(layer)),
+            dispatcher,
+        })
     },
     changeTopic: ({ commit, state }, { topicId, dispatcher }) => {
         if (

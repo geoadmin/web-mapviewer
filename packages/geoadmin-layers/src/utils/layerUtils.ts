@@ -1,4 +1,5 @@
-import { merge, omit } from 'lodash'
+import { cloneDeep, merge, omit } from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
     type Layer,
@@ -75,6 +76,7 @@ const validateBaseData = (values: Partial<Layer>): void => {
 export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer => {
     validateBaseData(values)
     const defaults = {
+        uuid: uuidv4(),
         id: '',
         name: '',
         isExternal: false,
@@ -116,6 +118,7 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
 export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer => {
     validateBaseData(values)
     const defaults = {
+        uuid: uuidv4(),
         name: '',
         id: '',
         type: LayerType.WMTS as LayerType.WMTS,
@@ -163,6 +166,7 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
     const hasLegend = (values?.legends ?? []).length > 0
 
     const defaults = {
+        uuid: uuidv4(),
         id: '',
         name: '',
         isExternal: true,
@@ -218,6 +222,7 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
     const hasLegend = (values?.legends ?? []).length > 0
 
     const defaults = {
+        uuid: uuidv4(),
         id: '',
         name: '',
         opacity: 1.0,
@@ -268,6 +273,7 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
 export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
     validateBaseData(values)
     const defaults = {
+        uuid: uuidv4(),
         id: '',
         name: '',
         opacity: 1.0,
@@ -318,6 +324,7 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
     const name = values.gpxMetadata?.name ?? 'GPX'
 
     const defaults = {
+        uuid: uuidv4(),
         baseUrl: values.gpxFileUrl,
         gpxFileUrl: null,
         gpxData: null,
@@ -361,6 +368,7 @@ export const makeGeoAdminVectorLayer = (
     ]
 
     const defaults = {
+        uuid: uuidv4(),
         baseUrl: '',
         type: LayerType.VECTOR,
         technicalName: '',
@@ -401,6 +409,7 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
     const defaults = {
+        uuid: uuidv4(),
         baseUrl: '',
         technicalName: '',
         use3dTileSubFolder: false,
@@ -454,6 +463,7 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
 
     const defaults = {
+        uuid: uuidv4(),
         baseUrl: fileSource,
         type: LayerType.COG,
         isLocalFile,
@@ -492,6 +502,7 @@ export const makeGeoAdminAggregateLayer = (
 ): GeoAdminAggregateLayer => {
     validateBaseData(values)
     const defaults = {
+        uuid: uuidv4(),
         type: LayerType.AGGREGATE,
         baseUrl: '',
         subLayers: [],
@@ -530,6 +541,7 @@ export const makeGeoAdminGeoJSONLayer = (
 ): GeoAdminGeoJSONLayer => {
     validateBaseData(values)
     const defaults = {
+        uuid: uuidv4(),
         baseUrl: '',
         type: LayerType.GEOJSON,
         updateDelay: 0,
@@ -572,6 +584,7 @@ export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>
     validateBaseData(values)
 
     const defaults =  {
+        uuid: uuidv4(),
         layers: [],
         name: '',
         id: '',
@@ -634,4 +647,15 @@ export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer) {
     }
     // otherwise we return the first topic to make our backend requests for identify and htmlPopup
     return layer.topics[0]
+}
+
+/**
+ * Clone a layer but give it a new uuid
+ * @param layer
+ * @returns Layer
+ */
+export function cloneLayer(layer: Layer) {
+    const clone = cloneDeep(layer)
+    clone.uuid = uuidv4()
+    return clone
 }

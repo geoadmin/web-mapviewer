@@ -13,7 +13,6 @@ import {
 import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
-import { cloneDeep } from 'lodash'
 import * as vueRouter from 'vue-router'
 // @ts-ignore
 import { useStore } from 'vuex'
@@ -133,7 +132,7 @@ export function createLayerObject(
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
-        layer = cloneDeep(currentLayer) as KMLLayer
+        layer = layerUtils.cloneLayer(currentLayer as KMLLayer)
         layer.visible = parsedLayer.visible ?? false
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
@@ -172,7 +171,7 @@ export function createLayerObject(
         layer = createWMSLayerObject(parsedLayer)
     } else {
         // Finally check if this is a Geoadmin layer
-        layer = cloneDeep(store.getters.getLayerConfigById(parsedLayer.id))
+        layer = layerUtils.cloneLayer(store.getters.getLayerConfigById(parsedLayer.id))
         if (layer) {
             layer.visible = parsedLayer.visible ?? false
             if (parsedLayer.opacity !== undefined) {

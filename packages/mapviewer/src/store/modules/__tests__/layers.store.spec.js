@@ -1,6 +1,5 @@
 import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
-import { cloneDeep } from 'lodash'
 import { beforeEach, describe, it } from 'vitest'
 
 // We need to import the router here to avoid error when initializing router plugins, this is
@@ -115,7 +114,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         )
     })
     it('does not force the visibility of the layer to true when adding it', () => {
-        const invisibleLayer = cloneDeep(firstLayer)
+        const invisibleLayer = layerUtils.cloneLayer(firstLayer)
         invisibleLayer.visible = false
         store.dispatch('setLayerConfig', {
             config: [bgLayer, invisibleLayer, secondLayer],
@@ -156,7 +155,7 @@ describe('Update layer', () => {
         })
     })
     it('Update a single layer by ID with a full layer object', () => {
-        const clone = cloneDeep(secondLayer)
+        const clone = layerUtils.cloneLayer(secondLayer)
         clone.name = 'Update second layer name'
         clone.visible = false
         timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
@@ -206,7 +205,7 @@ describe('Update layers', () => {
     })
     it('Update duplicate layers by layer ID with full clone', () => {
         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
-        const clone = cloneDeep(secondLayer)
+        const clone = layerUtils.cloneLayer(secondLayer)
         clone.name = 'Update second layer name'
         clone.visible = false
         timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
@@ -315,7 +314,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not adds a layer to the visible layers if its visible flag is set to false when added', () => {
-        const invisibleLayer = cloneDeep(firstLayer)
+        const invisibleLayer = layerUtils.cloneLayer(firstLayer)
         invisibleLayer.visible = false
         store.dispatch('setLayersConfig', [bgLayer, invisibleLayer, secondLayer])
         store.dispatch('addLayer', { layer: invisibleLayer, ...dispatcher })

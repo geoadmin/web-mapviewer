@@ -5,10 +5,9 @@ import {
     clearErrorMessages,
     removeErrorMessageFromLayer,
 } from '@geoadmin/layers'
-import { timeConfigUtils } from '@geoadmin/layers/utils'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
-import { cloneDeep } from 'lodash'
 
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
@@ -41,7 +40,7 @@ const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 
 const cloneActiveLayerConfig = (getters, layer) => {
     // TODO clone needed??
-    const clone = cloneDeep(getters.getLayerConfigById(layer.id)) ?? null
+    const clone = layerUtils.cloneLayer(getters.getLayerConfigById(layer.id)) ?? null
     if (clone) {
         if (typeof layer.visible === 'boolean') {
             clone.visible = layer.visible
@@ -373,7 +372,7 @@ const actions = {
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 // tODO clone needed?
-                const clone = cloneDeep(layerConfig)
+                const clone = layerUtils.cloneLayer(layerConfig)
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
@@ -390,7 +389,7 @@ const actions = {
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                return cloneDeep(layer)
+                return layerUtils.cloneLayer(layer)
             }
         })
         commit('setLayers', { layers: layers, dispatcher })
@@ -420,13 +419,13 @@ const actions = {
         let clone = null
         if (layer) {
             // tODO clone needed?
-            clone = cloneDeep(layer)
+            clone = layerUtils.cloneLayer(layer)
         } else if (layerConfig) {
             // Get the Layer Config object, we need to clone it in order
             clone = cloneActiveLayerConfig(getters, layerConfig)
         } else if (layerId) {
             // tODO clone needed?
-            clone = cloneDeep(getters.getLayerConfigById(layerId)) ?? null
+            clone = layerUtils.cloneLayer(getters.getLayerConfigById(layerId)) ?? null
         }
         if (clone) {
             commit('addLayer', { layer: clone, dispatcher })
@@ -451,7 +450,9 @@ const actions = {
      */
     setLayers({ commit /*, getters */ }, { layers, dispatcher }) {
         // TODO maybe cloning it here again shouldn't really be necessary
-        const clones = layers.map((layer) => cloneDeep(layer)).filter((layer) => layer !== null)
+        const clones = layers
+            .map((layer) => layerUtils.cloneLayer(layer))
+            .filter((layer) => layer !== null)
         commit('setLayers', { layers: clones, dispatcher })
     },
 
@@ -517,7 +518,7 @@ const actions = {
                     }
                     return layers2Update.map((layer2Update) => {
                         // TODO clone needed?
-                        const updatedLayer = cloneDeep(layer2Update)
+                        const updatedLayer = layerUtils.cloneLayer(layer2Update)
                         Object.entries(layer).forEach(
                             (entry) => (updatedLayer[entry[0]] = entry[1])
                         )
@@ -640,11 +641,11 @@ const actions = {
             let clone = null
             if (typeof layer === 'object') {
                 // got the layer, thus we copy it directly
-                clone = cloneDeep(layer)
+                clone = layerUtils.cloneLayer(layer)
             } else {
                 // TODO clone needed?
                 // got an ID, look for the layer
-                clone = cloneDeep(getters.getLayerConfigById(layer))
+                clone = layerUtils.cloneLayer(getters.getLayerConfigById(layer))
                 if (!clone) {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
@@ -706,7 +707,7 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = cloneDeep(layer)
+            const clone = layerUtils.cloneLayer(layer)
             addErrorMessageToLayer(clone, error)
             if (clone.isLoading) {
                 clone.isLoading = false
@@ -736,7 +737,7 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = cloneDeep(layer)
+            const clone = layerUtils.cloneLayer(layer)
             removeErrorMessageFromLayer(clone, error)
             return clone
         })
@@ -759,7 +760,7 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = cloneDeep(layer)
+            const clone = layerUtils.cloneLayer(layer)
             clearErrorMessages(clone)
             return clone
         })
@@ -791,7 +792,7 @@ const actions = {
             )
         }
         const updatedLayers = layers.map((layer) => {
-            const clone = cloneDeep(layer)
+            const clone = layerUtils.cloneLayer(layer)
             if (data) {
                 let extent
                 if (clone.type === LayerType.KML) {

@@ -451,6 +451,9 @@ importers:
       proj4:
         specifier: 'catalog:'
         version: 2.15.0
+      uuid:
+        specifier: 'catalog:'
+        version: 11.1.0
     devDependencies:
       '@types/lodash':
         specifier: 'catalog:'

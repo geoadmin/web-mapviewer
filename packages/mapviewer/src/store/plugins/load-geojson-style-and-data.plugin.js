@@ -4,10 +4,10 @@
  */
 
 import { addErrorMessageToLayer, LayerType } from '@geoadmin/layers'
+import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import axios from 'axios'
-import { cloneDeep } from 'lodash'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 
@@ -77,7 +77,7 @@ function loadDataAndStyle(geoJsonLayer) {
         controllers: [style.controller, data.controller],
         clone: Promise.all([style.response, data.response])
             .then(([{ data: style }, { data }]) => {
-                const clone = cloneDeep(geoJsonLayer)
+                const clone = layerUtils.cloneLayer(geoJsonLayer)
                 // as the layer comes from the store (99.9% chances), we copy it before altering it
                 // (otherwise, Vuex raises an error)
                 clone.geoJsonData = data
@@ -90,7 +90,7 @@ function loadDataAndStyle(geoJsonLayer) {
                     `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`,
                     error
                 )
-                const clone = cloneDeep(geoJsonLayer)
+                const clone = layerUtils.cloneLayer(geoJsonLayer)
                 clone.isLoading = false
                 addErrorMessageToLayer(clone, new ErrorMessage('loading_error_network_failure'))
                 return clone

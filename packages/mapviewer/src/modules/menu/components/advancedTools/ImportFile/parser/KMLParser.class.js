@@ -1,4 +1,5 @@
 import { WGS84 } from '@geoadmin/coordinates'
+import { addWarningMessageToLayer } from '@geoadmin/layers'
 import { WarningMessage } from '@geoadmin/log/Message'
 
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
@@ -72,7 +73,8 @@ export class KMLParser extends FileParser {
         })
 
         if (!isKmlFeaturesValid(kmlAsText)) {
-            kmlLayer.addWarningMessage(
+            addWarningMessageToLayer(
+                kmlLayer,
                 new WarningMessage('kml_malformed', {
                     filename: kmlLayer.name ?? kmlLayer.id,
                 })

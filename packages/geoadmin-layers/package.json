@@ -46,7 +46,8 @@
         "@geoadmin/numbers": "workspace:^",
         "lodash": "catalog:",
         "ol": "catalog:",
-        "proj4": "catalog:"
+        "proj4": "catalog:",
+        "uuid": "catalog:"
     },
     "devDependencies": {
         "@types/lodash": "catalog:",

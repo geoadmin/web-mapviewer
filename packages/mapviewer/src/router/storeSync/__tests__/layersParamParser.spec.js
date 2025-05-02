@@ -1,7 +1,6 @@
 import { LayerType } from '@geoadmin/layers'
 import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
-import { cloneDeep } from 'lodash'
 import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
@@ -428,7 +427,7 @@ describe('Testing layersParamParser', () => {
                 attributions,
                 updateDelay: defaultUpdateDelay,
             })
-            const layer = cloneDeep(geoJsonLayer)
+            const layer = layerUtils.cloneLayer(geoJsonLayer)
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(`${layer.id}`)
             layer.updateDelay = defaultUpdateDelay + 200
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(

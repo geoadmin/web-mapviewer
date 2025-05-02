@@ -6,10 +6,9 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LayerType } from '@geoadmin/layers'
-import { timeConfigUtils } from '@geoadmin/layers/utils'
+import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import { validateLayerProp } from '@geoadmin/layers/validation'
 import GeoadminTooltip from '@geoadmin/tooltip'
-import { cloneDeep } from 'lodash'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -130,7 +129,7 @@ function showLayerDescriptionPopup() {
 }
 
 function duplicateLayer() {
-    store.dispatch('addLayer', { layer: cloneDeep(layer), ...dispatcher })
+    store.dispatch('addLayer', { layer: layerUtils.cloneLayer(layer), ...dispatcher })
 }
 
 function changeStyle(newStyle) {

@@ -7,6 +7,7 @@ import { hasMultipleTimestamps, makeTimeConfigEntry } from '@/utils/timeConfigUt
 describe('Test utility functions', () => {
     it('Determines correctly that a layer has multiple timestamps', () => {
         const simpleLayer: Layer = {
+            uuid: 'one-two-three-four',
             name: 'simple',
             id: 'ch.bgdi.simple',
             opacity: 0,

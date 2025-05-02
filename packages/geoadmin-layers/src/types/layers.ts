@@ -34,6 +34,8 @@ export interface LayerLegend {
 
 /** @interface Layer */
 export interface Layer {
+    /** an unique identifier for each object of this interface **/
+    uuid: string,
     /** Name of this layer in the current lang */
     name: string
     /**
