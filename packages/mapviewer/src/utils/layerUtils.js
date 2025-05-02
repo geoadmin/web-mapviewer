@@ -1,3 +1,4 @@
+import { centroid } from '@turf/turf'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -137,7 +138,8 @@ export function createLayerFeature(olFeature, layer, coordinates, geometry) {
             title: olFeature.get('name'),
             description: olFeature.get('description'),
         },
-        coordinates: coordinates ? coordinates : olFeature.getGeometry().getCoordinates(),
+        // creating a centroid is especially important for Polygon geometries else it can break expected cesium behaviour
+        coordinates: centroid(geometry).geometry.coordinates ?? coordinates ?? olFeature.getGeometry().getCoordinates(),
         geometry: geometry,
         extent: normalizeExtent(olFeature.getGeometry().getExtent()),
     })
