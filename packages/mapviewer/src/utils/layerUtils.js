@@ -1,3 +1,4 @@
+import { centroid } from '@turf/turf'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -124,20 +125,21 @@ export function createLayerFeature(olFeature, layer, coordinates, geometry) {
         layer: layer,
         id: olFeature.getId(),
         title:
-            olFeature.get('label') ??
+            olFeature.get('label') ||
             // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
             // some of their layers are
             // - ch.meteoschweiz.messwerte-niederschlag-10min
             // - ch.meteoschweiz.messwerte-lufttemperatur-10min
-            olFeature.get('station_name') ??
+            olFeature.get('station_name') ||
             // GPX track feature don't have an ID but have a name !
-            olFeature.get('name') ??
+            olFeature.get('name') ||
             olFeature.getId(),
         data: {
             title: olFeature.get('name'),
             description: olFeature.get('description'),
         },
-        coordinates: coordinates ? coordinates : olFeature.getGeometry().getCoordinates(),
+        // creating a centroid is especially important for Polygon geometries else it can break expected cesium behaviour
+        coordinates: centroid(geometry).geometry.coordinates ?? coordinates ?? olFeature.getGeometry().getCoordinates(),
         geometry: geometry,
         extent: normalizeExtent(olFeature.getGeometry().getExtent()),
     })
