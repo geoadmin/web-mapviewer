@@ -734,7 +734,7 @@ export const makeKmlLayer = (values) => {
         isLoading = false
     }
 
-    let style = values.kmlStyle
+    let style = values.style
     if (!style) {
         // if no style was given, we select the default style depending on the origin of the KML
         style = isExternal ? KmlStyle.DEFAULT : KmlStyle.GEOADMIN
