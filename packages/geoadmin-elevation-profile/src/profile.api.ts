@@ -31,7 +31,7 @@ type ServiceProfilePoints = {
 }
 
 export interface ElevationProfilePoint {
-    /** Distance from first to current point (relative to the whole profile, not by segments) */
+    /** Distance from first to current point (relative to the whole profile, not by chunks) */
     dist?: number
     coordinate: SingleCoordinate
     /** Expressed in the COMB elevation model */
@@ -39,36 +39,36 @@ export interface ElevationProfilePoint {
     hasElevationData: boolean
 }
 
-export type ElevationProfileSegment = {
+export type ElevationProfileChunk = {
     points: ElevationProfilePoint[]
     hasElevationData: boolean
     hasDistanceData: boolean
 }
 
 export type ElevationProfile = {
-    segments: ElevationProfileSegment[]
+    chunks: ElevationProfileChunk[]
     metadata: ElevationProfileMetadata
 }
 
 /**
- * How many coordinate we will let a chunk have before splitting it into multiple chunks
+ * How many coordinate we will let a chunk have before splitting it into multiple requests/chunks
  *
  * Backend has a hard limit at 5k, we take a conservative approach with 3k.
  */
-const MAX_CHUNK_LENGTH: number = 3000
+const MAX_REQUEST_POINT_LENGTH: number = 3000
 
 export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | null {
     if (!chunk) {
         return null
     }
-    if (chunk.coordinates.length <= MAX_CHUNK_LENGTH) {
+    if (chunk.coordinates.length <= MAX_REQUEST_POINT_LENGTH) {
         return [chunk]
     }
     const subChunks = []
-    for (let i = 0; i < chunk.coordinates.length; i += MAX_CHUNK_LENGTH) {
+    for (let i = 0; i < chunk.coordinates.length; i += MAX_REQUEST_POINT_LENGTH) {
         subChunks.push({
             isWithinBounds: chunk.isWithinBounds,
-            coordinates: chunk.coordinates.slice(i, i + MAX_CHUNK_LENGTH),
+            coordinates: chunk.coordinates.slice(i, i + MAX_REQUEST_POINT_LENGTH),
         })
     }
     return subChunks
@@ -85,11 +85,11 @@ function getUrlForStaging(staging: Staging = 'production'): string {
     }
 }
 
-function parseProfileSegmentFromBackendResponse(
+function parseProfileChunkFromBackendResponse(
     backendResponse: Awaited<ServiceProfilePoints[]>,
     startingDist: number,
     outputProjection: CoordinateSystem
-): ElevationProfileSegment {
+): ElevationProfileChunk {
     const points: ElevationProfilePoint[] = backendResponse.map((rawPoint) => {
         let coordinate: SingleCoordinate = [rawPoint.easting, rawPoint.northing]
         if (outputProjection.epsg !== LV95.epsg) {
@@ -113,8 +113,6 @@ function parseProfileSegmentFromBackendResponse(
 /** @throws ElevationProfileError */
 export async function getProfileDataForChunk(
     chunk: CoordinatesChunk,
-    startingPoint: SingleCoordinate | null = null,
-    startingDist: number,
     outputProjection: CoordinateSystem,
     staging: Staging = 'production'
 ): Promise<ServiceProfilePoints[]> {
@@ -162,7 +160,7 @@ export async function getProfileDataForChunk(
                             dist: point.dist + previousDist,
                         }))
                     )
-                    previousDist = response.data.slice(-1)[0].dist ?? 0
+                    previousDist = finalResponse.slice(-1)[0].dist ?? 0
                 } else {
                     log.error('Incorrect/empty response while getting profile', response)
                     throw new ElevationProfileError(
@@ -201,22 +199,20 @@ export async function getProfileDataForChunk(
         }
     }
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
-    let lastDist = startingDist
-    let lastCoordinate = startingPoint
     if (!chunk?.coordinates) {
         log.error('Malformed chunk', chunk)
         throw new ElevationProfileError('profile_network_error', new Error('Malformed chunk'))
     }
+    let lastCoordinate: SingleCoordinate
     return [
         ...chunk.coordinates.map((coordinate) => {
-            let dist = lastDist
+            let dist = 0
             if (lastCoordinate) {
                 dist += Math.sqrt(
                     Math.pow(lastCoordinate[0] - coordinate[0], 2) +
                         Math.pow(lastCoordinate[1] - coordinate[1], 2)
                 )
             }
-            lastDist = dist
             lastCoordinate = coordinate
             const point: ServiceProfilePoints = {
                 easting: coordinate[0],
@@ -246,12 +242,35 @@ function ensureDoubleNestedArray(
     return [arr] as SingleCoordinate[][]
 }
 
+function sanitizeCoordinates(
+    coordinates: SingleCoordinate[] | SingleCoordinate[][],
+    projection: CoordinateSystem
+): SingleCoordinate[][] {
+    return (
+        // If the coordinates are not a double nested array, we make it one.
+        // Segmented files have a double nested array, but not all files or self-made drawings have,
+        // so we have to make sure we have a double nested array and then iterate over it.
+        ensureDoubleNestedArray(coordinates)
+            // removing any 3rd dimension that could come from OL
+            .map((coordinates) => removeZValues(coordinates))
+            .map((coordinates) => {
+                // The service only works with LV95 coordinate,
+                // we have to transform them if they are not in this projection
+                if (projection.epsg !== LV95.epsg) {
+                    return coordinates.map((coordinate) => proj4(LV95.epsg, LV95.epsg, coordinate))
+                }
+                return coordinates
+            })
+    )
+}
+
 /**
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
  * @param profileCoordinates Coordinates, expressed in the given projection, from which we want the
  *   profile
  * @param projection The projection used to describe the coordinates
+ * @param staging On which backend the profile should be requested, default is 'production'
  * @returns The profile, or null if there was no valid data to produce a profile
  * @throws ElevationProfileError will reject the promise with a ProfileError if something went
  *   wrong.
@@ -266,31 +285,18 @@ export default async (
         log.error(errorMessage)
         throw new ElevationProfileError(errorMessage, new Error('profile_could_not_generate'))
     }
-    const segments: ElevationProfileSegment[] = []
-    // if the profileCoordinates is not a double nested array, we make it one
-    // segmented files have a double nested array, but not all files or self made drawings
-    // so we have to make sure we have a double nested array and then iterate over it
-    const coordinatesForSegments: SingleCoordinate[][] = ensureDoubleNestedArray(profileCoordinates)
+    const chunks: ElevationProfileChunk[] = []
 
-    for (const coordinates of coordinatesForSegments) {
-        // The service only works with LV95 coordinate, we have to transform them if they are not in this projection
-        // removing any 3d dimension that could come from OL
-        let coordinatesInLV95: SingleCoordinate[] = removeZValues(coordinates)
-        if (projection.epsg !== LV95.epsg) {
-            coordinatesInLV95 = coordinatesInLV95.map((coordinate) =>
-                proj4(projection.epsg, LV95.epsg, coordinate)
-            )
-        }
-
-        // splitting the profile input into "segment" if some part are out of LV95 bounds
-        // as there will be no data for those segments.
+    for (const coordinates of sanitizeCoordinates(profileCoordinates, projection)) {
+        // splitting the profile input into "chunks" if some part are out of LV95 bounds
+        // as there will be no data for those chunks.
         const coordinateChunks: CoordinatesChunk[] | null =
-            LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
+            LV95.bounds.splitIfOutOfBounds(coordinates)
 
         if (!coordinateChunks) {
             log.error(
                 '[Profile] No data found within LV95 bounds, no profile data could be fetched',
-                coordinatesInLV95
+                coordinates
             )
             throw new ElevationProfileError(
                 'profile_could_not_generate',
@@ -306,23 +312,22 @@ export default async (
                 new Error('All points are out of bounds, no profile data could be fetched')
             )
         }
-        let lastCoordinate: SingleCoordinate | null = null
-        let lastDist: number = 0
         const requestsForChunks: Promise<ServiceProfilePoints[]>[] = coordinateChunks.map((chunk) =>
-            getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection, staging)
+            getProfileDataForChunk(chunk, projection, staging)
         )
+
+        let lastDist: number = 0
         for (const chunkResponse of await Promise.allSettled(requestsForChunks)) {
             if (chunkResponse.status === 'fulfilled') {
-                const segment: ElevationProfileSegment = parseProfileSegmentFromBackendResponse(
+                const resultingChunk: ElevationProfileChunk = parseProfileChunkFromBackendResponse(
                     chunkResponse.value,
                     lastDist,
                     projection
                 )
-                if (segment) {
-                    const newSegmentLastPoint = segment.points.slice(-1)[0]
-                    lastCoordinate = newSegmentLastPoint.coordinate
-                    lastDist = newSegmentLastPoint.dist ?? 0
-                    segments.push(segment)
+                if (resultingChunk) {
+                    const newChunkLastPoint = resultingChunk.points.slice(-1)[0]
+                    lastDist = newChunkLastPoint.dist ?? 0
+                    chunks.push(resultingChunk)
                 }
             } else {
                 log.error(
@@ -332,17 +337,17 @@ export default async (
             }
         }
     }
-    if (segments.every((segment) => !segment.hasElevationData)) {
+    if (chunks.every((chunk) => !chunk.hasElevationData)) {
         throw new ElevationProfileError(
             'profile_could_not_generate',
             new Error('No elevation data found, feature might be out of bounds')
         )
     }
     return {
-        segments,
+        chunks: chunks,
         metadata: getProfileMetadata(
-            segments
-                .flatMap((segment) => segment.points)
+            chunks
+                .flatMap((chunk) => chunk.points)
                 .toSorted((p1, p2) => (p1.dist ?? 0) - (p2.dist ?? 0))
         ),
     }

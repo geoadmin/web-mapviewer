@@ -1,10 +1,101 @@
 import log from '@geoadmin/log'
+import cloneDeep from 'lodash/cloneDeep'
 
 /** @param {SelectableFeature} feature */
 export function canFeatureShowProfile(feature) {
     return ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(
         feature?.geometry?.type
     )
+}
+
+function canPointsBeStitched(p1, p2, tolerance = 10.0) {
+    return (
+        (p1[0] === p2[0] && p1[1] === p2[1]) ||
+        Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2)) <= tolerance
+    )
+}
+
+/**
+ * @param {SingleCoordinate[]} currentLine
+ * @param {SingleCoordinate[][]} remainingLines
+ * @param {number[]} previouslyUsedIndexes
+ * @param {number} tolerance
+ * @returns {Object}
+ */
+function stitchMultiLineStringRecurse(
+    currentLine,
+    remainingLines,
+    previouslyUsedIndexes = [],
+    tolerance = 10.0
+) {
+    let currentLineBeingStitched = [...currentLine]
+    let someStitchHappened = false
+    const usedIndex = [...previouslyUsedIndexes]
+
+    remainingLines.forEach((line, index) => {
+        // if line was already used elsewhere, skip it
+        if (usedIndex.includes(index)) {
+            return
+        }
+
+        const firstPoint = currentLineBeingStitched[0]
+        const lastPoint = currentLineBeingStitched[currentLineBeingStitched.length - 1]
+        const lineFirstPoint = line[0]
+        const lineLastPoint = line[line.length - 1]
+
+        if (canPointsBeStitched(firstPoint, lineLastPoint, tolerance)) {
+            currentLineBeingStitched = [...line, ...currentLineBeingStitched]
+            someStitchHappened = true
+            usedIndex.push(index)
+        } else if (canPointsBeStitched(firstPoint, lineFirstPoint, tolerance)) {
+            currentLineBeingStitched = [...line.toReversed(), ...currentLineBeingStitched]
+            someStitchHappened = true
+            usedIndex.push(index)
+        } else if (canPointsBeStitched(lastPoint, lineFirstPoint, tolerance)) {
+            currentLineBeingStitched = [...currentLineBeingStitched, ...line]
+            someStitchHappened = true
+            usedIndex.push(index)
+        } else if (canPointsBeStitched(lastPoint, lineLastPoint, tolerance)) {
+            currentLineBeingStitched = [...currentLineBeingStitched, ...line.toReversed()]
+            someStitchHappened = true
+            usedIndex.push(index)
+        }
+    })
+
+    if (someStitchHappened) {
+        return stitchMultiLineStringRecurse(currentLineBeingStitched, remainingLines, usedIndex)
+    }
+
+    return { result: currentLineBeingStitched, usedIndex }
+}
+
+/**
+ * Stitch together connected LineStrings in a MultiLineString geometry.
+ *
+ * @param {SingleCoordinate[][]} lines Elements of the MultiLineString.
+ * @param {number} tolerance How far away (in meters) two points can be and still be considered
+ *   "stitch-candidate"
+ * @returns {SingleCoordinate[][]} Elements stitched togethers, if possible, or simply left as is if
+ *   not.
+ */
+export function stitchMultiLine(lines, tolerance = 10.0) {
+    const results = []
+    const globalUsedIndexes = []
+    lines.forEach((line, index) => {
+        // if line was already used, we can skip it (it's already included in some other line)
+        if (globalUsedIndexes.includes(index)) {
+            return
+        }
+        const { result, usedIndex } = stitchMultiLineStringRecurse(
+            line,
+            lines,
+            [index, ...globalUsedIndexes],
+            tolerance
+        )
+        globalUsedIndexes.push(...usedIndex)
+        results.push(result)
+    })
+    return results
 }
 
 export default {
@@ -34,7 +125,17 @@ export default {
             if (feature === null) {
                 commit('setProfileFeature', { feature: null, dispatcher })
             } else if (canFeatureShowProfile(feature)) {
-                commit('setProfileFeature', { feature: feature, dispatcher })
+                // the feature comes from vuex, so if we mutate it directly it raises an error
+                const profileFeature = cloneDeep(feature)
+                if (profileFeature.geometry.type === 'MultiLineString') {
+                    // attempting to simplify the multiline into fewer "segments"
+                    profileFeature.geometry.coordinates = stitchMultiLine(
+                        profileFeature.geometry.coordinates,
+                        // empirically tested with Veloland layer, gives the best results without a tradeoff
+                        50.0 /* m */
+                    )
+                }
+                commit('setProfileFeature', { feature: profileFeature, dispatcher })
             } else {
                 log.warn('Geometry type not supported to show a profile, ignoring', feature)
             }

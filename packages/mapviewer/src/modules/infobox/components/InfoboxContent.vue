@@ -65,6 +65,9 @@ watch(selectedFeatures, (features) => {
         content.value?.scrollTo(0, 0)
     })
 })
+watch(profileFeature, () => {
+    currentGeometryElementIndex.value = 0
+})
 </script>
 
 <template>
@@ -73,7 +76,7 @@ watch(selectedFeatures, (features) => {
         class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
-        <div class="d-flex h-100 overflow-y-auto justify-content-stretch flex-column flex-md-row">
+        <div class="d-flex h-100 justify-content-stretch flex-column flex-md-row overflow-y-auto">
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
@@ -81,9 +84,9 @@ watch(selectedFeatures, (features) => {
             >
                 <div
                     v-if="isMultiFeature && currentGeometryElements.length > 1"
-                    class="ps-1 pt-1 d-flex"
+                    class="d-flex ps-1 pt-1"
                 >
-                    <div class="d-flex gap-1 mw-100 overflow-x-auto">
+                    <div class="d-flex mw-100 gap-1 overflow-x-auto">
                         <button
                             v-for="(_, index) in currentGeometryElements"
                             :key="index"

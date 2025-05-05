@@ -15,16 +15,16 @@ export default class ElevationProfile {
     }
 
     get points() {
-        return this.segments.flatMap((segment) => segment.points)
+        return this.chunks.flatMap((segment) => segment.points)
     }
 
     get segmentPoints() {
-        return this.segments[this._activeSegmentIndex].points
+        return this.chunks[this._activeSegmentIndex].points
     }
 
     /** @returns {Number} */
     get segmentsCount() {
-        return this.segments.length
+        return this.chunks.length
     }
 
     /** @returns {Number} */
@@ -46,14 +46,14 @@ export default class ElevationProfile {
 
     /** @returns {boolean} True if one segment is found to have elevation data */
     get hasElevationData() {
-        return !!this.segments.find((segment) => segment.hasElevationData)
+        return !!this.chunks.find((segment) => segment.hasElevationData)
     }
 
     /** @returns {boolean} True if all segments have distance data */
     get hasDistanceData() {
         return (
-            this.segments.length > 0 &&
-            this.segments.filter((s) => s.hasDistanceData).length === this.segments.length
+            this.chunks.length > 0 &&
+            this.chunks.filter((s) => s.hasDistanceData).length === this.chunks.length
         )
     }
 
@@ -62,7 +62,7 @@ export default class ElevationProfile {
         if (!this.hasDistanceData) {
             return 0
         }
-        return this.segments[this._activeSegmentIndex].maxDist
+        return this.chunks[this._activeSegmentIndex].maxDist
     }
 
     /** @returns {Number} */
@@ -71,7 +71,7 @@ export default class ElevationProfile {
             return 0
         }
         return Math.max(
-            ...this.segments[this._activeSegmentIndex].points.map((point) => point.elevation)
+            ...this.chunks[this._activeSegmentIndex].points.map((point) => point.elevation)
         )
     }
 
@@ -81,7 +81,7 @@ export default class ElevationProfile {
             return 0
         }
         return Math.min(
-            ...this.segments[this._activeSegmentIndex].points
+            ...this.chunks[this._activeSegmentIndex].points
                 .filter((point) => point.hasElevationData)
                 .map((point) => point.elevation)
         )
@@ -93,22 +93,22 @@ export default class ElevationProfile {
             return 0
         }
         return (
-            this.segments[this._activeSegmentIndex].points.slice(-1)[0].elevation -
-            this.segments[this._activeSegmentIndex].points[0].elevation
+            this.chunks[this._activeSegmentIndex].points.slice(-1)[0].elevation -
+            this.chunks[this._activeSegmentIndex].points[0].elevation
         )
     }
 
     get totalAscent() {
-        return this.segments[this._activeSegmentIndex].totalAscent
+        return this.chunks[this._activeSegmentIndex].totalAscent
     }
 
     get totalDescent() {
-        return this.segments[this._activeSegmentIndex].totalDescent
+        return this.chunks[this._activeSegmentIndex].totalDescent
     }
 
     /** @returns {Number} Sum of slope/surface distances (distance on the ground) */
     get slopeDistance() {
-        return this.segments[this._activeSegmentIndex].slopeDistance
+        return this.chunks[this._activeSegmentIndex].slopeDistance
     }
 
     get coordinates() {
@@ -126,6 +126,6 @@ export default class ElevationProfile {
      * @returns {number} Estimation of hiking time for this profile
      */
     get hikingTime() {
-        return this.segments[this._activeSegmentIndex].hikingTime
+        return this.chunks[this._activeSegmentIndex].hikingTime
     }
 }

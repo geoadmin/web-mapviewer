@@ -87,7 +87,7 @@ describe('The Import File Tool', () => {
         cy.get(
             '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
         ).should('contain.text', '1341.8 m')
-        cy.get('[data-cy="profile-segment-button-0"]').should('be.not.exist')
+        cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click({ force: true })
@@ -975,9 +975,10 @@ describe('The Import File Tool', () => {
         cy.get(
             '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
         ).should('contain.text', '1341.8 m')
-        cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
-        cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
-        cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
+        cy.log(
+            'Checking that the stitching of the GPX track was successful, and no segment was left (all were stitched together as a single track)'
+        )
+        cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
 
         // Import file partially out of bounds
         cy.log('Test import file partially out of bounds')

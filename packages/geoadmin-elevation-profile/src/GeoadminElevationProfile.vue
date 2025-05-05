@@ -135,7 +135,7 @@ function onCSVDownload() {
     const csvData =
         [
             ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
-            ...profileData.value.segments
+            ...profileData.value.chunks
                 .flatMap((segment) => segment.points)
                 .map((point) => {
                     const [lon, lat] = proj4(
@@ -143,11 +143,7 @@ function onCSVDownload() {
                         WGS84.epsg,
                         point.coordinate
                     )
-                    const [x, y] = proj4(
-                        coordinateSystem.value.epsg,
-                        LV95.epsg,
-                        point.coordinate
-                    )
+                    const [x, y] = proj4(coordinateSystem.value.epsg, LV95.epsg, point.coordinate)
                     return [
                         point.dist,
                         point.elevation,

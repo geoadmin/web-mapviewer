@@ -17,13 +17,6 @@ import {
     allStylingTextPlacementsWithUnknown,
 } from '@/utils/featureStyleUtils'
 
-/** @param {SelectableFeature} feature */
-export function canFeatureShowProfile(feature) {
-    return ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(
-        feature?.geometry?.type
-    )
-}
-
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId

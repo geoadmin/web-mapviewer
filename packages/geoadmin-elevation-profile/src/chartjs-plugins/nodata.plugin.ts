@@ -38,22 +38,22 @@ const noDataPlugin: Plugin = {
         const { right, left } = x ?? {}
 
         // going into each segment without data, to see if we need to draw a no data zone in the chart
-        profile.segments
+        profile.chunks
             .filter((segment) => !segment.hasElevationData)
             .forEach((segmentWithoutData) => {
-                const segmentIndex = profile.segments.indexOf(segmentWithoutData)
+                const segmentIndex = profile.chunks.indexOf(segmentWithoutData)
 
                 let startingPoint = segmentWithoutData.points[0]
                 let endingPoint = segmentWithoutData.points.slice(-1)[0]
                 // if this segment isn't the first, we take the last point of the previous segment as our starting point
                 if (segmentIndex !== 0) {
-                    const previousSegment = profile.segments[segmentIndex - 1]
+                    const previousSegment = profile.chunks[segmentIndex - 1]
                     startingPoint = previousSegment.points.slice(-1)[0]
                 }
 
                 // if this segment isn't the last, we take the first point of the next segment as our ending point
-                if (segmentIndex < profile.segments.length - 1) {
-                    const nextSegment = profile.segments[segmentIndex + 1]
+                if (segmentIndex < profile.chunks.length - 1) {
+                    const nextSegment = profile.chunks[segmentIndex + 1]
                     endingPoint = nextSegment.points[0]
                 }
 

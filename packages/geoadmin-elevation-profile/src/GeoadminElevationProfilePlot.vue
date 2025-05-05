@@ -62,7 +62,7 @@ const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = compu
     () => profile?.metadata
 )
 const profilePoints: ComputedRef<ElevationProfilePoint[]> = computed(() =>
-    profile.segments.flatMap((s) => s.points).toSorted((p1, p2) => (p2.dist ?? 0) - (p1.dist ?? 0))
+    profile.chunks.flatMap((s) => s.points).toSorted((p1, p2) => (p2.dist ?? 0) - (p1.dist ?? 0))
 )
 const totalLinearDist: ComputedRef<number> = computed(
     () => profileMetadata.value?.totalLinearDist ?? 0
