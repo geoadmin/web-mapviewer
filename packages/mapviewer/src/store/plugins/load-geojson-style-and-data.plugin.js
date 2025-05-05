@@ -4,10 +4,10 @@
  */
 
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import axios from 'axios'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
 

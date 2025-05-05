@@ -1,4 +1,5 @@
 <script setup>
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -6,7 +7,6 @@ import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatal
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 

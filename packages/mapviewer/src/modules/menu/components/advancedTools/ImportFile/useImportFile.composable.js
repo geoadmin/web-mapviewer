@@ -1,11 +1,11 @@
 import log from '@geoadmin/log'
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { flattenExtent } from '@/utils/extentUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = {
     dispatcher: 'useImportFile.composable',
