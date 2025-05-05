@@ -95,9 +95,13 @@ function extractWGS84Coordinates(text) {
     return undefined
 }
 
+const thousandSeparatorRegex = /['`’´ ]/g
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES =
-    /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i
+    new RegExp(
+        `^(?<coord1>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)\\s*[,/ \\t]\\s*(?<coord2>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)$`,
+        'i'
+    )
 
 /**
  * @param {String} text
@@ -156,8 +160,6 @@ function extractMgrsCoordinates(text) {
 
 const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
 const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)
-
-const thousandSeparatorRegex = /['`´ ]/g
 
 /**
  * @param {RegExpExecArray | undefined} regexMatches Matches from REGEX_METRIC_COORDINATES
