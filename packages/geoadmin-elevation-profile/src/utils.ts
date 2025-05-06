@@ -2,7 +2,7 @@ import { format } from '@geoadmin/numbers'
 
 import type { ElevationProfilePoint } from '@/profile.api'
 
-export type ElevationProfileMetadata = {
+export interface ElevationProfileMetadata {
     totalLinearDist: number
     minElevation: number
     maxElevation: number

@@ -17,13 +17,13 @@ export class ElevationProfileError extends Error {
     }
 }
 
-type ServiceProfileAltitudes = {
+interface ServiceProfileAltitudes {
     COMB?: number
     DTM2?: number
     DTM25?: number
 }
 
-type ServiceProfilePoints = {
+interface ServiceProfilePoints {
     alts?: ServiceProfileAltitudes
     dist: number
     easting: number
@@ -39,13 +39,13 @@ export interface ElevationProfilePoint {
     hasElevationData: boolean
 }
 
-export type ElevationProfileChunk = {
+export interface ElevationProfileChunk {
     points: ElevationProfilePoint[]
     hasElevationData: boolean
     hasDistanceData: boolean
 }
 
-export type ElevationProfile = {
+export interface ElevationProfile {
     chunks: ElevationProfileChunk[]
     metadata: ElevationProfileMetadata
 }

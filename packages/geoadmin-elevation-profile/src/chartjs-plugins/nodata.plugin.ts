@@ -2,7 +2,7 @@ import type { Chart, Plugin } from 'chart.js'
 
 import type { ElevationProfile } from '@/profile.api'
 
-export type NoDataPluginOptions = {
+export interface NoDataPluginOptions {
     profile: any
     noDataText?: string
 }

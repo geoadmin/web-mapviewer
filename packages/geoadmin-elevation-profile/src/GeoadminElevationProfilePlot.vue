@@ -45,7 +45,7 @@ export type PointBeingHovered = {
 export type ScreenPoint = ElevationProfilePoint & {
     screenPosition: [number, number]
 }
-type ElevationProfilePlotProps = {
+interface ElevationProfilePlotProps {
     profile: ElevationProfile
 }
 
@@ -74,7 +74,7 @@ const profileChartContainerRef = useTemplateRef<HTMLDivElement>('profileChartCon
 const profileTooltipRef = useTemplateRef<HTMLDivElement>('profileTooltip')
 const chartRef = useTemplateRef<ComponentPublicInstance<typeof LineChart>>('chart')
 
-type ElevationProfileMessages = {
+interface ElevationProfileMessages {
     distance_label: string
     elevation: string
     profile_no_data: string

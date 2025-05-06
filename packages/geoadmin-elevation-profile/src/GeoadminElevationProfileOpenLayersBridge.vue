@@ -3,7 +3,7 @@ import type { SingleCoordinate } from '@geoadmin/coordinates'
 import type Map from 'ol/Map'
 
 import Overlay from 'ol/Overlay'
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import type { GetPointBeingHoveredFunction } from '@/GeoadminElevationProfilePlot.vue'
 
@@ -44,6 +44,9 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
     removeHoverPositionOverlay()
+})
+onUnmounted(() => {
+    element.remove()
 })
 
 watch(coordinate, () => {

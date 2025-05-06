@@ -20,7 +20,7 @@ interface ElevationProfileInformationProps {
 
 const { metadata } = defineProps<ElevationProfileInformationProps>()
 
-type ElevationProfileInformationMessages = {
+interface ElevationProfileInformationMessages {
     profile_distance: string
     profile_elevation_difference: string
     profile_elevation_down: string

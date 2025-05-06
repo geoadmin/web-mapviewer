@@ -38,7 +38,7 @@ const {
     filename = 'export',
 } = defineProps<ElevationProfileProps>()
 
-type ElevationProfileMessages = {
+interface ElevationProfileMessages {
     profile_download_csv: string
     profile_invert: string
     profile_network_error: string
@@ -136,7 +136,7 @@ function onCSVDownload() {
         [
             ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
             ...profileData.value.chunks
-                .flatMap((segment) => segment.points)
+                .flatMap((chunk) => chunk.points)
                 .map((point) => {
                     const [lon, lat] = proj4(
                         coordinateSystem.value.epsg,

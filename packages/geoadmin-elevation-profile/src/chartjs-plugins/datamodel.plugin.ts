@@ -1,6 +1,6 @@
 import type { Plugin } from 'chart.js'
 
-export type DataModelPluginOptions = {
+export interface DataModelPluginOptions {
     /**
      * Name of the data model that will be written in the top right corner of the chart. Defaults to
      * 'swissALTI3D/DHM25'
