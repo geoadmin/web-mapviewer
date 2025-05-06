@@ -415,6 +415,7 @@ defineExpose({ goToFirst })
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 // Adjust overflow to ensure focus outline is not clipped
 .providers-list-container {
     max-height: 13rem;

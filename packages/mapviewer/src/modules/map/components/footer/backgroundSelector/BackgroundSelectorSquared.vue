@@ -86,6 +86,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
 
 <style lang="scss" scoped>
 @use 'sass:math';
+
 @import './bg-selector';
 
 $main-element: '.bg-selector-squared';

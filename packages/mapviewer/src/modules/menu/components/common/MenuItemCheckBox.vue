@@ -57,20 +57,22 @@ function onClick(ev) {
 @import '@/modules/menu/scss/menu-items';
 
 .menu-check-box-item {
-    @extend .menu-item;
+    @extend %menu-item;
+
     border-bottom: none;
 
     &-title {
-        @extend .menu-title;
-        cursor: pointer;
+        @extend %menu-title;
 
+        cursor: pointer;
         border-bottom-width: 1px;
         border-bottom-color: $gray-400;
         border-bottom-style: solid;
     }
 
     &-name {
-        @extend .menu-name;
+        @extend %menu-name;
+
         cursor: pointer;
     }
 }

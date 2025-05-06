@@ -15,8 +15,8 @@ const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, sma
             default: '',
         },
         /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
+         * content
          */
         hide: {
             type: Boolean,
@@ -157,13 +157,26 @@ onMounted(() => {
 
 .simple-window {
     $top-margin: calc(2 * $header-height + 2rem);
-    z-index: calc($zindex-menu + 1);
-    position: fixed;
-    top: $top-margin;
-    right: 4rem;
-    width: max-content;
-    max-width: 400px;
-    max-height: max-content;
+
+    .card-body {
+        overflow-y: auto;
+
+        &.hide {
+            visibility: hidden;
+            height: 0;
+            padding: 0;
+        }
+    }
+
+    & {
+        z-index: calc($zindex-menu + 1);
+        top: $top-margin;
+        right: 4rem;
+        width: max-content;
+        position: fixed;
+        max-width: 400px;
+        max-height: max-content;
+    }
 
     @include respond-above(phone) {
         &.resizable {
@@ -208,8 +221,8 @@ onMounted(() => {
         $top-margin: $header-height;
 
         top: $top-margin;
-        left: 0px;
-        right: 0px;
+        left: 0;
+        right: 0;
         transform: unset;
         max-height: calc(100vh - $top-margin);
         max-width: 100vw;
@@ -224,15 +237,6 @@ onMounted(() => {
 
         &.dev-disclaimer-present {
             top: calc($top-margin + $dev-disclaimer-height);
-        }
-    }
-    .card-body {
-        overflow-y: auto;
-
-        &.hide {
-            visibility: hidden;
-            height: 0px;
-            padding: 0px;
         }
     }
 }

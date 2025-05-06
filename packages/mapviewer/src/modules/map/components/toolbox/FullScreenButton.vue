@@ -66,6 +66,7 @@ function handleKeydown(event) {
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
+
 .fullscreen-warning {
     position: fixed;
     top: 120px;
@@ -78,20 +79,23 @@ function handleKeydown(event) {
     font-size: 16px;
     z-index: 1000;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    animation: fadeInOut 3s ease-in-out forwards;
+    animation: fade-in-out 3s ease-in-out forwards;
 }
 
-@keyframes fadeInOut {
+@keyframes fade-in-out {
     0% {
         opacity: 0;
         visibility: visible;
     }
+
     10% {
         opacity: 0.9;
     }
+
     90% {
         opacity: 0.9;
     }
+
     100% {
         opacity: 0;
         visibility: hidden;

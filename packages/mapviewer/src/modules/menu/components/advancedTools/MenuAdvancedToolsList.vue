@@ -113,7 +113,8 @@ function onToggleImportFile() {
 @import '@/modules/menu/scss/menu-items';
 
 .advanced-tools-list {
-    @extend .menu-list;
+    @extend %menu-list;
+
     overflow-y: auto;
 }
 </style>

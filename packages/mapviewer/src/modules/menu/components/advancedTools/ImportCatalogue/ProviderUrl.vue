@@ -218,6 +218,7 @@ function hideProviders() {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 .url-input-dropdown-open {
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;

@@ -346,7 +346,7 @@ function containsLayer(layers, searchText) {
     border-bottom: none;
 
     &-title {
-        @extend .menu-title;
+        @extend %menu-title;
         cursor: pointer;
         border-bottom-width: 1px;
         border-bottom-color: $gray-400;
@@ -361,13 +361,10 @@ function containsLayer(layers, searchText) {
         }
     }
 }
-.menu-catalogue-item-title {
-    @extend .menu-item;
-}
 .menu-catalogue-item-name {
-    @extend .menu-name;
+    @extend %menu-name;
 }
 .menu-catalogue-item-children {
-    @extend .menu-list;
+    @extend %menu-list;
 }
 </style>
