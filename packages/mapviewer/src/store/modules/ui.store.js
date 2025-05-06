@@ -191,6 +191,15 @@ export default {
          * @type Boolean
          */
         hideEmbedUI: false,
+
+        /**
+         * Flag used to override the dev site warning behavior. This can only be used to force the
+         * dev site to remove its dev-specific UI element, so this always start as false, and is
+         * only meant to be set to true by a press of a button in the debug menu
+         *
+         * @type Boolean
+         */
+        forceNoDevSiteWarning: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -266,8 +275,9 @@ export default {
          * hide development specific features in production (like the app version)
          */
         hasDevSiteWarning(state) {
-            return !NO_WARNING_BANNER_HOSTNAMES.some((hostname) =>
-                state.hostname.includes(hostname)
+            return (
+                !state.forceNoDevSiteWarning &&
+                !NO_WARNING_BANNER_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
             )
         },
         isProductionSite(state) {
@@ -488,6 +498,9 @@ export default {
         setHideEmbedUI({ commit }, { hideEmbedUI, dispatcher }) {
             commit('sethideEmbedUI', { hideEmbedUI: !!hideEmbedUI, dispatcher })
         },
+        setForceNoDevSiteWarning({ commit }, { dispatcher }) {
+            commit('setForceNoDevSiteWarning', { dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -561,5 +574,6 @@ export default {
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
         sethideEmbedUI: (state, { hideEmbedUI }) => (state.hideEmbedUI = hideEmbedUI),
+        setForceNoDevSiteWarning: (state) => (state.forceNoDevSiteWarning = true),
     },
 }
