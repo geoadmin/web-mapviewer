@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -26,7 +26,14 @@ const store = useStore()
 const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
 const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
 
-const currentLang = ref(store.state.i18n.lang)
+const currentLang = computed(() => store.state.i18n.lang)
+
+// this is needed to pass the selected value to the changelang function
+const selectedLang = ref(currentLang.value)
+
+watch(currentLang, () => {
+    selectedLang.value = currentLang.value
+})
 
 function changeLang(lang) {
     store.dispatch('setLang', {
@@ -111,10 +118,10 @@ defineExpose({
         </div>
         <template #extra-button>
             <select
-                v-model="currentLang"
+                v-model="selectedLang"
                 class="form-control form-control-sm menu-lang-switch bg-light text-dark"
                 data-cy="mobile-lang-selector"
-                @change="changeLang(currentLang)"
+                @change="changeLang(selectedLang)"
                 @click.stop
             >
                 <option

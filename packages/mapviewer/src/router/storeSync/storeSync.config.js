@@ -35,7 +35,11 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         validateUrlInput: (store, query) =>
-            getStandardValidationResponse(query, SUPPORTED_LANG.includes(query), 'lang'),
+            getStandardValidationResponse(
+                query,
+                SUPPORTED_LANG.includes(query.toLowerCase()),
+                'lang'
+            ),
     }),
     new NoSimpleZoomParamConfig(),
     new SimpleUrlParamConfig({
