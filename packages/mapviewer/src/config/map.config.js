@@ -1,11 +1,11 @@
-import { LV95 } from '@geoadmin/coordinates'
+import { WEBMERCATOR } from '@geoadmin/coordinates'
 
 /**
  * Default projection to be used throughout the application
  *
  * @type {CoordinateSystem}
  */
-export const DEFAULT_PROJECTION = LV95
+export const DEFAULT_PROJECTION = WEBMERCATOR
 
 /**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)

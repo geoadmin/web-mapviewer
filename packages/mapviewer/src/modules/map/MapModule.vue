@@ -5,7 +5,9 @@ import { useStore } from 'vuex'
 import CompareSlider from './components/CompareSlider.vue'
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
+
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
+const MapLibreMap = defineAsyncComponent(() => import('./components/maplibre/MaplibreMap.vue'))
 const OpenLayersMap = defineAsyncComponent(
     () => import('./components/openlayers/OpenLayersMap.vue')
 )
@@ -13,6 +15,7 @@ const OpenLayersMap = defineAsyncComponent(
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
+const showMapLibre = computed(() => store.state.debug.showMapLibre)
 
 const displayLocationPopup = computed(
     () => store.state.map.locationPopupCoordinates && !store.state.ui.embed
@@ -33,6 +36,11 @@ const isCompareSliderActive = computed(() => {
             <LocationPopup v-if="displayLocationPopup" />
             <slot name="footer" />
         </CesiumMap>
+        <MapLibreMap v-else-if="showMapLibre">
+            <slot />
+            <LocationPopup v-if="displayLocationPopup" />
+            <slot name="footer" />
+        </MapLibreMap>
         <OpenLayersMap v-else>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />

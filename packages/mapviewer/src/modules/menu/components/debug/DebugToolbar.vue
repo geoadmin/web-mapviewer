@@ -23,6 +23,7 @@ const showPrint = ref(false)
 
 const currentProjection = computed(() => store.state.position.projection)
 const is3dActive = computed(() => store.state.cesium.active)
+const showMapLibre = computed(() => store.state.debug.showMapLibre)
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
@@ -54,6 +55,12 @@ function toggleShowLayerFinder() {
 }
 function toggleShowPrint() {
     showPrint.value = !showPrint.value
+}
+function toggleMapLibre() {
+    if (!showMapLibre.value && !isMercatorTheCurrentProjection.value) {
+        toggleProjection()
+    }
+    store.dispatch('toggleShowMapLibre', dispatcher)
 }
 </script>
 
@@ -116,7 +123,25 @@ function toggleShowPrint() {
                                 {{ currentProjection.epsg }}
                             </label>
                         </div>
-
+                        <div
+                            v-if="!is3dActive"
+                            class="mb-1"
+                        >
+                            <h5 class="text-decoration-underline">Framework</h5>
+                            <div class="d-flex gap-1 justify-content-around">
+                                <div>
+                                    <button
+                                        class="toolbox-button m-auto"
+                                        type="button"
+                                        :class="{ active: showMapLibre }"
+                                        @click="toggleMapLibre"
+                                    >
+                                        <FontAwesomeIcon :icon="['fas', 'earth-europe']" />
+                                    </button>
+                                    <label class="text-center">MapLibre</label>
+                                </div>
+                            </div>
+                        </div>
                         <div
                             v-if="!is3dActive"
                             class="d-flex flex-column align-items-center"

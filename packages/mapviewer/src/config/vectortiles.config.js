@@ -5,7 +5,7 @@
  *
  * @type {string}
  */
-export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_world.vt'
+export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.basemap.vt'
 
 /**
  * Imagery base map style ID
@@ -14,4 +14,4 @@ export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_w
  *
  * @type {string}
  */
-export const VECTOR_TILES_IMAGERY_STYLE_ID = 'ch.swisstopo.leichte-basiskarte-imagery_world.vt'
+export const VECTOR_TILES_IMAGERY_STYLE_ID = 'ch.swisstopo.imagerybasemap.vt'

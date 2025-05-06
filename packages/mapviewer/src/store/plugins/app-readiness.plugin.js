@@ -32,6 +32,7 @@ const appReadinessPlugin = (store) => {
                 state.ui.width > 0 &&
                 state.ui.height > 0 &&
                 Object.keys(state.layers.config).length > 0 &&
+                state.layers.vectorTileStyle !== null &&
                 state.topics.config.length > 0
             ) {
                 store.dispatch('setAppIsReady', dispatcher)

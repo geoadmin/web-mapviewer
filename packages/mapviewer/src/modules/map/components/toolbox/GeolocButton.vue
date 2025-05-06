@@ -70,7 +70,6 @@ function toggleGeolocation() {
         <GeoadminTooltip
             placement="left"
             :tooltip-content="tooltipContent"
-            :use-extra-padding="true"
         >
             <button
                 class="toolbox-button d-print-none"
