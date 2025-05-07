@@ -384,7 +384,7 @@ watch(noSimpleZoom, (value) => {
 .embed-btn {
     // Here we add the menu-item styling to the title only to avoid hover
     // on the content once the item has been opened
-    @extend .menu-item;
+    @extend %menu-item;
 
     cursor: pointer;
     height: 2.75em;

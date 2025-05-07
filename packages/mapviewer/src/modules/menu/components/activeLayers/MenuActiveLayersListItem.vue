@@ -344,18 +344,21 @@ function changeStyle(newStyle) {
 }
 
 .menu-layer-item {
-    @extend .menu-item;
+    @extend %menu-item;
+
     border-bottom: 1px solid $gray-400;
 }
 .menu-layer-item-title {
-    @extend .menu-title;
+    @extend %menu-title;
 }
 .menu-layer-item-name {
-    @extend .menu-name;
+    @extend %menu-name;
+
     cursor: pointer;
 }
 .menu-layer-item-details {
-    @extend .menu-title;
+    @extend %menu-title;
+
     padding-bottom: 0.4rem;
 }
 .menu-layer-options {
@@ -385,11 +388,13 @@ svg {
 }
 
 .layer-options-btn {
+    /* stylelint-disable scss/at-extend-no-missing-placeholder */
     @extend .btn;
     @extend .d-flex;
     @extend .align-items-center;
     @extend .px-2;
     @extend .border-0;
+    /* stylelint-enable scss/at-extend-no-missing-placeholder */
 }
 
 .btn-group {

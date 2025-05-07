@@ -191,6 +191,7 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
+/* stylelint-disable scss/operator-no-newline-after */
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/scss/media-query.mixin';
 

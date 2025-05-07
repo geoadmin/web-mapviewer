@@ -120,9 +120,9 @@ function toggleGeolocation() {
     border-radius: $map-button-diameter * 0.5;
 }
 
-@respond-above ('md') {
+@include respond-above('md') {
     .geoloc-tooltip {
-        whitespace: nowrap;
+        white-space: nowrap;
     }
 }
 </style>

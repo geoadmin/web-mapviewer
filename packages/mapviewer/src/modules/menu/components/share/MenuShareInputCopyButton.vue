@@ -107,6 +107,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 .input-text-to-copy {
     width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
 }

@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @import 'variables.module';
 @import 'variables-admin.module';
 @import 'diemo';
@@ -32,9 +34,11 @@ $danger: $red;
 $info: $cerulean;
 $component-active-bg: $malibu;
 
+/* stylelint-disable no-invalid-position-at-import-rule */
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
+/* stylelint-enable  no-invalid-position-at-import-rule*/
 
 // Add custom variables based on bootstrap here
 
@@ -55,28 +59,37 @@ $nav-tabs-link-active-bg: $primary;
 // Add our custom class here
 .btn-outline-group {
     @include button-outline-variant($gray-400);
+
     border-color: $gray-400 !important;
     color: $gray-800;
 }
 
 .form-control:focus {
-    box-shadow: 0 1px 4px lighten($dark, 8%);
+    box-shadow: 0 1px 4px color.adjust($dark, $lightness: 8%);
 }
 
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
 }
 
-.no-ios-long-press-select {
+%no-ios-long-press-select {
     user-select: none;
-    -webkit-user-select: none;
     -webkit-touch-callout: none;
 }
-.clear-no-ios-long-press {
+
+%clear-no-ios-long-press {
     user-select: text;
-    -webkit-user-select: text;
     -webkit-touch-callout: default;
 }
+
+.no-ios-long-press-select {
+    @extend %no-ios-long-press-select;
+}
+
+.clear-no-ios-long-press {
+    @extend %clear-no-ios-long-press;
+} 
+
 .w-13 {
     width: 13%;
 }

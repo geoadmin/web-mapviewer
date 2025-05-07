@@ -83,5 +83,3 @@ const tooltipContent = computed((): string => {
         </button>
     </GeoadminTooltip>
 </template>
-
-<style lang="scss" scoped></style>

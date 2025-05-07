@@ -111,6 +111,7 @@ function loadMoreResultForLayer(layerId) {
 
 <style lang="scss" scoped>
 @import '@/scss/variables.module';
+
 .feature-list {
     display: flex;
     flex-direction: column;

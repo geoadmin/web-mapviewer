@@ -202,11 +202,11 @@ function showSiteAsInProd() {
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
+
 .debug-tools {
     $debugToolWidth: 12.5rem;
     $debugToolHeaderWidth: 2rem;
     width: $debugToolWidth;
-
     transition: all 0.4s;
     &.collapsed {
         transform: translateX($debugToolWidth - $debugToolHeaderWidth);

@@ -55,7 +55,9 @@ const isInputYearValid = ref(true)
 
 const tooltipYearOutsideRangeContent = computed(
     () =>
-        `${t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
+        `${t('outside_valid_year_range')} ${allYears.value[0]}-${
+            allYears.value[allYears.value.length - 1]
+        }`
 )
 
 /**
@@ -534,18 +536,17 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     width: 1rem;
     border-radius: 0.1rem;
     margin-right: 0.2rem;
-
     float: left;
     border-color: $silver;
     background: $silver;
 }
+
 .color-tooltip-data-partial {
     height: 1rem;
     width: 1rem;
     border-radius: 0.1rem;
     margin-right: 0.2rem;
     float: left;
-
     border-color: $time-slider-color-partial-data;
     background: $time-slider-color-partial-data;
 }
@@ -554,10 +555,8 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     height: 1rem;
     width: 1rem;
     margin-right: 0.2rem;
-
     border-radius: 0.1rem;
     float: left;
-
     border-color: $time-slider-color-has-data;
     background: $time-slider-color-has-data;
 }
@@ -566,14 +565,135 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 .time-slider-dropdown {
     display: block;
 }
+
 .time-slider-bar {
     display: none;
+
+    &-cursor {
+        $cursor-height: 34px;
+
+        position: absolute;
+        top: 0.75 * $spacer;
+        height: $cursor-height;
+        width: 100px;
+
+        &-arrow {
+            $arrow-width: 9px;
+
+            position: absolute;
+            top: calc(0.75 * $spacer + $cursor-height - 1px);
+            border-width: $arrow-width $arrow-width 0px;
+            border-style: solid;
+            border-color: $border-color transparent;
+
+            &::after {
+                $inner-arrow-width: $arrow-width - $border-width;
+
+                content: '';
+                position: absolute;
+                bottom: 1px;
+                left: calc(50% - $inner-arrow-width);
+                border-width: $inner-arrow-width $inner-arrow-width 0px;
+                border-style: solid;
+                border-color: #fff transparent;
+            }
+        }
+    }
+
+    &-inner {
+        background: $silver;
+        width: 100%;
+        height: 10px;
+
+        &-step {
+            cursor: pointer;
+
+            &.has-partial-data {
+                background: $time-slider-color-partial-data;
+            }
+
+            &.has-joint-data {
+                background: $time-slider-color-has-data;
+            }
+
+            &:not(.small-tick, .big-tick, .medium-tick)::before {
+                content: '';
+                display: block;
+                margin-left: -0.5px;
+                width: 1px;
+                height: 2px;
+                background: rgba(0, 0, 0, 0.4);
+            }
+
+            &.small-tick:not(.big-tick, .medium-tick)::before {
+                content: '';
+                display: block;
+                margin-left: -0.5px;
+                width: 1px;
+                height: 10px;
+                background: rgba(0, 0, 0, 0.4);
+            }
+
+            &.medium-tick:not(.big-tick)::before {
+                content: '';
+                display: block;
+                margin-left: -1px;
+                width: 2px;
+                height: 10px;
+                background: rgba(0, 0, 0, 0.4);
+            }
+
+            &.big-tick::before {
+                content: '';
+                display: block;
+                margin-left: -2px;
+                width: 2px;
+                height: 15px;
+                background: rgba(0, 0, 0, 0.4);
+            }
+        }
+    }
 }
+
 .time-slider-play-button {
     display: none;
 }
+
 .time-slider {
+    background: $time-slider-color-background !important;
     width: auto;
+
+    &:not(.grabbed) &-bar-cursor {
+        cursor: grab;
+    }
+
+    &.grabbed {
+        cursor: grabbing;
+    }
+
+    &-node {
+        display: inline-flex;
+        width: 32px;
+        text-align: center;
+    }
+    input {
+        margin: 0;
+    }
+}
+
+.time-slider-bar-cursor-year {
+    border: none;
+    &.form-control {
+        padding: 0 3px;
+        border-color: $white;
+        &.is-invalid {
+            background-size: 0;
+        }
+        &:focus {
+            outline: none;
+            box-shadow: none;
+        }
+    }
 }
 
 @include respond-above(lg) {
@@ -592,112 +712,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
     .time-slider-play-button {
         display: block;
-    }
-}
-//
-
-.time-slider {
-    background: $time-slider-color-background !important;
-    &:not(.grabbed) &-bar-cursor {
-        cursor: grab;
-    }
-    &.grabbed {
-        cursor: grabbing;
-    }
-    &-bar {
-        &-cursor {
-            $cursor-height: 34px;
-            position: absolute;
-            top: 0.75 * $spacer;
-            height: $cursor-height;
-            width: 100px;
-            &-arrow {
-                $arrow-width: 9px;
-                position: absolute;
-                top: calc(0.75 * $spacer + $cursor-height - 1px);
-                border-width: $arrow-width $arrow-width 0;
-                border-style: solid;
-                border-color: $border-color transparent;
-                &::after {
-                    $inner-arrow-width: $arrow-width - $border-width;
-                    content: '';
-                    position: absolute;
-                    bottom: 1px;
-                    left: calc(50% - $inner-arrow-width);
-                    border-width: $inner-arrow-width $inner-arrow-width 0;
-                    border-style: solid;
-                    border-color: #fff transparent;
-                }
-            }
-        }
-        &-inner {
-            background: $silver;
-            width: 100%;
-            height: 10px;
-            &-step {
-                cursor: pointer;
-                &.has-partial-data {
-                    background: $time-slider-color-partial-data;
-                }
-                &.has-joint-data {
-                    background: $time-slider-color-has-data;
-                }
-                &:not(.small-tick):not(.big-tick):not(.medium-tick)::before {
-                    content: '';
-                    display: block;
-                    margin-left: -0.5px;
-                    width: 1px;
-                    height: 2px;
-                    background: rgba(0, 0, 0, 0.4);
-                }
-                &.small-tick:not(.big-tick):not(.medium-tick)::before {
-                    content: '';
-                    display: block;
-                    margin-left: -0.5px;
-                    width: 1px;
-                    height: 10px;
-                    background: rgba(0, 0, 0, 0.4);
-                }
-                &.medium-tick:not(.big-tick)::before {
-                    content: '';
-                    display: block;
-                    margin-left: -1px;
-                    width: 2px;
-                    height: 10px;
-                    background: rgba(0, 0, 0, 0.4);
-                }
-                &.big-tick::before {
-                    content: '';
-                    display: block;
-                    margin-left: -2px;
-                    width: 2px;
-                    height: 15px;
-                    background: rgba(0, 0, 0, 0.4);
-                }
-            }
-        }
-    }
-    &-node {
-        display: inline-flex;
-        width: 32px;
-        text-align: center;
-    }
-    input {
-        margin: 0;
-    }
-}
-.time-slider-bar-cursor-year {
-    border: none;
-    &.form-control {
-        padding: 0 3px;
-        border-color: $white;
-        &.is-invalid {
-            background-size: 0;
-        }
-        &:focus {
-            outline: none;
-            box-shadow: none;
-        }
     }
 }
 </style>
