@@ -504,7 +504,7 @@ describe('The Import File Tool', () => {
             cy.readWindowValue('cesiumViewer').should((viewer) => {
                 expect(viewer.dataSources.length).to.eq(
                     kmlLayerCount,
-                    `should have ${kmlLayerCount} date source (KML files)`
+                    `should have ${kmlLayerCount} data source (KML files) instead of ${viewer.dataSources.length}`
                 )
             })
         })

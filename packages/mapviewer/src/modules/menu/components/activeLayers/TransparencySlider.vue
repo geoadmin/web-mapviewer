@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { Layer } from '@geoadmin/layers'
+
 import { onMounted, watch } from 'vue'
 import { ref } from 'vue'
 // @ts-ignore no-implicit-any
 import { useStore, Store } from 'vuex'
-
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import debounce from '@/utils/debounce'
@@ -14,7 +14,7 @@ const DISPATCHER = { dispatcher: 'MenuActiveLayersListItem.vue' }
 const store: Store = useStore()
 
 const { layer, index } = defineProps<{
-    layer: AbstractLayer
+    layer: Layer
     index: number
 }>()
 

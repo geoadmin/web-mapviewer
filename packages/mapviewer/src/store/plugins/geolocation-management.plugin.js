@@ -115,7 +115,6 @@ const handlePositionError = (error, store, state, options = {}) => {
             })
             store.dispatch('addErrors', {
                 errors: [new ErrorMessage('geoloc_permission_denied')],
-                ...dispatcher,
             })
             break
         case GeolocationPositionError.TIMEOUT:

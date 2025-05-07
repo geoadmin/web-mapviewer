@@ -6,6 +6,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95 } from '@geoadmin/coordinates'
+import { LayerType, validateLayerProp } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
@@ -13,8 +14,6 @@ import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
@@ -23,7 +22,7 @@ const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
 
 const { item, compact, depth, search, isTopic } = defineProps({
     item: {
-        type: AbstractLayer,
+        validator: validateLayerProp,
         required: true,
     },
     search: {
@@ -89,7 +88,7 @@ const hasChildrenMatchSearch = computed(() => {
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item && !(item instanceof GeoAdminGroupOfLayers)
+    return item && !(item.type === LayerType.GROUP)
 })
 const isPresentInActiveLayers = computed(() => {
     const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
