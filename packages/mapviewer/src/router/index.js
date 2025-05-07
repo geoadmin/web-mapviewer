@@ -17,8 +17,9 @@ import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
 
+import PrintLegendView from '../views/PrintLegendView.vue'
 import PrintView from '../views/PrintView.vue'
-import { PRINT_VIEW } from './viewNames.js'
+import { PRINT_LEGEND_VIEW, PRINT_VIEW } from './viewNames'
 
 const history = createWebHashHistory()
 
@@ -55,6 +56,14 @@ const router = createRouter({
             path: '/print',
             name: PRINT_VIEW,
             component: PrintView,
+            meta: {
+                requiresAppReady: true,
+            },
+        },
+        {
+            path: '/print-legend',
+            name: PRINT_LEGEND_VIEW,
+            component: PrintLegendView,
             meta: {
                 requiresAppReady: true,
             },
