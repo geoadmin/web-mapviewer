@@ -26,7 +26,7 @@ import { arrow, autoUpdate, flip, offset, shift, useFloating } from '@floating-u
 import { computed, ref, useSlots, useTemplateRef } from 'vue'
 
 const {
-    tooltipContent,
+    tooltipContent = '',
     placement: desiredPlacement = 'top',
     disabled = false,
     theme = 'light',
