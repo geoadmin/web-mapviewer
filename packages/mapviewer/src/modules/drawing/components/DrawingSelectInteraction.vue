@@ -37,6 +37,7 @@ const { removeLastPoint } = useModifyInteraction(selectInteraction.getFeatures()
 /** OpenLayers feature currently selected */
 const currentlySelectedFeature = ref(null)
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
+const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
 
 watch(selectedFeatures, (newSelectedFeatures) => {
     /* If the store doesn't contain any more feature, we clear our local variable on that topic
@@ -61,7 +62,9 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         if (
             [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
                 editableFeature.featureType
-            )
+            ) &&
+            // only showing profile if the edit feature is done while floating
+            !showFeatureInfoInBottomPanel.value
         ) {
             store.dispatch('setProfileFeature', { feature: editableFeature, ...dispatcher })
         }

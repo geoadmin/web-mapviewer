@@ -75,7 +75,6 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             },
             tailwindcss(),
             vue({
-                isProduction: mode === 'production',
                 template: {
                     compilerOptions: {
                         isCustomElement: (tag) =>
@@ -109,13 +108,6 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             // disable the dev tools if required, e.g. in cypress component tests
             disableDevTools ? {} : vueDevTools(),
         ],
-        optimizeDeps: {
-            exclude: [
-                // as we are hot-reloading the geoadmin package from the local source code, we must
-                // disable the dependency optimizer for this one.
-                'geoadmin',
-            ],
-        },
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -127,6 +119,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             __APP_VERSION__: JSON.stringify(appVersion),
             VITE_ENVIRONMENT: JSON.stringify(mode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
+            __VUE_OPTIONS_API__: 'false',
         },
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],

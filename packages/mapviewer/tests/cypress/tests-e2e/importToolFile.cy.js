@@ -81,9 +81,13 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
         cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '3 m')
-        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
-        cy.get('[data-cy="profile-segment-button-0"]').should('be.not.exist')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]'
+        ).should('contain.text', '3 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
+        ).should('contain.text', '1341.8 m')
+        cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click({ force: true })
@@ -361,9 +365,13 @@ describe('The Import File Tool', () => {
         cy.closeMenuIfMobile()
 
         // 2 warnings to remove
-        cy.get('[data-cy="warning-window"]').contains('The imported file \'Line accross europe\' is partially outside the swiss boundaries. Some functionalities might not be available.')
+        cy.get('[data-cy="warning-window"]').contains(
+            "The imported file 'Line accross europe' is partially outside the swiss boundaries. Some functionalities might not be available."
+        )
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains('The imported KML file \'uetlibergwege_kml\' is malformed, please verify your file.')
+        cy.get('[data-cy="warning-window"]').contains(
+            "The imported KML file 'uetlibergwege_kml' is malformed, please verify your file."
+        )
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
 
         cy.get('[data-cy="searchbar"]').paste('placemark')
@@ -475,11 +483,17 @@ describe('The Import File Tool', () => {
         cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
         cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
         // 3 warnings to remove before being able to see the 3D button (on mobile)
-        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.')
+        cy.get('[data-cy="warning-window"]').contains(
+            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
+        )
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.')
+        cy.get('[data-cy="warning-window"]').contains(
+            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.'
+        )
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains('You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.')
+        cy.get('[data-cy="warning-window"]').contains(
+            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.'
+        )
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
@@ -955,11 +969,16 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
         cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-        cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
-        cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('contain.text', '1341.8 m')
-        cy.get('[data-cy="profile-segment-button-0"]').should('be.visible')
-        cy.get('[data-cy="profile-segment-button-1"]').should('be.visible')
-        cy.get('[data-cy="profile-segment-button-2"]').should('be.visible')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]'
+        ).should('contain.text', '2.5 m')
+        cy.get(
+            '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
+        ).should('contain.text', '1341.8 m')
+        cy.log(
+            'Checking that the stitching of the GPX track was successful, and no segment was left (all were stitched together as a single track)'
+        )
+        cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
 
         // Import file partially out of bounds
         cy.log('Test import file partially out of bounds')
@@ -1003,11 +1022,16 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="window-close"]').click()
         cy.get('[data-cy="ol-map"]').click(170, 250)
 
+        cy.intercept(profileIntercept, {
+            body: [],
+        }).as('emptyProfile')
+
         cy.log('Check that the error is displayed in the profile popup')
         cy.get('[data-cy="show-profile"]').click()
+        cy.wait('@emptyProfile')
         cy.get('[data-cy="profile-popup-content"]').should('be.visible')
         cy.get('[data-cy="profile-error-message"]').contains(
-            'Some parts are out of bounds, no profile data could be fetched'
+            'Error: the profile could not be generated'
         )
     })
 })

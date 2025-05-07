@@ -3,7 +3,6 @@ import { describe, it } from 'vitest'
 
 import {
     formatMeters,
-    formatMinutesTime,
     formatPointCoordinates,
     humanFileSize,
     parseUrlHashQuery,
@@ -12,16 +11,6 @@ import {
 } from '@/utils/utils'
 
 describe('utils', () => {
-    describe('formatMinutesTime()', () => {
-        it('format time', () => {
-            expect(formatMinutesTime(null)).to.equal('-')
-            expect(formatMinutesTime(42)).to.equal('42min')
-            expect(formatMinutesTime(1200)).to.equal('20h')
-            expect(formatMinutesTime(1230)).to.equal('20h 30min')
-            expect(formatMinutesTime(1202)).to.equal('20h 2min')
-        })
-    })
-
     describe('formatMeters()', () => {
         it('format meters', () => {
             expect(formatMeters(42)).to.equal('42 m')
