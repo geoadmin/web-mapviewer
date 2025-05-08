@@ -9,9 +9,8 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { Collapse } from 'vue-collapsed'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -194,11 +193,8 @@ watch(noSimpleZoom, (value) => {
             />
             <span class="px-1">{{ t('share_more') }}</span>
         </a>
-        <CollapseTransition :duration="200">
-            <div
-                v-show="showEmbedSharing"
-                class="card border-light p-2 ps-4"
-            >
+        <Collapse :when="showEmbedSharing">
+            <div class="card border-light p-2 ps-4">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
@@ -239,7 +235,7 @@ watch(noSimpleZoom, (value) => {
                 />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-        </CollapseTransition>
+        </Collapse>
         <ModalWithBackdrop
             v-if="showPreviewModal"
             :title="t('embed_map')"
