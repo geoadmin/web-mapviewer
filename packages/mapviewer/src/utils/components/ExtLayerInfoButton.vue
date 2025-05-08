@@ -54,7 +54,7 @@ const tooltipContent = computed((): string => {
         <button
             v-if="showSpinner"
             ref="loadingSpinner"
-            class="loading-button btn border-0 d-flex align-items-center btn-lg"
+            class="loading-button btn d-flex align-items-center btn-lg border-0"
             :data-cy="`button-loading-metadata-spinner-${layer.id}-${index}`"
         >
             <FontAwesomeIcon
@@ -64,20 +64,20 @@ const tooltipContent = computed((): string => {
         </button>
         <button
             v-else-if="hasError"
-            class="btn text-danger border-0 p-0 d-flex align-items-center btn-lg"
+            class="btn text-danger d-flex align-items-center btn-lg border-0 p-0"
             aria-disabled="true"
             tabindex="-1"
-            :data-cy="`button-has-error-${layer.id}-`"
+            :data-cy="`button-has-error-${layer.id}`"
         >
             <FontAwesomeIcon icon="circle-exclamation" />
         </button>
 
         <button
             v-else-if="hasWarning"
-            class="btn text-warning border-0 p-0 d-flex align-items-center btn-lg"
+            class="btn text-warning d-flex align-items-center btn-lg border-0 p-0"
             aria-disabled="true"
             tabindex="-1"
-            :data-cy="`button-has-warning-${layer.id}-`"
+            :data-cy="`button-has-warning-${layer.id}`"
         >
             <FontAwesomeIcon icon="triangle-exclamation" />
         </button>

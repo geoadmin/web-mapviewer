@@ -494,14 +494,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmtsUnreachableLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmtsUnreachableLayerId}"]`)
                     .should('be.visible')
                     .trigger('mouseover')
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
+                cy.get(`[data-cy="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
+                cy.get(`[data-cy="button-has-error-${wmtsUnreachableLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL invalid content')
@@ -516,14 +518,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmtsInvalidContentLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmtsInvalidContentLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
+                cy.get(`[data-cy="button-has-error-${wmtsInvalidContentLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL unreachable')
@@ -538,14 +542,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmsUnreachableLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmsUnreachableLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmsUnreachableLayerId}"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmsUnreachableLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
+                cy.get(`[data-cy="button-has-error-${wmsUnreachableLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL invalid content')
@@ -560,14 +566,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmsInvalidContentLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmsInvalidContentLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmsInvalidContentLayerId}-"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmsInvalidContentLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
+                cy.get(`[data-cy="button-has-error-${wmsInvalidContentLayerId}"]`).trigger(
+                    'mouseleave'
+                )
             })
         })
     })

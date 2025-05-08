@@ -90,7 +90,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}-"]:visible`).click({ force: true })
+        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}"]:visible`).click({ force: true })
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -128,7 +128,7 @@ describe('The Import File Tool', () => {
             .should('contain', 'Contains third party content')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${iframeTestFile}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${iframeTestFile}"]:visible`).click()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -281,9 +281,9 @@ describe('The Import File Tool', () => {
             .children()
             .should('have.length', 5)
             .each(($layer, index) => {
-                cy.wrap($layer).find('[data-cy^="button-error-"]').should('not.exist')
+                cy.wrap($layer).find('[data-cy^="button-error"]').should('not.exist')
                 cy.wrap($layer)
-                    .find('[data-cy^="button-loading-metadata-spinner-"]')
+                    .find('[data-cy^="button-loading-metadata-spinner"]')
                     .should('not.exist')
                 switch (index) {
                     case 0:
@@ -292,7 +292,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-kml_feature_error.kml-"]')
+                            .find('[data-cy="button-has-warning-kml_feature_error.kml"]')
                             .should('be.visible')
                         break
                     case 1:
@@ -301,7 +301,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-line-accross-eu.kml-"]')
+                            .find('[data-cy="button-has-warning-line-accross-eu.kml"]')
                             .should('be.visible')
                         break
                     case 2:
@@ -426,7 +426,7 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing an external layer')
-        cy.get(`[data-cy^="button-remove-layer-${validOnlineUrl}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${validOnlineUrl}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 4)
 
@@ -457,8 +457,8 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
-        cy.get(`[data-cy^="active-layer-name-${secondValidOnlineUrl}-"]`).should('be.visible')
-        cy.get('[data-cy^="button-loading-metadata-spinner-"]').should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-${secondValidOnlineUrl}"]`).should('be.visible')
+        cy.get('[data-cy^="button-loading-metadata-spinner"]').should('not.exist')
 
         // Test the import of an online KML file that don't support CORS
         cy.log('Test online import - Non CORS server')
@@ -585,33 +585,33 @@ describe('The Import File Tool', () => {
                     .should('be.visible')
                     .trigger('mouseover')
                 if (index === 0) {
-                    cy.get(`[data-cy^="floating-button-has-error-${onlineUrlNotReachable}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${onlineUrlNotReachable}"]`)
                         .should('be.visible')
                         .contains('file not accessible')
                 } else if (index === 1) {
-                    cy.get(`[data-cy^="floating-button-has-error-${invalidFileOnlineUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${invalidFileOnlineUrl}"]`)
                         .should('be.visible')
                         .contains('Invalid file')
                 } else {
-                    cy.get(`[data-cy^="floating-button-has-error-${outOfBoundKMLUrl}-"]`)
+                    cy.get(`[data-cy^="floating-button-has-error-${outOfBoundKMLUrl}"]`)
                         .should('be.visible')
                         .contains('out of projection bounds')
                 }
                 cy.wrap($layer)
-                    .find('[data-cy^="button-loading-metadata-spinner-"]')
+                    .find('[data-cy^="button-loading-metadata-spinner"]')
                     .should('not.exist')
             })
 
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing all invalid kml layer')
-        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}-"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}"]:visible`).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}-"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}"]:visible`).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}-"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}"]:visible`).click({
             force: true,
         })
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
@@ -883,7 +883,7 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
 
         // Test the import of an online GPX file that don't support CORS
@@ -919,7 +919,7 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}-"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -986,9 +986,7 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
-        cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`
-        ).click()
+        cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -1075,7 +1073,7 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.openMenuIfMobile()
         cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}-"]:visible`
+            `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}"]:visible`
         ).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()

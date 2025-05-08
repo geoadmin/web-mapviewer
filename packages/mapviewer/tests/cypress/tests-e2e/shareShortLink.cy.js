@@ -74,11 +74,12 @@ describe('Testing the share menu', () => {
             cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
 
             // Check if there is a warning class in the share link
-            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'bg-warning')
-            // Check tooltip
-            // Notes: realhover only works locally, mouseenter work both locally and in CI
-            cy.get('[data-cy="input-copy-button"]').trigger('mouseover')
-            cy.get('[data-cy="floating-input-copy-button"]').should('be.visible')
+            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'btn-warning')
+            cy.get('[data-cy="share-warning-local-files"]').should('be.visible')
+            cy.get('[data-cy="share-warning-local-files"]').should(
+                'contain.text',
+                "Local files can't be shared"
+            )
         })
         context(
             'Geolocation management while generating share links',
@@ -188,9 +189,7 @@ describe('Testing the share menu', () => {
         },
         () => {
             const checkIFrameSnippetSize = (width, height) => {
-                cy.get(
-                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
-                )
+                cy.get('[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]')
                     .should('contain.value', `width: ${width}`)
                     .should('contain.value', `height: ${height}`)
             }
@@ -272,7 +271,7 @@ describe('Testing the share menu', () => {
                 cy.get('[data-cy="menu-share-embed-zoom-toggle"]').click()
 
                 cy.get(
-                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                    '[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]'
                 ).should('contain.value', 'noSimpleZoom')
 
                 cy.log('Test that mouse zoom scrolling fails without pressing ctrl')
@@ -284,7 +283,7 @@ describe('Testing the share menu', () => {
                 })
 
                 cy.get(
-                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                    '[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]'
                 ).should('contain.value', 'z=1')
 
                 cy.log('Test that mouse zoom scrolling works with pressing ctrl')
@@ -296,7 +295,7 @@ describe('Testing the share menu', () => {
                 })
 
                 cy.get(
-                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
+                    '[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]'
                 ).should('contain.value', 'z=1.333')
             })
         }
