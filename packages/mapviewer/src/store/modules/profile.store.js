@@ -102,9 +102,32 @@ export default {
     state: {
         feature: null,
         simplifyGeometry: true,
+        /** 
+         * The index of the current feature segment to highlight in the profile
+         * @type {Number} 
+         */
+        currentFeatureSegmentIndex: 0,
     },
-    getters: {},
+    getters: {
+        /**
+         * @param {State} state
+         * @returns {boolean} true if the profile feature is a LineString or Polygon
+        */
+        isProfileFeatureMultiFeature(state) {
+            return ['MultiPolygon', 'MultiLineString'].includes(state.feature?.geometry?.type)
+        },
+    },
     actions: {
+        /**
+         * Sets the current feature segment index. This is used to highlight the current segment
+         * of a feature is inspecting the feature profile.
+         * 
+         * @param commit
+         * @param {Number} index The index of the segment to highlight
+         */
+        setCurrentFeatureSegmentIndex({ commit }, { index = 0, dispatcher }) {
+            commit('setCurrentFeatureSegmentIndex', { index, dispatcher })
+        },
         /**
          * Sets the GeoJSON geometry for which we want a profile and request this profile from the
          * backend (if the geometry is valid)
@@ -151,6 +174,9 @@ export default {
         },
         setProfileSimplifyGeometry(state, { simplifyGeometry }) {
             state.simplifyGeometry = simplifyGeometry
+        },
+        setCurrentFeatureSegmentIndex(state, { index }) {
+            state.currentFeatureSegmentIndex = index
         },
     },
 }
