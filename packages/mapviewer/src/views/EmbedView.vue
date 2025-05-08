@@ -12,6 +12,7 @@ import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterA
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 
 const dispatcher = { dispatcher: 'EmbedView.vue' }
@@ -40,8 +41,6 @@ function onWheel(event) {
         simpleZoomHintTimeout = setTimeout(() => {
             showSimpleZoomHint.value = false
         }, 3000)
-
-        return
     }
 }
 
@@ -75,13 +74,16 @@ watch(() => route.query, sendChangeEventToParent)
 
 <template>
     <div class="view no-print">
-        <div
-            v-if="showSimpleZoomHint"
-            class="ctrl-scroll-hint position-absolute top-0 start-50 translate-middle-x bg-light border border-dark p-2 rounded mt-3 shadow"
-            style="z-index: 9999"
-        >
-            {{ t('zooming_mode_warning') }}
-        </div>
+        <transition-group name="fade-in-out">
+            <template v-if="showSimpleZoomHint">
+                <BlackBackdrop />
+                <div
+                    class="ctrl-scroll-hint position-absolute start-50 top-50 translate-middle bg-light border-dark mt-3 rounded border p-2 shadow"
+                >
+                    {{ t('zooming_mode_warning') }}
+                </div>
+            </template>
+        </transition-group>
 
         <OpenFullAppLink v-if="!hideEmbedUI" />
         <MapModule>
@@ -109,3 +111,16 @@ watch(() => route.query, sendChangeEventToParent)
         </MapModule>
     </div>
 </template>
+
+<style lang="scss" scoped>
+@import '@/scss/variables.module';
+@import '@/scss/vue-transitions.mixin';
+
+$animation-time: 0.4s;
+
+.ctrl-scroll-hint {
+    z-index: $zindex-modal;
+}
+
+@include fade-in-out($animation-time);
+</style>
