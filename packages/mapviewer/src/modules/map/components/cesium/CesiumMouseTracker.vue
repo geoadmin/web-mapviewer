@@ -4,11 +4,12 @@ import log from '@geoadmin/log'
 import { round } from '@geoadmin/numbers'
 import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
+import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const mousePosition = useTemplateRef('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
@@ -64,10 +65,6 @@ function setupHandler() {
     }, ScreenSpaceEventType.MOUSE_MOVE)
 }
 
-function showCoordinateLabel(displayedFormat) {
-    return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
-}
-
 function setDisplayedFormatWithId() {
     store.dispatch('setDisplayedFormatId', {
         displayedFormatId: displayedFormatId.value,
@@ -78,10 +75,11 @@ function setDisplayedFormatWithId() {
 function formatCoordinate(coordinate) {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
-        return `${showCoordinateLabel(displayedFormat) ? t('coordinates_label') : ''} ${displayedFormat.format(
-            [coordinate[0], coordinate[1]],
-            projection.value
-        )}, ${t('elevation')}: ${round(coordinate[2], 2)} m`
+        return `${getHumanReadableCoordinate({
+            coordinates: [coordinate[0], coordinate[1]],
+            projection: projection.value,
+            displayedFormat,
+        })}, ${t('elevation')}: ${round(coordinate[2], 2)} m`
     } else {
         log.error('Unknown coordinates display format', displayedFormatId.value)
     }
