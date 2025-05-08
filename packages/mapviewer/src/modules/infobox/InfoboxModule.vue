@@ -25,6 +25,7 @@ const width = computed(() => store.state.ui.width)
 
 const profileFeature = computed(() => store.state.profile.feature)
 const showElevationProfile = computed(() => !!profileFeature.value)
+const profileExtent = computed(() => store.getters.currentProfileExtent)
 
 const showContainer = computed(() => {
     return (
@@ -92,7 +93,7 @@ function onHideProfile() {
         >
             <button
                 v-if="showElevationProfile && showFeatureInfoInBottomPanel"
-                class="btn btn-light btn-xs align-middle text-nowrap justify-content-left"
+                class="btn btn-light btn-xs justify-content-left text-nowrap align-middle"
                 data-cy="infobox-hide-profile-button"
                 @click.stop="onHideProfile"
             >
@@ -110,21 +111,21 @@ function onHideProfile() {
                 </span>
             </button>
             <div
-                class="d-flex flex-grow-1 align-content-center justify-content-left overflow-hidden ms-1"
+                class="d-flex flex-grow-1 align-content-center justify-content-left ms-1 overflow-hidden"
             >
                 <label>
                     <TextTruncate>{{ title }}</TextTruncate>
                 </label>
             </div>
             <ZoomToExtentButton
-                v-if="showElevationProfile && profileFeature?.extent"
-                :extent="profileFeature.extent"
+                v-if="showElevationProfile && profileExtent"
+                :extent="profileExtent"
                 class="zoom-to-extent-button btn-light"
             />
             <PrintButton>
                 <div class="card rounded">
                     <div
-                        class="header-title d-flex flex-grow-1 justify-content-center p-2 border-bottom"
+                        class="header-title d-flex flex-grow-1 justify-content-center border-bottom p-2"
                     >
                         <TextTruncate>{{ title }}</TextTruncate>
                     </div>
