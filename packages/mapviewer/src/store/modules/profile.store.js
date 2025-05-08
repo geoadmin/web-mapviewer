@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { bbox, lineString } from '@turf/turf'
 import cloneDeep from 'lodash/cloneDeep'
 
 /** @param {SelectableFeature} feature */
@@ -102,26 +103,45 @@ export default {
     state: {
         feature: null,
         simplifyGeometry: true,
-        /** 
+        /**
          * The index of the current feature segment to highlight in the profile
-         * @type {Number} 
+         *
+         * @type {Number}
          */
         currentFeatureSegmentIndex: 0,
     },
     getters: {
         /**
          * @param {State} state
-         * @returns {boolean} true if the profile feature is a LineString or Polygon
-        */
+         * @returns {boolean} True if the profile feature is a LineString or Polygon
+         */
         isProfileFeatureMultiFeature(state) {
             return ['MultiPolygon', 'MultiLineString'].includes(state.feature?.geometry?.type)
+        },
+        currentProfileCoordinates(state, getters) {
+            if (!state.feature) {
+                return null
+            }
+            if (getters.isProfileFeatureMultiFeature) {
+                return state.feature.geometry.coordinates[state.currentFeatureSegmentIndex]
+            }
+            if (state.feature.geometry.type === 'Polygon') {
+                return state.feature.geometry.coordinates[0]
+            }
+            return state.feature.geometry.coordinates
+        },
+        currentProfileExtent(state, getters) {
+            if (!state.feature) {
+                return null
+            }
+            return bbox(lineString(getters.currentProfileCoordinates))
         },
     },
     actions: {
         /**
-         * Sets the current feature segment index. This is used to highlight the current segment
-         * of a feature is inspecting the feature profile.
-         * 
+         * Sets the current feature segment index. This is used to highlight the current segment of
+         * a feature is inspecting the feature profile.
+         *
          * @param commit
          * @param {Number} index The index of the segment to highlight
          */

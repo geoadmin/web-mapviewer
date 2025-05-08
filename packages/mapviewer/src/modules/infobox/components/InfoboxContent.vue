@@ -39,23 +39,11 @@ const isEditingDrawingFeature = computed(
 const profileFeature = computed(() => store.state.profile.feature)
 const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
 
-const isPolygon = computed(() => profileFeature.value?.geometry?.type === 'Polygon')
 /** Used to track MultiLineString or MultiPolygon element to give to the profile component */
 const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
 const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
 
-const currentProfileCoordinates = computed(() => {
-    if (!profileFeature.value) {
-        return null
-    }
-    if (isMultiFeature.value) {
-        return currentGeometryElements.value[currentFeatureSegmentIndex.value]
-    }
-    if (isPolygon.value) {
-        return currentGeometryElements.value[0]
-    }
-    return currentGeometryElements.value
-})
+const currentProfileCoordinates = computed(() => store.getters.currentProfileCoordinates)
 const showElevationProfile = computed(() => !!profileFeature.value)
 
 watch(selectedFeatures, (features) => {
