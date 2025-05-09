@@ -57,7 +57,6 @@ function toggle3d() {
 <template>
     <GeoadminTooltip
         placement="left"
-        :use-extra-padding="true"
         :tooltip-content="tooltipContent"
     >
         <button

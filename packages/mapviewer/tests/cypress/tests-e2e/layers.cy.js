@@ -14,7 +14,7 @@ import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParse
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
  */
 const stringifyWithoutLangOrNull = (key, value) =>
-    key === 'lang' || value === null ? undefined : value
+    key === 'lang' || key === 'uuid' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
     const bgLayer = 'test.background.layer2'
@@ -139,6 +139,16 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmsMockConfig().then((layerObjects) => {
                     const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
                         layerObjects
+                    /**
+                     * Some WMS allow for options to be passed to the base URL, which caused issues
+                     * with the readyness check. Basically, it tested the optionless base URL
+                     * against the current one, which caused the layer to be perpetually loading. We
+                     * test here that such a situation does not happen anymore.
+                     */
+                    cy.log(
+                        "Adding an option to one of the layer's base URL to check if these calls behave in a correct way"
+                    )
+                    layerObjects[1].baseUrl = layerObjects[1].baseUrl + 'item=22_06_86t13214'
                     const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
                     cy.goToMapView({ layers })
 
@@ -484,14 +494,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmtsUnreachableLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmtsUnreachableLayerId}"]`)
                     .should('be.visible')
                     .trigger('mouseover')
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
+                cy.get(`[data-cy="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
+                cy.get(`[data-cy="button-has-error-${wmtsUnreachableLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL invalid content')
@@ -506,14 +518,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmtsInvalidContentLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmtsInvalidContentLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
+                cy.get(`[data-cy="button-has-error-${wmtsInvalidContentLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL unreachable')
@@ -528,14 +542,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmsUnreachableLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmsUnreachableLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmsUnreachableLayerId}"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmsUnreachableLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
+                cy.get(`[data-cy="button-has-error-${wmsUnreachableLayerId}"]`).trigger(
+                    'mouseleave'
+                )
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL invalid content')
@@ -550,14 +566,16 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                cy.get(`[data-cy^="button-has-error-${wmsInvalidContentLayerId}-"]`)
+                cy.get(`[data-cy="button-has-error-${wmsInvalidContentLayerId}"]`)
                     .should('be.visible')
-                    .trigger('mouseover', { force: true })
-
-                cy.get(`[data-cy^="floating-button-has-error-${wmsInvalidContentLayerId}-"]`)
+                    .trigger('mouseover')
+                cy.get(`[data-cy="floating-button-has-error-${wmsInvalidContentLayerId}"]`)
                     .should('have.class', 'tw:bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
+                cy.get(`[data-cy="button-has-error-${wmsInvalidContentLayerId}"]`).trigger(
+                    'mouseleave'
+                )
             })
         })
     })
@@ -656,7 +674,6 @@ describe('Test of layer handling', () => {
             it('shows a hyphen when no layer is selected', () => {
                 cy.goToMapView()
                 cy.openMenuIfMobile()
-                cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
             it('shows no hyphen when a layer is selected', () => {

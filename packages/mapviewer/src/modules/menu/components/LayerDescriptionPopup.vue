@@ -166,12 +166,12 @@ $spacing: 8px;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
-    line-height: 1.42857143;
+    line-height: 1.4286;
     line-break: auto;
     text-align: start;
 
     // allow user selection
-    @extend .clear-no-ios-long-press;
+    @extend %clear-no-ios-long-press;
 }
 
 .legend-header {
@@ -180,7 +180,6 @@ $spacing: 8px;
     // possible child elements would be a mess.
     margin: -0.5rem;
     margin-bottom: 0;
-
     padding: $spacing;
     background-color: #eee;
     .bod-title {

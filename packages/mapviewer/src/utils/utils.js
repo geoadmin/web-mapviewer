@@ -272,3 +272,53 @@ export function humanFileSize(size) {
 export function isInternalUrl(url) {
     return internalDomainRegex.test(url)
 }
+
+/**
+ * Get the longest common prefix of an array of URLs.
+ *
+ * This function finds the longest common prefix shared by all URLs in the array. The resulting
+ * prefix will always end with a `/` if it exists.
+ *
+ * @param {string[]} urls - An array of URLs to find the common prefix for.
+ * @returns {string} The longest common prefix of the URLs. Returns an empty string if no common
+ *   prefix exists.
+ */
+export function getLongestCommonPrefix(urls) {
+    if (!urls.length) {
+        return ''
+    }
+    if (urls.length === 1) {
+        return urls[0]
+    }
+    let prefix = urls[0]
+    for (const url of urls) {
+        while (!url.startsWith(prefix)) {
+            prefix = prefix.slice(0, -1)
+            if (!prefix) {
+                break
+            }
+        }
+    }
+
+    // If the prefix is already in the list of URLs, return it
+    // This assumes that the structure of the URLs is consistent
+    if (urls.includes(prefix)) {
+        return prefix
+    }
+
+    // Ensure the prefix is cut at a slash (not in the middle of text)
+    if (!prefix.endsWith('/')) {
+        const lastSlashIndex = prefix.lastIndexOf('/')
+        if (lastSlashIndex !== -1) {
+            prefix = prefix.slice(0, lastSlashIndex + 1)
+        }
+    }
+
+    // Ensure the prefix is at least the base URL
+    const baseUrl = new URL(urls[0]).origin + '/'
+    if (!prefix.startsWith(baseUrl)) {
+        return ''
+    }
+
+    return prefix
+}

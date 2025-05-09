@@ -7,7 +7,7 @@ import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
-import { canFeatureShowProfile } from '@/store/modules/features.store'
+import { canFeatureShowProfile } from '@/store/modules/profile.store'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
@@ -75,7 +75,7 @@ function showContentAndScrollIntoView(event) {
 <template>
     <div
         ref="featureTitle"
-        class="feature-list-category-item-name p-1 d-flex align-items-center cursor-pointer"
+        class="feature-list-category-item-name d-flex align-items-center cursor-pointer p-1"
         :class="{
             highlighted: isHighlightedFeature,
             'border-bottom': !showContent,

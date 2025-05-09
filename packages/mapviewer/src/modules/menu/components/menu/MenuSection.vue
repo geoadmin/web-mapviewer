@@ -1,7 +1,6 @@
 <script setup>
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, ref, watch } from 'vue'
+import { Collapse } from 'vue-collapsed'
 
 const { sectionId, title, showContent, secondary, light, disabled } = defineProps({
     // String that uniquely identifies this section
@@ -85,7 +84,7 @@ defineExpose({ open, close, sectionId })
         }"
     >
         <div
-            class="menu-section-header"
+            class="menu-section-header p-2"
             :class="{
                 disabled: disabled,
             }"
@@ -95,26 +94,25 @@ defineExpose({ open, close, sectionId })
         >
             <span class="menu-section-title d-flex align-items-center">
                 <button
-                    class="btn border-0 menu-section-title-icon"
+                    class="btn menu-section-title-icon border-0"
                     type="button"
                     :disabled="disabled"
                 >
                     <font-awesome-icon :icon="['fas', titleCaretIcon]" />
                 </button>
-                <span class="ms-2 menu-section-title-text">{{ title }}</span>
+                <span class="menu-section-title-text ms-2">{{ title }}</span>
             </span>
 
             <slot name="extra-button" />
         </div>
-        <CollapseTransition :duration="200">
+        <Collapse :when="showBody">
             <div
-                v-show="showBody"
                 class="menu-section-body"
                 data-cy="menu-section-body"
             >
                 <slot />
             </div>
-        </CollapseTransition>
+        </Collapse>
     </div>
 </template>
 
@@ -133,7 +131,6 @@ $section-border: 1px;
         display: flex;
         flex: none;
         overflow: visible;
-        padding: 0.5rem 0.6rem;
         line-height: 1.5;
         border-top: $section-border solid $gray-400;
         background-color: $light;

@@ -505,14 +505,17 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     expectedProjection,
                     { acceptableDelta, testInverted: true }
                 )
-                checkXY(
-                    numberWithThousandSeparator(x, ' '),
-                    numberWithThousandSeparator(y, ' '),
-                    x,
-                    y,
-                    expectedProjection,
-                    { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
-                )
+                const thousandSeparatorChars = `'\`’´`
+                for (const separator of thousandSeparatorChars) {
+                    checkXY(
+                        numberWithThousandSeparator(x, separator),
+                        numberWithThousandSeparator(y, separator),
+                        x,
+                        y,
+                        expectedProjection,
+                        { acceptableDelta, testInverted: true, thousandSpaceSeparator: true }
+                    )
+                }
             })
             it("Returns coordinates when there's thousands separator and input is entered backward", () => {
                 checkXY(

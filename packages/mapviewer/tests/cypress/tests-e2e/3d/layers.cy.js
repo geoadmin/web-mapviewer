@@ -1,6 +1,7 @@
 import { WEBMERCATOR, LV95 } from '@geoadmin/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 function expectLayerCountToBe(viewer, layerCount) {
     const layers = viewer.scene.imageryLayers
@@ -311,7 +312,6 @@ describe('Test of layer handling in 3D', () => {
             .find('[data-cy="feature-item"]')
             .should('have.length', 10)
 
-        
         // deactivate 3D
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
         cy.get('@highlightedFeatures')
@@ -319,23 +319,62 @@ describe('Test of layer handling in 3D', () => {
             .find('[data-cy="feature-item"]')
             .should('have.length', 10)
 
+        cy.log(
+            'Switch to 3D and remove the layer and check that the selected features are not visible anymore'
+        )
 
-        cy.log('Switch to 3D and remove the layer and check that the selected features are not visible anymore')
         // activate 3D
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
         cy.waitUntilCesiumTilesLoaded()
-            
+
         cy.openMenuIfMobile()
 
-        cy.get(
-            `[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`
-        ).click()
+        cy.get(`[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`).click()
 
         cy.closeMenuIfMobile()
         cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
         cy.get('@highlightedFeatures').should('not.exist')
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.entities.values.length).to.eq(0)
+        })
+    })
+    it('Verify a layer with EPSG:4326(WEBMERCATOR) bounding box in 2D and 3D', () => {
+        cy.getExternalWmsMockConfig().then((layerObjects) => {
+            const mockExternalWms2 = layerObjects[1]
+            const layers = [layerObjects[1]].map(transformLayerIntoUrlString).join(';')
+            cy.goToMapView({ '3d': true, layers })
+            cy.log('Go to 3D and add a WMS layer')
+            // This layer extent got transformed from EPSG:4326 to EPSG:2056
+            const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]
+            cy.waitUntilCesiumTilesLoaded()
+            cy.readWindowValue('cesiumViewer').then((viewer) => {
+                expectLayerCountToBe(viewer, 2)
+                const wmsLayer = viewer.scene.imageryLayers.get(1)
+                expect(wmsLayer.show).to.eq(true)
+                expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
+            })
+
+            cy.log('Switching to 2D and checking that the layer is still visible')
+            // deactivate 3D
+            cy.get('[data-cy="3d-button"]').should('be.visible').click()
+            cy.readWindowValue('map').then((map) => {
+                const layers = map.getLayers().getArray()
+                expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                // If the layer is not visible, it is usually because the extent is not correct
+                expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+            })
+
+            // activate 3D
+            cy.get('[data-cy="3d-button"]').should('be.visible').click()
+            cy.waitUntilCesiumTilesLoaded()
+
+            cy.get('[data-cy="3d-button"]').should('be.visible').click()
+            cy.readWindowValue('map').then((map) => {
+                const layers = map.getLayers().getArray()
+                expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                // If the layer is not visible, it is usually because the extent is not correct
+                expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+            })
         })
     })
 })

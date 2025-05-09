@@ -60,7 +60,7 @@ function onClick() {
         fluid
         @close="showCompleteDisclaimer = false"
     >
-        <div class="external_data_warning">
+        <div class="external-data-warning">
             {{ t('external_data_warning').replace('--URL--', sourceName) }}
         </div>
     </ModalWithBackdrop>
@@ -68,7 +68,8 @@ function onClick() {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
-.external_data_warning {
-    @extend .clear-no-ios-long-press;
+
+.external-data-warning {
+    @extend %clear-no-ios-long-press;
 }
 </style>

@@ -1,6 +1,7 @@
 <script setup>
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -9,7 +10,6 @@ import ExternalWMTSLayer, { WMTSEncodingTypes } from '@/api/layers/ExternalWMTSL
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 import { getWmtsXyzUrl } from '@/utils/layerUtils'
 
 const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }

@@ -40,6 +40,7 @@ const styleUrl = computed(() => `${vectorLayerConfig.baseUrl}styles/${layerId.va
 
 const layer = new MapLibreLayer({
     id: layerId.value,
+    uuid: vectorLayerConfig.uuid,
     opacity: opacity.value,
 })
 setMapLibreStyle(styleUrl.value)

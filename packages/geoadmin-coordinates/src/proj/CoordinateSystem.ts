@@ -29,11 +29,11 @@ export const SWISS_ZOOM_LEVEL_1_25000_MAP: number = 8
 export const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES: number =
     (2 * Math.PI * earthRadius) / 256
 
-export type ResolutionStep = {
+export interface ResolutionStep {
     /** Resolution of this step, in meters/pixel */
     resolution: number
     /** Corresponding zoom level for this resolution step */
-    zoom: number | undefined
+    zoom?: number
     /** Name of the map product shown at this resolution/zoom */
     label?: string
 }

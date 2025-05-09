@@ -12,6 +12,7 @@ import layers from '@/store/modules/layers.store'
 import map from '@/store/modules/map.store'
 import position from '@/store/modules/position.store'
 import print from '@/store/modules/print.store'
+import profile from '@/store/modules/profile.store'
 import search from '@/store/modules/search.store'
 import share from '@/store/modules/share.store'
 import topics from '@/store/modules/topics.store'
@@ -27,7 +28,7 @@ import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
 import loadLayersConfigOnLangChange from '@/store/plugins/load-layersconfig-on-lang-change'
 import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin'
-import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
+import reprojectLayersOnProjectionChangePlugin from '@/store/plugins/reproject-layers-on-projection-change.plugin'
 import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.plugin'
 import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
@@ -46,7 +47,7 @@ const store = createStore({
         topicChangeManagementPlugin,
         screenSizeManagementPlugin,
         syncCameraLonLatZoom,
-        reprojectSelectedFeaturesOnProjectionChangePlugin,
+        reprojectLayersOnProjectionChangePlugin,
         from2Dto3Dplugin,
         loadExternalLayerAttributes,
         loadGeojsonStyleAndData,
@@ -59,6 +60,7 @@ const store = createStore({
         app,
         drawing,
         features,
+        profile,
         geolocation,
         i18n,
         layers,

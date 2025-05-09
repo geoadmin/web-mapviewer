@@ -152,21 +152,25 @@ defineExpose({
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/scss/media-query.mixin';
+
 .search-category-entry {
     &-main {
         cursor: pointer;
     }
+
+    &:focus {
+        outline-offset: -$focus-outline-size;
+    }
+
     @include respond-above(phone) {
         &:hover {
             background-color: $list-item-hover-bg-color;
         }
+
         .btn {
             // Same (no) transition on button and list-item.
             transition: unset;
         }
-    }
-    &:focus {
-        outline-offset: -$focus-outline-size;
     }
 }
 </style>

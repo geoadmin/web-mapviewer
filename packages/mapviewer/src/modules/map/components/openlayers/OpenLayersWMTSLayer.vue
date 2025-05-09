@@ -57,6 +57,7 @@ const wmtsTimeConfig = computed(() => {
 
 const layer = new TileLayer({
     id: layerId.value,
+    uuid: wmtsLayerConfig.uuid,
     opacity: opacity.value,
     source: createWMTSSourceForProjection(),
 })

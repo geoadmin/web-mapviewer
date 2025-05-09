@@ -64,6 +64,7 @@ const dimensions = computed(() => {
 
 const layer = new TileLayer({
     id: layerId.value,
+    uuid: externalWmtsLayerConfig.uuid,
     opacity: opacity.value,
 })
 

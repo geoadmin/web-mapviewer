@@ -78,6 +78,7 @@ const onRotate = (mapEvent) => {
 .compass-button {
     &-icon {
         height: $map-button-diameter - 5px;
+        width: $map-button-diameter;
     }
 }
 </style>

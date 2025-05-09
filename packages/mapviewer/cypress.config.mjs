@@ -29,7 +29,7 @@ export default defineConfig({
 
     e2e: {
         setupNodeEvents(on, config) {
-            on('before:browser:launch', (browser = {}, launchOptions) => {
+            on('before:browser:launch', (browser, launchOptions) => {
                 // see https://www.bigbinary.com/blog/how-we-fixed-the-cypress-out-of-memory-error-in-chromium-browsers
                 if (['chrome', 'edge'].includes(browser.name)) {
                     if (browser.isHeadless) {
@@ -56,7 +56,10 @@ export default defineConfig({
             // this way we can import helper functions in Cypress tests through @/ notation
             on(
                 'file:preprocessor',
-                vitePreprocessor({ configFile: './vite.config.mts', mode: 'development' })
+                vitePreprocessor({
+                    configFile: './vite.config.mts',
+                    mode: 'test',
+                })
             )
 
             // plugin that help tests define which browser permission is set or denied (e.g. location API)
@@ -81,7 +84,7 @@ export default defineConfig({
                             }
                             resolve(true)
                         } catch (err) {
-                            reject(err)
+                            reject(new Error(err))
                         }
                     })
                 },
@@ -96,7 +99,7 @@ export default defineConfig({
                                 })
                             )
                         } catch (err) {
-                            return reject(err)
+                            return reject(new Error(err))
                         }
                     })
                 },
@@ -108,20 +111,11 @@ export default defineConfig({
     },
 
     component: {
-        /**
-         * Configure the dev server manually
-         *
-         * We need to get rid of the vite-plugin-vue-devtools plugin, as it breaks the component
-         * tests. We filter this out of the pre-defined vite config
-         */
         devServer(devServerConfig) {
-            const viteConfigWithoutDevtools = {
-                ...viteConfig({ mode: 'development', disableDevTools: true }),
-            }
             return devServer({
                 ...devServerConfig,
-                viteConfig: viteConfigWithoutDevtools,
                 framework: 'vue',
+                viteConfig: viteConfig({ mode: 'test' }),
             })
         },
         specPattern: 'tests/cypress/tests-component/**/*.cy.js',

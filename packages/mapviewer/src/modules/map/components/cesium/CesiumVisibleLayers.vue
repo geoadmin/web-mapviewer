@@ -65,14 +65,14 @@ function isPrimitiveLayer(layer) {
 -->
     <CesiumInternalLayer
         v-for="(layer, index) in visibleImageryLayers"
-        :key="layer.id"
+        :key="layer.id + layer.uuid"
         :layer-config="layer"
         :projection="projection"
         :z-index="index + startingZIndexForImageryLayers"
     />
     <CesiumInternalLayer
         v-for="layer in visiblePrimitiveLayers"
-        :key="layer.id"
+        :key="layer.id + layer.uuid"
         :layer-config="layer"
         :projection="projection"
     />

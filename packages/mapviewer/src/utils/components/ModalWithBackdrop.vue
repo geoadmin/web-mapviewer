@@ -38,8 +38,8 @@ const { title, allowPrint, showConfirmationButtons, fluid, headerPrimary, top, h
             default: false,
         },
         /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
+         * content
          */
         hide: {
             type: Boolean,
@@ -162,14 +162,17 @@ function onHideParentModal(hide) {
 
 .modal-popup {
     z-index: $zindex-modal;
+
     .card {
-        width: max-content;
-        max-width: 100vw;
-        // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
-        // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
-        // is older, 90vh will normally be used, which is a bit less clean but good enough.
-        max-height: 90vh;
-        max-height: 100dvh;
+        & {
+            width: max-content;
+            max-width: 100vw;
+            // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
+            // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
+            // is older, 90vh will normally be used, which is a bit less clean but good enough.
+            max-height: 90vh;
+            max-height: 100dvh;
+        }
 
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
@@ -180,24 +183,29 @@ function onHideParentModal(hide) {
                 border-radius: unset;
             }
         }
-        @include respond-above(phone) {
-            // But for desktop we let the size be dynamic with max to 90% of the view
-            max-width: 80vw;
-            max-height: 90svh;
-        }
+
         .card-header {
             align-items: center;
             display: flex;
+
             .btn {
                 margin-left: auto;
             }
         }
+
         .card-body {
             overflow-y: auto;
+
             a {
                 text-decoration: underline;
                 color: #069;
             }
+        }
+
+        @include respond-above(phone) {
+            // But for desktop we let the size be dynamic with max to 90% of the view
+            max-width: 80vw;
+            max-height: 90svh;
         }
     }
 }

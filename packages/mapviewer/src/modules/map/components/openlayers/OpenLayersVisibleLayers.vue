@@ -35,7 +35,7 @@ const { getZIndexForLayer } = useLayerZIndexCalculation()
 <template>
     <OpenLayersInternalLayer
         v-for="layer in filteredVisibleLayers"
-        :key="layer.id"
+        :key="layer.id + layer.uuid"
         :layer-config="layer"
         :z-index="getZIndexForLayer(layer)"
     />

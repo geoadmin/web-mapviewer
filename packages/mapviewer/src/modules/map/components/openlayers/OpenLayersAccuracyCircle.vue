@@ -8,6 +8,7 @@ import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
+import { v4 as uuidv4 } from 'uuid'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -33,6 +34,7 @@ const accuracyCircleFeature = new Feature({
 accuracyCircleFeature.setStyle(geolocationAccuracyCircleStyle)
 const layer = new VectorLayer({
     id: `geolocation-accuracy-layer`,
+    uuid: uuidv4(),
     source: new VectorSource({
         features: [accuracyCircleFeature],
     }),

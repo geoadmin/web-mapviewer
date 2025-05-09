@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
@@ -44,6 +45,9 @@ export class LayerAttribution {
  */
 export default class AbstractLayer {
     /**
+     * @param {String} layerData.uuid Unique ID of this layer (UUID v4) to be able to differntiate
+     *   between the same layers (e.g. when a using a layer multiple times in the map to show
+     *   different timestamps)
      * @param {String} layerData.name Name of this layer in the current lang
      * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
      *   identify it (and also in subsequent backend services for GeoAdmin layers)
@@ -84,6 +88,7 @@ export default class AbstractLayer {
             throw new InvalidLayerDataError('Missing layer data', layerData)
         }
         const {
+            uuid = uuidv4(),
             name = null,
             id = null,
             type = null,
@@ -112,6 +117,7 @@ export default class AbstractLayer {
         if (baseUrl === null) {
             throw new InvalidLayerDataError('Missing base URL', layerData)
         }
+        this.uuid = uuid
         this.name = name
         this.id = id
         this.type = type
@@ -238,6 +244,8 @@ export default class AbstractLayer {
     }
 
     clone() {
-        return cloneDeep(this)
+        const cloneLayer = cloneDeep(this)
+        cloneLayer.uuid = uuidv4()
+        return cloneLayer
     }
 }

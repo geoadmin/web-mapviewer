@@ -58,11 +58,12 @@ const { t } = useI18n()
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 @import '@/modules/menu/scss/menu-items';
+
 .advanced-tools-item {
     .advanced-tools-title {
         // Here we add the menu-item styling to the title only to avoid hover
         // on the content once the item has been opened
-        @extend .menu-item;
+        @extend %menu-item;
 
         cursor: pointer;
         height: 2.75em;

@@ -18,3 +18,5 @@ export const PRINT_DIMENSIONS = {
 }
 
 export const PRINT_DEFAULT_DPI = 96
+
+export const PRINT_MARGIN_IN_MILLIMETERS = 4

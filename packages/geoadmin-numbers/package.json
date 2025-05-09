@@ -16,6 +16,7 @@
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build -- --mode development",
+        "build:dev:watch": "pnpm run build --watch -- --mode development",
         "build:int": "pnpm run build -- --mode integration",
         "build:prod": "pnpm run build -- --mode production",
         "dev": "vite",

@@ -55,6 +55,9 @@ function toggleShowLayerFinder() {
 function toggleShowPrint() {
     showPrint.value = !showPrint.value
 }
+function showSiteAsInProd() {
+    store.dispatch('setForceNoDevSiteWarning', { ...dispatcher })
+}
 </script>
 
 <template>
@@ -167,6 +170,17 @@ function toggleShowPrint() {
                             </button>
                             <label class="toolbox-button-label">Find a layer</label>
                         </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="toolbox-button m-auto"
+                                type="button"
+                                :class="{ active: false }"
+                                @click="showSiteAsInProd"
+                            >
+                                <FontAwesomeIcon icon="lightbulb" />
+                            </button>
+                            <label class="toolbox-button-label">Show as production</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -188,11 +202,11 @@ function toggleShowPrint() {
 
 <style lang="scss" scoped>
 @import '@/modules/map/scss/toolbox-buttons';
+
 .debug-tools {
     $debugToolWidth: 12.5rem;
     $debugToolHeaderWidth: 2rem;
     width: $debugToolWidth;
-
     transition: all 0.4s;
     &.collapsed {
         transform: translateX($debugToolWidth - $debugToolHeaderWidth);

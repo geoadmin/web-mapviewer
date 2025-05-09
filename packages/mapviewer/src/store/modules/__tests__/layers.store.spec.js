@@ -84,8 +84,13 @@ describe('Background layer is correctly set', () => {
 
 describe('Add layer creates copy of layers config (so that we may add multiple time the same layer)', () => {
     const checkRefNotEqButDeepEq = (expected, result) => {
-        expect(result).to.not.be.eq(expected)
-        expect(result).to.deep.eq(expected)
+        // The uuid should not get cloned but be generated new
+        const { uuid: expectedUuid, ...expectedWithoutUuid } = expected
+        const { uuid: resultUuid, ...resultWithoutUuid } = result
+
+        expect(result).to.not.equal(expected)
+        expect(resultUuid).to.not.equal(expectedUuid)
+        expect(resultWithoutUuid).to.deep.equal(expectedWithoutUuid)
     }
 
     beforeEach(() => {

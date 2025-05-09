@@ -107,6 +107,8 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 
+$dragbox-width: 3px;
+
 .ol-map {
     top: 0;
     left: 0;
@@ -115,8 +117,6 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
     position: absolute; // Element must be positioned to set a z-index
     z-index: $zindex-map;
 }
-
-$dragbox-width: 3px;
 // Show selected area when shift click + drag on map
 :global(.ol-dragzoom) {
     border: $dragbox-width solid $malibu;

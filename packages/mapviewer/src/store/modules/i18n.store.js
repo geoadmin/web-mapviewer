@@ -28,8 +28,8 @@ const actions = {
 const mutations = {}
 
 mutations[SET_LANG_MUTATION_KEY] = function (state, { lang }) {
-    state.lang = lang
-    i18n.global.locale = langToLocal(lang)
+    state.lang = lang.toLowerCase()
+    i18n.global.locale = langToLocal(lang.toLowerCase())
 }
 
 export default {

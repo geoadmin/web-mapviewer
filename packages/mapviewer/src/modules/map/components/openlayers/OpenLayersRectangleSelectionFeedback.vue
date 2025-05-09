@@ -3,6 +3,7 @@ import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import { v4 as uuidv4 } from 'uuid'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -27,6 +28,7 @@ const selectionPolygon = computed(() => {
 const map = inject('olMap')
 const vectorLayer = new VectorLayer({
     id: 'rectangleSelectionFeedback',
+    uuid: uuidv4(),
     source: new VectorSource({
         features: [],
     }),

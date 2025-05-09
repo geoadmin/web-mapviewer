@@ -7,10 +7,9 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
+import { Collapse } from 'vue-collapsed'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -257,7 +256,7 @@ function containsLayer(layers, searchText) {
         >
             <button
                 v-if="canBeAddedToTheMap"
-                class="btn border-0 d-flex align-items-center"
+                class="btn d-flex align-items-center border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -271,7 +270,7 @@ function containsLayer(layers, searchText) {
             </button>
             <button
                 v-if="hasChildren"
-                class="btn border-0 d-flex align-items-center"
+                class="btn d-flex align-items-center border-0"
                 :class="{
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
@@ -313,9 +312,8 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon icon="info-circle" />
             </button>
         </div>
-        <CollapseTransition :duration="200">
+        <Collapse :when="showChildren">
             <ul
-                v-if="showChildren"
                 class="menu-catalogue-item-children"
                 :class="`ps-${2 + depth}`"
             >
@@ -329,7 +327,7 @@ function containsLayer(layers, searchText) {
                     :is-topic="isTopic"
                 />
             </ul>
-        </CollapseTransition>
+        </Collapse>
         <LayerDescriptionPopup
             v-if="showLayerDescription"
             :layer="item"
@@ -346,7 +344,7 @@ function containsLayer(layers, searchText) {
     border-bottom: none;
 
     &-title {
-        @extend .menu-title;
+        @extend %menu-title;
         cursor: pointer;
         border-bottom-width: 1px;
         border-bottom-color: $gray-400;
@@ -361,13 +359,10 @@ function containsLayer(layers, searchText) {
         }
     }
 }
-.menu-catalogue-item-title {
-    @extend .menu-item;
-}
 .menu-catalogue-item-name {
-    @extend .menu-name;
+    @extend %menu-name;
 }
 .menu-catalogue-item-children {
-    @extend .menu-list;
+    @extend %menu-list;
 }
 </style>

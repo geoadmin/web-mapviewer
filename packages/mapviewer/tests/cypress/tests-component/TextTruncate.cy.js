@@ -33,7 +33,7 @@ describe('<TextTruncate />', () => {
         cy.mount(TextTruncate, {
             props: {
                 text: textContent,
-                dataCy: 'tooltip-test'
+                dataCy: 'tooltip-test',
             },
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },
@@ -49,7 +49,7 @@ describe('<TextTruncate />', () => {
         cy.mount(TextTruncate, {
             props: {
                 text: textContent,
-                dataCy: 'tooltip-test'
+                dataCy: 'tooltip-test',
             },
             slots: { default: slotContent },
             attrs: { style: 'width: 50px' },

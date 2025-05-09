@@ -125,7 +125,7 @@ function toggleLayerType(type) {
             <div class="layer-list card-body overflow-y-auto p-0 m-0">
                 <div
                     v-for="(layer, index) in filteredLayers"
-                    :key="layer.id"
+                    :key="layer.id + layer.uuid"
                     class="d-flex justify-content-end align-content-center mb-1 p-1"
                     :class="{ 'bg-body-secondary': index % 2 === 0 }"
                 >

@@ -1,24 +1,11 @@
 <script setup>
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
 const dispatcher = { dispatcher: 'FeatureList.vue' }
-
-const { fluid } = defineProps({
-    /**
-     * Tells if the height should be fixed (non-fluid) or if it should take 100% of available space
-     * (if fluid). Default is false, which is the way it will be displayed in the InfoboxModule.
-     * MapPopup might want to set fluid to true, it might otherwise display two scroll bars in some
-     * cases (one for the modal, one for the feature list)
-     */
-    fluid: {
-        type: Boolean,
-        default: false,
-    },
-})
 
 const featureListContainer = useTemplateRef('featureListContainer')
 const editableFeatureCategory = useTemplateRef('editableFeatureCategory')
@@ -32,6 +19,7 @@ const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.sho
 const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
 const selectedFeaturesByLayerId = computed(() => store.state.features.selectedFeaturesByLayerId)
 const lastClick = computed(() => store.state.map.clickInfo)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 // flag telling if more features could be loaded for a given layer ID
 const canLoadMore = computed(() => (layerId) => {
@@ -45,8 +33,15 @@ const canLoadMore = computed(() => (layerId) => {
     )
 })
 
-watch(lang, () => {
-    store.dispatch('updateFeatures', dispatcher)
+// when the language changes, we have to wait until the active layers are updated
+// before dispatching the updateFeatures action,
+// else the feature.layer.name will not be up to date
+const lastLang = ref(lang.value)
+watch(activeLayers, () => {
+    if (lang.value !== lastLang.value) {
+        lastLang.value = lang.value
+        store.dispatch('updateFeatures', dispatcher)
+    }
 })
 
 function getLayerName(layerId) {
@@ -84,46 +79,57 @@ function loadMoreResultForLayer(layerId) {
 <template>
     <div
         ref="featureListContainer"
-        class="feature-list clear-no-ios-long-press"
-        :class="{ fluid }"
+        class="clear-no-ios-long-press feature-list"
+        :class="[isPhoneMode ? 'mobile' : 'desktop']"
         data-cy="highlighted-features"
     >
-        <!-- Only showing drawing features when outside the drawing module/mode -->
-        <FeatureListCategory
-            v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
-            ref="editableFeatureCategory"
-            class="feature-list-item"
-            :name="t('draw_layer_label')"
-            :children="selectedEditableFeatures"
-        />
-        <FeatureListCategory
-            v-for="featuresForLayer in selectedFeaturesByLayerId"
-            :key="featuresForLayer.layerId"
-            ref="layerFeatureCategories"
-            class="feature-list-item"
-            :name="getLayerName(featuresForLayer.layerId)"
-            :children="featuresForLayer.features"
-            :can-load-more="canLoadMore(featuresForLayer.layerId)"
-            @load-more-results="loadMoreResultForLayer(featuresForLayer.layerId)"
-        />
+        <div
+            class="feature-list-inner"
+            data-cy="feature-list-inner"
+        >
+            <!-- Only showing drawing features when outside the drawing module/mode -->
+            <FeatureListCategory
+                v-if="!isCurrentlyDrawing && selectedEditableFeatures.length > 0"
+                ref="editableFeatureCategory"
+                class="feature-list-item"
+                :name="t('draw_layer_label')"
+                :children="selectedEditableFeatures"
+            />
+            <FeatureListCategory
+                v-for="featuresForLayer in selectedFeaturesByLayerId"
+                :key="featuresForLayer.layerId"
+                ref="layerFeatureCategories"
+                class="feature-list-item"
+                :name="getLayerName(featuresForLayer.layerId)"
+                :children="featuresForLayer.features"
+                :can-load-more="canLoadMore(featuresForLayer.layerId)"
+                @load-more-results="loadMoreResultForLayer(featuresForLayer.layerId)"
+            />
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/scss/variables.module';
+
 .feature-list {
-    &.fluid {
-        max-height: 100%;
-        overflow: hidden;
-    }
-    &:not(.fluid) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    &.mobile {
         max-height: 33vh;
-        overflow-x: hidden;
+    }
+
+    &.desktop {
+        max-height: 100%;
+    }
+
+    &-inner {
         overflow-y: auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax($overlay-width, 1fr));
-        justify-content: stretch;
-        align-content: stretch;
+        overflow-x: hidden;
+        flex-grow: 1;
+        min-height: 0;
     }
 }
 </style>

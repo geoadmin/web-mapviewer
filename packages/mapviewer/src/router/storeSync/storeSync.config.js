@@ -35,7 +35,11 @@ const storeSyncConfig = [
         keepInUrlWhenDefault: true,
         valueType: String,
         validateUrlInput: (store, query) =>
-            getStandardValidationResponse(query, SUPPORTED_LANG.includes(query), 'lang'),
+            getStandardValidationResponse(
+                query,
+                SUPPORTED_LANG.includes(query.toLowerCase()),
+                'lang'
+            ),
     }),
     new NoSimpleZoomParamConfig(),
     new SimpleUrlParamConfig({
@@ -173,6 +177,17 @@ const storeSyncConfig = [
     }),
     new TimeSliderParamConfig(),
     new PrintConfigParamConfig(),
+    new SimpleUrlParamConfig({
+        urlParamName: 'hideEmbedUI',
+        mutationsToWatch: ['setHideEmbedUI'],
+        dispatchName: 'setHideEmbedUI',
+        dispatchValueName: 'hideEmbedUI',
+        extractValueFromStore: (store) => store.state.ui.hideEmbedUI,
+        keepInUrlWhenDefault: false,
+        valueType: Boolean,
+        defaultValue: false,
+        validateUrlInput: null,
+    }),
     createBaseUrlOverrideParamConfig({ urlParamName: 'wms_url', baseUrlPropertyName: 'wms' }),
     createBaseUrlOverrideParamConfig({ urlParamName: 'wmts_url', baseUrlPropertyName: 'wmts' }),
     createBaseUrlOverrideParamConfig({ urlParamName: 'api_url', baseUrlPropertyName: 'api3' }),

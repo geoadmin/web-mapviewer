@@ -8,11 +8,14 @@ const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = 
 
 // OL needs color as RGBA arrays, so we convert them through this function
 function hexToRgba(hexValue, alpha = 1.0) {
+    // Remove the leading # and expand 3-character hex to 6-character
+    let hex = hexValue.replace(/^#/, '')
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('')
+    }
+    
     return [
-        ...hexValue
-            .replaceAll('#', '')
-            .match(/.{1,2}/g)
-            .map((value) => parseInt(value, 16)),
+        ...hex.match(/.{1,2}/g).map((value) => parseInt(value, 16)),
         alpha,
     ]
 }

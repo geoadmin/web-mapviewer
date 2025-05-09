@@ -2,6 +2,8 @@
 
 import { isMobile } from 'tests/cypress/support/utils'
 
+import { SUPPORTED_LANG } from '@/modules/i18n'
+
 function checkLanguage(lang) {
     // Check language in store
     cy.readStoreValue('state.i18n.lang').should('eq', lang)
@@ -66,6 +68,19 @@ function checkLanguage(lang) {
 }
 
 describe('Change language', () => {
+    context('on startup', () => {
+        it('should show the correct language if we ask for it, even if the param is in uppercase', () => {
+            SUPPORTED_LANG.forEach((lang) => {
+                cy.goToMapView({ lang: lang })
+                checkLanguage(lang)
+            })
+
+            SUPPORTED_LANG.forEach((lang) => {
+                cy.goToMapView({ lang: lang.toUpperCase() })
+                checkLanguage(lang)
+            })
+        })
+    })
     context('in mobile view', () => {
         it('should change the language', () => {
             cy.goToMapView()
@@ -74,9 +89,7 @@ describe('Change language', () => {
             checkLanguage('en') // Initial language is 'en'
 
             // Check for all available languages
-            const availableLanguages = ['de', 'fr', 'it', 'rm', 'en']
-
-            availableLanguages.forEach((lang) => {
+            SUPPORTED_LANG.forEach((lang) => {
                 cy.clickOnLanguage(lang)
                 checkLanguage(lang)
             })
@@ -96,9 +109,7 @@ describe('Change language', () => {
                 checkLanguage('en') // Initial language is 'en'
 
                 // Check for all available languages
-                const availableLanguages = ['de', 'fr', 'it', 'rm', 'en']
-
-                availableLanguages.forEach((lang) => {
+                SUPPORTED_LANG.forEach((lang) => {
                     cy.clickOnLanguage(lang)
                     checkLanguage(lang)
                 })

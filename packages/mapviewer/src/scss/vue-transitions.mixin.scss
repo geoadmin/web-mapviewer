@@ -1,0 +1,43 @@
+@mixin fade-in-out($animation-time) {
+    .fade-in-out-enter-active,
+    .fade-in-out-leave-active {
+        transition: opacity $animation-time;
+    }
+    .fade-in-out-enter-from,
+    .fade-in-out-leave-to {
+        opacity: 0;
+    }
+}
+
+@mixin slide-up($animation-time) {
+    .slide-up-leave-active,
+    .slide-up-enter-active {
+        transition: $animation-time;
+    }
+    .slide-up-enter-from,
+    .slide-up-leave-to {
+        transform: translate(0, -100%);
+    }
+}
+
+@mixin slide-left($animation-time) {
+    .slide-left-leave-active,
+    .slide-left-enter-active {
+        transition: $animation-time;
+    }
+    .slide-left-enter-from,
+    .slide-left-leave-to {
+        transform: translate(-100%, 0);
+    }
+}
+
+@mixin slide-right($animation-time) {
+    .slide-right-leave-active,
+    .slide-right-enter-active {
+        transition: $animation-time;
+    }
+    .slide-right-enter-from,
+    .slide-right-leave-to {
+        transform: translate(100%, 0);
+    }
+}

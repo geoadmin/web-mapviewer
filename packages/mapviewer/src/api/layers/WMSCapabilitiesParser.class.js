@@ -1,4 +1,4 @@
-import { allCoordinateSystems, WGS84 } from '@geoadmin/coordinates'
+import { allCoordinateSystems, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { range } from 'lodash'
 import { WMSCapabilities } from 'ol/format'
@@ -365,9 +365,20 @@ export default class WMSCapabilitiesParser {
                 allCoordinateSystems.find((projection) => projection.epsg === bbox.crs)
             )
             if (bbox) {
+                let extent = [...bbox.extent]
+
+                // When transforming between WGS84 (EPSG:4326) and Web Mercator (EPSG:3857)
+                // we have to be carefull because:
+                // - WGS84 traditionally uses latitude-first (Y,X) axis order [minY, minX, maxY, maxX]
+                // - Web Mercator uses longitude-first (X,Y) axis order [minX, minY, maxX, maxY]
+                // Note: Some WGS84 implementations may use X,Y order,
+                //       thats why we need to get the extent in the right order throught the function getExtentInOrderXY
+                if (bbox.crs === WGS84.epsg && projection.epsg === WEBMERCATOR.epsg) {
+                    extent = WGS84.getExtentInOrderXY(extent)
+                }
                 layerExtent = [
-                    proj4(bbox.crs, projection.epsg, [bbox.extent[0], bbox.extent[1]]),
-                    proj4(bbox.crs, projection.epsg, [bbox.extent[2], bbox.extent[3]]),
+                    proj4(bbox.crs, projection.epsg, [extent[0], extent[1]]),
+                    proj4(bbox.crs, projection.epsg, [extent[2], extent[3]]),
                 ]
             }
         }

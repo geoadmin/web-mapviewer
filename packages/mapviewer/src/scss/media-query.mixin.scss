@@ -1,4 +1,5 @@
 // from https://glennmccomb.com/articles/useful-sass-scss-media-query-mixins-for-bootstrap/
+@use 'sass:map';
 
 @import 'bootstrap/scss/bootstrap-grid';
 
@@ -16,12 +17,12 @@ $breakpoint_tablet: 768px;
 */
 @mixin respond-above($breakpoint) {
     // If the breakpoint exists in the map (from Bootstrap).
-    @if map-has-key($grid-breakpoints, $breakpoint) and $breakpoint != xs {
+    @if map.has-key($grid-breakpoints, $breakpoint) and $breakpoint != xs {
         /* Following values are accepted:
        xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px */
 
         // Get the breakpoint value.
-        $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+        $breakpoint-value: map.get($grid-breakpoints, $breakpoint);
 
         // Write the media query.
         @media (min-width: $breakpoint-value) and (min-height: $breakpoint_phone_height) {
@@ -49,9 +50,9 @@ $breakpoint_tablet: 768px;
 */
 @mixin respond-below($breakpoint) {
     // If the breakpoint exists in the map.
-    @if map-has-key($grid-breakpoints, $breakpoint) {
+    @if map.has-key($grid-breakpoints, $breakpoint) {
         // Get the breakpoint value.
-        $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+        $breakpoint-value: map.get($grid-breakpoints, $breakpoint);
 
         // Write the media query.
         @media (max-width: ($breakpoint-value - 1)), (max-height: ($breakpoint_phone_height - 1)) {

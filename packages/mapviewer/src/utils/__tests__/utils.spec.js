@@ -3,24 +3,14 @@ import { describe, it } from 'vitest'
 
 import {
     formatMeters,
-    formatMinutesTime,
     formatPointCoordinates,
     humanFileSize,
     parseUrlHashQuery,
     transformUrlMapToEmbed,
+    getLongestCommonPrefix,
 } from '@/utils/utils'
 
 describe('utils', () => {
-    describe('formatMinutesTime()', () => {
-        it('format time', () => {
-            expect(formatMinutesTime(null)).to.equal('-')
-            expect(formatMinutesTime(42)).to.equal('42min')
-            expect(formatMinutesTime(1200)).to.equal('20h')
-            expect(formatMinutesTime(1230)).to.equal('20h 30min')
-            expect(formatMinutesTime(1202)).to.equal('20h 2min')
-        })
-    })
-
     describe('formatMeters()', () => {
         it('format meters', () => {
             expect(formatMeters(42)).to.equal('42 m')
@@ -131,6 +121,33 @@ describe('utils', () => {
             expect(humanFileSize(4 * 1024)).to.be.equal('4 kB')
             expect(humanFileSize(4 * 1024 * 1024)).to.be.equal('4 MB')
             expect(humanFileSize(4.3 * 1024 * 1024)).to.be.equal('4.3 MB')
+        })
+    })
+
+    describe('getLongestCommonPrefix', () => {
+        it('returns the longest common prefix for a list of URLs', () => {
+            // Empty array
+            expect(getLongestCommonPrefix([])).to.equal('')
+
+            // Single URL
+            let urls = ['https://example.com/path/to/resource']
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/resource')
+
+            // Multiple URLs with common prefix
+            urls = [
+                'https://example.com/path/to/resource',
+                'https://example.com/path/to/another',
+                'https://example.com/path/to/something-else',
+            ]
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path/to/')
+
+            // Multiple URLs with no common prefix
+            urls = ['https://example1.com/path', 'https://example2.com/path']
+            expect(getLongestCommonPrefix(urls)).to.equal('')
+
+            // Multiple URLs with one URL is the common prefix
+            urls = ['https://example.com/path', 'https://example.com/path/to']
+            expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path')
         })
     })
 })

@@ -7,11 +7,11 @@
  */
 
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const dispatcher = { dispatcher: 'external-layers.plugin' }
 
@@ -101,6 +101,13 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             layer.customAttributes,
             false /* throw Error in case of  error */
         )
+        if (layer.baseUrl) {
+            // in some situations, the baseUrl of the capabilities is not the
+            // same as the one being given by the user. We ensure we keep the
+            // same baseUrl so we can pass the baseUrl check in the `setUpdateLayer`
+            // later
+            updated.baseUrl = layer.baseUrl
+        }
         updated.isLoading = false
         return updated
     } catch (error) {

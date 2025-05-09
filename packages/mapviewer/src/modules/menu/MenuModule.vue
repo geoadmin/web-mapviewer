@@ -28,7 +28,7 @@ function toggleMenu() {
 </script>
 
 <template>
-    <div class="menu position-absolute w-100 h-100 start-0 top-0 pe-none">
+    <div class="menu position-absolute w-100 h-100 pe-none start-0 top-0">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu position-absolute w-100" />
@@ -72,7 +72,7 @@ function toggleMenu() {
                     />
                     <button
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
+                        class="button-open-close-desktop-menu btn btn-dark m-auto pe-4 ps-4 shadow-lg"
                         data-cy="menu-button"
                         @click="toggleMenu"
                     >
@@ -88,6 +88,7 @@ function toggleMenu() {
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
 @import '@/scss/variables.module';
+@import '@/scss/vue-transitions.mixin';
 
 $animation-time: 0.5s;
 $openCloseButtonHeight: 2.5rem;
@@ -165,6 +166,10 @@ $openCloseButtonHeight: 2.5rem;
     }
 }
 
+// transition definitions
+@include fade-in-out($animation-time);
+@include slide-up($animation-time);
+
 @include respond-above(lg) {
     .menu {
         .menu-tray-container {
@@ -186,40 +191,5 @@ $openCloseButtonHeight: 2.5rem;
             overflow: auto;
         }
     }
-}
-// transition definitions
-.fade-in-out-enter-active,
-.fade-in-out-leave-active {
-    transition: opacity $animation-time;
-}
-.fade-in-out-enter-from,
-.fade-in-out-leave-to {
-    opacity: 0;
-}
-.slide-up-leave-active,
-.slide-up-enter-active {
-    transition: $animation-time;
-}
-.slide-up-enter-from,
-.slide-up-leave-to {
-    transform: translate(0, -100%);
-}
-.slide-left-leave-active,
-.slide-left-enter-active,
-.slide-right-leave-active,
-.slide-right-enter-active {
-    transition: $animation-time;
-}
-.slide-left-enter-from {
-    transform: translate(-100%, 0);
-}
-.slide-left-leave-to {
-    transform: translate(-100%, 0);
-}
-.slide-right-enter-from {
-    transform: translate(100%, 0);
-}
-.slide-right-leave-to {
-    transform: translate(100%, 0);
 }
 </style>
