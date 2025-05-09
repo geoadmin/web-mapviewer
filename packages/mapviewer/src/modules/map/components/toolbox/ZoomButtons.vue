@@ -72,7 +72,6 @@ function decreaseZoom() {
         <GeoadminTooltip
             placement="left"
             :tooltip-content="t('zoom_out')"
-            :use-extra-padding
         >
             <button
                 ref="zoomOutButton"

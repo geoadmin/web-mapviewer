@@ -209,7 +209,7 @@ watch(noSimpleZoom, (value) => {
                     <GeoadminTooltip :tooltip-content="t('copy_cta')">
                         <button
                             data-cy="menu-share-embed-copy-button"
-                            class="btn btn-outline-group"
+                            class="btn btn-outline-group rounded-0"
                             type="button"
                             @click="copyValue"
                         >
@@ -245,6 +245,7 @@ watch(noSimpleZoom, (value) => {
             <div
                 class="embed-preview-modal"
                 :style="embedPreviewModalWidth"
+                data-cy="embed-preview-modal"
             >
                 <div class="d-flex mb-2 flex-row">
                     <select

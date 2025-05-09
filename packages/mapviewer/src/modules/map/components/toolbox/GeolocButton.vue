@@ -70,7 +70,6 @@ function toggleGeolocation() {
         <GeoadminTooltip
             placement="left"
             :tooltip-content="tooltipContent"
-            :use-extra-padding="true"
         >
             <button
                 class="toolbox-button d-print-none"
@@ -118,11 +117,5 @@ function toggleGeolocation() {
 .geoloc-button-div {
     background-color: $map-button-hover-border-color;
     border-radius: $map-button-diameter * 0.5;
-}
-
-@include respond-above('md') {
-    .geoloc-tooltip {
-        white-space: nowrap;
-    }
 }
 </style>
