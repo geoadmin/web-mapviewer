@@ -54,9 +54,6 @@ catalogs:
     '@intlify/core-base':
       specifier: ^11.1.2
       version: 11.1.3
-    '@ivanv/vue-collapse-transition':
-      specifier: ^1.0.2
-      version: 1.0.2
     '@mapbox/togeojson':
       specifier: ^0.16.2
       version: 0.16.2
@@ -321,6 +318,9 @@ catalogs:
     vue-chartjs:
       specifier: ^5.3.2
       version: 5.3.2
+    vue-collapsed:
+      specifier: ^1.3.4
+      version: 1.3.4
     vue-i18n:
       specifier: ^11.1.3
       version: 11.1.3
@@ -680,9 +680,6 @@ importers:
       '@geoblocks/ol-maplibre-layer':
         specifier: 'catalog:'
         version: 1.0.3(maplibre-gl@5.5.0)(ol@10.5.0)
-      '@ivanv/vue-collapse-transition':
-        specifier: 'catalog:'
-        version: 1.0.2
       '@mapbox/togeojson':
         specifier: 'catalog:'
         version: 0.16.2
@@ -767,6 +764,9 @@ importers:
       vue-chartjs:
         specifier: 'catalog:'
         version: 5.3.2(chart.js@4.4.9)(vue@3.5.13(typescript@5.8.3))
+      vue-collapsed:
+        specifier: 'catalog:'
+        version: 1.3.4
       vue-i18n:
         specifier: 'catalog:'
         version: 11.1.3(vue@3.5.13(typescript@5.8.3))
@@ -1543,9 +1543,6 @@ packages:
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
-
-  '@ivanv/vue-collapse-transition@1.0.2':
-    resolution: {integrity: sha512-eWEameFXJM/1khcoKbITvKjYYXDP1WKQ/Xf9ItJVPoEjCiOdocR3AgDAERzDrNNg4oWK28gRGi+0ft8Te27zxw==}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -6004,6 +6001,9 @@ packages:
       chart.js: ^4.1.1
       vue: ^3.0.0-0 || ^2.7.0
 
+  vue-collapsed@1.3.4:
+    resolution: {integrity: sha512-W92b+QT3n5iTrfrH6kyvx3TsriYPfy/Ymsb6DaanjeMkJYMdVl1S4wzKRYVDsxWQPDxiC+5m+UwPwT/8YAYodA==}
+
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
     engines: {node: '>=12'}
@@ -6887,8 +6887,6 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
-
-  '@ivanv/vue-collapse-transition@1.0.2': {}
 
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:
@@ -12669,6 +12667,8 @@ snapshots:
     dependencies:
       chart.js: 4.4.9
       vue: 3.5.13(typescript@5.8.3)
+
+  vue-collapsed@1.3.4: {}
 
   vue-demi@0.14.10(vue@3.5.13(typescript@5.8.3)):
     dependencies:

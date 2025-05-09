@@ -143,8 +143,8 @@ describe('Topics', () => {
 
         // it must not open the first elements of the tree by default
         cy.get('[data-cy="catalogue-tree-item-2"]').should('be.visible')
-        cy.get('[data-cy="catalogue-tree-item-3"]').should('not.exist')
-        cy.get('[data-cy="catalogue-tree-item-5"]').should('not.exist')
+        cy.get('[data-cy="catalogue-tree-item-3"]').should('be.hidden')
+        cy.get('[data-cy="catalogue-tree-item-5"]').should('be.hidden')
 
         // shows a topic tree item's children when we click on it
         cy.get('[data-cy="catalogue-tree-item-title-2"]').should('be.visible').click()
@@ -235,7 +235,7 @@ describe('Topics', () => {
         cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-3"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
-        cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('not.exist')
+        cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.hidden')
         cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').should('be.visible')
         cy.readStoreValue('state.topics.openedTreeThemesIds').should((currentlyOpenedThemesId) => {
             expect(currentlyOpenedThemesId).to.be.an('Array')

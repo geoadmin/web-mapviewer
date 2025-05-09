@@ -121,7 +121,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-right')
-        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.be.visible')
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
 
         //---------------------------------------------------------------------------------
@@ -518,10 +518,8 @@ describe('The Import Maps Tool', () => {
         const layer4Name = 'Layer 4'
         const layer4Id = 'layer4'
 
-        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`)
-        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`)
-            .should('be.visible')
-            .contains(layer4Name)
+        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${layer4Id}"]`).should('contain', layer4Name)
         cy.get(`[data-cy="catalogue-collapse-layer-button-${layer4Id}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layer4Id}"]`).should('be.visible')
         cy.get(`[data-cy="catalogue-add-layer-button-${layer4Id}"]`).should('be.visible').click()

@@ -46,13 +46,16 @@ function manualChunks(id) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode, disableDevTools = false }) => {
+export default defineConfig(({ mode }) => {
+    // We use "test" only to decide if we want to add Vue dev tools or not (we don't want them when testing).
+    // It otherwise is "development" mode...
+    const definitiveMode = mode === 'test' ? 'development' : mode
     return {
         base: './',
         build: {
             emptyOutDir: true,
             assetsDir: `${appVersion}/assets`,
-            outDir: `./dist/${stagings[mode]}`,
+            outDir: `./dist/${stagings[definitiveMode]}`,
             rollupOptions: {
                 output: {
                     manualChunks,
@@ -63,13 +66,13 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             {
                 ...(process.env.USE_HTTPS
                     ? basicSsl({
-                        /** Name of certification */
-                        name: 'localhost',
-                        /** Custom trust domains */
-                        domains: ['localhost', '192.168.*.*'],
-                        /** Custom certification directory */
-                        certDir: './devServer/cert',
-                    })
+                          /** Name of certification */
+                          name: 'localhost',
+                          /** Custom trust domains */
+                          domains: ['localhost', '192.168.*.*'],
+                          /** Custom certification directory */
+                          certDir: './devServer/cert',
+                      })
                     : {}),
                 apply: 'serve',
             },
@@ -82,7 +85,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
                     },
                 },
             }),
-            generateBuildInfo(stagings[mode], appVersion),
+            generateBuildInfo(stagings[definitiveMode], appVersion),
             // CesiumJS requires static files from the following 4 folders to be included in the build
             // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
             viteStaticCopy({
@@ -105,8 +108,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
                     },
                 ],
             }),
-            // disable the dev tools if required, e.g. in cypress component tests
-            disableDevTools ? {} : vueDevTools(),
+            mode === 'development' ? vueDevTools() : {},
         ],
         resolve: {
             alias: {
@@ -117,7 +119,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
         },
         define: {
             __APP_VERSION__: JSON.stringify(appVersion),
-            VITE_ENVIRONMENT: JSON.stringify(mode),
+            VITE_ENVIRONMENT: JSON.stringify(definitiveMode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
             __VUE_OPTIONS_API__: 'false',
         },
@@ -127,7 +129,7 @@ export default defineConfig(({ mode, disableDevTools = false }) => {
             outputFile: 'tests/results/unit/unit-test-report.xml',
             silent: true,
             setupFiles: ['tests/setup-vitest.ts'],
-            environment: "jsdom"
+            environment: 'jsdom',
         },
     }
 })

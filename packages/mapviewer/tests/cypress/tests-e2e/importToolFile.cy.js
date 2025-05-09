@@ -986,7 +986,9 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`).click()
+        cy.get(
+            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}-"]:visible`
+        ).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -997,7 +999,8 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
         const gpxMultiSeparatedSegmentFileName = 'external-gpx-file-multi-separated-segment.gpx'
         const gpxMultiSeparatedSegmentFileFixture = `import-tool/${gpxMultiSeparatedSegmentFileName}`
-        const validMultiSeparatedSegmentOnlineUrl = 'https://example.com/valid-multi-separated-segement-gpx-file.gpx'
+        const validMultiSeparatedSegmentOnlineUrl =
+            'https://example.com/valid-multi-separated-segement-gpx-file.gpx'
         createHeadAndGetIntercepts(
             validMultiSeparatedSegmentOnlineUrl,
             'GpxFile',
@@ -1029,6 +1032,23 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="profile-segment-button-1"]').click()
         cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        // waiting for the highlight layer to be loaded by checking its ID (with retry-ability)
+        // without this "active" wait, the CI goes straight into the next test and fails
+        // (because OL didn't have the time to load the layer)
+        cy.readWindowValue('map').should((map) => {
+            expect(
+                map
+                    .getLayers()
+                    .getArray()
+                    .filter((layer) => layer.get('id').startsWith('vector-layer-'))
+                    .find((layer) => {
+                        return layer
+                            .getSource()
+                            .getFeatures()
+                            .find((feature) => feature.get('id').startsWith('geom-segment-'))
+                    })
+            ).to.not.be.undefined
+        })
         cy.readWindowValue('map').then((map) => {
             const layers = map.getLayers().getArray()
             const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
