@@ -15,7 +15,12 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
     constructor() {
         super({
             fileExtensions: ['.tif', '.tiff'],
-            fileTypeLittleEndianSignature: [0x49, 0x49, 0x2a, 0x00],
+            fileTypeLittleEndianSignature: [
+                // Standard TIFF
+                [0x49, 0x49, 0x2a, 0x00],
+                // BigTIFF
+                [0x49, 0x49, 0x2b, 0x00],
+            ],
             fileContentTypes: [
                 'image/tiff',
                 'image/tiff;subtype=geotiff',
@@ -43,14 +48,12 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
         const imageGeoKeys = firstImage.getGeoKeys()
         const imageGeoKey = imageGeoKeys?.ProjectedCSTypeGeoKey
         const imageGeoKeyName = imageGeoKeys?.GTCitationGeoKey ?? ''
-        const cogProjection = allCoordinateSystems.find(
-            (coordinateSystem) => {
-                if (imageGeoKey !== USER_DEFINED_CS) {
-                    return coordinateSystem.epsgNumber === imageGeoKey
-                }
-                return imageGeoKeyName.indexOf(coordinateSystem.technicalName) !== -1
+        const cogProjection = allCoordinateSystems.find((coordinateSystem) => {
+            if (imageGeoKey !== USER_DEFINED_CS) {
+                return coordinateSystem.epsgNumber === imageGeoKey
             }
-        )
+            return imageGeoKeyName.indexOf(coordinateSystem.technicalName) !== -1
+        })
         if (!cogProjection) {
             throw new UnknownProjectionError(
                 `Unknown projection found in COG EPSG:${imageGeoKey}`,
