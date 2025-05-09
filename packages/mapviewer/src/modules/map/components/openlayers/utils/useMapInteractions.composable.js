@@ -158,8 +158,8 @@ export default function useMapInteractions(map) {
                 pixelCoordinate: pixel,
                 features,
                 clickType: ClickType.LEFT_SINGLECLICK,
-                ...dispatcher,
             }),
+            ...dispatcher,
         })
     }
 
@@ -172,8 +172,8 @@ export default function useMapInteractions(map) {
                 pixelCoordinate: event.pixel,
                 features: [],
                 clickType: ClickType.CONTEXTMENU,
-                ...dispatcher,
             }),
+            ...dispatcher,
         })
     }
 
