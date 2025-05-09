@@ -29,7 +29,7 @@ export default class KMZParser extends FileParser {
             fileExtensions: ['.kmz'],
             fileContentTypes: ['application/vnd.google-earth.kmz'],
             // ZIP file signature
-            fileTypeLittleEndianSignature: ZIP_FILE_LITTLE_ENDIAN_SIGNATURE,
+            fileTypeLittleEndianSignature: [ZIP_FILE_LITTLE_ENDIAN_SIGNATURE],
             validateFileContent: isZipContent,
         })
     }

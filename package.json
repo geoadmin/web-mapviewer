@@ -3,6 +3,7 @@
     "private": true,
     "scripts": {
         "build-all": "pnpm run -r build",
+        "build-libs": "pnpm run -r build --filter=!web-mapviewer",
         "build:dev": "pnpm -r run build:dev",
         "build:dev:watch": "pnpm -r --parallel --if-present run build:dev:watch --filter=!web-mapviewer",
         "build:int": "pnpm -r run build:int",
