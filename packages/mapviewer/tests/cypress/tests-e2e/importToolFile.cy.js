@@ -1021,48 +1021,41 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="show-profile"]').click()
         // Test segment buttons and highlights
         cy.log('Check that the segment buttons are working and that the segment is highlighted')
-        let segmentFeature
-        cy.readWindowValue('map').then((map) => {
-            const layers = map.getLayers().getArray()
-            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
-            expect(segmentHighlightLayer.length).to.deep.equal(1)
-            segmentFeature = segmentHighlightLayer[0]
-        })
-        cy.get('[data-cy="profile-segment-button-1"]').click()
-        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
-        // waiting for the highlight layer to be loaded by checking its ID (with retry-ability)
-        // without this "active" wait, the CI goes straight into the next test and fails
-        // (because OL didn't have the time to load the layer)
-        cy.readWindowValue('map').should((map) => {
-            expect(
-                map
+
+        function checkVectorLayerHighlightingSegment(lastIndex = -1) {
+            let currentIndex = -1
+            cy.readWindowValue('map').should((map) => {
+                const vectorLayers = map
                     .getLayers()
                     .getArray()
                     .filter((layer) => layer.get('id').startsWith('vector-layer-'))
-                    .find((layer) => {
-                        return layer
-                            .getSource()
-                            .getFeatures()
-                            .find((feature) => feature.get('id').startsWith('geom-segment-'))
-                    })
-            ).to.not.be.undefined
-        })
-        cy.readWindowValue('map').then((map) => {
-            const layers = map.getLayers().getArray()
-            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
-            expect(segmentHighlightLayer.length).to.deep.equal(1)
-            expect(segmentFeature).to.not.equal(segmentHighlightLayer[0])
-            segmentFeature = segmentHighlightLayer[0]
-        })
+                const geomHighlightFeature = vectorLayers.find((layer) => {
+                    return layer
+                        .getSource()
+                        .getFeatures()
+                        .find((feature) => feature.get('id').startsWith('geom-segment-'))
+                })
+                expect(geomHighlightFeature).to.not.be.undefined
+                currentIndex = vectorLayers.indexOf(geomHighlightFeature)
+                if (lastIndex === -1) {
+                    expect(lastIndex).not.to.equal(currentIndex)
+                }
+            })
+            return currentIndex
+        }
+
+        // waiting for the highlight layer to be loaded by checking its ID (with retry-ability)
+        // without this "active" wait, the CI goes straight into the next test and fails
+        // (because OL didn't have the time to load the layer)
+        let lastSegmentIndex = checkVectorLayerHighlightingSegment()
+
+        cy.get('[data-cy="profile-segment-button-1"]').click()
+        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        lastSegmentIndex = checkVectorLayerHighlightingSegment(lastSegmentIndex)
+
         cy.get('[data-cy="profile-segment-button-2"]').click()
         cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 2)
-        cy.readWindowValue('map').then((map) => {
-            const layers = map.getLayers().getArray()
-            const segmentHighlightLayer = layers[layers.length - 2].getSource().getFeatures()
-            expect(segmentHighlightLayer.length).to.deep.equal(1)
-            expect(segmentFeature).to.not.equal(segmentHighlightLayer[0])
-            segmentFeature = segmentHighlightLayer[0]
-        })
+        checkVectorLayerHighlightingSegment(lastSegmentIndex)
 
         // Import file partially out of bounds
         cy.log('Test import file partially out of bounds')
