@@ -21,7 +21,7 @@ import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.ap
 export default class FileParser {
     /**
      * @param {String} config.displayedName Name used to describe this file type to the end user
-     * @param {Number[]} config.fileTypeLittleEndianSignature Little endian signature (aka magic
+     * @param {Number[][]} config.fileTypeLittleEndianSignature Little endian signature (aka magic
      *   numbers), if any, for this file type. Will be used to check the first 4 bytes of the file.
      * @param {String[]} config.fileExtensions Which file extensions this file type is carried with
      *   (case-insensitive)
@@ -74,10 +74,14 @@ export default class FileParser {
         const fileArrayBuffer = await fileSource.arrayBuffer()
         // if a little endian signature was found, and we know one to match against, we prioritize this way of
         // detecting if this file is a valid candidate
-        if (fileArrayBuffer.byteLength >= 4 && this.fileTypeLittleEndianSignature.length === 4) {
+        if (
+            fileArrayBuffer.byteLength >= 4 &&
+            this.fileTypeLittleEndianSignature.length > 0 &&
+            this.fileTypeLittleEndianSignature.every((signature) => signature.length === 4)
+        ) {
             const littleEndianSignature = new Uint8Array(fileArrayBuffer.slice(0, 4))
-            return this.fileTypeLittleEndianSignature.every(
-                (byte, index) => byte === littleEndianSignature[index]
+            return this.fileTypeLittleEndianSignature.find((signature) =>
+                signature.every((byte, index) => byte === littleEndianSignature[index])
             )
         }
         // if no known little endian signature for this file type we fall back to check the file extension
