@@ -40,6 +40,7 @@ const layer = new WebGLTileLayer({
     source: createLayerSource(),
     opacity: opacity.value,
     id: source.value.url,
+    uuid: geotiffConfig.uuid,
 })
 
 useAddLayerToMap(layer, olMap, () => zIndex)

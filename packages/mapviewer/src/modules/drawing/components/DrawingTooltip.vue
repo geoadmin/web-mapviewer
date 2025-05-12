@@ -1,6 +1,6 @@
 <script setup>
 import Overlay from 'ol/Overlay'
-import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -20,8 +20,16 @@ const store = useStore()
 const tooltipText = ref('')
 const drawingTooltip = useTemplateRef('drawingTooltip')
 
+let lastPointerEvent
 const selectedFeatures = computed(() => store.getters.selectedFeatures)
 const drawingMode = computed(() => store.state.drawing.mode)
+const currentlySketchedFeature = computed(() => {
+    // there can only be one drawing feature edited at the same time
+    if (selectedFeatures.value.length === 1) {
+        return selectedFeatures.value[0]
+    }
+    return null
+})
 
 const tooltipOverlay = new Overlay({
     offset: [15, 15],
@@ -36,18 +44,28 @@ onMounted(() => {
     olMap.addOverlay(tooltipOverlay)
     olMap.on('pointermove', onPointerMove)
 })
+
 onBeforeUnmount(() => {
     tooltipOverlay.setElement(null)
     olMap.removeOverlay(tooltipOverlay)
     olMap.un('pointermove', onPointerMove)
 })
 
+watch(selectedFeatures, updateTooltip)
+
 function onPointerMove(event) {
     // moving the tooltip with the mouse cursor
     tooltipOverlay.setPosition(event.coordinate)
+    lastPointerEvent = event
+    updateTooltip(event)
+}
+
+function updateTooltip() {
+    if (!lastPointerEvent) {
+        return
+    }
 
     const mapElement = olMap.getTarget()
-
     if (mapElement.classList.contains(cssGrabbing)) {
         mapElement.classList.remove(cssGrab)
         return
@@ -63,7 +81,7 @@ function onPointerMove(event) {
     let featureUnderCursor
 
     olMap.forEachFeatureAtPixel(
-        event.pixel,
+        lastPointerEvent.pixel,
         (feature) => {
             // Keeping track that features are being hovered (even if not selected)
             hoveringSelectableFeature = true
@@ -83,19 +101,21 @@ function onPointerMove(event) {
     )
 
     const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
+    const nonPointFeatureTypes = [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE]
     const featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
-    let translationKeys
+
+    const translations = []
 
     if (drawingMode.value) {
-        if (this.currentlySketchedFeature && !pointFeatureTypes.includes(drawingMode.value)) {
+        if (currentlySketchedFeature.value && !pointFeatureTypes.includes(drawingMode.value)) {
             let hoveringFirstVertex = false
             let hoveringLastVertex = false
             // The last two coordinates seem to be some OL internal points we don't need.
-            const coordinates = getVertexCoordinates(this.currentlySketchedFeature).slice(0, -2)
+            const coordinates = getVertexCoordinates(currentlySketchedFeature.value).slice(0, -2)
 
             coordinates.some((coordinate, index) => {
                 const pixel = olMap.getPixelFromCoordinate(coordinate)
-                if (pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)) {
+                if (pointWithinTolerance(pixel, lastPointerEvent.pixel, DRAWING_HIT_TOLERANCE)) {
                     hoveringFirstVertex = index === 0
                     hoveringLastVertex = index === coordinates.length - 1
                     // Abort loop. We have what we need.
@@ -104,32 +124,51 @@ function onPointerMove(event) {
             })
 
             if (hoveringFirstVertex && coordinates.length > 2) {
-                translationKeys = `draw_snap_first_point_${drawingMode.value}`
+                translations.push({
+                    key: `draw_snap_first_point_${drawingMode.value}`,
+                })
             } else if (hoveringLastVertex && coordinates.length > 1) {
-                translationKeys = `draw_snap_last_point_${drawingMode.value}`
+                translations.push({ key: `draw_snap_last_point_${drawingMode.value}` })
             } else {
-                translationKeys = `draw_next_${drawingMode.value}`
+                translations.push({ key: `draw_next_${drawingMode.value}` })
             }
 
             if (coordinates.length > 1) {
-                translationKeys = [translationKeys, 'draw_delete_last_point']
+                translations.push({ key: 'draw_delete_last_point' })
             }
         } else {
-            translationKeys = `draw_start_${drawingMode.value}`
+            translations.push({ key: `draw_start_${drawingMode.value}` })
         }
     } else {
         if (hoveringSelectedFeature) {
             const hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
                 const pixel = olMap.getPixelFromCoordinate(coordinate)
-                return pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)
+                return pointWithinTolerance(pixel, lastPointerEvent.pixel, DRAWING_HIT_TOLERANCE)
             })
-            translationKeys = `select_feature_${featureDrawingMode}`
-
             if (hoveringVertex) {
-                translationKeys = `modify_existing_vertex_${featureDrawingMode}`
+                if (nonPointFeatureTypes.includes(featureDrawingMode)) {
+                    const selectedFeature = selectedFeatures.value[0]
+                    const geometryType = selectedFeature.geometry.type.toLowerCase()
+                    translations.push({
+                        key: `modify_existing_vertex_line`,
+                        params: {
+                            minAmount: geometryType === 'polygon' ? 3 : 2,
+                        },
+                    })
+                    translations.push({ key: 'modify_move_vertex_line' })
+                } else {
+                    translations.push({ key: `modify_existing_vertex_${featureDrawingMode}` })
+                }
                 mapElement.classList.remove(cssPointer)
                 mapElement.classList.add(cssGrab)
             } else {
+                if (nonPointFeatureTypes.includes(featureDrawingMode)) {
+                    translations.push({ key: `modify_new_vertex_line` })
+                    translations.push({ key: `modify_existing_vertex_line_2` })
+                } else {
+                    translations.push({ key: `select_feature_${featureDrawingMode}` })
+                }
+
                 mapElement.classList.add(cssPointer)
                 mapElement.classList.remove(cssGrab)
             }
@@ -139,28 +178,17 @@ function onPointerMove(event) {
 
             // Display a help tooltip when selecting
             if (featureDrawingMode) {
-                translationKeys = `select_feature_${featureDrawingMode}`
+                translations.push({ key: `select_feature_${featureDrawingMode}` })
             } else {
-                translationKeys = 'select_no_feature'
+                translations.push({ key: 'select_no_feature' })
             }
         } else {
-            translationKeys = 'select_no_feature'
+            translations.push({ key: 'select_no_feature' })
         }
     }
 
-    updateTooltipText(translationKeys)
-}
-function updateTooltipText(translationKeys) {
-    const keys = []
-    if (Array.isArray(translationKeys)) {
-        keys.push(...translationKeys)
-    } else {
-        keys.push(translationKeys)
-    }
-
-    tooltipText.value = keys
-        .map((key) => key.toLowerCase())
-        .map((key) => t(key))
+    tooltipText.value = translations
+        .map((translation) => t(translation.key.toLowerCase(), translation.params))
         .join('<br>')
 }
 </script>

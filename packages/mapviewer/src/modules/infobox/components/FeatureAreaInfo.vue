@@ -74,6 +74,7 @@ const humanReadableArea = computed(() => {
 $rectangle-line-width: 2px;
 $rectangle-line-color: $gray-600;
 $transparent: rgba(0, 0, 0, 0);
+
 .rectangle {
     height: 1rem;
     width: 1.5rem;
@@ -90,7 +91,8 @@ $transparent: rgba(0, 0, 0, 0);
         $transparent 2 * $rectangle-line-width
     );
 }
+
 .area-information {
-    @extend .clear-no-ios-long-press;
+    @extend %clear-no-ios-long-press;
 }
 </style>

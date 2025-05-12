@@ -107,11 +107,11 @@ async function copyValue() {
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 .location-popup-data {
+    @extend %clear-no-ios-long-press;
+
     display: grid;
     grid-template-columns: auto max-content;
-}
-.location-popup-data {
-    @extend .clear-no-ios-long-press;
 }
 </style>

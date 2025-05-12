@@ -37,7 +37,10 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
         />
         <div
             class="swiss-confederation-text position-relative flex-column text-nowrap"
-            :class="{ 'd-none d-lg-flex': renderForDpi === null, 'd-flex': renderForDpi !== null }"
+            :class="{
+                'd-none d-lg-flex': renderForDpi === null,
+                'd-flex': renderForDpi !== null,
+            }"
             data-cy="swiss-confederation-text"
         >
             <div class="d-flex flex-column">
@@ -65,6 +68,8 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 <style lang="scss" scoped>
 @import '@/scss/variables-admin.module';
 @import '@/scss/media-query.mixin';
+// the document uses some Adobe Illustrator specific unit, that looks like is in fact a 1000th of a char size
+$letterSpacing: calc((78 / 1000) * 1em);
 
 @mixin confederation-logo($lengthUnit, $fontSize, $lineHeight) {
     // using page 21 of the document to decide margins and sizes
@@ -72,10 +77,6 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
     $flagSize: calc(5 * $lengthUnit);
     // document suggest a 55mm width, but using a 55 multiple here was generating too big of a width so I lowered it a bit
     $logoWidth: calc(40 * $lengthUnit);
-
-    gap: $defaultMargin;
-    margin: $defaultMargin;
-    width: $flagSize;
 
     .swiss-flag {
         width: $flagSize;
@@ -85,29 +86,25 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
         font-size: $fontSize;
         line-height: $lineHeight;
         letter-spacing: $letterSpacing;
+
         .partnership-text {
             margin-top: $lineHeight;
         }
+    }
+
+    & {
+        margin: $defaultMargin;
+        gap: $defaultMargin;
+        width: $flagSize;
     }
 
     @include respond-above(lg) {
         width: $logoWidth;
     }
 }
-// the document uses some Adobe Illustrator specific unit, that looks like is in fact a 1000th of a char size
-$letterSpacing: calc((78 / 1000) * 1em);
 
 .confederation-logo {
     font-family: $frutiger;
-
-    @include confederation-logo(
-        // the document suggest using [mm], but in the web context that is a bad call, so I've switched
-        // to a [rem] value that has about the same visual output as if I'd written [1mm] here.
-        0.4rem,
-        // font size values found in the guide document
-        7.5pt,
-        10.35pt
-    );
 
     &.dpi-responsive {
         // Print specific values, using screen width (or height) to adapt the logo/text to the DPI used
@@ -138,5 +135,14 @@ $letterSpacing: calc((78 / 1000) * 1em);
             filter: hue-rotate(225deg);
         }
     }
+
+    @include confederation-logo(
+        // the document suggest using [mm], but in the web context that is a bad call, so I've switched
+        // to a [rem] value that has about the same visual output as if I'd written [1mm] here.
+        0.4rem,
+        // font size values found in the guide document
+        7.5pt,
+        10.35pt
+    );
 }
 </style>

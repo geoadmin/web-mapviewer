@@ -3,9 +3,7 @@
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'bootstrap/scss/bootstrap';
-
 @import 'cesium/Build/Cesium/Widgets/widgets';
-
 @import '@fontsource/noto-sans';
 // font-weight: light
 @import '@fontsource/noto-sans/300.css';
@@ -13,21 +11,21 @@
 @import '@fontsource/noto-sans/700.css';
 // font-weight: bolder ==> <strong> tags
 @import '@fontsource/noto-sans/900.css';
-
 @import '@/css/tailwind.css';
 
 body {
     // disabling double tap = zoom the UI on iOS
     touch-action: manipulation;
     // preventing a long press to select the entire window/app, and all element of the UI in the process
-    @extend .no-ios-long-press-select;
+    @extend %no-ios-long-press-select;
 }
+
 input,
 p,
 li {
     // whitelisting inputs, so that they may be selected by iOS (otherwise, link copy is a bit weird without
     // having selected the text first)
-    @extend .clear-no-ios-long-press;
+    @extend %clear-no-ios-long-press;
 }
 
 // Add #cesium here to give this selector more specificity. Otherwise, the
@@ -66,6 +64,7 @@ li {
 }
 
 @media print {
+    /* stylelint-disable-next-line selector-id-pattern */
     #__vue-devtools-container__,
     .no-print {
         display: none;

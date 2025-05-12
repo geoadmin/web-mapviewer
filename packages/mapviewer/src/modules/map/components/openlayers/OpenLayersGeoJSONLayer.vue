@@ -39,7 +39,11 @@ const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const isLoading = computed(() => geoJsonConfig.isLoading)
 
-const layer = new VectorLayer({ id: layerId.value, opacity: opacity.value })
+const layer = new VectorLayer({
+    id: layerId.value,
+    uuid: geoJsonConfig.uuid,
+    opacity: opacity.value,
+})
 
 function setGeoJsonStyle() {
     if (!geoJsonStyle.value) {

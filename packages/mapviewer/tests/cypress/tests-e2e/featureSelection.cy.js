@@ -248,6 +248,69 @@ describe('Testing the feature selection', () => {
                 expect(layer.length).to.eq(1)
             })
         })
+        it('Adds pre-selected features and verifys the translation of the feature text after changing the language', () => {
+            cy.log('Open the map with a feature preselected in english')
+            goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
+            checkFeatures()
+            checkFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL)
+
+            cy.wait(`@htmlPopup`)
+
+            cy.get('[data-cy="feature-list-category-title"]').contains('Kultur Gueter')
+            cy.get('[data-cy="feature-detail-htmlpopup-container"]')
+                .should('have.length', 1)
+                .should('contain', 'Description')
+                .should('contain', 'Y-Coordinate')
+                .should('contain', 'X-Coordinate')
+                .should('contain', 'City')
+                .should('contain', 'Canton')
+                .should('contain', "I'm a test window")
+                .should('contain', 'More info')
+
+            cy.log('verifying that the left table cell is not too close to the right table cell')
+            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should(
+                'have.css',
+                'padding-right',
+                '10px'
+            )
+
+            cy.intercept('**/rest/services/all/MapServer/layersConfig?lang=de**', {
+                fixture: 'layers-german.fixture',
+            }).as('layersConfigDe')
+            cy.intercept('**/MapServer/**/htmlPopup?**lang=de**', {
+                fixture: 'html-popup-german.fixture.html',
+            }).as('htmlPopupDe')
+
+            cy.clickOnLanguage('de')
+            cy.closeMenuIfMobile()
+
+            cy.wait(`@htmlPopupDe`)
+            cy.wait(`@layersConfigDe`)
+
+            cy.log('checking that the feature was translated to german')
+
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
+
+            cy.get('[data-cy="feature-list-category-title"]').contains('Kultur Gueter DE')
+            cy.get('[data-cy="feature-detail-htmlpopup-container"]')
+                .should('have.length', 1)
+                .should('contain', 'Beschreibung')
+                .should('contain', 'Y-Koordinate')
+                .should('contain', 'X-Koordinate')
+                .should('contain', 'Stadt')
+                .should('contain', 'Kanton')
+                .should('contain', 'Ich bin ein Testfenster')
+                .should('contain', 'Mehr Information')
+
+            cy.log('verifying that the left table cell is not too close to the right table cell')
+            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should(
+                'have.css',
+                'padding-right',
+                '10px'
+            )
+        })
     })
     context('Feature identification on the map', () => {
         function drawRectangleOnMap(pixelsAroundCenter) {
@@ -350,7 +413,7 @@ describe('Testing the feature selection', () => {
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
                 .should('have.length', featureCountWithKml)
-            cy.get('@highlightedFeatures').scrollTo('bottom')
+            cy.get('[data-cy="feature-list-inner"]').scrollTo('bottom')
 
             cy.get('[data-cy="feature-list-load-more"]').as('loadMore').should('be.visible')
             cy.get('@loadMore').click()
@@ -379,7 +442,7 @@ describe('Testing the feature selection', () => {
                 results: [],
             }).as('noMoreResults')
 
-            cy.get('@highlightedFeatures').scrollTo('bottom')
+            cy.get('[data-cy="feature-list-inner"]').scrollTo('bottom')
             cy.get('@loadMore').click()
             cy.wait('@noMoreResults')
 

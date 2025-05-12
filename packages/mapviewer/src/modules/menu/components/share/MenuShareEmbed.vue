@@ -9,9 +9,8 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { Collapse } from 'vue-collapsed'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -19,8 +18,11 @@ import { useStore } from 'vuex'
 import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { transformUrlMapToEmbed } from '@/utils/utils'
-import { insertParameterIntoUrl, removeParamaterFromUrl } from '@/utils/utils'
+import {
+    insertParameterIntoUrl,
+    removeParamaterFromUrl,
+    transformUrlMapToEmbed,
+} from '@/utils/utils'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -191,11 +193,8 @@ watch(noSimpleZoom, (value) => {
             />
             <span class="px-1">{{ t('share_more') }}</span>
         </a>
-        <CollapseTransition :duration="200">
-            <div
-                v-show="showEmbedSharing"
-                class="p-2 ps-4 card border-light"
-            >
+        <Collapse :when="showEmbedSharing">
+            <div class="card border-light p-2 ps-4">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
@@ -210,7 +209,7 @@ watch(noSimpleZoom, (value) => {
                     <GeoadminTooltip :tooltip-content="t('copy_cta')">
                         <button
                             data-cy="menu-share-embed-copy-button"
-                            class="btn btn-outline-group"
+                            class="btn btn-outline-group rounded-0"
                             type="button"
                             @click="copyValue"
                         >
@@ -236,7 +235,7 @@ watch(noSimpleZoom, (value) => {
                 />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-        </CollapseTransition>
+        </Collapse>
         <ModalWithBackdrop
             v-if="showPreviewModal"
             :title="t('embed_map')"
@@ -246,8 +245,9 @@ watch(noSimpleZoom, (value) => {
             <div
                 class="embed-preview-modal"
                 :style="embedPreviewModalWidth"
+                data-cy="embed-preview-modal"
             >
-                <div class="d-flex flex-row mb-2">
+                <div class="d-flex mb-2 flex-row">
                     <select
                         v-model="currentPreviewSize"
                         class="embed-preview-modal-size-selector form-select"
@@ -265,13 +265,13 @@ watch(noSimpleZoom, (value) => {
                     </select>
                     <div
                         v-if="isPreviewSizeCustom"
-                        class="d-flex flex-row ms-2"
+                        class="d-flex ms-2 flex-row"
                     >
                         <input
                             v-if="!customSize.fullWidth"
                             v-model="customSize.width"
                             type="number"
-                            class="form-control text-center custom-preview-input"
+                            class="form-control custom-preview-input text-center"
                             data-cy="menu-share-embed-iframe-custom-width"
                         />
                         <input
@@ -329,7 +329,7 @@ watch(noSimpleZoom, (value) => {
                         </label>
                     </GeoadminTooltip>
                 </div>
-                <div class="d-flex flex-row mb-2">
+                <div class="d-flex mb-2 flex-row">
                     <MenuShareInputCopyButton
                         class="flex-grow-1"
                         :small="false"
@@ -356,7 +356,7 @@ watch(noSimpleZoom, (value) => {
                 />
                 <div
                     v-if="hasAnyLocalFile"
-                    class="d-flex flex-row gap-2 justify-content-center mt-2"
+                    class="d-flex justify-content-center mt-2 flex-row gap-2"
                     data-cy="warn-share-local-file-container"
                 >
                     <FontAwesomeIcon
@@ -384,7 +384,7 @@ watch(noSimpleZoom, (value) => {
 .embed-btn {
     // Here we add the menu-item styling to the title only to avoid hover
     // on the content once the item has been opened
-    @extend .menu-item;
+    @extend %menu-item;
 
     cursor: pointer;
     height: 2.75em;

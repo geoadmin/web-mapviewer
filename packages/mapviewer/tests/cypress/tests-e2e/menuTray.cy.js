@@ -155,22 +155,30 @@ function waitForAnimationsToFinish() {
  */
 function checkOpenSections(openSections) {
     const sections = [
-        { name: 'topics', selector: '[data-cy="menu-topic-tree"]' },
-        { name: 'activeLayers', selector: '[data-cy="menu-section-active-layers"]' },
-        { name: 'help', selector: '[data-cy="menu-help-content"]' },
+        {
+            name: 'topics',
+            selector: '[data-cy="menu-topic-section"]',
+        },
+        {
+            name: 'activeLayers',
+            selector: '[data-cy="menu-active-layers"]',
+        },
+        {
+            name: 'help',
+            selector: '[data-cy="menu-help-section"]',
+        },
         {
             name: 'share',
-            selector: '[data-cy="menu-share-section"] > [data-cy="menu-section-body"]',
+            selector: '[data-cy="menu-share-section"]',
         },
     ]
-    sections
-        .filter((section) => openSections.includes(section.name))
-        .forEach((section) => {
-            cy.get(section.selector).should('exist')
-        })
-    sections
-        .filter((section) => !openSections.includes(section.name))
-        .forEach((section) => cy.get(section.selector).should('be.hidden'))
+    sections.forEach((section) => {
+        cy.get(section.selector).should('exist')
+        cy.get(`${section.selector} > [data-cy="menu-section-header"]`).scrollIntoView()
+        cy.get(`${section.selector} [data-cy="menu-section-body"]`).should(
+            `be.${openSections.includes(section.name) ? 'visible' : 'hidden'}`
+        )
+    })
 }
 
 /**

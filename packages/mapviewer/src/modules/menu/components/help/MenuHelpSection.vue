@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -26,7 +26,14 @@ const store = useStore()
 const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
 const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
 
-const currentLang = ref(store.state.i18n.lang)
+const currentLang = computed(() => store.state.i18n.lang)
+
+// this is needed to pass the selected value to the changelang function
+const selectedLang = ref(currentLang.value)
+
+watch(currentLang, () => {
+    selectedLang.value = currentLang.value
+})
 
 function changeLang(lang) {
     store.dispatch('setLang', {
@@ -69,10 +76,10 @@ defineExpose({
         @open-menu-section="onOpenMenuSection"
     >
         <div
-            class="help-links p-2 d-flex flex-column gap-1"
+            class="help-links d-flex flex-column gap-1 p-2"
             data-cy="menu-help-content"
         >
-            <div class="d-flex gap-1 w-100 justify-content-stretch">
+            <div class="d-flex w-100 justify-content-stretch gap-1">
                 <FeedbackButton v-if="hasGiveFeedbackButton" />
                 <ReportProblemButton v-if="hasReportProblemButton" />
             </div>
@@ -88,7 +95,7 @@ defineExpose({
                 :title="t('about_us')"
                 @close="showAboutUs = false"
             >
-                <div class="d-flex flex-column gap-1 w-100 justify-content-stretch">
+                <div class="d-flex flex-column w-100 justify-content-stretch gap-1">
                     <MoreInfo show-as-button />
                     <UpdateInfo show-as-button />
                     <a
@@ -105,26 +112,28 @@ defineExpose({
                     >
                         {{ t('copyright_label') }}
                     </a>
-                    <AppVersion class="mt-1 mobile-app-version text-center" />
+                    <AppVersion class="mobile-app-version mt-1 text-center" />
                 </div>
             </ModalWithBackdrop>
         </div>
         <template #extra-button>
-            <select
-                v-model="currentLang"
-                class="form-control form-control-sm menu-lang-switch bg-light text-dark"
-                data-cy="mobile-lang-selector"
-                @change="changeLang(currentLang)"
-                @click.stop
-            >
-                <option
-                    v-for="lang in Object.keys(languages)"
-                    :key="lang"
-                    :value="lang"
+            <div class="position-relative d-flex end-0 top-0">
+                <select
+                    v-model="selectedLang"
+                    class="position-absolute form-control form-control-sm menu-lang-switch bg-light text-dark translate-middle-y top-50 end-0"
+                    data-cy="mobile-lang-selector"
+                    @change="changeLang(selectedLang)"
+                    @click.stop
                 >
-                    {{ lang.toUpperCase() }}
-                </option>
-            </select>
+                    <option
+                        v-for="lang in Object.keys(languages)"
+                        :key="lang"
+                        :value="lang"
+                    >
+                        {{ lang.toUpperCase() }}
+                    </option>
+                </select>
+            </div>
         </template>
     </MenuSection>
 </template>
@@ -147,9 +156,6 @@ defineExpose({
 }
 
 .menu-lang-switch {
-    position: absolute;
-    right: 2px;
-    top: 4px;
     width: 60px;
     text-align: center;
     // for dumb Safari, bugs still there 14 years after

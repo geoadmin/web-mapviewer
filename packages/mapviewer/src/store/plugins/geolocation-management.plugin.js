@@ -1,12 +1,12 @@
 import { LV95, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { ErrorMessage } from '@geoadmin/log/Message'
 import { round } from '@geoadmin/numbers'
 import { Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 
 const { GeolocationPositionError } = window
 

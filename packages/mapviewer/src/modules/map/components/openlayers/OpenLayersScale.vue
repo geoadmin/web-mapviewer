@@ -74,13 +74,12 @@ onBeforeUnmount(() => olMap.removeControl(scaleLine))
         $scaleBarPrimary: $black;
         $scaleBarSecondary: $light-grey;
 
-        position: relative;
+        $fontSize: 8px;
 
         .scale-bar-inner {
             display: flex;
         }
 
-        $fontSize: 8px;
         &.with-relative-size {
             $fontSize: max(max(0.8vw, 0.8vh), 8px);
         }
@@ -123,6 +122,10 @@ onBeforeUnmount(() => olMap.removeControl(scaleLine))
 
         .ol-scale-singlebar-odd {
             background-color: $scaleBarPrimary;
+        }
+
+        & {
+            position: relative;
         }
     }
 }

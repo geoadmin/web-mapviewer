@@ -66,7 +66,7 @@ Cypress.Commands.add(
         queryParams = {},
         withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7, errorCode: null },
-        fixturesAndIntercepts = {},
+        fixturesAndIntercepts = {}
     ) => {
         // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
         // default intercept.

@@ -207,7 +207,6 @@ const onInputClicked = () => {
 // Prevent clear icon of search input on certain browser like chrome, the clear icon is added
 // manually using bootstrap see template above.
 input[type='search']::-webkit-search-cancel-button {
-    -webkit-appearance: none;
     appearance: none;
 }
 </style>

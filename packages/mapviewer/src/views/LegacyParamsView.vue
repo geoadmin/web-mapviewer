@@ -26,6 +26,7 @@ const showLoadingBar = computed(() => store.getters.showLoadingBar)
 
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
+
 #splashscreen {
     position: fixed;
     top: 0;

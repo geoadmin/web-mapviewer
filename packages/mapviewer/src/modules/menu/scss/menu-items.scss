@@ -1,19 +1,19 @@
 @import '@/scss/webmapviewer-bootstrap-theme';
 
-.menu-list {
+%menu-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.menu-item {
+%menu-item {
     &:not(.drag-in-progress):hover,
     &[draggable='true'] {
         background-color: $list-item-hover-bg-color !important;
     }
 }
 
-.menu-title {
+%menu-title {
     display: flex;
     align-items: center;
     padding-left: 8px;
@@ -30,7 +30,23 @@
     }
 }
 
-.menu-name {
+%menu-name {
     flex-grow: 1;
     text-align: left;
+}
+
+.menu-list {
+    @extend %menu-list;
+}
+
+.menu-item {
+    @extend %menu-item;
+}
+
+.menu-title {
+    @extend %menu-title;
+}
+
+.menu-name {
+    @extend %menu-name;
 }

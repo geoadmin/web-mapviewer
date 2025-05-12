@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { isNumber } from '@geoadmin/numbers'
 
 import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
@@ -8,8 +9,6 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
-import ErrorMessage from '@/utils/ErrorMessage.class'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
@@ -183,6 +182,24 @@ export default {
          * @type Boolean
          */
         showDragAndDropOverlay: false,
+
+        /**
+         * Flag telling if we should hide the UI elements in the embed viewer. Zoom buttons, 3d
+         * button and the `view on geoadmin link`. This is only for the Geo Platform Schweiz current
+         * implementation and should not be disclosed to users as something they can use.
+         *
+         * @type Boolean
+         */
+        hideEmbedUI: false,
+
+        /**
+         * Flag used to override the dev site warning behavior. This can only be used to force the
+         * dev site to remove its dev-specific UI element, so this always start as false, and is
+         * only meant to be set to true by a press of a button in the debug menu
+         *
+         * @type Boolean
+         */
+        forceNoDevSiteWarning: false,
     },
     getters: {
         showLoadingBar(state) {
@@ -258,8 +275,9 @@ export default {
          * hide development specific features in production (like the app version)
          */
         hasDevSiteWarning(state) {
-            return !NO_WARNING_BANNER_HOSTNAMES.some((hostname) =>
-                state.hostname.includes(hostname)
+            return (
+                !state.forceNoDevSiteWarning &&
+                !NO_WARNING_BANNER_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
             )
         },
         isProductionSite(state) {
@@ -293,6 +311,10 @@ export default {
          */
         hasReportProblemButton(state) {
             return REPORT_PROBLEM_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
+        },
+
+        hideEmbedUI(state) {
+            return state.hideEmbedUI
         },
     },
     actions: {
@@ -473,6 +495,12 @@ export default {
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {
             commit('setShowDragAndDropOverlay', { showDragAndDropOverlay, dispatcher })
         },
+        setHideEmbedUI({ commit }, { hideEmbedUI, dispatcher }) {
+            commit('sethideEmbedUI', { hideEmbedUI: !!hideEmbedUI, dispatcher })
+        },
+        setForceNoDevSiteWarning({ commit }, { dispatcher }) {
+            commit('setForceNoDevSiteWarning', { dispatcher })
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -545,5 +573,7 @@ export default {
         removeWarning: (state, { warning }) => state.warnings.delete(warning),
         setShowDragAndDropOverlay: (state, { showDragAndDropOverlay }) =>
             (state.showDragAndDropOverlay = showDragAndDropOverlay),
+        sethideEmbedUI: (state, { hideEmbedUI }) => (state.hideEmbedUI = hideEmbedUI),
+        setForceNoDevSiteWarning: (state) => (state.forceNoDevSiteWarning = true),
     },
 }

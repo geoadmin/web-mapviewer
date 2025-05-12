@@ -64,11 +64,14 @@ const selectedLineCoordinates = computed(() => {
     return null
 })
 const editMode = computed(() => store.state.drawing.editingMode)
-const isAllowDeletePointOnSelectedLine = computed(
+const isAllowDeleteLastPoint = computed(
     () =>
-        editMode.value !== EditMode.OFF &&
-        selectedLineString.value &&
-        selectedLineCoordinates.value?.length > 2
+        // Allow deleting the last point only if we are drawing line or measure
+        // or when extending line
+        isDrawingLineOrMeasure.value ||
+        (editMode.value === EditMode.EXTEND &&
+            selectedLineString.value &&
+            selectedLineCoordinates.value?.length > 2)
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const drawingName = computed({
@@ -261,7 +264,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         </div>
                     </div>
                     <div
-                        v-if="isDrawingLineOrMeasure || isAllowDeletePointOnSelectedLine"
+                        v-if="isDrawingLineOrMeasure || isAllowDeleteLastPoint"
                         class="row mt-2"
                     >
                         <div class="col d-grid">

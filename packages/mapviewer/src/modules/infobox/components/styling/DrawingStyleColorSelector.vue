@@ -67,6 +67,11 @@ function colorCircleStyle(color) {
 <style lang="scss" scoped>
 @import '@/scss/webmapviewer-bootstrap-theme';
 
+.color-select-box button {
+    display: inline-flex;
+    justify-content: center;
+}
+
 .color-select-box {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -79,11 +84,6 @@ function colorCircleStyle(color) {
             padding-left: 0.25rem;
             padding-right: 0.25rem;
         }
-    }
-
-    button {
-        display: inline-flex;
-        justify-content: center;
     }
 
     .color-circle {

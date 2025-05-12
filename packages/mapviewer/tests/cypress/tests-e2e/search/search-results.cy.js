@@ -84,7 +84,6 @@ function testQueryPositionCrosshairStore({
 }
 
 describe('Test the search bar result handling', () => {
-
     const expectedLocationLabel = '<b>Test location</b>'
     const expectedLayerLabel = '<b>Test layer</b>'
     const expectedLegendContent = '<div>Test</div>'
@@ -171,7 +170,6 @@ describe('Test the search bar result handling', () => {
             ) - 1
         )
     }
-
 
     beforeEach(() => {
         // mocking up all possible search backend response
@@ -534,14 +532,15 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('not.be.visible')
     })
 
-
-
     it('handle swisssearch and crosshair together correctly', () => {
         const latitude = 46.3163
         const longitude = 7.6347
         const swissSearchString = `${latitude},${longitude}`
 
-        const [swissSearchX, swissSearchY] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
+        const [swissSearchX, swissSearchY] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+            longitude,
+            latitude,
+        ])
         const swissSearchXYCoordinates = [swissSearchX, swissSearchY]
 
         // Cross hair position
@@ -568,7 +567,9 @@ describe('Test the search bar result handling', () => {
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate')
+        cy.log(
+            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
+        )
         cy.goToMapView(
             {
                 swisssearch: swissSearchString,
@@ -604,7 +605,9 @@ describe('Test the search bar result handling', () => {
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate')
+        cy.log(
+            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
+        )
         cy.goToMapView(
             {
                 swisssearch: swissSearchString,
@@ -621,7 +624,9 @@ describe('Test the search bar result handling', () => {
         })
 
         // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate')
+        cy.log(
+            'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
+        )
         cy.goToMapView(
             {
                 swisssearch: swissSearchString,
@@ -636,7 +641,5 @@ describe('Test the search bar result handling', () => {
             expectedCrosshair: CrossHairs.cross,
             expectedCrosshairPosition: crossHairXYCoordinates,
         })
-
     })
-
 })

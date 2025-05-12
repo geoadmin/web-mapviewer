@@ -3,17 +3,18 @@ import proj4 from 'proj4'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import { projExtent } from '@/utils/extentUtils'
+import { flattenExtent, projExtent } from '@/utils/extentUtils'
 
-const dispatcher = { dispatcher: 'reproject-selected-features-on-projection-change.plugin' }
+const dispatcher = { dispatcher: 'reproject-layers-on-projection-change.plugin' }
 
 let oldProjection = null
 /**
- * Plugin that will reproject selected features after it detects that the projection was changed
+ * Plugin that will reproject selected features and layers after it detects that the projection was
+ * changed
  *
  * @param {Vuex.Store} store
  */
-const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
+const reprojectLayersOnProjectionChangePlugin = (store) => {
     store.subscribeAction({
         before: (action, state) => {
             if (action.type === 'setProjection') {
@@ -39,13 +40,13 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                     if (!geometry || typeof geometry !== 'object') {
                         return geometry
                     }
-                
+
                     const reprojectedGeometry = { ...geometry }
-                
+
                     if (Array.isArray(geometry.coordinates)) {
                         reprojectedGeometry.coordinates = reprojectCoordinates(geometry.coordinates)
                     }
-                
+
                     return reprojectedGeometry
                 }
 
@@ -85,9 +86,53 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                         ...dispatcher,
                     })
                 }
+
+                reprojectLayerExtent(oldProjection, newProjection, state.layers.activeLayers, store)
             }
         },
     })
 }
 
-export default reprojectSelectedFeaturesOnProjectionChangePlugin
+/**
+ * Reproject the extent of the active layers after it detects that the projection was changed
+ *
+ * @param {Object} oldProjection - The old projection object
+ * @param {Object} newProjection - The new projection object
+ * @param {Array} activeLayers - The active layers array
+ * @param {Vuex.Store} store - The Vuex store instance
+ */
+function reprojectLayerExtent(oldProjection, newProjection, activeLayers, store) {
+    log.debug(
+        `starting to reproject the layer extent from ${oldProjection.epsg} to ${newProjection.epsg}`
+    )
+    if (oldProjection.epsg === newProjection.epsg) {
+        log.debug(
+            `The old projection ${oldProjection.epsg} and new projection ${newProjection.epsg} are the same, no need to reproject the layer extent`
+        )
+        return
+    }
+    // re-projecting the extent of the active layers with the new projection
+    const updatedLayers = activeLayers.reduce((layers, currentLayer) => {
+        if (!currentLayer.extent) {
+            return layers
+        }
+        const newExtent = projExtent(
+            oldProjection,
+            newProjection,
+            flattenExtent(currentLayer.extent)
+        )
+        layers.push({
+            ...currentLayer,
+            extent: newExtent,
+        })
+        return layers
+    }, [])
+    if (updatedLayers.length > 0) {
+        store.dispatch('updateLayers', {
+            layers: updatedLayers,
+            ...dispatcher,
+        })
+    }
+}
+
+export default reprojectLayersOnProjectionChangePlugin

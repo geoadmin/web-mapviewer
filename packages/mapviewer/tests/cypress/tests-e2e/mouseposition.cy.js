@@ -228,7 +228,7 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
 
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+            cy.get('[data-cy="menu-share-input-copy-text"]').should(
                 'contain.value',
                 'https://s.geo.admin.ch/000000'
             )
@@ -239,7 +239,7 @@ describe('Test mouse position and interactions', () => {
             cy.clickOnLanguage('de')
             cy.closeMenuIfMobile()
             cy.wait('@shortlink')
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+            cy.get('[data-cy="menu-share-input-copy-text"]').should(
                 'contain.value',
                 'https://s.geo.admin.ch/111111'
             )
@@ -254,7 +254,7 @@ describe('Test mouse position and interactions', () => {
                 const params = new URLSearchParams(query)
                 expect(params.get('bgLayer')).to.be.equal('void')
             })
-            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+            cy.get('[data-cy="menu-share-input-copy-text"]').should(
                 'have.value',
                 'https://s.geo.admin.ch/222222'
             )

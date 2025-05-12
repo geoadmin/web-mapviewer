@@ -1,12 +1,13 @@
 <script setup>
+import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
+import { Collapse } from 'vue-collapsed'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 
@@ -73,11 +74,13 @@ function onToggleImportFile() {
             data-cy="menu-advanced-tools-import-catalogue"
             @toggle-menu="onToggleImportCatalogue"
         >
-            <ImportCatalogue
-                v-show="showImportCatalogue"
-                class="py-2"
-                :compact="compact"
-            />
+            <Collapse :when="showImportCatalogue">
+                <ImportCatalogue
+                    v-show="showImportCatalogue"
+                    class="py-2"
+                    :compact="compact"
+                />
+            </Collapse>
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
@@ -113,7 +116,8 @@ function onToggleImportFile() {
 @import '@/modules/menu/scss/menu-items';
 
 .advanced-tools-list {
-    @extend .menu-list;
+    @extend %menu-list;
+
     overflow-y: auto;
 }
 </style>

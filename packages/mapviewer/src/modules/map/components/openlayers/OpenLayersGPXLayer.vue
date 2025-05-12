@@ -47,6 +47,7 @@ the getExtent() function and a wrong extent causes the features to sometimes dis
 from the screen.  */
 const layer = new VectorLayer({
     id: layerId.value,
+    uuid: gpxLayerConfig.uuid,
     opacity: opacity.value,
 })
 

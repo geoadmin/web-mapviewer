@@ -8,6 +8,7 @@ import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
+import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStyleMediaLink from '@/modules/infobox/components/styling/DrawingStyleMediaLink.vue'
@@ -126,6 +127,7 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.MEASURE)
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -300,6 +302,10 @@ function mediaTypes() {
                 v-if="!readOnly"
                 class="d-flex gap-1 feature-style-edit-control"
             >
+                <ShowGeometryProfileButton
+                    v-if="isFeatureLine || isFeatureMeasure"
+                    :feature="feature"
+                />
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"

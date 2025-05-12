@@ -84,12 +84,14 @@ let layer
 if (gutter.value !== -1) {
     layer = new TileLayer({
         id: layerId.value,
+        uuid: wmsLayerConfig.uuid,
         opacity: opacity.value,
         source: createSourceForProjection(),
     })
 } else {
     layer = new ImageLayer({
         id: layerId.value,
+        uuid: wmsLayerConfig.uuid,
         opacity: opacity.value,
         source: createSourceForProjection(),
     })
@@ -108,9 +110,9 @@ watch(projection, () => {
     layer.setSource(createSourceForProjection())
     setExtent()
 })
-watch(wmsUrlParams, () => {
-    layer.getSource().updateParams(wmsUrlParams.value)
-})
+
+watch(wmsUrlParams, layer.getSource().updateParams(wmsUrlParams.value))
+watch(() => wmsLayerConfig.extent, setExtent)
 
 function createSourceForProjection() {
     let source = null

@@ -59,7 +59,8 @@ const constructions = computed({
 @import '@/modules/menu/scss/menu-items';
 
 .menu-three-d {
-    @extend .menu-list;
+    @extend %menu-list;
+
     overflow-y: auto;
 }
 </style>

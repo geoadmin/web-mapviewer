@@ -12,6 +12,8 @@ import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
 import { BLUE } from '@/utils/featureStyleUtils'
 import { getIcon, getKmlExtent, parseIconUrl, parseKml } from '@/utils/kmlUtils'
 
+import { isKmlFeaturesValid } from '../kmlUtils'
+
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
         it('handles correctly invalid inputs', () => {
@@ -117,6 +119,18 @@ describe('Test KML utils', () => {
             expect(getKmlExtent(content)).to.deep.equal([
                 7.659940678339698, 46.75405886506746, 8.092263503513564, 46.96964910688379,
             ])
+        })
+    })
+    describe('isKmlFeaturesValid', () => {
+        it('returns false if there is an error in the features of the KML', () => {
+            const kml = readFileSync(resolve(__dirname, './kml_feature_error.kml'), 'utf8')
+            const result = isKmlFeaturesValid(kml)
+            expect(result).to.be.false
+        })
+        it('returns true if there is no error in the features of the KML', () => {
+            const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
+            const result = isKmlFeaturesValid(kml)
+            expect(result).to.be.true
         })
     })
     describe('get marker title offset', () => {

@@ -2,10 +2,10 @@
 import log from '@geoadmin/log'
 import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
+import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const dispatcher = { dispatcher: 'OpenLayersMouseTracker.vue' }
 
@@ -14,8 +14,6 @@ const displayedFormatId = ref(LV95Format.id)
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-
-const { t } = useI18n()
 
 const olMap = inject('olMap')
 
@@ -38,9 +36,6 @@ onUnmounted(() => {
     olMap.removeControl(mousePositionControl)
 })
 
-function showCoordinateLabel(displayedFormat) {
-    return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
-}
 function setDisplayedFormatWithId() {
     store.dispatch('setDisplayedFormatId', {
         displayedFormatId: displayedFormatId.value,
@@ -49,13 +44,11 @@ function setDisplayedFormatWithId() {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
-            if (showCoordinateLabel(displayedFormat)) {
-                return `${t('coordinates_label')} ${displayedFormat.format(
-                    coordinates,
-                    projection.value
-                )}`
-            }
-            return displayedFormat.format(coordinates, projection.value, true)
+            return getHumanReadableCoordinate({
+                coordinates,
+                displayedFormat,
+                projection: projection.value,
+            })
         })
     } else {
         log.error('Unknown coordinates display format', displayedFormatId.value)

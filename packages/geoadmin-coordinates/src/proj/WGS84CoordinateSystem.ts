@@ -42,10 +42,30 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
             Math.abs(
                 (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES *
                     Math.cos((center[1] * Math.PI) / 180.0)) /
-                    Math.pow(2, zoom)
+                Math.pow(2, zoom)
             ),
             2
         )
+    }
+
+    /**
+     * Ensures an extent is in X,Y order (longitude, latitude).
+     * If coordinates are in Y,X order (latitude, longitude), swaps them.
+     * WGS84 traditionally uses latitude-first (Y,X) axis order [minY, minX, maxY, maxX]
+     * Some WGS84 implementations may use X,Y order therefore we need to check and swap if needed.
+     * 
+     * TODO: This method works for the common coordinates in and around switzerland but will not work for the whole world.
+     *       Therefore a better solution should be implemented if we want to support coordinates and extents of the whole world.
+     * 
+     * @link Problem description https://docs.geotools.org/latest/userguide/library/referencing/order.html
+     * @param extent - Input extent [minX, minY, maxX, maxY] or [minY, minX, maxY, maxX]
+     * @returns Extent guaranteed to be in [minX, minY, maxX, maxY] order
+     */
+    getExtentInOrderXY(extent: [number, number, number, number]): [number, number, number, number] {
+        if (extent[0] > extent[1]) {
+            return [extent[1], extent[0], extent[3], extent[2]]
+        }
+        return extent
     }
 
     /**
@@ -68,8 +88,8 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
         return Math.abs(
             Math.log2(
                 resolution /
-                    PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
-                    Math.cos((center[1] * Math.PI) / 180.0)
+                PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
+                Math.cos((center[1] * Math.PI) / 180.0)
             )
         )
     }

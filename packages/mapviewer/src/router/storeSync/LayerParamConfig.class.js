@@ -1,4 +1,5 @@
 import log from '@geoadmin/log'
+import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import getFeature from '@/api/features/features.api'
@@ -17,10 +18,8 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import ErrorMessage from '@/utils/ErrorMessage.class'
 import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
-import WarningMessage from '@/utils/WarningMessage.class'
 
 /**
  * Parse layers such as described in
