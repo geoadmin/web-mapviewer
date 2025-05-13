@@ -26,7 +26,7 @@ const coordinate = computed<SingleCoordinate | undefined>(() => {
     if (getPointBeingHovered) {
         return getPointBeingHovered()?.coordinate
     }
-    return undefined
+    return
 })
 
 const trackingPointPosition: Cartesian3 = new Cartesian3()

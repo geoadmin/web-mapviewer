@@ -22,15 +22,15 @@ export const updateCurrentTimeEntry = (
     let currentTimeEntry
 
     if (typeof entry === 'string') {
-        currentTimeEntry = timeConfig.timeEntries.find((e) => e.timestamp === entry) ?? null
+        currentTimeEntry = timeConfig.timeEntries.find((e) => e.timestamp === entry)
     } else {
         currentTimeEntry = entry
     }
 
     timeConfig.currentTimeEntry = currentTimeEntry
 
-    timeConfig.currentTimestamp = timeConfig.currentTimeEntry?.timestamp ?? null
-    timeConfig.currentYear = timeConfig.currentTimeEntry?.year ?? null
+    timeConfig.currentTimestamp = timeConfig.currentTimeEntry?.timestamp
+    timeConfig.currentYear = timeConfig.currentTimeEntry?.year
 }
 
 export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
@@ -54,8 +54,6 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
             const date = new Date(timestamp)
             if (!isNaN(date.getFullYear())) {
                 year = date.getFullYear()
-            } else {
-                year = null
             }
         }
     }
@@ -67,18 +65,18 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
 }
 
 export const makeTimeConfig = (
-    behaviour = null,
+    behaviour = undefined,
     timeEntries: LayerTimeConfigEntry[] = []
-): LayerTimeConfig => {
+): LayerTimeConfig | undefined => {
+    if (timeEntries.length === 0) {
+        return
+    }
     const timeConfig: LayerTimeConfig = {
         timeEntries: timeEntries,
-        behaviour: behaviour,
+        behaviour,
         years: timeEntries
             .map((entry) => entry.year)
-            .filter((entry: number | string | null) => entry !== null),
-        currentTimeEntry: null,
-        currentTimestamp: null,
-        currentYear: null,
+            .filter((entry?: number | string) => entry !== undefined),
     }
     /*
      * Here we will define what is the first "currentTimeEntry" for this configuration.

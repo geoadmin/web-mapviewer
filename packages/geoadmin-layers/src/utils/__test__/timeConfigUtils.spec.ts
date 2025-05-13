@@ -22,7 +22,6 @@ describe('Test utility functions', () => {
             isLoading: false,
             baseUrl: 'http://bgdi.ch',
             hasWarning: false,
-            timeConfig: null,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
@@ -33,7 +32,6 @@ describe('Test utility functions', () => {
             years: [2002, 2003],
             currentTimestamp: '20021322',
             currentYear: 2002,
-            currentTimeEntry: null,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false

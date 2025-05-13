@@ -34,7 +34,7 @@ const { t } = useI18n()
 const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-    timeConfig.timeEntries.every((entry) => entry.year !== null)
+    timeConfig.timeEntries.every((entry) => !!entry.year)
 )
 const hasTimeSelector = computed(() => hasMultipleTimestamps.value && hasValidTimestamps.value)
 const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
