@@ -11,7 +11,7 @@ describe('Test utility functions', () => {
             name: 'simple',
             id: 'ch.bgdi.simple',
             opacity: 0,
-            visible: true,
+            isVisible: true,
             type: LayerType.WMTS,
             attributions: [],
             hasTooltip: false,
