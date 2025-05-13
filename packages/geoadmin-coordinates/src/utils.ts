@@ -23,7 +23,7 @@ export function toRoundedString(
     digits: number,
     withThousandsSeparator: boolean = true,
     enforceDigit: boolean = false
-): string | null {
+): string | undefined {
     if (
         !Array.isArray(coordinate) ||
         coordinate.length !== 2 ||
@@ -32,7 +32,7 @@ export function toRoundedString(
             (value) => value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY
         )
     ) {
-        return null
+        return
     }
     return coordinate
         .map((value) => {

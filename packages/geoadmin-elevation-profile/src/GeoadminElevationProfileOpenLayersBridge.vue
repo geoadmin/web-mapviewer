@@ -17,7 +17,7 @@ const coordinate = computed<SingleCoordinate | undefined>(() => {
     if (getPointBeingHovered) {
         return getPointBeingHovered()?.coordinate
     }
-    return undefined
+    return
 })
 
 const overlayAdded = ref<boolean>(false)

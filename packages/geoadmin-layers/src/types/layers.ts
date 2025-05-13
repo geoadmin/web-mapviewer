@@ -34,8 +34,8 @@ export interface LayerLegend {
 
 /** @interface Layer */
 export interface Layer {
-    /** an unique identifier for each object of this interface **/
-    uuid: string,
+    /** An unique identifier for each object of this interface * */
+    uuid: string
     /** Name of this layer in the current lang */
     name: string
     /**
@@ -65,7 +65,7 @@ export interface Layer {
     /** Define if this layer shows tooltip when clicked on. */
     readonly hasTooltip: boolean
     /** Define if this layer has a description that can be shown to users to explain its content. */
-    hasDescription: boolean
+    readonly hasDescription: boolean
     /** Define if this layer has a legend that can be shown to users to explain its content. */
     readonly hasLegend: boolean
     /** Define if this layer comes from our backend, or is from another (external) source. */
@@ -73,7 +73,7 @@ export interface Layer {
     /** Set to true if some parts of the layer (e.g. metadata) are still loading */
     isLoading: boolean
     /** Time series config */
-    timeConfig: LayerTimeConfig | null
+    timeConfig?: LayerTimeConfig
     /**
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.
@@ -168,7 +168,7 @@ export interface GeoAdmin3DLayer extends GeoAdminLayer {
     /* If this layers' JSON is stored in a
        dedicated timed folder, it can be described with this property. This will be added at the
        end of the URL, before the /tileset.json (or /style.json, depending on the layer type) */
-    urlTimestampToUse: boolean | null
+    urlTimestampToUse?: boolean
 }
 
 export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
@@ -176,16 +176,16 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     /* Delay after which the data of this layer
         should be re-requested (if null is given, no further data reload will be triggered). A good
         example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null` */
-    updateDelay: number | null
+    updateDelay?: number
     /* The URL to use to request the styling to apply to the data */
     styleUrl: string
     /* The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     geoJsonUrl: string
-    geoJsonStyle: {
+    geoJsonStyle?: {
         type: string
         ranges: number[]
-    } | null
-    geoJsonData: string | null
+    }
+    geoJsonData?: string
     technicalName: string
     isExternal: false
 }
@@ -203,19 +203,19 @@ export interface GeoAdminVectorLayer extends GeoAdminLayer {
 export interface CloudOptimizedGeoTIFFLayer extends Layer {
     type: LayerType.COG
     isLocalFile: boolean
-    fileSource: string | null
+    fileSource?: string
     /* Data/content of the COG file, as a string. */
-    data: string | Blob | null
+    data?: string | Blob
     /* Which value will be describing the absence of data in this COG. Will be used to create
       transparency whenever this value is present. */
-    noDataValue: number | null
+    noDataValue?: number
     /* The extent of this COG. */
-    extent: [number, number, number, number] | null
+    extent?: [number, number, number, number]
 }
 
 export type KmlMetadata = {
     id: string
-    adminId: string | null
+    adminId?: string
     links: [
         {
             metadata: string
@@ -236,13 +236,13 @@ export enum KmlStyle {
 export interface KMLLayer extends Layer {
     /* The URL to access the KML data. */
     kmlFileUrl: string
-    fileId: string | null
+    fileId?: string
     /* Data/content of the KML file, as a string. */
-    kmlData: string | null
+    kmlData?: string
     /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
-    kmlMetadata: KmlMetadata | null
+    kmlMetadata?: KmlMetadata
 
-    extent: [number, number, number, number] | null
+    extent?: [number, number, number, number]
     /* Flag defining if the KML should be clamped to
        the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
        true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
@@ -250,7 +250,7 @@ export interface KMLLayer extends Layer {
        wanted to have their flat surface visible on the ground, so that is the way to please both
        crowds. */
     clampToGround: boolean
-    style: KmlStyle | null
+    style?: KmlStyle
     isExternal: boolean
     isLocalFile: boolean
     attributions: LayerAttribution[]
@@ -260,35 +260,35 @@ export interface KMLLayer extends Layer {
 }
 
 export type GPXLink = {
-    text?: string | undefined
-    type?: string | undefined
+    text?: string
+    type?: string
 }
 
 export type GPXAuthor = {
-    name?: string | undefined
-    email?: string | undefined
-    link?: GPXLink | undefined
+    name?: string
+    email?: string
+    link?: GPXLink
 }
 
 export type GPXMetadata = {
-    name?: string | undefined
-    desc?: string | undefined
-    author?: GPXAuthor | undefined
-    link?: GPXLink | undefined
-    time?: number | undefined
-    keywords?: string | undefined
-    bounds?: number[] | undefined
+    name?: string
+    desc?: string
+    author?: GPXAuthor
+    link?: GPXLink
+    time?: number
+    keywords?: string
+    bounds?: number[]
     extensions?: any
 }
 
 export interface GPXLayer extends Layer {
     /* URL to the GPX file (can also be a local file URI) */
-    gpxFileUrl: string | null
+    gpxFileUrl?: string
     /* Data/content of the GPX file, as a string. */
-    gpxData: string | null
+    gpxData?: string
     /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
-    gpxMetadata: GPXMetadata | null
-    extent: [number, number, number, number] | null
+    gpxMetadata?: GPXMetadata
+    extent?: [number, number, number, number]
 }
 // #endregion
 
@@ -301,7 +301,6 @@ export interface WMTSDimension {
     /* All dimension values */
     values: string[]
     /* Boolean flag if the dimension support current (see WMTS OGC spec) */
-
     current?: boolean
 }
 
@@ -329,7 +328,6 @@ export type LayerExtent =
       }[][]
     | number[][]
     | BoundingBox[][]
-    | undefined
 
 export enum WMTSEncodingType {
     KVP = 'KVP',
@@ -403,9 +401,9 @@ export interface ExternalWMSLayer extends Layer {
 
 export interface AggregateSubLayer {
     /* The ID used in the GeoAdmin's backend to describe this sub-layer */
-    subLayerId: string | null
+    subLayerId?: string
     /* The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a  {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer}) */
-    layer: GeoAdminLayer,
+    layer: GeoAdminLayer
     /* In meter/px, at which resolution this sub-layer should start to  be visible */
     minResolution: number
     /* In meter/px, from which resolution the layer should be hidden */

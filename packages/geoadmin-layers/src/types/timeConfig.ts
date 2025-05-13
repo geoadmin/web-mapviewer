@@ -27,14 +27,14 @@ export const CURRENT_YEAR_TIMESTAMP = 'current'
 
 export interface LayerTimeConfig {
     timeEntries: LayerTimeConfigEntry[]
-    behaviour: 'last' | 'all' | 'current' | number | null
+    behaviour?: 'last' | 'all' | 'current' | number
     years: (number | string)[]
-    currentTimeEntry: LayerTimeConfigEntry | null
-    currentTimestamp: string | null
-    currentYear: string | number | null
+    currentTimeEntry?: LayerTimeConfigEntry
+    currentTimestamp?: string
+    currentYear?: string | number
 }
 
 export interface LayerTimeConfigEntry {
     timestamp: string
-    year: number | string | null
+    year?: number | string
 }

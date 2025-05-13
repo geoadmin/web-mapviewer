@@ -115,19 +115,19 @@ export default class CoordinateSystemBounds {
      * Can be helpful when requesting information from our backends, but said backend doesn't
      * support world-wide coverage. Typical example is service-profile, if we give it coordinates
      * outside LV95 bounds it will fill what it doesn't know with coordinates following LV95 extent
-     * instead of returning null
+     * instead of returning undefined
      *
      * @param {[Number, Number][]} coordinates Coordinates `[[x1,y1],[x2,y2],...]` expressed in the
      *   same coordinate system (projection) as the bounds
-     * @returns {null | CoordinatesChunk[]}
+     * @returns {CoordinatesChunk[] | undefined}
      */
-    splitIfOutOfBounds(coordinates: SingleCoordinate[]): CoordinatesChunk[] | null {
+    splitIfOutOfBounds(coordinates: SingleCoordinate[]): CoordinatesChunk[] | undefined {
         if (!Array.isArray(coordinates) || coordinates.length <= 1) {
-            return null
+            return
         }
         // checking that all coordinates are well-formed
         if (coordinates.find((coordinate) => coordinate.length !== 2)) {
-            return null
+            return
         }
         // checking if we require splitting
         if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {

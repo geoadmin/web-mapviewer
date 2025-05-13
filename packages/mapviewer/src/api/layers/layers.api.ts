@@ -66,10 +66,7 @@ const generateClassForLayerConfig = (
             timeConfigUtils.makeTimeConfigEntry(timestamp)
         )
     }
-    const timeConfig =
-        timestamps.length > 0
-            ? timeConfigUtils.makeTimeConfig(layerConfig.timeBehaviour, timestamps)
-            : null
+    const timeConfig = timeConfigUtils.makeTimeConfig(layerConfig.timeBehaviour, timestamps)
     const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
     const attributions: LayerAttribution[] = []
     if (attributionName) {

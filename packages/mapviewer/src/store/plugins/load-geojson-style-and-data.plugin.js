@@ -173,7 +173,7 @@ export default function loadGeojsonStyleAndData(store) {
             addLayersSubscriber(mutation.payload.layers)
         } else if (
             mutation.type === 'setPreviewLayer' &&
-            mutation.payload.layer.type === LayerType.GEOJSON &&
+            mutation.payload.layer?.type === LayerType.GEOJSON &&
             mutation.payload.layer.isLoading
         ) {
             loadAndUpdatePreviewLayer(store, mutation.payload.layer)
