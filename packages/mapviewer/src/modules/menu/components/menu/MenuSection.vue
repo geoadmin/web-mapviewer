@@ -105,13 +105,12 @@ defineExpose({ open, close, sectionId })
 
             <slot name="extra-button" />
         </div>
-        <Collapse :when="showBody">
-            <div
-                class="menu-section-body"
-                data-cy="menu-section-body"
-            >
-                <slot />
-            </div>
+        <Collapse
+            :when="showBody"
+            class="menu-section-body"
+            data-cy="menu-section-body"
+        >
+            <slot />
         </Collapse>
     </div>
 </template>
