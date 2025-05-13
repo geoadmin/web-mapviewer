@@ -130,7 +130,7 @@ export function isTimestampYYYYMMDD(timestamp: string): boolean {
  */
 export function circularMean(values: number[]): number | undefined {
     if (!Array.isArray(values) || values.some((value) => !isNumber(value))) {
-        return undefined
+        return
     }
     const sumCos = values.reduce((acc, curr) => acc + Math.cos(curr), 0)
     const sumSin = values.reduce((acc, curr) => acc + Math.sin(curr), 0)

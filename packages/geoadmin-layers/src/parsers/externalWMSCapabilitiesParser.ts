@@ -662,6 +662,6 @@ export class externalWMSCapabilitiesParser {
         }
         const timeEntries =
             timeDimension.values?.map((value: any) => makeTimeConfigEntry(value)) ?? []
-        return makeTimeConfig(timeDimension.default ?? null, timeEntries)
+        return makeTimeConfig(timeDimension.default, timeEntries)
     }
 }

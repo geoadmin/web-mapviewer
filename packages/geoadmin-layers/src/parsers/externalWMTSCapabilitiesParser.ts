@@ -5,15 +5,15 @@ import { optionsFromCapabilities } from 'ol/source/WMTS'
 import proj4 from 'proj4'
 
 import {
-    LayerType,
-    type LayerLegend,
-    type LayerExtent,
-    type LayerAttribution,
+    type BoundingBox,
     type ExternalWMTSLayer,
+    type LayerAttribution,
+    type LayerExtent,
+    type LayerLegend,
+    LayerType,
     type TileMatrixSet,
     type WMTSDimension,
     WMTSEncodingType,
-    type BoundingBox,
 } from '@/types'
 import { type LayerTimeConfig } from '@/types/timeConfig'
 import { layerUtils } from '@/utils'
@@ -157,7 +157,7 @@ export class externalWMTSCapabilitiesParser {
         isVisible = true,
         currentYear?: number,
         ignoreError = true
-    ) {
+    ): ExternalWMTSLayer | undefined {
         const layer = this.findLayer(layerId)
 
         if (!layer) {
@@ -166,10 +166,10 @@ export class externalWMTSCapabilitiesParser {
             if (!ignoreError) {
                 throw new CapabilitiesError(msg, 'no_layer_found')
             }
-            return null
+            return
         }
 
-        const externalLayerObject = this._getExternalLayerObject(
+        return this._getExternalLayerObject(
             layer,
             projection,
             opacity,
@@ -177,22 +177,19 @@ export class externalWMTSCapabilitiesParser {
             currentYear,
             ignoreError
         )
-
-        return externalLayerObject
     }
 
     /**
      * Get all ExternalWMTSLayer objects from capabilities
      *
-     * @param {CoordinateSystem} projection Projection currently used by the application
-     * @param {number} opacity
-     * @param {boolean} isVisible
-     * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
-     *   needed when a time config is present a year is pre-selected in the url parameter. Default
-     *   is `null`
-     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
-     *   value or null
-     * @returns {[ExternalWMTSLayer]} List of ExternalWMTSLayer objects
+     * @param projection Projection currently used by the application
+     * @param opacity
+     * @param isVisible
+     * @param currentYear Current year to select for the time config. Only needed when a time config
+     *   is present and a year is pre-selected in the url parameter.
+     * @param ignoreError Don't throw exception in case of error, but return a default value or
+     *   undefined
+     * @returns List of ExternalWMTSLayer objects
      */
     getAllExternalLayerObjects(
         projection: CoordinateSystem,
@@ -200,9 +197,9 @@ export class externalWMTSCapabilitiesParser {
         isVisible = true,
         currentYear?: number,
         ignoreError: boolean = true
-    ) {
+    ): ExternalWMTSLayer[] | undefined {
         if (!this.capabilities.Contents?.Layer) {
-            return null
+            return
         }
 
         return this.capabilities.Contents.Layer.map((layer) =>
@@ -224,12 +221,12 @@ export class externalWMTSCapabilitiesParser {
         isVisible: boolean,
         currentYear?: number,
         ignoreError: boolean = true
-    ): ExternalWMTSLayer | null {
+    ): ExternalWMTSLayer | undefined {
         const attributes = this._getLayerAttributes(layer, projection, ignoreError)
 
         if (!attributes) {
             log.error(`No attributes found for layer ${layer.Identifier}`)
-            return null
+            return
         }
 
         const projectionLike = projection.epsg
@@ -255,9 +252,9 @@ export class externalWMTSCapabilitiesParser {
             options: options ?? undefined,
             getTileEncoding: attributes.getTileEncoding,
             urlTemplate: attributes.urlTemplate,
-            tileMatrixSets: attributes.tileMatrixSets ?? undefined,
+            tileMatrixSets: attributes.tileMatrixSets,
             dimensions: attributes.dimensions,
-            timeConfig: this._getTimeConfig(attributes.dimensions) ?? undefined,
+            timeConfig: this._getTimeConfig(attributes.dimensions),
             currentYear,
         })
     }
@@ -360,7 +357,7 @@ export class externalWMTSCapabilitiesParser {
         layerId: string,
         layer: CapabilityLayer,
         projection: CoordinateSystem
-    ): LayerExtent {
+    ): LayerExtent | undefined {
         // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
 
         let layerExtent
@@ -492,32 +489,32 @@ export class externalWMTSCapabilitiesParser {
         return layer.Style[0].Identifier
     }
 
-    _getTileMatrixSets(layerId: string, layer: CapabilityLayer): TileMatrixSet[] | null {
+    _getTileMatrixSets(layerId: string, layer: CapabilityLayer): TileMatrixSet[] | undefined {
         // Based on the spec at least one TileMatrixSetLink should be available
         const ids = layer.TileMatrixSetLink.map((link) => link.TileMatrixSet)
 
-        if (this.capabilities.Contents?.TileMatrixSet === null) {
-            return null
+        if (!this.capabilities.Contents?.TileMatrixSet) {
+            return
         }
 
-        return (
-            this.capabilities.Contents?.TileMatrixSet.filter((set) => ids.includes(set.Identifier))
-                .map((set) => {
-                    const projection = parseCrs(set.SupportedCRS ?? '')
-                    if (!projection) {
-                        log.warn(
-                            `Invalid or non supported CRS ${set.SupportedCRS} in TileMatrixSet ${set.Identifier} for layer ${layerId}}`
-                        )
-                        return null
-                    }
-                    return {
-                        id: set.Identifier,
-                        projection: projection,
-                        tileMatrix: set.TileMatrix,
-                    }
-                })
-                .filter((set) => !!set) ?? null
+        return this.capabilities.Contents?.TileMatrixSet.filter((set) =>
+            ids.includes(set.Identifier)
         )
+            .map((set) => {
+                const projection = parseCrs(set.SupportedCRS ?? '')
+                if (!projection) {
+                    log.warn(
+                        `Invalid or non supported CRS ${set.SupportedCRS} in TileMatrixSet ${set.Identifier} for layer ${layerId}}`
+                    )
+                    return null
+                }
+                return {
+                    id: set.Identifier,
+                    projection: projection,
+                    tileMatrix: set.TileMatrix,
+                }
+            })
+            .filter((set) => !!set)
     }
 
     _getDimensions(layer: CapabilityLayer): WMTSDimension[] {
@@ -528,14 +525,17 @@ export class externalWMTSCapabilitiesParser {
         }))
     }
 
-    _getTimeConfig(dimensions: any[] | undefined): LayerTimeConfig | null {
-        if (!dimensions) return null
+    _getTimeConfig(dimensions: any[] | undefined): LayerTimeConfig | undefined {
+        if (!dimensions) {
+            return
+        }
 
         const timeDimension = dimensions.find((d) => d.id.toLowerCase() === 'time')
         if (!timeDimension) {
-            return null
+            return
         }
+
         const timeEntries = timeDimension.values?.map((value: any) => makeTimeConfigEntry(value))
-        return makeTimeConfig(timeDimension.default ?? null, timeEntries)
+        return makeTimeConfig(timeDimension.default, timeEntries)
     }
 }

@@ -174,10 +174,10 @@ export default abstract class CoordinateSystem {
      *
      * @param {CoordinateSystem} coordinateSystem The target coordinate system we want bounds
      *   expressed in
-     * @returns {CoordinateSystemBounds | null} Bounds, expressed in the coordinate system, or null
-     *   if bounds are undefined or coordinate system is invalid
+     * @returns {CoordinateSystemBounds | undefined} Bounds, expressed in the coordinate system, or
+     *   undefined if bounds are undefined or the coordinate system is invalid
      */
-    getBoundsAs(coordinateSystem: CoordinateSystem): CoordinateSystemBounds | null {
+    getBoundsAs(coordinateSystem: CoordinateSystem): CoordinateSystemBounds | undefined {
         if (this.bounds) {
             if (coordinateSystem.epsg === this.epsg) {
                 return this.bounds
@@ -196,7 +196,7 @@ export default abstract class CoordinateSystem {
                 customCenter,
             })
         }
-        return null
+        return
     }
 
     /**
