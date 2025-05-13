@@ -63,7 +63,7 @@ export class KMLParser extends FileParser {
         }
         const kmlLayer = makeKmlLayer({
             kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
+            isVisible: true,
             opacity: 1.0,
             adminId: null,
             kmlData: kmlAsText,

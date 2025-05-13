@@ -67,8 +67,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
-                expect(firstLayer).to.haveOwnProperty('visible')
-                expect(firstLayer.visible).to.eq(
+                expect(firstLayer).to.haveOwnProperty('isVisible')
+                expect(firstLayer.isVisible).to.eq(
                     flagValue,
                     'param layer_visibility was not parsed correctly'
                 )
@@ -86,7 +86,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             )
             expect(result).to.be.an('Array').length(1)
             const [firstLayer] = result
-            expect(firstLayer.visible).to.be.true
+            expect(firstLayer.isVisible).to.be.true
         })
         it('Parses opacity when specified', () => {
             const checkOneLayerOpacity = (opacity) => {
@@ -144,8 +144,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(layer.id).to.eq(expectedId)
                 expect(layer).to.haveOwnProperty('opacity')
                 expect(layer.opacity).to.eq(expectedOpacity)
-                expect(layer).to.haveOwnProperty('visible')
-                expect(layer.visible).to.eq(expectedVisibility)
+                expect(layer).to.haveOwnProperty('isVisible')
+                expect(layer.isVisible).to.eq(expectedVisibility)
                 if (expecedTimestamp) {
                     expect(layer).to.haveOwnProperty('timeConfig')
                     expect(layer.timeConfig.currentTimestamp).to.eq(expecedTimestamp)
@@ -182,7 +182,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
                 expect(kmlLayer.opacity).to.eq(0.65)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
             })
             it('parses a legacy external WMS layer correctly', () => {
                 const wmsLayerName = 'Name of the WMS layer, with a comma'
@@ -226,7 +226,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmtsLayer.type).to.eq(LayerType.WMTS)
                 expect(externalWmtsLayer.isExternal).to.be.true
                 expect(externalWmtsLayer.opacity).to.eq(0.77)
-                expect(externalWmtsLayer.visible).to.be.false
+                expect(externalWmtsLayer.isVisible).to.be.false
                 expect(externalWmtsLayer.id).to.eq(wmtsLayerId)
                 expect(externalWmtsLayer.baseUrl).to.eq(wmtsGetCapabilitesUrl)
             })

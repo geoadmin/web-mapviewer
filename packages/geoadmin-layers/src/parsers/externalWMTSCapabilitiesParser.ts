@@ -142,7 +142,7 @@ export class externalWMTSCapabilitiesParser {
      * @param {string} layerId WMTS Capabilities layer ID to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} [opacity=1] Default is `1`
-     * @param {boolean} [visible=true] Default is `true`
+     * @param {boolean} [isVisible=true] Default is `true`
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
@@ -154,7 +154,7 @@ export class externalWMTSCapabilitiesParser {
         layerId: string,
         projection: CoordinateSystem,
         opacity = 1,
-        visible = true,
+        isVisible = true,
         currentYear?: number,
         ignoreError = true
     ) {
@@ -173,7 +173,7 @@ export class externalWMTSCapabilitiesParser {
             layer,
             projection,
             opacity,
-            visible,
+            isVisible,
             currentYear,
             ignoreError
         )
@@ -186,7 +186,7 @@ export class externalWMTSCapabilitiesParser {
      *
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
-     * @param {boolean} visible
+     * @param {boolean} isVisible
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
@@ -197,7 +197,7 @@ export class externalWMTSCapabilitiesParser {
     getAllExternalLayerObjects(
         projection: CoordinateSystem,
         opacity = 1,
-        visible = true,
+        isVisible = true,
         currentYear?: number,
         ignoreError: boolean = true
     ) {
@@ -210,7 +210,7 @@ export class externalWMTSCapabilitiesParser {
                 layer,
                 projection,
                 opacity,
-                visible,
+                isVisible,
                 currentYear,
                 ignoreError
             )
@@ -221,7 +221,7 @@ export class externalWMTSCapabilitiesParser {
         layer: CapabilityLayer,
         projection: CoordinateSystem,
         opacity: number,
-        visible: boolean,
+        isVisible: boolean,
         currentYear?: number,
         ignoreError: boolean = true
     ): ExternalWMTSLayer | null {
@@ -244,7 +244,7 @@ export class externalWMTSCapabilitiesParser {
             id: attributes.layerId!,
             name: attributes.title!,
             opacity,
-            visible,
+            isVisible,
             baseUrl: attributes.url,
             attributions: attributes.attributions ?? [],
             abstract: attributes.abstract,

@@ -100,7 +100,7 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
             layer.id,
             projection,
             layer.opacity,
-            layer.visible,
+            layer.isVisible,
             layer.currentYear,
             layer.customAttributes,
             false /* throw Error in case of  error */

@@ -162,10 +162,10 @@ describe('Test on legacy param import', () => {
                 const [wmsLayer, wmtsLayer] = activeLayers
                 expect(wmsLayer.id).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
-                expect(wmsLayer.visible).to.be.true
+                expect(wmsLayer.isVisible).to.be.true
                 expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
-                expect(wmtsLayer.visible).to.be.false
+                expect(wmtsLayer.isVisible).to.be.false
             })
         })
         it('is able to import an external KML from a legacy param', () => {
@@ -182,7 +182,7 @@ describe('Test on legacy param import', () => {
                 const [kmlLayer] = activeLayers
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
                 expect(kmlLayer.style).to.eq(KmlStyles.GEOADMIN)
             })
         })
@@ -200,7 +200,7 @@ describe('Test on legacy param import', () => {
                 const [kmlLayer] = activeLayers
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
                 expect(kmlLayer.adminId).to.equal(adminId)
             })
         })
@@ -218,7 +218,7 @@ describe('Test on legacy param import', () => {
                 const [kmlLayer] = activeLayers
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
                 expect(kmlLayer.adminId).to.be.equal(adminId)
             })
             cy.url().should('not.contain', adminId)
@@ -240,13 +240,13 @@ describe('Test on legacy param import', () => {
                 const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
                 expect(wmsLayer.id).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
-                expect(wmsLayer.visible).to.be.true
+                expect(wmsLayer.isVisible).to.be.true
                 expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
-                expect(wmtsLayer.visible).to.be.false
+                expect(wmtsLayer.isVisible).to.be.false
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
             })
         })
         it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
@@ -307,7 +307,7 @@ describe('Test on legacy param import', () => {
                     expect(activeLayers).to.be.an('Array').length(2)
                     const externalLayer = activeLayers[1]
                     expect(externalLayer.isExternal).to.be.true
-                    expect(externalLayer.visible).to.be.true
+                    expect(externalLayer.isVisible).to.be.true
                     expect(externalLayer.baseUrl).to.eq(mockExternalWms1.baseUrl)
                     expect(externalLayer.id).to.eq(mockExternalWms1.id)
                     expect(externalLayer.name).to.eq(mockExternalWms1.name)
@@ -337,7 +337,7 @@ describe('Test on legacy param import', () => {
                     expect(activeLayers).to.be.an('Array').length(2)
                     const externalLayer = activeLayers[1]
                     expect(externalLayer.isExternal).to.be.true
-                    expect(externalLayer.visible).to.be.true
+                    expect(externalLayer.isVisible).to.be.true
                     expect(externalLayer.baseUrl).to.eq(mockExternalWmts1.baseUrl)
                     expect(externalLayer.id).to.eq(mockExternalWmts1.id)
                     expect(externalLayer.name).to.eq(mockExternalWmts1.name)
