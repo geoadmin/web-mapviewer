@@ -57,9 +57,9 @@ export interface ElevationProfile {
  */
 const MAX_REQUEST_POINT_LENGTH: number = 3000
 
-export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | null {
+export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | undefined {
     if (!chunk) {
-        return null
+        return
     }
     if (chunk.coordinates.length <= MAX_REQUEST_POINT_LENGTH) {
         return [chunk]
@@ -120,8 +120,8 @@ export async function getProfileDataForChunk(
         try {
             // our backend has a hard limit of 5k points, we split the coordinates if they are above 3k
             // (after a couple tests, 3k was a good trade-off for performance, 5k was a bit sluggish)
-            const coordinatesToRequest: CoordinatesChunk[] | null = splitIfTooManyPoints(chunk)
-            if (coordinatesToRequest === null) {
+            const coordinatesToRequest: CoordinatesChunk[] | undefined = splitIfTooManyPoints(chunk)
+            if (!coordinatesToRequest) {
                 return []
             }
 
@@ -290,7 +290,7 @@ export default async (
     for (const coordinates of sanitizeCoordinates(profileCoordinates, projection)) {
         // splitting the profile input into "chunks" if some part are out of LV95 bounds
         // as there will be no data for those chunks.
-        const coordinateChunks: CoordinatesChunk[] | null =
+        const coordinateChunks: CoordinatesChunk[] | undefined =
             LV95.bounds.splitIfOutOfBounds(coordinates)
 
         if (!coordinateChunks) {

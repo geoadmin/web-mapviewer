@@ -494,7 +494,7 @@ describe('WMSCapabilitiesParser - layer extent', () => {
         assertType<ExternalWMSLayer>(layer!)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        assertType<LayerExtent>(layer!.extent)
+        assertType<LayerExtent | undefined>(layer!.extent)
         let expected = [
             [2485071.58, 1075346.3],
             [2828515.82, 1299941.79],
@@ -512,7 +512,7 @@ describe('WMSCapabilitiesParser - layer extent', () => {
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        assertType<LayerExtent>(layer!.extent)
+        assertType<LayerExtent | undefined>(layer!.extent)
 
         expected = [
             [5.96, 45.82],
@@ -526,7 +526,7 @@ describe('WMSCapabilitiesParser - layer extent', () => {
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
 
-        assertType<LayerExtent>(layer!.extent)
+        assertType<LayerExtent | undefined>(layer!.extent)
 
         expected = [
             [663464.17, 5751550.86],
@@ -569,7 +569,7 @@ describe('WMSCapabilitiesParser - layer extent', () => {
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
 
-        assertType<LayerExtent>(layer!.extent)
+        assertType<LayerExtent | undefined>(layer!.extent)
 
         let expected = [
             [2485071.58, 1075346.3],
@@ -604,7 +604,7 @@ describe('WMSCapabilitiesParser - layer extent', () => {
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WEBMERCATOR)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
-        assertType<LayerExtent>(layer!.extent)
+        assertType<LayerExtent | undefined>(layer!.extent)
 
         expect(layer!.id).toBe('ch.swisstopo-vd.official-survey')
         assertType<ExternalWMSLayer>(layer!)
