@@ -191,7 +191,7 @@ export function parseTopics(layersConfig, rawTopics) {
                 // (layers come from the Vuex store so it can't be modified directly)
                 layer = layerUtils.cloneLayer(layer)
                 // checking if the layer should be also visible
-                layer.visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
+                layer.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order
                 // so we need to reverse the order here by simply adding
                 // the layer at the beginning of the array

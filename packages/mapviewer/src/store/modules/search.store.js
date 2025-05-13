@@ -197,12 +197,12 @@ const actions = {
             case SearchResultTypes.LAYER:
                 if (getters.getActiveLayersById(entry.layerId, false).length === 0) {
                     dispatch('addLayer', {
-                        layerConfig: { id: entry.layerId, visible: true },
+                        layerConfig: { id: entry.layerId, isVisible: true },
                         dispatcher: dispatcherSelectResultEntry,
                     })
                 } else {
                     dispatch('updateLayers', {
-                        layers: [{ id: entry.layerId, visible: true }],
+                        layers: [{ id: entry.layerId, isVisible: true }],
                         dispatcher: dispatcherSelectResultEntry,
                     })
                 }

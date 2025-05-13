@@ -39,7 +39,7 @@ function addLayer(layerConfig) {
     store.dispatch('addLayer', {
         layerConfig: {
             id: layerConfig.id,
-            visible: true,
+            isVisible: true,
         },
         dispatcher: 'DebugLayerFinder.vue',
     })

@@ -112,11 +112,11 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = makeKmlLayer({ kmlFileUrl: url, visible: true, style: KmlStyle.GEOADMIN })
+            layer = makeKmlLayer({ kmlFileUrl: url, isVisible: true, style: KmlStyle.GEOADMIN })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = layerUtils.makeGPXLayer({ gpxFileUrl: url, visible: true })
+            layer = layerUtils.makeGPXLayer({ gpxFileUrl: url, isVisible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
@@ -152,10 +152,10 @@ export function getLayersFromLegacyUrlParams(
         if (layer) {
             // checking if visibility is set in URL
             if (layerVisibilities.length > index) {
-                layer.visible = layerVisibilities[index] === 'true'
+                layer.isVisible = layerVisibilities[index] === 'true'
             } else {
                 // if param layers_visibility is not present, it means all layers are visible
-                layer.visible = true
+                layer.isVisible = true
             }
             // checking if opacity is set in the URL
             if (layerOpacities.length > index) {
@@ -204,7 +204,7 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetadata = await getKmlMetadataByAdminId(adminId)
     return makeKmlLayer({
         kmlFileUrl: kmlMetadata.links.kml,
-        visible: true,
+        isVisible: true,
         adminId: kmlMetadata.adminId,
         kmlMetadata,
     })
@@ -274,7 +274,7 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
     // we find the Layer which is already present
     const layer = layersArray.find((l) => l.match(new RegExp(`^${layerId}([@,].*)?$`)))
 
-    const [layerIdWithCustomParams, visible, opacity] = layer.split(',')
+    const [layerIdWithCustomParams, isVisible, opacity] = layer.split(',')
 
     let layerString = layerIdWithCustomParams
     const featuresParam = layerIdWithCustomParams
@@ -293,9 +293,9 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
         })
     }
     layerString += `@features=${featuresArray.join(':')}`
-    if (visible || opacity) {
+    if (isVisible || opacity) {
         // we add back the visibility and the opacity
-        layerString = `${layerString},${visible},${opacity}`
+        layerString = `${layerString},${isVisible},${opacity}`
     }
     // we replace the original layer by the updated layer
     layersArray[layersArray.indexOf(layer)] = layerString

@@ -73,7 +73,7 @@ describe('Testing legacyPermalinkManagement', () => {
         timeConfig: timeConfigUtils.makeTimeConfig(),
         topics: ['api', 'ech', 'energie'],
         type: 'WMTS',
-        visible: false,
+        isVisible: false,
     })
 
     describe('handleLegacyParam with following parameters', () => {

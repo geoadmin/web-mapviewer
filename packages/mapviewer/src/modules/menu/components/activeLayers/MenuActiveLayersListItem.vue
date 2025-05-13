@@ -166,7 +166,7 @@ function changeStyle(newStyle) {
                 :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
             >
-                <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
+                <FontAwesomeIcon :icon="`far fa-${layer.isVisible ? 'check-' : ''}square`" />
             </button>
             <TextTruncate
                 class="menu-layer-item-name p-1"

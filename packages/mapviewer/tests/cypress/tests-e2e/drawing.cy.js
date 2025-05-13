@@ -955,7 +955,7 @@ describe('Drawing module tests', () => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
                 expect(drawingLayer.type).to.eq(LayerType.KML)
-                expect(drawingLayer.visible).to.be.true
+                expect(drawingLayer.isVisible).to.be.true
             })
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()

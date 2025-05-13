@@ -621,7 +621,7 @@ describe('Testing print', () => {
                 layerObjects[2].opacity = 0.4
                 // some layers are not visible by default, let's set them all as visible
                 layerObjects.forEach((layer) => {
-                    layer.visible = true
+                    layer.isVisible = true
                 })
                 cy.goToMapView(
                     {
@@ -708,7 +708,7 @@ describe('Testing print', () => {
             cy.getExternalWmtsMockConfig().then((layerObjects) => {
                 // some layers are not visible by default, let's set them all as visible
                 layerObjects.forEach((layer) => {
-                    layer.visible = true
+                    layer.isVisible = true
                 })
                 cy.goToMapView(
                     {

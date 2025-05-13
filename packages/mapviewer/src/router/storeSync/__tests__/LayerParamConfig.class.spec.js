@@ -13,12 +13,12 @@ describe('External layer parsing with createLayerObject', () => {
             type: LayerType.KML,
             id: kmlFileUrl,
             baseUrl: kmlFileUrl,
-            visible: true,
+            isVisible: true,
             opacity: 0.8,
         })
         expect(result.type).to.eq(LayerType.KML)
         expect(result.opacity).to.eq(0.8)
-        expect(result.visible).to.be.true
+        expect(result.isVisible).to.be.true
         expect(result.name).to.equal('KML')
         expect(result.kmlFileUrl).to.eq(kmlFileUrl)
         expect(result.adminId).to.be.null // no admin ID in URL
@@ -31,12 +31,12 @@ describe('External layer parsing with createLayerObject', () => {
             type: LayerType.KML,
             id: kmlFileUrl,
             baseUrl: kmlFileUrl,
-            visible: true,
+            isVisible: true,
             opacity: 0.8,
         })
         expect(result.type).to.eq(LayerType.KML)
         expect(result.opacity).to.eq(0.8)
-        expect(result.visible).to.be.true
+        expect(result.isVisible).to.be.true
         expect(result.name).to.equal('KML')
         expect(result.kmlFileUrl).to.eq(kmlFileUrl)
         expect(result.adminId).to.be.null // no admin ID in URL
@@ -50,7 +50,7 @@ describe('External layer parsing with createLayerObject', () => {
             type: LayerType.WMS,
             id: wmsLayerId,
             baseUrl: wmsBaseUrl,
-            visible: true,
+            isVisible: true,
             opacity: 0.8,
         })
         expect(result.type).to.equal(LayerType.WMS)
@@ -65,7 +65,7 @@ describe('External layer parsing with createLayerObject', () => {
             type: LayerType.WMTS,
             id: wmtsLayerId,
             baseUrl: wmtsGetCapUrl,
-            visible: true,
+            isVisible: true,
             opacity: 0.8,
         })
         expect(result.type).to.equal(LayerType.WMTS)

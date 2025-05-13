@@ -11,13 +11,13 @@ describe('Testing layersParamParser', () => {
     const checkParsedLayer = (
         layer,
         id,
-        visible = true,
+        isVisible = true,
         opacity = undefined,
         customAttributes = {}
     ) => {
         expect(layer).to.be.an('Object')
         expect(layer.id).to.eq(id)
-        expect(layer.visible).to.eq(visible, `visible parsing failed for layer ${id}`)
+        expect(layer.isVisible).to.eq(isVisible, `isVisible parsing failed for layer ${id}`)
         expect(layer.opacity).to.eq(opacity, `opacity parsing failed for layer ${id}`)
         Object.keys(customAttributes).forEach((key) => {
             expect(layer.customAttributes).to.haveOwnProperty(key)
@@ -51,7 +51,7 @@ describe('Testing layersParamParser', () => {
             const layers = [
                 {
                     id: 'test-visible-and-opacity',
-                    visible: false,
+                    isVisible: false,
                     opacity: 0.8,
                 },
                 {
@@ -66,7 +66,7 @@ describe('Testing layersParamParser', () => {
                 },
                 {
                     id: 'test-visible-with-custom-attrs',
-                    visible: false,
+                    isVisible: false,
                     customAttributes: {
                         attr1: 'test1',
                         attr2: true,
@@ -98,8 +98,8 @@ describe('Testing layersParamParser', () => {
                         queryString += `@${key}=${layer.customAttributes[key]}`
                     })
                 }
-                if ('visible' in layer) {
-                    queryString += `,${layer.visible === true ? 't' : 'f'}`
+                if ('isVisible' in layer) {
+                    queryString += `,${layer.isVisible === true ? 't' : 'f'}`
                 } else if (layer.opacity) {
                     queryString += ','
                 }
@@ -113,7 +113,7 @@ describe('Testing layersParamParser', () => {
                 checkParsedLayer(
                     results[index],
                     layer.id,
-                    layer.visible,
+                    layer.isVisible,
                     layer.opacity,
                     layer.customAttributes
                 )
@@ -196,7 +196,7 @@ describe('Testing layersParamParser', () => {
                 expect(layer.type).to.eq(LayerType.KML)
                 expect(layer.id).to.eq(kmlFileUrl)
                 expect(layer.baseUrl).to.eq(kmlFileUrl)
-                expect(layer.visible).to.be.false
+                expect(layer.isVisible).to.be.false
                 expect(layer.opacity).to.eq(0.6)
             })
             it('parses an external WMTS layer correctly', () => {
@@ -210,7 +210,7 @@ describe('Testing layersParamParser', () => {
                 expect(externalWMTSLayer.id).to.eq(layerId)
                 expect(externalWMTSLayer.type).to.eq(LayerType.WMTS)
                 expect(externalWMTSLayer.baseUrl).to.eq(baseUrl)
-                expect(externalWMTSLayer.visible).to.be.true
+                expect(externalWMTSLayer.isVisible).to.be.true
                 expect(externalWMTSLayer.opacity).to.eq(1.0)
             })
             it('parses an external WMS layer correctly', () => {
@@ -224,7 +224,7 @@ describe('Testing layersParamParser', () => {
                 expect(externalWMSLayer.id).to.eq(layerId)
                 expect(externalWMSLayer.type).to.eq(LayerType.WMS)
                 expect(externalWMSLayer.baseUrl).to.eq(baseUrl)
-                expect(externalWMSLayer.visible).to.be.true
+                expect(externalWMSLayer.isVisible).to.be.true
                 expect(externalWMSLayer.opacity).to.eq(0.8)
             })
         })
@@ -375,13 +375,13 @@ describe('Testing layersParamParser', () => {
                 })
                 it('adds both visibility and opacity if not default values', () => {
                     layer.opacity = 0.3
-                    layer.visible = false
+                    layer.isVisible = false
                     expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
                         `${expectedLayerUrlId},f,0.3`
                     )
                 })
                 it('does not add opacity comma if set to default value', () => {
-                    layer.visible = false
+                    layer.isVisible = false
                     expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
                         `${expectedLayerUrlId},f`
                     )

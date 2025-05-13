@@ -226,7 +226,7 @@ function setPreviewYearToLayers() {
     activeLayers.value.forEach((layer, index) => {
         const year = previewYear.value
         if (
-            layer.visible &&
+            layer.isVisible &&
             timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
             layer.timeConfig.currentYear !== year
