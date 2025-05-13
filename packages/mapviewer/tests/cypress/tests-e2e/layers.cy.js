@@ -177,7 +177,7 @@ describe('Test of layer handling', () => {
                             expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
                             expect(layers[index].name).to.be.eq(layer.name)
                             expect(layers[index].wmsVersion).to.be.eq(layer.wmsVersion)
-                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].isVisible).to.eq(layer.isVisible)
                             expect(layers[index].opacity).to.eq(layer.opacity)
                         })
                     })
@@ -200,7 +200,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.visible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -216,10 +216,10 @@ describe('Test of layer handling', () => {
                     ).click()
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1.id, visible: true, opacity: 1.0 },
-                        { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
-                        { id: mockExternalWms3.id, visible: true, opacity: 1.0 },
-                        { id: mockExternalWms4.id, visible: false, opacity: 0.4 },
+                        { id: mockExternalWms1.id, isVisible: true, opacity: 1.0 },
+                        { id: mockExternalWms2.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, isVisible: true, opacity: 1.0 },
+                        { id: mockExternalWms4.id, isVisible: false, opacity: 0.4 },
                     ])
 
                     // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
@@ -295,10 +295,10 @@ describe('Test of layer handling', () => {
 
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1.id, visible: true, opacity: 0.0 },
-                        { id: mockExternalWms2.id, visible: false, opacity: 0.8 },
-                        { id: mockExternalWms3.id, visible: true, opacity: 0.0 },
-                        { id: mockExternalWms4.id, visible: false, opacity: 1.0 },
+                        { id: mockExternalWms1.id, isVisible: true, opacity: 0.0 },
+                        { id: mockExternalWms2.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, isVisible: true, opacity: 0.0 },
+                        { id: mockExternalWms4.id, isVisible: false, opacity: 1.0 },
                     ])
                 })
             })
@@ -327,7 +327,7 @@ describe('Test of layer handling', () => {
                             expect(layers[index].id).to.be.eq(layer.id)
                             expect(layers[index].baseUrl).to.be.eq(layer.baseUrl)
                             expect(layers[index].name).to.be.eq(layer.name)
-                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].isVisible).to.eq(layer.isVisible)
                             expect(layers[index].opacity).to.eq(layer.opacity)
                         })
                     })
@@ -336,7 +336,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.visible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -362,10 +362,10 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
                     const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
 
-                    mockExternalWmts1.visible = false
+                    mockExternalWmts1.isVisible = false
                     mockExternalWmts1.opacity = 0.5
-                    mockExternalWmts2.visible = false
-                    mockExternalWmts3.visible = true
+                    mockExternalWmts2.isVisible = false
+                    mockExternalWmts3.isVisible = true
                     mockExternalWmts3.opacity = 0.8
 
                     const layerObjects2 = [
@@ -384,7 +384,7 @@ describe('Test of layer handling', () => {
                         expect(layers).to.have.lengthOf(layerObjects2.length)
                         layerObjects2.forEach((layer, index) => {
                             expect(layers[index].id).to.eq(layer.id)
-                            expect(layers[index].visible).to.eq(layer.visible)
+                            expect(layers[index].isVisible).to.eq(layer.isVisible)
                             expect(layers[index].opacity).to.eq(layer.opacity)
                         })
                     })
@@ -409,7 +409,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects2.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.visible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -958,7 +958,7 @@ describe('Test of layer handling', () => {
                         .length(visibleLayerIds.length + 1)
                     expect(activeLayers[3]).not.to.be.undefined
                     expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(timestamp)
-                    expect(activeLayers[3].visible).to.be.true
+                    expect(activeLayers[3].isVisible).to.be.true
                     expect(activeLayers[3].opacity).to.eq(0)
                 })
 
@@ -1004,12 +1004,12 @@ describe('Test of layer handling', () => {
 
                     expect(activeLayers[3]).not.to.be.undefined
                     expect(activeLayers[3].timeConfig.currentTimestamp).to.eq(newTimestamp)
-                    expect(activeLayers[3].visible).to.be.false
+                    expect(activeLayers[3].isVisible).to.be.false
                     expect(activeLayers[3].opacity).to.eq(0.5)
 
                     expect(activeLayers[2]).not.to.be.undefined
                     expect(activeLayers[2].timeConfig.currentTimestamp).to.eq(timestamp)
-                    expect(activeLayers[2].visible).to.be.true
+                    expect(activeLayers[2].isVisible).to.be.true
                     expect(activeLayers[2].opacity).to.eq(0)
                 })
             })
@@ -1087,14 +1087,14 @@ describe('Test of layer handling', () => {
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
                     { id: topLayerId, opacity: 0.7 },
-                    { id: middleLayerId, visible: false },
+                    { id: middleLayerId, isVisible: false },
                 ])
                 cy.get(`[data-cy^="button-toggle-visibility-layer-${middleLayerId}-"]`).click()
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
                     { id: topLayerId, opacity: 0.7 },
-                    { id: middleLayerId, visible: true, opacity: 1 },
+                    { id: middleLayerId, isVisible: true, opacity: 1 },
                 ])
 
                 cy.log('Moving the layers and change the opacity')
@@ -1104,7 +1104,7 @@ describe('Test of layer handling', () => {
                 cy.checkOlLayer([
                     'test.background.layer2',
                     { id: bottomLayerId, opacity: 0.75 },
-                    { id: middleLayerId, visible: true, opacity: 0.5 },
+                    { id: middleLayerId, isVisible: true, opacity: 0.5 },
                     { id: topLayerId, opacity: 0.7 },
                 ])
 
@@ -1155,12 +1155,12 @@ describe('Test of layer handling', () => {
 
                     expect(activeLayers[3]).not.to.be.undefined
                     expect(activeLayers[3].timeConfig.currentTimestamp).to.eq('20180101')
-                    expect(activeLayers[3].visible).to.be.true
+                    expect(activeLayers[3].isVisible).to.be.true
                     expect(activeLayers[3].opacity).to.eq(0.7)
 
                     expect(activeLayers[0]).not.to.be.undefined
                     expect(activeLayers[0].timeConfig.currentTimestamp).to.eq(newTimestamp)
-                    expect(activeLayers[0].visible).to.be.true
+                    expect(activeLayers[0].isVisible).to.be.true
                     expect(activeLayers[0].opacity).to.eq(0)
                 })
                 cy.checkOlLayer([

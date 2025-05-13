@@ -16,7 +16,7 @@ import { normalizeExtent } from '@/utils/extentUtils'
  * @typedef ActiveLayerConfig
  * @property {String} id The layer ID
  * @property {LayerType} [type] The layer type (for external layers)
- * @property {Boolean} [visible] Flag telling if the layer should be visible on the map
+ * @property {Boolean} [isVisible] Flag telling if the layer should be visible on the map
  * @property {Number} [opacity] The opacity that the layers should have, when `undefined` uses the
  *   default opacity for the layer.
  * @property {String} [baseUrl] The base URL of this layer, if applicable (only for external layers)

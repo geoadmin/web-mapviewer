@@ -106,7 +106,7 @@ export function parseLayersParam(queryValue) {
     const parsedLayer = []
     if (queryValue && queryValue.length > 0) {
         queryValue.split(';').forEach((layerQueryString) => {
-            const [layerIdWithCustomParams, visible, opacity] = layerQueryString.split(',')
+            const [layerIdWithCustomParams, isVisible, opacity] = layerQueryString.split(',')
             const [layerId, ...otherParams] = layerIdWithCustomParams
                 .split('@')
                 .map(decodeLayerParam)
@@ -138,7 +138,7 @@ export function parseLayersParam(queryValue) {
             }
             parsedLayer.push({
                 ...decodeUrlLayerId(layerId),
-                visible: !visible || visible === 't',
+                isVisible: !isVisible || isVisible === 't',
                 opacity: isNumber(opacity) ? Number(opacity) : undefined,
                 customAttributes,
             })
@@ -214,7 +214,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
     }
 
     // Add visibility flag
-    if (!layer.visible) {
+    if (!layer.isVisible) {
         layerUrlString += `,f`
     }
     if (
@@ -222,7 +222,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig, featuresI
         // for layer that don't have a default config (e.g. external layer) use 1.0 as default opacity
         (!defaultLayerConfig && layer.opacity !== 1.0)
     ) {
-        if (layer.visible) {
+        if (layer.isVisible) {
             layerUrlString += ','
         }
         layerUrlString += `,${layer.opacity}`

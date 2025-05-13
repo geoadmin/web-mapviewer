@@ -51,7 +51,7 @@ export default class GPXParser extends FileParser {
         }
         return layerUtils.makeGPXLayer({
             gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
+            isVisible: true,
             opacity: 1.0,
             gpxData: gpxAsText,
             gpxMetadata: gpxMetadataParser.readMetadata(gpxAsText),
