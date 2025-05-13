@@ -59,7 +59,7 @@ export interface Layer {
     /** Value from 0.0 to 1.0 telling with which opacity this layer should be shown on the map. */
     opacity: number
     /** If the layer should be visible on the map or hidden. */
-    visible: boolean /* TODO propose to rename this to isVisible */
+    isVisible: boolean
     /** Description of the data owner(s) for this layer. */
     readonly attributions: LayerAttribution[]
     /** Define if this layer shows tooltip when clicked on. */

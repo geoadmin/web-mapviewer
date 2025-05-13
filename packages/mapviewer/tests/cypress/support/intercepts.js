@@ -18,7 +18,7 @@ const mockExternalWms1 = {
     isLoading: true,
     isExternal: true,
     type: LayerType.WMS,
-    visible: true,
+    isVisible: true,
     wmsVersion: '1.3.0',
     opacity: 1,
 }
@@ -30,14 +30,14 @@ const mockExternalWms2 = {
     isLoading: true,
     isExternal: true,
     type: LayerType.WMS,
-    visible: true,
+    isVisible: true,
     wmsVersion: '1.3.0',
 }
 const mockExternalWms3 = {
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
     name: 'Spannungsarme Gebiete 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
-    visible: false,
+    isVisible: false,
     isLoading: true,
     isExternal: true,
     type: LayerType.WMS,
@@ -48,7 +48,7 @@ const mockExternalWms4 = {
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
     name: 'Verfügbarkeit des ÖREB-Katasters 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
-    visible: false,
+    isVisible: false,
     opacity: 0.4,
     isLoading: true,
     isExternal: true,
@@ -70,7 +70,7 @@ const mockExternalWmts1 = {
     name: 'Test External WMTS 1',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
     isLoading: true,
-    visible: true,
+    isVisible: true,
     opacity: 1.0,
 }
 
@@ -81,7 +81,7 @@ const mockExternalWmts2 = {
     name: 'Test External WMTS 2;,|@special-chars-äö',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
     isLoading: true,
-    visible: true,
+    isVisible: true,
     opacity: 1.0,
 }
 
@@ -92,7 +92,7 @@ const mockExternalWmts3 = {
     name: 'Test External WMTS 3',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
     isLoading: true,
-    visible: true,
+    isVisible: true,
     opacity: 1.0,
 }
 
@@ -103,7 +103,7 @@ const mockExternalWmts4 = {
     name: 'Test External WMTS 4',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
     isLoading: true,
-    visible: true,
+    isVisible: true,
     opacity: 1.0,
 }
 

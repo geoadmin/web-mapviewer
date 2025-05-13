@@ -431,7 +431,7 @@ describe('Test KML utils', () => {
             expect(kmlLayer.id).to.equal(serviceKmlBaseUrl)
             expect(kmlLayer.type).to.equal(LayerType.KML)
             expect(kmlLayer.opacity).to.equal(1.0)
-            expect(kmlLayer.visible).to.equal(true)
+            expect(kmlLayer.isVisible).to.equal(true)
             expect(kmlLayer.attributions).to.deep.equal([{ name: 'sys-public.dev.bgdi.ch' }])
             expect(kmlLayer.clampToGround).to.equal(true)
             expect(kmlLayer.fileId).to.equal('')

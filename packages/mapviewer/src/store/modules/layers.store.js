@@ -48,8 +48,8 @@ const getActiveLayerByIndex = (state, index) => state.activeLayers.at(index)
 const cloneActiveLayerConfig = (getters, layer) => {
     const clone = layerUtils.cloneLayer(getters.getLayerConfigById(layer.id)) ?? null
     if (clone) {
-        if (typeof layer.visible === 'boolean') {
-            clone.visible = layer.visible
+        if (typeof layer.isVisible === 'boolean') {
+            clone.isVisible = layer.isVisible
         }
         if (typeof layer.opacity === 'number') {
             clone.opacity = layer.opacity
@@ -149,12 +149,12 @@ const getters = {
             ) {
                 return false
             }
-            return layer.visible
+            return layer.isVisible
         })
         if (state.previewLayer !== null) {
             visibleLayers.push(state.previewLayer)
         }
-        return visibleLayers.concat(state.systemLayers.filter((layer) => layer.visible))
+        return visibleLayers.concat(state.systemLayers.filter((layer) => layer.isVisible))
     },
 
     /**
@@ -180,7 +180,7 @@ const getters = {
      */
     activeKmlLayer: (state) =>
         state.activeLayers.findLast(
-            (layer) => layer.visible && layer.type === LayerType.KML && !layer.isExternal
+            (layer) => layer.isVisible && layer.type === LayerType.KML && !layer.isExternal
         ) ?? null,
 
     /**
@@ -273,7 +273,7 @@ const getters = {
         // Here we cannot take the getter visibleLayers as it also contain the preview and system
         // layers as well as the layer without valid current timeEntry are filtered out
         state.activeLayers.filter(
-            (layer) => layer.visible && timeConfigUtils.hasMultipleTimestamps(layer)
+            (layer) => layer.isVisible && timeConfigUtils.hasMultipleTimestamps(layer)
         ),
 
     /**
@@ -381,7 +381,7 @@ const actions = {
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerUtils.cloneLayer(layerConfig)
-                clone.visible = layer.visible
+                clone.isVisible = layer.isVisible
                 clone.opacity = layer.opacity
                 clone.customAttributes = layer.customAttributes
                 if (layer.timeConfig) {
@@ -557,7 +557,7 @@ const actions = {
      * Set layer visibility flag
      *
      * @param {number} index Index of the layer to set
-     * @param {Boolean} visible Visible flag value
+     * @param {Boolean} isVisible Visible flag value
      * @param {string} dispatcher Action dispatcher name
      */
     setLayerVisibility({ commit }, payload) {
@@ -653,7 +653,7 @@ const actions = {
                     throw new Error(`Failed to setPreviewLayer: layer ${layer} not found in config`)
                 }
             }
-            clone.visible = true
+            clone.isVisible = true
             commit('setPreviewLayer', { layer: clone, dispatcher })
         }
     },
@@ -935,15 +935,15 @@ const mutations = {
         if (!layer) {
             throw new Error(`Failed to toggleLayerVisibility at index ${index}: invalid index`)
         }
-        layer.visible = !layer.visible
+        layer.isVisible = !layer.isVisible
     },
-    setLayerVisibility(state, { index, visible }) {
+    setLayerVisibility(state, { index, isVisible }) {
         const layer = getActiveLayerByIndex(state, index)
         if (!layer) {
             throw new Error(`Failed to setLayerVisibility at index ${index}: invalid index`)
         }
         if (layer) {
-            layer.visible = visible
+            layer.isVisible = isVisible
         }
     },
     setLayerOpacity(state, { index, opacity }) {

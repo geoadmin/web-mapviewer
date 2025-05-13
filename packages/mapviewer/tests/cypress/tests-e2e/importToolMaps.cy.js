@@ -84,7 +84,7 @@ describe('The Import Maps Tool', () => {
             .then((layers) => {
                 cy.wrap(layers[0].name).should('be.equal', itemName)
                 cy.wrap(layers[0].id).should('be.equal', itemId)
-                cy.wrap(layers[0].visible).should('be.true')
+                cy.wrap(layers[0].isVisible).should('be.true')
                 cy.wrap(layers[0].opacity).should('be.equal', 1)
                 cy.wrap(layers[0].isExternal).should('be.true')
             })
@@ -268,7 +268,7 @@ describe('The Import Maps Tool', () => {
             .then((layers) => {
                 cy.wrap(layers[2].name).should('be.equal', singleLayerName)
                 cy.wrap(layers[2].id).should('be.equal', singleLayerId)
-                cy.wrap(layers[2].visible).should('be.true')
+                cy.wrap(layers[2].isVisible).should('be.true')
                 cy.wrap(layers[2].opacity).should('be.equal', 1)
                 cy.wrap(layers[2].isExternal).should('be.true')
             })
@@ -410,7 +410,7 @@ describe('The Import Maps Tool', () => {
             .then((layers) => {
                 cy.wrap(layers[0].name).should('be.equal', layer1Name)
                 cy.wrap(layers[0].id).should('be.equal', layer1Id)
-                cy.wrap(layers[0].visible).should('be.true')
+                cy.wrap(layers[0].isVisible).should('be.true')
                 cy.wrap(layers[0].opacity).should('be.equal', 1)
                 cy.wrap(layers[0].isExternal).should('be.true')
             })
@@ -441,7 +441,7 @@ describe('The Import Maps Tool', () => {
             .then((layers) => {
                 cy.wrap(layers[1].name).should('be.equal', layer2Name)
                 cy.wrap(layers[1].id).should('be.equal', layer2Id)
-                cy.wrap(layers[1].visible).should('be.true')
+                cy.wrap(layers[1].isVisible).should('be.true')
                 cy.wrap(layers[1].opacity).should('be.equal', 1)
                 cy.wrap(layers[1].isExternal).should('be.true')
             })

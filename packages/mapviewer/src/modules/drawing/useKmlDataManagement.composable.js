@@ -123,7 +123,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             const kmlLayer = makeKmlLayer({
                 name: drawingName.value,
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
-                visible: true,
+                isVisible: true,
                 opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
                 adminId: kmlMetadata.adminId,
                 kmlData: kmlData,
@@ -168,7 +168,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         const kmlLayer = makeKmlLayer({
             name: drawingName.value,
             kmlFileUrl: temporaryKmlId.value,
-            visible: true,
+            isVisible: true,
             opacity: 1,
             kmlData: kmlData,
         })

@@ -42,7 +42,7 @@ const createWMTSLayerObject = (parsedLayer: Record<string, any>): ExternalWMTSLa
         id: parsedLayer.id,
         name: parsedLayer.id,
         opacity: parsedLayer.opacity,
-        visible: parsedLayer.visible,
+        isVisible: parsedLayer.isVisible,
         baseUrl: parsedLayer.baseUrl,
         currentYear: year,
     })
@@ -57,7 +57,7 @@ const createWMSLayerObject = (parsedLayer: Record<string, any>): ExternalWMSLaye
         id: parsedLayer.id,
         name: parsedLayer.id,
         opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
-        visible: parsedLayer.visible,
+        isVisible: parsedLayer.isVisible,
         baseUrl: parsedLayer.baseUrl,
         currentYear: year,
         customAttributes,
@@ -70,7 +70,7 @@ const createKmlLayer = (
 ): KMLLayer => {
     return makeKmlLayer({
         kmlFileUrl: parsedLayer.baseUrl,
-        visible: parsedLayer.visible,
+        isVisible: parsedLayer.isVisible,
         opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
         adminId: adminId,
         style: parsedLayer.customAttributes?.style ?? undefined,
@@ -80,7 +80,7 @@ const createKmlLayer = (
 const createGPGXLayer = (parsedLayer: Record<string, any>): GPXLayer => {
     const layer = layerUtils.makeGPXLayer({
         gpxFileUrl: parsedLayer.baseUrl,
-        visible: parsedLayer.visible,
+        isVisible: parsedLayer.isVisible,
         opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
     })
     return layer
@@ -92,7 +92,7 @@ const createCloudOptimizedGeoTIFFLayer = (
 ): CloudOptimizedGeoTIFFLayer => {
     layer = layerUtils.makeCloudOptimizedGeoTIFFLayer({
         fileSource: parsedLayer.baseUrl,
-        visible: parsedLayer.visible,
+        isVisible: parsedLayer.isVisible,
         opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
         isLoading: false,
     })
@@ -133,7 +133,7 @@ export function createLayerObject(
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
         layer = layerUtils.cloneLayer(currentLayer as KMLLayer)
-        layer.visible = parsedLayer.visible ?? false
+        layer.isVisible = parsedLayer.isVisible ?? false
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
@@ -173,7 +173,7 @@ export function createLayerObject(
         // Finally check if this is a Geoadmin layer
         layer = layerUtils.cloneLayer(store.getters.getLayerConfigById(parsedLayer.id))
         if (layer) {
-            layer.visible = parsedLayer.visible ?? false
+            layer.isVisible = parsedLayer.isVisible ?? false
             if (parsedLayer.opacity !== undefined) {
                 layer.opacity = parsedLayer.opacity
             }

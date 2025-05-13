@@ -215,7 +215,7 @@ export class externalWMSCapabilitiesParser {
      * @param {string} layerId Layer ID of the layer to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} [opacity=1] Default is `1`
-     * @param {boolean} [visible=true] Default is `true`
+     * @param {boolean} [isVisible=true] Default is `true`
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
@@ -228,7 +228,7 @@ export class externalWMSCapabilitiesParser {
         layerId: string,
         projection: CoordinateSystem,
         opacity = 1,
-        visible = true,
+        isVisible = true,
         currentYear = null,
         params = null,
         ignoreError = true
@@ -248,7 +248,7 @@ export class externalWMSCapabilitiesParser {
             parents ?? null,
             projection,
             opacity,
-            visible,
+            isVisible,
             currentYear,
             params ?? undefined,
             ignoreError
@@ -260,7 +260,7 @@ export class externalWMSCapabilitiesParser {
      *
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
-     * @param {boolean} visible
+     * @param {boolean} isVisible
      * @param {Number | null} [currentYear=null] Current year to select for the time config. Only
      *   needed when a time config is present a year is pre-selected in the url parameter. Default
      *   is `null`
@@ -272,7 +272,7 @@ export class externalWMSCapabilitiesParser {
     getAllExternalLayerObjects(
         projection: CoordinateSystem,
         opacity = 1,
-        visible = true,
+        isVisible = true,
         currentYear: number | null = null,
         params = undefined,
         ignoreError = true
@@ -288,7 +288,7 @@ export class externalWMSCapabilitiesParser {
                 [this.capabilities.Capability!.Layer!],
                 projection,
                 opacity,
-                visible,
+                isVisible,
                 currentYear,
                 params,
                 ignoreError
@@ -301,7 +301,7 @@ export class externalWMSCapabilitiesParser {
         parents: CapabilityLayer[] | null,
         projection: CoordinateSystem,
         opacity: number,
-        visible: boolean,
+        isVisible: boolean,
         currentYear: number | null,
         params?: Record<string, any>,
         ignoreError: boolean = true
@@ -335,7 +335,7 @@ export class externalWMSCapabilitiesParser {
                     [layer, ...parents!],
                     projection,
                     opacity,
-                    visible,
+                    isVisible,
                     currentYear,
                     params,
                     ignoreError
@@ -346,7 +346,7 @@ export class externalWMSCapabilitiesParser {
             id: layerId,
             name: title,
             opacity,
-            visible,
+            isVisible,
             baseUrl: url,
             layers,
             attributions,

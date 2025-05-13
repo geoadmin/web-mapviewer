@@ -87,7 +87,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             // if it's a local file (a blob), then we extract the name. Hence we can make
             // sure that the fileSource is not passed as a Blob
             fileSource: isLocalFile ? (fileSource as File).name : (fileSource as string),
-            visible: true,
+            isVisible: true,
             opacity: 1.0,
             data: fileSource,
             noDataValue: firstImage.getGDALNoData(),

@@ -665,7 +665,7 @@ Cypress.Commands.add(
 Cypress.Commands.add('checkOlLayer', (args = null) => {
     let layers = []
     if (typeof args === 'string' || args instanceof String) {
-        layers.push({ id: args, visible: true, opacity: 1 })
+        layers.push({ id: args, isVisible: true, opacity: 1 })
     } else if (args instanceof Array) {
         layers = args.slice()
     } else if (args instanceof Object) {
@@ -677,13 +677,13 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
     // validate the layers arguments
     layers = layers.map((l) => {
         if (typeof l === 'string' || l instanceof String) {
-            return { id: l, visible: true, opacity: 1 }
+            return { id: l, isVisible: true, opacity: 1 }
         } else {
             if (!l.id) {
                 throw new Error(`Invalid layer object ${l}: don't have an id`)
             }
-            if (l.visible === undefined) {
-                l.visible = true
+            if (l.isVisible === undefined) {
+                l.isVisible = true
             }
             if (l.opacity === undefined) {
                 l.opacity = 1
@@ -691,8 +691,8 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             return l
         }
     })
-    const visibleLayers = layers.filter((l) => l.visible)
-    const invisibleLayers = layers.filter((l) => !l.visible)
+    const visibleLayers = layers.filter((l) => l.isVisible)
+    const invisibleLayers = layers.filter((l) => !l.isVisible)
 
     cy.window().its('map').invoke('getAllLayers').as('olLayers')
 
@@ -724,7 +724,7 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             )
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.undefined
-            expect(olLayer.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
+            expect(olLayer.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(layer.isVisible)
             expect(olLayer.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
             // The rendered flag is set asynchronously; therefore, we need to do some retry here
             cy.waitUntil(() => olLayer.rendered, {
