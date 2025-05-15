@@ -70,6 +70,7 @@ export const YELLOW = new FeatureStyleColor('yellow', '#ffff00', '#000000')
 
 export const allStylingColors = [BLACK, BLUE, GRAY, GREEN, ORANGE, RED, WHITE, YELLOW]
 export const FEATURE_FONT_SIZE = 16
+export const FEATURE_FONT_SIZE_SMALL = 14
 export const FEATURE_FONT = 'Helvetica'
 /**
  * Representation of a size for feature style
@@ -349,14 +350,19 @@ export function geoadminStyleFunction(feature, resolution) {
     // Tells if we are drawing a polygon for the first time, in this case we want
     // to fill this polygon with a transparent white (instead of red)
     const isDrawing = !!feature.get('isDrawing')
+
+    const offset = editableFeature?.textOffset ?? [0, 0]
+    const descriptionLineWrapCount = editableFeature?.description.split('\n').length ?? 0
+    const extraOffsetForDescription = editableFeature?.showDescriptionOnMap
+        ? (descriptionLineWrapCount + 1) * FEATURE_FONT_SIZE_SMALL
+        : 0
     const styles = [
         new Style({
             geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
             image: editableFeature?.generateOpenlayersIcon(),
             text: new Text({
                 text: editableFeature?.title ?? feature.get('name'),
-                //font: editableFeature.font,
-                font: `normal 16px Helvetica`,
+                font: `normal ${FEATURE_FONT_SIZE}px ${FEATURE_FONT}`,
                 fill: new Fill({
                     color: styleConfig.textColor.fill,
                 }),
@@ -365,8 +371,8 @@ export function geoadminStyleFunction(feature, resolution) {
                     width: 3,
                 }),
                 scale: editableFeature?.textSizeScale ?? 1,
-                offsetX: editableFeature?.textOffset[0] ?? 0,
-                offsetY: editableFeature?.textOffset[1] ?? 0,
+                offsetX: offset[0],
+                offsetY: offset[1] - extraOffsetForDescription,
             }),
             stroke:
                 editableFeature?.featureType === EditableFeatureTypes.MEASURE
@@ -384,6 +390,29 @@ export function geoadminStyleFunction(feature, resolution) {
             zIndex: 10,
         }),
     ]
+    if (editableFeature.showDescriptionOnMap && editableFeature.description) {
+        styles.push(
+            new Style({
+                text: new Text({
+                    text: editableFeature.description,
+                    font: `normal ${FEATURE_FONT_SIZE_SMALL}px ${FEATURE_FONT}`,
+                    fill: new Fill({
+                        color: styleConfig.textColor.fill,
+                    }),
+                    stroke: new Stroke({
+                        color: styleConfig.textColor.border,
+                        width: 2,
+                    }),
+                    offsetX: offset[0],
+                    offsetY:
+                        offset[1] -
+                        (descriptionLineWrapCount > 1
+                            ? ((descriptionLineWrapCount - 1) * FEATURE_FONT_SIZE_SMALL) / 2.0
+                            : 0),
+                }),
+            })
+        )
+    }
     const polygonGeom = feature.get('geodesic')?.getGeodesicPolygonGeom()
     if (polygonGeom) {
         styles.push(
