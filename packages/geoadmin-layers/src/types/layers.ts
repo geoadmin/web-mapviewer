@@ -200,6 +200,71 @@ export interface GeoAdminVectorLayer extends GeoAdminLayer {
 // #endregion
 
 // #region: File Type Layers
+
+/** @see https://github.com/geotiffjs/geotiff.js/blob/8618f8ae0c526fa38385870f8fc6945354eb4b11/src/globals.js#L238-L249 */
+export enum PhotometricInterpretation {
+    WhiteIsZero = 0,
+    BlackIsZero = 1,
+    RGB = 2,
+    Palette = 3,
+    TransparencyMask = 4,
+    CMYK = 5,
+    YCbCr = 6,
+    CIELab = 8,
+    ICCLab = 9,
+}
+
+/** @see https://github.com/opengeospatial/CloudOptimizedGeoTIFF/blob/d4f5f0fa92d4c1fabb9a802b2e7f5b1adec1004a/standard/clause_7_geotiff_format_text.adoc?plain=1#L60-L61 */
+export enum PlanarConfiguration {
+    /** A.k.a. Chunky format */
+    Contiguous = 1,
+    /** A.k.a. Planar format */
+    Separate = 2,
+}
+
+/**
+ * All COG metadata read from the TIFF File Directory (see
+ * https://github.com/cogeotiff/cog-spec/blob/master/spec.md#cloud-optimized-geotiff) read by the
+ * lib GeoTIFF.js
+ *
+ * Please document any new findings on each of these properties.
+ */
+export interface CloudOptimizedGeoTIFFFileDirectory {
+    artist?: string
+    /** One entry per color band. */
+    bitsPerSample?: Uint16Array
+    compression?: number
+    documentName?: string
+    /** Name of the projection used, as a string. Example: "CH1903+ / LV95|CH1903+|" */
+    geoAsciiParams?: string
+    /**
+     * Looks like a bunch of magic numbers that are then converted by GeoTIFF.js lib in its
+     * getGeoKeys() function
+     *
+     * @see https://github.com/geotiffjs/geotiff.js/blob/8618f8ae0c526fa38385870f8fc6945354eb4b11/src/globals.js#L268-L315
+     */
+    geoKeyDirectory?: Uint16Array
+    imageLength?: number
+    imageWidth?: number
+    jpegTables?: Uint8Array
+    maxSampleValue?: Uint16Array
+    minSampleValue?: Uint16Array
+    modelTransformation?: Float64Array
+    photometricInterpretation?: PhotometricInterpretation
+    planarConfiguration?: PlanarConfiguration
+    referenceBlackWhite?: Uint32Array
+    resolutionUnit?: number
+    sampleFormat?: Uint16Array
+    samplesPerPixel?: number
+    tileByteCounts?: Uint32Array
+    tileLength?: number
+    tileOffsets?: Uint32Array
+    tileWidth?: number
+    xResolution?: Uint32Array
+    yCbCrSubSampling?: Uint32Array
+    yResolution?: Uint32Array
+}
+
 export interface CloudOptimizedGeoTIFFLayer extends Layer {
     type: LayerType.COG
     isLocalFile: boolean
@@ -211,6 +276,7 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     noDataValue?: number
     /* The extent of this COG. */
     extent?: [number, number, number, number]
+    imageFileDirectory?: Partial<CloudOptimizedGeoTIFFFileDirectory>
 }
 
 export type KmlMetadata = {

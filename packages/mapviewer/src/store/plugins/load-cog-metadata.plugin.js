@@ -6,15 +6,16 @@ import { CloudOptimizedGeoTIFFParser } from '@/api/layers/CloudOptimizedGeoTIFFP
 const cogParser = new CloudOptimizedGeoTIFFParser()
 
 async function loadCOGMetadataAndUpdateLayer(store, layer) {
-    const layerWithExtent = await cogParser.parse({
+    const parsedLayer = await cogParser.parse({
         fileSource: layer.fileSource,
         currentProjection: toValue(store.state.position.projection),
     })
     store.dispatch('updateLayer', {
         layerId: layer.id,
         values: {
-            extent: layerWithExtent.extent,
-            noDataValue: layerWithExtent.noDataValue,
+            extent: parsedLayer.extent,
+            noDataValue: parsedLayer.noDataValue,
+            imageFileDirectory: parsedLayer.imageFileDirectory,
         },
     })
 }
