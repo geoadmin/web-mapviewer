@@ -163,6 +163,7 @@ export default function useDrawingModeInteraction({
             if (args.featureType === EditableFeatureTypes.MARKER) {
                 feature.setProperties({
                     textOffset: DEFAULT_MARKER_TITLE_OFFSET.toString(),
+                    showDescriptionOnMap: false,
                 })
             }
             log.debug(`onAddFeature: feature ${feature.getId()} added`)

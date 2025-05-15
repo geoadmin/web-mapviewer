@@ -111,6 +111,10 @@ function onFeatureChange(editableFeature) {
     currentlySelectedFeature.value?.set('description', editableFeature.description)
     if (editableFeature.featureType === EditableFeatureTypes.MARKER) {
         currentlySelectedFeature.value?.set('textOffset', editableFeature.textOffset.toString())
+        currentlySelectedFeature.value?.set(
+            'showDescriptionOnMap',
+            editableFeature.showDescriptionOnMap
+        )
     }
     currentlySelectedFeature.value?.changed()
     debounceSaveDrawing()
