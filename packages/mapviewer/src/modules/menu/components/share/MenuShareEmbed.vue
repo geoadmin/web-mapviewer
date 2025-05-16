@@ -10,7 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import { Collapse } from 'vue-collapsed'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -193,49 +192,50 @@ watch(noSimpleZoom, (value) => {
             />
             <span class="px-1">{{ t('share_more') }}</span>
         </a>
-        <Collapse :when="showEmbedSharing">
-            <div class="card border-light p-2 ps-4">
-                <div class="input-group input-group-sm">
-                    <input
-                        ref="embedInput"
-                        type="text"
-                        class="form-control"
-                        :value="iFrameLink"
-                        data-cy="menu-share-embed-simple-iframe-snippet"
-                        readonly="readonly"
-                        @focus="$event.target.select()"
-                        @click="$event.target.select()"
-                    />
-                    <GeoadminTooltip :tooltip-content="t('copy_cta')">
-                        <button
-                            data-cy="menu-share-embed-copy-button"
-                            class="btn btn-outline-group rounded-0"
-                            type="button"
-                            @click="copyValue"
-                        >
-                            <FontAwesomeIcon
-                                class="icon"
-                                :icon="buttonIcon"
-                                data-cy="menu-share-embed-copy-button-icon"
-                            />
-                        </button>
-                    </GeoadminTooltip>
-                    <button
-                        class="btn btn-outline-group"
-                        data-cy="menu-share-embed-preview-button"
-                        @click="togglePreviewModal"
-                    >
-                        {{ t('show_more_options') }}
-                    </button>
-                </div>
-                <!-- eslint-disable vue/no-v-html-->
-                <div
-                    class="py-2"
-                    v-html="t('share_disclaimer')"
+        <div
+            v-show="showEmbedSharing"
+            class="card border-light p-2 ps-4"
+        >
+            <div class="input-group input-group-sm">
+                <input
+                    ref="embedInput"
+                    type="text"
+                    class="form-control"
+                    :value="iFrameLink"
+                    data-cy="menu-share-embed-simple-iframe-snippet"
+                    readonly="readonly"
+                    @focus="$event.target.select()"
+                    @click="$event.target.select()"
                 />
-                <!-- eslint-enable vue/no-v-html-->
+                <GeoadminTooltip :tooltip-content="t('copy_cta')">
+                    <button
+                        data-cy="menu-share-embed-copy-button"
+                        class="btn btn-outline-group rounded-0"
+                        type="button"
+                        @click="copyValue"
+                    >
+                        <FontAwesomeIcon
+                            class="icon"
+                            :icon="buttonIcon"
+                            data-cy="menu-share-embed-copy-button-icon"
+                        />
+                    </button>
+                </GeoadminTooltip>
+                <button
+                    class="btn btn-outline-group"
+                    data-cy="menu-share-embed-preview-button"
+                    @click="togglePreviewModal"
+                >
+                    {{ t('show_more_options') }}
+                </button>
             </div>
-        </Collapse>
+            <!-- eslint-disable vue/no-v-html-->
+            <div
+                class="py-2"
+                v-html="t('share_disclaimer')"
+            />
+            <!-- eslint-enable vue/no-v-html-->
+        </div>
         <ModalWithBackdrop
             v-if="showPreviewModal"
             :title="t('embed_map')"

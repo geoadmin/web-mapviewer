@@ -1,7 +1,6 @@
 <script setup>
 import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
-import { Collapse } from 'vue-collapsed'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
@@ -74,13 +73,11 @@ function onToggleImportFile() {
             data-cy="menu-advanced-tools-import-catalogue"
             @toggle-menu="onToggleImportCatalogue"
         >
-            <Collapse :when="showImportCatalogue">
-                <ImportCatalogue
-                    v-show="showImportCatalogue"
-                    class="py-2"
-                    :compact="compact"
-                />
-            </Collapse>
+            <ImportCatalogue
+                v-show="showImportCatalogue"
+                class="py-2"
+                :compact="compact"
+            />
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
