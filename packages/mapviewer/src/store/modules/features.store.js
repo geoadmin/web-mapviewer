@@ -399,13 +399,26 @@ export default {
          * @param {EditableFeature} feature
          * @param {String} description
          */
-        changeFeatureDescription({ commit, state }, { feature, description, dispatcher }) {
+        changeFeatureDescription(
+            { commit, state },
+            { feature, description, showDescriptionOnMap, dispatcher }
+        ) {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureDescription', {
                     feature: selectedFeature,
                     description,
+                    showDescriptionOnMap,
                     dispatcher,
+                })
+            }
+        },
+        changeFeatureShownDescriptionOnMap({ commit, state }, { feature, showDescriptionOnMap }) {
+            const selectedFeature = getEditableFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureShownDescriptionOnMap', {
+                    feature: selectedFeature,
+                    showDescriptionOnMap,
                 })
             }
         },
@@ -675,6 +688,9 @@ export default {
         },
         changeFeatureDescription(state, { feature, description }) {
             feature.description = description
+        },
+        changeFeatureShownDescriptionOnMap(state, { feature, showDescriptionOnMap }) {
+            feature.showDescriptionOnMap = showDescriptionOnMap
         },
         changeFeatureColor(state, { feature, color }) {
             feature.fillColor = color
