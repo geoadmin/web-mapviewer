@@ -86,6 +86,28 @@ export function getKmlExtent(content) {
 }
 
 /**
+ * Get the description of all features in the KML content in form of a Map with the feature ID as key
+ * 
+ * @param {string} content KML content
+ * @returns {Map<string, string>} Map of feature ID to description
+ */
+export function getFeatureDescriptionMap(content) {
+    const features = kmlReader.readFeatures(content, {
+        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        featureProjection: WGS84.epsg,
+    })
+    const descriptionMap = new Map()
+    features.forEach((feature) => {
+        const description = feature.get('description')
+        if (description) {
+            const featureId = feature.getId()
+            descriptionMap.set(featureId, description)
+        }
+    })
+    return descriptionMap
+}
+
+/**
  * Get the KML feature type
  *
  * The type is taken from the geoadmin proprietary "type" property, and if this property is not
