@@ -138,7 +138,7 @@ onUnmounted(() => {
 @import '@/scss/media-query.mixin';
 
 .infobox-content {
-    max-height: 40vh;
+    max-height: 50vh;
     max-width: 100%;
     overflow-x: hidden;
 }
