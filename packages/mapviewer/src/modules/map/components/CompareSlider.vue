@@ -24,7 +24,7 @@ const compareSliderPosition = computed(() => {
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
 const shouldUseWebGlContext = computed(
-    () => store.getters.visibleLayerOnTop.type === LayerTypes.COG
+    () => visibleLayerOnTop.value.type === LayerTypes.COG
 )
 
 watch(storeCompareRatio, (newValue) => {
@@ -35,25 +35,29 @@ watch(storeCompareRatio, (newValue) => {
 watch(
     visibleLayerOnTop,
     (newLayerOnTop, oldLayerOnTop) => {
+
         if (oldLayerOnTop) {
             unRegisterRenderingEvents(oldLayerOnTop.id, oldLayerOnTop.uuid)
         }
 
-        if (getLayerFromMapById(newLayerOnTop.id)) {
+        if (getLayerFromMapById(newLayerOnTop.id, newLayerOnTop.uuid)) {
             registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
+            olMap.render()
+
         } else {
             // The layer config is always modified before the map, which means the
             // visible layer on top according to the config could not exist within
-            // the map. This is problematic with COG layers due to the webGL context
+            // the map. This means that if we have layers that loads after the component is
+            // instantiated, most often COG layers.
 
-            // to mitigate the issue, we use the precompose event (which is fired when
-            // the olMap changes due to a webGL layer being added or removed) to still add the
-            // rendering events to the top layer.
-            olMap?.once('precompose', () => {
+            // to mitigate the issue, we ask the map to register the events once after the first render,
+            // after all layers have been loaded, and re-render it.
+            // We should arrive here ONLY if we arrive on startup on a map with an active compare slider.
+            olMap?.once('rendercomplete', () => {
                 registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
+                olMap.render()
             })
         }
-        olMap.render()
     },
     // Neccessary for the compare slider to work for external layers, because if the layer takes longer to load on the map,
     // the registerRenderingEvents function called in the onMounted hook can not find the layer from the map and therefore the compare slider does not work.
@@ -84,7 +88,6 @@ function registerRenderingEvents(layerId, layerUuid) {
             event.context.clear(event.context.COLOR_BUFFER_BIT)
         }
     })
-
     layer?.on('prerender', onPreRender)
     layer?.on('postrender', onPostRender)
 }
