@@ -1,20 +1,21 @@
+import { LayerType } from '@geoadmin/layers'
 import { toValue } from 'vue'
 
-import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
-import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
+import { CloudOptimizedGeoTIFFParser } from '@/api/layers/CloudOptimizedGeoTIFFParser'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()
 
 async function loadCOGMetadataAndUpdateLayer(store, layer) {
-    const layerWithExtent = await cogParser.parse({
+    const parsedLayer = await cogParser.parse({
         fileSource: layer.fileSource,
         currentProjection: toValue(store.state.position.projection),
     })
     store.dispatch('updateLayer', {
         layerId: layer.id,
         values: {
-            extent: layerWithExtent.extent,
-            noDataValue: layerWithExtent.noDataValue,
+            extent: parsedLayer.extent,
+            noDataValue: parsedLayer.noDataValue,
+            imageFileDirectory: parsedLayer.imageFileDirectory,
         },
     })
 }
@@ -31,7 +32,7 @@ async function loadCOGMetadataAndUpdateLayer(store, layer) {
 export default function loadCOGMetadata(store) {
     store.subscribe((mutation) => {
         const addLayerSubscriber = (layer) => {
-            if (layer instanceof CloudOptimizedGeoTIFFLayer && !layer.extent) {
+            if (layer.type === LayerType.COG && !layer.extent) {
                 loadCOGMetadataAndUpdateLayer(store, layer)
             }
         }

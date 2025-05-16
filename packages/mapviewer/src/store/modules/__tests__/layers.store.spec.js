@@ -1,11 +1,7 @@
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
-import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is
 // needed since some store plugins might require access to router to get the query parameters
 // (e.g. topic management plugin)
@@ -14,33 +10,33 @@ import store from '@/store'
 
 const dispatcher = { dispatcher: 'unit-test' }
 
-const bgLayer = new GeoAdminWMTSLayer({
+const bgLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'background',
     id: 'bg.layer',
     technicalName: 'bg.layer',
-    visible: true,
+    isVisible: true,
     format: 'jpeg',
     isBackground: true,
-    attributions: [new LayerAttribution('test')],
+    attributions: [{ name: 'test' }],
 })
-const firstLayer = new GeoAdminWMTSLayer({
+const firstLayer = layerUtils.makeGeoAdminWMTSLayer({
     name: 'First layer',
     id: 'first.layer',
     technicalName: 'first.layer',
-    visible: true,
-    attributions: [new LayerAttribution('test')],
+    isVisible: true,
+    attributions: [{ name: 'test' }],
 })
-const secondLayer = new GeoAdminWMSLayer({
+const secondLayer = layerUtils.makeGeoAdminWMSLayer({
     name: 'Second layer',
     id: 'second.layer',
     technicalName: 'second.layer',
-    visible: true,
-    timeConfig: new LayerTimeConfig('last', [
-        new LayerTimeConfigEntry('20240112'),
-        new LayerTimeConfigEntry('19000203'),
-        new LayerTimeConfigEntry('18400101'),
+    isVisible: true,
+    timeConfig: timeConfigUtils.makeTimeConfig('last', [
+        timeConfigUtils.makeTimeConfigEntry('20240112'),
+        timeConfigUtils.makeTimeConfigEntry('19000203'),
+        timeConfigUtils.makeTimeConfigEntry('18400101'),
     ]),
-    attributions: [new LayerAttribution('test')],
+    attributions: [{ name: 'test' }],
 })
 
 const resetStore = () => {
@@ -70,7 +66,7 @@ describe('Background layer is correctly set', () => {
         store.dispatch('setLayerConfig', { config: [bgLayer], ...dispatcher })
         store.dispatch('setBackground', { bgLayerId: bgLayer.id })
         expect(getBackgroundLayerId()).to.be.a('string')
-        expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
+        // expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
         expect(getBackgroundLayerId()).to.eq(bgLayer.id)
         expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
@@ -118,8 +114,8 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         )
     })
     it('does not force the visibility of the layer to true when adding it', () => {
-        const invisibleLayer = firstLayer.clone()
-        invisibleLayer.visible = false
+        const invisibleLayer = layerUtils.cloneLayer(firstLayer)
+        invisibleLayer.isVisible = false
         store.dispatch('setLayerConfig', {
             config: [bgLayer, invisibleLayer, secondLayer],
             ...dispatcher,
@@ -127,8 +123,8 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         store.dispatch('addLayer', { layer: invisibleLayer, ...dispatcher })
         const addedLayers = store.getters.getActiveLayersById(invisibleLayer.id)
         expect(addedLayers).to.have.lengthOf(1)
-        expect(addedLayers[0]).to.be.an.instanceof(AbstractLayer)
-        expect(addedLayers[0].visible).to.be.false
+        // expect(addedLayers[0]).to.be.an.instanceof(AbstractLayer)
+        expect(addedLayers[0].isVisible).to.be.false
     })
     it('add a duplicate layer and manage it separately', () => {
         store.dispatch(`addLayer`, { layer: secondLayer, ...dispatcher })
@@ -137,8 +133,8 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         store.dispatch(`toggleLayerVisibility`, { index: 0, ...dispatcher })
         store.dispatch(`setLayerOpacity`, { index: 1, opacity: 0.65, ...dispatcher })
         store.dispatch(`setTimedLayerCurrentYear`, { index: 0, year: 1900, ...dispatcher })
-        expect(store.state.layers.activeLayers[0].visible).to.be.false
-        expect(store.state.layers.activeLayers[1].visible).to.be.true
+        expect(store.state.layers.activeLayers[0].isVisible).to.be.false
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[0].opacity).to.be.equal(1)
         expect(store.state.layers.activeLayers[1].opacity).to.be.equal(0.65)
         expect(store.state.layers.activeLayers[0].timeConfig.currentYear).to.be.equal(1900)
@@ -159,36 +155,36 @@ describe('Update layer', () => {
         })
     })
     it('Update a single layer by ID with a full layer object', () => {
-        const clone = secondLayer.clone()
+        const clone = layerUtils.cloneLayer(secondLayer)
         clone.name = 'Update second layer name'
-        clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        clone.isVisible = false
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[1].visible).to.be.true
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
         store.dispatch('updateLayer', { layerId: secondLayer.id, values: clone, ...dispatcher })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[1].visible).to.be.false
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.false
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(1900)
     })
     it('Update a single layer with invalid layer ID', () => {
         expect(() =>
             store.dispatch('updateLayer', {
                 layerId: 'some.non.existant.layer',
-                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                values: { name: 'Update second layer name', isVisible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
-                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                values: { name: 'Update second layer name', isVisible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()
         expect(() =>
             store.dispatch('updateLayer', {
                 layerId: -1,
-                values: { name: 'Update second layer name', visible: false, opacity: 0.8 },
+                values: { name: 'Update second layer name', isVisible: false, opacity: 0.8 },
                 ...dispatcher,
             })
         ).to.throw()
@@ -209,76 +205,76 @@ describe('Update layers', () => {
     })
     it('Update duplicate layers by layer ID with full clone', () => {
         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
-        const clone = secondLayer.clone()
+        const clone = layerUtils.cloneLayer(secondLayer)
         clone.name = 'Update second layer name'
-        clone.visible = false
-        clone.timeConfig.updateCurrentTimeEntry('19000203')
+        clone.isVisible = false
+        timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[1].visible).to.be.true
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[2].visible).to.be.true
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.true
         expect(store.state.layers.activeLayers[2].timeConfig.currentYear).to.be.equal(2024)
         store.dispatch('updateLayers', { layers: [clone], ...dispatcher })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[1].visible).to.be.false
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.false
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(1900)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[2].visible).to.be.false
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.false
         expect(store.state.layers.activeLayers[2].timeConfig.currentYear).to.be.equal(1900)
     })
     it('Update duplicate layers by layer ID with partial update', () => {
         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
 
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[1].visible).to.be.true
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[2].visible).to.be.true
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.true
         expect(store.state.layers.activeLayers[2].timeConfig.currentYear).to.be.equal(2024)
         store.dispatch('updateLayers', {
             layers: [
                 {
                     id: 'second.layer',
                     name: 'Update second layer name',
-                    visible: false,
+                    isVisible: false,
                     opacity: 0.8,
                 },
             ],
             ...dispatcher,
         })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[1].visible).to.be.false
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.false
         expect(store.state.layers.activeLayers[1].opacity).to.be.equal(0.8)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[2].visible).to.be.false
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.false
         expect(store.state.layers.activeLayers[2].opacity).to.be.equal(0.8)
     })
     it('Update duplicate layers by index with partial update', () => {
         store.dispatch('addLayer', { layer: secondLayer, ...dispatcher })
 
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[1].visible).to.be.true
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[1].timeConfig.currentYear).to.be.equal(2024)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Second layer')
-        expect(store.state.layers.activeLayers[2].visible).to.be.true
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.true
         expect(store.state.layers.activeLayers[2].timeConfig.currentYear).to.be.equal(2024)
         store.dispatch('updateLayers', {
             layers: [
                 {
                     id: 'second.layer',
                     name: 'Update second layer name',
-                    visible: false,
+                    isVisible: false,
                     opacity: 0.8,
                 },
             ],
             ...dispatcher,
         })
         expect(store.state.layers.activeLayers[1].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[1].visible).to.be.false
+        expect(store.state.layers.activeLayers[1].isVisible).to.be.false
         expect(store.state.layers.activeLayers[1].opacity).to.be.equal(0.8)
         expect(store.state.layers.activeLayers[2].name).to.be.equal('Update second layer name')
-        expect(store.state.layers.activeLayers[2].visible).to.be.false
+        expect(store.state.layers.activeLayers[2].isVisible).to.be.false
         expect(store.state.layers.activeLayers[2].opacity).to.be.equal(0.8)
     })
 })
@@ -305,7 +301,6 @@ describe('Visible layers are filtered correctly by the store', () => {
         store.dispatch('addLayer', { layer: firstLayer, ...dispatcher })
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         const [layer] = getVisibleLayers()
-        expect(layer).to.be.an.instanceof(AbstractLayer)
         expect(layer.id).to.eq(firstLayer.id)
     })
     it('removes a layer from the visible layers as soon as its visibility is toggled', () => {
@@ -319,8 +314,8 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not adds a layer to the visible layers if its visible flag is set to false when added', () => {
-        const invisibleLayer = firstLayer.clone()
-        invisibleLayer.visible = false
+        const invisibleLayer = layerUtils.cloneLayer(firstLayer)
+        invisibleLayer.isVisible = false
         store.dispatch('setLayersConfig', [bgLayer, invisibleLayer, secondLayer])
         store.dispatch('addLayer', { layer: invisibleLayer, ...dispatcher })
         expect(getVisibleLayers()).to.be.an('Array').empty
