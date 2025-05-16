@@ -18,7 +18,7 @@ describe('Testing the report problem form', () => {
 
     function openForm() {
         cy.get('[data-cy="report-problem-button"]:visible').as('reportProblemButton').click()
-        cy.get('[data-cy="report-problem-form"]').as('reportProblemForm').should('be.visible')
+        cy.get('[data-cy="report-problem-window"]').as('reportProblemForm').should('be.visible')
     }
 
     it('places the "report a problem" correctly', () => {
@@ -30,28 +30,30 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.log('The button should be in the header as a link on mobile')
         cy.get('[data-cy="report-problem-button"]:visible').click()
-        cy.get('[data-cy="report-problem-form"]').as('feedbackForm').should('be.visible')
+        cy.get('[data-cy="report-problem-form"] [data-cy="report-problem-category"]')
+            .as('firstFeedbackElement')
+            .should('be.visible')
 
         cy.log('can minimize the window in order to see the map')
         cy.get('[data-cy="report-problem-window"] [data-cy="simple-window-minimize"]:visible')
             .as('minimizeButton')
             .click()
-        cy.get('@feedbackForm').should('be.hidden')
+        cy.get('@firstFeedbackElement').should('be.hidden')
         cy.get('@minimizeButton').click()
-        cy.get('@feedbackForm').should('be.visible')
+        cy.get('@firstFeedbackElement').should('be.visible')
         closeForm()
         cy.closeMenuIfMobile()
 
         cy.log('The button should be in the header as a link on desktop')
         cy.viewport(1920, 1080)
         cy.get('[data-cy="report-problem-link-button"]:visible').click()
-        cy.get('@feedbackForm').should('be.visible')
+        cy.get('@firstFeedbackElement').should('be.visible')
 
         cy.log('can minimize the window in order to see the map')
         cy.get('@minimizeButton').click()
-        cy.get('@feedbackForm').should('be.hidden')
+        cy.get('@firstFeedbackElement').should('be.hidden')
         cy.get('@minimizeButton').click()
-        cy.get('@feedbackForm').should('be.visible')
+        cy.get('@firstFeedbackElement').should('be.visible')
         closeForm()
     })
     it('test the report problem form UI, validations, and it backend interaction', () => {
@@ -170,7 +172,7 @@ describe('Testing the report problem form', () => {
             })
         })
 
-        cy.get('@reportProblemForm').should('not.exist')
+        cy.get('@categoryDropdown').should('not.exist')
         cy.get('[data-cy="report-problem-success-text"]').should('be.visible')
         cy.get('[data-cy="report-problem-close-successful"]')
             .as('closeSuccessButton')
@@ -254,11 +256,9 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-button"]').scrollIntoView()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
 
-        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
-        cy.get('[data-cy="report-problem-drawing-button"]')
-            .as('reportDrawing')
-            .should('be.visible')
-            .click()
+        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('exist')
+        cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').scrollIntoView()
+        cy.get('@reportDrawing').should('be.visible').click()
         cy.log('Draw some features')
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
         cy.get('[data-cy="ol-map"]').click('center')
@@ -285,7 +285,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
         cy.get('@reportForm').should('exist')
-        cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').should('be.visible')
+        cy.get('@reportDrawing').scrollIntoView()
+        cy.get('@reportDrawing').should('be.visible')
 
         cy.log('Redo the drawing in the report problem form')
         cy.get('@reportDrawing').click()
@@ -314,27 +315,29 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="drawing-header-close-button"]').should('be.visible').click()
 
         cy.log('Verify report problem form with drawing attachment')
-        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('be.visible')
+        cy.get('[data-cy="report-problem-form"]').as('reportForm').should('exist')
 
         cy.log('Select category')
         cy.get('[data-cy="report-problem-category"] [data-cy="dropdown-main-button"]')
             .as('categoryDropdown')
-            .should('be.visible')
+            .scrollIntoView()
+        cy.get('@categoryDropdown').should('be.visible')
         cy.get('@categoryDropdown').click()
         cy.get('[data-cy="dropdown-item-other"]:visible').click()
 
         cy.log('Write description and email')
         cy.get('[data-cy="report-problem-text-area"] [data-cy="text-area-input"]')
             .as('textArea')
-            .should('be.visible')
+            .scrollIntoView()
+        cy.get('@textArea').should('be.visible')
         cy.get('@textArea').type(text)
 
         cy.get('[data-cy="report-problem-email"] [data-cy="email-input"]')
             .as('emailInput')
-            .should('be.visible')
+            .scrollIntoView()
+        cy.get('@emailInput').should('be.visible')
         cy.get('@emailInput').type(validEmail)
 
-        cy.get('@textArea').should('be.visible').should('have.value', text)
         cy.get('@emailInput').should('be.visible').should('have.value', validEmail)
         cy.get('[data-cy="report-problem-drawing-added-feedback"]').scrollIntoView()
         cy.get('[data-cy="report-problem-drawing-added-feedback"]')
@@ -349,7 +352,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="drawing-header-close-button"]:visible').click()
         cy.viewport('iphone-3')
 
-        cy.get('[data-cy="report-problem-category"]').should('be.visible')
+        cy.get('@categoryDropdown').scrollIntoView()
+        cy.get('@categoryDropdown').should('be.visible')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('@textArea').should('have.value', text)
         cy.get('@emailInput').should('have.value', validEmail)

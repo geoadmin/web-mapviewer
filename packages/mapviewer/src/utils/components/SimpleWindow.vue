@@ -15,8 +15,8 @@ const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, sma
             default: '',
         },
         /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
-         * content
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
+         * its content
          */
         hide: {
             type: Boolean,
@@ -112,7 +112,7 @@ onMounted(() => {
                 <span
                     v-if="title"
                     data-cy="simple-window-title"
-                    class="me-auto text-truncate"
+                    class="text-truncate me-auto"
                 >
                     {{ t(title) }}
                 </span>
@@ -159,6 +159,9 @@ onMounted(() => {
     $top-margin: calc(2 * $header-height + 2rem);
 
     .card-body {
+        // Limiting height so that it doesn't grow too large on browser with zoom enabled.
+        // Tested this value with my browser at 200%, and it still only covered the map (no spill over on the header)
+        max-height: 66vh;
         overflow-y: auto;
 
         &.hide {
