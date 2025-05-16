@@ -558,7 +558,13 @@ describe('The Import File Tool', () => {
                     'Content-Type': 'application/octet-stream',
                 },
                 statusCode: 200,
-                body: `<kml> This is an empty kml</kml>>`,
+                body: `<kml> This is an empty kml</kml>`,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                },
+                statusCode: 200,
             }
         )
 
@@ -591,60 +597,55 @@ describe('The Import File Tool', () => {
         ]
         cy.wait(kmlRequests)
 
+        // Expected values per index - this is to avoid having nested
+        // if statements
+        const errorDataMap = {
+            [validOnlineUrlWithInvalidContentType]: {
+                shouldHaveError: false,
+            },
+            [onlineUrlNotReachable]: {
+                shouldHaveError: true,
+                errorMessage: 'file not accessible',
+            },
+            [invalidFileOnlineUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'Invalid file',
+            },
+            [outOfBoundKMLUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'out of projection bounds',
+            },
+        }
+
         // Validate store and visible layers
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
             .should('have.length', 4)
-            .each(($layer, index) => {
+            .each(($layer) => {
+                const url = $layer.attr('data-layer-id')
+                const errorData = errorDataMap[url]
+
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
 
-                // Expected values per index - this is to avoid having nested
-                // if statements
-                const errorData = [
-                    {
-                        url: validOnlineUrlWithInvalidContentType,
-                        shouldHaveError: false,
-                    },
-                    {
-                        url: onlineUrlNotReachable,
-                        shouldHaveError: true,
-                        errorMessage: 'file not accessible',
-                    },
-                    {
-                        url: invalidFileOnlineUrl,
-                        shouldHaveError: true,
-                        errorMessage: 'Invalid file',
-                    },
-                    {
-                        url: outOfBoundKMLUrl,
-                        shouldHaveError: true,
-                        errorMessage: 'out of projection bounds',
-                    },
-                ]
-
-                const { url, shouldHaveError, errorMessage } = errorData[index]
-
-                if (shouldHaveError) {
+                if (errorData.shouldHaveError) {
                     cy.wrap($layer)
                         .find('[data-cy^="button-has-error"]')
                         .should('be.visible')
                         .trigger('mouseover')
 
-                    //mouseout to remove the tooltip
-                    cy.wrap($layer).trigger('mouseout')
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
+                        .should('be.visible')
+                        .contains(errorData.errorMessage)
 
-                    cy.get(`[data-cy^="floating-button-has-error-${url}-"]`)
-                        .should('be.visible')
-                        .contains(errorMessage)
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).trigger('mouseout', {
+                        force: true,
+                    })
                 } else {
-                    cy.get(`[data-cy^="floating-button-has-error-${outOfBoundKMLUrl}"]`)
-                        .should('be.visible')
-                        .contains('out of projection bounds')
-                    cy.get(`[data-cy^="floating-button-has-error-${url}-"]`).should('not.exist')
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
                 }
 
                 // Ensure no spinner is shown
@@ -657,11 +658,11 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing all kml layer')
         cy.get(
-            `[data-cy^="button-remove-layer-${validOnlineUrlWithInvalidContentType}-"]:visible`
+            `[data-cy^="button-remove-layer-${validOnlineUrlWithInvalidContentType}"]:visible`
         ).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}-"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}"]:visible`).click({
             force: true,
         })
         cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}"]:visible`).click({
@@ -672,8 +673,8 @@ describe('The Import File Tool', () => {
         })
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
-
         //---------------------------------------------------------------------
+
         cy.log('Test online import invalid file')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
