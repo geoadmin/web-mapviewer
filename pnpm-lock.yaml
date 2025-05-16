@@ -318,9 +318,6 @@ catalogs:
     vue-chartjs:
       specifier: ^5.3.2
       version: 5.3.2
-    vue-collapsed:
-      specifier: ^1.3.4
-      version: 1.3.4
     vue-i18n:
       specifier: ^11.1.3
       version: 11.1.3
@@ -764,9 +761,6 @@ importers:
       vue-chartjs:
         specifier: 'catalog:'
         version: 5.3.2(chart.js@4.4.9)(vue@3.5.13(typescript@5.8.3))
-      vue-collapsed:
-        specifier: 'catalog:'
-        version: 1.3.4
       vue-i18n:
         specifier: 'catalog:'
         version: 11.1.3(vue@3.5.13(typescript@5.8.3))
@@ -6000,9 +5994,6 @@ packages:
     peerDependencies:
       chart.js: ^4.1.1
       vue: ^3.0.0-0 || ^2.7.0
-
-  vue-collapsed@1.3.4:
-    resolution: {integrity: sha512-W92b+QT3n5iTrfrH6kyvx3TsriYPfy/Ymsb6DaanjeMkJYMdVl1S4wzKRYVDsxWQPDxiC+5m+UwPwT/8YAYodA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -12667,8 +12658,6 @@ snapshots:
     dependencies:
       chart.js: 4.4.9
       vue: 3.5.13(typescript@5.8.3)
-
-  vue-collapsed@1.3.4: {}
 
   vue-demi@0.14.10(vue@3.5.13(typescript@5.8.3)):
     dependencies:
