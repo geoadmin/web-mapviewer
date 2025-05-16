@@ -877,8 +877,8 @@ describe('The Import File Tool', () => {
         // Test reloading the page
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
-        cy.waitMapIsReady()
         cy.wait(['@headGpxFile', '@getGpxFile'])
+        cy.waitMapIsReady()
 
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
@@ -909,15 +909,15 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        cy.get(
+            '[data-cy="import-file-online-content"] [data-cy="import-file-close-button"]'
+        ).click()
 
         // Import multi segment GPX file and verify profile
         cy.log('Test import multi segment GPX file and verify profile')
         const gpxMultiSegmentFileName = 'external-gpx-file-multi-segment.gpx'
         const gpxMultiSegmentFileFixture = `import-tool/${gpxMultiSegmentFileName}`
 
-        cy.reload()
-        cy.waitMapIsReady()
-        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
@@ -953,6 +953,7 @@ describe('The Import File Tool', () => {
         cy.closeMenuIfMobile()
 
         cy.get('[data-cy="window-close"]').click()
+        cy.get('[data-cy="warning-window-close"]').click()
         cy.get('[data-cy="ol-map"]').click(150, 250)
 
         cy.get('[data-cy="show-profile"]').click()
@@ -981,10 +982,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
 
-        cy.reload()
         cy.log('Loading separated multi segment GPX file to test segment buttons')
-        cy.waitMapIsReady()
-        cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
@@ -1062,8 +1060,6 @@ describe('The Import File Tool', () => {
         const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
         const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
 
-        cy.reload()
-        cy.waitMapIsReady()
         cy.openMenuIfMobile()
         cy.get(
             `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}"]:visible`

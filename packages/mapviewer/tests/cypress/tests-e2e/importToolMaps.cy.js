@@ -121,7 +121,7 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .find('svg')
             .should('have.class', 'fa-caret-right')
-        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.exist')
         cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
 
         //---------------------------------------------------------------------------------

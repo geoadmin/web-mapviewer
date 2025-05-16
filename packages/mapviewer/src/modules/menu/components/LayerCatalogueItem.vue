@@ -9,7 +9,6 @@ import { LV95 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
-import { Collapse } from 'vue-collapsed'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -312,22 +311,21 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon icon="info-circle" />
             </button>
         </div>
-        <Collapse :when="showChildren">
-            <ul
-                class="menu-catalogue-item-children"
-                :class="`ps-${2 + depth}`"
-            >
-                <LayerCatalogueItem
-                    v-for="(child, index) in item.layers"
-                    :key="`${index}-${child.id}`"
-                    :item="child"
-                    :search="search"
-                    :depth="depth + 1"
-                    :compact="compact"
-                    :is-topic="isTopic"
-                />
-            </ul>
-        </Collapse>
+        <ul
+            v-if="showChildren"
+            class="menu-catalogue-item-children"
+            :class="`ps-${2 + depth}`"
+        >
+            <LayerCatalogueItem
+                v-for="(child, index) in item.layers"
+                :key="`${index}-${child.id}`"
+                :item="child"
+                :search="search"
+                :depth="depth + 1"
+                :compact="compact"
+                :is-topic="isTopic"
+            />
+        </ul>
         <LayerDescriptionPopup
             v-if="showLayerDescription"
             :layer="item"

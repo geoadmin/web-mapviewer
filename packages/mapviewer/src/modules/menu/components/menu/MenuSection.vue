@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { Collapse } from 'vue-collapsed'
 
 const { sectionId, title, showContent, secondary, light, disabled } = defineProps({
     // String that uniquely identifies this section
@@ -105,13 +104,13 @@ defineExpose({ open, close, sectionId })
 
             <slot name="extra-button" />
         </div>
-        <Collapse
-            :when="showBody"
+        <div
+            v-show="showBody"
             class="menu-section-body"
             data-cy="menu-section-body"
         >
             <slot />
-        </Collapse>
+        </div>
     </div>
 </template>
 
