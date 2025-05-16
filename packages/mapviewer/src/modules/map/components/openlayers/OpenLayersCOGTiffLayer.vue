@@ -22,7 +22,7 @@ const { geotiffConfig, parentLayerOpacity, zIndex } = defineProps({
 })
 
 const olMap = inject('olMap')
-const noDataValue = computed(() => geotiffConfig.noDataValue ?? 0)
+const noDataValue = computed(() => geotiffConfig.noDataValue)
 const source = computed(() => {
     const base = {
         nodata: noDataValue.value,
