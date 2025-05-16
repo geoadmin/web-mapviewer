@@ -39,7 +39,16 @@ const { t } = useI18n()
 
 const title = ref(feature.title)
 const description = ref(feature.description)
-const showDescriptionOnMap = ref(!!feature.showDescriptionOnMap)
+const showDescriptionOnMap = computed({
+    get: () => !!feature.showDescriptionOnMap,
+    set: (value) => {
+        store.dispatch('changeFeatureShownDescriptionOnMap', {
+            feature: feature,
+            showDescriptionOnMap: value,
+            ...dispatcher,
+        })
+    },
+})
 const mediaPopovers = useTemplateRef('mediaPopovers')
 const isEditingText = computed(() => {
     const titleElement = document.getElementById('drawing-style-feature-title')
@@ -62,13 +71,6 @@ watch(
     }
 )
 
-watch(
-    () => feature.showDescriptionOnMap,
-    (newValue) => {
-        showDescriptionOnMap.value = newValue
-    }
-)
-
 // The idea is watching the title and the description.
 // Put a debounce on the update of the feature so that we can compare with the current UI state
 // If the value is the same as in the UI, we can update the feature
@@ -78,7 +80,6 @@ watch(title, () => {
 watch(description, () => {
     debounceDescriptionUpdate(store)
 })
-watch(showDescriptionOnMap, updateFeatureShowDescriptionOnMap)
 
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
@@ -117,14 +118,6 @@ function updateFeatureDescription() {
     store.dispatch('changeFeatureDescription', {
         feature: feature,
         description: description.value,
-        showDescriptionOnMap: showDescriptionOnMap.value,
-        ...dispatcher,
-    })
-}
-
-function updateFeatureShowDescriptionOnMap() {
-    store.dispatch('changeFeatureShownDescriptionOnMap', {
-        feature: feature,
         showDescriptionOnMap: showDescriptionOnMap.value,
         ...dispatcher,
     })
@@ -229,7 +222,7 @@ function mediaTypes() {
     <div data-cy="drawing-style-popup">
         <div
             v-if="isFeatureMarker || isFeatureText"
-            class="form-group mb-2"
+            class="form-group mb-3"
         >
             <label
                 class="form-label"
@@ -252,7 +245,7 @@ function mediaTypes() {
 
         <div
             v-if="!isFeatureText"
-            class="form-group mb-2"
+            class="form-group mb-3"
         >
             <div class="d-flex justify-content-between">
                 <label
@@ -312,7 +305,7 @@ function mediaTypes() {
                 />
             </div>
         </div>
-        <div class="d-flex small justify-content-start align-items-center gap-1">
+        <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
                 identifier="feature-style-edit-coordinate-copy"
