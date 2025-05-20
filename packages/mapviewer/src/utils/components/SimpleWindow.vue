@@ -78,7 +78,8 @@ onMounted(() => {
     if (movable) {
         const windowElement = windowRef.value
         const headerElement = headerRef.value
-        useMovableElement(windowElement, {
+        useMovableElement({
+            element: windowElement,
             grabElement: headerElement,
             initialPositionClasses: [initialPositionClass.value],
             offset: { bottom: 0, right: 0, left: 0 },

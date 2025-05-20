@@ -105,9 +105,10 @@ const popoverLimits = computed(() => {
 
 onMounted(() => {
     if (mode === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
-        useMovableElement(popover.value, {
-            grabElement: popoverHeader,
-            offset: popoverLimits,
+        useMovableElement({
+            element: popover.value,
+            grabElement: popoverHeader.value,
+            offset: popoverLimits.value,
         })
     }
 })

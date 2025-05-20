@@ -1,9 +1,9 @@
-import { onMounted, ref, toValue } from 'vue'
+import { isRef, onMounted, ref } from 'vue'
 
 const defaultPadding = 4 // px
 
 const MovementSource = Object.freeze({
-    MOUSE_DRAG: 'mouse_drag',
+    POINTER_DRAG: 'pointer_drag',
     WINDOW_RESIZE: 'window_resize',
 })
 
@@ -14,25 +14,48 @@ const MovementSource = Object.freeze({
  * It is possible to specify custom offset with screen border, in order to avoid some part of the
  * app (such as the header) to be accessible to the movable element
  *
- * @param element Reference to a DOM element
- * @param options Options such as described below
- * @param {HTMLElement} [options.grabElement] HTML element on which the user has to grab to start
+ * @param config {Object} Configuration object
+ * @param {HTMLElement} config.element HTML element to be moved
+ * @param {HTMLElement} [config.grabElement] HTML element on which the user has to grab to start
  *   moving the element. If not given, any part of the element will be considered a grab spot.
- * @param {{ top: Number; bottom: Number; left: Number; right: Number }} [options.offset] Offset in
+ * @param {{ top: Number; bottom: Number; left: Number; right: Number }} [config.offset] Offset in
  *   pixels with the border of the screen to constrain element movements. A default padding of 4
  *   pixel will be applied if no offset is given.
- * @param {string[]} [options.initialPositionClasses] Initial position classes to remove when the
+ * @param {string[]} [config.initialPositionClasses] Initial position classes to remove when the
  *   element is being moved
  */
-export function useMovableElement(element, options = {}) {
-    const { grabElement = null, offset = null, initialPositionClasses = [] } = options
+export function useMovableElement(config = {}) {
+    const {
+        element = null,
+        grabElement = null,
+        offset = null,
+        initialPositionClasses = [],
+    } = config
+
+    if (!config.element || !config.grabElement || !config.offset) {
+        throw new Error(
+            `[useMovableElement] Element, grabElement and offset are required
+             to use a movable element.
+             Received ${element} for element, ${grabElement} for grabElement,
+             and ${offset} for offset.`
+        )
+    }
+
+    if (isRef(element) || isRef(grabElement) || isRef(offset) || isRef(initialPositionClasses)) {
+        throw new Error(
+            `[useMovableElement] element, grabElement and offset must be a value.
+             Received ${element} for element, ${grabElement} for grabElement,
+             and ${offset} for offset.`
+        )
+    }
+
     let firstMovement = true
 
     const padding = ref({
-        top: toValue(offset)?.top ?? defaultPadding,
-        bottom: toValue(offset)?.bottom ?? defaultPadding,
-        left: toValue(offset)?.left ?? defaultPadding,
-        right: toValue(offset)?.right ?? defaultPadding,
+        top: offset?.top ?? defaultPadding,
+        bottom: offset?.bottom ?? defaultPadding,
+        left: offset?.left ?? defaultPadding,
+        right: offset?.right ?? defaultPadding,
     })
 
     const viewport = ref({
@@ -42,17 +65,9 @@ export function useMovableElement(element, options = {}) {
         top: padding.value.top,
     })
 
-    // keeping track of mouse position so that dragMouseDown and elementDrag can share these variables (no ref needed)
-    const currentMousePosition = {
-        top: 0,
-        left: 0,
-    }
-    const lastMousePosition = {
-        top: 0,
-        left: 0,
-    }
+    const lastPointerPosition = { top: 0, left: 0 }
 
-    if (toValue(element)) {
+    if (element) {
         // if we already have an element initialize
         initialize()
     } else {
@@ -63,26 +78,19 @@ export function useMovableElement(element, options = {}) {
     }
 
     function initialize() {
-        if (toValue(grabElement)) {
-            // if present, the grab element is where you move the element from:
-            toValue(grabElement).onmousedown = dragMouseDown
-            toValue(grabElement).style.cursor = 'move'
-        } else {
-            // otherwise, move the element from anywhere inside the DIV:
-            toValue(element).onmousedown = dragMouseDown
-            toValue(element).style.cursor = 'move'
-        }
-        constrainsElementWithinViewport()
+        const grab = grabElement
+        grab.addEventListener('pointerdown', onPointerDown)
+        grab.style.cursor = 'move'
+        grab.style.touchAction = 'none' // prevent scrolling while dragging
+        constrainElementWithinViewport(0, 0) // no delta needed
     }
 
-    function dragMouseDown(e) {
-        e = e ?? window.event
+    function onPointerDown(e) {
         e.preventDefault()
-        // get the mouse cursor position at startup:
-        lastMousePosition.left = e.clientX
-        lastMousePosition.top = e.clientY
 
-        // updating the viewport dimensions when a drag starts
+        lastPointerPosition.left = e.clientX
+        lastPointerPosition.top = e.clientY
+
         viewport.value = {
             bottom: window.innerHeight - padding.value.bottom,
             left: padding.value.left,
@@ -90,117 +98,78 @@ export function useMovableElement(element, options = {}) {
             top: padding.value.top,
         }
 
-        document.addEventListener('mouseup', closeDragElement)
-        document.addEventListener('mousemove', elementDrag)
+        document.addEventListener('pointermove', onPointerMove)
+        document.addEventListener('pointerup', onPointerUp)
     }
 
-    function elementDrag(e) {
-        e = e ?? window.event
+    function onPointerMove(e) {
         e.preventDefault()
-        // calculate the new cursor position:
-        currentMousePosition.left = lastMousePosition.left - e.clientX
-        currentMousePosition.top = lastMousePosition.top - e.clientY
-        lastMousePosition.left = e.clientX
-        lastMousePosition.top = e.clientY
 
-        const elementOffset = {
-            left: toValue(element).offsetLeft,
-            top: toValue(element).offsetTop,
-        }
-        const elementSize = toValue(element).getBoundingClientRect()
-        // check to make sure the element will be within our viewport boundary
-        let newLeft = elementOffset.left - currentMousePosition.left
-        let newTop = elementOffset.top - currentMousePosition.top
+        const deltaX = e.clientX - lastPointerPosition.left
+        const deltaY = e.clientY - lastPointerPosition.top
 
-        const {
-            top: viewportTop,
-            bottom: viewportBottom,
-            left: viewportLeft,
-            right: viewportRight,
-        } = viewport.value
+        lastPointerPosition.left = e.clientX
+        lastPointerPosition.top = e.clientY
 
-        if (newTop < viewportTop) {
-            newTop = viewportTop
-        }
-        if (newTop + elementSize.height > viewportBottom) {
-            newTop = viewportBottom - elementSize.height
-        }
-        if (newLeft < viewportLeft) {
-            newLeft = viewportLeft
-        }
-        if (newLeft + elementSize.width > viewportRight) {
-            newLeft = viewportRight - elementSize.width
-        }
-        placeElementAt(newTop, newLeft, MovementSource.MOUSE_DRAG)
+        constrainElementWithinViewport(deltaX, deltaY)
     }
 
-    function closeDragElement() {
-        document.removeEventListener('mouseup', closeDragElement)
-        document.removeEventListener('mousemove', elementDrag)
+    function onPointerUp() {
+        document.removeEventListener('pointermove', onPointerMove)
+        document.removeEventListener('pointerup', onPointerUp)
     }
 
-    function placeElementAt(top, left, movementSource = MovementSource.MOUSE_DRAG) {
-        const htmlElement = toValue(element)
-        const htmlElementStyle = htmlElement.style
+    function placeElementAt(top, left, movementSource = MovementSource.POINTER_DRAG) {
+        const el = element
+        const style = el.style
 
-        // In case the original element has CSS class that affects its position, we remove them first if the user is dragging the element
         if (
             firstMovement &&
-            initialPositionClasses.length > 0 &&
-            movementSource === MovementSource.MOUSE_DRAG
+            initialPositionClasses.length &&
+            movementSource === MovementSource.POINTER_DRAG
         ) {
-            const rect = element.getBoundingClientRect()
-            initialPositionClasses.forEach((className) => {
-                htmlElement.classList.remove(className)
-            })
-            htmlElementStyle.top = `${rect.top}px`
-            htmlElementStyle.left = `${rect.left}px`
+            const rect = el.getBoundingClientRect()
+            initialPositionClasses.forEach((cls) => el.classList.remove(cls))
+            style.top = `${rect.top}px`
+            style.left = `${rect.left}px`
         } else {
-            htmlElementStyle.top = `${top}px`
-            htmlElementStyle.left = `${left}px`
+            style.top = `${top}px`
+            style.left = `${left}px`
         }
+
         firstMovement = false
     }
-
     /**
-     * Will check that the current position is valid in the context of the viewport (or move the
-     * element to match the viewport/padding).
+     * Constrain the element within the viewport, taking into account the offset and places the
+     * element at the new position
      *
-     * Is useful at startup/mount, because the element might be out of viewport. If it is the case,
-     * our code that handles the drag will not flinch (because of the constraints check), rendering
-     * the drag and drop useless (stuck). We make sure the initial position of the element is valid
-     * here.
+     * @param {number} deltaX - The delta x to apply to the element
+     * @param {number} deltaY - The delta y to apply to the element
+     *
+     *   Is useful at startup/mount, because the element might be out of viewport. If it is the case,
+     *   our code that handles the drag will not flinch (because of the constraints check),
+     *   rendering the drag and drop useless (stuck). We make sure the initial position of the
+     *   element is valid here.
      */
-    function constrainsElementWithinViewport() {
-        const currentPosition = {
-            left: toValue(element).offsetLeft,
-            top: toValue(element).offsetTop,
-        }
-        const elementSize = toValue(element).getBoundingClientRect()
-        const positionConstrainedByNewLimits = {
-            ...currentPosition,
-        }
-        if (viewport.value.top > currentPosition.top) {
-            positionConstrainedByNewLimits.top = viewport.value.top
-        }
-        if (viewport.value.bottom < currentPosition.top + elementSize.height) {
-            positionConstrainedByNewLimits.top = viewport.value.bottom - elementSize.height
-        }
-        if (viewport.value.left > currentPosition.left) {
-            positionConstrainedByNewLimits.left = viewport.value.left
-        }
-        if (viewport.value.right < currentPosition.left + elementSize.width) {
-            positionConstrainedByNewLimits.right = viewport.value.right - elementSize.width
-        }
-        if (
-            currentPosition.top !== positionConstrainedByNewLimits.top ||
-            currentPosition.left !== positionConstrainedByNewLimits.left
-        ) {
-            placeElementAt(
-                positionConstrainedByNewLimits.top,
-                positionConstrainedByNewLimits.left,
-                MovementSource.WINDOW_RESIZE
-            )
-        }
+    function constrainElementWithinViewport(deltaX, deltaY) {
+        const el = element
+        const rect = el.getBoundingClientRect()
+
+        const newLeft = clamp(
+            el.offsetLeft + deltaX,
+            viewport.value.left,
+            viewport.value.right - rect.width
+        )
+        const newTop = clamp(
+            el.offsetTop + deltaY,
+            viewport.value.top,
+            viewport.value.bottom - rect.height
+        )
+
+        placeElementAt(newTop, newLeft, MovementSource.WINDOW_RESIZE)
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max))
     }
 }
