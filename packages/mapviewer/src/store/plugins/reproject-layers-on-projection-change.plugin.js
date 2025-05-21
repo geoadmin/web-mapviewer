@@ -29,7 +29,7 @@ const reprojectLayersOnProjectionChangePlugin = (store) => {
                     `starting to reproject the app from ${oldProjection.epsg} to ${newProjection.epsg}`
                 )
                 const reprojectCoordinates = (coordinates = []) => {
-                    if (coordinates.length === 2 && typeof coordinates[0] === 'number') {
+                    if (isDepthOne(coordinates) && typeof coordinates[0] === 'number') {
                         return proj4(oldProjection.epsg, newProjection.epsg, coordinates).map(
                             (value) => newProjection.roundCoordinateValue(value)
                         )
@@ -133,6 +133,19 @@ function reprojectLayerExtent(oldProjection, newProjection, activeLayers, store)
             ...dispatcher,
         })
     }
+}
+
+/**
+ * Verify if the parameter is an array of depth one
+ * 
+ * @param {Array | any} arr 
+ * @returns {boolean} if the arr is an array of depth one
+ */
+function isDepthOne(arr) {
+  if (!Array.isArray(arr)) {
+    return false
+  }
+  return arr.every(item => !Array.isArray(item))
 }
 
 export default reprojectLayersOnProjectionChangePlugin
