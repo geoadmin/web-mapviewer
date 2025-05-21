@@ -159,6 +159,9 @@ onMounted(() => {
 .simple-window {
     $top-margin: calc(2 * $header-height + 2rem);
 
+    touch-action: none; //to mitigate ios overscroll bouncing
+    overscroll-behavior: contain;
+
     .card-body {
         // Limiting height so that it doesn't grow too large on browser with zoom enabled.
         // Tested this value with my browser at 200%, and it still only covered the map (no spill over on the header)
