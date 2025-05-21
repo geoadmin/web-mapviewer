@@ -549,12 +549,32 @@ describe('The Import File Tool', () => {
             fixture: outOfBoundKMLFile,
         })
 
+        const validOnlineUrlWithInvalidContentType = 'https://somes3bucket.com/valid-kml-file.kml'
+        createHeadAndGetIntercepts(
+            validOnlineUrlWithInvalidContentType,
+            'ValidKmlFileWrongContentType',
+            {
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                },
+                statusCode: 200,
+                body: `<kml> This is an empty kml</kml>`,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                },
+                statusCode: 200,
+            }
+        )
+
         cy.goToMapView(
             {
                 layers: [
                     `KML|${outOfBoundKMLUrl}`,
                     `KML|${invalidFileOnlineUrl}`,
                     `KML|${onlineUrlNotReachable}`,
+                    `KML|${validOnlineUrlWithInvalidContentType}`,
                 ].join(';'),
             },
             true
@@ -563,40 +583,72 @@ describe('The Import File Tool', () => {
 
         //---------------------------------------------------------------------
         cy.log('Test invalid external KML file from url parameter')
-        cy.wait([
+
+        // Wait for all network calls to resolve
+        const kmlRequests = [
             '@headInvalidKmlFile',
             '@getInvalidKmlFile',
             '@headUnreachableKmlFile',
             '@getUnreachableKmlFile',
             '@headOutOfBoundKmlFile',
             '@getOutOfBoundKmlFile',
-        ])
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
+            '@headValidKmlFileWrongContentType',
+            '@getValidKmlFileWrongContentType',
+        ]
+        cy.wait(kmlRequests)
+
+        // Expected values per index - this is to avoid having nested
+        // if statements
+        const errorDataMap = {
+            [validOnlineUrlWithInvalidContentType]: {
+                shouldHaveError: false,
+            },
+            [onlineUrlNotReachable]: {
+                shouldHaveError: true,
+                errorMessage: 'file not accessible',
+            },
+            [invalidFileOnlineUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'Invalid file',
+            },
+            [outOfBoundKMLUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'out of projection bounds',
+            },
+        }
+
+        // Validate store and visible layers
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
-            .should('have.length', 3)
-            .each(($layer, index) => {
+            .should('have.length', 4)
+            .each(($layer) => {
+                const url = $layer.attr('data-layer-id')
+                const errorData = errorDataMap[url]
+
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
-                cy.wrap($layer)
-                    .find('[data-cy^="button-has-error"]')
-                    .should('be.visible')
-                    .trigger('mouseover')
-                if (index === 0) {
-                    cy.get(`[data-cy^="floating-button-has-error-${onlineUrlNotReachable}"]`)
+
+                if (errorData.shouldHaveError) {
+                    cy.wrap($layer)
+                        .find('[data-cy^="button-has-error"]')
                         .should('be.visible')
-                        .contains('file not accessible')
-                } else if (index === 1) {
-                    cy.get(`[data-cy^="floating-button-has-error-${invalidFileOnlineUrl}"]`)
+                        .trigger('mouseover')
+
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
                         .should('be.visible')
-                        .contains('Invalid file')
+                        .contains(errorData.errorMessage)
+
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).trigger('mouseout', {
+                        force: true,
+                    })
                 } else {
-                    cy.get(`[data-cy^="floating-button-has-error-${outOfBoundKMLUrl}"]`)
-                        .should('be.visible')
-                        .contains('out of projection bounds')
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
                 }
+
+                // Ensure no spinner is shown
                 cy.wrap($layer)
                     .find('[data-cy^="button-loading-metadata-spinner"]')
                     .should('not.exist')
@@ -604,7 +656,12 @@ describe('The Import File Tool', () => {
 
         //---------------------------------------------------------------------
         // Test removing a layer
-        cy.log('Test removing all invalid kml layer')
+        cy.log('Test removing all kml layer')
+        cy.get(
+            `[data-cy^="button-remove-layer-${validOnlineUrlWithInvalidContentType}"]:visible`
+        ).click({
+            force: true,
+        })
         cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}"]:visible`).click({
             force: true,
         })
@@ -616,8 +673,8 @@ describe('The Import File Tool', () => {
         })
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
-
         //---------------------------------------------------------------------
+
         cy.log('Test online import invalid file')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -717,6 +774,29 @@ describe('The Import File Tool', () => {
             .should('be.visible')
             .contains('file is empty')
         cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
+
+        //----------------------------------------------------------------------
+        // Test the import of a valid online KML with invalid content-type
+        cy.log('Test online import with invalid content-type')
+
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineUrlWithInvalidContentType)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headValidKmlFileWrongContentType', '@getValidKmlFileWrongContentType'])
+
+        //this means the kml was parsed despite the wrong content type
+        cy.get('[data-cy="text-input"]').should('have.class', 'is-invalid')
+
+        //close import menu
+        cy.get('[data-cy="import-file-close-button"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('not.exist')
+
+        //open menu and open import tool again
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('be.visible')
 
         //----------------------------------------------------------------------
         // Test local import error handling
