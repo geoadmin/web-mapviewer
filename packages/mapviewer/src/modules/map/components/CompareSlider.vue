@@ -23,9 +23,7 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const shouldUseWebGlContext = computed(
-    () => visibleLayerOnTop.value.type === LayerTypes.COG
-)
+const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value.type === LayerTypes.COG)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
@@ -35,7 +33,6 @@ watch(storeCompareRatio, (newValue) => {
 watch(
     visibleLayerOnTop,
     (newLayerOnTop, oldLayerOnTop) => {
-
         if (oldLayerOnTop) {
             unRegisterRenderingEvents(oldLayerOnTop.id, oldLayerOnTop.uuid)
         }
@@ -43,7 +40,6 @@ watch(
         if (getLayerFromMapById(newLayerOnTop.id, newLayerOnTop.uuid)) {
             registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
             olMap.render()
-
         } else {
             // The layer config is always modified before the map, which means the
             // visible layer on top according to the config could not exist within
@@ -195,7 +191,7 @@ function releaseSlider() {
 
 <template>
     <div
-        class="compare-slider position-absolute top-0 translate-middle-x h-100 d-inline-block"
+        class="compare-slider position-absolute translate-middle-x h-100 d-inline-block top-0"
         data-cy="compareSlider"
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
@@ -204,12 +200,12 @@ function releaseSlider() {
         @mouseleave="showLayerName = false"
     >
         <FontAwesomeIcon
-            class="compare-slider-caret-left bg-primary text-white rounded-start"
+            class="compare-slider-caret-left bg-primary rounded-start text-white"
             :icon="['fas', 'caret-left']"
         />
         <div class="compare-slider-line" />
         <FontAwesomeIcon
-            class="compare-slider-caret-right bg-primary text-white rounded-end"
+            class="compare-slider-caret-right bg-primary rounded-end text-white"
             :icon="['fas', 'caret-right']"
         />
         <div

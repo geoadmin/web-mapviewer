@@ -44,7 +44,8 @@ const cogSource = createLayerSource()
 const layer = new WebGLTileLayer({
     source: cogSource,
     opacity: opacity.value,
-    id: source.value.url,
+    // local files do not have an url so we take the blob name
+    id: source.value.url ?? source.value.blob?.name,
     uuid: geotiffConfig.uuid,
 })
 
