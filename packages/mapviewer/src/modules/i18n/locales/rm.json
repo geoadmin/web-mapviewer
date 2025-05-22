@@ -110,6 +110,7 @@
     "description": "Descripziun",
     "description_instructions": "Descripziun dil layer WMS",
     "desktop_redirect": "Link tar versiun desktop",
+    "display_on_map": "Mussar sin la charta",
     "display_profile": "Crear in profil",
     "displayed": "Mussà",
     "distance_label": "Distanza",

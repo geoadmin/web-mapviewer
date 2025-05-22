@@ -110,6 +110,7 @@
     "description": "Description",
     "description_instructions": "Description des couches WMS",
     "desktop_redirect": "Lien vers version PC",
+    "display_on_map": "Afficher sur la carte",
     "display_profile": "Afficher le profil",
     "displayed": "Affiché",
     "distance_label": "Distance",

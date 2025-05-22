@@ -70,6 +70,7 @@ export const YELLOW = new FeatureStyleColor('yellow', '#ffff00', '#000000')
 
 export const allStylingColors = [BLACK, BLUE, GRAY, GREEN, ORANGE, RED, WHITE, YELLOW]
 export const FEATURE_FONT_SIZE = 16
+export const FEATURE_FONT_SIZE_SMALL = 14
 export const FEATURE_FONT = 'Helvetica'
 /**
  * Representation of a size for feature style
@@ -323,6 +324,58 @@ export function calculateFeatureTextWidth(text, textScale) {
 }
 
 /**
+ * Returns offset (compared to marker) for text around it, depending on the text position and if the
+ * description should be shown on the map too.
+ *
+ * @param {EditableFeature} editableFeature
+ * @returns {{ top: [number, number]; bottom: [number, number] }}
+ */
+function getElementOffsets(editableFeature) {
+    if (!editableFeature) {
+        return {
+            top: [0, 0],
+            bottom: [0, 0],
+        }
+    }
+
+    const offsetTopElement = [...editableFeature.textOffset]
+    const offsetBottomElement = [...editableFeature.textOffset]
+
+    if (editableFeature.showDescriptionOnMap && editableFeature.description) {
+        const isTextAtBottom = [BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT].includes(
+            editableFeature.textPlacement
+        )
+        const isTextAtCenter = [CENTER, RIGHT, LEFT].includes(editableFeature.textPlacement)
+
+        const descriptionLineWrapCount = editableFeature.description.split('\n').length ?? 0
+        const descriptionBlocHeight = descriptionLineWrapCount * FEATURE_FONT_SIZE_SMALL
+        const extraOffsetTopElement = (descriptionLineWrapCount + 1) * FEATURE_FONT_SIZE_SMALL
+        const extraOffsetBottomElement =
+            descriptionLineWrapCount > 1
+                ? ((descriptionLineWrapCount - 1) * FEATURE_FONT_SIZE_SMALL) / 2.0
+                : 0
+
+        offsetTopElement[1] = offsetTopElement[1] - extraOffsetTopElement
+        offsetBottomElement[1] = offsetBottomElement[1] - extraOffsetBottomElement
+
+        if (isTextAtCenter) {
+            // adding half the height of the description to all offsetY, to better center the elements vertically
+            offsetBottomElement[1] = offsetBottomElement[1] + descriptionBlocHeight / 2.0
+            offsetTopElement[1] = offsetTopElement[1] + descriptionBlocHeight / 2.0
+        }
+        if (isTextAtBottom) {
+            // adding the full height of the description to both elements
+            offsetBottomElement[1] = offsetBottomElement[1] + descriptionBlocHeight
+            offsetTopElement[1] = offsetTopElement[1] + descriptionBlocHeight
+        }
+    }
+    return {
+        top: offsetTopElement,
+        bottom: offsetBottomElement,
+    }
+}
+
+/**
  * Style function that renders a feature with the distinct Geoadmin style. Meaning, by default, all
  * red.
  *
@@ -349,14 +402,17 @@ export function geoadminStyleFunction(feature, resolution) {
     // Tells if we are drawing a polygon for the first time, in this case we want
     // to fill this polygon with a transparent white (instead of red)
     const isDrawing = !!feature.get('isDrawing')
+
+    const { top: offsetTopElement, bottom: offsetBottomElement } =
+        getElementOffsets(editableFeature)
+
     const styles = [
         new Style({
             geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
             image: editableFeature?.generateOpenlayersIcon(),
             text: new Text({
                 text: editableFeature?.title ?? feature.get('name'),
-                //font: editableFeature.font,
-                font: `normal 16px Helvetica`,
+                font: `normal ${FEATURE_FONT_SIZE}px ${FEATURE_FONT}`,
                 fill: new Fill({
                     color: styleConfig.textColor.fill,
                 }),
@@ -365,8 +421,8 @@ export function geoadminStyleFunction(feature, resolution) {
                     width: 3,
                 }),
                 scale: editableFeature?.textSizeScale ?? 1,
-                offsetX: editableFeature?.textOffset[0] ?? 0,
-                offsetY: editableFeature?.textOffset[1] ?? 0,
+                offsetX: offsetTopElement[0],
+                offsetY: offsetTopElement[1],
             }),
             stroke:
                 editableFeature?.featureType === EditableFeatureTypes.MEASURE
@@ -384,6 +440,25 @@ export function geoadminStyleFunction(feature, resolution) {
             zIndex: 10,
         }),
     ]
+    if (editableFeature?.showDescriptionOnMap && editableFeature?.description) {
+        styles.push(
+            new Style({
+                text: new Text({
+                    text: editableFeature.description,
+                    font: `normal ${FEATURE_FONT_SIZE_SMALL}px ${FEATURE_FONT}`,
+                    fill: new Fill({
+                        color: styleConfig.textColor.fill,
+                    }),
+                    stroke: new Stroke({
+                        color: styleConfig.textColor.border,
+                        width: 2,
+                    }),
+                    offsetX: offsetBottomElement[0],
+                    offsetY: offsetBottomElement[1],
+                }),
+            })
+        )
+    }
     const polygonGeom = feature.get('geodesic')?.getGeodesicPolygonGeom()
     if (polygonGeom) {
         styles.push(

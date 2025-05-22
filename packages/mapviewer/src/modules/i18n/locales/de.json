@@ -110,6 +110,7 @@
     "description": "Beschreibung",
     "description_instructions": "Beschreibung des WMS Layers",
     "desktop_redirect": "Link zur Desktop Version",
+    "display_on_map": "Auf der Karte anzeigen",
     "display_profile": "Profil erstellen",
     "displayed": "Angezeigt",
     "distance_label": "Distanz",

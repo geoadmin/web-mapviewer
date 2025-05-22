@@ -420,7 +420,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
     const textColor = getTextColor(style)
-    const textOffset = kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
+    const textOffset = kmlFeature.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
 
     const description = kmlFeature.get('description') ?? ''
 
@@ -449,6 +449,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         title,
         textOffset
     )
+    const showDescriptionOnMap = kmlFeature.get('showDescriptionOnMap') ?? false
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
         // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others
@@ -488,6 +489,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         icon,
         iconSize,
         textPlacement,
+        showDescriptionOnMap,
     })
 }
 
@@ -638,7 +640,7 @@ export function isKmlFeaturesValid(kmlData) {
         const kmlDom = new DOMParser().parseFromString(kmlData, 'text/xml')
         const kmlGeoJson = kmlToGeoJSON(kmlDom, { styles: false })
 
-        const invalidFeatures = kmlGeoJson.features.filter(feature => !booleanValid(feature))
+        const invalidFeatures = kmlGeoJson.features.filter((feature) => !booleanValid(feature))
         const errorsCount = invalidFeatures.length
         if (errorsCount > 0) {
             log.warn(`KML file contains ${errorsCount} invalid feature(s)`)
