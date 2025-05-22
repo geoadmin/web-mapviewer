@@ -127,11 +127,11 @@ function onCurrentIconChange(icon) {
 
         <div
             v-if="currentIconSet && currentIconSet.icons.length > 0"
-            class="icon-selector border-2 bg-light rounded"
+            class="icon-selector bg-light rounded border border-gray-300"
             :class="{ 'transparent-bottom': !showAllSymbols }"
         >
             <div
-                class="rounded d-flex align-items-center p-2"
+                class="d-flex align-items-center rounded p-2"
                 data-cy="drawing-style-toggle-all-icons-button"
                 @click="toggleShowAllSymbols()"
             >
