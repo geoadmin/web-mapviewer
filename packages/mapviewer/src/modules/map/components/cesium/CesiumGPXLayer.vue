@@ -1,4 +1,5 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import {
     BillboardGraphics,
@@ -11,13 +12,12 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
 const { gpxLayerConfig } = defineProps({
     gpxLayerConfig: {
-        type: GPXLayer,
+        validator: (value) => value.type === LayerType.GPX,
         required: true,
     },
 })

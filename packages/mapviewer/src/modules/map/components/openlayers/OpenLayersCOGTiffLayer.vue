@@ -1,4 +1,5 @@
 <script setup>
+import { LayerType } from '@geoadmin/layers'
 import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'
@@ -6,12 +7,11 @@ import TileDebug from 'ol/source/TileDebug'
 import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const { geotiffConfig, parentLayerOpacity, zIndex } = defineProps({
     geotiffConfig: {
-        type: CloudOptimizedGeoTIFFLayer,
+        validator: (value) => value.type === LayerType.COG,
         required: true,
     },
     parentLayerOpacity: {

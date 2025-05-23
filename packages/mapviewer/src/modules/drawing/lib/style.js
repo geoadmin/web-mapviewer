@@ -26,7 +26,9 @@ tooltip:                   40
  */
 export const editingVertexStyleFunction = (vertex) => {
     const associatedFeature = vertex.get('features')[0]
-    if (!associatedFeature) return
+    if (!associatedFeature) {
+        return
+    }
     return associatedFeature.get('editableFeature')?.isLineOrMeasure()
         ? new Style({
               image: sketchPointStyle,

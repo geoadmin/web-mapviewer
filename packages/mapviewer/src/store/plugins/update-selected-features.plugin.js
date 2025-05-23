@@ -26,7 +26,7 @@ const updateSelectedFeaturesPlugin = (store) => {
         // if selected features do not have id of removed layer dont update features
         if (['toggleLayerVisibility'].includes(mutation.type)) {
             const layer = store.state.layers.activeLayers.at(mutation.payload.index)
-            if (layer?.visible) {
+            if (layer?.isVisible) {
                 updateFeatures = true // for toggleLayerVisibility we always update if layer has gone from invisible to visible
                 // if the layer went from visible to invisible we need to check if there are selected features from this layer
             } else {

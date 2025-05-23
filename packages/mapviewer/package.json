@@ -46,6 +46,7 @@
         "@fortawesome/vue-fontawesome": "catalog:",
         "@geoadmin/coordinates": "workspace:*",
         "@geoadmin/elevation-profile": "workspace:*",
+        "@geoadmin/layers": "workspace:*",
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:*",
         "@geoadmin/tooltip": "workspace:*",
@@ -94,6 +95,7 @@
         "@prettier/plugin-xml": "catalog:",
         "@rushstack/eslint-patch": "catalog:",
         "@tailwindcss/vite": "catalog:",
+        "@types/lodash": "catalog:",
         "@vitejs/plugin-basic-ssl": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
@@ -121,6 +123,7 @@
         "vite-node": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"
