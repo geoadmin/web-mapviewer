@@ -335,8 +335,9 @@ async function getAndDispatchFeatures(
             }
         }
     } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        log.error(`Error while processing features in feature preselection. error is ${error}`)
+        log.error(
+            `Error while processing features in feature preselection. error is ${error?.toString()}`
+        )
     }
 }
 

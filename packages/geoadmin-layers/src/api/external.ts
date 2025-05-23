@@ -56,7 +56,7 @@ export async function readWmsCapabilities(
         response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error: any) {
         throw new CapabilitiesError(
-            `Failed to get WMS Capabilities: ${error?.message}`,
+            `Failed to get WMS Capabilities: ${error?.toString()}`,
             'network_error'
         )
     }
@@ -85,7 +85,7 @@ export function parseWmsCapabilities(
         return new ExternalWMSCapabilitiesParser(content, originUrl)
     } catch (error: any) {
         throw new CapabilitiesError(
-            `Failed to parse WMS capabilities: ${error?.message}`,
+            `Failed to parse WMS capabilities: ${error?.toString()}`,
             'invalid_wms_capabilities'
         )
     }
@@ -145,7 +145,7 @@ export function parseWmtsCapabilities(
         return new ExternalWMTSCapabilitiesParser(content, originUrl)
     } catch (error: any) {
         throw new CapabilitiesError(
-            `Failed to parse WMTS capabilities: ${error?.message}`,
+            `Failed to parse WMTS capabilities: ${error?.toString()}`,
             'invalid_wmts_capabilities'
         )
     }

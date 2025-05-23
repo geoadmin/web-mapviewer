@@ -14,7 +14,9 @@ export const clicked3DFeatureFill = Color.fromCssColorString('rgba(220, 0, 24, 0
 const highlightedStrokeWidth = 3
 
 export function highlightSelectedArea(viewer, geometry) {
-    if (!geometry) return
+    if (!geometry) {
+        return
+    }
     let coordinates = geometry.coordinates
     let type = geometry.type
     switch (type) {
@@ -42,7 +44,9 @@ export function highlightGroup(viewer, geometries) {
 
 export function highlightPolygon(viewer, coordinates) {
     coordinates = coordinates[0]
-    if (!coordinates.length) return
+    if (!coordinates.length) {
+        return
+    }
     let entity
     const createPolygon = (coords) => {
         const convertedCoords = coords.map((c) => {
