@@ -47,16 +47,16 @@ export function encodeExternalLayerParam(param: string) {
 }
 
 const validateBaseData = (values: Partial<Layer>): void => {
-    if (values.name === null) {
+    if (!values.name) {
         throw new InvalidLayerDataError('Missing layer name', values)
     }
-    if (values.id === null) {
+    if (!values.id) {
         throw new InvalidLayerDataError('Missing layer ID', values)
     }
-    if (values.type === null) {
+    if (!values.type) {
         throw new InvalidLayerDataError('Missing layer type', values)
     }
-    if (values.baseUrl === null) {
+    if (!values.baseUrl) {
         throw new InvalidLayerDataError('Missing base URL', values)
     }
 }
@@ -466,7 +466,6 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         isLocalFile,
         fileSource: null,
         data: null,
-        noDataValue: null,
         extent: null,
         name: fileName,
         id: fileSource,

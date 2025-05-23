@@ -1,6 +1,5 @@
 import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
-import { LayerType } from '@geoadmin/layers'
-import { CURRENT_YEAR_TIMESTAMP, ALL_YEARS_TIMESTAMP } from '@geoadmin/layers'
+import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
@@ -176,8 +175,6 @@ export async function identifyOnGeomAdminLayer({
 }
 
 /**
- * // TODO adjust this
- *
  * @param {ExternalLayer} config.layer
  * @param {[Number, Number]} config.coordinate Point where we want to have a getFeatureInfo request
  *   being triggered
@@ -545,13 +542,7 @@ export const identify = (config) => {
             log.error('Invalid screen size', screenWidth, screenHeight)
             reject(new Error('Needs valid screen width and height to run identification'))
         }
-        if (
-            // TODO come here again
-            [LayerType.WMTS, LayerType.WMS, LayerType.GeoJSON, LayerType.COG].includes(
-                layer.type
-            ) &&
-            !layer.isExternal
-        ) {
+        if (!layer.isExternal) {
             identifyOnGeomAdminLayer({
                 layer,
                 projection,

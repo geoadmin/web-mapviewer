@@ -10,16 +10,19 @@ import {
 } from '@/types'
 
 export const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
-    !!timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
+    timeConfig.timeEntries.some((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
 
-export const getTimeEntryForYear = (timeConfig: LayerTimeConfig, year: number) =>
-    timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => entry.year === year) ?? null
+export const getTimeEntryForYear = (
+    timeConfig: LayerTimeConfig,
+    year: number
+): LayerTimeConfigEntry | undefined =>
+    timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => entry.year === year)
 
 export const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
     entry: LayerTimeConfigEntry | string
 ) => {
-    let currentTimeEntry
+    let currentTimeEntry: LayerTimeConfigEntry | undefined
 
     if (typeof entry === 'string') {
         currentTimeEntry = timeConfig.timeEntries.find((e) => e.timestamp === entry)
@@ -28,9 +31,10 @@ export const updateCurrentTimeEntry = (
     }
 
     timeConfig.currentTimeEntry = currentTimeEntry
-
-    timeConfig.currentTimestamp = timeConfig.currentTimeEntry?.timestamp
-    timeConfig.currentYear = timeConfig.currentTimeEntry?.year
+    if (currentTimeEntry) {
+        timeConfig.currentTimestamp = currentTimeEntry.timestamp
+        timeConfig.currentYear = currentTimeEntry.year
+    }
 }
 
 export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
