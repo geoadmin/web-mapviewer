@@ -1,10 +1,11 @@
 <script setup>
 import { validateLayerProp } from '@geoadmin/layers'
+import { getGeoadminLayerDescription } from '@geoadmin/layers/api'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { getLayerDescription } from '@/api/layers/layers.api'
+import { ENVIRONMENT } from '@/config/staging.config'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const { layer, layerId, layerName } = defineProps({
@@ -40,7 +41,11 @@ watch(
     () => layer,
     async (newLayer) => {
         if (!isExternal.value && layer) {
-            htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
+            htmlContent.value = await getGeoadminLayerDescription(
+                currentLang.value,
+                newLayer.id,
+                ENVIRONMENT
+            )
         }
     }
 )
@@ -49,16 +54,16 @@ watch(
     () => layerId,
     async (newLayerId) => {
         if (!isExternal.value && layerId) {
-            htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
+            htmlContent.value = await getGeoadminLayerDescription(currentLang.value, newLayerId)
         }
     }
 )
 
 onMounted(async () => {
     if (!isExternal.value && layer) {
-        htmlContent.value = await getLayerDescription(currentLang.value, layer.id)
+        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layer.id)
     } else if (!isExternal.value && layerId) {
-        htmlContent.value = await getLayerDescription(currentLang.value, layerId)
+        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layerId)
     }
 })
 </script>
@@ -130,7 +135,7 @@ onMounted(async () => {
                 </div>
 
                 <div
-                    class="mt-2 text-primary text-end"
+                    class="text-primary mt-2 text-end"
                     data-cy="layer-description-popup-attributions"
                 >
                     <span class="me-1">{{ t('copyright_data') }}</span>

@@ -1,6 +1,7 @@
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import {
     type Layer,
     DEFAULT_OPACITY,
@@ -24,10 +25,6 @@ import {
 } from '@/types/layers'
 import * as timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
-
-// TODO this is taken from map.config.js. We don't want coupling to that module, so think about
-// handling this
-const DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION = 0.5 // meters/pixel
 
 export const EMPTY_KML_DATA = '<kml></kml>'
 
@@ -389,7 +386,7 @@ export const makeGeoAdminVectorLayer = (
         timeConfig: null,
         topics: [],
         searchable: false,
-        isSpecificFor3d: false
+        isSpecificFor3d: false,
     }
 
     return merge(defaults, omit(values, 'attributions'))
@@ -522,7 +519,7 @@ export const makeGeoAdminAggregateLayer = (
         isHighlightable: false,
         topics: [],
         searchable: false,
-        isSpecificFor3d: false
+        isSpecificFor3d: false,
     }
     return merge(defaults, values)
 }
@@ -566,7 +563,7 @@ export const makeGeoAdminGeoJSONLayer = (
         isHighlightable: false,
         searchable: false,
         topics: [],
-        isSpecificFor3d: false
+        isSpecificFor3d: false,
     }
 
     return merge(defaults, values)
@@ -577,13 +574,16 @@ export const makeGeoAdminGeoJSONLayer = (
  *
  * This is a helper that can work with a subset of the GeoAdminGeoJSONLayer properties. The missing
  * values from the function parameter will be used from defaults
+ *
  * @param values Partial values of GeoAdminGroupOfLayers
  * @returns GeoAdminGroupOfLayers
  */
-export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers => {
+export const makeGeoAdminGroupOfLayers = (
+    values: Partial<GeoAdminGroupOfLayers>
+): GeoAdminGroupOfLayers => {
     validateBaseData(values)
 
-    const defaults =  {
+    const defaults = {
         uuid: uuidv4(),
         layers: [],
         name: '',
@@ -600,7 +600,7 @@ export const makeGeoAdminGroupOfLayers = (values: Partial<GeoAdminGroupOfLayers>
         isLoading: false,
         timeConfig: null,
         hasError: false,
-        hasWarning: false
+        hasWarning: false,
     }
 
     return merge(defaults, values)
@@ -617,9 +617,9 @@ export const makeAggregateSubLayer = (values: Partial<AggregateSubLayer>): Aggre
         throw new InvalidLayerDataError('Must provide a layer for the aggregate sublayer', values)
     }
 
-    const defaults =  {
+    const defaults = {
         minResolution: 0,
-        maxResolution: 0
+        maxResolution: 0,
     }
 
     return merge(defaults, values as AggregateSubLayer)
@@ -651,6 +651,7 @@ export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer) {
 
 /**
  * Clone a layer but give it a new uuid
+ *
  * @param layer
  * @returns Layer
  */

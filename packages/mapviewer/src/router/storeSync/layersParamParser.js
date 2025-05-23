@@ -1,13 +1,10 @@
 import { LayerType, KmlStyle } from '@geoadmin/layers'
+import { decodeExternalLayerParam, encodeExternalLayerParam } from '@geoadmin/layers/api'
 import { timeConfigUtils } from '@geoadmin/layers/utils'
 import { isNumber } from '@geoadmin/numbers'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import KmlStyles from '@/api/layers/KmlStyles.enum'
-import {
-    decodeExternalLayerParam,
-    encodeExternalLayerParam,
-} from '@/api/layers/layers-external.api'
 
 const ENC_COMMA = '%2C'
 const ENC_SEMI_COLON = '%3B'
