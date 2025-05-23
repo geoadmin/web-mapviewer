@@ -1,10 +1,45 @@
-import { type LayerAttribution, LayerType, type GeoAdminGeoJSONLayer, type GeoAdminLayer, type AggregateSubLayer } from '@geoadmin/layers'
-import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { getApi3BaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config/map.config'
+import {
+    BASE_URL_DEV,
+    BASE_URL_INT,
+    BASE_URL_PROD,
+    DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
+    type Staging,
+    WMTS_BASE_URL_DEV,
+    WMTS_BASE_URL_INT,
+    WMTS_BASE_URL_PROD,
+} from '@/config'
+import {
+    type AggregateSubLayer,
+    type GeoAdminLayer,
+    type LayerAttribution,
+    LayerType,
+} from '@/index'
+import { layerUtils, timeConfigUtils } from '@/utils'
+
+function getWmtsBaseUrlForStaging(staging: Staging = 'production'): string {
+    switch (staging) {
+        case 'development':
+            return WMTS_BASE_URL_DEV
+        case 'integration':
+            return WMTS_BASE_URL_INT
+        default:
+            return WMTS_BASE_URL_PROD
+    }
+}
+
+function getApi3BaseUrlForStaging(staging: Staging = 'production'): string {
+    switch (staging) {
+        case 'development':
+            return BASE_URL_DEV
+        case 'integration':
+            return BASE_URL_INT
+        default:
+            return BASE_URL_PROD
+    }
+}
 
 const _urlWithTrailingSlash = (baseUrl: string): string => {
     if (baseUrl && !baseUrl.endsWith('/')) {
@@ -19,21 +54,16 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
  * Transform the backend metadata JSON object into instances of {@link GeoAdminLayer}, instantiating
  * the correct type of layer for each entry ({@link GeoAdminAggregateLayer},
  * {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
- *
- * @param layerConfig
- * @param id
- * @param allOtherLayers
- * @param lang
- * @returns {GeoAdminLayer}
  */
-const generateClassForLayerConfig = (
+function generateClassForLayerConfig(
     layerConfig: Record<string, any>,
     id: string,
     allOtherLayers: Record<string, any>,
-    lang: string
-): GeoAdminLayer | null => {
+    lang: string,
+    staging: Staging = 'production'
+): GeoAdminLayer | undefined {
     if (!layerConfig) {
-        return null
+        return
     }
     const {
         serverLayerName,
@@ -77,11 +107,11 @@ const generateClassForLayerConfig = (
             log.info('Vector layer format is TBD in our backends')
             break
         case 'wmts': {
-            const layer = layerUtils.makeGeoAdminWMTSLayer({
+            return layerUtils.makeGeoAdminWMTSLayer({
                 type: LayerType.WMTS,
                 name,
                 id,
-                baseUrl: _urlWithTrailingSlash(getWmtsBaseUrl()),
+                baseUrl: _urlWithTrailingSlash(getWmtsBaseUrlForStaging(staging)),
                 idIn3d: layerConfig.config3d ?? null,
                 technicalName: serverLayerName,
                 opacity,
@@ -98,10 +128,9 @@ const generateClassForLayerConfig = (
                     layerConfig.resolutions?.slice(-1)[0] ?? DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
                 hasDescription: true,
             })
-            return layer
         }
         case 'wms': {
-            const layer = layerUtils.makeGeoAdminWMSLayer({
+            return layerUtils.makeGeoAdminWMSLayer({
                 type: LayerType.WMS,
                 name,
                 id: id,
@@ -123,10 +152,9 @@ const generateClassForLayerConfig = (
                 hasLegend: !!hasLegend,
                 searchable: !!searchable,
             })
-            return layer
         }
         case 'geojson': {
-            const layer: GeoAdminGeoJSONLayer = layerUtils.makeGeoAdminGeoJSONLayer({
+            return layerUtils.makeGeoAdminGeoJSONLayer({
                 type: LayerType.GEOJSON,
                 name,
                 id,
@@ -145,7 +173,6 @@ const generateClassForLayerConfig = (
                 hasError: false,
                 hasWarning: false,
             })
-            return layer
         }
         case 'aggregate': {
             // here it's a bit tricky, the aggregate layer has a main entry in the layers config (with everything as usual)
@@ -174,11 +201,12 @@ const generateClassForLayerConfig = (
                 const subLayerRawConfig = allOtherLayers[subLayerId]
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                 // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
-                const subLayer: GeoAdminLayer | null = generateClassForLayerConfig(
+                const subLayer = generateClassForLayerConfig(
                     subLayerRawConfig,
                     subLayerRawConfig.serverLayerName,
                     allOtherLayers,
-                    lang
+                    lang,
+                    staging
                 )
                 if (subLayer) {
                     subLayers.push(
@@ -186,12 +214,12 @@ const generateClassForLayerConfig = (
                             subLayerId,
                             layer: subLayer,
                             minResolution: subLayerRawConfig.minResolution,
-                            maxResolution: subLayerRawConfig.maxResolution
+                            maxResolution: subLayerRawConfig.maxResolution,
                         })
                     )
                 }
             })
-            const layer = layerUtils.makeGeoAdminAggregateLayer({
+            return layerUtils.makeGeoAdminAggregateLayer({
                 name,
                 id,
                 opacity,
@@ -205,13 +233,11 @@ const generateClassForLayerConfig = (
                 hasLegend: !!hasLegend,
                 searchable,
             })
-
-            return layer
         }
         default:
             log.error('Unknown layer type', type)
     }
-    return null
+    return
 }
 
 /**
@@ -219,12 +245,19 @@ const generateClassForLayerConfig = (
  *
  * @param {String} lang The language in which the legend should be rendered
  * @param {String} layerId The unique layer ID used in our backends
+ * @param {Staging} staging
  * @returns {Promise<String>} HTML content of the layer's legend
  */
-export const getLayerDescription = (lang: string, layerId: string) => {
+export function getGeoadminLayerDescription(
+    lang: string,
+    layerId: string,
+    staging: Staging = 'production'
+): Promise<String> {
     return new Promise((resolve, reject) => {
         axios
-            .get(`${getApi3BaseUrl()}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
+            .get(
+                `${getApi3BaseUrlForStaging(staging)}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
+            )
             .then((response) => resolve(response.data))
             .catch((error) => {
                 log.error('Error while retrieving the legend for the layer', layerId, error)
@@ -237,45 +270,43 @@ export const getLayerDescription = (lang: string, layerId: string) => {
  * Loads the layer config from the backend and transforms it in classes defined in this API file
  *
  * @param {String} lang The ISO code for the lang in which the config should be loaded (required)
- * @returns {Promise<GeoAdminLayer[]>}
+ * @param {Staging} staging
  */
-export const loadLayersConfigFromBackend = (lang: string) => {
+export function loadGeoadminLayersConfig(
+    lang: string,
+    staging: Staging = 'production'
+): Promise<GeoAdminLayer[]> {
     return new Promise((resolve, reject) => {
-        if (!getApi3BaseUrl()) {
-            // this could happen if we are testing the app in unit tests, we simply reject and do nothing
-            reject(new Error('API base URL is undefined'))
-        } else {
-            const layersConfig: any[] = []
-            axios
-                .get(`${getApi3BaseUrl()}rest/services/all/MapServer/layersConfig?lang=${lang}`)
-                .then(({ data: rawLayersConfig }) => {
-                    if (Object.keys(rawLayersConfig).length > 0) {
-                        Object.keys(rawLayersConfig).forEach((rawLayerId) => {
-                            const rawLayer = rawLayersConfig[rawLayerId]
-                            const layer = generateClassForLayerConfig(
-                                rawLayer,
-                                rawLayerId,
-                                rawLayersConfig,
-                                lang
-                            )
-                            if (layer) {
-                                layersConfig.push(layer)
-                            }
-                        })
-                        resolve(layersConfig)
-                    } else {
-                        reject(
-                            new Error(
-                                'LayersConfig loaded from backend is not an defined or is empty'
-                            )
+        const layersConfig: any[] = []
+        axios
+            .get(
+                `${getApi3BaseUrlForStaging(staging)}rest/services/all/MapServer/layersConfig?lang=${lang}`
+            )
+            .then(({ data: rawLayersConfig }) => {
+                if (Object.keys(rawLayersConfig).length > 0) {
+                    Object.keys(rawLayersConfig).forEach((rawLayerId) => {
+                        const rawLayer = rawLayersConfig[rawLayerId]
+                        const layer = generateClassForLayerConfig(
+                            rawLayer,
+                            rawLayerId,
+                            rawLayersConfig,
+                            lang
                         )
-                    }
-                })
-                .catch((error) => {
-                    const message = 'Error while loading layers config from backend'
-                    log.error(message, error)
-                    reject(new Error(message))
-                })
-        }
+                        if (layer) {
+                            layersConfig.push(layer)
+                        }
+                    })
+                    resolve(layersConfig)
+                } else {
+                    reject(
+                        new Error('LayersConfig loaded from backend is not an defined or is empty')
+                    )
+                }
+            })
+            .catch((error) => {
+                const message = 'Error while loading layers config from backend'
+                log.error(message, error)
+                reject(new Error(message))
+            })
     })
 }

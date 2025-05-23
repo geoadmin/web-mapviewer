@@ -213,7 +213,7 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     extent?: [number, number, number, number]
 }
 
-export type KmlMetadata = {
+export interface KmlMetadata {
     id: string
     adminId?: string
     links: [
@@ -259,18 +259,18 @@ export interface KMLLayer extends Layer {
     linkFiles: Map<String, ArrayBuffer>
 }
 
-export type GPXLink = {
+export interface GPXLink {
     text?: string
     type?: string
 }
 
-export type GPXAuthor = {
+export interface GPXAuthor {
     name?: string
     email?: string
     link?: GPXLink
 }
 
-export type GPXMetadata = {
+export interface GPXMetadata {
     name?: string
     desc?: string
     author?: GPXAuthor
@@ -313,7 +313,7 @@ export interface TileMatrixSet {
     tileMatrix: any // TODO type this properly
 }
 
-export type BoundingBox = {
+export interface BoundingBox {
     lowerCorner?: [number, number]
     upperCorner?: [number, number]
     extent?: [number, number, number, number]
