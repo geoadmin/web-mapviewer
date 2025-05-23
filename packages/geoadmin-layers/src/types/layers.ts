@@ -34,7 +34,7 @@ export interface LayerLegend {
 
 /** @interface Layer */
 export interface Layer {
-    /** An unique identifier for each object of this interface * */
+    /** A unique identifier for each object of this interface * */
     uuid: string
     /** Name of this layer in the current lang */
     name: string
@@ -80,13 +80,14 @@ export interface Layer {
      */
     customAttributes?: Record<string, string>
 
-    // new fields that weren't specified in AbstractLayer's Constructor
+    /** List of error linked to this layer (i.e. network error, unparsable data, etc...) */
     errorMessages?: Set<ErrorMessage>
+    /** List of warning linked to this layer (i.e. malformed (but usable) data, etc...) */
     warningMessages?: Set<WarningMessage>
     hasError: boolean
     hasWarning: boolean
 
-    /* The admin id to allow editing. If null then the user is not allowed to edit the file. */
+    /* The admin id to allow editing. If not set, the user is not allowed to edit the file. */
     adminId?: string
 }
 
@@ -102,23 +103,23 @@ export interface GeoAdminLayer extends Layer {
      * if the backend will provide valuable information on the
      * {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint).
      */
-    isHighlightable: boolean
+    readonly isHighlightable: boolean
     /** All the topics in which belongs this layer. */
-    topics: string[]
+    readonly topics: string[]
     /** Define if this layer's features can be searched through the search bar. */
-    searchable: boolean
+    readonly searchable: boolean
     /**
      * The ID/name to use when requesting the WMS backend, this might be different than id, and many
      * layers (with different id) can in fact request the same layer, through the same technical
      * name, in the end)
      */
-    technicalName?: string
+    readonly technicalName?: string
     /**
      * The layer ID to be used as substitute for this layer when we are showing the 3D map. Will be
      * using the same layer if this is set to null.
      */
-    idIn3d?: string
-    isSpecificFor3d: boolean
+    readonly idIn3d?: string
+    readonly isSpecificFor3d: boolean
     /* oh OK this is determined by the _3d suffix. Why then isn't it made a 3d layer? */
 }
 
@@ -132,17 +133,17 @@ export interface GeoAdminWMSLayer extends GeoAdminLayer {
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
      * if unset this layer will be a considered a single tile WMS.
      */
-    gutter: number
+    readonly gutter: number
     /** Version of the WMS protocol to use while requesting images on this layer. */
-    wmsVersion: string
+    readonly wmsVersion: string
     /**
      * The lang ISO code to use when requesting the backend (WMS images can have text that are
      * language dependent).
      */
-    lang: string
+    readonly lang: string
     /** In which image format the backend must be requested. */
-    format: 'png' | 'jpeg'
-    type: LayerType.WMS
+    readonly format: 'png' | 'jpeg'
+    readonly type: LayerType.WMS
 }
 
 /**
@@ -152,80 +153,77 @@ export interface GeoAdminWMSLayer extends GeoAdminLayer {
  */
 export interface GeoAdminWMTSLayer extends GeoAdminLayer {
     /** If this layer should be treated as a background layer. */
-    isBackground: boolean
+    readonly isBackground: boolean
     /** Define the maximum resolution the layer can reach */
-    maxResolution: number
+    readonly maxResolution: number
     /** In which image format the backend must be requested. */
-    format: 'png' | 'jpeg'
-    type: LayerType.WMTS
+    readonly format: 'png' | 'jpeg'
+    readonly type: LayerType.WMTS
 }
 
 export interface GeoAdmin3DLayer extends GeoAdminLayer {
-    type: LayerType.VECTOR
-    technicalName: string
+    readonly type: LayerType.VECTOR
+    readonly technicalName: string
     /* If the JSON file stored in the /3d-tiles/ sub-folder on the S3 bucket */
-    use3dTileSubFolder: boolean
+    readonly use3dTileSubFolder: boolean
     /* If this layers' JSON is stored in a
        dedicated timed folder, it can be described with this property. This will be added at the
        end of the URL, before the /tileset.json (or /style.json, depending on the layer type) */
-    urlTimestampToUse?: boolean
+    readonly urlTimestampToUse?: boolean
 }
 
 export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
-    type: LayerType.GEOJSON
+    readonly type: LayerType.GEOJSON
     /* Delay after which the data of this layer
         should be re-requested (if null is given, no further data reload will be triggered). A good
         example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null` */
     updateDelay?: number
     /* The URL to use to request the styling to apply to the data */
-    styleUrl: string
+    readonly styleUrl: string
     /* The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
-    geoJsonUrl: string
+    readonly geoJsonUrl: string
     geoJsonStyle?: {
         type: string
         ranges: number[]
     }
     geoJsonData?: string
-    technicalName: string
-    isExternal: false
+    readonly technicalName: string
+    readonly isExternal: false
 }
 
 export interface GeoAdminVectorLayer extends GeoAdminLayer {
-    type: LayerType.VECTOR
-    technicalName: string
-    attributions: LayerAttribution[]
-    isBackground: boolean
+    readonly type: LayerType.VECTOR
+    readonly technicalName: string
+    readonly attributions: LayerAttribution[]
+    readonly isBackground: boolean
 }
 
 // #endregion
 
 // #region: File Type Layers
 export interface CloudOptimizedGeoTIFFLayer extends Layer {
-    type: LayerType.COG
-    isLocalFile: boolean
-    fileSource?: string
+    readonly type: LayerType.COG
+    readonly isLocalFile: boolean
+    readonly fileSource?: string
     /* Data/content of the COG file, as a string. */
     data?: string | Blob
-    /* Which value will be describing the absence of data in this COG. Will be used to create
-      transparency whenever this value is present. */
-    noDataValue?: number
     /* The extent of this COG. */
     extent?: [number, number, number, number]
 }
 
 export interface KmlMetadata {
-    id: string
-    adminId?: string
+    readonly id: string
+    readonly adminId?: string
     links: [
         {
             metadata: string
             kml: string
         },
     ]
-    created: Date
+    readonly created: Date
     updated: Date
-    author: string
-    authorVersion: string
+    readonly author: string
+    readonly authorVersion: string
 }
 
 export enum KmlStyle {
@@ -283,7 +281,7 @@ export interface GPXMetadata {
 
 export interface GPXLayer extends Layer {
     /* URL to the GPX file (can also be a local file URI) */
-    gpxFileUrl?: string
+    readonly gpxFileUrl?: string
     /* Data/content of the GPX file, as a string. */
     gpxData?: string
     /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
@@ -295,18 +293,18 @@ export interface GPXLayer extends Layer {
 // #region: external layers
 export interface WMTSDimension {
     /* Dimension identifier */
-    id: string
+    readonly id: string
     /* Dimension default value */
-    default: string
+    readonly default: string
     /* All dimension values */
-    values: string[]
+    readonly values: string[]
     /* Boolean flag if the dimension support current (see WMTS OGC spec) */
     current?: boolean
 }
 
 export interface TileMatrixSet {
     /* Identifier of the tile matrix set (see WMTS OGC spec) */
-    id: string
+    readonly id: string
     /* Coordinate system supported by the Tile Matrix Set */
     projection: CoordinateSystem
     /* TileMatrix from GetCapabilities (see WMTS OGC spec) */
@@ -314,11 +312,11 @@ export interface TileMatrixSet {
 }
 
 export interface BoundingBox {
-    lowerCorner?: [number, number]
-    upperCorner?: [number, number]
-    extent?: [number, number, number, number]
-    crs?: string
-    dimensions?: number
+    readonly lowerCorner?: [number, number]
+    readonly upperCorner?: [number, number]
+    readonly extent?: [number, number, number, number]
+    readonly crs?: string
+    readonly dimensions?: number
 }
 
 export type LayerExtent =
@@ -335,60 +333,60 @@ export enum WMTSEncodingType {
 }
 
 export interface ExternalWMTSLayer extends Layer {
-    /* Abstract of this layer to be shown to the   user. */
-    abstract?: string
-    extent?: LayerExtent
+    /* Abstract of this layer to be shown to the user. */
+    readonly abstract?: string
+    readonly extent?: LayerExtent
     /* Layer legends. */
-    legends?: LayerLegend[]
+    readonly legends?: LayerLegend[]
     /* All projection that can be used to request this layer. */
-    availableProjections?: CoordinateSystem[]
+    readonly availableProjections?: CoordinateSystem[]
     /* WMTS Get Capabilities options */
-    options?: Options
+    readonly options?: Options
     /* WMTS Get Tile encoding (KVP or REST). */
-    getTileEncoding: WMTSEncodingType
+    readonly getTileEncoding: WMTSEncodingType
     /* WMTS Get Tile url template for REST encoding. */
-    urlTemplate: string
+    readonly urlTemplate: string
     /* WMTS layer style. If no style is given here, and no style is found in the options, the 'default' style will be used. */
-    style?: string
+    readonly style?: string
     /* WMTS tile matrix sets */
-    tileMatrixSets?: TileMatrixSet[]
+    readonly tileMatrixSets?: TileMatrixSet[]
     /* WMTS tile dimensions */
-    dimensions?: WMTSDimension[]
+    readonly dimensions?: WMTSDimension[]
     /* Current year of the time series config to use. This parameter is needed as it is set in the
        URL while the timeConfig parameter is not yet available and parse later on from the
        GetCapabilities. */
     currentYear?: number
-    type: LayerType.WMTS
+    readonly type: LayerType.WMTS
 }
 
 export interface WMSDimension {
-    id: string
-    dft: string
-    values?: string[]
-    current?: boolean
+    readonly id: string
+    readonly dft: string
+    readonly values?: string[]
+    readonly current?: boolean
 }
 
 export interface ExternalWMSLayer extends Layer {
     /* Abstract of this layer to be shown to the user. */
-    abstract?: string
+    readonly abstract?: string
     /* WMS Dimensions */
-    dimensions: WMSDimension[]
+    readonly dimensions: WMSDimension[]
     /*All projection that can   be used to request this layer. */
-    availableProjections?: CoordinateSystem[]
+    readonly availableProjections?: CoordinateSystem[]
     /* Configuration describing how to request this layer's server to get feature information. */
-    getFeatureInfoCapability?: any
+    readonly getFeatureInfoCapability?: any
     /* The custom attributes (except the well known updateDelays, adminId, features and year)
        passed with the layer id in url. */
-    customAttributes?: Record<string, any>
+    readonly customAttributes?: Record<string, any>
     /* Description of the layers being part of this WMS layer (they will all be displayed at the
        same time, in contrast to an aggregate layer) */
-    layers?: ExternalWMSLayer[]
+    readonly layers?: ExternalWMSLayer[]
     /* WMS protocol version to be used when querying this server.  */
-    wmsVersion: string
-    format: 'png' | 'jpeg'
-    extent?: LayerExtent
+    readonly wmsVersion: string
+    readonly format: 'png' | 'jpeg'
+    readonly extent?: LayerExtent
     /* Layer legends */
-    legends?: LayerLegend[]
+    readonly legends?: LayerLegend[]
     /* Current year of the time series config to use. This parameter is needed as it is set in the
        URL while the timeConfig parameter is not yet available and parse later on from the
        GetCapabilities. */
@@ -401,25 +399,25 @@ export interface ExternalWMSLayer extends Layer {
 
 export interface AggregateSubLayer {
     /* The ID used in the GeoAdmin's backend to describe this sub-layer */
-    subLayerId?: string
+    readonly subLayerId?: string
     /* The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a  {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer}) */
-    layer: GeoAdminLayer
+    readonly layer: GeoAdminLayer
     /* In meter/px, at which resolution this sub-layer should start to  be visible */
-    minResolution: number
+    readonly minResolution: number
     /* In meter/px, from which resolution the layer should be hidden */
-    maxResolution: number
+    readonly maxResolution: number
 }
 
 export interface GeoAdminAggregateLayer extends GeoAdminLayer {
-    type: LayerType.AGGREGATE
-    baseUrl: ''
-    subLayers: AggregateSubLayer[]
+    readonly type: LayerType.AGGREGATE
+    readonly baseUrl: ''
+    readonly subLayers: AggregateSubLayer[]
 }
 
 export interface GeoAdminGroupOfLayers extends Layer {
     /* Description of the layers being part of this group */
-    layers: GeoAdminLayer[]
-    type: LayerType.GROUP
+    readonly layers: GeoAdminLayer[]
+    readonly type: LayerType.GROUP
 }
 
 // #endregion

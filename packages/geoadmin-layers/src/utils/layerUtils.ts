@@ -3,25 +3,25 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import {
-    type Layer,
-    DEFAULT_OPACITY,
-    type GeoAdminLayer,
-    WMTSEncodingType,
-    LayerType,
-    type ExternalWMTSLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type ExternalWMSLayer,
-    type KMLLayer,
-    KmlStyle,
-    type GPXLayer,
-    type GeoAdminVectorLayer,
-    type GeoAdmin3DLayer,
+    type AggregateSubLayer,
     type CloudOptimizedGeoTIFFLayer,
+    DEFAULT_OPACITY,
+    type ExternalWMSLayer,
+    type ExternalWMTSLayer,
+    type GeoAdmin3DLayer,
     type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
     type GeoAdminGroupOfLayers,
-    type AggregateSubLayer,
+    type GeoAdminLayer,
+    type GeoAdminVectorLayer,
+    type GeoAdminWMSLayer,
+    type GeoAdminWMTSLayer,
+    type GPXLayer,
+    type KMLLayer,
+    KmlStyle,
+    type Layer,
+    LayerType,
+    WMTSEncodingType,
 } from '@/types/layers'
 import * as timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
@@ -47,17 +47,11 @@ export function encodeExternalLayerParam(param: string) {
 }
 
 const validateBaseData = (values: Partial<Layer>): void => {
-    if (values.name === null) {
+    if (!values.name) {
         throw new InvalidLayerDataError('Missing layer name', values)
     }
-    if (values.id === null) {
+    if (!values.id) {
         throw new InvalidLayerDataError('Missing layer ID', values)
-    }
-    if (values.type === null) {
-        throw new InvalidLayerDataError('Missing layer type', values)
-    }
-    if (values.baseUrl === null) {
-        throw new InvalidLayerDataError('Missing base URL', values)
     }
 }
 
@@ -71,17 +65,13 @@ const validateBaseData = (values: Partial<Layer>): void => {
  * @returns GeoAdminWMSLayer
  */
 export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer => {
-    validateBaseData(values)
     const defaults = {
         uuid: uuidv4(),
-        id: '',
-        name: '',
         isExternal: false,
-        type: LayerType.WMS as LayerType.WMS,
+        type: LayerType.WMS,
         opacity: DEFAULT_OPACITY,
         isVisible: true,
         isLoading: false,
-        baseUrl: '',
         gutter: 0,
         wmsVersion: '1.3.0',
         lang: 'en',
@@ -97,10 +87,11 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
         hasDescription: true,
         hasError: false,
         hasWarning: false,
-        timeConfig: null,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer as GeoAdminWMSLayer
 }
 
 /**
@@ -113,19 +104,15 @@ export const makeGeoAdminWMSLayer = (values: Partial<GeoAdminWMSLayer>): GeoAdmi
  * @returns GeoAdminWMTSLayer
  */
 export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer => {
-    validateBaseData(values)
     const defaults = {
         uuid: uuidv4(),
-        name: '',
-        id: '',
-        type: LayerType.WMTS as LayerType.WMTS,
+        type: LayerType.WMTS,
         idIn3d: undefined,
         technicalName: undefined,
         opacity: 1.0,
         isVisible: true,
         format: 'png' as 'png' | 'jpeg',
         isBackground: false,
-        baseUrl: '',
         isHighlightable: false,
         hasTooltip: false,
         topics: [],
@@ -142,7 +129,9 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
         timeConfig: null,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -155,20 +144,18 @@ export const makeGeoAdminWMTSLayer = (values: Partial<GeoAdminWMTSLayer>): GeoAd
  * @returns ExternalWMTSLayer
  */
 export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer => {
-    validateBaseData(values)
-
-    const baseUrl = values.baseUrl ?? ''
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
-    const attributions = [{ name: new URL(baseUrl).hostname }]
+    const attributions = []
     const hasLegend = (values?.legends ?? []).length > 0
+
+    if (values?.baseUrl) {
+        attributions.push({ name: new URL(values.baseUrl).hostname })
+    }
 
     const defaults = {
         uuid: uuidv4(),
-        id: '',
-        name: '',
         isExternal: true,
-        type: LayerType.WMTS as LayerType.WMTS,
-        baseUrl,
+        type: LayerType.WMTS,
         opacity: DEFAULT_OPACITY,
         isVisible: true,
         abstract: '',
@@ -200,7 +187,9 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
 
     // if hasDescription or attributions were provided in `values`, then these would
     // override the ones we inferred above
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -213,18 +202,14 @@ export const makeExternalWMTSLayer = (values: Partial<ExternalWMTSLayer>): Exter
  * @returns ExternalWMSLayer
  */
 export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): ExternalWMSLayer => {
-    validateBaseData(values)
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
     const attributions = [{ name: new URL(values.baseUrl!).hostname }]
     const hasLegend = (values?.legends ?? []).length > 0
 
     const defaults = {
         uuid: uuidv4(),
-        id: '',
-        name: '',
         opacity: 1.0,
         isVisible: true,
-        baseUrl: '',
         layers: [],
         attributions,
         hasDescription,
@@ -241,7 +226,7 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         dimensions: [],
         currentYear: undefined,
         customAttributes: undefined,
-        type: LayerType.WMS as LayerType.WMS,
+        type: LayerType.WMS,
         isExternal: true,
         hasError: false,
         hasWarning: false,
@@ -255,7 +240,9 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
         }
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -268,14 +255,10 @@ export const makeExternalWMSLayer = (values: Partial<ExternalWMSLayer>): Externa
  * @returns KMLLayer
  */
 export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
-    validateBaseData(values)
     const defaults = {
         uuid: uuidv4(),
-        id: '',
-        name: '',
         opacity: 1.0,
         isVisible: true,
-        baseUrl: '',
         layers: [],
         extent: null,
         clampToGround: false,
@@ -298,7 +281,9 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
         linkFiles: new Map(),
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -311,7 +296,6 @@ export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
  * @returns GPXLayer
  */
 export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
-    validateBaseData(values)
     const isLocalFile = !values.gpxFileUrl?.startsWith('http')
     if (!values.gpxFileUrl) {
         throw new InvalidLayerDataError('Missing GPX file URL', values)
@@ -343,7 +327,9 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
         timeConfig: null,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -358,7 +344,6 @@ export const makeGPXLayer = (values: Partial<GPXLayer>): GPXLayer => {
 export const makeGeoAdminVectorLayer = (
     values: Partial<GeoAdminVectorLayer>
 ): GeoAdminVectorLayer => {
-    validateBaseData(values)
     const attributions = [
         ...(values.attributions ? values.attributions : []),
         { name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' },
@@ -366,12 +351,9 @@ export const makeGeoAdminVectorLayer = (
 
     const defaults = {
         uuid: uuidv4(),
-        baseUrl: '',
         type: LayerType.VECTOR,
         technicalName: '',
         attributions,
-        name: '',
-        id: '',
         opacity: 0,
         isVisible: false,
         hasTooltip: false,
@@ -389,7 +371,9 @@ export const makeGeoAdminVectorLayer = (
         isSpecificFor3d: false,
     }
 
-    return merge(defaults, omit(values, 'attributions'))
+    const layer = merge(defaults, omit(values, 'attributions'))
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -402,17 +386,14 @@ export const makeGeoAdminVectorLayer = (
  * @returns GeoAdmin3DLayer
  */
 export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer => {
-    validateBaseData(values)
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
     const defaults = {
         uuid: uuidv4(),
-        baseUrl: '',
         technicalName: '',
         use3dTileSubFolder: false,
         urlTimestampToUse: false,
-        name: values.name ?? values.id ?? '',
-        id: '',
+        name: values.name ?? values.id,
         type: LayerType.VECTOR,
         opacity: 1,
         isVisible: true,
@@ -431,7 +412,9 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
         timeConfig: null,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -446,7 +429,6 @@ export const makeGeoAdmin3DLayer = (values: Partial<GeoAdmin3DLayer>): GeoAdmin3
 export const makeCloudOptimizedGeoTIFFLayer = (
     values: Partial<CloudOptimizedGeoTIFFLayer>
 ): CloudOptimizedGeoTIFFLayer => {
-    validateBaseData(values)
     if (values.fileSource === null || values.fileSource === undefined) {
         throw new InvalidLayerDataError('Missing COG file source', values)
     }
@@ -466,7 +448,6 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         isLocalFile,
         fileSource: null,
         data: null,
-        noDataValue: null,
         extent: null,
         name: fileName,
         id: fileSource,
@@ -482,7 +463,9 @@ export const makeCloudOptimizedGeoTIFFLayer = (
         hasWarning: false,
         timeConfig: null,
     }
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -497,14 +480,10 @@ export const makeCloudOptimizedGeoTIFFLayer = (
 export const makeGeoAdminAggregateLayer = (
     values: Partial<GeoAdminAggregateLayer>
 ): GeoAdminAggregateLayer => {
-    validateBaseData(values)
     const defaults = {
         uuid: uuidv4(),
         type: LayerType.AGGREGATE,
-        baseUrl: '',
         subLayers: [],
-        name: '',
-        id: '',
         opacity: 1,
         isVisible: true,
         attributions: [],
@@ -521,7 +500,9 @@ export const makeGeoAdminAggregateLayer = (
         searchable: false,
         isSpecificFor3d: false,
     }
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -536,18 +517,14 @@ export const makeGeoAdminAggregateLayer = (
 export const makeGeoAdminGeoJSONLayer = (
     values: Partial<GeoAdminGeoJSONLayer>
 ): GeoAdminGeoJSONLayer => {
-    validateBaseData(values)
     const defaults = {
         uuid: uuidv4(),
-        baseUrl: '',
         type: LayerType.GEOJSON,
         updateDelay: 0,
         styleUrl: '',
         geoJsonUrl: '',
         technicalName: '',
         isExternal: false,
-        name: '',
-        id: '',
         opacity: 1,
         isVisible: true,
         attributions: [],
@@ -566,7 +543,9 @@ export const makeGeoAdminGeoJSONLayer = (
         isSpecificFor3d: false,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**
@@ -581,15 +560,10 @@ export const makeGeoAdminGeoJSONLayer = (
 export const makeGeoAdminGroupOfLayers = (
     values: Partial<GeoAdminGroupOfLayers>
 ): GeoAdminGroupOfLayers => {
-    validateBaseData(values)
-
     const defaults = {
         uuid: uuidv4(),
         layers: [],
-        name: '',
-        id: '',
         type: LayerType.GROUP,
-        baseUrl: '',
         opacity: 1,
         isVisible: true,
         attributions: [],
@@ -603,7 +577,9 @@ export const makeGeoAdminGroupOfLayers = (
         hasWarning: false,
     }
 
-    return merge(defaults, values)
+    const layer = merge(defaults, values)
+    validateBaseData(layer)
+    return layer
 }
 
 /**

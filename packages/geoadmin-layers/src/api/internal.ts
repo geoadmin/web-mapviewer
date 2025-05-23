@@ -19,6 +19,22 @@ import {
 } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
+/**
+ * Some of our backends return URLs without the protocol, i.e. `"styleUrl":
+ * "//api3.geo.admin.ch/static/vectorStyles/ch.meteoschweiz.messwerte-luftfeuchtigkeit-10min.json"`
+ *
+ * This function ensures that URLs start with https:// if no protocol is set.
+ *
+ * @param partialOrFullUrl
+ */
+function enforceHttpsProtocol(partialOrFullUrl: string): string {
+    if (partialOrFullUrl.startsWith('//')) {
+        // adding missing protocol
+        return `https:${partialOrFullUrl}`
+    }
+    return partialOrFullUrl
+}
+
 function getWmtsBaseUrlForStaging(staging: Staging = 'production'): string {
     switch (staging) {
         case 'development':
@@ -55,7 +71,7 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
  * the correct type of layer for each entry ({@link GeoAdminAggregateLayer},
  * {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
  */
-function generateClassForLayerConfig(
+export function generateClassForLayerConfig(
     layerConfig: Record<string, any>,
     id: string,
     allOtherLayers: Record<string, any>,
@@ -112,12 +128,12 @@ function generateClassForLayerConfig(
                 name,
                 id,
                 baseUrl: _urlWithTrailingSlash(getWmtsBaseUrlForStaging(staging)),
-                idIn3d: layerConfig.config3d ?? null,
+                idIn3d: layerConfig.config3d,
                 technicalName: serverLayerName,
                 opacity,
                 attributions,
                 format,
-                timeConfig: timeConfig ?? undefined,
+                timeConfig: timeConfig,
                 isBackground: !!isBackground,
                 isHighlightable,
                 hasTooltip,
@@ -134,7 +150,7 @@ function generateClassForLayerConfig(
                 type: LayerType.WMS,
                 name,
                 id: id,
-                idIn3d: layerConfig.config3d ?? null,
+                idIn3d: layerConfig.config3d,
                 technicalName: Array.isArray(layerConfig.wmsLayers)
                     ? layerConfig.wmsLayers.join(',')
                     : (layerConfig.wmsLayers ?? serverLayerName),
@@ -142,7 +158,7 @@ function generateClassForLayerConfig(
                 attributions,
                 baseUrl: layerConfig.wmsUrl,
                 format,
-                timeConfig: timeConfig ?? undefined,
+                timeConfig: timeConfig,
                 wmsVersion: '1.3.0',
                 lang,
                 gutter: layerConfig.gutter,
@@ -161,8 +177,8 @@ function generateClassForLayerConfig(
                 opacity,
                 isVisible: false,
                 attributions,
-                geoJsonUrl: layerConfig.geojsonUrl,
-                styleUrl: layerConfig.styleUrl,
+                geoJsonUrl: enforceHttpsProtocol(layerConfig.geojsonUrl),
+                styleUrl: enforceHttpsProtocol(layerConfig.styleUrl),
                 updateDelay: layerConfig.updateDelay,
                 hasLegend: !!hasLegend,
                 hasTooltip: false,
@@ -298,9 +314,7 @@ export function loadGeoadminLayersConfig(
                     })
                     resolve(layersConfig)
                 } else {
-                    reject(
-                        new Error('LayersConfig loaded from backend is not an defined or is empty')
-                    )
+                    reject(new Error('LayersConfig loaded from backend is not defined or is empty'))
                 }
             })
             .catch((error) => {

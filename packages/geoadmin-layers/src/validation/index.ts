@@ -18,11 +18,11 @@ export const layerContainsErrorMessage = (layer: Layer, errorMessage: ErrorMessa
     return false
 }
 
-export const getFirstErrorMessage = (layer: Layer): ErrorMessage | null => {
+export const getFirstErrorMessage = (layer: Layer): ErrorMessage | undefined => {
     if (layer.errorMessages) {
         return layer.errorMessages.values().next()?.value as ErrorMessage
     }
-    return null
+    return
 }
 
 export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
@@ -34,7 +34,9 @@ export const addErrorMessageToLayer = (layer: Layer, errorMessage: ErrorMessage)
 }
 
 export const removeErrorMessageFromLayer = (layer: Layer, errorMessage: ErrorMessage): void => {
-    if (!layer.errorMessages) return
+    if (!layer.errorMessages) {
+        return
+    }
 
     // We need to find the error message that equals to remove it
     for (const msg of layer.errorMessages) {
@@ -53,18 +55,21 @@ export const clearErrorMessages = (layer: Layer): void => {
     layer.hasError = false
 }
 
-export const layerContainsWarningMessage = (layer: Layer, warningMessage: WarningMessage) => {
+export const layerContainsWarningMessage = (
+    layer: Layer,
+    warningMessage: WarningMessage
+): boolean => {
     if (layer.warningMessages) {
         return layer.warningMessages.has(warningMessage)
     }
     return false
 }
 
-export const getFirstWarningMessage = (layer: Layer) => {
+export const getFirstWarningMessage = (layer: Layer): WarningMessage | undefined => {
     if (layer.warningMessages) {
         return layer.warningMessages.values().next().value!
     }
-    return null
+    return
 }
 
 export const addWarningMessageToLayer = (layer: Layer, warningMessage: WarningMessage): void => {
@@ -75,8 +80,13 @@ export const addWarningMessageToLayer = (layer: Layer, warningMessage: WarningMe
     layer.hasWarning = true
 }
 
-export const removeWarningMessageFromLayer = (layer: Layer, warningMessage: WarningMessage) => {
-    if (!layer.warningMessages) return
+export const removeWarningMessageFromLayer = (
+    layer: Layer,
+    warningMessage: WarningMessage
+): void => {
+    if (!layer.warningMessages) {
+        return
+    }
 
     // We need to find the error message that equals to remove it
     for (const msg of layer.warningMessages) {
@@ -88,7 +98,7 @@ export const removeWarningMessageFromLayer = (layer: Layer, warningMessage: Warn
     layer.hasWarning = !!layer.warningMessages.size
 }
 
-export const clearWarningMessages = (layer: Layer) => {
+export const clearWarningMessages = (layer: Layer): void => {
     layer.warningMessages?.clear()
     layer.hasWarning = false
 }

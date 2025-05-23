@@ -140,8 +140,7 @@ export class ExternalWMSCapabilitiesParser {
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
             throw new CapabilitiesError(
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                `Failed to parse WMTS Capabilities: invalid content: ${error}`,
+                `Failed to parse WMTS Capabilities: invalid content: ${error?.toString()}`,
                 'invalid_wms_capabilities'
             )
         }
@@ -544,8 +543,7 @@ export class ExternalWMSCapabilitiesParser {
                     new URL(this.capabilities.Service?.OnlineResource).hostname
             }
         } catch (error) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
+            const msg = `Failed to get an attribution title/url for ${layerId}: ${error?.toString()}`
             log.error(msg, layer, error)
             title = new URL(this.capabilities.originUrl).hostname
             url = null

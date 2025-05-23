@@ -14,7 +14,6 @@ async function loadCOGMetadataAndUpdateLayer(store, layer) {
         layerId: layer.id,
         values: {
             extent: layerWithExtent.extent,
-            noDataValue: layerWithExtent.noDataValue,
         },
     })
 }

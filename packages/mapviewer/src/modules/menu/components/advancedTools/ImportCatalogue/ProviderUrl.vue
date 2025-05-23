@@ -1,6 +1,5 @@
-<script setup lang="ts">
-import type { CapabilitiesError } from '@geoadmin/layers'
-
+<script setup>
+import { CapabilitiesError } from '@geoadmin/layers'
 import { useCapabilities } from '@geoadmin/layers/vue'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -16,22 +15,20 @@ const { t } = useI18n()
 const store = useStore()
 
 // Reactive data
-const url = ref<string>('')
-const capabilitiesParsed = ref<boolean>(false)
-const errorMessage = ref<string>()
-const isLoading = ref<boolean>(false)
+const url = ref('')
+const capabilitiesParsed = ref(false)
+const errorMessage = ref()
+const isLoading = ref(false)
 
-const providerList = useTemplateRef<ProviderList>('providerList')
-const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
+const providerList = useTemplateRef('providerList')
+const providerInput = useTemplateRef('providerInput')
 
 // Computed properties
-const isValid = computed<boolean>(() => !errorMessage.value && capabilitiesParsed.value)
-const isInvalid = computed<boolean>(() => errorMessage.value)
-const connectButtonKey = computed<'loading' | 'connect'>(() =>
-    isLoading.value ? 'loading' : 'connect'
-)
-const currentProjection = computed<CoordinateSystem>(() => store.state.position.projection)
-const lang = computed<string>(() => store.state.i18n.lang)
+const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
+const isInvalid = computed(() => errorMessage.value)
+const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
+const currentProjection = computed(() => store.state.position.projection)
+const lang = computed(() => store.state.i18n.lang)
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url)

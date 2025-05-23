@@ -304,7 +304,9 @@ const getters = {
      * @returns {Boolean}
      */
     isLocalFile: () => (layer) => {
-        if (!layer) return false
+        if (!layer) {
+            return false
+        }
         const isBaseUrlValidUrl = /^\w+:\/\//.test(layer?.baseUrl)
         return (
             !isBaseUrlValidUrl &&

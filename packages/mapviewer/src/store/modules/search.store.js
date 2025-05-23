@@ -298,7 +298,9 @@ const actions = {
 }
 
 function createLayerFeature(olFeature, layer) {
-    if (!olFeature.getGeometry()) return null
+    if (!olFeature.getGeometry()) {
+        return null
+    }
     return new LayerFeature({
         layer: layer,
         id: olFeature.getId(),

@@ -1,5 +1,6 @@
 <script setup>
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox } from '@turf/turf'
 import { centroid } from '@turf/turf'

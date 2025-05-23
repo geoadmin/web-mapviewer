@@ -90,7 +90,6 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             isVisible: true,
             opacity: 1.0,
             data: fileSource,
-            noDataValue: firstImage.getGDALNoData() ?? undefined,
             // FIXME later on, if the utils are TS, this cast shouldn't be needed!
             extent: flattenExtent(intersection) as [number, number, number, number],
         })
