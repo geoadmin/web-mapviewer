@@ -1,7 +1,7 @@
 import { LayerType } from '@geoadmin/layers'
 import { toValue } from 'vue'
 
-import { CloudOptimizedGeoTIFFParser } from '@/api/layers/CloudOptimizedGeoTIFFParser'
+import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()
 

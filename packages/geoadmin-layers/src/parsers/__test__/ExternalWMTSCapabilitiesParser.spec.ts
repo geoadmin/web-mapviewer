@@ -4,16 +4,16 @@ import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vites
 
 import type { LayerLegend, LayerAttribution, ExternalWMTSLayer } from '@/types/layers'
 
-import { externalWMTSCapabilitiesParser, type WMTSCapabilities } from '@/parsers'
+import { ExternalWMTSCapabilitiesParser, type WMTSCapabilities } from '@/parsers'
 import { timeConfigUtils } from '@/utils/index'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
-    let parser: externalWMTSCapabilitiesParser
+    let parser: ExternalWMTSCapabilitiesParser
     let capabilities: WMTSCapabilities
 
     beforeAll(async () => {
         const content = await readFile(`${__dirname}/fixtures/wmts-ogc-sample.xml`, 'utf8')
-        parser = new externalWMTSCapabilitiesParser(content, 'https://example.com')
+        parser = new ExternalWMTSCapabilitiesParser(content, new URL('https://example.com'))
         capabilities = parser.capabilities
     })
 
@@ -21,7 +21,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         const invalidContent = 'Invalid input'
 
         expect(
-            () => new externalWMTSCapabilitiesParser(invalidContent, 'https://example.com')
+            () => new ExternalWMTSCapabilitiesParser(invalidContent, new URL('https://example.com'))
         ).toThrowError(/failed/i)
     })
     it('Parse Capabilities', () => {

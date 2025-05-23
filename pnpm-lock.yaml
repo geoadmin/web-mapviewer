@@ -618,6 +618,9 @@ importers:
       '@geoadmin/numbers':
         specifier: workspace:^
         version: link:../geoadmin-numbers
+      axios:
+        specifier: 'catalog:'
+        version: 1.9.0(debug@4.4.0)
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
@@ -630,6 +633,9 @@ importers:
       uuid:
         specifier: 'catalog:'
         version: 11.1.0
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.13(typescript@5.8.3)
     devDependencies:
       '@types/lodash':
         specifier: 'catalog:'

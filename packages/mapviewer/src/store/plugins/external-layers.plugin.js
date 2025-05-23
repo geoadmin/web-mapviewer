@@ -7,10 +7,9 @@
  */
 
 import { LayerType } from '@geoadmin/layers'
+import { readWmsCapabilities, readWmtsCapabilities } from '@geoadmin/layers/api'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
-
-import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 
 const dispatcher = { dispatcher: 'external-layers.plugin' }
 

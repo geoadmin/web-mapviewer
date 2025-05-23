@@ -1,7 +1,8 @@
+import { loadGeoadminLayersConfig } from '@geoadmin/layers/api'
 import log from '@geoadmin/log'
 
-import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import { loadTopics, parseTopics } from '@/api/topics.api'
+import { ENVIRONMENT } from '@/config/staging.config'
 import { SET_HAS_URL_OVERRIDES_MUTATION_KEY } from '@/store/debug.store'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 
@@ -26,7 +27,7 @@ let layersConfigByLang = {}
  */
 async function loadLayersConfig(lang) {
     if (!layersConfigByLang[lang]) {
-        const layersConfig = await loadLayersConfigFromBackend(lang)
+        const layersConfig = await loadGeoadminLayersConfig(lang, ENVIRONMENT)
         layersConfigByLang[lang] = layersConfig
         return layersConfig
     } else {

@@ -1,11 +1,11 @@
 import { LayerType } from '@geoadmin/layers'
 import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
-import { makeKmlLayer } from 'packages/mapviewer/src/utils/kmlUtils'
 import { beforeEach, describe, it } from 'vitest'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { makeKmlLayer } from '@/utils/kmlUtils'
 
 describe('Testing layersParamParser', () => {
     const checkParsedLayer = (

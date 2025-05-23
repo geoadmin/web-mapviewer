@@ -20,7 +20,7 @@ import { layerUtils } from '@/utils'
 import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
-type WMTSBoundingBox = {
+interface WMTSBoundingBox {
     lowerCorner?: [number, number]
     upperCorner?: [number, number]
     extent?: [number, number, number, number]
@@ -28,9 +28,14 @@ type WMTSBoundingBox = {
     dimensions?: number
 }
 
-type LegendURL = { format: string; width: number; height: number; href: string }
+interface LegendURL {
+    format: string
+    width: number
+    height: number
+    href: string
+}
 
-type CapabilityLayer = {
+interface CapabilityLayer {
     Dimension?: Record<string, any>
     ResourceURL: any
     Identifier: string
@@ -46,7 +51,7 @@ type CapabilityLayer = {
     Abstract: string
 }
 
-type TileMatrixSetLink = {
+interface TileMatrixSetLink {
     TileMatrixSet: string
     TileMatrixSetLimits: Array<{
         MaxTileCol: number
@@ -57,7 +62,7 @@ type TileMatrixSetLink = {
     }>
 }
 
-export type WMTSCapabilities = {
+export interface WMTSCapabilities {
     originUrl: URL
     version: string
     Contents?: {
@@ -104,11 +109,11 @@ function findLayer(layerId: string, layers: CapabilityLayer[]): CapabilityLayer 
 }
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
-export class externalWMTSCapabilitiesParser {
+export class ExternalWMTSCapabilitiesParser {
     // a stubbed type of what the parser will return
     capabilities: WMTSCapabilities
 
-    constructor(content: string, originUrl: string) {
+    constructor(content: string, originUrl: URL) {
         const parser = new olWMTSCapabilities()
         const capabilities = parser.read(content)
 
@@ -119,7 +124,7 @@ export class externalWMTSCapabilitiesParser {
             )
         }
         this.capabilities = capabilities
-        this.capabilities.originUrl = new URL(originUrl)
+        this.capabilities.originUrl = originUrl
     }
 
     /**
@@ -197,9 +202,9 @@ export class externalWMTSCapabilitiesParser {
         isVisible = true,
         currentYear?: number,
         ignoreError: boolean = true
-    ): ExternalWMTSLayer[] | undefined {
+    ): ExternalWMTSLayer[] {
         if (!this.capabilities.Contents?.Layer) {
-            return
+            return []
         }
 
         return this.capabilities.Contents.Layer.map((layer) =>
