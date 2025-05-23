@@ -2,7 +2,7 @@ import log from '@geoadmin/log'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
-import { CloudOptimizedGeoTIFFParser } from '@/api/layers/CloudOptimizedGeoTIFFParser'
+import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'

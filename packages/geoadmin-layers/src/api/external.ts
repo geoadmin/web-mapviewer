@@ -1,23 +1,15 @@
-import {
-    externalWMSCapabilitiesParser,
-    externalWMTSCapabilitiesParser,
-} from '@geoadmin/layers/parsers'
-import { CapabilitiesError } from '@geoadmin/layers/validation'
 import log from '@geoadmin/log'
 import axios from 'axios'
+
+import { ExternalWMSCapabilitiesParser, ExternalWMTSCapabilitiesParser } from '@/parsers'
+import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000
 
-/**
- * Sets the WMS GetCapabilities url parameters
- *
- * @param {URL} url Url to set
- * @param {string} language Language to use
- * @returns {URL} Url with wms parameter
- */
-export function setWmsGetCapParams(url: URL, language: string) {
-    // Mandatory params
+/** Sets the WMS GetCapabilities url parameters */
+export function setWmsGetCapabilitiesParams(url: URL, language?: string): URL {
+    // Manda: URLtory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
     // Currently openlayers only supports version 1.3.0 !
@@ -30,16 +22,8 @@ export function setWmsGetCapParams(url: URL, language: string) {
     return url
 }
 
-/**
- * Sets the WMS GetMap url parameters
- *
- * @param {URL} url Url to set
- * @param {string} layer Layer to use
- * @param {string} crs CRS/SRS to use
- * @param {string} style Style to use
- * @returns {URL} Url with wms parameter
- */
-export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: string) {
+/** Sets the WMS GetMap url parameters */
+export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: string): URL {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetMap')
@@ -58,19 +42,23 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
 /**
  * Read and parse WMS GetCapabilities
  *
- * @param {string} baseUrl Base URL for the WMS server
- * @param {string | null} language Language parameter to use if the server support localization
- * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
+ * @param baseUrl Base URL for the WMS server
+ * @param language Language parameter to use if the server support localization
  */
-export async function readWmsCapabilities(baseUrl: string, language: string | null = null) {
-    const url = setWmsGetCapParams(new URL(baseUrl), language || '').toString()
-    log.debug(`Read WMTS Get Capabilities: ${url}`)
+export async function readWmsCapabilities(
+    baseUrl: string,
+    language?: string
+): Promise<ExternalWMSCapabilitiesParser | undefined> {
+    const url = setWmsGetCapabilitiesParams(new URL(baseUrl), language)
+    log.debug(`Read WMTS Get Capabilities: ${url.toString()}`)
     let response = null
     try {
-        response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
-    } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        throw new CapabilitiesError(`Failed to get WMS Capabilities: ${error}`, 'network_error')
+        response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
+    } catch (error: any) {
+        throw new CapabilitiesError(
+            `Failed to get WMS Capabilities: ${error?.message}`,
+            'network_error'
+        )
     }
 
     if (response.status !== 200) {
@@ -79,37 +67,32 @@ export async function readWmsCapabilities(baseUrl: string, language: string | nu
         throw new CapabilitiesError(msg, 'network_error')
     }
 
-    return parseWmsCapabilities(response.data, baseUrl)
+    return parseWmsCapabilities(response.data, url)
 }
 
 /**
  * Parse WMS Get Capabilities string
  *
- * @param {string} content Input content to parse
- * @param {string} originUrl Origin URL of the content, this is used as default GetCapabilities URL
- *   if not found in the Capabilities
- * @returns {WMSCapabilitiesParser} Get Capabilities object
+ * @param content Input content to parse
+ * @param originUrl Origin URL of the content, this is used as default GetCapabilities URL if not
+ *   found in the Capabilities
  */
-export function parseWmsCapabilities(content: string, originUrl: string) {
+export function parseWmsCapabilities(
+    content: string,
+    originUrl: URL
+): ExternalWMSCapabilitiesParser {
     try {
-        return new externalWMSCapabilitiesParser(content, originUrl)
-    } catch (error) {
+        return new ExternalWMSCapabilitiesParser(content, originUrl)
+    } catch (error: any) {
         throw new CapabilitiesError(
-            // @ts-ignore
             `Failed to parse WMS capabilities: ${error?.message}`,
             'invalid_wms_capabilities'
         )
     }
 }
 
-/**
- * Sets the WMTS GetCapabilities url parameters
- *
- * @param {URL} url Url to set
- * @param {string} language Language to use
- * @returns {URL} Url with wmts parameters
- */
-export function setWmtsGetCapParams(url: URL, language: string | null) {
+/** Sets the WMTS GetCapabilities url parameters */
+export function setWmtsGetCapParams(url: URL, language?: string): URL {
     // Set mandatory parameters
     url.searchParams.set('SERVICE', 'WMTS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
@@ -120,24 +103,19 @@ export function setWmtsGetCapParams(url: URL, language: string | null) {
     return url
 }
 
-/**
- * Read and parse WMTS GetCapabilities
- *
- * @param {string} baseUrl Base URL for the WMTS server
- * @param {string} originUrl Origin URL of the content, this is used as default GetCapabilities URL
- *   if not found in the Capabilities
- * @returns {Promise<WMTSCapabilitiesParser | null>} WMTS Capabilities
- */
-export async function readWmtsCapabilities(baseUrl: string, language: string | null = null) {
-    const url = setWmtsGetCapParams(new URL(baseUrl), language).toString()
+/** Read and parse WMTS GetCapabilities */
+export async function readWmtsCapabilities(
+    baseUrl: string,
+    language?: string
+): Promise<ExternalWMTSCapabilitiesParser> {
+    const url = setWmtsGetCapParams(new URL(baseUrl), language)
     log.debug(`Read WMTS Get Capabilities: ${url}`)
 
     let response = null
     try {
-        response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
-    } catch (error) {
+        response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
+    } catch (error: any) {
         throw new CapabilitiesError(
-            // @ts-ignore
             `Failed to get the remote capabilities: ${error?.message}`,
             'network_error'
         )
@@ -149,23 +127,24 @@ export async function readWmtsCapabilities(baseUrl: string, language: string | n
         throw new CapabilitiesError(msg, 'network_error')
     }
 
-    return parseWmtsCapabilities(response.data, baseUrl)
+    return parseWmtsCapabilities(response.data, url)
 }
 
 /**
  * Parse WMTS Get Capabilities string
  *
- * @param {string} content Input content to parse
- * @param {string} originUrl Origin URL of the content, this is used as default GetCapabilities URL
- *   if not found in the Capabilities
- * @returns {WMTSCapabilitiesParser} Get Capabilities object
+ * @param content Input content to parse
+ * @param originUrl Origin URL of the content, this is used as default GetCapabilities URL if not
+ *   found in the Capabilities
  */
-export function parseWmtsCapabilities(content: string, originUrl: string) {
+export function parseWmtsCapabilities(
+    content: string,
+    originUrl: URL
+): ExternalWMTSCapabilitiesParser {
     try {
-        return new externalWMTSCapabilitiesParser(content, originUrl)
-    } catch (error) {
+        return new ExternalWMTSCapabilitiesParser(content, originUrl)
+    } catch (error: any) {
         throw new CapabilitiesError(
-            // @ts-ignore
             `Failed to parse WMTS capabilities: ${error?.message}`,
             'invalid_wmts_capabilities'
         )
@@ -186,7 +165,7 @@ const ENC_PIPE = '%7C'
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
-export function encodeExternalLayerParam(param: string) {
+export function encodeExternalLayerParam(param: string): string {
     return param.replace('|', ENC_PIPE)
 }
 
@@ -202,6 +181,6 @@ export function encodeExternalLayerParam(param: string) {
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
-export function decodeExternalLayerParam(param: string) {
+export function decodeExternalLayerParam(param: string): string {
     return param.replace(ENC_PIPE, '|')
 }

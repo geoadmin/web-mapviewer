@@ -9,6 +9,11 @@
             "import": "./dist/index.js",
             "require": "./dist/index.umd.cjs"
         },
+        "./api": {
+            "types": "./dist/api/index.d.ts",
+            "import": "./dist/api.js",
+            "require": "./dist/api.cjs"
+        },
         "./utils": {
             "types": "./dist/utils/index.d.ts",
             "import": "./dist/utils.js",
@@ -18,6 +23,11 @@
             "types": "./dist/parsers/index.d.ts",
             "import": "./dist/parsers.js",
             "require": "./dist/parsers.cjs"
+        },
+        "./vue": {
+            "types": "./dist/vue/index.d.ts",
+            "import": "./dist/vue.js",
+            "require": "./dist/vue.cjs"
         },
         "./validation": {
             "types": "./dist/validation/index.d.ts",
@@ -44,10 +54,14 @@
         "@geoadmin/coordinates": "workspace:*",
         "@geoadmin/log": "workspace:*",
         "@geoadmin/numbers": "workspace:^",
+        "axios": "catalog:",
         "lodash": "catalog:",
         "ol": "catalog:",
         "proj4": "catalog:",
         "uuid": "catalog:"
+    },
+    "peerDependencies": {
+        "vue": "catalog:"
     },
     "devDependencies": {
         "@types/lodash": "catalog:",

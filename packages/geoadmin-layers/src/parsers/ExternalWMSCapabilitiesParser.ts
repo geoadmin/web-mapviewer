@@ -6,27 +6,31 @@ import { default as olWMSCapabilities } from 'ol/format/WMSCapabilities'
 import proj4 from 'proj4'
 
 import {
-    type LayerAttribution,
-    type LayerLegend,
-    type ExternalWMSLayer,
-    type WMSDimension,
     type BoundingBox,
-    WMS_SUPPORTED_VERSIONS,
+    type ExternalWMSLayer,
+    type LayerAttribution,
     type LayerExtent,
+    type LayerLegend,
+    WMS_SUPPORTED_VERSIONS,
+    type WMSDimension,
 } from '@/types/layers'
 import { layerUtils } from '@/utils'
 import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
-type WMSBoundingBox = {
+interface WMSBoundingBox {
     crs: string
     extent: [number, number, number, number]
     res: [number | null, number | null]
 }
 
-type LegendURL = { Format: string; size: [number, number]; OnlineResource: string }
+interface LegendURL {
+    Format: string
+    size: [number, number]
+    OnlineResource: string
+}
 
-type CapabilityLayer = {
+interface CapabilityLayer {
     Dimension?: Record<string, any>
     Name: string
     parent: CapabilityLayer
@@ -54,12 +58,12 @@ type CapabilityLayer = {
     }[]
 }
 
-type Request = {
+interface Request {
     DCPType: any[]
     Format: string[]
 }
 
-export type WMSCapabilities = {
+export interface WMSCapabilities {
     originUrl: URL
     version: string
     Capability?: {
@@ -84,6 +88,8 @@ export type WMSCapabilities = {
     Service: {
         Title: string
         OnlineResource: string
+        MaxWidth?: number
+        MaxHeight?: number
     }
 }
 
@@ -124,10 +130,10 @@ function getLayerProjections(layer: CapabilityLayer): string[] {
 }
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
-export class externalWMSCapabilitiesParser {
+export class ExternalWMSCapabilitiesParser {
     capabilities: WMSCapabilities
 
-    constructor(content: string, originUrl: string) {
+    constructor(content: string, originUrl: URL) {
         const parser = new olWMSCapabilities()
         try {
             this.capabilities = parser.read(content)
@@ -140,7 +146,7 @@ export class externalWMSCapabilitiesParser {
             )
         }
 
-        this.capabilities.originUrl = new URL(originUrl)
+        this.capabilities.originUrl = originUrl
     }
 
     /**
@@ -276,12 +282,12 @@ export class externalWMSCapabilitiesParser {
         currentYear: number | null = null,
         params = undefined,
         ignoreError = true
-    ) {
-        if (!this.capabilities.Capability?.Layer) {
-            return null
+    ): ExternalWMSLayer[] {
+        if (!this.capabilities.Capability?.Layer?.Layer) {
+            return []
         }
 
-        return this.capabilities.Capability.Layer.Layer?.map((layer) =>
+        return this.capabilities.Capability.Layer.Layer.map((layer) =>
             this._getExternalLayerObject(
                 layer,
                 // we enforced that this is available
@@ -305,7 +311,7 @@ export class externalWMSCapabilitiesParser {
         currentYear: number | null,
         params?: Record<string, any>,
         ignoreError: boolean = true
-    ): ExternalWMSLayer | null {
+    ): ExternalWMSLayer | undefined {
         const {
             layerId,
             title,
@@ -322,7 +328,7 @@ export class externalWMSCapabilitiesParser {
 
         if (!layerId) {
             // without layerId we can do nothing
-            return null
+            return
         }
 
         // Go through the child to get valid layers
@@ -450,7 +456,7 @@ export class externalWMSCapabilitiesParser {
         layer: CapabilityLayer,
         parents: CapabilityLayer[],
         projection: CoordinateSystem
-    ): LayerExtent | null {
+    ): LayerExtent | undefined {
         // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
         // - extent totally out of projection bounds
         //    => return null and set outOfBounds flag to true
@@ -594,13 +600,13 @@ export class externalWMSCapabilitiesParser {
             .flat()
     }
 
-    _parseDimensionValues(layerId: string, rawValues: string) {
-        const parseYear = (value: string) => {
+    _parseDimensionValues(layerId: string, rawValues: string): string[] {
+        const parseYear = (value: string): number | undefined => {
             const date = new Date(value)
             if (!isNaN(date.getFullYear())) {
                 return date.getFullYear()
             }
-            return null
+            return
         }
 
         return rawValues
@@ -610,11 +616,11 @@ export class externalWMSCapabilitiesParser {
                     const [min, max, res] = v.split('/')
                     const minYear = parseYear(min)
                     const maxYear = parseYear(max)
-                    if (minYear === null || maxYear === null) {
+                    if (minYear === undefined || maxYear === undefined) {
                         log.warn(
                             `Unsupported dimension min/max value "${min}"/"${max}" for layer ${layerId}`
                         )
-                        return null
+                        return undefined
                     }
                     let step = 1
 

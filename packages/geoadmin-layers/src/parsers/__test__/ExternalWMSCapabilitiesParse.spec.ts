@@ -4,25 +4,29 @@ import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vites
 
 import type { LayerAttribution, ExternalWMSLayer, LayerExtent, LayerLegend } from '@/types/layers'
 
-import { externalWMSCapabilitiesParser, type WMSCapabilities } from '@/parsers'
+import { ExternalWMSCapabilitiesParser, type WMSCapabilities } from '@/parsers'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {
         const invalidContent = 'Invalid input'
 
         expect(
-            () => new externalWMSCapabilitiesParser(invalidContent, 'https://wms.geo.admin.ch')
+            () =>
+                new ExternalWMSCapabilitiesParser(
+                    invalidContent,
+                    new URL('https://wms.geo.admin.ch')
+                )
         ).toThrowError(/failed/i)
     })
 })
 
 describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
-    let parser: externalWMSCapabilitiesParser
+    let parser: ExternalWMSCapabilitiesParser
     let capabilities: WMSCapabilities
 
     beforeAll(async () => {
         const content = await readFile(`${__dirname}/fixtures/wms-geoadmin-sample.xml`, 'utf8')
-        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         capabilities = parser.capabilities
     })
     it('Parse Capabilities', () => {
@@ -283,7 +287,7 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
         expect(layer?.baseUrl).toBe('https://wms.geo.admin.ch/')
 
@@ -314,7 +318,7 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
         expect(layer?.baseUrl).toBe('https://wms.geo.admin.ch/map?')
     })
@@ -342,7 +346,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         // No attribution, use Service
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
@@ -376,7 +380,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         // Attribution in service
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
@@ -404,7 +408,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         // Attribution in service
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
@@ -445,7 +449,10 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
 
         const layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
@@ -491,7 +498,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        let parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        let parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         // Attribution in layer
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
@@ -530,7 +537,7 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
         layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
 
         expect(layer).to.not.be.null
@@ -564,7 +571,10 @@ describe('WMSCapabilitiesParser - attributions', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
 
         // No attribution, use Service
         const layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
@@ -602,7 +612,10 @@ describe('WMSCapabilitiesParser - layer extent', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
 
         // LV95
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
@@ -677,7 +690,10 @@ describe('WMSCapabilitiesParser - layer extent', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
         // LV95
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
 
@@ -772,7 +788,10 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
         // LV95
         const layers = parser.getAllExternalLayerObjects(LV95)
 
@@ -842,7 +861,10 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
         // LV95
         const layers = parser.getAllExternalLayerObjects(LV95)
 
@@ -930,7 +952,10 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
             </Capability>
         </WMS_Capabilities>
         `
-        const parser = new externalWMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const parser = new ExternalWMSCapabilitiesParser(
+            content,
+            new URL('https://wms.geo.admin.ch')
+        )
 
         // search root layer
         let layer = parser.getExternalLayerObject('ch.swisstopo-vd.official-survey', LV95)
