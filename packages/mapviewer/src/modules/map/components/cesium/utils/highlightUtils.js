@@ -14,7 +14,9 @@ export const clicked3DFeatureFill = Color.fromCssColorString('rgba(220, 0, 24, 0
 const highlightedStrokeWidth = 3
 
 export function highlightSelectedArea(viewer, geometry) {
-    if (!geometry) return
+    if (!geometry) {
+        return
+    }
     let coordinates = geometry.coordinates
     let type = geometry.type
     switch (type) {

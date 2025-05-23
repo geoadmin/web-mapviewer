@@ -147,9 +147,15 @@ function addRemoveLayer() {
             baseUrl: item.baseUrl,
             ...dispatcher,
         })
+    } else if (item.isExternal) {
+        store.dispatch('addLayer', {
+            layer: item,
+            isVisible: true,
+            ...dispatcher,
+        })
     } else {
         store.dispatch('addLayer', {
-            layer: item.isExternal ? item : item.id,
+            layerId: item.id,
             isVisible: true,
             ...dispatcher,
         })
