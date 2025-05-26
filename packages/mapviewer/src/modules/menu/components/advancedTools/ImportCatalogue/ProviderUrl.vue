@@ -20,8 +20,8 @@ const capabilitiesParsed = ref(false)
 const errorMessage = ref()
 const isLoading = ref(false)
 
-const providerList = useTemplateRef < ProviderList > 'providerList'
-const providerInput = useTemplateRef < HTMLInputElement > 'providerInput'
+const providerList = useTemplateRef('providerList')
+const providerInput = useTemplateRef('providerInput')
 
 // Computed properties
 const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)

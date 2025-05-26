@@ -66,70 +66,70 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
     it('Get Layer Extent in LV95', () => {
         const externalLayers = parser.getAllExternalLayerObjects(LV95)
-        expect(externalLayers!.length).to.be.greaterThan(1)
+        expect(externalLayers.length).to.be.greaterThan(1)
 
-        assertType<ExternalWMTSLayer[]>(externalLayers!)
+        assertType<ExternalWMTSLayer[]>(externalLayers)
 
         // Extent from WGS84BoundingBox
-        expect(externalLayers![0].id).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
         let expected = [
             [2485071.58, 1075346.31],
             [2828515.82, 1299941.79],
         ]
-        expect(externalLayers![0].extent?.length).toBe(2)
-        expect(externalLayers![0].extent?.[0].length).toBe(2)
-        expect(externalLayers![0].extent?.[1].length).toBe(2)
-        expect(externalLayers![0].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
-        expect(externalLayers![0].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
-        expect(externalLayers![0].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
-        expect(externalLayers![0].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
+        expect(externalLayers[0].extent?.length).toBe(2)
+        expect(externalLayers[0].extent?.[0].length).toBe(2)
+        expect(externalLayers[0].extent?.[1].length).toBe(2)
+        expect(externalLayers[0].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
+        expect(externalLayers[0].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
+        expect(externalLayers[0].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
+        expect(externalLayers[0].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers![1].id).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
         expected = [
             [2627438.37, 1215506.64],
             [2677504.99, 1277102.76],
         ]
-        expect(externalLayers![1].extent?.length).toBe(2)
-        expect(externalLayers![1].extent?.[0].length).toBe(2)
-        expect(externalLayers![1].extent?.[1].length).toBe(2)
-        expect(externalLayers![1].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
-        expect(externalLayers![1].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
-        expect(externalLayers![1].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
-        expect(externalLayers![1].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
+        expect(externalLayers[1].extent?.length).toBe(2)
+        expect(externalLayers[1].extent?.[0].length).toBe(2)
+        expect(externalLayers[1].extent?.[1].length).toBe(2)
+        expect(externalLayers[1].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
+        expect(externalLayers[1].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
+        expect(externalLayers[1].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
+        expect(externalLayers[1].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers![2].id).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
         expected = [
             [2665255.25, 1229142.44],
             [2720879.67, 1287842.18],
         ]
         // console.log(externalLayers![2])
-        expect(externalLayers![2].extent?.length).toBe(2)
-        expect(externalLayers![2].extent?.[0].length).toBe(2)
-        expect(externalLayers![2].extent?.[1].length).toBe(2)
-        expect(externalLayers![2].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
-        expect(externalLayers![2].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
-        expect(externalLayers![2].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
-        expect(externalLayers![2].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
+        expect(externalLayers[2].extent?.length).toBe(2)
+        expect(externalLayers[2].extent?.[0].length).toBe(2)
+        expect(externalLayers[2].extent?.[1].length).toBe(2)
+        expect(externalLayers[2].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
+        expect(externalLayers[2].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
+        expect(externalLayers[2].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
+        expect(externalLayers[2].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from the TileMatrixSet
-        expect(externalLayers![3].id).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
         expected = [
             [2552296.05, 1218970.79],
             [2609136.96, 1266593.74],
         ]
-        expect(externalLayers![3].extent?.length).toBe(2)
-        expect(externalLayers![3].extent?.[0].length).toBe(2)
-        expect(externalLayers![3].extent?.[1].length).toBe(2)
-        expect(externalLayers![3].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
-        expect(externalLayers![3].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
-        expect(externalLayers![3].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
-        expect(externalLayers![3].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
+        expect(externalLayers[3].extent?.length).toBe(2)
+        expect(externalLayers[3].extent?.[0].length).toBe(2)
+        expect(externalLayers[3].extent?.[1].length).toBe(2)
+        expect(externalLayers[3].extent?.[0][0]).toBeCloseTo(expected[0][0], 2)
+        expect(externalLayers[3].extent?.[0][1]).toBeCloseTo(expected[0][1], 2)
+        expect(externalLayers[3].extent?.[1][0]).toBeCloseTo(expected[1][0], 2)
+        expect(externalLayers[3].extent?.[1][1]).toBeCloseTo(expected[1][1], 2)
 
         // Extent from matching BoundingBox
-        expect(externalLayers![4].id).toBe('BlueMarbleFifthGenerationGE')
-        expect(externalLayers![4].extent).toEqual([
+        expect(externalLayers[4].id).toBe('BlueMarbleFifthGenerationGE')
+        expect(externalLayers[4].extent).toEqual([
             [2484928.06, 1108705.32],
             [2514614.27, 1130449.26],
         ])
@@ -138,88 +138,88 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Get Layer Extent in Web Mercator', () => {
         const externalLayers = parser.getAllExternalLayerObjects(WEBMERCATOR)
         // Extent from WGS84BoundingBox
-        expect(externalLayers![0].id).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
         let expected = [
             [663464.16, 5751550.86],
             [1167741.46, 6075303.61],
         ]
-        expect(externalLayers![0].extent?.length).toBe(2)
-        expect(externalLayers![0].extent?.[0].length).toBe(2)
-        expect(externalLayers![0].extent?.[1].length).toBe(2)
-        expect(externalLayers![0].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers![0].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers![0].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers![0].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers[0].extent?.length).toBe(2)
+        expect(externalLayers[0].extent?.[0].length).toBe(2)
+        expect(externalLayers[0].extent?.[1].length).toBe(2)
+        expect(externalLayers[0].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[0].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[0].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[0].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers![1].id).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
         expected = [
             [868292.03, 5956776.76],
             [942876.09, 6047171.27],
         ]
-        expect(externalLayers![1].extent?.length).toBe(2)
-        expect(externalLayers![1].extent?.[0].length).toBe(2)
-        expect(externalLayers![1].extent?.[1].length).toBe(2)
-        expect(externalLayers![1].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers![1].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers![1].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers![1].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers[1].extent?.length).toBe(2)
+        expect(externalLayers[1].extent?.[0].length).toBe(2)
+        expect(externalLayers[1].extent?.[1].length).toBe(2)
+        expect(externalLayers[1].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[1].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[1].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[1].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers![2].id).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
         expected = [
             [923951.77, 5976419.03],
             [1007441.39, 6062053.42],
         ]
-        expect(externalLayers![2].extent?.length).toBe(2)
-        expect(externalLayers![2].extent?.[0].length).toBe(2)
-        expect(externalLayers![2].extent?.[1].length).toBe(2)
-        expect(externalLayers![2].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers![2].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers![2].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers![2].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers[2].extent?.length).toBe(2)
+        expect(externalLayers[2].extent?.[0].length).toBe(2)
+        expect(externalLayers[2].extent?.[1].length).toBe(2)
+        expect(externalLayers[2].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[2].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[2].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[2].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
 
         // Extent from the TileMatrixSet
-        expect(externalLayers![3].id).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
         expected = [
             [758085.73, 5961683.17],
             [841575.35, 6032314.73],
         ]
-        expect(externalLayers![3].extent?.length).toBe(2)
-        expect(externalLayers![3].extent?.[0].length).toBe(2)
-        expect(externalLayers![3].extent?.[1].length).toBe(2)
-        expect(externalLayers![3].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers![3].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers![3].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers![3].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers[3].extent?.length).toBe(2)
+        expect(externalLayers[3].extent?.[0].length).toBe(2)
+        expect(externalLayers[3].extent?.[1].length).toBe(2)
+        expect(externalLayers[3].extent?.[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[3].extent?.[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[3].extent?.[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[3].extent?.[1][1]).toBeCloseTo(expected[1][1], 1)
     })
 
     it('Get Layer Extent in WGS84', () => {
         const externalLayers = parser.getAllExternalLayerObjects(WGS84)
         // Extent from WGS84BoundingBox
-        expect(externalLayers![0].id).toBe('BlueMarbleNextGenerationCH')
-        expect(externalLayers![0].extent).toEqual([
+        expect(externalLayers[0].id).toBe('BlueMarbleNextGenerationCH')
+        expect(externalLayers[0].extent).toEqual([
             [5.96, 45.82],
             [10.49, 47.81],
         ])
 
         // Extent from BoundingBox in WGS84
-        expect(externalLayers![1].id).toBe('BlueMarbleSecondGenerationAG')
-        expect(externalLayers![1].extent).toEqual([
+        expect(externalLayers[1].id).toBe('BlueMarbleSecondGenerationAG')
+        expect(externalLayers[1].extent).toEqual([
             [7.8, 47.09],
             [8.47, 47.64],
         ])
 
         // Extent from BoundingBox without CRS
-        expect(externalLayers![2].id).toBe('BlueMarbleThirdGenerationZH')
-        expect(externalLayers![2].extent).toEqual([
+        expect(externalLayers[2].id).toBe('BlueMarbleThirdGenerationZH')
+        expect(externalLayers[2].extent).toEqual([
             [8.3, 47.21],
             [9.05, 47.73],
         ])
 
         // Extent from the TileMatrixSet
-        expect(externalLayers![3].id).toBe('BlueMarbleFourthGenerationJU')
-        expect(externalLayers![3].extent).toEqual([
+        expect(externalLayers[3].id).toBe('BlueMarbleFourthGenerationJU')
+        expect(externalLayers[3].extent).toEqual([
             [6.81, 47.12],
             [7.56, 47.55],
         ])
@@ -246,7 +246,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     it('Parse layer time dimension in format YYYYMMDD', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
 
-        expect(layer).to.not.be.null
+        expect(layer).to.not.be.undefined
         assertType<ExternalWMTSLayer>(layer!)
 
         expect(layer!.id).toBe('BlueMarbleSecondGenerationAG')
@@ -257,7 +257,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).to.be.not.null.and.not
             .undefined
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.null
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.undefined
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig?.currentTimeEntry?.timestamp).toBe('20110805')
@@ -277,7 +277,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).to.be.not.null.and.not
             .undefined
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.null
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.undefined
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05')
@@ -300,7 +300,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).to.be.not.null.and.not
             .undefined
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.null
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).to.be.undefined
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05T01:20:34.345Z')
@@ -319,8 +319,8 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('Time A')
-        expect(layer!.timeConfig!.currentTimeEntry!.year).to.be.null
-        expect(layer!.timeConfig!.currentYear).to.be.null
+        expect(layer!.timeConfig!.currentTimeEntry!.year).to.be.undefined
+        expect(layer!.timeConfig!.currentYear).to.be.undefined
         expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimestamp).toBe('Time A')
     })

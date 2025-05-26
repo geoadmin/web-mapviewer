@@ -110,6 +110,7 @@ export function useCapabilities(
             }
             return props
         } catch (error: any) {
+            console.log('woot', error)
             log.error(`Failed to fetch url ${fullUrl}`, error)
             if (error instanceof AxiosError) {
                 throw new CapabilitiesError(error.message, 'network_error')
