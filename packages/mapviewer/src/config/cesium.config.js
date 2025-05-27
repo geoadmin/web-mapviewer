@@ -35,6 +35,9 @@ export const CAMERA_MIN_PITCH = -Math.PI / 2
  */
 export const CAMERA_MAX_PITCH = Math.PI / 4
 
+/** Billboard horizontal offset to align it with the highlight */
+export const DEFAULT_MARKER_HORIZONTAL_OFFSET = 40
+
 /**
  * Distance on which depth test will be disabled for primitive to avoid cutting by terrain
  *
