@@ -249,7 +249,7 @@
     "feedback_more_info_text": "More information on the categories",
     "feedback_more_info_url": "https://www.geo.admin.ch/en/map-viewer-help-navigation-and-orientation#Report-a-problem",
     "feedback_permalink": "The following URL will be transferred: ",
-    "feedback_placeholder": "Attach a pdf, zip, jpg, jpeg, kml, kmz or gpx file",
+    "feedback_placeholder": "Attach a pdf, zip, jpg, jpeg, png, kml, kmz or gpx file",
     "feedback_rating_text": "Tell us what you think about our new map viewer",
     "feedback_rating_title": "How would you rate your experience ? (required)",
     "feedback_success_message": "Your message was successfully sent. Thank you.",
