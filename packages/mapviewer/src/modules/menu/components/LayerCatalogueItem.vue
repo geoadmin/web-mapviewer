@@ -64,7 +64,9 @@ const showItem = computed(() => {
 })
 
 const hasChildren = computed(() => item?.layers?.length > 0)
-const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
+const hasDescription = computed(
+    () => (canBeAddedToTheMap.value && item?.hasDescription) || item?.hasLegend
+)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
