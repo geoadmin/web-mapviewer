@@ -5,6 +5,8 @@ export const ClickType = {
     CONTEXTMENU: 'CONTEXTMENU',
     /* A single click, with the left mouse button or with the finger on a touch device */
     LEFT_SINGLECLICK: 'LEFT_SINGLECLICK',
+    /* A single click with CTRL button pressed */
+    CTRL_LEFT_SINGLECLICK: 'CTRL_LEFT_SINGLECLICK',
 }
 
 export class ClickInfo {

@@ -17,6 +17,15 @@ import {
     allStylingTextPlacementsWithUnknown,
 } from '@/utils/featureStyleUtils'
 
+/** @enum */
+export const IdentifyMode = {
+    /* Clear previous selection and identify features at the given coordinate */
+    CLEAN: 'CLEAN',
+    /** Add identified features to the current selection */
+    WITH_CTRL: 'WITH_CTRL',
+}
+
+
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
@@ -162,6 +171,7 @@ export default {
             { commit, dispatch, state, rootState },
             { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT, dispatcher }
         ) {
+            console.log('setSelectedFeatures', features, paginationSize, dispatcher)
             // clearing up any relevant selected features stuff
             if (state.highlightedFeatureId) {
                 commit('setHighlightedFeatureId', {
@@ -226,14 +236,18 @@ export default {
          * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
          *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]). 10 features will
          *   be requested for a point, 50 for a rectangle.
+         * @param {IdentifyMode} [identifyMode=IdentifyMode.CLEAN]
          * @param dispatcher
          * @returns {Promise<void>} As some callers might want to know when identify has been
          *   done/finished, this returns a promise that will be resolved when this is the case
          */
         async identifyFeatureAt(
             { dispatch, getters, rootState },
-            { layers, coordinate, vectorFeatures = [], dispatcher }
+            { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.CLEAN, dispatcher }
         ) {
+            console.log(
+                'identifyFeatureAt',layers, coordinate, vectorFeatures, identifyMode, dispatcher
+            )
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
                 ...vectorFeatures,

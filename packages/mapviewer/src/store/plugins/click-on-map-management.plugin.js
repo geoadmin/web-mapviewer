@@ -1,3 +1,4 @@
+import { IdentifyMode } from '@/store/modules/features.store'
 import { ClickType } from '@/store/modules/map.store'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
@@ -24,13 +25,16 @@ const clickOnMapManagementPlugin = (store) => {
         else if (mutation.type === 'setClickInfo' && !state.drawing.drawingOverlay.show) {
             const clickInfo = mutation.payload.clickInfo
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
+            const isCtrlLeftSingleClick = clickInfo?.clickType === ClickType.CTRL_LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-            if (isLeftSingleClick) {
+            if (isLeftSingleClick || isCtrlLeftSingleClick) {
+                const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.WITH_CTRL : IdentifyMode.CLEAN
                 store
                     .dispatch('identifyFeatureAt', {
                         layers: store.getters.visibleLayers.filter((layer) => layer.hasTooltip),
                         vectorFeatures: clickInfo.features,
                         coordinate: clickInfo.coordinate,
+                        identifyMode: identifyMode,
                         ...dispatcher,
                     })
                     .then(() => {
