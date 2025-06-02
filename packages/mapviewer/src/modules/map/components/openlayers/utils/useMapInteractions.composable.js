@@ -152,12 +152,17 @@ export default function useMapInteractions(map) {
                 }
             })
         })
+        let clickType = ClickType.LEFT_SINGLECLICK
+        if (event.originalEvent && event.originalEvent.ctrlKey){
+            console.log('Ctrl+Left Click detected', event);
+            clickType = ClickType.CTRL_LEFT_SINGLECLICK
+        }
         store.dispatch('click', {
             clickInfo: new ClickInfo({
                 coordinate,
                 pixelCoordinate: pixel,
                 features,
-                clickType: ClickType.LEFT_SINGLECLICK,
+                clickType: clickType,
             }),
             ...dispatcher,
         })
