@@ -9,8 +9,8 @@ export const CESIUM_SWISSNAMES3D_STYLE = new Cesium3DTileStyle({
     show: true,
     labelStyle: 2,
     labelText: '${DISPLAY_TEXT}',
-    // no depth test for labels
-    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+    // depth testing is enabled to hide labels behind terrain
+    disableDepthTestDistance: 0,
     anchorLineEnabled: true,
     anchorLineColor: "color('white')",
     heightOffset: {
