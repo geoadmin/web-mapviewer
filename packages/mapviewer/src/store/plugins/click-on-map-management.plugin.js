@@ -28,7 +28,7 @@ const clickOnMapManagementPlugin = (store) => {
             const isCtrlLeftSingleClick = clickInfo?.clickType === ClickType.CTRL_LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
             if (isLeftSingleClick || isCtrlLeftSingleClick) {
-                const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.WITH_CTRL : IdentifyMode.CLEAN
+                const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.TOGGLE : IdentifyMode.NEW
                 store
                     .dispatch('identifyFeatureAt', {
                         layers: store.getters.visibleLayers.filter((layer) => layer.hasTooltip),

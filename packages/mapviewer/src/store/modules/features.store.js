@@ -20,9 +20,9 @@ import {
 /** @enum */
 export const IdentifyMode = {
     /* Clear previous selection and identify features at the given coordinate */
-    CLEAN: 'CLEAN',
-    /** Add identified features to the current selection */
-    WITH_CTRL: 'WITH_CTRL',
+    NEW: 'NEW',
+    // Toggle selection: remove if already selected, add if not
+    TOGGLE: 'TOGGLE',
 }
 
 
@@ -235,14 +235,14 @@ export default {
          * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
          *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]). 10 features will
          *   be requested for a point, 50 for a rectangle.
-         * @param {IdentifyMode} [identifyMode=IdentifyMode.CLEAN]
+         * @param {IdentifyMode} [identifyMode=IdentifyMode.NEW] - The selection mode: NEW (replace selection) or TOGGLE (toggle features in selection).
          * @param dispatcher
          * @returns {Promise<void>} As some callers might want to know when identify has been
          *   done/finished, this returns a promise that will be resolved when this is the case
          */
         async identifyFeatureAt(
             { dispatch, getters, rootState },
-            { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.CLEAN, dispatcher }
+            { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.NEW, dispatcher }
         ) {
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
@@ -260,13 +260,13 @@ export default {
                 })),
             ]
             if (features.length > 0) {
-                if (identifyMode === IdentifyMode.CLEAN) {
+                if (identifyMode === IdentifyMode.NEW) {
                     dispatch('setSelectedFeatures', {
                         features,
                         paginationSize: featureCount,
                         dispatcher,
                     })
-                } else if (identifyMode === IdentifyMode.WITH_CTRL) {
+                } else if (identifyMode === IdentifyMode.TOGGLE) {
                     // Toggle features: remove if already selected, add if not
                     const oldFeatures = getters.selectedLayerFeatures
                     const newFeatures = features
