@@ -171,7 +171,6 @@ export default {
             { commit, dispatch, state, rootState },
             { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT, dispatcher }
         ) {
-            console.log('setSelectedFeatures', features, paginationSize, dispatcher)
             // clearing up any relevant selected features stuff
             if (state.highlightedFeatureId) {
                 commit('setHighlightedFeatureId', {
@@ -245,9 +244,6 @@ export default {
             { dispatch, getters, rootState },
             { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.CLEAN, dispatcher }
         ) {
-            console.log(
-                'identifyFeatureAt',layers, coordinate, vectorFeatures, identifyMode, dispatcher
-            )
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
                 ...vectorFeatures,
@@ -264,11 +260,33 @@ export default {
                 })),
             ]
             if (features.length > 0) {
-                dispatch('setSelectedFeatures', {
-                    features,
-                    paginationSize: featureCount,
-                    dispatcher,
-                })
+                if (identifyMode === IdentifyMode.CLEAN) {
+                    dispatch('setSelectedFeatures', {
+                        features,
+                        paginationSize: featureCount,
+                        dispatcher,
+                    })
+                } else if (identifyMode === IdentifyMode.WITH_CTRL) {
+                    // Toggle features: remove if already selected, add if not
+                    const oldFeatures = getters.selectedLayerFeatures
+                    const newFeatures = features
+                    // Use feature.id for comparison
+                    const oldFeatureIds = new Set(oldFeatures.map(f => f.id))
+                    const newFeatureIds = new Set(newFeatures.map(f => f.id))
+                    // Remove features that are in both old and new
+                    let toggledFeatures = oldFeatures.filter(f => !newFeatureIds.has(f.id))
+                    // Add features that are in new but not in old
+                    toggledFeatures = toggledFeatures.concat(newFeatures.filter(f => !oldFeatureIds.has(f.id)))
+                    if (toggledFeatures.length > 0) {
+                        dispatch('setSelectedFeatures', {
+                            features: toggledFeatures,
+                            paginationSize: featureCount,
+                            dispatcher,
+                        })
+                    } else {
+                        dispatch('clearAllSelectedFeatures', { dispatcher })
+                    }
+                }
             } else {
                 dispatch('clearAllSelectedFeatures', { dispatcher })
             }
