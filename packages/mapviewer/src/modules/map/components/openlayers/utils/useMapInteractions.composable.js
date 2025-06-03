@@ -1,5 +1,5 @@
 import log from '@geoadmin/log'
-import { altKeyOnly, primaryAction } from 'ol/events/condition'
+import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
@@ -153,7 +153,7 @@ export default function useMapInteractions(map) {
             })
         })
         let clickType = ClickType.LEFT_SINGLECLICK
-        if (event.originalEvent && event.originalEvent.ctrlKey){
+        if (platformModifierKeyOnly(event)) {
             clickType = ClickType.CTRL_LEFT_SINGLECLICK
         }
         store.dispatch('click', {
