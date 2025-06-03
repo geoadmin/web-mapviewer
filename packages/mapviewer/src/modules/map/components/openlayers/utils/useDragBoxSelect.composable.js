@@ -32,14 +32,19 @@ export function useDragBoxSelect() {
         condition: platformModifierKeyOnly,
     })
 
-    dragBoxSelect.on('boxstart', () =>
-        store.dispatch('clearAllSelectedFeatures', { ...dispatcher })
-    )
     dragBoxSelect.on('boxend', () => {
         const selectExtent = dragBoxSelect.getGeometry()?.getExtent()
         if (selectExtent?.length !== 4) {
             return
         }
+        // Check if the box has a non-zero area
+        const [minX, minY, maxX, maxY] = selectExtent
+        if (minX === maxX || minY === maxY) {
+            // It's a click, not a box selection
+            return
+        }
+        // Only clear selection if a real box was drawn
+        store.dispatch('clearAllSelectedFeatures', { ...dispatcher })
         const dragBoxCoordinates = dragBoxSelect.getGeometry()?.getCoordinates()
 
         if (
