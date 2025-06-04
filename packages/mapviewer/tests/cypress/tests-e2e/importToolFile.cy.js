@@ -7,7 +7,27 @@ import { proxifyUrl } from '@/api/file-proxy.api.js'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
-
+function checkVectorLayerHighlightingSegment(lastIndex = -1) {
+    let currentIndex = -1
+    cy.readWindowValue('map').should((map) => {
+        const vectorLayers = map
+            .getLayers()
+            .getArray()
+            .filter((layer) => layer.get('id').startsWith('vector-layer-'))
+        const geomHighlightFeature = vectorLayers.find((layer) => {
+            return layer
+                .getSource()
+                .getFeatures()
+                .find((feature) => feature.get('id').startsWith('geom-segment-'))
+        })
+        expect(geomHighlightFeature).to.not.be.undefined
+        currentIndex = vectorLayers.indexOf(geomHighlightFeature)
+        if (lastIndex === -1) {
+            expect(lastIndex).not.to.equal(currentIndex)
+        }
+    })
+    return currentIndex
+}
 describe('The Import File Tool', () => {
     function createHeadAndGetIntercepts(
         url,
@@ -227,7 +247,8 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach a another local KML file
         cy.log('Test add another local KML file - feature being in bound and outbound')
-        const lineAccrossEuFile = 'import-tool/line-accross-eu.kml'
+        const lineAccrossEuFileName = 'line-accross-eu.kml'
+        const lineAccrossEuFile = `import-tool/${lineAccrossEuFileName}`
         cy.fixture(lineAccrossEuFile, null).as('lineAccrossEuFixture')
         cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
             force: true,
@@ -522,6 +543,52 @@ describe('The Import File Tool', () => {
                 )
             })
         })
+
+        cy.log('testing the import and profile viewer with a KML MultiPolygon file')
+        cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
+        cy.get('[data-cy="3d-button"]:visible').click()
+
+        cy.openMenuIfMobile()
+
+        cy.get(
+            `[data-cy^="button-remove-layer-${validOnlineNonCORSUrl}"]:visible`
+        ).click()
+
+        cy.get(`[data-cy^="button-remove-layer-${secondValidOnlineUrl}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-${lineAccrossEuFileName}"]:visible`).click()
+
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        const kmlMultiPolygonFileName = 'kml-multi-polygon.kml'
+        const kmlMultiPolygonFileNameFixture = `import-tool/${kmlMultiPolygonFileName}`
+        const validMutiPolygonOnlineUrl =
+            'https://example.com/kml-multi-polygon.kml'
+        createHeadAndGetIntercepts(
+            validMutiPolygonOnlineUrl,
+            'KmlNoCORS',
+            {
+                fixture: kmlMultiPolygonFileNameFixture,
+            },
+            {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/kml+xml' },
+            }
+        )
+        cy.get('[data-cy="text-input"]:visible').type(validMutiPolygonOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.closeMenuIfMobile()
+        cy.get('[data-cy="window-close"]').click()
+
+        cy.get('[data-cy="ol-map"]').click(150, 250)
+
+        cy.get('[data-cy="show-profile"]').click()
+
+        let lastSegmentIndex = checkVectorLayerHighlightingSegment()
+
+        cy.get('[data-cy="profile-segment-button-1"]').click()
+        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
     it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
@@ -1099,29 +1166,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="show-profile"]').click()
         // Test segment buttons and highlights
         cy.log('Check that the segment buttons are working and that the segment is highlighted')
-
-        function checkVectorLayerHighlightingSegment(lastIndex = -1) {
-            let currentIndex = -1
-            cy.readWindowValue('map').should((map) => {
-                const vectorLayers = map
-                    .getLayers()
-                    .getArray()
-                    .filter((layer) => layer.get('id').startsWith('vector-layer-'))
-                const geomHighlightFeature = vectorLayers.find((layer) => {
-                    return layer
-                        .getSource()
-                        .getFeatures()
-                        .find((feature) => feature.get('id').startsWith('geom-segment-'))
-                })
-                expect(geomHighlightFeature).to.not.be.undefined
-                currentIndex = vectorLayers.indexOf(geomHighlightFeature)
-                if (lastIndex === -1) {
-                    expect(lastIndex).not.to.equal(currentIndex)
-                }
-            })
-            return currentIndex
-        }
-
         // waiting for the highlight layer to be loaded by checking its ID (with retry-ability)
         // without this "active" wait, the CI goes straight into the next test and fails
         // (because OL didn't have the time to load the layer)
