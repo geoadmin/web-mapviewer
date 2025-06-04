@@ -5,6 +5,7 @@ import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
@@ -107,6 +108,51 @@ export default defineConfig(({ mode }) => {
                         dest: cesiumStaticDir,
                     },
                 ],
+            }),
+            VitePWA({
+                devOptions: {
+                    enabled: true,
+                    navigateFallback: 'index.html',
+                    suppressWarnings: true,
+                    type: 'module',
+                },
+
+                strategies: 'injectManifest',
+                srcDir: 'src',
+                filename: 'service-workers.ts',
+                registerType: 'autoUpdate',
+                includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+                injectRegister: false,
+                injectManifest: {
+                    // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
+                    maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
+                },
+
+                pwaAssets: {
+                    disabled: false,
+                    config: true,
+                },
+
+                manifest: {
+                    name: 'map.geo.admin.ch',
+                    short_name: 'geoadmin',
+                    description: 'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
+                    theme_color: '#ffffff',
+                    icons: [
+                        { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+                        { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+                    ],
+                    related_applications: [
+                        {
+                            platform: 'play',
+                            url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
+                        },
+                        {
+                            platform: 'itunes',
+                            url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
+                        },
+                    ],
+                },
             }),
             mode === 'development' ? vueDevTools() : {},
         ],
