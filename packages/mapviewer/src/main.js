@@ -52,6 +52,7 @@ log.debug('Config is', {
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_TABLET,
+    env: import.meta.env,
 })
 
 registerProj4(proj4)

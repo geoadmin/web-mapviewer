@@ -122,6 +122,7 @@
         "tailwindcss": "catalog:",
         "vite": "catalog:",
         "vite-node": "catalog:",
+        "vite-plugin-conditional-compiler": "catalog:",
         "vite-plugin-pwa": "catalog:",
         "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
@@ -135,6 +136,9 @@
         "workbox-window": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"
+    },
+    "overrides": {
+        "rollup": "catalog:"
     },
     "engineStrict": true
 }
