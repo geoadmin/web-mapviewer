@@ -38,9 +38,11 @@ export function useDragBoxSelect() {
             return
         }
         // Check if the box has a non-zero area
+        const PIXEL_TOLERANCE = 10 // Minimum drag in pixels to be considered a box
+        const resolution = store.getters.resolution
+        const minDragDistance = PIXEL_TOLERANCE * resolution
         const [minX, minY, maxX, maxY] = selectExtent
-        if (minX === maxX || minY === maxY) {
-            // It's a click, not a box selection
+        if (Math.abs(minX - maxX) < minDragDistance || Math.abs(minY - maxY) < minDragDistance) {
             return
         }
         // Only clear selection if a real box was drawn
