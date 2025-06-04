@@ -61,7 +61,7 @@ function refreshPageTitle() {
         <router-view />
         <FeedbackPopup v-if="showFeedbackPopup" />
         <DebugToolbar v-if="showDebugToolbar" />
-        <OfflinePrompt />
+        <OfflinePrompt v-if="!IS_TESTING_WITH_CYPRESS" />
     </div>
 </template>
 

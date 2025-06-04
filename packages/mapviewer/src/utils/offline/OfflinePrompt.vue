@@ -7,17 +7,16 @@ const period = 60 * 60 * 1000
 
 const swActivated = ref(false)
 
-/**
- * This function will register a periodic sync check every hour, you can modify the interval as
- * needed.
- */
-function registerPeriodicSync(swUrl: string, r: ServiceWorkerRegistration) {
+/** This function will register a periodic sync check every hour */
+function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWorkerRegistration) {
     if (period <= 0) return
 
     setInterval(async () => {
-        if ('onLine' in navigator && !navigator.onLine) return
+        if ('onLine' in navigator && !navigator.onLine) {
+            return
+        }
 
-        const resp = await fetch(swUrl, {
+        const resp = await fetch(serviceWorkerUrl, {
             cache: 'no-store',
             headers: {
                 cache: 'no-store',
@@ -25,30 +24,38 @@ function registerPeriodicSync(swUrl: string, r: ServiceWorkerRegistration) {
             },
         })
 
-        if (resp?.status === 200) await r.update()
+        if (resp?.status === 200) {
+            await registration.update()
+        }
     }, period)
 }
 
 const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
     immediate: true,
-    onRegisteredSW(swUrl, r) {
+    onRegisteredSW(serviceWorkerUrl, registration) {
         if (period <= 0) return
-        if (r?.active?.state === 'activated') {
+        if (registration?.active?.state === 'activated') {
             swActivated.value = true
-            registerPeriodicSync(swUrl, r)
-        } else if (r?.installing) {
-            r.installing.addEventListener('statechange', (e) => {
+            registerPeriodicSync(serviceWorkerUrl, registration)
+        } else if (registration?.installing) {
+            registration.installing.addEventListener('statechange', (e) => {
                 const sw = e.target as ServiceWorker
                 swActivated.value = sw.state === 'activated'
-                if (swActivated.value) registerPeriodicSync(swUrl, r)
+                if (swActivated.value) {
+                    registerPeriodicSync(serviceWorkerUrl, registration)
+                }
             })
         }
     },
 })
 
 const title = computed(() => {
-    if (offlineReady.value) return 'App ready to work offline'
-    if (needRefresh.value) return 'New content available, click on reload button to update.'
+    if (offlineReady.value) {
+        return 'App ready to work offline'
+    }
+    if (needRefresh.value) {
+        return 'New content available, click on reload button to update.'
+    }
     return ''
 })
 
@@ -92,8 +99,9 @@ function close() {
 <style scoped>
 .pwa-toast {
     position: fixed;
-    right: 0;
-    bottom: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     margin: 16px;
     padding: 12px;
     border: 1px solid #8885;
