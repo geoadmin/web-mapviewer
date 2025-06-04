@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// conditional declaration of the component, as service-worker is not setup when we test with Cypress
+// #v-ifdef MODE!='test'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import { computed, ref } from 'vue'
 
@@ -9,7 +11,9 @@ const swActivated = ref(false)
 
 /** This function will register a periodic sync check every hour */
 function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWorkerRegistration) {
-    if (period <= 0) return
+    if (period <= 0) {
+        return
+    }
 
     setInterval(async () => {
         if ('onLine' in navigator && !navigator.onLine) {
@@ -63,6 +67,7 @@ function close() {
     offlineReady.value = false
     needRefresh.value = false
 }
+// #v-endif
 </script>
 
 <template>

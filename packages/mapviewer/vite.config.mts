@@ -5,6 +5,7 @@ import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
+import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -109,51 +110,55 @@ export default defineConfig(({ mode }) => {
                     },
                 ],
             }),
-            VitePWA({
-                devOptions: {
-                    enabled: true,
-                    navigateFallback: 'index.html',
-                    suppressWarnings: true,
-                    type: 'module',
-                },
+            ConditionalCompile(),
+            mode === 'test'
+                ? null
+                : VitePWA({
+                      devOptions: {
+                          enabled: true,
+                          navigateFallback: 'index.html',
+                          suppressWarnings: true,
+                          type: 'module',
+                      },
 
-                strategies: 'injectManifest',
-                srcDir: 'src',
-                filename: 'service-workers.ts',
-                registerType: 'autoUpdate',
-                includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
-                injectRegister: false,
-                injectManifest: {
-                    // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
-                    maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
-                },
+                      strategies: 'injectManifest',
+                      srcDir: 'src',
+                      filename: 'service-workers.ts',
+                      registerType: 'autoUpdate',
+                      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+                      injectRegister: false,
+                      injectManifest: {
+                          // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
+                          maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
+                      },
 
-                pwaAssets: {
-                    disabled: false,
-                    config: true,
-                },
+                      pwaAssets: {
+                          disabled: false,
+                          config: true,
+                      },
 
-                manifest: {
-                    name: 'map.geo.admin.ch',
-                    short_name: 'geoadmin',
-                    description: 'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
-                    theme_color: '#ffffff',
-                    icons: [
-                        { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
-                        { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
-                    ],
-                    related_applications: [
-                        {
-                            platform: 'play',
-                            url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
-                        },
-                        {
-                            platform: 'itunes',
-                            url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
-                        },
-                    ],
-                },
-            }),
+                      manifest: {
+                          name: 'map.geo.admin.ch',
+                          short_name: 'geoadmin',
+                          description:
+                              'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
+                          theme_color: '#ffffff',
+                          icons: [
+                              { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+                              { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+                          ],
+                          related_applications: [
+                              {
+                                  platform: 'play',
+                                  url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
+                              },
+                              {
+                                  platform: 'itunes',
+                                  url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
+                              },
+                          ],
+                      },
+                  }),
             mode === 'development' ? vueDevTools() : {},
         ],
         resolve: {
@@ -163,10 +168,13 @@ export default defineConfig(({ mode }) => {
                 cesium: normalizePath(cesiumFolder),
             },
         },
+        // see https://vite.dev/config/#using-environment-variables-in-config
         define: {
             __APP_VERSION__: JSON.stringify(appVersion),
             VITE_ENVIRONMENT: JSON.stringify(definitiveMode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
+            // explicitly opting-out of Option API to reduce the Vue bundle's size
+            // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',
         },
         test: {
