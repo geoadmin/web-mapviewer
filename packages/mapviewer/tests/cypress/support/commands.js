@@ -406,7 +406,9 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
 Cypress.Commands.add('waitUntilState', (predicate, options = {}) => {
     cy.waitUntil(
         () =>
-            cy.window({ log: false }).then((win) => predicate(win.store.state, win.store.getters)),
+            cy
+                .window({ log: false })
+                .should((win) => win.store && predicate(win.store.state, win.store.getters)),
         Object.assign(
             {
                 errorMsg:
