@@ -16,6 +16,7 @@ import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import { ClickInfo } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
@@ -38,9 +39,8 @@ export function useDragBoxSelect() {
             return
         }
         // Check if the box has a non-zero area
-        const PIXEL_TOLERANCE = 10 // Minimum drag in pixels to be considered a box
         const resolution = store.getters.resolution
-        const minDragDistance = PIXEL_TOLERANCE * resolution
+        const minDragDistance = DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE * resolution
         const [minX, minY, maxX, maxY] = selectExtent
         if (Math.abs(minX - maxX) < minDragDistance || Math.abs(minY - maxY) < minDragDistance) {
             return
