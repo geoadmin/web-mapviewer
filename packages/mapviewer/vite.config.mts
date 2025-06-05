@@ -112,7 +112,7 @@ export default defineConfig(({ mode }) => {
             }),
             ConditionalCompile(),
             mode === 'test'
-                ? null
+                ? {}
                 : VitePWA({
                       devOptions: {
                           enabled: true,
@@ -171,8 +171,9 @@ export default defineConfig(({ mode }) => {
         // see https://vite.dev/config/#using-environment-variables-in-config
         define: {
             __APP_VERSION__: JSON.stringify(appVersion),
-            VITE_ENVIRONMENT: JSON.stringify(definitiveMode),
+            __VITE_ENVIRONMENT__: JSON.stringify(definitiveMode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
+            __IS_TESTING_WITH_CYPRESS__: JSON.stringify(mode === 'test'),
             // explicitly opting-out of Option API to reduce the Vue bundle's size
             // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',

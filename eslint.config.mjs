@@ -37,10 +37,11 @@ export default defineConfigWithVueTs(
                 ...globals.browser,
                 ...globals.vitest,
                 ...globals.node,
-                __APP_VERSION__: true,
-                __CESIUM_STATIC_PATH__: true,
                 defineModel: 'readonly',
-                VITE_ENVIRONMENT: true,
+                __APP_VERSION__: true,
+                __VITE_ENVIRONMENT__: true,
+                __CESIUM_STATIC_PATH__: true,
+                __IS_TESTING_WITH_CYPRESS__: true,
             },
 
             parserOptions: {
