@@ -108,5 +108,6 @@ if (!IS_TESTING_WITH_CYPRESS) {
         )
     )
 
-    await self.skipWaiting()
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    self.skipWaiting()
 }
