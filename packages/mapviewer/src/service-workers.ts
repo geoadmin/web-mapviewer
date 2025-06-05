@@ -108,5 +108,5 @@ if (!IS_TESTING_WITH_CYPRESS) {
         )
     )
 
-    self.skipWaiting()
+    await self.skipWaiting()
 }

@@ -33,12 +33,14 @@ import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.p
 import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
 import updateSelectedFeaturesPlugin from '@/store/plugins/update-selected-features.plugin'
+import vuexLogPlugin from '@/store/plugins/vuex-log.plugin'
 
 const store = createStore({
-    // Do not run strict mode on production has it has performance cost
+    // Do not run strict mode on production as it has performance cost
     strict: ENVIRONMENT !== 'production',
     state: {},
     plugins: [
+        vuexLogPlugin,
         loadLayersConfigOnLangChange,
         redoSearchWhenNeeded,
         clickOnMapManagementPlugin,
