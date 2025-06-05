@@ -347,18 +347,7 @@ describe('Testing the feature selection', () => {
         // This function simulates a click on the map at the specified location {x, y}
         // The ctrlKey parameter allows for simulating a click with the CTRL key pressed.
         function clickOnMap(location, ctrlKey = false) {
-            cy.get('@olMap').realMouseDown({
-                x: location.x,
-                y: location.y,
-                position: 'topLeft',
-                ctrlKey: ctrlKey,
-            })
-            cy.get('@olMap').realMouseUp({
-                x: location.x,
-                y: location.y,
-                position: 'topLeft',
-                ctrlKey: ctrlKey,
-            })
+            cy.get('@olMap').click(location.x, location.y, { ctrlKey })
         }
 
         it('can select an area to identify features inside it', () => {
