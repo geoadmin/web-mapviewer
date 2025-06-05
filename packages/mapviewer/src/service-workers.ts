@@ -16,6 +16,9 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
 declare let self: ServiceWorkerGlobalScope
 
+// disabling workbox's console.debug (comment that line if you need them)
+self.__WB_DISABLE_DEV_LOGS = true
+
 // Setting up Service Worker API to have a client-side cache.
 // This means the app can mostly function in offline mode, so long as the initial load has happened naturally before.
 // This is the first step to get a proper offline mode, where users will be able to select

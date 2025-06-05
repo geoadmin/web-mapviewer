@@ -3,10 +3,10 @@
 
 // stuff declared directly in the vite.config.mts (see define block)
 // see https://vite.dev/config/shared-options.html#define
-declare const VITE_ENVIRONMENT: 'development' | 'integration' | 'production'
-declare const __MODE__: 'development' | 'integration' | 'production' | 'test'
+declare const __VITE_ENVIRONMENT__: 'development' | 'integration' | 'production'
 declare const __APP_VERSION__: string
 declare const __CESIUM_STATIC_PATH__: string
+declare const __IS_TESTING_WITH_CYPRESS__: boolean
 
 interface ImportMetaEnv {
     // stuff from .env.{staging} files

@@ -3,10 +3,10 @@
  *
  * @see https://en.wikipedia.org/wiki/Deployment_environment
  */
-export const ENVIRONMENT = VITE_ENVIRONMENT
+export const ENVIRONMENT = __VITE_ENVIRONMENT__
 
 /** Flag that tells if the app is currently running in a Cypress environment for E2E testing */
-export const IS_TESTING_WITH_CYPRESS: boolean = import.meta.env.mode === 'test'
+export const IS_TESTING_WITH_CYPRESS: boolean = __IS_TESTING_WITH_CYPRESS__
 
 /** Current app version (from package.json) */
 export const APP_VERSION: string = __APP_VERSION__
