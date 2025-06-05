@@ -15,6 +15,7 @@ function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWor
         return
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setInterval(async () => {
         if ('onLine' in navigator && !navigator.onLine) {
             return
