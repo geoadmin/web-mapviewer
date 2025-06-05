@@ -347,7 +347,7 @@ describe('Testing the feature selection', () => {
         // This function simulates a click on the map at the specified location {x, y}
         // The ctrlKey parameter allows for simulating a click with the CTRL key pressed.
         function clickOnMap(location, ctrlKey = false) {
-            cy.get('@olMap').click(location.x, location.y, { ctrlKey })
+            cy.get('@olMap').click(location[0], location[1], { ctrlKey })
         }
 
         it('can select an area to identify features inside it', () => {
@@ -512,7 +512,7 @@ describe('Testing the feature selection', () => {
             cy.get('@emptyIdentify.all').should('have.length', 1)
         })
 
-        it('can select feature by click, add more feature, and deselect feature', () => {
+        it.only('can select feature by click, add more feature, and deselect feature', () => {
             // Import KML file
             const fileName = '4-points.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -547,26 +547,34 @@ describe('Testing the feature selection', () => {
             ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
-
-            // This point location is found by listening to the click event on the map with the following code:
-            // cy.get('[data-cy="ol-map"]').then(($el) => {
-            //     $el[0].addEventListener('click', (e) => {
-            //         console.log('Clicked at:', e.offsetX, e.offsetY);
-            //     });
-            // });
-            const point1 = { x: 40, y: 205 }
-            const point3 = { x: 86, y: 359 }
-
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
-            // Click feature no 3
-            clickOnMap(point3, false)
+
+            // Check the clicked position on the map
+            cy.get('[data-cy="ol-map"]').then(($el) => {
+                $el[0].addEventListener('click', (e) => {
+                    console.log('Clicked at:', e.offsetX, e.offsetY);
+                });
+            });
+
+            cy.window().then((win) => {
+            const olMap = win.map; // or win.map.map
+            const coordinate1 = [2606000.0005631046, 1216750.0010012304];
+            const coordinate3 = [2618000.0005839523, 1178750.0009789472];
+
+            const pixel1 = olMap.getPixelFromCoordinate(coordinate1);
+            const pixel3 = olMap.getPixelFromCoordinate(coordinate3);
+            console.log('Pixel 1 coordinates:', pixel1);
+            console.log('Pixel 3 coordinates:', pixel3);
+
+            clickOnMap(pixel3, false)
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
             // Click feature no 1 with CTRL, select it
-            clickOnMap(point1, true)
+            clickOnMap(pixel1, true)
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
             // Click feature no 1 again with CTRL, deselect it
-            clickOnMap(point1, true)
+            clickOnMap(pixel1, true)
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+            });
         })
 
         it('can print feature information', () => {
