@@ -546,25 +546,24 @@ describe('Testing the feature selection', () => {
 
             cy.closeMenuIfMobile()
 
-            cy.checkOlLayer([
-                'test.background.layer2',
-                fileName,
-            ])
+            cy.checkOlLayer(['test.background.layer2', fileName])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
 
             cy.window().then((win) => {
-                const olMap = win.map; // or win.map.map
-                const mapProjection = olMap.getView().getProjection().getCode();
+                const olMap = win.map // or win.map.map
+                const mapProjection = olMap.getView().getProjection().getCode()
 
-                const point1 = [7.5176682524165095,47.10172318866241];
-                const point3 = [7.674246396589141, 46.759691186931235];
+                const point1 = [7.5176682524165095, 47.10172318866241]
+                const point3 = [7.674246396589141, 46.759691186931235]
 
-                const pixel1 = olMap.getPixelFromCoordinate(proj4(
-                    'EPSG:4326', mapProjection, point1));
-                const pixel3 = olMap.getPixelFromCoordinate(proj4(
-                    'EPSG:4326', mapProjection, point3));
+                const pixel1 = olMap.getPixelFromCoordinate(
+                    proj4('EPSG:4326', mapProjection, point1)
+                )
+                const pixel3 = olMap.getPixelFromCoordinate(
+                    proj4('EPSG:4326', mapProjection, point3)
+                )
 
                 // Click feature no 3 without CTRL, select it
                 clickOnMap(pixel3, false)
@@ -575,7 +574,7 @@ describe('Testing the feature selection', () => {
                 // Click feature no 1 again with CTRL, deselect it
                 clickOnMap(pixel1, true)
                 cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
-            });
+            })
         })
 
         it('can print feature information', () => {
