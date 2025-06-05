@@ -517,7 +517,7 @@ describe('Testing the feature selection', () => {
             cy.get('@emptyIdentify.all').should('have.length', 1)
         })
 
-        it.only('can select feature by click, add more feature, and deselect feature', () => {
+        it('can select feature by click, add more feature, and deselect feature', () => {
             // Import KML file
             const fileName = '4-points.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -554,22 +554,18 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
 
-            // Check the clicked position on the map
-            cy.get('[data-cy="ol-map"]').then(($el) => {
-                $el[0].addEventListener('click', (e) => {
-                    console.log('Clicked at:', e.offsetX, e.offsetY);
-                });
-            });
-
             cy.window().then((win) => {
                 const olMap = win.map; // or win.map.map
+                const mapProjection = olMap.getView().getProjection().getCode();
+
                 const point1 = [7.5176682524165095,47.10172318866241];
                 const point3 = [7.674246396589141, 46.759691186931235];
 
                 const pixel1 = olMap.getPixelFromCoordinate(proj4(
-                    'EPSG:4326', 'EPSG:2056', point1));
+                    'EPSG:4326', mapProjection, point1));
                 const pixel3 = olMap.getPixelFromCoordinate(proj4(
-                    'EPSG:4326', 'EPSG:2056', point3));
+                    'EPSG:4326', mapProjection, point3));
+
                 // Click feature no 3 without CTRL, select it
                 clickOnMap(pixel3, false)
                 cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
