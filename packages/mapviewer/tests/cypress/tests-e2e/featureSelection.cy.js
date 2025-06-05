@@ -1,6 +1,11 @@
 /// <reference types="cypress" />
+import { registerProj4 } from '@geoadmin/coordinates'
+import proj4 from 'proj4'
+
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+
+registerProj4(proj4)
 
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
@@ -557,23 +562,23 @@ describe('Testing the feature selection', () => {
             });
 
             cy.window().then((win) => {
-            const olMap = win.map; // or win.map.map
-            const coordinate1 = [2606000.0005631046, 1216750.0010012304];
-            const coordinate3 = [2618000.0005839523, 1178750.0009789472];
+                const olMap = win.map; // or win.map.map
+                const point1 = [7.5176682524165095,47.10172318866241];
+                const point3 = [7.674246396589141, 46.759691186931235];
 
-            const pixel1 = olMap.getPixelFromCoordinate(coordinate1);
-            const pixel3 = olMap.getPixelFromCoordinate(coordinate3);
-            console.log('Pixel 1 coordinates:', pixel1);
-            console.log('Pixel 3 coordinates:', pixel3);
-
-            clickOnMap(pixel3, false)
-            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
-            // Click feature no 1 with CTRL, select it
-            clickOnMap(pixel1, true)
-            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
-            // Click feature no 1 again with CTRL, deselect it
-            clickOnMap(pixel1, true)
-            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                const pixel1 = olMap.getPixelFromCoordinate(proj4(
+                    'EPSG:4326', 'EPSG:2056', point1));
+                const pixel3 = olMap.getPixelFromCoordinate(proj4(
+                    'EPSG:4326', 'EPSG:2056', point3));
+                // Click feature no 3 without CTRL, select it
+                clickOnMap(pixel3, false)
+                cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                // Click feature no 1 with CTRL, select it
+                clickOnMap(pixel1, true)
+                cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
+                // Click feature no 1 again with CTRL, deselect it
+                clickOnMap(pixel1, true)
+                cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
             });
         })
 
