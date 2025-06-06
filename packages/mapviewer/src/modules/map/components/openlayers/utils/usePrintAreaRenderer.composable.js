@@ -1,6 +1,8 @@
 import log from '@geoadmin/log'
 import * as olHas from 'ol/has'
+import VectorLayer from 'ol/layer/Vector'
 import { getRenderPixel } from 'ol/render'
+import VectorSource from 'ol/source/Vector'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -8,7 +10,7 @@ const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
-
+    let printPreviewLayer = null
     let deregister = []
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
@@ -33,13 +35,20 @@ export default function usePrintAreaRenderer(map) {
     })
 
     function activatePrintArea() {
-        // layers in openlayers array are not sorted by zIndex by default !
-        const sortedMapsByZIndex = map
-            .getAllLayers()
-            .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
+        // We need to add the prerender and postrender events to a layer that is not removed from the map before deactivation of the print renderer.
+        // Else the print area will not be rendered when the layer is removed.
+        printPreviewLayer = new VectorLayer({
+            source: new VectorSource({
+                useSpatialIndex: false,
+                wrapX: true,
+            }),
+            zIndex: 10000,
+        })
+        map.addLayer(printPreviewLayer)
+
         deregister = [
-            sortedMapsByZIndex[0].on('prerender', handlePreRender),
-            sortedMapsByZIndex[0].on('postrender', handlePostRender),
+            printPreviewLayer.on('prerender', handlePreRender),
+            printPreviewLayer.on('postrender', handlePostRender),
             watch(printLayoutSize, async () => {
                 await store.dispatch('setSelectedScale', {
                     scale: getOptimalScale(),
@@ -71,6 +80,7 @@ export default function usePrintAreaRenderer(map) {
                 item.target.un(item.type, item.listener)
             }
         }
+        map.removeLayer(printPreviewLayer)
         map.render()
     }
 
