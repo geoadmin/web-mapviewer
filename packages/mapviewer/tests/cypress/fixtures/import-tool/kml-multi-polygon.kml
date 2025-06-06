@@ -1,0 +1,57 @@
+<kml
+    xmlns="http://www.opengis.net/kml/2.2"
+    xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd"
+>
+  <Document>
+    <name>Dessin</name>
+    <Placemark id="drawing_feature_1749037863525">
+      <Style>
+        <LineStyle>
+          <color>ff0000ff</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>660000ff</color>
+        </PolyStyle>
+      </Style>
+      <ExtendedData>
+        <Data name="type">
+          <value>multipolygon</value>
+        </Data>
+      </ExtendedData>
+      <MultiGeometry>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                7.328810187656231,46.81125853783155
+                7.173777681704551,46.71777744886136
+                7.235827981974259,46.648503638900415
+                7.551851174194121,46.6258419588745
+                7.784091726458783,46.7123875240996
+                7.664050602098449,46.83491573493981
+                7.328810187656231,46.81125853783155
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                7.375673117968331,46.75743120878515
+                7.312438903321319,46.71180140956607
+                7.443533793152722,46.681832883528365
+                7.573087699211701,46.69625651318792
+                7.375673117968331,46.75743120878515
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+  </Document>
+</kml>
