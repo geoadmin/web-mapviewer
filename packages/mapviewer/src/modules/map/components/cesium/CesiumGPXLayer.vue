@@ -12,7 +12,7 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
+import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config.js'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
 const { gpxLayerConfig } = defineProps({

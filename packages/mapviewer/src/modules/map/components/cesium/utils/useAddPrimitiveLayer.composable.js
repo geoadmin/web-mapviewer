@@ -17,7 +17,7 @@ import {
 } from 'cesium'
 import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
-import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'
+import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config.js'
 import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle'
 
 /**

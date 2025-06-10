@@ -1,14 +1,17 @@
+import type CustomCoordinateSystem, { SingleCoordinate } from '@geoadmin/coordinates'
+import type { GeoAdminLayer, Layer } from '@geoadmin/layers'
+
 import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
-import axios from 'axios'
+import axios, { type CancelToken } from 'axios'
 import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import { normalizeExtent } from '@/utils/extentUtils'
+import { type FlatExtent, normalizeExtent } from '@/utils/extentUtils.ts'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -22,22 +25,16 @@ const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
  * @property {String} message Technical english message
  */
 export class SearchError extends Error {
-    constructor(message) {
+    constructor(message?: string) {
         super(message)
         this.name = 'SearchError'
     }
 }
 
-/**
- * Enum for search result types
- *
- * @readonly
- * @enum {String}
- */
-export const SearchResultTypes = {
-    LAYER: 'LAYER',
-    LOCATION: 'LOCATION',
-    FEATURE: 'FEATURE',
+export enum SearchResultTypes {
+    LAYER = 'LAYER',
+    LOCATION = 'LOCATION',
+    FEATURE = 'FEATURE',
 }
 
 // comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
@@ -46,62 +43,62 @@ const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
 /**
  * Exported so that it may be unit tested, it is intended to only care for search results title and
  * nothing more
- *
- * @param title
- * @returns {string}
  */
-export function sanitizeTitle(title = '') {
+export function sanitizeTitle(title: string = ''): string {
     return title.replace(REGEX_DETECT_HTML_TAGS, '')
 }
 
-/**
- * @typedef {Object} SearchResult
- * @param {SearchResultTypes} resultType
- * @param {String} id ID of this search result
- * @param {String} title Title of this search result (can be HTML as a string)
- * @param {String} sanitizedTitle The title without any HTML tags (will keep what's inside <b> or
- *   <i> tags if there are)
- * @param {String} description A description of this search result (plain text only, no HTML)
- */
+export interface SearchResult {
+    resultType: SearchResultTypes
+    /** ID of this search result */
+    id: string
+    /** Title of this search result (can be HTML as a string) */
+    title: string
+    /** The title without any HTML tags (will keep what's inside <b> or <i> tags if there are) */
+    sanitizedTitle: string
+    /** A description of this search result (plain text only, no HTML) */
+    description: string
+}
 
-/**
- * @extends SearchResult
- * @typedef {Object} LayerSearchResult
- * @param {SearchResultTypes} resultType
- * @param {String} layerId ID of the layer in the layers config
- */
+export interface LayerSearchResult extends SearchResult {
+    /** ID of the layer in the layers config */
+    layerId: string
+}
 
-/**
- * @extends SearchResult
- * @typedef {Object} LocationSearchResult
- * @param {SearchResultTypes} resultType
- * @param {String} featureId ID of this feature given by the backend (can be then used to access
- *   other information about the feature, such as the HTML popup). If the backend doesn't give a
- *   feature ID for this feature, the description will be used as a fallback ID.
- * @param {[Number, Number]} coordinate Coordinate of this feature where to anchor the popup
- * @param {[Number, Number, Number, Number]} extent Extent of this feature described as `[
- *   [bottomLeftCoords], [topRightCoords] ]` (if this feature is a point, there will be two times
- *   the same point in the extent)
- * @param {Number} zoom The zoom level at which the map should be zoomed when showing the feature
- *   (if the extent is defined, this should be ignored). The zoom level correspond to a zoom level
- *   in the projection system this feature was requested in.
- */
+export interface LocationSearchResult extends SearchResult {
+    /**
+     * ID of this feature given by the backend (can be then used to access other information about
+     * the feature, such as the HTML popup). If the backend doesn't give a feature ID for this
+     * feature, the description will be used as a fallback ID.
+     */
+    featureId: string
+    /** Coordinate of this feature where to anchor the popup */
+    coordinate?: SingleCoordinate
+    /**
+     * Extent of this feature described as `[ [bottomLeftCoords], [topRightCoords] ]` (if this
+     * feature is a point, there will be two times the same point in the extent)
+     */
+    extent?: FlatExtent
+    /**
+     * The zoom level at which the map should be zoomed when showing the feature (if the extent is
+     * defined, this should be ignored). The zoom level correspond to a zoom level in the projection
+     * system this feature was requested in.
+     */
+    zoom: number
+}
 
-/**
- * @extends LayerSearchResult
- * @extends LocationSearchResult
- * @typedef {Object} LayerFeatureSearchResult
- * @param {GeoAdminLayer} layer The layer of this feature.
- */
+export interface LayerFeatureSearchResult extends LayerSearchResult, LocationSearchResult {
+    /** The layer of this feature. */
+    layer: GeoAdminLayer
+}
 
-/**
- * @param {String} query
- * @param {String} lang
- * @param {String} type
- * @param {CancelToken} cancelToken
- * @returns Promise<Array<Any>>
- */
-const generateAxiosSearchRequest = (query, lang, type, cancelToken, extraParams = {}) => {
+const generateAxiosSearchRequest = (
+    query: string,
+    lang: string,
+    type: string,
+    cancelToken: CancelToken,
+    extraParams: Object = {}
+): Promise<any> => {
     return axios.get(`${getServiceSearchBaseUrl()}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
@@ -114,7 +111,7 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken, extraParams 
     })
 }
 
-function parseLayerResult(result) {
+function parseLayerResult(result: any): LayerSearchResult {
     if (!result.attrs) {
         throw new SearchError('Invalid layer result, cannot be parsed')
     }
@@ -129,14 +126,17 @@ function parseLayerResult(result) {
     }
 }
 
-function parseLocationResult(result, outputProjection) {
+function parseLocationResult(
+    result: any,
+    outputProjection: CoordinateSystem
+): LocationSearchResult {
     if (!result.attrs) {
         throw new SearchError('Invalid location result, cannot be parsed')
     }
     // reading the main values from the attrs
     const { label: title, detail: description, featureId, origin } = result.attrs
 
-    let coordinate = []
+    let coordinate: SingleCoordinate | undefined
     let zoom = result.attrs.zoomlevel
     if (result.attrs.lon && result.attrs.lat) {
         coordinate = [result.attrs.lon, result.attrs.lat]
@@ -148,30 +148,34 @@ function parseLocationResult(result, outputProjection) {
         // re-projecting result coordinate and zoom to wanted projection
         zoom = LV95.transformCustomZoomLevelToStandard(zoom)
         if (!outputProjection.usesMercatorPyramid) {
-            zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
+            zoom = (outputProjection as CustomCoordinateSystem).transformStandardZoomLevelToCustom(
+                zoom
+            )
         }
     }
     // reading the extent from the LineString (if defined)
-    let extent = []
+    let extent: FlatExtent | undefined
     if (result.attrs.geom_st_box2d) {
         const extentMatches = Array.from(
             result.attrs.geom_st_box2d.matchAll(
                 /BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g
             )
         )[0]
-        let bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
-        let topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
-        if (outputProjection.epsg !== LV95.epsg) {
-            bottomLeft = proj4(LV95.epsg, outputProjection.epsg, bottomLeft)
-            topRight = proj4(LV95.epsg, outputProjection.epsg, topRight)
-        }
-        // checking if both point are the same (can happen if what is shown is a point of interest)
-        if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
-            extent.push(bottomLeft, topRight)
+        if (Array.isArray(extentMatches) && extentMatches.length >= 5) {
+            let bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
+            let topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
+            if (outputProjection.epsg !== LV95.epsg) {
+                bottomLeft = proj4(LV95.epsg, outputProjection.epsg, bottomLeft)
+                topRight = proj4(LV95.epsg, outputProjection.epsg, topRight)
+            }
+            // checking if both point are the same (can happen if what is shown is a point of interest)
+            if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
+                extent = [...bottomLeft, ...topRight] as FlatExtent
+            }
         }
     }
     // when no zoom and no extent are given, we go 1:25'000 map by default
-    if (!zoom && extent.length === 0) {
+    if (!zoom && !extent) {
         zoom = outputProjection.get1_25000ZoomLevel()
     }
     let newOrigin
@@ -192,17 +196,25 @@ function parseLocationResult(result, outputProjection) {
     }
 }
 
-async function searchLayers(queryString, lang, cancelToken, limit = null) {
+async function searchLayers(
+    queryString: string,
+    lang: string,
+    cancelToken: CancelToken,
+    limit?: number
+) {
     try {
         const layerResponse = await generateAxiosSearchRequest(
             queryString,
             lang,
             'layers',
-            cancelToken.token,
+            cancelToken,
             { limit }
         )
+        if (!layerResponse?.data || !layerResponse?.data?.results) {
+            return []
+        }
         // checking that there is something of interest to parse
-        const resultWithAttrs = layerResponse?.data.results?.filter((result) => result.attrs)
+        const resultWithAttrs = layerResponse?.data.results?.filter((result: any) => !!result.attrs)
         return resultWithAttrs?.map(parseLayerResult) ?? []
     } catch (error) {
         log.error(`Failed to search layer, fallback to empty result`, error)
@@ -213,15 +225,14 @@ async function searchLayers(queryString, lang, cancelToken, limit = null) {
 /**
  * Search locations for this query string in our backend, returning results reprojected to the
  * outputProjection (if it isn't LV95 already)
- *
- * @param outputProjection
- * @param queryString
- * @param lang
- * @param cancelToken
- * @param limit
- * @returns {Promise<LocationSearchResult[]>}
  */
-async function searchLocation(outputProjection, queryString, lang, cancelToken, limit = null) {
+async function searchLocation(
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    lang: string,
+    cancelToken: CancelToken,
+    limit?: number
+): Promise<LocationSearchResult[]> {
     try {
         const locationResponse = await generateAxiosSearchRequest(
             queryString,
@@ -230,10 +241,17 @@ async function searchLocation(outputProjection, queryString, lang, cancelToken, 
             cancelToken.token,
             { limit }
         )
+        if (!locationResponse?.data || !locationResponse?.data?.results) {
+            return []
+        }
         // checking that there is something of interest to parse
-        const resultWithAttrs = locationResponse?.data.results?.filter((result) => result.attrs)
+        const resultWithAttrs = locationResponse?.data.results?.filter(
+            (result: any) => !!result.attrs
+        )
         return (
-            resultWithAttrs.map((location) => parseLocationResult(location, outputProjection)) ?? []
+            resultWithAttrs.map((location: any) =>
+                parseLocationResult(location, outputProjection)
+            ) ?? []
         )
     } catch (error) {
         log.error(`Failed to search locations, fallback to empty result`, error)
@@ -241,15 +259,13 @@ async function searchLocation(outputProjection, queryString, lang, cancelToken, 
     }
 }
 
-/**
- * @param outputProjection
- * @param queryString
- * @param layer
- * @param lang
- * @param cancelToken
- * @returns {Promise<LayerFeatureSearchResult[]>}
- */
-async function searchLayerFeatures(outputProjection, queryString, layer, lang, cancelToken) {
+async function searchLayerFeatures(
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    layer: Layer,
+    lang: string,
+    cancelToken: CancelToken
+): Promise<LayerFeatureSearchResult[]> {
     try {
         const layerFeatureResponse = await generateAxiosSearchRequest(
             queryString,
