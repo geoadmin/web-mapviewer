@@ -12,7 +12,7 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
+import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config.js'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 

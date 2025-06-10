@@ -13,7 +13,7 @@ import {
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_PITCH,
     CAMERA_MIN_ZOOM_DISTANCE,
-} from '@/config/cesium.config'
+} from '@/config/cesium.config.js'
 import {
     calculateHeight,
     limitCameraCenter,

@@ -4,7 +4,7 @@
 import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
-import { SearchResultTypes } from '@/api/search.api'
+import { SearchResultTypes } from '@/api/search.api.js'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 

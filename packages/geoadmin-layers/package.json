@@ -56,6 +56,7 @@
         "@geoadmin/numbers": "workspace:^",
         "axios": "catalog:",
         "lodash": "catalog:",
+        "luxon": "catalog:",
         "ol": "catalog:",
         "proj4": "catalog:",
         "uuid": "catalog:"
@@ -65,6 +66,7 @@
     },
     "devDependencies": {
         "@types/lodash": "catalog:",
+        "@types/luxon": "catalog:",
         "@types/openlayers": "catalog:",
         "chai": "catalog:",
         "vite": "catalog:",

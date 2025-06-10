@@ -5,7 +5,7 @@ import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
-import { normalizeExtent } from '@/utils/extentUtils'
+import { normalizeExtent } from '@/utils/extentUtils.js'
 
 /** @enum */
 export const CrossHairs = {
@@ -52,13 +52,6 @@ function reprojectExtent(extent, sourceProjection, targetProjection) {
  * Structure of the camera position
  *
  * @typedef CameraPosition
- * @property {Number} x X position of the camera in the 3D reference system (metric mercator)
- * @property {Number} y Y position of the camera in the 3D reference system (metric mercator)
- * @property {Number} z Z altitude of the camera in the 3D reference system (meters)
- * @property {Number} heading Degrees of camera rotation on the heading axis ("compass" axis)
- * @property {Number} pitch Degrees of camera rotation on the pitch axis ("nose up and down" axis)
- * @property {Number} roll Degrees of camera rotation on the roll axis ("barrel roll" axis, like if
- *   the camera was a plane)
  */
 
 const state = {

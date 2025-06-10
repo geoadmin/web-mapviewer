@@ -30,7 +30,7 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import { flattenExtent } from '@/utils/extentUtils'
+import { flattenExtent } from '@/utils/extentUtils.ts'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 

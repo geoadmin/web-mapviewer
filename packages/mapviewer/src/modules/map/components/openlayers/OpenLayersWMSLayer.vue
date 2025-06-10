@@ -14,7 +14,7 @@ import { useStore } from 'vuex'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { flattenExtent } from '@/utils/extentUtils'
+import { flattenExtent } from '@/utils/extentUtils.js'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const { wmsLayerConfig, parentLayerOpacity, zIndex } = defineProps({

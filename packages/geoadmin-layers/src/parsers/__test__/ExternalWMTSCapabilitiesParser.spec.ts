@@ -1,8 +1,9 @@
 import { LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import { readFile } from 'fs/promises'
+import { Interval } from 'luxon'
 import { assertType, beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { LayerLegend, LayerAttribution, ExternalWMTSLayer } from '@/types/layers'
+import type { ExternalWMTSLayer, LayerAttribution, LayerLegend } from '@/types/layers'
 
 import { ExternalWMTSCapabilitiesParser, type WMTSCapabilities } from '@/parsers'
 import { timeConfigUtils } from '@/utils/index'
@@ -261,11 +262,8 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig?.currentTimeEntry?.timestamp).toBe('20110805')
-        expect(layer!.timeConfig?.currentTimeEntry?.year).toBe(2011)
-        expect(layer!.timeConfig!.currentYear).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentYear).toBe(2011)
-        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentTimestamp).toBe('20110805')
+        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).to.be.undefined
+        expect(layer!.timeConfig?.currentTimeEntry?.interval?.toISO()).to.eq(Interval.fromISO('2011-08-05/P1D').toISO())
     })
     it('Parse layer time dimension in format ISO format YYYY-MM-DD', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
@@ -281,11 +279,8 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05')
-        expect(layer!.timeConfig!.currentTimeEntry!.year!).toBe(2011)
-        expect(layer!.timeConfig!.currentYear).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentYear!).toBe(2011)
-        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentTimestamp).toBe('2011-08-05')
+        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).to.be.undefined
+        expect(layer!.timeConfig!.currentTimeEntry!.interval?.toISO()).to.eq(Interval.fromISO('2011-08-05/P1D').toISO())
     })
     it('Parse layer time dimension in format full ISO format YYYY-MM-DDTHH:mm:ss.sssZ', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleFourthGenerationJU', WGS84)
@@ -304,11 +299,8 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05T01:20:34.345Z')
-        expect(layer!.timeConfig!.currentTimeEntry!.year).toBe(2011)
-        expect(layer!.timeConfig!.currentYear).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentYear).toBe(2011)
-        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentTimestamp).toBe('2011-08-05T01:20:34.345Z')
+        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).to.be.undefined
+        expect(layer!.timeConfig!.currentTimeEntry!.interval?.toISO()).to.eq(Interval.fromISO('2011-08-05/P1D').toISO())
     })
     it('Parse layer time dimension in unknown format', () => {
         const layer = parser.getExternalLayerObject('BlueMarbleFifthGenerationGE', WGS84)
@@ -319,9 +311,5 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.timeConfig!.currentTimeEntry).to.be.not.null.and.not.undefined
         expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('Time A')
-        expect(layer!.timeConfig!.currentTimeEntry!.year).to.be.undefined
-        expect(layer!.timeConfig!.currentYear).to.be.undefined
-        expect(layer!.timeConfig!.currentTimestamp).to.be.not.null.and.not.undefined
-        expect(layer!.timeConfig!.currentTimestamp).toBe('Time A')
     })
 })

@@ -14,7 +14,7 @@ import {
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
-import { normalizeExtent } from '@/utils/extentUtils'
+import { normalizeExtent } from '@/utils/extentUtils.js'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection

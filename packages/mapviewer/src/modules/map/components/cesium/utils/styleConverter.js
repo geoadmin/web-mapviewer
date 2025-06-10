@@ -9,7 +9,7 @@ import {
 } from 'cesium'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 
-import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config'
+import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config.js'
 import { getOlImageStyleForShape } from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 
 const BILLBOARD_PIXEL_OFFSET_Y = -10

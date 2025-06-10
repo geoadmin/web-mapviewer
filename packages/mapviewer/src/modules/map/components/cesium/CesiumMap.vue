@@ -21,7 +21,7 @@ import {
 } from 'vue'
 import { useStore } from 'vuex'
 
-import { TERRAIN_URL } from '@/config/cesium.config'
+import { TERRAIN_URL } from '@/config/cesium.config.js'
 import { CESIUM_STATIC_PATH } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'

@@ -4,7 +4,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
-import { normalizeExtent } from '@/utils/extentUtils'
+import { normalizeExtent } from '@/utils/extentUtils.js'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do

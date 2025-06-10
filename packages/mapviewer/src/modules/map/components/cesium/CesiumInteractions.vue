@@ -26,7 +26,7 @@ import {
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { createPixelExtentAround } from '@/utils/extentUtils'
+import { createPixelExtentAround } from '@/utils/extentUtils.js'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }

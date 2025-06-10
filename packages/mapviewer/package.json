@@ -74,6 +74,7 @@
         "jquery": "catalog:",
         "jszip": "catalog:",
         "lodash": "catalog:",
+        "luxon": "catalog:",
         "maplibre-gl": "catalog:",
         "ol": "catalog:",
         "pako": "catalog:",
