@@ -1,14 +1,14 @@
 import { assertType, describe, expect, it } from 'vitest'
 
-import type {
-    GeoAdminAggregateLayer,
-    GeoAdminGeoJSONLayer,
-    GeoAdminLayer,
-    GeoAdminWMSLayer,
-    GeoAdminWMTSLayer,
-} from '@/types'
-
 import { generateClassForLayerConfig } from '@/api'
+import {
+    type GeoAdminAggregateLayer,
+    type GeoAdminGeoJSONLayer,
+    type GeoAdminLayer,
+    type GeoAdminWMSLayer,
+    type GeoAdminWMTSLayer,
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+} from '@/types'
 
 import rawLayerConfig from './rawLayerConfig.json'
 
@@ -55,10 +55,12 @@ describe('Test layer config parsing', () => {
             const wmsLayer = layer as GeoAdminWMSLayer
 
             expect(wmsLayer.timeConfig).to.not.be.undefined
-            expect(wmsLayer.timeConfig?.years).to.toHaveLength(13)
-            expect(wmsLayer.timeConfig?.years).to.eql([
-                2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011,
-            ])
+            expect(wmsLayer.timeConfig?.timeEntries).to.toHaveLength(13)
+            expect(
+                wmsLayer.timeConfig?.timeEntries.map((entry) =>
+                    parseInt(entry.timestamp.substring(0, 4))
+                )
+            ).to.eql([2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011])
         })
     })
     describe('WMTS', () => {
@@ -71,9 +73,13 @@ describe('Test layer config parsing', () => {
             const wmtsLayer = layer as GeoAdminWMTSLayer
 
             expect(wmtsLayer.timeConfig).to.not.be.undefined
-            expect(wmtsLayer.timeConfig?.years).to.toHaveLength(92)
-            expect(wmtsLayer.timeConfig?.years).to.eql([
-                'all', // 9999 is replaced by "all" when parsing
+            expect(wmtsLayer.timeConfig?.timeEntries).to.toHaveLength(92)
+            expect(
+                wmtsLayer.timeConfig?.timeEntries.map((entry) =>
+                    parseInt(entry.timestamp.substring(0, 4))
+                )
+            ).to.eql([
+                YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
                 2016,
                 2011,
                 2010,
@@ -176,9 +182,11 @@ describe('Test layer config parsing', () => {
             const wmtsLayer = layer as GeoAdminWMTSLayer
 
             expect(wmtsLayer.timeConfig).to.not.be.undefined
-            expect(wmtsLayer.timeConfig?.years).to.toHaveLength(34)
-            expect(wmtsLayer.timeConfig?.years).to.eql([
-                'all', // 9999 is replaced by "all" when parsing
+            expect(wmtsLayer.timeConfig?.timeEntries).to.toHaveLength(34)
+            expect(
+                wmtsLayer.timeConfig?.timeEntries.map((entry) => parseInt(entry.timestamp))
+            ).to.eql([
+                YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
                 1961,
                 1947,
                 1945,

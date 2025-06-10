@@ -6,7 +6,7 @@ import InvalidFileContentError from '@/modules/menu/components/advancedTools/Imp
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { flattenExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
+import { flattenExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils.ts'
 
 // see http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
 const USER_DEFINED_CS = 32767
