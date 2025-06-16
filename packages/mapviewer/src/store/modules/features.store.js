@@ -143,6 +143,8 @@ export default {
         /** @type Array<EditableFeature> */
         selectedEditableFeatures: [],
         highlightedFeatureId: null,
+        selectionRectangleCoordinates: null, // used to draw a rectangle selection on the map
+        selectionRectangleVisible: false, // used to draw a rectangle selection on the map
     },
     getters: {
         /** @type Array<SelectableFeature> */
@@ -244,6 +246,11 @@ export default {
             { dispatch, getters, rootState },
             { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.NEW, dispatcher }
         ) {
+            if (identifyMode === IdentifyMode.TOGGLE) {
+                dispatch('setSelectionRectangleVisible', { visible: true })
+            } else {
+                dispatch('setSelectionRectangleVisible', { visible: false })
+            }
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
                 ...vectorFeatures,
@@ -695,6 +702,12 @@ export default {
                 }
             }
         },
+        setSelectionRectangle({ commit }, { coordinates }) {
+            commit('setSelectionRectangle', { coordinates })
+        },
+        setSelectionRectangleVisible({ commit }, { visible }) {
+            commit('setSelectionRectangleVisible', { visible })
+        },
     },
     mutations: {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
@@ -748,5 +761,15 @@ export default {
         changeFeatureIsDragged(state, { feature, isDragged }) {
             feature.isDragged = isDragged
         },
+        clearSelectionRectangle(state) {
+            state.selectionRectangleCoordinates = null
+            state.selectionRectangleVisible = false
+        },
+        setSelectionRectangle(state, { coordinates }) {
+            state.selectionRectangleCoordinates = coordinates
+        },
+        setSelectionRectangleVisible(state, { visible }) {
+            state.selectionRectangleVisible = visible
+        }
     },
 }
