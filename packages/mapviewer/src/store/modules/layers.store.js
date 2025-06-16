@@ -4,6 +4,7 @@ import { ErrorMessage } from '@geoadmin/log/Message'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/layers.config'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'
@@ -26,6 +27,12 @@ function matchTwoLayers(layerId, isExternal = null, baseUrl = null, layerToMatch
     const matchesIsExternal = isExternal === null || layerToMatch.isExternal === isExternal
     const matchesBaseUrl = baseUrl === null || layerToMatch.baseUrl === baseUrl
     return matchesLayerId && matchesIsExternal && matchesBaseUrl
+}
+
+function checkLayerUrlWhitelisting(layer_base_url) {
+    return !!EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.find(
+        (regex) => !!layer_base_url.match(regex)
+    )
 }
 
 const getActiveLayersById = (state, layerId, isExternal = null, baseUrl = null) => {
@@ -271,7 +278,10 @@ const getters = {
         (state, getters) =>
         (layerId, isExternal = null, baseUrl = null) => {
             const layer = getters.getActiveLayersById(layerId, isExternal, baseUrl)[0]
-            return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+            return (
+                (layer?.isExternal && !checkLayerUrlWhitelisting(baseUrl)) ||
+                (layer?.type === LayerTypes.KML && !layer?.adminId)
+            )
         },
 
     /**
