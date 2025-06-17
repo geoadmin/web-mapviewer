@@ -370,6 +370,371 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy^="active-layer-name-${itemId}-"]`).should('be.visible')
         cy.get(`[data-cy^="button-loading-metadata-spinner-${itemId}-"]`).should('not.exist')
     })
+
+    it('Import external wms layers with an SLD enabled WMS', () => {
+        cy.intercept(
+            {
+                https: true,
+                hostname: 'wms.geo.admin.ch',
+                query: { REQUEST: 'GetCapabilities' },
+            },
+            { fixture: 'import-tool/wms-geo-admin-get-capabilities_sld_enabled.xml' }
+        ).as('wms-get-capabilities')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external provider')
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('Wms.geo.AdmiN')
+        // Item with the filtered text should be visible (it means the group is also expanded)
+        cy.get('[data-cy="import-provider-item"]')
+            .contains('https://wms.geo.admin.ch')
+            .should('be.visible')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Clear the external layer')
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.empty')
+        cy.get('[data-cy="import-provider-list"]')
+            .should('be.visible')
+            .children()
+            .should('have.length.above', 0)
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Toggle and search for provider')
+        cy.get('[data-cy="import-catalogue-input"]').type('wms.geo')
+        cy.get('[data-cy="import-provider-list"]').children().contains('https://wms.geo.admin.ch')
+        cy.get('[data-cy="import-catalogue-providers-toggle"]')
+            .should('be.visible')
+            .find('svg')
+            .should('have.class', 'fa-caret-up')
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]')
+            .should('be.visible')
+            .find('svg')
+            .should('have.class', 'fa-caret-down')
+        cy.get('[data-cy="import-provider-list"]').should('not.be.visible')
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').click()
+        cy.get('[data-cy="import-provider-item"]')
+            .contains('https://wms.geo.admin.ch')
+            .should('be.visible')
+        // Select the first one
+        cy.get('[data-cy="import-provider-item"]')
+            .contains('https://wms.geo.admin.ch')
+            .first()
+            .click()
+        cy.wait('@wms-get-capabilities')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('First external layer should be group of layers')
+        const itemId = 'ch.swisstopo-vd.official-survey'
+        const itemName = 'Beta OpenData-AV'
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible').contains(itemName)
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${itemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-info-${itemId}"]`).should('be.visible')
+
+        //---------------------------------------------------------------------------------
+        cy.log('Add group of layer')
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 1)
+            .then((layers) => {
+                cy.wrap(layers[0].name).should('be.equal', itemName)
+                cy.wrap(layers[0].id).should('be.equal', itemId)
+                cy.wrap(layers[0].visible).should('be.true')
+                cy.wrap(layers[0].opacity).should('be.equal', 1)
+                cy.wrap(layers[0].isExternal).should('be.true')
+            })
+        cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`).should('be.visible').click()
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 1)
+            .then((layers) => {
+                cy.wrap(layers[0].name).should('be.equal', itemName)
+            })
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check that the group of layer has been added to the map')
+        cy.checkOlLayer([bgLayer, itemId])
+
+        //---------------------------------------------------------------------------------
+        cy.log('Toggle the sub layers')
+        const firstSubItemId = 'ch.swisstopo-vd.official-survey-1'
+        const firstSubItemName = 'OpenData-AV 1'
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
+            .should('be.visible')
+            .find('svg')
+            .should('have.class', 'fa-caret-right')
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
+            .should('be.visible')
+            .find('svg')
+            .should('have.class', 'fa-caret-down')
+        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).contains(firstSubItemName)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`)
+            .should('be.visible')
+            .find('svg')
+            .should('have.class', 'fa-caret-right')
+        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${itemId}"]`).should('be.visible').click()
+
+        //---------------------------------------------------------------------------------
+        cy.log('Add the sub layers')
+        cy.get(`[data-cy="catalogue-tree-item-name-${firstSubItemId}"]`)
+            .should('be.visible')
+            .click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${firstSubItemId}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 2)
+            .then((layers) => {
+                cy.wrap(layers[1].name).should('be.equal', firstSubItemName)
+            })
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check sub layer zoom to extent')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${firstSubItemId}"]`).should('be.visible')
+        const layerExtentGraubunden = 'ch.vbs.bundestankstellen-bebeco'
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).scrollIntoView()
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layerExtentGraubunden}"]`)
+            .should('be.visible')
+            .click()
+        cy.readStoreValue('state.position.center')
+            .should('have.length', 2)
+            .then(($center) => {
+                // expected center, see https://s.geo.admin.ch/v6gi8a9w4o1e
+                const expectedCenter = [2764440, 1187890]
+                cy.wrap($center[0]).should('be.closeTo', expectedCenter[0], 5)
+                cy.wrap($center[1]).should('be.closeTo', expectedCenter[1], 5)
+            })
+        cy.readStoreValue('state.position.zoom').should('be.closeTo', 3, 1)
+        if (isMobile()) {
+            // on mobile the menu button should have been closed
+            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+            cy.get('[data-cy="menu-button"]').should('be.visible').click()
+        }
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check sub layer show legend')
+        cy.intercept(
+            {
+                method: 'GET',
+                hostname: 'wms.geo.admin.ch',
+                query: {
+                    service: 'WMS',
+                    request: 'GetLegendGraphic',
+                    layer: 'ch.swisstopo-vd.official-survey-3',
+                },
+            },
+            {
+                statusCode: 200,
+                fixture: 'import-tool/legend.png',
+            }
+        ).as('getLegendOfficialSurvey3')
+        const lastSubItemId = 'ch.swisstopo-vd.official-survey-3'
+        const lastSubItemTitle = 'OpenData-AV 3'
+        cy.get(`[data-cy="catalogue-tree-item-info-${lastSubItemId}"]`).should('be.visible').click()
+        cy.wait('@getLegendOfficialSurvey3')
+        cy.get(`[data-cy="simple-window-title"]`).should('be.visible').contains(lastSubItemTitle)
+        cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
+        cy.get(`[data-cy="layer-description-popup-description-body"]`)
+            .should('be.visible')
+            .contains('OpenData-AV 3 abstract')
+        cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
+        cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
+        cy.get('[data-cy="window-close"]').click()
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check sub layer show legend with only abstract')
+        const legendAbstractOnlyItemId = 'ch.bafu.naqua-grundwasser_nitrat'
+        const legendAbstractOnlyItemTitle = 'Groundwater: Nitrate'
+        cy.get(`[data-cy="catalogue-tree-item-info-${legendAbstractOnlyItemId}"]`)
+            .should('be.visible')
+            .click()
+
+        cy.get(`[data-cy="simple-window-title"]`)
+            .should('be.visible')
+            .contains(legendAbstractOnlyItemTitle)
+        cy.get(`[data-cy="layer-description-popup-description-title"]`).should('be.visible')
+        cy.get(`[data-cy="layer-description-popup-description-body"]`)
+            .should('be.visible')
+            .contains('Nitrates are an essential food for plants.')
+        cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('exist')
+        cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.hidden')
+        cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('exist')
+        cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.hidden')
+        cy.get('[data-cy="window-close"]').click()
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check sub layer show legend without abstract')
+        const legendWithoutAbstractLayerId = 'ch.swisstopo-vd.official-survey-2'
+        const legendWithoutAbstractItemTitle = 'OpenData-AV 2'
+        cy.intercept(
+            {
+                method: 'GET',
+                hostname: 'wms.geo.admin.ch',
+                query: {
+                    service: 'WMS',
+                    request: 'GetLegendGraphic',
+                    layer: legendWithoutAbstractLayerId,
+                },
+            },
+            {
+                statusCode: 200,
+                fixture: 'import-tool/legend.png',
+            }
+        ).as('getLegendOfficialSurvey2')
+        cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`)
+            .should('be.visible')
+            .click()
+        cy.wait('@getLegendOfficialSurvey2')
+        cy.get(`[data-cy="simple-window-title"]`)
+            .should('be.visible')
+            .contains(legendWithoutAbstractItemTitle)
+        cy.get(`[data-cy="layer-description-popup-description-title"]`).should('not.exist')
+        cy.get(`[data-cy="layer-description-popup-description-body"]`).should('not.exist')
+        cy.get(`[data-cy="layer-description-popup-legends-title"]`).should('be.visible')
+        cy.get(`[data-cy^="layer-description-popup-legends-body-"]`).should('be.visible')
+        cy.get('[data-cy="window-close"]').click()
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Second external layer should be a single layer')
+        const singleLayerId = 'ch.vbs.armeelogistikcenter'
+        const singleLayerName = 'Centres logistiques de l`armée CLA'
+        cy.get(`[data-cy="catalogue-tree-item-${singleLayerId}"]`)
+            .should('be.visible')
+            .within(() => {
+                cy.contains(singleLayerName)
+                cy.get('[data-cy^="catalogue-add-layer-button"]').should('be.visible')
+                cy.get('[data-cy^="catalogue-collapse-layer-button"]').should('not.exist')
+                cy.get('[data-cy^="catalogue-zoom-extent-button"]').should('be.visible')
+                cy.get('[data-cy^="catalogue-tree-item-info"]').should('be.visible')
+            })
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Add a single layer')
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).click()
+        cy.get(`[data-cy="catalogue-add-layer-button-${singleLayerId}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 3)
+            .then((layers) => {
+                cy.wrap(layers[2].name).should('be.equal', singleLayerName)
+                cy.wrap(layers[2].id).should('be.equal', singleLayerId)
+                cy.wrap(layers[2].visible).should('be.true')
+                cy.wrap(layers[2].opacity).should('be.equal', 1)
+                cy.wrap(layers[2].isExternal).should('be.true')
+            })
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check that the single layer has been added to the map')
+        cy.checkOlLayer([bgLayer, itemId, `${itemId}-1`, singleLayerId])
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Toggle import menu')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('have.class', 'text-primary')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('exist').click()
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should(
+            'not.have.class',
+            'text-primary'
+        )
+        cy.get('[data-cy="import-catalog-content"]').should('not.be.visible')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').click()
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').should('have.class', 'text-primary')
+        cy.get('[data-cy="import-catalog-content"]').should('be.visible')
+        cy.get('[data-cy="import-catalogue-input"]')
+            .should('be.visible')
+            .should('have.value', 'https://wms.geo.admin.ch/')
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible').contains(itemName)
+
+        //------------------------------------------------------------------------------------------
+        cy.log('Search in external layers')
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('not.be.visible')
+        cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type('bebe')
+        cy.get('[data-cy="search-catalogue-clear"]').should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('be.visible')
+        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 1)
+        cy.get('[data-cy="search-catalogue-clear"]').click()
+        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 6)
+        cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type(firstSubItemName)
+        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
+        cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${itemId}"]`).should('be.visible')
+        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
+        cy.get('[data-cy="search-catalogue-input"]')
+            .should('be.visible')
+            .should('have.value', firstSubItemName)
+        cy.get(`[data-cy="search-catalogue-clear"]`).click()
+
+        //---------------------------------------------------------------------
+        cy.log(`Check that long title are truncated and have a tooltip`)
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-name-${singleLayerId}"]`).trigger('mouseover')
+        cy.get(`[data-cy="floating-catalogue-tree-item-name-${singleLayerId}"]`)
+            .should('be.visible')
+            .contains(singleLayerName)
+            .trigger('mouseleave')
+        cy.get('[data-cy="menu-advanced-tools-import_maps"]').click() // close the import
+
+        cy.get('[data-cy="menu-button"]').click()
+        cy.openMenuIfMobile()
+
+        //---------------------------------------------------------------------
+        cy.log('Check layer map attribution')
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+            .should('have.length', 3)
+            .first()
+            .should('be.visible')
+            .click()
+        cy.get('[data-cy="modal-content"]').contains(
+            'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
+        )
+        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        if (isMobile()) {
+            cy.get('[data-cy="menu-button"]').click()
+        }
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
+            .should('be.visible')
+            .contains('Das Geoportal des Bundes')
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]').realHover()
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
+            .should('have.css', 'cursor', 'pointer')
+            .should('have.class', 'text-primary')
+            .should('have.attr', 'href', 'http://www.geo.admin.ch/')
+        cy.get('[data-cy="floating-third-party-disclaimer"]')
+            .should('be.visible')
+            .contains('Dataset and/or style provided by third party')
+
+        //---------------------------------------------------------------------
+        cy.log('Reload should keep the layers')
+        cy.reload()
+        cy.waitMapIsReady()
+        cy.wait('@wms-get-capabilities')
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
+        cy.get(`[data-cy^="active-layer-name-${singleLayerId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${singleLayerId}-"]`).should('not.exist')
+        cy.get(`[data-cy^="active-layer-name-${firstSubItemId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${firstSubItemId}-"]`).should(
+            'not.exist'
+        )
+        cy.get(`[data-cy^="active-layer-name-${itemId}-"]`).should('be.visible')
+        cy.get(`[data-cy^="button-loading-metadata-spinner-${itemId}-"]`).should('not.exist')
+    })
     it('Import external WMTS layers', () => {
         cy.intercept(
             {
