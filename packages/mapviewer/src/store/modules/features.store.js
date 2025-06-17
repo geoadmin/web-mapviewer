@@ -374,6 +374,8 @@ export default {
             if (rootState.profile.feature) {
                 dispatch('setProfileFeature', { feature: null, dispatcher })
             }
+            // clearing the selection rectangle
+            // commit('clearSelectionRectangle', { dispatcher })
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
             commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })

@@ -106,10 +106,13 @@ function createFeaturesForEachLayerExtent() {
 }
 
 function createVectorSourceForProjection() {
-    return new VectorSource({
+    const extentLayer = new VectorSource({
         projection: currentProjection.value.epsg,
         features: createFeaturesForEachLayerExtent(),
     })
+    window.extentLayer = extentLayer
+    console.log('Extent layer created with features:', extentLayer)
+    return extentLayer
 }
 </script>
 
